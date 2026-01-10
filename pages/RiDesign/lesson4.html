@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Lesson 4: Publish & Share | RiDesign</title>
+<style>
+:root{
+  --accent:#ff4d6d;
+  --bg-light:#fff8fb;
+}
+body{
+  font-family:"Poppins",system-ui,Segoe UI,Arial,sans-serif;
+  margin:0;padding:3rem;
+  background:linear-gradient(135deg,#ffe7a0,#ffb3c6,#a0e7e5);
+  background-size:400% 400%;
+  animation:bg 10s linear infinite;
+  line-height:1.6;color:#0b1220;
+}
+@keyframes bg{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.card{max-width:980px;margin:auto;background:#fff;padding:2.6rem;border-radius:14px;box-shadow:0 12px 34px rgba(0,0,0,0.12)}
+h1{font-size:2.2rem;margin:0 0 8px}
+.lead{color:#374151;margin-bottom:18px}
+.section{margin-bottom:18px;padding:14px;border-radius:10px;background:var(--bg-light);border-left:5px solid var(--accent)}
+.kv{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.kv .label{font-weight:700;color:#374151}
+pre{background:#0b122011;padding:12px;border-radius:10px;overflow:auto;margin-top:10px}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+td,th{padding:10px;border-top:1px solid #eef2f7}
+.row{display:flex;gap:12px;margin-top:18px}
+a.btn{padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:700}
+.primary{background:var(--accent);color:#fff}
+.small{font-size:0.95rem;color:#6b7280}
+.check{background:#fff;padding:10px;border-radius:10px;border:1px solid #f0f2f7;margin-top:12px}
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>Lesson 4 — Publish & Share 🌍</h1>
+    <p class="lead">Exported HTML from RiDesign is a single-file static site. This lesson shows practical ways to share it fast: quick blob share, GitHub Pages, Netlify, Vercel, or classic FTP/hosting panel. Pick the workflow that fits your level.</p>
+
+    <div class="section">
+      <strong>Quick recap — how to export</strong>
+      <div class="kv">
+        <div class="label">Download .html</div>
+        <div class="small">Saves a single file with embedded images/videos. Best for manual uploads or local previews.</div>
+      </div>
+      <div class="kv" style="margin-top:6px">
+        <div class="label">Copy HTML</div>
+        <div class="small">Copies full page HTML to clipboard. Paste into an editor (VS Code) or CMS.</div>
+      </div>
+      <div class="kv" style="margin-top:6px">
+        <div class="label">Share Site</div>
+        <div class="small">Creates a temporary blob URL for instant share/testing in a new tab (ideal for quick feedback).</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <strong>Option A — Temporary quick share (fastest)</strong>
+      <ol>
+        <li>In builder click <b>Share Site</b>. A blob link appears. Share that link with anyone for quick preview.</li>
+        <li>Note: the blob URL is temporary and only available in the current browser session. Use it for demos, not long-term hosting.</li>
+      </ol>
+      <div class="check small">Pro tip: If you need longer-term temporary hosting, use Netlify Drop (below) or GitHub Pages.</div>
+    </div>
+
+    <div class="section">
+      <strong>Option B — GitHub Pages (static, free)</strong>
+      <p class="small">Good when you want a stable public URL and you are comfortable with Git or GitHub UI.</p>
+
+      <ol>
+        <li>Open GitHub → New repository → choose a name (e.g., <code>my-site</code>), make it public.</li>
+        <li>Download your site from RiDesign as <code>index.html</code>.</li>
+        <li>Push to the repo (CLI):</li>
+      </ol>
+
+      <pre><code>// in terminal (inside folder with index.html)
+git init
+git add index.html
+git commit -m "initial RiDesign export"
+git branch -M main
+git remote add origin https://github.com/USERNAME/REPO.git
+git push -u origin main
+</code></pre>
+
+      <ol start="4">
+        <li>Go to repository › Settings › Pages (or "Code and automation" → Pages). Select branch <code>main</code> / folder <code>/ (root)</code>, then Save. Your site will be available at <code>https://USERNAME.github.io/REPO/</code> a few minutes later.</li>
+      </ol>
+
+      <div class="small">Notes: Use <code>index.html</code> as filename. For a custom domain, add a <code>CNAME</code> file or configure in Pages settings.</div>
+    </div>
+
+    <div class="section">
+      <strong>Option C — Netlify Drop (drag & drop) — easiest for non-devs</strong>
+      <p class="small">Netlify lets you drag the exported <code>index.html</code> into their Drop UI and instantly publishes a site with a free URL.</p>
+      <ol>
+        <li>Go to Netlify → Sites → "Add new site" → "Deploy with drag and drop".</li>
+        <li>Drop your <code>index.html</code> file or a zip of the exported site. Netlify builds and gives you a live URL.</li>
+      </ol>
+      <div class="small">Optional: connect a GitHub repo for continuous deploys when you push changes.</div>
+    </div>
+
+    <div class="section">
+      <strong>Option D — Vercel (import from Git or drag & drop)</strong>
+      <p class="small">Vercel also supports static sites. Import your repository or drag & drop a folder. Best for quick previews and production-ready hosting.</p>
+      <ol>
+        <li>Create a Vercel account and import the Git repository that contains your <code>index.html</code>, or use their drag & drop.</li>
+        <li>Vercel sets up a project and gives an instant URL; connect a custom domain if needed.</li>
+      </ol>
+    </div>
+
+    <div class="section">
+      <strong>Option E — Traditional hosting (FTP / cPanel)</strong>
+      <p class="small">If you have hosting control panel access, upload <code>index.html</code> to the public_html or www folder using the hosting file manager or FTP/SFTP.</p>
+      <pre><code>// example (using sftp)
+sftp user@your-host.com
+put index.html public_html/index.html
+exit
+</code></pre>
+      <div class="small">Then visit your domain. Use SFTP for secure uploads.</div>
+    </div>
+
+    <div class="section">
+      <strong>Extra steps & best practices (short & punchy)</strong>
+      <table>
+        <tr><th>Checklist</th><th>Why it matters</th></tr>
+        <tr><td>Set <code>index.html</code> as filename</td><td>Default landing page for static hosts</td></tr>
+        <tr><td>Add a simple <code>meta</code> title/description</td><td>Better link previews and SEO</td></tr>
+        <tr><td>Test on mobile</td><td>Ensure responsive layout</td></tr>
+        <tr><td>Compress images (optional)</td><td>Faster load times</td></tr>
+        <tr><td>Use a custom domain</td><td>Looks professional</td></tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <strong>Sample minimal head snippet (paste inside exported HTML &lt;head&gt;)</strong>
+      <pre><code>&lt;meta name="viewport" content="width=device-width,initial-scale=1"&gt;
+&lt;meta name="description" content="My RiDesign site — short description"&gt;
+&lt;title&gt;My RiDesign Site&lt;/title&gt;
+</code></pre>
+      <div class="small">Put this into the exported file if you want better social previews and proper mobile scaling.</div>
+    </div>
+
+    <div class="section">
+      <strong>Troubleshooting</strong>
+      <ul class="small">
+        <li>Blob link doesn't open for others: use Netlify / GitHub Pages instead.</li>
+        <li>Embedded videos not playing on some hosts: ensure the exported file contains data URLs (RiDesign does this when you upload files in the builder).</li>
+        <li>Page looks different on host: clear cache or inspect the <code>index.html</code> you uploaded for missing assets.</li>
+      </ul>
+    </div>
+
+    <div class="row">
+      <a class="btn" href="learn.html">⬅ Back to Learn</a>
+      <a class="btn primary" href="RiDesign.html">Open Builder</a>
+    </div>
+
+    <p class="small" style="margin-top:14px">If you want, the next step can show: <strong>(A)</strong> Full GitHub Pages guide with screenshots, or <strong>(B)</strong> Automated deploy with GitHub Actions to push updates whenever you export. Which one?</p>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Lesson 2: Using Blocks | RiDesign</title>
+<style>
+:root {
+  --accent:#ff4d6d;
+  --bg-light:#fff8fb;
+}
+
+/* Background animation stays because aesthetic matters 🫶 */
+body{
+  font-family:"Poppins",sans-serif;
+  margin:0;
+  padding:3rem;
+  background:linear-gradient(135deg,#ffe7a0,#ffb3c6,#a0e7e5);
+  background-size:400% 400%;
+  animation:gm 10s linear infinite;
+  line-height:1.65;
+}
+
+@keyframes gm{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+
+.card{
+  max-width:960px;
+  margin:0 auto;
+  background:#fff;
+  padding:2.8rem;
+  border-radius:18px;
+  box-shadow:0 12px 34px rgba(0,0,0,0.12);
+}
+
+/* Headings spaced better */
+h1{
+  font-size:2.4rem;
+  font-weight:700;
+  margin-bottom:1rem;
+}
+.lead{
+  margin-bottom:2.2rem;
+  font-size:1.15rem;
+  color:#374151;
+}
+
+.step{
+  margin-bottom:1.75rem;
+  padding:1.2rem 1.4rem;
+  border-left:5px solid var(--accent);
+  background:var(--bg-light);
+  border-radius:10px;
+}
+
+/* More chill tables */
+.table{
+  margin-top:0.8rem;
+  border-collapse:collapse;
+  width:100%;
+  font-size:0.97rem;
+}
+.table td{
+  padding:10px 6px;
+  border-top:1px solid #eef2f7;
+}
+
+/* Code blocks spaced */
+pre{
+  margin-top:10px;
+  background:#0b122011;
+  padding:1rem;
+  border-radius:10px;
+}
+
+/* Buttons */
+.row{display:flex;gap:14px;margin-top:2.2rem;}
+a.btn{
+  padding:12px 17px;
+  border-radius:10px;
+  text-decoration:none;
+  font-weight:700;
+  font-size:1rem;
+}
+.primary{background:var(--accent);color:#fff;}
+
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>Lesson 2 — Using Blocks</h1>
+    <p class="lead">Practical steps that map directly to the RiDesign builder UI (Theme selector, Add block, Editor, Upload, Animations, Reorder, Export).</p>
+
+    <div class="step">
+      <strong>Overview</strong>
+      <p class="muted">Blocks are the building units: hero, text, image, video, two-col, button, card, section. Each block has editable properties in the left editor and renders instantly in the live preview on the right.</p>
+    </div>
+
+    <div class="step">
+      <strong>Quick workflow (summary)</strong>
+      <ol>
+        <li>Open <code>RiDesign.html</code> (builder).</li>
+        <li>Select a theme from the Theme dropdown.</li>
+        <li>Click a block button (Hero / Text / Image / Video / 2-Col / Button / Card / Section) to add it.</li>
+        <li>Edit the block in the left editor (text fields, file upload, animation).</li>
+        <li>Drag blocks in <em>Blocks (drag to reorder)</em> to change order.</li>
+        <li>Use <code>Download .html</code>, <code>Copy HTML</code> or <code>Share Site</code> to export.</li>
+      </ol>
+    </div>
+
+    <div class="step">
+      <strong>Hero block — how to use</strong>
+      <table class="table">
+        <tr><td><strong>Purpose</strong></td><td>Site headline / intro area</td></tr>
+        <tr><td><strong>Add</strong></td><td>Click <code>Hero</code> in the Add block row</td></tr>
+        <tr><td><strong>Edit</strong></td><td>Change <code>Title</code>, <code>Subtitle</code>, optional <code>Link</code> in editor</td></tr>
+        <tr><td><strong>Animation</strong></td><td>Select Fade / Slide Up / Slide Left / Zoom / Bounce and set duration/delay</td></tr>
+        <tr><td><strong>Tip</strong></td><td>Use a short punchy title, link the hero to a call-to-action page</td></tr>
+      </table>
+      <pre><code>// console quick-edit (open DevTools while RiDesign.html is open)
+addBlock('hero'); // adds a hero and opens editor
+// if you want to set title programmatically:
+const b = state.blocks[state.blocks.length-1];
+updateBlock(b.id, { title: 'Launch Day — Welcome', subtitle: 'Quick start guide' });
+renderPreview();
+</code></pre>
+    </div>
+
+    <div class="step">
+      <strong>Text block — how to use</strong>
+      <p class="muted">For paragraphs, changelogs, long descriptions.</p>
+      <table class="table">
+        <tr><td><strong>Add</strong></td><td>Click <code>Text</code></td></tr>
+        <tr><td><strong>Edit</strong></td><td>Use the <code>Text</code> textarea. For inline links embed an <code>&lt;a&gt;</code> tag; for whole-block linking use the Block Link field.</td></tr>
+        <tr><td><strong>Tip</strong></td><td>Use <code>white-space: pre-wrap</code> style is applied so line breaks are preserved.</td></tr>
+      </table>
+    </div>
+
+    <div class="step">
+      <strong>Image block — how to upload & style</strong>
+      <table class="table">
+        <tr><td><strong>Add</strong></td><td>Click <code>Image</code></td></tr>
+        <tr><td><strong>Upload</strong></td><td>In the editor click <code>Upload image</code> and pick a file (image embeds into the exported HTML).</td></tr>
+        <tr><td><strong>Width & Align</strong></td><td>Adjust <code>Width %</code> slider and <code>Alignment</code> (left/center/right).</td></tr>
+        <tr><td><strong>Filters</strong></td><td>Choose grayscale/sepia/blur/brightness/contrast/saturate and set intensity with the slider.</td></tr>
+        <tr><td><strong>Caption</strong></td><td>Optional small-text caption appears below the image.</td></tr>
+      </table>
+
+      <pre><code>// programmatic example: replace last image block with a URL image
+addBlock('image');
+const imgBlock = state.blocks[state.blocks.length-1];
+updateBlock(imgBlock.id, { image: { name: 'hero.jpg', dataURL: 'https://example.com/hero.jpg' }, alt: 'Hero image', width: 90 });
+renderPreview();
+</code></pre>
+    </div>
+
+    <div class="step">
+      <strong>Video block — file or embed</strong>
+      <table class="table">
+        <tr><td><strong>Providers</strong></td><td>file (upload) / youtube / vimeo</td></tr>
+        <tr><td><strong>Upload</strong></td><td>Use <code>Upload video file</code> in editor or paste YouTube/Vimeo URL</td></tr>
+        <tr><td><strong>CTA overlay</strong></td><td>Enable <code>Show CTA overlay</code>, set label and URL — CTA is exported as an overlay link</td></tr>
+        <tr><td><strong>Attributes</strong></td><td>Autoplay, Loop, Muted, Controls can be toggled</td></tr>
+      </table>
+    </div>
+
+    <div class="step">
+      <strong>Two-column block — layout tips</strong>
+      <p class="muted">Use for feature lists, side-by-side content. Editor provides left/right text areas. The block is responsive and stacks on small screens.</p>
+    </div>
+
+    <div class="step">
+      <strong>Button block — CTAs</strong>
+      <table class="table">
+        <tr><td><strong>Style</strong></td><td>Primary (accent) or Outline</td></tr>
+        <tr><td><strong>Target</strong></td><td>Toggle <code>Open in new tab</code> if linking to external resources</td></tr>
+      </table>
+    </div>
+
+    <div class="step">
+      <strong>Card & Section blocks</strong>
+      <p class="muted">Cards are boxed UI elements with title + body. Sections allow background color blocks to visually separate page areas.</p>
+      <pre><code>// Example: add a section with background and then a card inside via editor
+addBlock('section');
+const section = state.blocks[state.blocks.length-1];
+updateBlock(section.id, { title: 'Pricing', bg_color: '#f7f7fb' });
+addBlock('card'); // drag a card below the section or reorder
+renderPreview();
+</code></pre>
+    </div>
+
+    <div class="step">
+      <strong>Reorder, Duplicate, Remove</strong>
+      <p class="muted">Drag items in <code>Blocks (drag to reorder)</code> to change position. Use the duplicate button to clone a block. Use Remove in the editor to delete.</p>
+    </div>
+
+    <div class="step">
+      <strong>Animations</strong>
+      <p class="muted">Animation controls appear in block editor (type, duration in ms, delay). Keep durations short (300–900ms) for crisp UX.</p>
+    </div>
+
+    <div class="step">
+      <strong>Export & Share</strong>
+      <ol>
+        <li>Click <code>Download .html</code> to save a single-file static export (images/videos embedded).</li>
+        <li>Click <code>Copy HTML</code> to paste into another editor or CMS.</li>
+        <li>Click <code>Share Site</code> to create a temporary blob link for quick sharing.</li>
+      </ol>
+      <p class="muted">Reminder: exported HTML contains embedded images/videos when files were uploaded through the builder.</p>
+    </div>
+
+    <div class="row">
+      <a class="btn" href="learn.html">⬅ Back to Learn</a>
+      <a class="btn primary" href="RiDesign.html">Open Builder</a>
+    </div>
+
+    <p class="muted" style="margin-top:18px">If preferred, paste any of the small console snippets into DevTools Console while the builder page is open to automate routine tasks.</p>
+  </div>
+</body>
+</html>

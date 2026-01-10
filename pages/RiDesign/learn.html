@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Learn | RiDesign</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #ffe7a0, #ffb3c6, #a0e7e5);
+      background-size: 400% 400%;
+      animation: gradientMove 10s ease infinite;
+      overflow-x: hidden;
+    }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 3rem;
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(10px);
+      border-radius: 0 0 20px 20px;
+    }
+
+    .logo {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #333;
+      letter-spacing: 1px;
+    }
+
+    nav a {
+      margin: 0 1rem;
+      text-decoration: none;
+      color: #333;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    nav a:hover {
+      color: #ff4d6d;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 5rem 2rem 2rem;
+      color: #333;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      animation: bounceIn 1s ease;
+    }
+
+    @keyframes bounceIn {
+      0% { transform: scale(0.5); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+    }
+
+    .lessons {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 2rem;
+      padding: 3rem 2rem;
+    }
+
+    .lesson {
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      width: 300px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .lesson:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+
+    .lesson img {
+      width: 90px;
+      margin-bottom: 1rem;
+    }
+
+    .lesson button {
+      margin-top: 1rem;
+      background-color: #ff4d6d;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.5rem;
+      font-size: 1rem;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .lesson button:hover {
+      background-color: #ff709d;
+      transform: scale(1.05);
+    }
+
+    footer {
+      background: rgba(255, 255, 255, 0.6);
+      text-align: center;
+      padding: 1rem;
+      border-radius: 20px 20px 0 0;
+      margin-top: 3rem;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">🌟 RiDesign</div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="RiDesign.html">Create</a>
+      <a href="Gallery.html">Gallery</a>
+      <a href="learn.html">Learn</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h1>Learn How to Build with RiDesign </h1>
+    <p>Step-by-step guides and fun tutorials to help you create amazing websites!</p>
+  </section>
+
+  <section class="lessons">
+    <div class="lesson">
+      <img src="https://cdn3d.iconscout.com/3d/premium/thumb/astronaut-riding-on-rocket-3d-icon-png-download-4537992.png" alt="Basics" />
+      <h3>Getting Started</h3>
+      <p>Learn how to start your first project and explore RiDesign tools.</p>
+      <button onclick="window.location.href='lesson1.html'">Start</button>
+    </div>
+
+    <div class="lesson">
+      <img src="https://cdn3d.iconscout.com/3d/premium/thumb/lego-bricks-3d-icon-png-download-9802168.png" alt="Blocks" />
+      <h3>Using Blocks</h3>
+      <p>Discover how to drag, drop, and customize content blocks easily!</p>
+	  <button onclick="window.location.href='lesson2.html'">Start</button>
+    </div>
+
+    <div class="lesson">
+      <img src="https://cdn3d.iconscout.com/3d/premium/thumb/design-process-3d-icon-png-download-6741703.png" alt="Themes" />
+      <h3>Fun Themes</h3>
+      <p>Pick and design with bright, colorful themes for your site!</p>
+     <button onclick="window.location.href='lesson3.html'">Start</button>
+    </div>
+
+    <div class="lesson">
+      <img src="https://cdn3d.iconscout.com/3d/premium/thumb/web-publishing-3d-icon-png-download-5846527.png" alt="Publish" />
+      <h3>Publish Your Site</h3>
+      <p>Learn how to export and share your beautiful creation online.</p>
+    <button onclick="window.location.href='lesson4.html'">Start</button>
+    </div>
+  </section>
+
+  <footer>
+    © 2025 RiDesign | Made with 💖 for young creators
+  </footer>
+</body>
+</html>

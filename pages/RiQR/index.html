@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate QR Generator</title>
+    <script type="text/javascript" src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --surface: #ffffff;
+            --bg: #f3f4f6;
+            --text: #111827;
+            --border: #e5e7eb;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+            width: 100%;
+            max-width: 1100px;
+            background: var(--surface);
+            border-radius: 20px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            padding: 30px;
+        }
+
+        /* --- LEFT COLUMN: CONTROLS --- */
+        .controls {
+            overflow-y: auto;
+            max-height: 90vh;
+            padding-right: 10px;
+        }
+
+        h2 { margin-top: 0; color: var(--primary); }
+        h4 { margin: 15px 0 8px 0; font-size: 0.9rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            background: var(--bg);
+            padding: 5px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .tab.active {
+            background: var(--surface);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            color: var(--primary);
+        }
+
+        /* Input Groups */
+        .input-group { margin-bottom: 15px; }
+        .hidden { display: none; }
+
+        label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            background: #fff;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            ring: 2px solid var(--primary);
+        }
+
+        /* Color Pickers */
+        .row { display: flex; gap: 10px; }
+        .col { flex: 1; }
+        input[type="color"] { height: 40px; padding: 2px; cursor: pointer; }
+
+        /* --- RIGHT COLUMN: PREVIEW --- */
+        .preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            border-radius: 16px;
+            padding: 40px;
+            position: relative;
+        }
+
+        #canvas {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            background: transparent; /* Allows transparent export */
+        }
+
+        .download-actions {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        button:hover { transform: translateY(-1px); opacity: 0.9; }
+        button.secondary { background: #374151; }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .layout { grid-template-columns: 1fr; padding: 20px; }
+            .controls { max-height: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="layout">
+    <div class="controls">
+        <h2>QR Studio</h2>
+
+        <div class="tabs">
+            <div class="tab active" onclick="setTab('url')">Link</div>
+            <div class="tab" onclick="setTab('wifi')">WiFi</div>
+            <div class="tab" onclick="setTab('vcard')">Contact</div>
+        </div>
+
+        <div id="section-url" class="input-group">
+            <label>Website URL</label>
+            <input type="text" id="data-url" placeholder="https://..." value="https://google.com">
+        </div>
+
+        <div id="section-wifi" class="input-group hidden">
+            <label>Network Name (SSID)</label>
+            <input type="text" id="wifi-ssid" placeholder="MyHomeWifi">
+            <div class="row" style="margin-top:10px;">
+                <div class="col">
+                    <label>Password</label>
+                    <input type="text" id="wifi-pass">
+                </div>
+                <div class="col">
+                    <label>Encryption</label>
+                    <select id="wifi-type">
+                        <option value="WPA">WPA/WPA2</option>
+                        <option value="WEP">WEP</option>
+                        <option value="nopass">None</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div id="section-vcard" class="input-group hidden">
+            <div class="row">
+                <div class="col"><input type="text" id="vc-first" placeholder="First Name"></div>
+                <div class="col"><input type="text" id="vc-last" placeholder="Last Name"></div>
+            </div>
+            <input type="text" id="vc-phone" placeholder="Phone Number" style="margin-top:10px;">
+            <input type="text" id="vc-email" placeholder="Email" style="margin-top:10px;">
+        </div>
+
+        <h4>Appearance</h4>
+        <div class="row input-group">
+            <div class="col">
+                <label>Dot Style</label>
+                <select id="dots-style">
+                    <option value="square">Square</option>
+                    <option value="dots">Dots</option>
+                    <option value="rounded">Rounded</option>
+                    <option value="extra-rounded">Extra Rounded</option>
+                    <option value="classy">Classy</option>
+                    <option value="classy-rounded">Classy Rounded</option>
+                </select>
+            </div>
+            <div class="col">
+                <label>Corner Style</label>
+                <select id="corners-style">
+                    <option value="square">Square</option>
+                    <option value="dot">Dot</option>
+                    <option value="extra-rounded">Rounded</option>
+                </select>
+            </div>
+        </div>
+
+        <h4>Colors</h4>
+        <div class="row input-group">
+            <div class="col">
+                <label>Dots Color</label>
+                <input type="color" id="color-dots" value="#4f46e5">
+            </div>
+            <div class="col">
+                <label>Background</label>
+                <input type="color" id="color-bg" value="#ffffff">
+            </div>
+        </div>
+        <div class="input-group">
+            <label><input type="checkbox" id="transparent-bg"> Transparent Background</label>
+        </div>
+
+        <h4>Branding</h4>
+        <div class="input-group">
+            <label>Upload Logo</label>
+            <input type="file" id="logo-file" accept="image/*">
+        </div>
+
+    </div>
+
+    <div class="preview">
+        <div id="canvas"></div>
+        <div class="download-actions">
+            <button onclick="download('png')">Download PNG</button>
+            <button class="secondary" onclick="download('svg')">Download SVG</button>
+        </div>
+        <p style="margin-top: 20px; font-size: 0.8rem; color: #666;">SVG is best for large print.</p>
+    </div>
+</div>
+
+<script>
+    // Initialize QR Code Styling instance
+    const qrCode = new QRCodeStyling({
+        width: 300,
+        height: 300,
+        type: "svg", // Draw as SVG for better quality
+        data: "https://google.com",
+        image: "",
+        dotsOptions: { color: "#4f46e5", type: "rounded" },
+        backgroundOptions: { color: "#ffffff" },
+        imageOptions: { crossOrigin: "anonymous", margin: 10 }
+    });
+
+    let currentTab = 'url';
+
+    // Initial render
+    qrCode.append(document.getElementById("canvas"));
+
+    // --- Logic Functions ---
+
+    function setTab(tab) {
+        currentTab = tab;
+        
+        // UI Toggles
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.input-group[id^="section-"]').forEach(s => s.classList.add('hidden'));
+        
+        event.target.classList.add('active');
+        document.getElementById(`section-${tab}`).classList.remove('hidden');
+        
+        updateQR();
+    }
+
+    function getData() {
+        if (currentTab === 'url') {
+            return document.getElementById('data-url').value;
+        } 
+        else if (currentTab === 'wifi') {
+            const ssid = document.getElementById('wifi-ssid').value;
+            const pass = document.getElementById('wifi-pass').value;
+            const type = document.getElementById('wifi-type').value;
+            return `WIFI:T:${type};S:${ssid};P:${pass};;`;
+        } 
+        else if (currentTab === 'vcard') {
+            const fn = document.getElementById('vc-first').value;
+            const ln = document.getElementById('vc-last').value;
+            const phone = document.getElementById('vc-phone').value;
+            const email = document.getElementById('vc-email').value;
+            return `BEGIN:VCARD\nVERSION:3.0\nN:${ln};${fn}\nFN:${fn} ${ln}\nTEL;TYPE=CELL:${phone}\nEMAIL:${email}\nEND:VCARD`;
+        }
+    }
+
+    function updateQR() {
+        const data = getData();
+        const dotStyle = document.getElementById('dots-style').value;
+        const cornerStyle = document.getElementById('corners-style').value;
+        const colorDots = document.getElementById('color-dots').value;
+        const colorBg = document.getElementById('color-bg').value;
+        const isTransparent = document.getElementById('transparent-bg').checked;
+
+        qrCode.update({
+            data: data,
+            dotsOptions: {
+                color: colorDots,
+                type: dotStyle
+            },
+            cornersSquareOptions: {
+                color: colorDots,
+                type: cornerStyle
+            },
+            cornersDotOptions: {
+                color: colorDots
+            },
+            backgroundOptions: {
+                color: isTransparent ? 'transparent' : colorBg,
+            }
+        });
+    }
+
+    function download(format) {
+        qrCode.download({ name: "qr-code", extension: format });
+    }
+
+    // --- Event Listeners ---
+    
+    // Listen to all inputs for real-time updates
+    document.querySelectorAll('input, select').forEach(el => {
+        el.addEventListener('input', updateQR);
+        el.addEventListener('change', updateQR);
+    });
+
+    // Logo Upload Logic
+    document.getElementById('logo-file').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = () => {
+            qrCode.update({
+                image: reader.result
+            });
+        };
+        reader.readAsDataURL(file);
+    });
+
+</script>
+
+</body>
+</html>

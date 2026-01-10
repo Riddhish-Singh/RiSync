@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RiForm Builder (Safe Mode)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        try {
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            teal: { 50: '#f0fdfa', 100: '#ccfbf1', 600: '#0d9488', 700: '#0f766e', 900: '#134e4a' },
+                            indigo: { 50: '#eef2ff', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81' },
+                            rose: { 50: '#fff1f2', 600: '#e11d48', 700: '#be123c', 900: '#881337' },
+                            amber: { 50: '#fffbeb', 600: '#d97706', 700: '#b45309', 900: '#78350f' },
+                            slate: { 50: '#f8fafc', 800: '#1e293b', 900: '#0f172a' }
+                        }
+                    }
+                }
+            }
+        } catch(e) { console.warn("Tailwind config failed", e); }
+    </script>
+    
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800 h-screen overflow-hidden flex flex-col">
+
+    <div id="app" class="flex-1 flex flex-col h-full overflow-hidden relative">
+        <div id="loading" class="absolute inset-0 flex items-center justify-center bg-gray-50 z-50">
+            <div class="text-center">
+                <div class="text-teal-600 mb-4 mx-auto text-4xl font-bold">...</div>
+                <div class="text-gray-500 font-medium">Loading RiForm...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global Error Handler to catch "Loading" freezes
+        window.onerror = function(msg, url, line) {
+            alert("Error: " + msg + "\nLine: " + line);
+            // Force remove loading screen so you can see what happened
+            const el = document.getElementById('loading');
+            if(el) el.style.display = 'none';
+        };
+
+        // --- Configuration & Storage ---
+        const STORAGE_KEYS = {
+            FORMS: 'formflow_local_forms',
+            RESPONSES: 'formflow_local_responses'
+        };
+
+        const ADMIN_PASSWORD = 'hijikilio';
+
+        // --- State Management ---
+        const state = {
+            user: { uid: 'local_user', name: 'User' },
+            view: 'roleSelection', 
+            role: null, 
+            activeFormId: null,
+            forms: [],
+            currentForm: null, 
+            responses: [], 
+            builderTab: 'questions', 
+            logicMenuOpenId: null, 
+            loading: true
+        };
+
+        // --- Constants ---
+        const THEMES = [
+            { id: 'teal', primary: 'bg-teal-600', secondary: 'bg-teal-50', border: 'border-teal-200', text: 'text-teal-900', hover: 'hover:bg-teal-700' },
+            { id: 'indigo', primary: 'bg-indigo-600', secondary: 'bg-indigo-50', border: 'border-indigo-200', text: 'text-indigo-900', hover: 'hover:bg-indigo-700' },
+            { id: 'rose', primary: 'bg-rose-600', secondary: 'bg-rose-50', border: 'border-rose-200', text: 'text-rose-900', hover: 'hover:bg-rose-700' },
+            { id: 'amber', primary: 'bg-amber-600', secondary: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-900', hover: 'hover:bg-amber-700' },
+            { id: 'slate', primary: 'bg-slate-800', secondary: 'bg-slate-50', border: 'border-slate-200', text: 'text-slate-900', hover: 'hover:bg-slate-900' },
+        ];
+
+        const QUESTION_TYPES = [
+            { id: 'text', label: 'Text Answer', icon: 'type' },
+            { id: 'choice', label: 'Choice', icon: 'check-square' },
+            { id: 'rating', label: 'Rating', icon: 'star' },
+            { id: 'date', label: 'Date', icon: 'calendar' },
+            { id: 'likert', label: 'Likert Scale', icon: 'align-left' },
+            { id: 'nps', label: 'NPS', icon: 'bar-chart' },
+        ];
+
+        // --- Helpers ---
+        const generateId = () => Math.random().toString(36).substr(2, 9);
+        const escapeHtml = (unsafe) => {
+            if (typeof unsafe !== 'string') return '';
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+        
+        // --- Local Storage Helpers ---
+        function getLocalForms() {
+            try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.FORMS) || '[]'); } catch (e) { return []; }
+        }
+
+        function saveLocalForms(forms) {
+            localStorage.setItem(STORAGE_KEYS.FORMS, JSON.stringify(forms));
+        }
+
+        function getLocalResponses() {
+            try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.RESPONSES) || '[]'); } catch (e) { return []; }
+        }
+
+        function saveLocalResponse(response) {
+            const responses = getLocalResponses();
+            responses.push(response);
+            localStorage.setItem(STORAGE_KEYS.RESPONSES, JSON.stringify(responses));
+        }
+
+        // --- Init Function ---
+        function initApp() {
+            // Delay slightly to allow styles to load
+            setTimeout(() => {
+                const loadingEl = document.getElementById('loading');
+                if (loadingEl) loadingEl.style.display = 'none';
+                render(); 
+            }, 500); 
+        }
+
+        // Start App
+        initApp();
+
+        // --- Routing / View Rendering ---
+        function render() {
+            const appDiv = document.getElementById('app');
+            if(!appDiv) return;
+            appDiv.innerHTML = ''; 
+
+            if (state.view === 'roleSelection') renderRoleSelection(appDiv);
+            else if (state.view === 'dashboard') renderDashboard(appDiv);
+            else if (state.view === 'builder') renderBuilder(appDiv);
+            else if (state.view === 'preview') renderViewer(appDiv, state.role === 'admin'); 
+            else if (state.view === 'results') renderResults(appDiv);
+
+            // Safe icon loading
+            if(window.lucide) {
+                try { lucide.createIcons(); } catch(e) {}
+            }
+            
+            if (state.view === 'preview') {
+                window.evaluateLogic();
+            }
+        }
+
+        // --- Role Selection View ---
+        function renderRoleSelection(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-full bg-gray-50 p-4">
+                    <div class="mb-8 text-center">
+                        <div class="flex items-center justify-center gap-2 mb-2">
+                             <i data-lucide="layout" class="w-10 h-10 text-teal-600"></i>
+                             <h1 class="text-4xl font-bold text-gray-800">RiForm</h1>
+                        </div>
+                        <p class="text-gray-500">Please select your role to continue</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl w-full">
+                        <button onclick="window.selectRole('participant')" class="bg-white p-8 rounded-xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-teal-500 transition group text-left">
+                            <div class="bg-blue-50 w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:bg-blue-100 transition">
+                                <i data-lucide="user" class="w-6 h-6 text-blue-600"></i>
+                            </div>
+                            <h2 class="text-xl font-bold text-gray-800 mb-2">Participant</h2>
+                            <p class="text-gray-500 text-sm">I want to fill out a form or take a quiz.</p>
+                        </button>
+
+                        <button onclick="window.openAdminModal()" class="bg-white p-8 rounded-xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-teal-500 transition group text-left">
+                            <div class="bg-purple-50 w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:bg-purple-100 transition">
+                                <i data-lucide="shield" class="w-6 h-6 text-purple-600"></i>
+                            </div>
+                            <h2 class="text-xl font-bold text-gray-800 mb-2">Admin</h2>
+                            <p class="text-gray-500 text-sm">I want to build forms and view analytics.</p>
+                        </button>
+                    </div>
+
+                    <div id="admin-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 backdrop-blur-sm">
+                        <div class="bg-white rounded-xl shadow-xl p-8 max-w-sm w-full mx-4 fade-in">
+                            <h3 class="text-lg font-bold mb-4">Admin Access</h3>
+                            <input type="password" id="admin-pass" class="w-full border border-gray-300 rounded p-2 mb-4 outline-none focus:ring-2 focus:ring-teal-500" placeholder="Enter Password">
+                            <div class="flex justify-end gap-2">
+                                <button onclick="document.getElementById('admin-modal').classList.remove('flex'); document.getElementById('admin-modal').classList.add('hidden');" class="px-4 py-2 text-gray-500 hover:bg-gray-100 rounded">Cancel</button>
+                                <button onclick="window.verifyAdmin()" class="px-4 py-2 bg-teal-600 text-white rounded hover:bg-teal-700">Login</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.openAdminModal = () => {
+            const modal = document.getElementById('admin-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => document.getElementById('admin-pass').focus(), 100);
+        };
+
+        window.verifyAdmin = () => {
+            const input = document.getElementById('admin-pass').value;
+            if (input === ADMIN_PASSWORD) {
+                window.selectRole('admin');
+            } else {
+                alert("Incorrect Password!");
+                document.getElementById('admin-pass').value = '';
+            }
+        };
+
+        window.selectRole = (role) => {
+            state.role = role;
+            state.user.name = role === 'admin' ? 'Administrator' : 'Participant';
+            mountDashboard();
+        };
+
+        window.logout = () => {
+            state.role = null;
+            state.view = 'roleSelection';
+            render();
+        };
+
+        // --- Dashboard View ---
+        function mountDashboard() {
+            state.forms = getLocalForms().sort((a, b) => b.updatedAt - a.updatedAt);
+            state.view = 'dashboard';
+            render();
+        }
+
+        function renderDashboard(container) {
+            const isAdmin = state.role === 'admin';
+            let html = `
+                <div class="p-8 max-w-6xl mx-auto w-full overflow-y-auto">
+                    <div class="flex justify-between items-center mb-8">
+                        <h1 class="text-3xl font-bold text-gray-800 flex items-center gap-2">
+                            <i data-lucide="layout" class="w-8 h-8 text-teal-600"></i> RiForm 
+                            <span class="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded ml-2 uppercase">${state.role}</span>
+                        </h1>
+                        <div class="flex gap-2 items-center">
+                            ${isAdmin ? `
+                            <button onclick="window.createForm('quiz')" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md flex items-center gap-2 transition shadow-sm">
+                                <i data-lucide="plus" class="w-4 h-4"></i> New Quiz
+                            </button>
+                            <button onclick="window.createForm('form')" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-md flex items-center gap-2 transition shadow-sm">
+                                <i data-lucide="plus" class="w-4 h-4"></i> New Form
+                            </button>
+                            <div class="w-px h-6 bg-gray-300 mx-2"></div>
+                            ` : ''}
+                            <button onclick="window.logout()" class="text-gray-500 hover:text-red-600 flex items-center gap-1 font-medium text-sm">
+                                <i data-lucide="log-out" class="w-4 h-4"></i> Logout
+                            </button>
+                        </div>
+                    </div>
+            `;
+
+            if (state.forms.length === 0) {
+                html += `
+                    <div class="text-center py-20 bg-white rounded-xl border-2 border-dashed border-gray-300">
+                        <p class="text-gray-500 mb-4">No forms available.</p>
+                        ${isAdmin ? '<p class="text-xs text-gray-400">Create one to get started!</p>' : ''}
+                    </div>
+                `;
+            } else {
+                html += `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">`;
+                state.forms.forEach(form => {
+                    const theme = THEMES.find(t => t.id === form.theme) || THEMES[0];
+                    const dateStr = form.updatedAt ? new Date(form.updatedAt).toLocaleDateString() : 'Just now';
+                    
+                    const bgStyle = form.backgroundImage 
+                        ? `background-image: url('${form.backgroundImage}'); background-size: cover;` 
+                        : form.backgroundColor 
+                            ? `background-color: ${form.backgroundColor};`
+                            : '';
+                    const bgClass = (!form.backgroundImage && !form.backgroundColor) ? theme.primary : '';
+                    
+                    const clickAction = isAdmin ? `window.openBuilder('${form.id}')` : `window.openPreview('${form.id}')`;
+
+                    html += `
+                        <div onclick="${clickAction}" class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition cursor-pointer group flex flex-col h-48 fade-in relative overflow-hidden">
+                            <div class="h-2 w-full rounded-t-xl ${bgClass}" style="${bgStyle}"></div>
+                            <div class="p-5 flex-1">
+                                <div class="flex justify-between items-start">
+                                    <h3 class="font-semibold text-lg text-gray-800 truncate pr-4">${escapeHtml(form.title)}</h3>
+                                    ${form.settings.isQuiz ? '<span class="bg-purple-100 text-purple-700 text-xs px-2 py-0.5 rounded-full font-medium">Quiz</span>' : ''}
+                                </div>
+                                <p class="text-gray-500 text-sm mt-1 line-clamp-2">${escapeHtml(form.description)}</p>
+                                <div class="mt-4 text-xs text-gray-400">Updated ${dateStr}</div>
+                            </div>
+                            
+                            ${isAdmin ? `
+                            <div class="border-t border-gray-100 p-3 flex justify-between items-center bg-gray-50 rounded-b-xl z-10 relative">
+                                <div class="flex gap-2">
+                                    <button onclick="event.stopPropagation(); window.openResults('${form.id}')" class="p-1.5 hover:bg-gray-200 rounded text-gray-600" title="Results / Analytics"><i data-lucide="bar-chart" class="w-4 h-4"></i></button>
+                                    <button onclick="event.stopPropagation(); window.openPreview('${form.id}')" class="p-1.5 hover:bg-gray-200 rounded text-gray-600" title="Preview"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                                </div>
+                                <button onclick="window.deleteForm(event, '${form.id}')" class="p-1.5 hover:bg-red-100 hover:text-red-600 rounded text-gray-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            </div>` 
+                            : `
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition"></div>
+                            <div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur text-teal-700 px-3 py-1 rounded shadow-sm text-sm font-medium opacity-0 group-hover:opacity-100 transition translate-y-2 group-hover:translate-y-0">
+                                Start &rarr;
+                            </div>
+                            `}
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            }
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        // --- Builder View (Admin Only) ---
+        function mountBuilder(formId) {
+            if (state.role !== 'admin') {
+                alert("Access Denied");
+                mountDashboard();
+                return;
+            }
+            state.view = 'builder';
+            state.activeFormId = formId;
+            state.builderTab = 'questions'; 
+            state.logicMenuOpenId = null;
+            
+            const form = getLocalForms().find(f => f.id === formId);
+            if (form) {
+                state.currentForm = form;
+                render();
+            } else {
+                alert("Form not found");
+                mountDashboard();
+            }
+        }
+
+        function renderBuilder(container) {
+            if (!state.currentForm) return;
+
+            const f = state.currentForm;
+            const theme = THEMES.find(t => t.id === f.theme) || THEMES[0];
+
+            container.innerHTML = `
+                <div class="flex flex-col h-screen bg-gray-100 overflow-hidden">
+                    <div class="bg-white border-b border-gray-200 px-4 py-3 flex justify-between items-center shadow-sm z-10">
+                        <div class="flex items-center gap-4">
+                            <button onclick="window.loadDashboard()" class="text-gray-500 hover:bg-gray-100 p-2 rounded-full"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
+                            <div>
+                                <input value="${escapeHtml(f.title)}" onchange="window.updateFormTitle(this.value)" class="text-lg font-bold text-gray-800 bg-transparent border-none focus:ring-0 focus:underline placeholder-gray-400 w-48 md:w-80" placeholder="Form Title" />
+                                <div class="text-xs text-gray-400">Changes saved locally</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center bg-gray-100 p-1 rounded-lg">
+                            <button onclick="window.setBuilderTab('questions')" class="px-4 py-1.5 rounded-md text-sm font-medium transition ${state.builderTab === 'questions' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-900'}">Questions</button>
+                            <button onclick="window.setBuilderTab('design')" class="px-4 py-1.5 rounded-md text-sm font-medium transition ${state.builderTab === 'design' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-900'}">Design</button>
+                            <button onclick="window.setBuilderTab('settings')" class="px-4 py-1.5 rounded-md text-sm font-medium transition ${state.builderTab === 'settings' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-900'}">Settings</button>
+                        </div>
+                        <div class="flex gap-2">
+                             <button onclick="window.copyFormCode()" class="flex items-center gap-2 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100 transition border border-gray-200" title="Copy HTML Code"><i data-lucide="copy" class="w-4 h-4"></i> <span class="hidden sm:inline">Copy</span></button>
+                             <button onclick="window.downloadFormCode()" class="flex items-center gap-2 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100 transition border border-gray-200" title="Download HTML File"><i data-lucide="download" class="w-4 h-4"></i> <span class="hidden sm:inline">Download</span></button>
+                             <button onclick="window.openPreview('${f.id}')" class="flex items-center gap-2 px-4 py-2 rounded-md text-white shadow-sm transition ${theme.primary} ${theme.hover}"><i data-lucide="play" class="w-4 h-4"></i> Preview</button>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-1 overflow-hidden">
+                        ${state.builderTab === 'questions' ? `
+                        <div class="w-64 bg-white border-r border-gray-200 overflow-y-auto hidden md:block">
+                            <div class="p-4">
+                                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Add Elements</h3>
+                                <div class="space-y-2">
+                                    ${QUESTION_TYPES.map(t => `
+                                        <button onclick="window.addQuestion('${t.id}')" class="w-full flex items-center gap-3 px-3 py-2.5 text-left text-sm text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-100 transition group">
+                                            <i data-lucide="${t.icon}" class="w-4 h-4 text-gray-400 group-hover:text-gray-800"></i> ${t.label}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>` : ''}
+
+                        <div class="flex-1 overflow-y-auto p-4 md:p-8 relative">
+                            <div class="max-w-3xl mx-auto space-y-4 pb-20">
+                                ${renderBuilderContent(f, theme)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderBuilderContent(form, theme) {
+            if (state.builderTab === 'questions') {
+                return `
+                    <div class="bg-white rounded-lg shadow-sm border-t-8 border border-gray-200 p-6 relative" style="border-top-color: ${theme.primary.replace('bg-', '') === 'bg-slate-800' ? '#1e293b' : ''}; border-top-class: ${theme.primary}">
+                         <div class="h-2 absolute top-0 left-0 w-full rounded-t-lg -mt-2 ${theme.primary}"></div>
+                         <input value="${escapeHtml(form.title)}" onchange="window.updateFormTitle(this.value)" class="w-full text-3xl font-bold border-none focus:ring-0 placeholder-gray-300 mb-2 outline-none" placeholder="Untitled Form" />
+                         <textarea onchange="window.updateFormDesc(this.value)" class="w-full text-gray-600 border-none focus:ring-0 resize-none placeholder-gray-400 outline-none" placeholder="Form description (optional)" rows="2">${escapeHtml(form.description)}</textarea>
+                    </div>
+                    
+                    <div id="questions-list" class="space-y-4">
+                        ${form.questions.length === 0 ? 
+                            `<div class="text-center py-10 text-gray-400 border-2 border-dashed border-gray-200 rounded-lg">
+                                <p>No questions yet.</p> <p class="text-sm">Use the sidebar to add your first question.</p>
+                             </div>` : 
+                             form.questions.map((q, idx) => renderQuestionEditor(q, idx, form)).join('')}
+                    </div>
+                `;
+            } else if (state.builderTab === 'design') {
+                return `
+                    <div class="space-y-6">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h2 class="text-xl font-semibold mb-4 flex items-center gap-2"><i data-lucide="palette" class="w-5 h-5"></i> Theme Gallery</h2>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                ${THEMES.map(t => `
+                                    <button onclick="window.updateFormTheme('${t.id}')" class="h-24 rounded-lg border-2 flex flex-col overflow-hidden transition ${form.theme === t.id ? 'border-gray-800 ring-2 ring-gray-200' : 'border-transparent hover:scale-105'}">
+                                        <div class="h-1/2 w-full ${t.primary}"></div>
+                                        <div class="h-1/2 w-full bg-white flex items-center justify-center text-xs font-medium uppercase text-gray-500">${t.id}</div>
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h2 class="text-xl font-semibold mb-4 flex items-center gap-2"><i data-lucide="image" class="w-5 h-5"></i> Custom Background</h2>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Background Color</label>
+                                    <div class="flex items-center gap-3">
+                                        <input type="color" value="${form.backgroundColor || '#ffffff'}" onchange="window.updateForm({ backgroundColor: this.value })" class="h-10 w-16 p-1 rounded border border-gray-300 cursor-pointer">
+                                        <span class="text-sm text-gray-500">${form.backgroundColor || 'Default'}</span>
+                                        <button onclick="window.updateForm({ backgroundColor: null })" class="text-xs text-red-500 hover:underline ml-auto">Reset</button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Background Image URL</label>
+                                    <div class="flex gap-2">
+                                        <input type="text" value="${escapeHtml(form.backgroundImage || '')}" onchange="window.updateForm({ backgroundImage: this.value })" class="flex-1 p-2 border border-gray-300 rounded text-sm outline-none focus:ring-1 focus:ring-teal-500" placeholder="https://source.unsplash.com/random/1920x1080">
+                                        <button onclick="window.updateForm({ backgroundImage: null })" class="p-2 text-gray-400 hover:text-red-500 border border-gray-200 rounded"><i data-lucide="x" class="w-4 h-4"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                return `
+                    <div class="bg-white rounded-lg shadow p-6 space-y-6">
+                         <h2 class="text-xl font-semibold mb-4 flex items-center gap-2"><i data-lucide="settings" class="w-5 h-5"></i> Form Settings</h2>
+                         ${renderToggle('Quiz Mode', 'Enable points and correct answers', form.settings.isQuiz, 'isQuiz')}
+                         ${renderToggle('Accepting Responses', 'Allow users to submit', form.settings.active, 'active')}
+                         ${renderToggle('Anonymous Responses', 'Don\'t collect user IDs', form.settings.anonymous, 'anonymous')}
+                    </div>
+                `;
+            }
+        }
+
+        function renderToggle(title, desc, value, key) {
+            return `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                     <div>
+                       <div class="font-medium text-gray-900">${title}</div>
+                       <div class="text-sm text-gray-500">${desc}</div>
+                     </div>
+                     <button onclick="window.updateFormSetting('${key}', ${!value})" class="w-12 h-6 rounded-full transition-colors relative ${value ? 'bg-teal-600' : 'bg-gray-300'}">
+                       <div class="absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform ${value ? 'translate-x-6' : ''}"></div>
+                     </button>
+                </div>
+            `;
+        }
+
+        function renderQuestionEditor(q, idx, form) {
+            const previousQuestions = form.questions.slice(0, idx).filter(pq => pq.type === 'choice' || pq.type === 'likert');
+            const isLogicOpen = state.logicMenuOpenId === q.id;
+            const isQuiz = form.settings.isQuiz;
+
+            let optionsHtml = '';
+            if (q.type === 'choice' || q.type === 'likert') {
+                optionsHtml = `
+                    <div class="space-y-2 ml-4 border-l-2 border-gray-100 pl-4 mt-2">
+                        <label class="text-xs font-semibold text-gray-500 uppercase">Options</label>
+                        ${q.options.map((opt, i) => `
+                            <div class="flex items-center gap-2 group">
+                                <div class="w-4 h-4 border-2 rounded-full ${isQuiz && q.correctAnswer === opt ? 'border-green-500 bg-green-500' : 'border-gray-300'}"></div>
+                                <input value="${escapeHtml(opt)}" onchange="window.updateOption('${q.id}', ${i}, this.value)" class="flex-1 bg-transparent border-none focus:ring-0 text-sm text-gray-700 placeholder-gray-300 outline-none" placeholder="Option ${i+1}" />
+                                ${isQuiz ? `<button onclick="window.setCorrectAnswer('${q.id}', '${escapeHtml(opt)}')" class="text-xs px-2 py-0.5 rounded ${q.correctAnswer === opt ? 'bg-green-100 text-green-700' : 'text-gray-300 hover:text-gray-500'}">Correct</button>` : ''}
+                                <button onclick="window.removeOption('${q.id}', ${i})" class="text-gray-400 hover:text-red-500"><i data-lucide="x" class="w-4 h-4"></i></button>
+                            </div>
+                        `).join('')}
+                        <button onclick="window.addOption('${q.id}')" class="text-sm text-blue-600 hover:underline flex items-center gap-1 mt-2"><i data-lucide="plus" class="w-3 h-3"></i> Add Option</button>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 group transition-all duration-200 hover:shadow-md relative">
+                    <div class="p-4 flex items-start gap-4">
+                         <span class="flex-shrink-0 mt-2 w-6 h-6 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center text-xs font-bold">${idx + 1}</span>
+                         <div class="flex-1 space-y-3">
+                             <div class="flex gap-4">
+                                 <div class="flex-1">
+                                     <input value="${escapeHtml(q.title)}" onchange="window.updateQuestion('${q.id}', 'title', this.value)" class="w-full bg-gray-50 border border-gray-200 rounded p-3 focus:bg-white focus:ring-2 focus:ring-teal-500 focus:border-transparent transition outline-none" placeholder="Question Text" />
+                                     ${q.visibleIf ? `<div class="mt-1 text-xs bg-amber-50 text-amber-700 inline-flex items-center gap-1 px-2 py-1 rounded"><i data-lucide="share-2" class="w-3 h-3"></i> Shows if Q${form.questions.findIndex(x=>x.id===q.visibleIf.questionId)+1} is "${escapeHtml(q.visibleIf.value)}"</div>` : ''}
+                                 </div>
+                                 <select onchange="window.updateQuestion('${q.id}', 'type', this.value)" class="w-40 p-2 border border-gray-200 rounded bg-white text-sm outline-none h-11">
+                                     ${QUESTION_TYPES.map(t => `<option value="${t.id}" ${q.type === t.id ? 'selected' : ''}>${t.label}</option>`).join('')}
+                                 </select>
+                             </div>
+                             
+                             <div class="flex items-center gap-2">
+                                <i data-lucide="image" class="w-4 h-4 text-gray-400"></i>
+                                <input value="${escapeHtml(q.mediaUrl || '')}" onchange="window.updateQuestion('${q.id}', 'mediaUrl', this.value)" class="flex-1 bg-transparent text-sm border-b border-gray-200 focus:border-gray-800 outline-none py-1 text-gray-600 placeholder-gray-300" placeholder="Paste image URL here (optional)" />
+                             </div>
+
+                             ${optionsHtml}
+                             
+                             <div class="pt-4 border-t border-gray-100 flex items-center justify-between gap-4">
+                                <div class="flex items-center gap-4 text-sm text-gray-600">
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="checkbox" ${q.required ? 'checked' : ''} onchange="window.updateQuestion('${q.id}', 'required', this.checked)" class="rounded border-gray-300 text-teal-600 focus:ring-teal-500" />
+                                        Required
+                                    </label>
+                                    ${isQuiz ? `
+                                    <div class="flex items-center gap-2 border-l pl-4 border-gray-200">
+                                        <span class="font-medium">Points:</span>
+                                        <input type="number" min="0" value="${q.points || 0}" onchange="window.updateQuestion('${q.id}', 'points', parseInt(this.value))" class="w-16 p-1 border border-gray-200 rounded text-center outline-none" />
+                                    </div>` : ''}
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    ${previousQuestions.length > 0 ? `
+                                    <button onclick="window.toggleLogicMenu('${q.id}')" class="p-2 rounded hover:bg-gray-100 ${q.visibleIf || isLogicOpen ? 'text-amber-600 bg-amber-50' : 'text-gray-400'}" title="Add Logic">
+                                        <i data-lucide="share-2" class="w-4 h-4"></i>
+                                    </button>` : ''}
+                                    <div class="h-4 w-px bg-gray-200 mx-1"></div>
+                                    <button onclick="window.deleteQuestion('${q.id}')" class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                                    <div class="flex flex-col">
+                                        <button onclick="window.moveQuestion(${idx}, 'up')" ${idx === 0 ? 'disabled' : ''} class="text-gray-400 hover:text-gray-800 disabled:opacity-30"><i data-lucide="chevron-up" class="w-4 h-4"></i></button>
+                                        <button onclick="window.moveQuestion(${idx}, 'down')" ${idx === form.questions.length - 1 ? 'disabled' : ''} class="text-gray-400 hover:text-gray-800 disabled:opacity-30"><i data-lucide="chevron-down" class="w-4 h-4"></i></button>
+                                    </div>
+                                </div>
+                             </div>
+                         </div>
+                    </div>
+                    
+                    ${isLogicOpen ? `
+                    <div class="absolute bottom-16 right-4 w-72 bg-white border border-gray-200 shadow-xl rounded-lg p-4 z-20 animate-in fade-in slide-in-from-bottom-2">
+                        <div class="flex justify-between items-center mb-3">
+                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Show this question if...</h4>
+                            <button onclick="window.toggleLogicMenu(null)" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-3 h-3"></i></button>
+                        </div>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">Question</label>
+                                <select id="logic-q-${q.id}" onchange="window.updateLogicUI('${q.id}')" class="w-full text-sm border border-gray-300 rounded p-1.5 outline-none">
+                                    <option value="">Select question...</option>
+                                    ${previousQuestions.map(pq => `<option value="${pq.id}" ${q.visibleIf?.questionId === pq.id ? 'selected' : ''}>${idx > 0 ? (form.questions.findIndex(x=>x.id===pq.id)+1) + '. ' : ''}${escapeHtml(pq.title)}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">Answer is</label>
+                                <select id="logic-v-${q.id}" class="w-full text-sm border border-gray-300 rounded p-1.5 outline-none">
+                                    ${q.visibleIf ? (previousQuestions.find(pq => pq.id === q.visibleIf.questionId)?.options || []).map(o => `<option value="${escapeHtml(o)}" ${q.visibleIf.value === o ? 'selected' : ''}>${escapeHtml(o)}</option>`).join('') : '<option disabled selected>Select question first</option>'}
+                                </select>
+                            </div>
+                            <div class="flex justify-between pt-2">
+                                <button onclick="window.updateQuestion('${q.id}', 'visibleIf', null); window.toggleLogicMenu(null);" class="text-xs text-red-500 hover:text-red-700">Clear Logic</button>
+                                <button onclick="window.saveLogic('${q.id}')" class="text-xs bg-teal-600 text-white px-3 py-1.5 rounded hover:bg-teal-700">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        // --- Viewer View ---
+        function renderViewer(container, isPreview) {
+             const f = state.currentForm || getLocalForms().find(x => x.id === state.activeFormId);
+             
+             if (!f) {
+                 container.innerHTML = '<div class="p-8 text-center">Form not found.</div>';
+                 return;
+             }
+             
+             const theme = THEMES.find(t => t.id === f.theme) || THEMES[0];
+             
+             const bgStyle = f.backgroundImage 
+                ? `background-image: url('${f.backgroundImage}'); background-size: cover; background-position: center; background-attachment: fixed;` 
+                : f.backgroundColor 
+                    ? `background-color: ${f.backgroundColor};` 
+                    : '';
+             const bgClass = (!f.backgroundImage && !f.backgroundColor) ? theme.secondary : '';
+             
+             container.innerHTML = `
+                <div class="min-h-screen ${bgClass} w-full overflow-y-auto transition-colors duration-500" style="${bgStyle}">
+                    ${isPreview ? `
+                    <div class="bg-white/90 backdrop-blur border-b border-gray-200 px-4 py-2 flex justify-between items-center sticky top-0 z-20">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded font-bold">PREVIEW MODE</span>
+                            <span class="text-sm text-gray-500 hidden sm:inline">Admin View</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="window.openBuilder('${f.id}')" class="text-sm px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded">Edit Form</button>
+                            <button onclick="window.loadDashboard()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+                        </div>
+                    </div>` : `
+                     <button onclick="window.loadDashboard()" class="fixed top-4 right-4 z-50 p-2 bg-white/50 backdrop-blur rounded-full hover:bg-white text-gray-600 shadow-sm"><i data-lucide="x" class="w-6 h-6"></i></button>
+                    `}
+                    
+                    <div class="max-w-3xl mx-auto p-4 md:p-8 space-y-4">
+                        <div class="bg-white rounded-lg shadow-sm border-t-8 p-8" style="border-top-color: ${theme.primary.replace('bg-', '') === 'bg-slate-800' ? '#1e293b' : ''};" class="${theme.primary}">
+                             <div class="h-2 absolute top-0 left-0 w-full rounded-t-lg -mt-2 ${theme.primary}"></div>
+                            <h1 class="text-3xl font-bold text-gray-900 mb-2">${escapeHtml(f.title)}</h1>
+                            <p class="text-gray-600 whitespace-pre-wrap">${escapeHtml(f.description)}</p>
+                        </div>
+
+                        <form id="public-form" onsubmit="window.submitForm(event)" onchange="window.evaluateLogic()">
+                            <div class="space-y-4">
+                                ${f.questions.map(q => renderViewerQuestion(q, f, theme)).join('')}
+                            </div>
+                            <div class="pt-8 pb-12">
+                                <button type="submit" class="w-full sm:w-auto px-8 py-3 rounded-lg text-white font-semibold shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5 ${theme.primary} ${theme.hover}">
+                                    Submit Form
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+             `;
+        }
+
+        // --- Handle Other Selection Visibility ---
+        window.handleOtherSelection = (qId, isOther) => {
+            const container = document.getElementById(`other-input-container-${qId}`);
+            const input = document.getElementById(`other-input-${qId}`);
+            
+            if (!container || !input) return;
+
+            if (isOther) {
+                container.classList.remove('hidden');
+                input.required = true;
+                input.focus();
+            } else {
+                container.classList.add('hidden');
+                input.required = false;
+                input.value = ''; // Clear text if they switch away
+            }
+        };
+
+        function renderViewerQuestion(q, form, theme) {
+            let inputHtml = '';
+            
+            if (q.type === 'text') {
+                inputHtml = `<input type="text" name="${q.id}" class="w-full p-3 border-b-2 bg-gray-50 focus:bg-white outline-none transition ${theme.border} focus:border-opacity-100 border-opacity-20" placeholder="Your answer" ${q.required ? 'required' : ''}>`;
+            } else if (q.type === 'choice') {
+                inputHtml = `<div class="space-y-2">
+                    ${q.options.map((opt, i) => {
+                        const isOther = opt.toLowerCase() === 'other';
+                        return `
+                        <div>
+                            <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer transition hover:bg-gray-50">
+                                <input type="radio" 
+                                       name="${q.id}" 
+                                       value="${escapeHtml(opt)}" 
+                                       class="text-teal-600 focus:ring-teal-500" 
+                                       onchange="window.handleOtherSelection('${q.id}', ${isOther})"
+                                       ${q.required ? 'required' : ''}>
+                                <span class="text-gray-700">${escapeHtml(opt)}</span>
+                            </label>
+                            ${isOther ? `
+                                <div id="other-input-container-${q.id}" class="hidden ml-8 mt-2">
+                                    <input type="text" 
+                                           name="${q.id}_other_text" 
+                                           id="other-input-${q.id}"
+                                           class="w-full bg-transparent border-b border-gray-400 text-gray-700 placeholder-gray-400 outline-none focus:border-teal-600 py-1 transition" 
+                                           placeholder="Please specify...">
+                                </div>
+                            ` : ''}
+                        </div>
+                    `}).join('')}
+                </div>`;
+            } else if (q.type === 'likert') {
+                 inputHtml = `<div class="space-y-2">
+                    ${q.options.map((opt, i) => `
+                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <span class="text-gray-700">${escapeHtml(opt)}</span>
+                            <input type="radio" name="${q.id}" value="${escapeHtml(opt)}" ${q.required ? 'required' : ''}>
+                        </label>
+                    `).join('')}
+                </div>`;
+            } else if (q.type === 'rating') {
+                inputHtml = `<div class="flex gap-2 rating-group">
+                    ${[1,2,3,4,5].map(v => `
+                        <label class="cursor-pointer">
+                            <input type="radio" name="${q.id}" value="${v}" class="peer sr-only" ${q.required ? 'required' : ''}>
+                            <i data-lucide="star" class="w-8 h-8 text-gray-300 peer-checked:text-yellow-400 peer-checked:fill-yellow-400 hover:text-yellow-200"></i>
+                        </label>
+                    `).join('')}
+                </div>`;
+            } else if (q.type === 'date') {
+                 inputHtml = `<input type="date" name="${q.id}" class="p-2 border border-gray-300 rounded" ${q.required ? 'required' : ''}>`;
+            } else if (q.type === 'nps') {
+                inputHtml = `<div class="flex flex-wrap gap-1">
+                     ${[0,1,2,3,4,5,6,7,8,9,10].map(s => `
+                        <label class="cursor-pointer">
+                             <input type="radio" name="${q.id}" value="${s}" class="peer sr-only" ${q.required ? 'required' : ''}>
+                             <div class="w-10 h-10 rounded border border-gray-300 flex items-center justify-center peer-checked:${theme.primary} peer-checked:text-white peer-checked:border-transparent hover:border-gray-800 transition">${s}</div>
+                        </label>
+                     `).join('')}
+                </div>`;
+            }
+
+            return `
+                <div id="question-container-${q.id}" class="bg-white rounded-lg shadow-sm p-6 md:p-8 fade-in">
+                    ${q.mediaUrl ? `<img src="${escapeHtml(q.mediaUrl)}" class="max-h-64 rounded-lg mb-4 object-contain">` : ''}
+                    <div class="mb-4">
+                        <h3 class="text-lg font-medium text-gray-900">${escapeHtml(q.title)} ${q.required ? '<span class="text-red-500">*</span>' : ''}</h3>
+                         ${form.settings.isQuiz ? `<span class="text-xs text-gray-400">${q.points || 0} Points</span>` : ''}
+                    </div>
+                    ${inputHtml}
+                </div>
+            `;
+        }
+        
+        // --- Logic & Branching ---
+        window.toggleLogicMenu = (qId) => {
+            state.logicMenuOpenId = qId;
+            render();
+        };
+
+        window.updateLogicUI = (qId) => {
+            const triggerQId = document.getElementById(`logic-q-${qId}`).value;
+            const targetSelect = document.getElementById(`logic-v-${qId}`);
+            
+            if(!triggerQId) {
+                targetSelect.innerHTML = '<option disabled selected>Select question first</option>';
+                return;
+            }
+
+            const triggerQ = state.currentForm.questions.find(q => q.id === triggerQId);
+            if(triggerQ) {
+                targetSelect.innerHTML = triggerQ.options.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join('');
+            }
+        };
+
+        window.saveLogic = (qId) => {
+            const triggerQId = document.getElementById(`logic-q-${qId}`).value;
+            const value = document.getElementById(`logic-v-${qId}`).value;
+            
+            if(triggerQId && value) {
+                window.updateQuestion(qId, 'visibleIf', { questionId: triggerQId, value });
+                window.toggleLogicMenu(null);
+            } else {
+                alert("Please select both a question and an answer.");
+            }
+        };
+
+        window.evaluateLogic = () => {
+            const form = state.currentForm || state.forms.find(f => f.id === state.activeFormId);
+            if(!form) return;
+
+            const fd = new FormData(document.getElementById('public-form'));
+            const answers = {};
+            for(let [k,v] of fd.entries()) answers[k] = v;
+
+            form.questions.forEach(q => {
+                const container = document.getElementById(`question-container-${q.id}`);
+                if(!container) return;
+
+                if (q.visibleIf) {
+                    const { questionId, value } = q.visibleIf;
+                    const triggerAnswer = answers[questionId];
+                    
+                    if (triggerAnswer === value) {
+                        container.style.display = 'block';
+                        container.querySelectorAll('input, select, textarea').forEach(el => el.disabled = false);
+                    } else {
+                        container.style.display = 'none';
+                        container.querySelectorAll('input, select, textarea').forEach(el => el.disabled = true);
+                    }
+                } else {
+                    container.style.display = 'block';
+                }
+            });
+        };
+
+        // --- Results View (Admin Only) ---
+        function mountResults(formId) {
+             if(state.role !== 'admin') { alert("Admin access required."); return; }
+             state.view = 'results';
+             state.activeFormId = formId;
+             
+             const form = getLocalForms().find(f => f.id === formId);
+             if (!form) { alert("Form not found"); mountDashboard(); return; }
+             
+             state.currentForm = form;
+             state.responses = getLocalResponses().filter(r => r.formId === formId);
+             
+             render();
+        }
+
+        function renderResults(container) {
+             if(!state.currentForm) return;
+             const f = state.currentForm;
+             const count = state.responses.length;
+             const avg = state.responses.reduce((a,b) => a + (b.score || 0), 0) / (count || 1);
+             
+             container.innerHTML = `
+                <div class="min-h-screen bg-gray-50 overflow-y-auto">
+                    <div class="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between sticky top-0 z-10">
+                        <div class="flex items-center gap-4">
+                            <button onclick="window.loadDashboard()" class="p-2 hover:bg-gray-100 rounded-full"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
+                            <div>
+                                <h1 class="text-xl font-bold text-gray-800">${escapeHtml(f.title)}</h1>
+                                <p class="text-sm text-gray-500">Results Dashboard</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 items-center">
+                            <div class="text-sm text-gray-500 mr-2">${count} Responses</div>
+                            <button onclick="window.downloadResponsesCSV()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md flex items-center gap-2 transition shadow-sm text-sm">
+                                <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Download Excel
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="max-w-6xl mx-auto p-8 space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center gap-4">
+                                <div class="p-3 bg-blue-50 text-blue-600 rounded-lg"><i data-lucide="users" class="w-6 h-6"></i></div>
+                                <div><div class="text-2xl font-bold">${count}</div><div class="text-sm text-gray-500">Total Responses</div></div>
+                            </div>
+                            ${f.settings.isQuiz ? `
+                            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center gap-4">
+                                <div class="p-3 bg-purple-50 text-purple-600 rounded-lg"><i data-lucide="star" class="w-6 h-6"></i></div>
+                                <div><div class="text-2xl font-bold">${avg.toFixed(1)}</div><div class="text-sm text-gray-500">Average Score</div></div>
+                            </div>` : ''}
+                        </div>
+                        
+                        ${f.questions.map((q, i) => {
+                             const counts = {};
+                             state.responses.forEach(r => {
+                                 const ans = r.answers[q.id];
+                                 if(ans) counts[ans] = (counts[ans] || 0) + 1;
+                             });
+                             
+                             return `
+                                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                                    <h3 class="font-semibold text-gray-800 mb-4 flex gap-2"><span class="text-gray-400">${i+1}.</span> ${escapeHtml(q.title)}</h3>
+                                    ${(q.type === 'choice' || q.type === 'likert') ? `
+                                        <div class="space-y-2">
+                                            ${q.options.map(opt => {
+                                                const c = counts[opt] || 0;
+                                                const pct = count ? Math.round((c/count)*100) : 0;
+                                                const isCorrect = f.settings.isQuiz && q.correctAnswer === opt;
+                                                return `
+                                                    <div class="relative">
+                                                        <div class="flex justify-between text-sm text-gray-600 mb-1 relative z-10">
+                                                            <span>${escapeHtml(opt)} ${isCorrect ? '<span class="text-green-600 font-bold ml-2">(Correct)</span>' : ''}</span>
+                                                            <span>${c} (${pct}%)</span>
+                                                        </div>
+                                                        <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                                                            <div class="h-full ${isCorrect ? 'bg-green-500' : 'bg-blue-500'}" style="width: ${pct}%"></div>
+                                                        </div>
+                                                    </div>
+                                                `;
+                                            }).join('')}
+                                        </div>
+                                    ` : `
+                                        <div class="bg-gray-50 rounded p-4 text-sm text-gray-500 italic">Text/Date/Rating responses are not visualized. Last answer: ${escapeHtml(state.responses[state.responses.length-1]?.answers[q.id] || '-')}</div>
+                                    `}
+                                </div>
+                             `;
+                        }).join('')}
+                    </div>
+                </div>
+             `;
+        }
+
+        // --- Core Actions ---
+        window.createForm = (type) => {
+            if(state.role !== 'admin') return;
+            const newForm = {
+                id: generateId(),
+                title: type === 'quiz' ? 'Untitled Quiz' : 'Untitled Form',
+                description: 'Enter a description here.',
+                type,
+                theme: 'teal',
+                questions: [],
+                settings: { isQuiz: type === 'quiz', active: true, anonymous: true, allowMultiple: true },
+                createdAt: Date.now(),
+                updatedAt: Date.now(),
+                authorId: state.user.uid
+            };
+            const forms = getLocalForms();
+            forms.push(newForm);
+            saveLocalForms(forms);
+            mountBuilder(newForm.id);
+        };
+
+        window.deleteForm = (e, id) => {
+            e.stopPropagation();
+            if(state.role !== 'admin') return;
+            if(confirm('Delete form?')) {
+                const forms = getLocalForms().filter(f => f.id !== id);
+                saveLocalForms(forms);
+                mountDashboard();
+            }
+        };
+
+        window.openBuilder = (id) => mountBuilder(id);
+        window.openPreview = (id) => { 
+            state.activeFormId = id; 
+            state.view = 'preview'; 
+            render(); 
+        };
+        window.openResults = (id) => mountResults(id);
+        window.loadDashboard = () => mountDashboard();
+        
+        window.setBuilderTab = (tab) => { state.builderTab = tab; render(); };
+        
+        window.updateFormTitle = (val) => updateForm({ title: val });
+        window.updateFormDesc = (val) => updateForm({ description: val });
+        window.updateFormTheme = (id) => updateForm({ theme: id });
+        window.updateFormSetting = (key, val) => {
+             const s = { ...state.currentForm.settings, [key]: val };
+             updateForm({ settings: s });
+        };
+        
+        function updateForm(updates) {
+             const updatedForm = { ...state.currentForm, ...updates, updatedAt: Date.now() };
+             state.currentForm = updatedForm;
+             const forms = getLocalForms().map(f => f.id === updatedForm.id ? updatedForm : f);
+             saveLocalForms(forms);
+             if(state.view === 'builder') render();
+        }
+        
+        window.addQuestion = (type) => {
+             const newQ = {
+                id: generateId(),
+                type,
+                title: 'New Question',
+                required: false,
+                options: (type === 'choice' || type === 'likert') ? ['Option 1', 'Option 2'] : [],
+                correctAnswer: null, points: 1, visibleIf: null
+             };
+             updateForm({ questions: [...state.currentForm.questions, newQ] });
+        };
+        
+        window.deleteQuestion = (id) => updateForm({ questions: state.currentForm.questions.filter(q => q.id !== id) });
+        window.moveQuestion = (idx, dir) => {
+             const arr = [...state.currentForm.questions];
+             if (dir === 'up' && idx > 0) [arr[idx], arr[idx-1]] = [arr[idx-1], arr[idx]];
+             if (dir === 'down' && idx < arr.length-1) [arr[idx], arr[idx+1]] = [arr[idx+1], arr[idx]];
+             updateForm({ questions: arr });
+        };
+        
+        window.updateQuestion = (qId, field, val) => {
+             const arr = state.currentForm.questions.map(q => q.id === qId ? { ...q, [field]: val } : q);
+             updateForm({ questions: arr });
+        };
+
+        window.addOption = (qId) => {
+             const arr = state.currentForm.questions.map(q => {
+                 if (q.id === qId) return { ...q, options: [...q.options, `Option ${q.options.length + 1}`] };
+                 return q;
+             });
+             updateForm({ questions: arr });
+        };
+        
+        window.updateOption = (qId, idx, val) => {
+             const arr = state.currentForm.questions.map(q => {
+                 if (q.id === qId) {
+                     const opts = [...q.options];
+                     opts[idx] = val;
+                     return { ...q, options: opts };
+                 }
+                 return q;
+             });
+             updateForm({ questions: arr });
+        };
+
+        window.removeOption = (qId, idx) => {
+             const arr = state.currentForm.questions.map(q => {
+                 if (q.id === qId) return { ...q, options: q.options.filter((_, i) => i !== idx) };
+                 return q;
+             });
+             updateForm({ questions: arr });
+        };
+        
+        window.setCorrectAnswer = (qId, val) => window.updateQuestion(qId, 'correctAnswer', val);
+        
+        // Viewer Actions - AUTO DOWNLOAD EXCEL ADDED HERE
+        window.submitForm = (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const rawAnswers = {};
+            for(let [k,v] of fd.entries()) rawAnswers[k] = v;
+            
+            const f = state.currentForm || state.forms.find(x => x.id === state.activeFormId);
+            
+            // Process Answers (Merge "Other" text)
+            const finalAnswers = {};
+            f.questions.forEach(q => {
+                let ans = rawAnswers[q.id];
+                if (ans === 'Other' && rawAnswers[`${q.id}_other_text`]) {
+                    ans = `Other: ${rawAnswers[`${q.id}_other_text`]}`;
+                }
+                if (ans) finalAnswers[q.id] = ans;
+            });
+
+            let score = 0;
+            if(f.settings.isQuiz) {
+                f.questions.forEach(q => {
+                    if(q.correctAnswer && finalAnswers[q.id] === q.correctAnswer) score += (q.points || 0);
+                });
+            }
+            
+            const response = {
+                formId: f.id,
+                answers: finalAnswers,
+                score,
+                userId: f.settings.anonymous ? 'anon' : state.user.uid,
+                submittedAt: Date.now()
+            };
+            
+            saveLocalResponse(response);
+
+            // --- AUTO GENERATE EXCEL (CSV) FOR USER ---
+            try {
+                const headers = ['Date Submitted', 'Form Title'];
+                if (f.settings.isQuiz) headers.push('Score');
+                f.questions.forEach(q => headers.push(q.title));
+
+                const row = [
+                    new Date().toLocaleString(),
+                    f.title
+                ];
+                if (f.settings.isQuiz) row.push(score);
+                
+                f.questions.forEach(q => {
+                    row.push(finalAnswers[q.id] || '');
+                });
+
+                const escapeCSV = (val) => {
+                    const str = String(val || '');
+                    if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                        return `"${str.replace(/"/g, '""')}"`;
+                    }
+                    return str;
+                };
+
+                const csvContent = headers.map(escapeCSV).join(',') + '\n' + row.map(escapeCSV).join(',');
+
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.setAttribute("href", url);
+                link.setAttribute("download", `${f.title.replace(/[^a-z0-9]/gi, '_')}_MyResponse.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+            } catch (err) {
+                console.error("Error creating excel file:", err);
+                alert("Submission saved, but Excel download failed.");
+            }
+            
+            document.getElementById('app').innerHTML = `
+                <div class="h-full flex items-center justify-center bg-gray-50">
+                    <div class="bg-white p-8 rounded-lg shadow-lg text-center">
+                        <i data-lucide="check-circle" class="w-16 h-16 text-green-500 mx-auto mb-4"></i>
+                        <h2 class="text-2xl font-bold text-gray-800">Thank You!</h2>
+                        <p class="text-gray-600 mb-2">Response submitted locally.</p>
+                        <p class="text-teal-600 text-sm mb-6 font-medium">Your response receipt has been downloaded.</p>
+                        ${f.settings.isQuiz ? `<div class="text-4xl font-bold text-gray-900 mb-6">${score} / ${f.questions.reduce((a,q)=>a+(q.points||0),0)}</div>` : ''}
+                        <button onclick="window.loadDashboard()" class="text-gray-500 hover:underline">Return Home</button>
+                    </div>
+                </div>
+            `;
+            if(window.lucide) lucide.createIcons();
+        };
+
+        // --- NEW: Excel Export Function (Admin) ---
+        window.downloadResponsesCSV = () => {
+            const f = state.currentForm;
+            const responses = state.responses;
+            if(!responses || responses.length === 0) {
+                alert("No responses to download.");
+                return;
+            }
+
+            // Headers
+            const headers = ['Submitted At', 'User ID', 'Score'];
+            f.questions.forEach(q => headers.push(q.title));
+
+            // Rows
+            const rows = responses.map(r => {
+                const row = [
+                    new Date(r.submittedAt).toLocaleString(),
+                    r.userId,
+                    r.score || 0
+                ];
+                f.questions.forEach(q => {
+                    row.push(r.answers[q.id] || '');
+                });
+                return row;
+            });
+
+            // CSV Generation
+            const escape = (val) => {
+                const str = String(val || '');
+                if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                    return `"${str.replace(/"/g, '""')}"`;
+                }
+                return str;
+            };
+
+            const csvContent = [
+                headers.map(escape).join(','),
+                ...rows.map(r => r.map(escape).join(','))
+            ].join('\n');
+
+            // Download
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `${f.title.replace(/[^a-z0-9]/gi, '_')}_results.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+
+        // --- Export Logic ---
+        function generateFormHTML(f) {
+            const renderQStr = renderViewerQuestion.toString();
+            const handleOtherStr = window.handleOtherSelection.toString();
+            
+            // Note: Simplied template to avoid potential nesting syntax errors during copy-paste
+            let html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${escapeHtml(f.title)}</title><script src="https://cdn.tailwindcss.com"><\/script><script src="https://unpkg.com/lucide@latest"><\/script></head><body class="bg-gray-100 font-sans text-gray-800"><div id="form-container"></div><script>const formData = ${JSON.stringify(f)};const THEMES=[{id:'teal',primary:'bg-teal-600',secondary:'bg-teal-50',border:'border-teal-200',text:'text-teal-900',hover:'hover:bg-teal-700'},{id:'indigo',primary:'bg-indigo-600',secondary:'bg-indigo-50',border:'border-indigo-200',text:'text-indigo-900',hover:'hover:bg-indigo-700'},{id:'rose',primary:'bg-rose-600',secondary:'bg-rose-50',border:'border-rose-200',text:'text-rose-900',hover:'hover:bg-rose-700'},{id:'amber',primary:'bg-amber-600',secondary:'bg-amber-50',border:'border-amber-200',text:'text-amber-900',hover:'hover:bg-amber-700'},{id:'slate',primary:'bg-slate-800',secondary:'bg-slate-50',border:'border-slate-200',text:'text-slate-900',hover:'hover:bg-slate-900'}];const escapeHtml = (unsafe) => { if (typeof unsafe !== 'string') return ''; return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); };`;
+            
+            // Append function strings safely
+            html += `const renderViewerQuestion = ${renderQStr};`;
+            html += `window.handleOtherSelection = ${handleOtherStr};`;
+            
+            html += `function renderForm(){const theme=THEMES.find(t=>t.id===formData.theme)||THEMES[0];const container=document.getElementById('form-container');const bgStyle=formData.backgroundImage?\`background-image: url('\${formData.backgroundImage}'); background-size: cover; background-position: center; background-attachment: fixed;\`:formData.backgroundColor?\`background-color: \${formData.backgroundColor};\`:'';const bgClass=(!formData.backgroundImage&&!formData.backgroundColor)?theme.secondary:'';container.innerHTML=\`<div class="min-h-screen \${bgClass} w-full overflow-y-auto" style="\${bgStyle}"><div class="max-w-3xl mx-auto p-4 md:p-8 space-y-4"><div class="bg-white rounded-lg shadow-sm border-t-8 p-8" style="border-top-color: \${theme.primary.replace('bg-', '') === 'bg-slate-800' ? '#1e293b' : ''}" class="\${theme.primary}"><div class="h-2 absolute top-0 left-0 w-full rounded-t-lg -mt-2 \${theme.primary}"></div><h1 class="text-3xl font-bold text-gray-900 mb-2">\${escapeHtml(formData.title)}</h1><p class="text-gray-600 whitespace-pre-wrap">\${escapeHtml(formData.description)}</p></div><form id="public-form" onsubmit="submitForm(event)" onchange="evaluateLogic()"><div class="space-y-4">\${formData.questions.map(q => renderViewerQuestion(q, formData, theme)).join('')}</div><div class="pt-8 pb-12"><button type="submit" class="w-full sm:w-auto px-8 py-3 rounded-lg text-white font-semibold shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5 \${theme.primary} \${theme.hover}">Submit Form</button></div></form></div></div>\`;if(window.lucide)lucide.createIcons();evaluateLogic();}function evaluateLogic(){const fd=new FormData(document.getElementById('public-form'));const answers={};for(let [k,v] of fd.entries())answers[k]=v;formData.questions.forEach(q=>{const container=document.getElementById(\`question-container-\${q.id}\`);if(!container)return;if(q.visibleIf){const{questionId,value}=q.visibleIf;if(answers[questionId]===value){container.style.display='block';container.querySelectorAll('input, select, textarea').forEach(el=>el.disabled=false);}else{container.style.display='none';container.querySelectorAll('input, select, textarea').forEach(el=>el.disabled=true);}}else{container.style.display='block';}});}function submitForm(e){e.preventDefault();const fd=new FormData(e.target);const rawAnswers={};for(let [k,v] of fd.entries())rawAnswers[k]=v;const finalAnswers={};formData.questions.forEach(q=>{let ans=rawAnswers[q.id];if(ans==='Other'&&rawAnswers[\`\${q.id}_other_text\`]){ans='Other: '+rawAnswers[\`\${q.id}_other_text\`];}if(ans)finalAnswers[q.id]=ans;});console.log("Submission:",finalAnswers);alert("Form submitted! Check console for data.");}renderForm();<\/script></body></html>`;
+            
+            return html;
+        }
+        
+        window.downloadFormCode = () => {
+            if(state.role !== 'admin') return;
+            const f = state.currentForm;
+            if(!f) return;
+            const htmlContent = generateFormHTML(f);
+            
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${f.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.html`;
+            a.click();
+            URL.revokeObjectURL(url);
+        };
+        
+        window.copyFormCode = () => {
+             if(state.role !== 'admin') return;
+             const f = state.currentForm;
+             if(!f) return;
+             const htmlContent = generateFormHTML(f);
+             
+             const textArea = document.createElement("textarea");
+             textArea.value = htmlContent;
+             textArea.style.position = "fixed";
+             textArea.style.left = "-9999px";
+             document.body.appendChild(textArea);
+             textArea.focus();
+             textArea.select();
+             try { document.execCommand('copy'); alert("Code copied to clipboard!"); } 
+             catch (err) { alert("Unable to copy code."); } 
+             finally { document.body.removeChild(textArea); }
+        };
+
+    </script>
+</body>
+</html>

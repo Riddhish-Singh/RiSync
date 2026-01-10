@@ -1,0 +1,1237 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Advanced Block Site Builder — Custom Theme & Structural Blocks</title>
+  <style>
+    :root{
+      /* Custom Builder UI Theme (Accent set to blue: #2563eb, matching Clean Light theme) */
+      --ui-bg:#f6f8fb; --panel:#ffffff; --muted:#6b7280; --accent:#2563eb; 
+      --radius:12px; --shadow:0 10px 30px rgba(11,17,34,0.08); --mono: Inter, system-ui, Arial;
+    }
+    *{box-sizing:border-box}
+    body{
+	font-family:var(--mono)
+	;margin:0;
+      background: linear-gradient(135deg, #ffe7a0, #ffb3c6, #a0e7e5);
+      background-size: 400% 400%;
+      animation: gradientMove 10s ease infinite;
+      overflow-x: hidden;
+	  }
+	      @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+	    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 3rem;
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(10px);
+      border-radius: 0 0 20px 20px;
+    }
+	
+	    .logo {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #333;
+      letter-spacing: 1px;
+    }
+
+    nav a {
+      margin: 0 1rem;
+      text-decoration: none;
+      color: #333;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    nav a:hover {
+      color: #ff4d6d;
+    }
+	
+    .wrap{display:flex;gap:20px;padding:26px;min-height:100vh;align-items:flex-start}
+    aside{width:360px;background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;overflow:auto}
+    main{flex:1;min-width:320px}
+    h1{margin:0 0 12px 0;font-size:18px}
+    label{display:block;color:var(--muted);font-size:13px;margin-top:12px;margin-bottom:6px}
+    input[type="text"], textarea, select{width:100%;padding:10px;border:1px solid #e6e9ef;border-radius:8px;font-size:14px}
+    textarea{min-height:90px;resize:vertical}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;border:1px solid rgba(11,17,34,0.06);background:#fff;cursor:pointer}
+    .btn-primary{background:var(--accent);color:white;border:none}
+    .muted-small{font-size:12px;color:var(--muted);margin-top:8px}
+    .blocks-list{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+    .block-row{background:#fbfdff;border:1px solid #eef3ff;padding:10px;border-radius:8px;display:flex;align-items:center;gap:8px;cursor:grab}
+    .block-row.dragging{opacity:0.5}
+    .block-type{font-weight:700;font-size:13px}
+    .block-actions{margin-left:auto;display:flex;gap:6px}
+    .block-actions button{background:transparent;border:none;color:var(--muted);cursor:pointer}
+    .editor{margin-top:14px;background:#fff;border-radius:8px;padding:12px;border:1px solid #f0f3f7}
+    .preview-card{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+    .preview-top{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #f0f3f7}
+    .preview-body{padding:22px}
+    .site-root{font-family:Inter,system-ui,Arial;margin:0;padding:0}
+    .container{max-width:980px;margin:0 auto;padding:28px}
+    .site-hero{text-align:center;padding:48px 18px}
+    .site-title{font-size:42px;margin:0;font-weight:800}
+    .site-sub{font-size:18px;margin-top:10px;color:var(--muted)}
+    .site-body{padding-top:16px;color:var(--text)}
+    img.responsive{max-width:100%;height:auto;border-radius:8px;display:block;margin:16px auto}
+    .two-col{display:flex;gap:18px;flex-wrap:wrap}
+    .two-col>div{flex:1;min-width:220px}
+    .small{font-size:13px;color:var(--muted)}
+    .row{display:flex;gap:8px;align-items:center}
+    .spacer{flex:1}
+    label.inline{display:inline-block;margin-right:8px}
+    input[type="range"]{width:100%}
+    .filter-preview{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .filter-button{padding:6px 8px;border-radius:6px;border:1px solid #eee;background:#fafafa;cursor:pointer;font-size:13px}
+    /* animation helper classes used in preview & export */
+    .anim-fade{animation-name:animFade;animation-fill-mode:forwards}
+    .anim-slideup{animation-name:animSlideUp;animation-fill-mode:forwards}
+    .anim-slideleft{animation-name:animSlideLeft;animation-fill-mode:forwards}
+    .anim-zoom{animation-name:animZoom;animation-fill-mode:forwards}
+    .anim-bounce{animation-name:animBounce;animation-fill-mode:forwards}
+    @keyframes animFade{from{opacity:0}to{opacity:1}}
+    @keyframes animSlideUp{from{transform:translateY(18px);opacity:0}to{transform:none;opacity:1}}
+    @keyframes animSlideLeft{from{transform:translateX(18px);opacity:0}to{transform:none;opacity:1}}
+    @keyframes animZoom{from{transform:scale(.94);opacity:0}to{transform:none;opacity:1}}
+    @keyframes animBounce{from{transform:translateY(0)}50%{transform:translateY(-8px)}to{transform:translateY(0)}}
+    /* video CTA overlay */
+    .video-wrap{position:relative;display:inline-block;width:100%}
+    .video-cta{position:absolute;bottom:18px;padding:8px 14px;border-radius:8px;background:var(--accent);color:#fff;text-decoration:none;font-weight:700;display:inline-block}
+    .video-cta.left{left:18px}
+    .video-cta.center{left:50%;transform:translateX(-50%)}
+    .video-cta.right{right:18px}
+    /* button block styles */
+    .call-to-action{display:inline-block;padding:10px 14px;border-radius:8px;text-decoration:none;font-weight:700}
+    .cta-primary{background:var(--accent);color:#fff}
+    .cta-outline{background:#fff;border:1px solid #eef3ff;color:#0b1220}
+    /* Accordion Styles */
+    .site-accordion{margin:18px 0;border-radius:8px;overflow:hidden;border:1px solid #eef3ff;background:#fff;}
+    .site-accordion details{border-bottom:1px solid #eef3ff;}
+    .site-accordion details:last-child{border-bottom:none;}
+    .site-accordion summary{padding:12px 16px;cursor:pointer;font-weight:600;outline:none;background:#f9fbfc;color:var(--text);}
+    .site-accordion-content{padding:12px 16px;white-space:pre-wrap;color:var(--muted);}
+    /* Table Styles */
+    .site-table-wrap{overflow-x:auto;}
+    .site-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;border:1px solid #eef3ff;border-radius:8px;overflow:hidden;}
+    .site-table th, .site-table td{padding:10px;border:1px solid #eef3ff;text-align:left;}
+    .site-table th{background:#f9fbfc;font-weight:700;color:var(--text);}
+    /* Quote Styles (New) */
+    .site-quote{font-style:italic;font-size:1.2rem;padding:20px;border-left:4px solid var(--accent);background:var(--panel);border-radius:8px;margin:18px 0;}
+    .site-quote footer{margin-top:12px;font-size:0.9rem;font-style:normal;color:var(--muted);text-align:right;}
+    .site-quote footer strong{font-weight:700;color:var(--text);}
+    
+    @media (max-width:920px){ .wrap{flex-direction:column;padding:12px} aside{width:100%} }
+	    footer {
+      background: rgba(255, 255, 255, 0.6);
+      text-align: center;
+      padding: 1rem;
+      border-radius: 20px 20px 0 0;
+      margin-top: 3rem;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">🌟 RiDesign</div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="RiDesign.html">Create</a>
+      <a href="Gallery.html">Gallery</a>
+      <a href="learn.html">Learn</a>
+    </nav>
+  </header>
+  
+  <div class="wrap">
+    <aside>
+      <h1>Advanced Builder</h1>
+
+      <label>Color Theme</label>
+      <select id="themeSelect"></select>
+      
+      <div style="margin-top:12px;display:flex;gap:8px">
+          <button class="btn" id="loadBtn">💾 Load Site</button>
+          <button class="btn btn-primary" id="saveBtn">💾 Save Site</button>
+      </div>
+      <div class="muted-small">Saves to/loads from your browser's local storage.</div>
+
+      <label style="margin-top:12px">Add block</label>
+      <div class="row" style="gap:8px;flex-wrap:wrap">
+        <button class="btn" data-add="hero">Hero</button>
+        <button class="btn" data-add="text">Text</button>
+        <button class="btn" data-add="image">Image</button>
+        <button class="btn" data-add="video">Video</button>
+        <button class="btn" data-add="two-col">2-Col</button>
+        <button class="btn" data-add="button">Button</button>
+        <button class="btn" data-add="card">Card</button>
+        <button class="btn" data-add="section">Section</button>
+        <button class="btn" data-add="accordion">Accordion</button>
+        <button class="btn" data-add="table">Table</button>
+        <button class="btn" data-add="quote">Quote</button>
+        <button class="btn" data-add="custom-css">Custom CSS</button>
+      </div>
+
+      <label style="margin-top:12px">Blocks (drag to reorder)</label>
+      <div id="blocksList" class="blocks-list" aria-live="polite"></div>
+
+      <div id="editorWrap" class="editor" aria-live="polite" style="display:none">
+        <div style="display:flex;gap:8px;align-items:center">
+          <strong id="editorTitle">Edit block</strong>
+          <div class="spacer"></div>
+          <button class="btn" id="removeBlockBtn" title="Remove block">Remove</button>
+        </div>
+        <div id="editorFields" style="margin-top:10px"></div>
+      </div>
+
+      <div style="margin-top:12px" class="row">
+        <button class="btn btn-primary" id="downloadBtn">Download .html</button>
+        <button class="btn" id="copyBtn">Copy HTML</button>
+        <button class="btn" id="previewBtn">Open Preview</button>
+		<button class="btn" id="shareBtn">Share Site</button>
+      </div>
+
+      <div class="muted-small" style="margin-top:12px">Tip: uploaded images/videos embed into the exported file. Animations are CSS-based and preserved in export. Buttons and video CTAs export too.</div>
+    </aside>
+
+    <main>
+      <div class="preview-card" id="previewCard" role="region" aria-label="Live preview">
+        <div class="preview-top">
+          <div><strong>Live Preview</strong><div class="small" id="themeTag">Theme: Clean Light</div></div>
+          <div class="small" id="status">Ready</div>
+        </div>
+        <div class="preview-body" id="previewBody">
+          </div>
+      </div>
+    </main>
+  </div>
+  <footer>
+    © 2025 RiDesign | Created with ️💖 for young creators
+  </footer>
+  <input id="fileInput" type="file" style="display:none" />
+
+  <script>
+    /* --------- State & helpers --------- */
+    const themePresets = {
+      // Themes adopted from RiDesign.html, with inferred accent colors for consistency
+      light: { name: 'Clean Light', vars: { '--bg': '#ffffff', '--text': '#0b1220', '--muted': '#64748b', '--accent': '#2563eb', '--panel':'#ffffff' } },
+      dark: { name: 'Midnight', vars: { '--bg': '#071428', '--text': '#e6eef8', '--muted': '#9aa6bf', '--accent': '#06b6d4', '--panel':'#10213d' } },
+      royal: { name: 'Royal Lux', vars: { '--bg': '#0f1724', '--text': '#fff1e6', '--muted': '#d4b6a7', '--accent': '#cc9966', '--panel':'#20293d' } },
+      luxury: { name: 'Luxury', vars: { '--bg': '#002366', '--text': '#F5BD02', '--muted': '#d4b6a7', '--accent': '#F5BD02', '--panel':'#002b80' } },
+      elegant: { name: 'Elegant', vars: { '--bg': '#358597', '--text': '#F4a896', '--muted': '#ffffff', '--accent': '#F4a896', '--panel':'#4f99a9' } }
+    };
+    
+    // Initial state check for local storage
+    const STORAGE_KEY = 'RiDesign_Site_Data_v2';
+    let state = {
+      theme: 'light',
+      blocks: [
+        { id: id(), type: 'hero', data: { title: 'Your Awesome Custom Site', subtitle: 'A one-liner that slaps', link:'', animation: { type:'fade', duration:600, delay:0 } } },
+        { id: id(), type: 'quote', data: { text: 'This tool is simple, powerful, and requires no backend—it’s amazing!', author: 'A Happy Creator', source: 'Twitter', animation:{type:'slideup',duration:600,delay:100} } },
+        { id: id(), type: 'accordion', data: { items: [{title:'What is RiDesign?', content:'It is an advanced web builder for creative projects.'},{title:'Is it free?', content:'Yes, it runs entirely in your browser!'}], animation:{type:'slideup',duration:600,delay:100} } },
+        { id: id(), type: 'text', data: { text: 'This is a paragraph. Edit me!', link:'', animation:{type:'none',duration:600,delay:0} } }
+      ],
+      customCSS: '/* Add your custom CSS here, e.g.:\n.site-body { margin-top: 40px; }\n*/', // New custom CSS field
+      selected: null
+    };
+
+    function id(){return 'b_' + Math.random().toString(36).slice(2,9)}
+    function el(q){return document.querySelector(q)}
+    function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') }
+    function slugify(s){ return String(s||'site').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'') }
+
+    // DOM refs
+    const blocksList = el('#blocksList');
+    const previewBody = el('#previewBody');
+    const editorWrap = el('#editorWrap');
+    const editorFields = el('#editorFields');
+    const editorTitle = el('#editorTitle');
+    const removeBlockBtn = el('#removeBlockBtn');
+    const fileInput = el('#fileInput');
+    const downloadBtn = el('#downloadBtn');
+    const copyBtn = el('#copyBtn');
+    const previewBtn = el('#previewBtn');
+    const status = el('#status');
+    const themeTag = el('#themeTag');
+    const themeSelect = el('#themeSelect');
+    const saveBtn = el('#saveBtn'); // New Ref
+    const loadBtn = el('#loadBtn'); // New Ref
+    
+    /* --------- LocalStorage Save/Load (New Feature) --------- */
+
+    function saveStateToLocalStorage() {
+      try {
+        const serialisedState = JSON.stringify({
+          theme: state.theme,
+          blocks: state.blocks,
+          customCSS: state.customCSS,
+        });
+        localStorage.setItem(STORAGE_KEY, serialisedState);
+        flashStatus('Site saved to browser!');
+      } catch (e) {
+        flashStatus('Error saving site to browser!', 2000);
+        console.error("Could not save state to localStorage", e);
+      }
+    }
+
+    function loadStateFromLocalStorage() {
+      try {
+        const serialisedState = localStorage.getItem(STORAGE_KEY);
+        if (serialisedState === null) {
+          flashStatus('No saved site found.', 1500);
+          return;
+        }
+        const loadedState = JSON.parse(serialisedState);
+        
+        // Merge loaded state with defaults to handle new fields like customCSS gracefully
+        state = { 
+            ...state, 
+            ...loadedState,
+            blocks: loadedState.blocks || [],
+        };
+        
+        // Update UI
+        themeSelect.value = state.theme;
+        updateThemeTag();
+        renderBlocksList();
+        renderPreview();
+        if(state.selected) openEditor(state.selected); else closeEditor();
+        flashStatus('Site loaded from browser!');
+      } catch (e) {
+        flashStatus('Error loading site from browser!', 2000);
+        console.error("Could not load state from localStorage", e);
+      }
+    }
+
+    // init: Load state on startup
+    loadStateFromLocalStorage();
+    
+    // wire theme selector and buttons
+    initThemeSelect();
+    renderBlocksList();
+    renderPreview();
+    if(state.blocks.length && !state.selected) openEditor(state.blocks[0].id);
+
+    document.querySelectorAll('[data-add]').forEach(btn=>{
+      btn.addEventListener('click', ()=> addBlock(btn.getAttribute('data-add')));
+    });
+
+    themeSelect.addEventListener('change', (e) => {
+        state.theme = e.target.value;
+        updateThemeTag();
+        renderPreview();
+        saveStateToLocalStorage(); // Save state on theme change
+    });
+    
+    saveBtn.addEventListener('click', saveStateToLocalStorage);
+    loadBtn.addEventListener('click', loadStateFromLocalStorage);
+    
+
+    function updateThemeTag(){ themeTag.textContent = 'Theme: ' + themePresets[state.theme].name }
+
+    function initThemeSelect(){
+        Object.keys(themePresets).forEach(key => {
+            const opt = document.createElement('option');
+            opt.value = key; opt.textContent = themePresets[key].name;
+            if(key === state.theme) opt.selected = true;
+            themeSelect.appendChild(opt);
+        });
+        updateThemeTag();
+    }
+
+
+    /* --------- Block ops (added: quote and custom-css blocks) --------- */
+    function addBlock(type){
+      const defaultData = (t=>{
+        if(t==='hero') return { title:'New Title', subtitle:'Subtitle', link:'', animation:{type:'fade',duration:600,delay:0} };
+        if(t==='text') return { text:'New text', link:'', animation:{type:'none',duration:600,delay:0} };
+        if(t==='image') return { image:null, alt:'', width:80, align:'center', filter:{name:'none',value:0}, caption:'', link:'', animation:{type:'fade',duration:600,delay:0} };
+        if(t==='video') return { video:null, srcUrl:'', provider:'file', autoplay:false, loop:false, muted:false, controls:true, poster:'', caption:'', overlayCTA:{show:false,label:'Watch Now',url:'',position:'center'}, animation:{type:'fade',duration:600,delay:0} };
+        if(t==='two-col') return { left:'Left', right:'Right', animation:{type:'none',duration:600,delay:0} };
+        if(t==='button') return { label:'Click Me', url:'', style:'primary', newTab:true };
+        if(t==='card') return { title:'Card Title', body:'Card body text.', animation:{type:'fade',duration:600,delay:0} };
+        if(t==='section') return { title:'Section Title', bg_color:'#efefef', animation:{type:'none',duration:600,delay:0} };
+        if(t==='accordion') return { items: [{title:'Question 1', content:'Answer to question 1.'}], animation:{type:'fade',duration:600,delay:0} };
+        if(t==='table') return { columns:['Header 1','Header 2'], rows:[['Cell 1','Cell 2'],['Cell 3','Cell 4']], animation:{type:'fade',duration:600,delay:0} };
+        if(t==='quote') return { text:'Life is what happens when you are busy making other plans.', author:'John Lennon', source:'Quote', animation:{type:'fade',duration:600,delay:0} };
+        if(t==='custom-css') return { css: state.customCSS }; // Special case: this should probably only exist once, but we handle it as a block for editing
+        return {};
+      })(type);
+      
+      if(type === 'custom-css'){
+          // Don't add a block, just open the editor for the global custom CSS field
+          openCustomCssEditor();
+          return;
+      }
+      
+      const b = { id:id(), type, data: defaultData };
+      state.blocks.push(b);
+      renderBlocksList();
+      renderPreview();
+      openEditor(b.id);
+      saveStateToLocalStorage(); // Save state on block add
+    }
+
+    function removeBlock(bid){
+      state.blocks = state.blocks.filter(b=>b.id!==bid);
+      if(state.selected===bid) state.selected=null;
+      renderBlocksList(); renderPreview();
+      if(state.selected===null) closeEditor();
+      saveStateToLocalStorage(); // Save state on block remove
+    }
+
+    function updateBlock(bid, patch){
+      state.blocks = state.blocks.map(b => b.id===bid ? { ...b, data: { ...b.data, ...patch } } : b);
+      renderPreview();
+      renderBlocksList();
+      saveStateToLocalStorage(); // Save state on block update
+    }
+
+    function setBlockData(bid, keyPath, value){
+      const b = state.blocks.find(x=>x.id===bid);
+      if(!b) return;
+      const parts = keyPath.split('.');
+      let cur = b.data;
+      for(let i=0;i<parts.length-1;i++){
+        const p = parts[i];
+        cur[p] = cur[p] || {};
+        cur = cur[p];
+      }
+      cur[parts[parts.length-1]] = value;
+      updateBlock(bid, b.data);
+    }
+
+    /* --------- Drag reorder (unchanged) --------- */
+    let dragId = null;
+    function renderBlocksList(){
+      blocksList.innerHTML = '';
+      state.blocks.forEach(b=>{
+        const row = document.createElement('div');
+        row.className = 'block-row';
+        row.draggable = true;
+        row.dataset.id = b.id;
+        
+        // Custom CSS blocks are not draggable and are handled by a special editor function
+        if(b.type === 'custom-css'){
+             row.className = 'block-row';
+             row.draggable = false;
+             row.innerHTML = `<div class="block-type">CUSTOM CSS (GLOBAL)</div>
+                             <div class="small" style="margin-left:8px">Injected into <head></div>
+                             <div class="block-actions"><button title="Edit">✏️</button></div>`;
+             row.querySelector('button[title="Edit"]').addEventListener('click', openCustomCssEditor);
+             blocksList.appendChild(row);
+             return;
+        }
+        
+        row.innerHTML = `<div class="block-type">${b.type.toUpperCase()}</div>
+                         <div class="small" style="margin-left:8px">${blockSummary(b)}</div>
+                         <div class="block-actions">
+                           <button title="Edit">✏️</button>
+                           <button title="Duplicate">📄</button>
+                         </div>`;
+        row.querySelector('button[title="Edit"]').addEventListener('click', ()=> openEditor(b.id));
+        row.querySelector('button[title="Duplicate"]').addEventListener('click', ()=> duplicateBlock(b.id));
+        row.addEventListener('dragstart', e=>{ dragId=b.id; row.classList.add('dragging'); e.dataTransfer.effectAllowed='move' });
+        row.addEventListener('dragend', ()=>{ dragId=null; row.classList.remove('dragging') });
+        row.addEventListener('dragover', e=> e.preventDefault());
+        row.addEventListener('drop', e=>{ e.preventDefault(); if(!dragId||dragId===b.id) return; reorderBlocks(dragId,b.id); renderBlocksList(); renderPreview(); saveStateToLocalStorage(); });
+        blocksList.appendChild(row);
+      });
+    }
+
+    function blockSummary(b){
+      if(b.type==='hero') return escapeHtml(b.data.title||'') + (b.data.link? ' → link':'');
+      if(b.type==='text') return (String(b.data.text||'').slice(0,40) + ((b.data.text||'').length>40?'…':'')) + (b.data.link? ' → link':'');
+      if(b.type==='image') return b.data.image ? b.data.image.name : '[empty image]';
+      if(b.type==='video') return b.data.video ? b.data.video.name || b.data.srcUrl : (b.data.srcUrl||'[video]');
+      if(b.type==='two-col') return escapeHtml(String(b.data.left||'').slice(0,20)) + ' / ' + escapeHtml(String(b.data.right||'').slice(0,20));
+      if(b.type==='button') return escapeHtml(b.data.label||'Button') + (b.data.url? ' → ' + escapeHtml(b.data.url):'');
+      if(b.type==='card') return escapeHtml(b.data.title||'Card Title');
+      if(b.type==='section') return (b.data.title ? escapeHtml(b.data.title) : '[Section]') + ' bg:' + escapeHtml(b.data.bg_color||'');
+      if(b.type==='accordion') return `${b.data.items.length} items`;
+      if(b.type==='table') return `${b.data.columns.length} cols, ${b.data.rows.length} rows`;
+      if(b.type==='quote') return (String(b.data.text||'').slice(0,40) + '…') + (b.data.author ? ` - ${b.data.author}` : '');
+      if(b.type==='custom-css') return `Size: ${state.customCSS.length} chars`;
+      return '';
+    }
+
+    function reorderBlocks(fromId,toId){
+      const arr=[...state.blocks];
+      const fi = arr.findIndex(x=>x.id===fromId), ti = arr.findIndex(x=>x.id===toId);
+      if(fi===-1||ti===-1) return;
+      const [m] = arr.splice(fi,1);
+      arr.splice(ti,0,m);
+      state.blocks = arr;
+    }
+
+    function duplicateBlock(bid){
+      const b = state.blocks.find(x=>x.id===bid);
+      if(!b) return;
+      const copy = JSON.parse(JSON.stringify(b)); copy.id = id();
+      state.blocks.push(copy); renderBlocksList(); renderPreview(); saveStateToLocalStorage();
+    }
+
+    /* --------- Editor UI (includes quote field) --------- */
+    function openEditor(bid){
+      const b = state.blocks.find(x=>x.id===bid); if(!b) return;
+      state.selected = bid;
+      editorWrap.style.display = 'block';
+      editorTitle.textContent = 'Edit: ' + b.type.toUpperCase();
+      editorFields.innerHTML = '';
+      
+      removeBlockBtn.style.display = 'block'; // Ensure remove button is visible for blocks
+      removeBlockBtn.onclick = ()=> { if(confirm('Remove this block?')) removeBlock(bid) };
+
+
+      // common: animation controls
+      if(b.type !== 'button'){
+        const animSection = document.createElement('div');
+        animSection.innerHTML = `<label class="inline">Animation</label>
+          <select id="animType">
+            <option value="none">None</option>
+            <option value="fade">Fade</option>
+            <option value="slideup">Slide Up</option>
+            <option value="slideleft">Slide Left</option>
+            <option value="zoom">Zoom</option>
+            <option value="bounce">Bounce</option>
+          </select>
+          <label class="inline" style="margin-top:8px">Duration (ms)</label>
+          <input id="animDur" type="number" value="${b.data.animation?.duration||600}" />
+          <label class="inline" style="margin-top:8px">Delay (ms)</label>
+          <input id="animDelay" type="number" value="${b.data.animation?.delay||0}" />`;
+        editorFields.appendChild(animSection);
+        const animType = editorFields.querySelector('#animType');
+        const animDur = editorFields.querySelector('#animDur');
+        const animDelay = editorFields.querySelector('#animDelay');
+        animType.value = b.data.animation?.type || 'none';
+        animDur.addEventListener('input', ()=> setBlockData(bid,'animation.duration',Number(animDur.value||0)));
+        animDelay.addEventListener('input', ()=> setBlockData(bid,'animation.delay',Number(animDelay.value||0)));
+        animType.addEventListener('change', ()=> setBlockData(bid,'animation.type',animType.value));
+      }
+
+
+      // type-specific fields
+      if(b.type==='hero'){
+        addField('Title', b.data.title||'', v=> updateBlock(bid,{ title:v }));
+        addField('Subtitle', b.data.subtitle||'', v=> updateBlock(bid,{ subtitle:v }));
+        addField('Title / Hero Link (optional)', b.data.link||'', v=> updateBlock(bid,{ link:v }));
+      }
+      if(b.type==='text'){
+        addTextarea('Text', b.data.text||'', v=> updateBlock(bid,{ text:v }));
+        addField('Block Link (optional)', b.data.link||'', v=> updateBlock(bid,{ link:v }));
+        const hint = document.createElement('div'); hint.className='small'; hint.textContent='Tip: link will wrap the whole block (for inline links, add HTML <a> in text).';
+        editorFields.appendChild(hint);
+      }
+      if(b.type==='two-col'){
+        addTextarea('Left column', b.data.left||'', v=> updateBlock(bid,{ left:v }));
+        addTextarea('Right column', b.data.right||'', v=> updateBlock(bid,{ right:v }));
+      }
+      if(b.type==='image'){
+        addField('Alt text', b.data.alt||'', v=> updateBlock(bid,{ alt:v }));
+        addRange('Width %', b.data.width||80, 20,100, v=> updateBlock(bid,{ width: Number(v) }));
+        addSelect('Alignment', ['left','center','right'], b.data.align||'center', v=> updateBlock(bid,{ align:v }));
+        addFilterControls(bid, b.data.filter || {name:'none',value:0});
+        addField('Caption', b.data.caption||'', v=> updateBlock(bid,{ caption:v }));
+        addField('Image Link (optional)', b.data.link||'', v=> updateBlock(bid,{ link:v }));
+        // image upload / replace / remove
+        const wrap = document.createElement('div'); wrap.style.marginTop='10px';
+        const uploadBtn = document.createElement('button'); uploadBtn.className='btn'; uploadBtn.textContent = b.data.image ? 'Replace image' : 'Upload image';
+        uploadBtn.addEventListener('click', ()=> { fileInput.accept='image/*'; fileInput.onchange = handleFileForImage(bid); fileInput.click(); });
+        wrap.appendChild(uploadBtn);
+        if(b.data.image){
+          const rm = document.createElement('button'); rm.className='btn'; rm.style.marginLeft='8px'; rm.textContent='Remove';
+          rm.addEventListener('click', ()=> { updateBlock(bid,{ image:null }); openEditor(bid); });
+          wrap.appendChild(rm);
+          // preview thumbnail
+          const thumb = document.createElement('div'); thumb.style.marginTop='8px';
+          thumb.innerHTML = `<img src="${b.data.image.dataURL}" alt="${escapeHtml(b.data.alt||'')}" style="max-width:100%;border-radius:6px">`;
+          wrap.appendChild(thumb);
+        }
+        editorFields.appendChild(wrap);
+      }
+      if(b.type==='video'){
+        addSelect('Video source', ['file','youtube','vimeo'], b.data.provider||'file', v=> updateBlock(bid,{ provider:v }));
+        addField('Video URL (for YouTube/Vimeo)', b.data.srcUrl||'', v=> updateBlock(bid,{ srcUrl:v }));
+        addCheckbox('Autoplay', b.data.autoplay||false, v=> updateBlock(bid,{ autoplay:v }));
+        addCheckbox('Loop', b.data.loop||false, v=> updateBlock(bid,{ loop:v }));
+        addCheckbox('Muted', b.data.muted||false, v=> updateBlock(bid,{ muted:v }));
+        addCheckbox('Show controls', b.data.controls===undefined?true:b.data.controls, v=> updateBlock(bid,{ controls:v }));
+        addField('Poster image URL (optional)', b.data.poster||'', v=> updateBlock(bid,{ poster:v }));
+        addField('Caption', b.data.caption||'', v=> updateBlock(bid,{ caption:v }));
+        // overlay CTA controls
+        addCheckbox('Show CTA overlay on video', b.data.overlayCTA?.show||false, v=> setBlockData(bid,'overlayCTA.show',v));
+        addField('CTA label', b.data.overlayCTA?.label||'Watch Now', v=> setBlockData(bid,'overlayCTA.label',v));
+        addField('CTA URL', b.data.overlayCTA?.url||'', v=> setBlockData(bid,'overlayCTA.url',v));
+        addSelect('CTA position', ['left','center','right'], b.data.overlayCTA?.position||'center', v=> setBlockData(bid,'overlayCTA.position',v));
+        // upload file button
+        const wrapV = document.createElement('div'); wrapV.style.marginTop='8px';
+        const uploadBtn = document.createElement('button'); uploadBtn.className='btn'; uploadBtn.textContent='Upload video file';
+        uploadBtn.addEventListener('click', ()=> { fileInput.accept='video/*'; fileInput.onchange = handleFileForVideo(bid); fileInput.click(); });
+        wrapV.appendChild(uploadBtn);
+        if(b.data.video){
+          const p = document.createElement('div'); p.style.marginTop='8px'; p.innerHTML = `<div class="small">Uploaded: ${escapeHtml(b.data.video.name||'video')}</div>`;
+          wrapV.appendChild(p);
+        }
+        editorFields.appendChild(wrapV);
+      }
+      if(b.type==='button'){
+        addField('Button label', b.data.label||'Click Me', v=> updateBlock(bid,{ label:v }));
+        addField('Button URL', b.data.url||'', v=> updateBlock(bid,{ url:v }));
+        addSelect('Style', ['primary','outline'], b.data.style||'primary', v=> updateBlock(bid,{ style:v }));
+        addCheckbox('Open in new tab', b.data.newTab!==false, v=> updateBlock(bid,{ newTab:v }));
+      }
+      if(b.type==='card'){
+        addField('Card Title', b.data.title||'Card Title', v=> updateBlock(bid,{ title:v }));
+        addTextarea('Card Body Text', b.data.body||'Card body text.', v=> updateBlock(bid,{ body:v }));
+      }
+      if(b.type==='section'){
+        addField('Section Title (optional)', b.data.title||'', v=> updateBlock(bid,{ title:v }));
+        addField('Background Color (CSS value)', b.data.bg_color||'#efefef', v=> updateBlock(bid,{ bg_color:v }));
+      }
+      if(b.type==='accordion'){
+        const wrap = document.createElement('div'); wrap.style.marginTop='10px';
+        const renderAccordionItems = () => {
+          wrap.innerHTML = '<label>Accordion Items</label>';
+          (b.data.items||[]).forEach((item, index) => {
+            const itemWrap = document.createElement('div'); itemWrap.style.border='1px solid #eee'; itemWrap.style.padding='8px'; itemWrap.style.borderRadius='6px'; itemWrap.style.marginBottom='8px';
+            
+            const titleInput = document.createElement('input'); titleInput.type='text'; titleInput.value=item.title; titleInput.placeholder='Title';
+            titleInput.style.marginBottom='4px'; titleInput.addEventListener('input', v => { b.data.items[index].title = titleInput.value; updateBlock(bid, b.data); });
+            
+            const contentTextarea = document.createElement('textarea'); contentTextarea.value=item.content; contentTextarea.placeholder='Content';
+            contentTextarea.style.minHeight='40px'; contentTextarea.addEventListener('input', v => { b.data.items[index].content = contentTextarea.value; updateBlock(bid, b.data); });
+            
+            const removeBtn = document.createElement('button'); removeBtn.className='btn'; removeBtn.textContent='Remove Item'; removeBtn.style.marginTop='4px';
+            removeBtn.addEventListener('click', () => { b.data.items.splice(index, 1); updateBlock(bid, b.data); openEditor(bid); });
+            
+            itemWrap.appendChild(titleInput); itemWrap.appendChild(contentTextarea); itemWrap.appendChild(removeBtn);
+            wrap.appendChild(itemWrap);
+          });
+
+          const addBtn = document.createElement('button'); addBtn.className='btn btn-primary'; addBtn.textContent='Add Item';
+          addBtn.addEventListener('click', () => { b.data.items.push({title:'New Question', content:'New Answer'}); updateBlock(bid, b.data); openEditor(bid); });
+          wrap.appendChild(addBtn);
+        };
+        editorFields.appendChild(wrap);
+        renderAccordionItems();
+      }
+      if(b.type==='table'){
+        const wrap = document.createElement('div'); wrap.style.marginTop='10px';
+        const renderTableEditor = () => {
+          wrap.innerHTML = '';
+          
+          // Columns
+          const colLabel = document.createElement('label'); colLabel.textContent='Column Headers (comma separated)';
+          const colInput = document.createElement('input'); colInput.type='text'; colInput.value=b.data.columns.join(',');
+          colInput.addEventListener('input', () => { 
+            b.data.columns = colInput.value.split(',').map(c => c.trim()); 
+            updateBlock(bid, b.data);
+            renderTableEditor(); // Rerender to adjust row inputs
+          });
+          wrap.appendChild(colLabel); wrap.appendChild(colInput);
+          
+          // Rows
+          const rowLabel = document.createElement('label'); rowLabel.textContent=`Table Rows (enter ${b.data.columns.length} comma separated values per row)`;
+          rowLabel.style.marginTop='12px';
+          wrap.appendChild(rowLabel);
+
+          (b.data.rows||[]).forEach((row, rowIndex) => {
+            const rowWrap = document.createElement('div'); rowWrap.style.display='flex'; rowWrap.style.gap='8px'; rowWrap.style.alignItems='center'; rowWrap.style.marginBottom='8px';
+            
+            const rowInput = document.createElement('input'); rowInput.type='text'; rowInput.value=row.join(','); rowInput.style.flex='1';
+            rowInput.addEventListener('input', () => {
+              b.data.rows[rowIndex] = rowInput.value.split(',').map(c => c.trim());
+              updateBlock(bid, b.data);
+            });
+            
+            const removeBtn = document.createElement('button'); removeBtn.className='btn'; removeBtn.textContent='-';
+            removeBtn.addEventListener('click', () => { b.data.rows.splice(rowIndex, 1); updateBlock(bid, b.data); renderTableEditor(); });
+            
+            rowWrap.appendChild(rowInput); rowWrap.appendChild(removeBtn);
+            wrap.appendChild(rowWrap);
+          });
+
+          const addRowBtn = document.createElement('button'); addRowBtn.className='btn btn-primary'; addRowBtn.textContent='Add Row';
+          addRowBtn.addEventListener('click', () => { b.data.rows.push(Array(b.data.columns.length).fill('')); updateBlock(bid, b.data); renderTableEditor(); });
+          wrap.appendChild(addRowBtn);
+          
+          const hint = document.createElement('div'); hint.className='small'; hint.textContent=`Tip: You must enter exactly ${b.data.columns.length} comma separated values per row.`;
+          wrap.appendChild(hint);
+        };
+        editorFields.appendChild(wrap);
+        renderTableEditor();
+      }
+      // New: Quote Editor
+      if(b.type==='quote'){
+        addTextarea('Quote Text', b.data.text||'', v=> updateBlock(bid,{ text:v }));
+        addField('Author', b.data.author||'', v=> updateBlock(bid,{ author:v }));
+        addField('Source/Link (optional)', b.data.source||'', v=> updateBlock(bid,{ source:v }));
+      }
+    }
+    
+    function openCustomCssEditor(){
+        state.selected = null; // Deselect any block
+        editorWrap.style.display = 'block';
+        editorTitle.textContent = 'Edit: CUSTOM CSS (GLOBAL)';
+        editorFields.innerHTML = '';
+        removeBlockBtn.style.display = 'none'; // No remove button for global CSS
+
+        const ta = document.createElement('textarea');
+        ta.value = state.customCSS || '';
+        ta.style.minHeight = '200px';
+        ta.style.fontFamily = 'monospace';
+        
+        ta.addEventListener('input', () => {
+            state.customCSS = ta.value;
+            renderPreview();
+            renderBlocksList();
+            saveStateToLocalStorage();
+        });
+        
+        editorFields.appendChild(ta);
+    }
+
+
+    function closeEditor(){ editorWrap.style.display='none'; state.selected=null; }
+
+    /* --------- small UI helpers (unchanged) --------- */
+    function addField(labelText, value, onChange){
+      const lbl = document.createElement('label'); lbl.textContent = labelText; lbl.style.marginTop='8px';
+      const input = document.createElement('input'); input.type='text'; input.value = value||''; input.style.marginTop='6px';
+      input.addEventListener('input', ()=> onChange(input.value));
+      editorFields.appendChild(lbl); editorFields.appendChild(input);
+    }
+    function addTextarea(labelText, value, onChange){
+      const lbl = document.createElement('label'); lbl.textContent = labelText; lbl.style.marginTop='8px';
+      const ta = document.createElement('textarea'); ta.value = value||''; ta.style.marginTop='6px';
+      ta.addEventListener('input', ()=> onChange(ta.value));
+      editorFields.appendChild(lbl); editorFields.appendChild(ta);
+    }
+    function addRange(labelText, value, min, max, onChange){
+      const lbl = document.createElement('label'); lbl.textContent = labelText; lbl.style.marginTop='8px';
+      const range = document.createElement('input'); range.type='range'; range.min=min; range.max=max; range.value=value; range.style.marginTop='6px';
+      const valspan = document.createElement('div'); valspan.className='small'; valspan.textContent = value + '%';
+      range.addEventListener('input', ()=> { valspan.textContent = range.value + '%'; onChange(range.value); });
+      editorFields.appendChild(lbl); editorFields.appendChild(range); editorFields.appendChild(valspan);
+    }
+    function addSelect(labelText, options, selectedVal, onChange){
+      const lbl = document.createElement('label'); lbl.textContent = labelText; lbl.style.marginTop='8px';
+      const sel = document.createElement('select'); sel.style.marginTop='6px';
+      options.forEach(o=> { const opt = document.createElement('option'); opt.value=o; opt.textContent=o; if(o===selectedVal) opt.selected=true; sel.appendChild(opt); });
+      sel.addEventListener('change', ()=> onChange(sel.value));
+      editorFields.appendChild(lbl); editorFields.appendChild(sel);
+    }
+    function addCheckbox(labelText, checked, onChange){
+      const wrap = document.createElement('div'); wrap.style.marginTop='8px';
+      const input = document.createElement('input'); input.type='checkbox'; input.checked = !!checked;
+      input.addEventListener('change', ()=> onChange(input.checked));
+      const lbl = document.createElement('label'); lbl.className='inline'; lbl.textContent = labelText; lbl.style.marginLeft='8px';
+      wrap.appendChild(input); wrap.appendChild(lbl);
+      editorFields.appendChild(wrap);
+    }
+    function addFilterControls(bid, filter){
+      const lbl = document.createElement('label'); lbl.textContent='Filter'; lbl.style.marginTop='8px';
+      const sel = document.createElement('select'); sel.style.marginTop='6px';
+      ['none','grayscale','sepia','blur','brightness','contrast','saturate'].forEach(f=>{ const opt=document.createElement('option'); opt.value=f; opt.textContent=f; if(filter.name===f) opt.selected=true; sel.appendChild(opt); });
+      const slider = document.createElement('input'); slider.type='range'; slider.min=0; slider.max=200; slider.value=filter.value||0; slider.style.marginTop='6px';
+      const val = document.createElement('div'); val.className='small'; val.textContent = filter.value + (filter.name==='blur' ? 'px' : '%');
+      sel.addEventListener('change', ()=> { setBlockData(bid,'filter.name',sel.value); updateFilterLabel(); });
+      slider.addEventListener('input', ()=> { setBlockData(bid,'filter.value',Number(slider.value)); updateFilterLabel(); });
+      function updateFilterLabel(){ const f=sel.value; const v=slider.value; val.textContent = v + (f==='blur' ? 'px' : '%'); }
+      editorFields.appendChild(lbl); editorFields.appendChild(sel); editorFields.appendChild(slider); editorFields.appendChild(val);
+    }
+
+    /* --------- File handlers for image/video uploads (unchanged) --------- */
+    function handleFileForImage(bid){
+      return function(e){
+        const file = (e.target.files||[])[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev)=> { updateBlock(bid, { image: { name: file.name, dataURL: ev.target.result } }); openEditor(bid); };
+        reader.readAsDataURL(file);
+        fileInput.value='';
+      };
+    }
+    function handleFileForVideo(bid){
+      return function(e){
+        const file = (e.target.files||[])[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev)=> { updateBlock(bid, { video: { name: file.name, dataURL: ev.target.result } , provider:'file', srcUrl:'' }); openEditor(bid); };
+        reader.readAsDataURL(file);
+        fileInput.value='';
+      };
+    }
+
+    /* --------- Preview rendering (uses themePresets + new blocks) --------- */
+    function renderPreview(){
+      previewBody.innerHTML = '';
+      const root = document.createElement('div'); root.className='site-root';
+      const container = document.createElement('div'); container.className='container';
+      
+      const theme = themePresets[state.theme];
+      
+      // Inject Custom CSS into Preview (using a <style> tag)
+      if(state.customCSS && state.customCSS.trim()){
+          const style = document.createElement('style');
+          style.textContent = state.customCSS;
+          container.appendChild(style); // Append to container for encapsulation in preview
+      }
+      
+      state.blocks.forEach(b=>{
+        const wrapper = document.createElement('div');
+        wrapper.style.margin = '18px 0';
+        // animation
+        const anim = (b.data.animation || {type:'none',duration:600,delay:0});
+        if(anim && anim.type && anim.type!=='none'){
+          wrapper.classList.add('anim-' + (anim.type==='slideup'?'slideup':anim.type==='slideleft'?'slideleft':anim.type));
+          wrapper.style.animationDuration = (anim.duration||600) + 'ms';
+          wrapper.style.animationDelay = (anim.delay||0) + 'ms';
+        }
+        // block types
+        if(b.type==='hero'){
+          const header = document.createElement('div'); header.className='site-hero';
+          const h = document.createElement('h1'); h.className='site-title'; h.style.color=theme.vars['--text'];
+          if(b.data.link){
+            const a = document.createElement('a'); a.href = b.data.link; a.target='_blank'; a.style.color='inherit'; a.style.textDecoration='none';
+            a.textContent = b.data.title||'';
+            h.appendChild(a);
+          } else { h.textContent = b.data.title||''; }
+          const p = document.createElement('p'); p.className='site-sub'; p.style.color=theme.vars['--muted'];
+          if(b.data.link){
+            const a2 = document.createElement('a'); a2.href = b.data.link; a2.target='_blank'; a2.style.color='inherit'; a2.style.textDecoration='none';
+            a2.textContent = b.data.subtitle||'';
+            p.appendChild(a2);
+          } else { p.textContent = b.data.subtitle||''; }
+          header.appendChild(h); header.appendChild(p); wrapper.appendChild(header);
+        } else if(b.type==='text'){
+          const p = document.createElement('p'); p.style.whiteSpace='pre-wrap'; p.textContent = b.data.text||'';
+          p.style.color = theme.vars['--text'];
+          if(b.data.link){
+            const a = document.createElement('a'); a.href = b.data.link; a.target='_blank'; a.style.color='inherit'; a.style.textDecoration='none';
+            a.appendChild(p);
+            wrapper.appendChild(a);
+          } else wrapper.appendChild(p);
+        } else if(b.type==='two-col'){
+          const wrap = document.createElement('div'); wrap.className='two-col';
+          const l = document.createElement('div'); l.innerHTML = '<div style="white-space:pre-wrap;color:'+theme.vars['--text']+'">' + escapeHtml(b.data.left||'') + '</div>';
+          const r = document.createElement('div'); r.innerHTML = '<div style="white-space:pre-wrap;color:'+theme.vars['--text']+'">' + escapeHtml(b.data.right||'') + '</div>';
+          wrap.appendChild(l); wrap.appendChild(r); wrapper.appendChild(wrap);
+        } else if(b.type==='image'){
+          const align = b.data.align || 'center';
+          const imgWidth = (b.data.width||80) + '%';
+          const imgWrap = document.createElement('div'); imgWrap.style.textAlign = align;
+          const imgEl = document.createElement('img'); imgEl.className='responsive'; imgEl.style.width = imgWidth;
+          if(b.data.image && b.data.image.dataURL) imgEl.src = b.data.image.dataURL; else imgEl.alt='[empty image]';
+          applyFilterToElement(imgEl, b.data.filter);
+          if(b.data.link){
+            const a = document.createElement('a'); a.href = b.data.link; a.target='_blank'; a.appendChild(imgEl); imgWrap.appendChild(a);
+          } else imgWrap.appendChild(imgEl);
+          if(b.data.caption) { const cap = document.createElement('div'); cap.className='small'; cap.textContent = b.data.caption; cap.style.marginTop='8px'; cap.style.color=theme.vars['--muted']; imgWrap.appendChild(cap); }
+          wrapper.appendChild(imgWrap);
+        } else if(b.type==='video'){
+          const vidWrap = document.createElement('div'); vidWrap.style.textAlign = 'center';
+          const outer = document.createElement('div'); outer.className='video-wrap';
+          if(b.data.provider === 'file' && b.data.video && b.data.video.dataURL){
+            const vid = document.createElement('video'); vid.src = b.data.video.dataURL; vid.className='responsive';
+            vid.style.maxWidth = '100%'; vid.style.height = 'auto';
+            if(b.data.poster) vid.poster = b.data.poster;
+            if(b.data.autoplay) vid.autoplay = true;
+            if(b.data.loop) vid.loop = true;
+            if(b.data.muted) vid.muted = true;
+            vid.controls = !!b.data.controls;
+            outer.appendChild(vid);
+          } else if(b.data.provider === 'youtube' && b.data.srcUrl){
+            const iframe = document.createElement('iframe'); iframe.width='100%'; iframe.height='480';
+            iframe.src = normalizeYoutubeEmbed(b.data.srcUrl);
+            iframe.setAttribute('frameborder','0'); iframe.setAttribute('allow','accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'); iframe.allowFullscreen = true;
+            outer.appendChild(iframe);
+          } else if(b.data.provider === 'vimeo' && b.data.srcUrl){
+            const iframe = document.createElement('iframe'); iframe.width='100%'; iframe.height='480';
+            iframe.src = normalizeVimeoEmbed(b.data.srcUrl);
+            iframe.setAttribute('frameborder','0'); iframe.allowFullscreen = true;
+            outer.appendChild(iframe);
+          } else {
+            outer.innerHTML = '<div class="small">No video</div>';
+          }
+          // overlay CTA
+          if(b.data.overlayCTA && b.data.overlayCTA.show){
+            const cta = document.createElement('a'); cta.className='video-cta ' + (b.data.overlayCTA.position||'center');
+            cta.href = b.data.overlayCTA.url || '#'; cta.target = '_blank'; cta.style.background=theme.vars['--accent'];
+            cta.textContent = b.data.overlayCTA.label || 'Watch Now';
+            outer.appendChild(cta);
+          }
+          vidWrap.appendChild(outer);
+          if(b.data.caption) { const cap = document.createElement('div'); cap.className='small'; cap.textContent = b.data.caption; cap.style.marginTop='8px'; cap.style.color=theme.vars['--muted']; vidWrap.appendChild(cap); }
+          wrapper.appendChild(vidWrap);
+        } else if(b.type==='button'){
+          const btnWrap = document.createElement('div'); btnWrap.style.marginTop='8px';
+          const a = document.createElement('a'); a.className='call-to-action ' + (b.data.style==='outline' ? 'cta-outline':'cta-primary');
+          a.href = b.data.url || '#'; a.textContent = b.data.label || 'Click'; if(b.data.newTab) a.target='_blank';
+          if(b.data.style==='primary') a.style.background=theme.vars['--accent'];
+          if(b.data.style==='outline') a.style.color=theme.vars['--text'];
+          btnWrap.appendChild(a); wrapper.appendChild(btnWrap);
+        } else if(b.type==='card'){
+          const card = document.createElement('div'); 
+          card.className='preview-card'; 
+          card.innerHTML = `<div style="padding:16px;font-weight:700;color:${theme.vars['--text']}">${escapeHtml(b.data.title||'')}</div><div style="padding:16px;border-top:1px solid #f0f3f7;white-space:pre-wrap;color:${theme.vars['--muted']}">${escapeHtml(b.data.body||'')}</div>`;
+          wrapper.appendChild(card);
+        } else if(b.type==='section'){
+          const section = document.createElement('div');
+          section.style.padding='20px';
+          section.style.borderRadius='var(--radius)';
+          section.style.background = b.data.bg_color || '#efefef';
+          section.style.marginBottom = '20px';
+          section.innerHTML = b.data.title ? `<h2 style="margin:0 0 16px 0;font-size:24px;color:${theme.vars['--text']}">${escapeHtml(b.data.title)}</h2>` : '';
+          wrapper.appendChild(section);
+        } else if(b.type==='accordion'){
+          const acc = document.createElement('div'); acc.className='site-accordion';
+          (b.data.items||[]).forEach(item => {
+            const details = document.createElement('details');
+            const summary = document.createElement('summary'); summary.textContent = item.title; summary.style.color=theme.vars['--text'];
+            const content = document.createElement('div'); content.className='site-accordion-content'; content.textContent = item.content; content.style.color=theme.vars['--muted'];
+            details.appendChild(summary); details.appendChild(content);
+            acc.appendChild(details);
+          });
+          wrapper.appendChild(acc);
+        } else if(b.type==='table'){
+          const tableWrap = document.createElement('div'); tableWrap.className='site-table-wrap';
+          const table = document.createElement('table'); table.className='site-table';
+          
+          if(b.data.columns && b.data.columns.length){
+            const thead = document.createElement('thead');
+            const tr = document.createElement('tr');
+            b.data.columns.forEach(col => {
+              const th = document.createElement('th'); th.textContent = escapeHtml(col);
+              th.style.color = theme.vars['--text'];
+              tr.appendChild(th);
+            });
+            thead.appendChild(tr); table.appendChild(thead);
+          }
+          
+          if(b.data.rows && b.data.rows.length){
+            const tbody = document.createElement('tbody');
+            b.data.rows.forEach(row => {
+              const tr = document.createElement('tr');
+              const numCells = b.data.columns.length;
+              for(let i=0; i<numCells; i++){
+                const td = document.createElement('td'); 
+                td.textContent = escapeHtml(row[i] || '');
+                td.style.color = theme.vars['--muted'];
+                tr.appendChild(td);
+              }
+              tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+          }
+          
+          tableWrap.appendChild(table);
+          wrapper.appendChild(tableWrap);
+        } else if(b.type==='quote'){ // New: Quote Block Rendering
+            const quoteEl = document.createElement('blockquote');
+            quoteEl.className = 'site-quote';
+            quoteEl.style.borderColor = theme.vars['--accent'];
+            
+            const quoteText = document.createElement('p');
+            quoteText.style.color = theme.vars['--text'];
+            quoteText.textContent = `“${b.data.text || '[Quote text here]' }”`;
+            quoteEl.appendChild(quoteText);
+            
+            if(b.data.author){
+                const footer = document.createElement('footer');
+                let footerContent = `<strong>${escapeHtml(b.data.author)}</strong>`;
+                if(b.data.source){
+                    const sourceText = escapeHtml(b.data.source);
+                    footerContent += b.data.source.startsWith('http') ? 
+                        ` <cite>— <a href="${sourceText}" target="_blank" style="color:inherit;text-decoration:none">${sourceText}</a></cite>` :
+                        ` <cite>— ${sourceText}</cite>`;
+                }
+                footer.innerHTML = footerContent;
+                quoteEl.appendChild(footer);
+            }
+            wrapper.appendChild(quoteEl);
+        }
+        container.appendChild(wrapper);
+      });
+
+      root.appendChild(container);
+      previewBody.appendChild(root);
+    }
+
+    function applyFilterToElement(elm, filter){
+      if(!filter || filter.name==='none') { elm.style.filter='none'; return; }
+      const n = filter.name, v = Number(filter.value||0);
+      switch(n){
+        case 'grayscale': elm.style.filter = `grayscale(${v}%)`; break;
+        case 'sepia': elm.style.filter = `sepia(${v}%)`; break;
+        case 'blur': elm.style.filter = `blur(${v}px)`; break;
+        case 'brightness': elm.style.filter = `brightness(${v}%)`; break;
+        case 'contrast': elm.style.filter = `contrast(${v}%)`; break;
+        case 'saturate': elm.style.filter = `saturate(${v}%)`; break;
+        default: elm.style.filter='none';
+      }
+    }
+
+    /* --------- Video helpers (normalize embed URLs) (unchanged) --------- */
+    function normalizeYoutubeEmbed(url){
+      try{
+        const u = new URL(url);
+        let id='';
+        if(u.hostname.includes('youtu.be')) id = u.pathname.slice(1);
+        if(u.hostname.includes('youtube.com')) id = u.searchParams.get('v');
+        if(!id) return url;
+        return 'https://www.youtube.com/embed/' + id + '?rel=0';
+      }catch(e){ return url; }
+    }
+    function normalizeVimeoEmbed(url){
+      try{
+        const u = new URL(url);
+        const parts = u.pathname.split('/'); const id = parts.pop() || parts.pop();
+        if(!id) return url;
+        return 'https://player.vimeo.com/video/' + id;
+      }catch(e){ return url; }
+    }
+
+    /* --------- Export: generate HTML with inline CSS + embedded assets + CTA support (uses themePresets + new blocks) --------- */
+    function generateExportHtml(){
+      const theme = themePresets[state.theme]; // Use selected theme
+      const themeCssVars = Object.entries(theme.vars).map(([k,v])=>`${k}:${v};`).join('');
+      // Apply custom site vars to :root, but keep builder style vars in main CSS for consistency
+      const themeCss = `:root{${themeCssVars}} body{margin:0;font-family:Inter,system-ui,Arial;background:var(--bg);color:var(--text)}`;
+      const sharedCss = `
+.container{max-width:980px;margin:0 auto;padding:28px}
+.site-hero{text-align:center;padding:48px 18px}
+.site-title{font-size:42px;margin:0;font-weight:800;color:var(--text)}
+.site-sub{font-size:18px;margin-top:10px;color:var(--muted)}
+.site-body{padding-top:16px;color:var(--text)}
+img.responsive{max-width:100%;height:auto;border-radius:8px;display:block;margin:16px auto}
+.two-col{display:flex;gap:18px;flex-wrap:wrap}
+.two-col>div{flex:1;min-width:220px}
+.anim-fade{animation-name:animFade;animation-fill-mode:forwards}
+.anim-slideup{animation-name:animSlideUp;animation-fill-mode:forwards}
+.anim-slideleft{animation-name:animSlideLeft;animation-fill-mode:forwards}
+.anim-zoom{animation-name:animZoom;animation-fill-mode:forwards}
+.anim-bounce{animation-name:animBounce;animation-fill-mode:forwards}
+@keyframes animFade{from{opacity:0}to{opacity:1}}
+@keyframes animSlideUp{from{transform:translateY(18px);opacity:0}to{transform:none;opacity:1}}
+@keyframes animSlideLeft{from{transform:translateX(18px);opacity:0}to{transform:none;opacity:1}}
+@keyframes animZoom{from{transform:scale(.94);opacity:0}to{transform:none;opacity:1}}
+@keyframes animBounce{from{transform:translateY(0)}50%{transform:translateY(-8px)}to{transform:translateY(0)}}
+.video-wrap{position:relative;display:inline-block;width:100%}
+.video-cta{position:absolute;bottom:18px;padding:8px 14px;border-radius:8px;background:var(--accent);color:#fff;text-decoration:none;font-weight:700;display:inline-block}
+.video-cta.left{left:18px}
+.video-cta.center{left:50%;transform:translateX(-50%)}
+.video-cta.right{right:18px}
+.call-to-action{display:inline-block;padding:10px 14px;border-radius:8px;text-decoration:none;font-weight:700}
+.cta-primary{background:var(--accent);color:#fff}
+.cta-outline{background:#fff;border:1px solid #eef3ff;color:#0b1220}
+.site-card{background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(11,17,34,0.08);overflow:hidden}
+.site-accordion{margin:18px 0;border-radius:8px;overflow:hidden;border:1px solid #eef3ff;background:#fff;}
+.site-accordion details{border-bottom:1px solid #eef3ff;}
+.site-accordion details:last-child{border-bottom:none;}
+.site-accordion summary{padding:12px 16px;cursor:pointer;font-weight:600;outline:none;background:#f9fbfc;color:var(--text);}
+.site-accordion-content{padding:12px 16px;white-space:pre-wrap;color:var(--muted);}
+.site-table-wrap{overflow-x:auto;}
+.site-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;border:1px solid #eef3ff;border-radius:8px;overflow:hidden;}
+.site-table th, .site-table td{padding:10px;border:1px solid #eef3ff;text-align:left;}
+.site-table th{background:#f9fbfc;font-weight:700;color:var(--text);}
+.site-quote{font-style:italic;font-size:1.2rem;padding:20px;border-left:4px solid var(--accent);background:var(--panel);border-radius:8px;margin:18px 0;}
+.site-quote footer{margin-top:12px;font-size:0.9rem;font-style:normal;color:var(--muted);text-align:right;}
+.site-quote footer strong{font-weight:700;color:var(--text);}
+`;
+    // Inject Custom CSS
+    const customCssBlock = (state.customCSS && state.customCSS.trim()) ? `\n\n/* --- CUSTOM USER CSS --- */\n${state.customCSS}\n/* ----------------------- */\n` : '';
+    
+      const blocksHtml = state.blocks.map(b=>{
+        const anim = b.data.animation || {type:'none',duration:600,delay:0};
+        const animClass = anim.type && anim.type!=='none' ? `class="anim-${anim.type}" style="animation-duration:${anim.duration}ms;animation-delay:${anim.delay}ms;"` : '';
+        
+        if(b.type==='hero'){
+          const title = escapeHtml(b.data.title||'');
+          const subtitle = escapeHtml(b.data.subtitle||'');
+          if(b.data.link){
+            const link = escapeHtml(b.data.link);
+            return `<header ${animClass} class="site-hero"><h1 class="site-title"><a href="${link}" target="_blank" style="color:inherit;text-decoration:none">${title}</a></h1><p class="site-sub"><a href="${link}" target="_blank" style="color:inherit;text-decoration:none">${subtitle}</a></p></header>`;
+          }
+          return `<header ${animClass} class="site-hero"><h1 class="site-title">${title}</h1><p class="site-sub">${subtitle}</p></header>`;
+        }
+        if(b.type==='text'){
+          const text = escapeHtml(b.data.text||'');
+          if(b.data.link){
+            const link = escapeHtml(b.data.link);
+            return `<section ${animClass} class="site-body"><a href="${link}" target="_blank" style="color:inherit;text-decoration:none"><p style="white-space:pre-wrap">${text}</p></a></section>`;
+          }
+          return `<section ${animClass} class="site-body"><p style="white-space:pre-wrap">${text}</p></section>`;
+        }
+        if(b.type==='two-col'){
+          return `<section ${animClass} class="site-body"><div class="two-col"><div>${escapeHtml(b.data.left||'')}</div><div>${escapeHtml(b.data.right||'')}</div></div></section>`;
+        }
+        if(b.type==='image'){
+          const img = b.data.image && b.data.image.dataURL ? b.data.image.dataURL : '';
+          const alt = escapeHtml(b.data.alt||'');
+          const width = (b.data.width||80) + '%';
+          const f = b.data.filter || {name:'none',value:0};
+          let filterCss = 'none';
+          if(f.name && f.name!=='none'){
+            if(f.name==='grayscale') filterCss = `grayscale(${f.value}%)`;
+            else if(f.name==='sepia') filterCss = `sepia(${f.value}%)`;
+            else if(f.name==='blur') filterCss = `blur(${f.value}px)`;
+            else if(f.name==='brightness') filterCss = `brightness(${f.value}%)`;
+            else if(f.name==='contrast') filterCss = `contrast(${f.value}%)`;
+            else if(f.name==='saturate') filterCss = `saturate(${f.value}%)`;
+          }
+          const align = b.data.align || 'center';
+          const caption = escapeHtml(b.data.caption||'');
+          const link = b.data.link || '';
+          const tagStart = link ? `<a href="${escapeHtml(link)}" target="_blank">` : '';
+          const tagEnd = link ? `</a>` : '';
+          return `<div ${animClass} style="text-align:${align};margin:18px 0"><div>${tagStart}<img class="responsive" src="${img}" alt="${alt}" style="width:${width};filter:${filterCss};border-radius:8px" />${tagEnd}</div>${caption?`<div style="font-size:13px;color:var(--muted);margin-top:8px">${caption}</div>`:''}</div>`;
+        }
+        if(b.type==='video'){
+          const caption = escapeHtml(b.data.caption||'');
+          if(b.data.provider==='file' && b.data.video && b.data.video.dataURL){
+            const attrs = `${b.data.autoplay? 'autoplay':''} ${b.data.loop? 'loop':''} ${b.data.muted? 'muted':''} ${b.data.controls? 'controls':''}`;
+            const cta = (b.data.overlayCTA && b.data.overlayCTA.show) ? `<a class="video-cta ${escapeHtml(b.data.overlayCTA.position||'center')}" href="${escapeHtml(b.data.overlayCTA.url||'#')}" target="_blank">${escapeHtml(b.data.overlayCTA.label||'Watch Now')}</a>` : '';
+            return `<div ${animClass} style="text-align:center;margin:18px 0"><div class="video-wrap"><video src="${b.data.video.dataURL}" style="max-width:100%;height:auto;border-radius:8px" ${attrs}></video>${cta}</div>${caption?`<div style="font-size:13px;color:var(--muted);margin-top:8px">${caption}</div>`:''}</div>`;
+          } else if(b.data.provider==='youtube' && b.data.srcUrl){
+            const embed = normalizeYoutubeEmbed(b.data.srcUrl);
+            const cta = (b.data.overlayCTA && b.data.overlayCTA.show) ? `<a class="video-cta ${escapeHtml(b.data.overlayCTA.position||'center')}" href="${escapeHtml(b.data.overlayCTA.url||'#')}" target="_blank">${escapeHtml(b.data.overlayCTA.label||'Watch Now')}</a>` : '';
+            return `<div ${animClass} style="text-align:center;margin:18px 0"><div class="video-wrap"><iframe src="${embed}" width="100%" height="480" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>${cta}</div>${caption?`<div style="font-size:13px;color:var(--muted);margin-top:8px">${caption}</div>`:''}</div>`;
+          } else if(b.data.provider==='vimeo' && b.data.srcUrl){
+            const embed = normalizeVimeoEmbed(b.data.srcUrl);
+            const cta = (b.data.overlayCTA && b.data.overlayCTA.show) ? `<a class="video-cta ${escapeHtml(b.data.overlayCTA.position||'center')}" href="${escapeHtml(b.data.overlayCTA.url||'#')}" target="_blank">${escapeHtml(b.data.overlayCTA.label||'Watch Now')}</a>` : '';
+            return `<div ${animClass} style="text-align:center;margin:18px 0"><div class="video-wrap"><iframe src="${embed}" width="100%" height="480" frameborder="0" allowfullscreen></iframe>${cta}</div>${caption?`<div style="font-size:13px;color:var(--muted);margin-top:8px">${caption}</div>`:''}</div>`;
+          } else {
+            return `<div ${animClass} style="margin:18px 0"><div style="color:var(--muted)">No video</div></div>`;
+          }
+        }
+        if(b.type==='button'){
+          const label = escapeHtml(b.data.label||'Click');
+          const url = escapeHtml(b.data.url||'#');
+          const cls = b.data.style==='outline' ? 'call-to-action cta-outline' : 'call-to-action cta-primary';
+          const target = b.data.newTab ? ' target="_blank" rel="noopener"' : '';
+          return `<div ${animClass} style="margin:18px 0"><a class="${cls}" href="${url}"${target}>${label}</a></div>`;
+        }
+        if(b.type==='card'){
+          const title = escapeHtml(b.data.title||'');
+          const body = escapeHtml(b.data.body||'');
+          return `<div ${animClass} style="margin:18px 0"><div class="site-card"><div style="padding:16px;font-weight:700">${title}</div><div style="padding:16px;border-top:1px solid #f0f3f7;white-space:pre-wrap">${body}</div></div></div>`;
+        }
+        if(b.type==='section'){
+          const title = b.data.title ? `<h2 style="margin:0 0 16px 0;font-size:24px;color:var(--text)">${escapeHtml(b.data.title)}</h2>` : '';
+          const bg = escapeHtml(b.data.bg_color||'#efefef');
+          return `<div ${animClass} style="padding:20px;border-radius:12px;background:${bg};margin:18px 0">${title}<div class="section-content"></div></div>`;
+        }
+        if(b.type==='accordion'){
+          const itemsHtml = (b.data.items||[]).map(item => `
+            <details>
+              <summary>${escapeHtml(item.title)}</summary>
+              <div class="site-accordion-content">${escapeHtml(item.content)}</div>
+            </details>
+          `).join('');
+          return `<div ${animClass} class="site-accordion">${itemsHtml}</div>`;
+        }
+        if(b.type==='table'){
+          const headerHtml = (b.data.columns && b.data.columns.length) ? 
+            `<thead><tr>${b.data.columns.map(col => `<th>${escapeHtml(col)}</th>`).join('')}</tr></thead>` : '';
+            
+          const bodyHtml = (b.data.rows && b.data.rows.length) ? 
+            `<tbody>${b.data.rows.map(row => {
+              const cells = [];
+              const numCells = b.data.columns.length;
+              for(let i=0; i<numCells; i++){
+                cells.push(`<td>${escapeHtml(row[i] || '')}</td>`);
+              }
+              return `<tr>${cells.join('')}</tr>`;
+            }).join('')}</tbody>` : '';
+            
+          const tableHtml = `<div class="site-table-wrap"><table class="site-table">${headerHtml}${bodyHtml}</table></div>`;
+          return `<div ${animClass} style="margin:18px 0">${tableHtml}</div>`;
+        }
+        if(b.type==='quote'){
+            const text = escapeHtml(b.data.text||'[Quote text here]');
+            const author = escapeHtml(b.data.author||'');
+            const source = escapeHtml(b.data.source||'');
+            
+            let footerHtml = '';
+            if(author){
+                let sourceLink = '';
+                if(source){
+                    sourceLink = source.startsWith('http') ? 
+                        `<cite>— <a href="${source}" target="_blank" style="color:inherit;text-decoration:none">${source}</a></cite>` :
+                        `<cite>— ${source}</cite>`;
+                }
+                footerHtml = `<footer><strong>${author}</strong> ${sourceLink}</footer>`;
+            }
+            return `<blockquote ${animClass} class="site-quote"><p>${text}</p>${footerHtml}</blockquote>`;
+        }
+        return '';
+      }).join('\n');
+
+      const html = `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Exported Site</title><style>${themeCss}\n${sharedCss}${customCssBlock}</style></head><body><div class="container">${blocksHtml}</div></body></html>`;
+      return html;
+    }
+
+    /* --------- actions: download/copy/preview (unchanged) --------- */
+    downloadBtn.addEventListener('click', ()=> {
+      const html = generateExportHtml();
+      const blob = new Blob([html], { type:'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = slugify('site') + '.html';
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+      flashStatus('Downloaded');
+    });
+
+    copyBtn.addEventListener('click', async ()=> {
+      const html = generateExportHtml();
+      try { await navigator.clipboard.writeText(html); flashStatus('Copied HTML'); }
+      catch(e){ const w = window.open(); if(!w){ alert('Clipboard failed & pop-ups blocked.'); return } w.document.open(); w.document.write('<pre style="white-space:pre-wrap">'+escapeHtml(html)+'</pre>'); w.document.close(); }
+    });
+
+    previewBtn.addEventListener('click', ()=> {
+      const html = generateExportHtml();
+      const w = window.open(); if(!w){ alert('Popup blocked — allow popups to preview.'); return; }
+      w.document.open(); w.document.write(html); w.document.close();
+    });
+
+    // keyboard save
+    window.addEventListener('keydown', (e)=> { if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='s'){ e.preventDefault(); downloadBtn.click(); } });
+
+    function flashStatus(msg, ms=1400){ status.textContent = msg; setTimeout(()=> status.textContent='Ready', ms) }
+	const shareBtn = document.getElementById('shareBtn');
+    shareBtn.addEventListener('click', () => {
+      const html = generateExportHtml();
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+
+      // Show the share link
+      const linkBox = document.createElement('div');
+      linkBox.style.marginTop = '10px';
+      linkBox.style.padding = '8px';
+      linkBox.style.background = '#fff';
+      linkBox.style.borderRadius = '8px';
+      linkBox.style.boxShadow = '0 2px 6px rgba(0,0,0,0.1)';
+      linkBox.innerHTML = `
+        <strong>Share Link (view only):</strong><br>
+        <a href="${url}" target="_blank">${url}</a>
+        <div class="muted-small">Note: This link is temporary and only works while this builder tab remains open.</div>
+      `;
+
+      // Clear previous share link and add new one
+      const aside = document.querySelector('aside');
+      aside.querySelectorAll('.share-link-box').forEach(el => el.remove());
+      linkBox.classList.add('share-link-box');
+      aside.appendChild(linkBox);
+      flashStatus('Share link created!');
+    });
+
+  </script>
+</body>
+</html>
