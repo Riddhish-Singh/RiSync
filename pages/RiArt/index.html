@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RiArt Studio - Persistent</title>
+    <style>
+        /* --- CSS STYLES --- */
+        :root {
+            --accent: #00e5ff;
+            --bg-sidebar: #0f172a;
+            --bg-main: #1e293b;
+            --text: #f1f5f9;
+            --text-dim: #94a3b8;
+            --msg-user-bg: #0ea5e9;
+            --msg-bot-bg: #334155;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand { font-weight: 700; font-size: 1.2rem; display: flex; gap: 10px; align-items: center; }
+        
+        .new-chat-btn {
+            margin: 15px;
+            padding: 12px;
+            background: var(--accent);
+            color: #0f172a;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+        .new-chat-btn:hover { filter: brightness(1.1); }
+
+        .history-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .history-item {
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: 0.2s;
+            position: relative;
+        }
+        
+        .history-item:hover { background: #1e293b; color: var(--text); }
+        .history-item.active { background: #334155; color: var(--text); border: 1px solid #475569; }
+        
+        .delete-chat {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            opacity: 0;
+            font-size: 1.1rem;
+        }
+        .history-item:hover .delete-chat { opacity: 1; }
+
+        /* --- Main Chat Area --- */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: var(--bg-main);
+        }
+
+        .mobile-header {
+            display: none;
+            padding: 15px;
+            background: var(--bg-sidebar);
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Chat Messages */
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            scroll-behavior: smooth;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .message-row { display: flex; width: 100%; }
+        .user-row { justify-content: flex-end; }
+        .bot-row { justify-content: flex-start; }
+
+        .msg-bubble {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 1rem;
+            line-height: 1.5;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .user-msg { background: var(--msg-user-bg); color: white; border-bottom-right-radius: 2px; }
+        .bot-msg { 
+            background: var(--msg-bot-bg); 
+            color: #e2e8f0; 
+            border-bottom-left-radius: 2px; 
+            padding: 0; 
+            overflow: hidden; 
+            border: 1px solid #475569;
+            min-width: 300px;
+        }
+
+        .generated-img {
+            width: 100%;
+            height: auto;
+            display: block;
+            cursor: pointer;
+            background: #000;
+            min-height: 200px;
+        }
+        
+        /* For attached user images */
+        .user-attachment {
+            max-width: 200px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: block;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* Input Area */
+        .input-container {
+            padding: 20px;
+            border-top: 1px solid var(--border);
+            background: var(--bg-main);
+            display: flex;
+            justify-content: center;
+            position: relative;
+        }
+
+        .input-wrapper {
+            width: 100%;
+            max-width: 800px;
+            background: #0f172a;
+            border: 1px solid #475569;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: border-color 0.2s;
+        }
+        .input-wrapper:focus-within { border-color: var(--accent); }
+
+        /* Preview Area */
+        .preview-area {
+            padding: 12px;
+            border-bottom: 1px solid #334155;
+            display: none;
+            animation: slideDown 0.2s ease;
+        }
+        .preview-area.active { display: flex; align-items: center; gap: 10px; }
+        
+        .preview-thumb {
+            height: 60px;
+            width: auto;
+            border-radius: 6px;
+            border: 1px solid var(--accent);
+        }
+        
+        .remove-preview {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .remove-preview:hover { background: #ef4444; color: white; }
+
+        /* Controls Row */
+        .input-controls {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            gap: 8px;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            color: white;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .icon-btn {
+            background: transparent;
+            color: var(--text-dim);
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .icon-btn:hover { background: #1e293b; color: var(--text); }
+
+        .send-btn {
+            background: var(--accent);
+            color: #0f172a;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 5px;
+        }
+        .send-btn:hover { filter: brightness(1.1); transform: scale(1.05); }
+
+        /* Loaders */
+        .loading-wrapper {
+            width: 300px;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+        }
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+        
+        .dl-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+            opacity: 0; 
+            transition: opacity 0.2s;
+        }
+        .bot-msg:hover .dl-btn { opacity: 1; }
+
+        .storage-warn {
+            font-size: 0.7rem;
+            color: #ef4444;
+            display: none;
+            margin-top: 5px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideDown { from { height: 0; opacity: 0; } to { height: auto; opacity: 1; } }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                height: 100%;
+                transform: translateX(-100%);
+                width: 280px;
+                box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+            }
+            .sidebar.open { transform: translateX(0); }
+            .mobile-header { display: flex; }
+            .bot-msg { min-width: 100%; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="brand">⚡ RiArt <span style="font-size:0.7em; color:var(--text-dim)">Pro</span></div>
+            <button class="menu-btn" onclick="toggleSidebar()" style="font-size:1rem; display:none">✕</button>
+        </div>
+        
+        <button class="new-chat-btn" onclick="startNewChat()">
+            <span>+</span> New Creation
+        </button>
+
+        <div class="history-list" id="historyList"></div>
+        
+        <div style="margin-top: auto; padding: 15px; border-top: 1px solid var(--border);">
+             <button onclick="clearAllStorage()" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:0.8rem;">⚠ Clear All History</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="mobile-header">
+            <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+            <span style="font-weight:bold">RiArt Studio</span>
+            <div style="width:24px"></div> 
+        </div>
+
+        <div class="chat-area" id="chatArea"></div>
+
+        <div class="input-container">
+            <div class="input-wrapper">
+                <div class="preview-area" id="previewArea">
+                    <img src="" id="previewImg" class="preview-thumb">
+                    <div style="flex:1; font-size:0.8rem; color:var(--text-dim)">Image attached (Strict Mode On)</div>
+                    <button class="remove-preview" onclick="clearImageSelection()">✕</button>
+                </div>
+
+                <div class="input-controls">
+                    <button class="icon-btn" onclick="document.getElementById('fileInput').click()" title="Upload Image">
+                        📎
+                    </button>
+                    <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFileSelect(event)">
+                    
+                    <input type="text" id="chatInput" placeholder="Describe your image..." autocomplete="off">
+                    <button class="send-btn" id="sendBtn" onclick="handleSend()">➤</button>
+                </div>
+            </div>
+            <div id="storageWarn" class="storage-warn">Storage Full - Old images might be removed</div>
+        </div>
+    </div>
+
+    <script>
+        // --- State Management ---
+        let chats = []; 
+        let activeChatId = null;
+        let currentImageFile = null; 
+
+        // DOM Elements
+        const chatArea = document.getElementById('chatArea');
+        const historyList = document.getElementById('historyList');
+        const chatInput = document.getElementById('chatInput');
+        const previewArea = document.getElementById('previewArea');
+        const previewImg = document.getElementById('previewImg');
+        const fileInput = document.getElementById('fileInput');
+        const sidebar = document.getElementById('sidebar');
+        const storageWarn = document.getElementById('storageWarn');
+
+        // --- Initialization ---
+        window.onload = () => {
+            loadChatsFromStorage();
+            if (chats.length > 0) {
+                switchChat(chats[0].id);
+            } else {
+                startNewChat();
+            }
+        };
+
+        // --- File Handling ---
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                currentImageFile = file;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewImg.src = e.target.result;
+                    previewArea.classList.add('active');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function clearImageSelection() {
+            currentImageFile = null;
+            fileInput.value = '';
+            previewArea.classList.remove('active');
+        }
+
+        // --- Core Logic ---
+
+        function startNewChat() {
+            const newId = Date.now();
+            const newChat = {
+                id: newId,
+                title: "New Art Session",
+                currentPrompt: "",
+                messages: [] 
+            };
+            
+            chats.unshift(newChat); 
+            saveChatsToStorage();
+            renderHistory();
+            switchChat(newId);
+            
+            // Only add welcome message if empty
+            if (newChat.messages.length === 0) {
+                setTimeout(() => {
+                    addMessage(newId, 'bot', 'Hello! Upload a photo to modify it. I will try my best to keep the original face. 🎨', 'text');
+                }, 100);
+            }
+            
+            if (window.innerWidth < 768) toggleSidebar(); 
+        }
+
+        function switchChat(id) {
+            activeChatId = id;
+            renderHistory();
+            renderChatArea();
+            chatInput.value = '';
+            clearImageSelection(); 
+            chatInput.focus();
+        }
+
+        function handleSend() {
+            const text = chatInput.value.trim();
+            if ((!text && !currentImageFile) || !activeChatId) return;
+
+            const hasImage = !!currentImageFile;
+            const imageFileToSend = currentImageFile; 
+            
+            // 1. Add User Message to UI immediately
+            if (hasImage) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    // Pass the Base64 result to be saved
+                    addMessage(activeChatId, 'user', text, 'text', e.target.result);
+                };
+                reader.readAsDataURL(imageFileToSend);
+            } else {
+                addMessage(activeChatId, 'user', text, 'text');
+            }
+
+            chatInput.value = '';
+            clearImageSelection();
+
+            const chat = chats.find(c => c.id === activeChatId);
+            
+            if (chat.messages.length <= 2 && text) {
+                chat.title = text.substring(0, 25) + (text.length > 25 ? '...' : '');
+                renderHistory();
+            }
+
+            if (chat.currentPrompt === "") {
+                chat.currentPrompt = text;
+            } else if(text) {
+                chat.currentPrompt += `, ${text}`;
+            }
+
+            const loadingId = addLoadingBubble();
+            generateImage(chat, chat.currentPrompt, imageFileToSend, loadingId);
+        }
+
+        async function generateImage(chat, prompt, imageFile, bubbleId) {
+            const seed = Math.floor(Math.random() * 1000000);
+            
+            let fullPrompt = "";
+            let params = "";
+
+            // --- SMART PROMPTING STRATEGY ---
+            if (imageFile) {
+                // Strict mode for images: Emphasize preserving features
+                // We append strict instructions to the prompt
+                fullPrompt = `${prompt}, preserve identity, exact facial features, high fidelity, 8k`;
+                // Important: NO enhance=true for images, it destroys faces
+                params = `?width=1280&height=1280&seed=${seed}&nologo=true&model=flux`;
+            } else {
+                // Creative mode for text
+                fullPrompt = `${prompt}, masterpiece, 8k, trending on artstation`;
+                params = `?width=1280&height=1280&seed=${seed}&nologo=true&model=flux&enhance=true`;
+            }
+
+            const encodedPrompt = encodeURIComponent(fullPrompt);
+            const baseUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}`;
+            
+            try {
+                let finalUrl;
+
+                if (imageFile) {
+                    // --- IMAGE TO IMAGE ---
+                    const response = await fetch(baseUrl + params, {
+                        method: 'POST',
+                        body: imageFile 
+                    });
+
+                    if (!response.ok) throw new Error('Generation failed');
+                    // We get the blob to display it immediately
+                    const blob = await response.blob();
+                    
+                    // But for SAVING, we need a permanent URL. 
+                    // Pollinations doesn't give a permanent URL for POST requests easily without hosting.
+                    // Workaround: We save the Base64 of the RESULT if possible, or warn user.
+                    // Actually, for this specific tool, let's try to use the Blob for now 
+                    // BUT convert blob to Base64 for storage.
+                    const reader = new FileReader();
+                    reader.readAsDataURL(blob); 
+                    reader.onloadend = function() {
+                        const base64data = reader.result;
+                        removeMessage(bubbleId);
+                        addMessage(chat.id, 'bot', base64data, 'image'); // Save Base64!
+                    }
+                } else {
+                    // --- TEXT TO IMAGE ---
+                    // For text, the URL itself is the image source! This is perfect for saving.
+                    finalUrl = baseUrl + params;
+                    
+                    // Pre-load to ensure it's ready
+                    const img = new Image();
+                    img.onload = () => {
+                        removeMessage(bubbleId);
+                        addMessage(chat.id, 'bot', finalUrl, 'image');
+                    };
+                    img.onerror = () => { throw new Error("Load failed"); };
+                    img.src = finalUrl;
+                }
+
+            } catch (err) {
+                console.error(err);
+                const bubble = document.getElementById(bubbleId);
+                if(bubble) bubble.innerHTML = `<div style="padding:15px; color:#ef4444">Generation failed. Try again.</div>`;
+            }
+        }
+
+        // --- Data & DOM ---
+
+        function addMessage(chatId, role, content, type, attachmentData = null) {
+            const chat = chats.find(c => c.id === chatId);
+            if (!chat) return;
+
+            const msg = { 
+                role, 
+                content, 
+                type, 
+                attachment: attachmentData, 
+                id: Date.now() + Math.random() 
+            };
+            
+            chat.messages.push(msg);
+            
+            if (activeChatId === chatId) {
+                appendMessageToDOM(msg);
+            }
+            
+            saveChatsToStorage();
+        }
+
+        function appendMessageToDOM(msg) {
+            const row = document.createElement('div');
+            row.className = `message-row ${msg.role}-row`;
+            row.id = `msg-${msg.id}`;
+
+            const bubble = document.createElement('div');
+            bubble.className = `msg-bubble ${msg.role}-msg`;
+
+            // Display Attachment
+            if (msg.attachment) {
+                 bubble.innerHTML += `<img src="${msg.attachment}" class="user-attachment">`;
+            }
+
+            if (msg.type === 'text') {
+                const textSpan = document.createElement('div');
+                textSpan.innerText = msg.content || "";
+                bubble.appendChild(textSpan);
+            } else if (msg.type === 'image') {
+                // If content starts with 'data:', it's base64. If 'http', it's url.
+                bubble.innerHTML = `
+                    <img src="${msg.content}" class="generated-img" onclick="window.open('${msg.content}', '_blank')">
+                    <button class="dl-btn" onclick="downloadImage('${msg.content}')">⬇ Download</button>
+                `;
+            }
+
+            row.appendChild(bubble);
+            chatArea.appendChild(row);
+            scrollToBottom();
+        }
+
+        function addLoadingBubble() {
+            const id = 'loading-' + Date.now();
+            const row = document.createElement('div');
+            row.className = 'message-row bot-row';
+            row.id = id;
+            
+            row.innerHTML = `
+                <div class="msg-bubble bot-msg">
+                    <div class="loading-wrapper">
+                        <div class="spinner"></div>
+                        <span>Creating Art...</span>
+                    </div>
+                </div>
+            `;
+            chatArea.appendChild(row);
+            scrollToBottom();
+            return id;
+        }
+
+        function removeMessage(domId) {
+            const el = document.getElementById(domId);
+            if (el) el.remove();
+        }
+
+        function renderChatArea() {
+            chatArea.innerHTML = '';
+            const chat = chats.find(c => c.id === activeChatId);
+            if (!chat) return;
+            chat.messages.forEach(msg => appendMessageToDOM(msg));
+        }
+
+        function renderHistory() {
+            historyList.innerHTML = '';
+            chats.forEach(chat => {
+                const div = document.createElement('div');
+                div.className = `history-item ${chat.id === activeChatId ? 'active' : ''}`;
+                div.innerHTML = `
+                    <span>${chat.title}</span>
+                    <button class="delete-chat" onclick="deleteChat(event, ${chat.id})">🗑</button>
+                `;
+                div.onclick = (e) => {
+                    if(!e.target.classList.contains('delete-chat')) switchChat(chat.id);
+                }
+                historyList.appendChild(div);
+            });
+        }
+
+        function deleteChat(e, id) {
+            e.stopPropagation();
+            if(!confirm("Delete this chat?")) return;
+            chats = chats.filter(c => c.id !== id);
+            saveChatsToStorage();
+            if (chats.length === 0) startNewChat();
+            else if (activeChatId === id) switchChat(chats[0].id);
+            else renderHistory();
+        }
+
+        function scrollToBottom() {
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
+        }
+
+        async function downloadImage(url) {
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `RiArt-${Date.now()}.jpg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // --- SAVING LOGIC (Local Storage) ---
+        function saveChatsToStorage() {
+            try {
+                localStorage.setItem('riart_chats', JSON.stringify(chats));
+                storageWarn.style.display = 'none';
+            } catch (e) {
+                console.error("Storage full", e);
+                storageWarn.style.display = 'block';
+                // If quota exceeded, try to remove oldest chat or attachment
+                // Simple failsafe: Alert user
+            }
+        }
+
+        function loadChatsFromStorage() {
+            try {
+                const data = localStorage.getItem('riart_chats');
+                if (data) chats = JSON.parse(data);
+            } catch(e) {
+                console.error("Error loading chats", e);
+                localStorage.removeItem('riart_chats');
+            }
+        }
+
+        function clearAllStorage() {
+            if(confirm("Clear all history? This cannot be undone.")) {
+                localStorage.removeItem('riart_chats');
+                chats = [];
+                startNewChat();
+            }
+        }
+
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSend();
+        });
+
+    </script>
+</body>
+</html>
