@@ -1,0 +1,866 @@
+  <style>
+    /* Custom CSS for Enhanced Design */
+    html, body {
+      height: 100%;
+      overflow: hidden; /* Ensure no scrollbars on html/body */
+    }
+
+    :root {
+        /* Light Mode Variables */
+        --bg-color: #f0f2f5; /* Body background */
+        --text-color: #333333;
+        
+        --main-wrapper-bg-light: #ffffff; /* Main app wrapper */
+        --chat-container-bg-light: #f8f9fa; /* AI Chat background */
+        --faq-container-bg-light: #e9ecef; /* FAQ section background */
+        --options-container-bg-light: #f0f2f5; /* Footer background */
+        --faq-item-bg-light: #ffffff; /* Individual FAQ item background */
+
+        --user-bubble-bg: linear-gradient(135deg, #2c7cbd, #225f92);
+        --user-bubble-shadow: 0 6px 15px rgba(34, 95, 146, 0.4);
+        --bot-bubble-bg: rgba(255, 255, 255, 0.9);
+        --bot-bubble-text: #1e1e1e;
+        --header-bg: linear-gradient(to right, #e51f17, #c01a14);
+        --option-button-bg: #ffffff;
+        --option-button-text: #4a4a4a;
+        --option-button-border: #e0e0e0;
+        --option-button-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        --faq-section-text: #4a4a4a;
+        --faq-title-color: #c01a14;
+        --font-size-base: 1rem;
+        --border-color-light: #e0e0e0; /* Adjusted border color */
+        --timestamp-color-light: #4a4a4a;
+        --greeting-text-color-light: #ffffff;
+    }
+
+    .dark-mode {
+        /* Dark Mode Variables - Super Cool Edition (No Grey Text) */
+        --bg-color: #0A0A0F; /* Deeper, richer dark body background */
+        --text-color: #FFFFFF; /* Changed to White */
+
+        --main-wrapper-bg-dark: #15151A; /* Main app wrapper */
+        --chat-container-bg-dark: #1A1A21; /* AI Chat background */
+        --faq-container-bg-dark: #1F1F26; /* FAQ section background */
+        --options-container-bg-dark: #101015; /* Footer background */
+        --faq-item-bg-dark: #282830; /* Individual FAQ item background */
+
+        --user-bubble-bg: linear-gradient(135deg, #6A82FB, #4A60E2); /* More vibrant blue */
+        --user-bubble-shadow: 0 8px 20px rgba(74, 96, 226, 0.5); /* Stronger, bluer shadow */
+        --bot-bubble-bg: rgba(255, 255, 255, 0.08); /* More subtle, translucent dark */
+        --bot-bubble-text: #FFFFFF; /* Changed to White */
+        --header-bg: linear-gradient(to right, #E51F17, #C01A14); /* Keep red for brand consistency */
+        --option-button-bg: #222228; /* Darker option buttons */
+        --option-button-text: #FFFFFF; /* Changed to White */
+        --option-button-border: #3A3A41;
+        --option-button-shadow: 0 5px 15px rgba(0,0,0,0.6); /* Darker, more defined shadow */
+        --faq-section-text: #F8F8F8; /* Changed to very light, non-grey */
+        --faq-title-color: #FFD700; /* Gold/Yellow for pop */
+        --border-color-dark: #2A2A30; /* Subtle dark border */
+        --timestamp-color-dark: #CCCCCC; /* Changed to a lighter, non-grey */
+        --greeting-text-color-dark: #FFFFFF; /* Changed to White */
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-size: var(--font-size-base);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      width: 100vw;
+      height: 100vh;
+      transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out;
+    }
+
+    .main-app-wrapper {
+        background-color: var(--main-wrapper-bg-light); /* Use new variable */
+        color: var(--text-color);
+        transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out;
+        border-radius: 1.5rem; /* More rounded */
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15); /* Stronger initial shadow */
+        overflow: hidden; /* Ensure content stays within rounded corners */
+    }
+
+    .dark-mode .main-app-wrapper {
+        background-color: var(--main-wrapper-bg-dark); /* Use new variable */
+        border: 1px solid var(--border-color-dark);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    /* General Theme Colors */
+    .text-theme-dark { color: var(--text-color); }
+    .text-theme-blue { color: #2c7cbd; }
+    .dark-mode .text-theme-blue { color: #6A82FB; }
+    .bg-gradient-red { background: var(--header-bg); }
+    .bg-gradient-blue { background: linear-gradient(to right, #2c7cbd, #225f92); }
+    .dark-mode .bg-gradient-blue { background: linear-gradient(to right, #6A82FB, #4A60E2); }
+    .bg-theme-yellow { background: linear-gradient(to right, #f8cc18, #f8d844); }
+    .border-theme-yellow { border-color: #f8cc18; }
+    .font-playfair { font-family: 'Playfair Display', serif; }
+
+    /* Animations */
+    .chat-container-animate {
+      animation: containerFadeIn 0.8s ease-out forwards;
+    }
+
+    @keyframes containerFadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    header {
+      border-top-left-radius: 1.5rem; /* Match main wrapper */
+      border-top-right-radius: 1.5rem; /* Match main wrapper */
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Stronger shadow */
+      position: relative;
+      z-index: 10;
+    }
+
+    .chat-bubble {
+      max-width: 85%;
+      padding: 12px 16px;
+      border-radius: 18px;
+      margin-bottom: 10px;
+      word-wrap: break-word;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInSlideUp 0.5s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      position: relative; /* For speaker icon positioning */
+    }
+
+    .bot-bubble {
+        background-color: var(--bot-bubble-bg);
+        color: var(--bot-bubble-text);
+        border-bottom-left-radius: 6px;
+        align-self: flex-start;
+        backdrop-filter: blur(12px); /* Stronger blur */
+        border: 1px solid rgba(255,255,255,0.2); /* More visible border */
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08); /* Slightly stronger shadow */
+    }
+    .dark-mode .bot-bubble {
+        background-color: var(--bot-bubble-bg);
+        border: 1px solid rgba(255,255,255,0.05);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+    }
+    .user-bubble {
+      background: var(--user-bubble-bg);
+      color: #ffffff;
+      border-bottom-right-radius: 6px;
+      align-self: flex-end;
+      text-align: right;
+      box-shadow: var(--user-bubble-shadow);
+    }
+
+    .message-text-content {
+      flex-grow: 1;
+      text-align: left;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .user-bubble .message-text-content {
+      text-align: right;
+    }
+
+    .timestamp {
+      font-size: 0.7rem;
+      opacity: 1;
+      align-self: flex-end;
+      color: var(--timestamp-color-light);
+    }
+    .dark-mode .timestamp { color: var(--timestamp-color-dark); }
+    .bot-bubble .timestamp {
+      align-self: flex-start;
+    }
+
+    @keyframes fadeInSlideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    #options-container {
+        border-bottom-left-radius: 1.5rem; /* Match main wrapper */
+        border-bottom-right-radius: 1.5rem; /* Match main wrapper */
+        padding: 15px 10px;
+        background-color: var(--options-container-bg-light); /* Use new variable */
+        border-top: 1px solid var(--border-color-light);
+        box-shadow: 0 -4px 15px rgba(0,0,0,0.08); /* Stronger shadow */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(10px); /* Stronger blur */
+    }
+    .dark-mode #options-container {
+        background-color: var(--options-container-bg-dark); /* Use new variable */
+        border-top: 1px solid var(--border-color-dark);
+    }
+
+    #options-wrapper {
+      display: flex;
+      overflow-x: hidden;
+      padding: 0 5px;
+      flex-grow: 1;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .option-button {
+      flex: 0 0 auto;
+      margin: 0 8px; /* More spacing */
+      padding: 10px 20px; /* Slightly more padding */
+      background-color: var(--option-button-bg);
+      color: var(--option-button-text);
+      border: 1px solid var(--option-button-border);
+      border-radius: 28px; /* More rounded */
+      font-weight: 500;
+      white-space: nowrap;
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      cursor: pointer;
+      box-shadow: var(--option-button-shadow);
+      opacity: 0;
+      transform: translateY(10px);
+      animation: optionFadeIn 0.3s forwards ease-out;
+      font-size: 0.9rem;
+    }
+    .option-button:hover {
+      background: linear-gradient(to right, #f8cc18, #f8d844);
+      color: #333333;
+      transform: translateY(-5px) scale(1.03); /* More pronounced hover */
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2); /* Stronger hover shadow */
+      border-color: #f8cc18;
+    }
+    .option-button:active {
+      transform: translateY(0) scale(0.97); /* More pronounced active */
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    }
+    .option-button:first-child { margin-left: 0; }
+    .option-button:last-child { margin-right: 0; }
+
+    .website-button {
+      background: linear-gradient(to right, #2c7cbd, #225f92);
+      color: white;
+      font-weight: 600;
+      border: 1px solid #225f92;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.2); /* Stronger shadow */
+      margin: 0 8px;
+    }
+    .dark-mode .website-button {
+      background: linear-gradient(to right, #6A82FB, #4A60E2);
+      border: 1px solid #4A60E2;
+    }
+    .website-button:hover {
+      background: linear-gradient(to right, #225f92, #1d4d77);
+      color: white;
+      border-color: #1d4d77;
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+    .dark-mode .website-button:hover {
+        background: linear-gradient(to right, #4A60E2, #3A4CBF);
+    }
+
+    @keyframes optionFadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Scrollbar Styling */
+    #chat-window::-webkit-scrollbar { width: 8px; }
+    #chat-window::-webkit-scrollbar-track { background: #f0f0f0; border-radius: 10px; }
+    .dark-mode #chat-window::-webkit-scrollbar-track { background: #1e1e1e; }
+    #chat-window::-webkit-scrollbar-thumb { background: #bdbdbd; border-radius: 8px; }
+    .dark-mode #chat-window::-webkit-scrollbar-thumb { background: #4A5568; }
+    #chat-window::-webkit-scrollbar-thumb:hover { background: #a0a0a0; }
+    .dark-mode #chat-window::-webkit-scrollbar-thumb:hover { background: #5a6578; }
+
+
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      margin-bottom: 10px;
+      padding: 12px 16px;
+      border-radius: 18px;
+      background-color: #e9e9eb;
+      color: #333333;
+      border-bottom-left-radius: 6px;
+      max-width: 80px;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .typing-indicator span {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background-color: #999;
+      border-radius: 50%;
+      margin: 0 2px;
+      animation: bounce 1.4s infinite ease-in-out both;
+    }
+    .dark-mode .typing-indicator {
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+    .dark-mode .typing-indicator span {
+        background-color: #A0A0A0; /* This is still grey, but it's for the dots, not text. Keeping it for effect. */
+    }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .bot-bubble .speaker-icon {
+      position: absolute;
+      right: 12px;
+      bottom: 10px;
+      cursor: pointer;
+      color: #888;
+      font-size: 0.9em;
+      transition: color 0.2s ease-in-out, transform 0.2s ease;
+    }
+    .dark-mode .bot-bubble .speaker-icon { color: #A0A0A0; /* This is still grey, but it's for the icon, not text. Keeping it for effect. */ }
+    .bot-bubble .speaker-icon:hover {
+      color: #2c7cbd;
+      transform: scale(1.1);
+    }
+    .dark-mode .bot-bubble .speaker-icon:hover { color: #6A82FB; }
+    .bot-bubble .speaker-icon:active {
+      transform: scale(0.95);
+    }
+
+    #clear-chat-button, #stop-reading-button {
+      background: linear-gradient(to right, #e51f17, #c01a14);
+      color: white;
+      padding: 8px 18px; /* Slightly more padding */
+      border-radius: 25px; /* More rounded */
+      cursor: pointer;
+      font-size: 0.85em;
+      margin-left: 15px;
+      flex-shrink: 0;
+      transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+      font-weight: 500;
+      border: none; /* Ensure no default border */
+    }
+    #stop-reading-button {
+      background: linear-gradient(to right, #d32f2f, #b71c1c);
+      display: none; /* Hidden by default */
+    }
+
+    #clear-chat-button:hover, #stop-reading-button:hover {
+      background: linear-gradient(to right, #c01a14, #a01410);
+      transform: translateY(-3px); /* More pronounced hover */
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3); /* Stronger hover shadow */
+    }
+    #stop-reading-button:hover {
+      background: linear-gradient(to right, #b71c1c, #9a0c0c);
+    }
+    #clear-chat-button:active, #stop-reading-button:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    }
+
+    header > div:first-child {
+      display: flex;
+      align-items: center;
+    }
+
+    .scroll-arrow {
+      background: linear-gradient(to right, #f8cc18, #f8d844);
+      color: #333333;
+      border: none;
+      border-radius: 50%;
+      width: 40px; /* Slightly larger */
+      height: 40px; /* Slightly larger */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.1em; /* Larger icon */
+      box-shadow: 0 3px 10px rgba(0,0,0,0.18); /* Stronger shadow */
+      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+      flex-shrink: 0;
+      margin: 0 6px; /* More spacing */
+    }
+
+    .scroll-arrow:hover {
+      background: linear-gradient(to right, #f8d844, #f9e26e);
+      transform: scale(1.12); /* More pronounced hover */
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3); /* Stronger hover shadow */
+    }
+
+    .scroll-arrow:active {
+      transform: scale(0.92); /* More pronounced active */
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    .scroll-arrow.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+      background: #e0e0e0;
+      color: #999999;
+    }
+    .dark-mode .scroll-arrow.disabled {
+        background: #3A3A3A;
+        color: #666666;
+    }
+
+    .logo-link {
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      transition: transform 0.2s ease;
+    }
+
+    .logo-link:hover { transform: scale(1.02); }
+    .logo-link:active { transform: scale(0.98); }
+
+    .logo-link .w-14 {
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+    .logo-link:hover .w-14 {
+      background-color: #f5f5f5;
+      transform: rotate(5deg);
+    }
+    .dark-mode .logo-link:hover .w-14 {
+        background-color: #2d2d2d;
+    }
+    
+    .tab-button-header {
+      padding: 12px 22px; /* Slightly more padding */
+      font-weight: 600;
+      font-size: 0.95rem; /* Slightly larger font */
+      color: #ffcccc;
+      border: none;
+      background-color: transparent;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.3s ease;
+      display: inline-block;
+    }
+    .tab-button-header::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: -10px; /* Slightly lower */
+      transform: translateX(-50%) scaleX(0);
+      width: 85%; /* Wider underline */
+      height: 3px; /* Thicker underline */
+      background-color: white;
+      border-radius: 2px; /* Rounded underline */
+      transition: transform 0.3s ease;
+    }
+    .tab-button-header.active {
+      color: white;
+    }
+    .tab-button-header.active::after {
+      transform: translateX(-50%) scaleX(1);
+    }
+    .tab-button-header:hover:not(.active) {
+      color: #ffeaea;
+    }
+
+    /* FAQ Container Styling */
+    #faq-container {
+      display: none; /* Hidden by default */
+      padding: 2rem; /* Padding for the entire FAQ section */
+      overflow-y: auto; /* Enable vertical scrolling for the FAQ section */
+      animation: fadeIn 0.5s ease-out forwards;
+      background: var(--faq-container-bg-light); /* Use new variable */
+      color: var(--text-color);
+      box-sizing: border-box;
+      height: 100%; /* Ensure it takes full height of its absolute parent */
+      display: flex; /* Make it a flex container for its children */
+      flex-direction: column; /* Stack children vertically */
+      border-radius: 1.5rem; /* Match main wrapper for consistency */
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08); /* Stronger shadow */
+      border-left: 6px solid #e51f17; /* Thicker border */
+      backdrop-filter: blur(8px); /* Stronger blur */
+    }
+    .dark-mode #faq-container {
+        background: var(--faq-container-bg-dark); /* Use new variable */
+        box-shadow: 0 8px 25px rgba(0,0,0,0.6); /* Stronger shadow */
+    }
+    /* Specific styling for even FAQ sections' left border */
+    #faq-container:nth-child(even) { border-left-color: #2c7cbd; }
+    .dark-mode #faq-container:nth-child(even) { border-left-color: #6A82FB; }
+
+
+    /* Shared styling for both AI Chat and FAQ containers when active */
+    #ai-chat-container {
+        background-color: var(--chat-container-bg-light); /* Use new variable */
+        display: flex; /* Default to flex, will be toggled by JS */
+        flex-direction: column;
+        position: absolute;
+        inset: 0;
+    }
+    .dark-mode #ai-chat-container {
+        background-color: var(--chat-container-bg-dark); /* Use new variable */
+    }
+    #faq-container {
+        display: flex; /* Default to flex, will be toggled by JS */
+        flex-direction: column;
+        position: absolute;
+        inset: 0;
+    }
+
+    #faq-container h2 {
+        flex-shrink: 0;
+        margin-bottom: 1.5rem;
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--faq-title-color);
+        font-family: 'Playfair Display', serif;
+        position: relative;
+        padding-right: 70px;
+    }
+    #faq-container:nth-child(even) h2 {
+      color: #225f92;
+    }
+    .dark-mode #faq-container h2 {
+        color: var(--faq-title-color);
+    }
+    .dark-mode #faq-container:nth-child(even) h2 {
+        color: #6A82FB;
+    }
+
+    #faq-items-wrapper {
+        display: block;
+        overflow-x: hidden;
+        white-space: normal;
+        padding-bottom: 0;
+        flex-grow: 1;
+    }
+
+    .faq-item {
+      width: 100%;
+      margin-bottom: 1.5rem;
+      margin-right: 0;
+      background: var(--faq-item-bg-light); /* Use new variable */
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      overflow: hidden;
+      transition: all 0.3s ease;
+      border: 1px solid var(--border-color-light);
+      position: relative;
+      height: auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .dark-mode .faq-item {
+        background: var(--faq-item-bg-dark); /* Use new variable */
+        border: 1px solid var(--border-color-dark);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .faq-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .faq-content-container {
+      line-height: 1.8;
+      color: var(--faq-section-text);
+      font-weight: 400;
+      flex-grow: 1;
+      padding-bottom: 1rem;
+    }
+
+    .faq-content-container p, .faq-content-container ul {
+      margin-bottom: 1.25rem;
+    }
+    .faq-content-container ul {
+      list-style-type: '👉 ';
+      padding-left: 25px;
+    }
+    .dark-mode .faq-content-container ul {
+        list-style-type: '✨ ';
+    }
+    .faq-content-container li {
+      margin-bottom: 0.75rem;
+      color: var(--faq-section-text);
+      padding-left: 5px;
+    }
+    .dark-mode .faq-content-container li {
+        color: var(--faq-section-text);
+    }
+    .faq-content-container li strong {
+      color: #333333;
+    }
+    .dark-mode .faq-content-container li strong {
+        color: #FFFFFF;
+    }
+    
+    .faq-read-btn {
+      position: absolute;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: linear-gradient(to right, #2c7cbd, #225f92);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 28px;
+      font-size: 0.95em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.18);
+      border: none;
+    }
+    .dark-mode .faq-read-btn {
+        background: linear-gradient(to right, #6A82FB, #4A60E2);
+    }
+    .faq-read-btn:hover {
+      background: linear-gradient(to right, #225f92, #1d4d77);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+    .dark-mode .faq-read-btn:hover {
+        background: linear-gradient(to right, #4A60E2, #3A4CBF);
+    }
+    .faq-read-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .faq-read-btn.stop {
+      background: linear-gradient(to right, #d32f2f, #b71c1c);
+    }
+    .faq-read-btn.stop:hover {
+      background: linear-gradient(to right, #b71c1c, #9a0c0c);
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 600px) {
+      body { padding: 0; }
+      .main-app-wrapper {
+        height: 100vh;
+        border-radius: 0;
+        max-width: 100%;
+        max-height: 100vh;
+        box-shadow: none;
+      }
+      header {
+        border-radius: 0;
+        flex-direction: column;
+        align-items: flex-start;
+        padding-bottom: 0;
+      }
+      header > div:first-child {
+        flex-grow: 1;
+      }
+      .header-tabs {
+        width: 100%;
+        display: flex;
+        justify-content: space-around;
+        background-color: rgba(255,255,255,0.1);
+        margin-top: 10px;
+        padding: 5px 0;
+      }
+      .tab-button-header {
+        font-size: 0.8rem;
+        flex-grow: 1;
+        text-align: center;
+        padding: 10px 0;
+      }
+      #options-container {
+        border-radius: 0;
+        padding: 10px 5px;
+      }
+      .chat-bubble { max-width: 90%; }
+      .option-button {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+        margin: 0 4px;
+      }
+      .scroll-arrow {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9em;
+      }
+      #clear-chat-button, #stop-reading-button {
+        padding: 6px 10px;
+        font-size: 0.8em;
+      }
+      #faq-container { padding: 1rem; }
+      #faq-container h2 { font-size: 1.5rem; padding-right: 40px; }
+      .faq-item { padding: 1.5rem; }
+      .faq-read-btn {
+        top: 1.5rem;
+        right: 1.5rem;
+        padding: 6px 12px;
+        font-size: 0.8em;
+      }
+    }
+    
+    /* Toggle Switch Styling */
+    .toggle {
+        --size: 1.7rem;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        width: 3.2rem;
+        height: 1.7rem;
+        border-radius: 99px;
+        background-color: #e5e7eb;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        position: relative;
+    }
+    .toggle:before {
+        content: "";
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 1.3rem;
+        height: 1.3rem;
+        border-radius: 50%;
+        background-color: white;
+        transition: transform 0.3s, background-color 0.3s;
+    }
+    .toggle:checked {
+        background-color: #2c7cbd;
+    }
+    .toggle:checked:before {
+        transform: translateX(1.5rem);
+    }
+    .dark-mode .toggle {
+        background-color: #3A3A41;
+    }
+    .dark-mode .toggle:checked {
+        background-color: #6A82FB;
+    }
+    .dark-mode .toggle:before {
+        background-color: #E0E0E0;
+    }
+    .toggle:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(44, 124, 189, 0.5);
+    }
+    .dark-mode .toggle:focus {
+        box-shadow: 0 0 0 3px rgba(106, 130, 251, 0.5);
+    }
+    .toggle-primary {
+        /* This can be a placeholder to keep the original class name */
+    }
+
+    /* TTS related classes controlled by body.tts-disabled */
+    body.tts-disabled .faq-read-btn,
+    body.tts-disabled .faq-read-question-btn { /* Added for question button */
+        display: none !important;
+    }
+    body.tts-disabled #stop-reading-button {
+        display: none !important;
+    }
+    body.tts-disabled .bot-bubble .speaker-icon {
+        display: none !important;
+    }
+
+    /* FAQ Item Details/Summary Styling */
+    .faq-summary {
+        padding: 1.25rem 1.5rem;
+        font-weight: 600;
+        font-size: 1.05rem;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: var(--text-color); /* Ensures it uses the main text color */
+        transition: background-color 0.2s ease;
+        padding-right: 80px; /* Make space for the new button */
+        position: relative; /* For absolute positioning of the button */
+    }
+    .faq-summary:hover {
+        background-color: rgba(0,0,0,0.03);
+    }
+    .dark-mode .faq-summary:hover {
+        background-color: rgba(255,255,255,0.05);
+    }
+
+    .faq-summary::-webkit-details-marker {
+        display: none;
+    }
+    .faq-summary::after {
+        content: '\25BC'; /* Down arrow */
+        font-size: 0.8em;
+        transition: transform 0.2s;
+        position: absolute; /* Position the arrow */
+        right: 1.5rem; /* Align with the answer read button */
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    .faq-item[open] .faq-summary::after {
+        transform: translateY(-50%) rotate(180deg); /* Up arrow when open */
+    }
+
+    /* New style for the "Read Question" button */
+    .faq-read-question-btn {
+      position: absolute;
+      right: 3.5rem; /* Position to the left of the dropdown arrow */
+      top: 50%;
+      transform: translateY(-50%);
+      background: linear-gradient(to right, #f8cc18, #f8d844); /* Yellow gradient */
+      color: #333333;
+      padding: 6px 12px;
+      border-radius: 20px; /* Slightly less rounded than main buttons */
+      font-size: 0.8em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border: none;
+      white-space: nowrap; /* Prevent text wrap */
+    }
+    .dark-mode .faq-read-question-btn {
+        background: linear-gradient(to right, #FFD700, #FFEA00); /* Gold/Yellow in dark mode */
+        color: #333333;
+    }
+    .faq-read-question-btn:hover {
+        background: linear-gradient(to right, #f8d844, #f9e26e);
+        transform: translateY(-50%) scale(1.05);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .dark-mode .faq-read-question-btn:hover {
+        background: linear-gradient(to right, #FFEA00, #FFF050);
+    }
+    .faq-read-question-btn:active {
+        transform: translateY(-50%) scale(0.95);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+    .faq-read-question-btn.stop {
+      background: linear-gradient(to right, #d32f2f, #b71c1c);
+      color: white;
+    }
+    .faq-read-question-btn.stop:hover {
+      background: linear-gradient(to right, #b71c1c, #9a0c0c);
+    }
+
+
+    .faq-answer {
+        padding: 0 1.5rem 1.25rem;
+        color: var(--faq-section-text);
+    }
+    .faq-answer a {
+        color: var(--text-theme-blue);
+        text-decoration: underline;
+    }
+    .faq-answer a:hover {
+        text-decoration: none;
+    }
+	</style>

@@ -1,0 +1,1903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentation Genie</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Merriweather:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+        
+<style>
+    /* Define custom fonts for Tailwind */
+    body {
+        font-family: 'Inter', sans-serif;
+    }
+    .font-sans { font-family: 'Inter', sans-serif; }
+    .font-serif { font-family: 'Merriweather', serif; }
+    .font-mono { font-family: 'Roboto Mono', monospace; }
+
+    /* --- Slide Container --- */
+    #slide-container {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* --- Slide Element --- */
+    .slide {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.5s ease-in-out;
+        transform-origin: center;
+        overflow: hidden; /* Ensure content doesn't spill */
+    }
+
+    /* --- Animations --- */
+    
+    /* Base visible state */
+    .slide.visible {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Fade Animation */
+    .slide.anim-fade {
+        animation: fadeIn 0.6s ease-out forwards;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    /* Slide Animation */
+    .slide.anim-slide {
+        animation: slideIn 0.6s ease-out forwards;
+    }
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateX(100%); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Zoom Animation */
+    .slide.anim-zoom {
+        animation: zoomIn 0.6s ease-out forwards;
+    }
+    @keyframes zoomIn {
+        from { opacity: 0; transform: scale(0.8); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    
+    /* Handle image errors */
+    img.slide-image {
+        background-color: #e0e0e0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+        font-size: 0.875rem;
+        min-height: 150px;
+    }
+    
+    /* Custom scrollbar for controls */
+    #controls-panel::-webkit-scrollbar {
+        width: 6px;
+    }
+    #controls-panel::-webkit-scrollbar-track {
+        background: #2d3748; /* gray-800 */
+    }
+    #controls-panel::-webkit-scrollbar-thumb {
+        background: #718096; /* gray-500 */
+        border-radius: 3px;
+    }
+    #controls-panel::-webkit-scrollbar-thumb:hover {
+        background: #a0aec0; /* gray-400 */
+    }
+
+    /* --- THEME DEFINITIONS --- */
+
+    /* Default styles (applied to all themes) */
+    .slide-wrapper {
+        width: 100%;
+        height: 100%;
+    }
+    .template-title .slide-wrapper {
+        display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 3rem;
+    }
+    .template-title .slide-wrapper h1 {
+        font-size: 3.75rem; line-height: 1; font-weight: 700;
+    }
+    .template-title .slide-wrapper p {
+        font-size: 1.5rem; line-height: 2rem; margin-top: 1rem; opacity: 0.8;
+    }
+
+    .template-content .slide-wrapper {
+        display: flex; flex-direction: column; padding: 2.5rem;
+    }
+    .template-content .slide-wrapper h2 {
+        font-size: 2.25rem; line-height: 2.5rem; font-weight: 700; margin-bottom: 1.5rem;
+    }
+    .template-content .slide-wrapper .content-grid {
+        flex: 1 1 0%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem; overflow: hidden;
+    }
+    .template-content .slide-wrapper .content-text {
+        font-size: 1.125rem; line-height: 1.75rem; /* prose */
+    }
+    .template-content .slide-wrapper .content-image {
+        display: flex; align-items: center; justify-content: center;
+    }
+    
+    /* Video Template */
+    .template-video .slide-wrapper {
+        display: flex; flex-direction: column; padding: 2.5rem;
+    }
+    .template-video .slide-wrapper h2 {
+        font-size: 2.25rem; line-height: 2.5rem; font-weight: 700; margin-bottom: 1.5rem;
+    }
+    .template-video .slide-wrapper .content-grid {
+        flex: 1 1 0%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem; overflow: hidden;
+    }
+    .template-video .slide-wrapper .content-text {
+        font-size: 1.125rem; line-height: 1.75rem; /* prose */
+    }
+    .template-video .slide-wrapper .content-video {
+        display: flex; align-items: center; justify-content: center;
+        background-color: #000;
+    }
+    .template-video video {
+        max-width: 100%;
+        max-height: 100%;
+        border-radius: 0.5rem; /* rounded-lg */
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); /* shadow-md */
+    }
+
+    /* Canvas Template */
+    .template-canvas .slide-wrapper {
+        position: relative;
+        overflow: hidden;
+    }
+    .canvas-element {
+        position: absolute;
+        cursor: move;
+        border: 1px dashed transparent;
+        transition: border-color 0.2s;
+    }
+    .canvas-element:hover {
+        border-color: #9ca3af; /* gray-400 */
+    }
+    .canvas-element.selected {
+        border-color: #3b82f6; /* blue-500 */
+        border-width: 2px;
+        border-style: solid;
+        z-index: 10; /* Bring to front when selected */
+    }
+    .canvas-element .content-editable {
+        width: 100%;
+        height: 100%;
+        outline: none; /* No outline on editable div */
+    }
+    /* Make contenteditable placeholder-like */
+    .canvas-element .content-editable:empty:before {
+        content: 'Edit Text';
+        color: #9ca3af;
+        font-style: italic;
+    }
+
+    .canvas-element img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        pointer-events: none; /* Make sure drag targets the wrapper */
+    }
+    
+    .canvas-element video {
+        width: 100%;
+        height: 100%;
+        object-fit: contain; /* Use contain to see controls */
+        background-color: #000;
+        pointer-events: auto; /* Allow controls to be clicked */
+    }
+    
+    /* NEW: Style for shape (SVG) element */
+    .canvas-element svg {
+        width: 100%;
+        height: 100%;
+        pointer-events: none; /* Make sure drag targets the wrapper */
+    }
+
+    /* Resize Handle */
+    .resize-handle {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        background: #3b82f6; /* blue-500 */
+        border: 2px solid white;
+        border-radius: 4px;
+        display: none; /* Hide by default */
+        z-index: 11;
+    }
+    .canvas-element.selected .resize-handle {
+        display: block;
+    }
+    .resize-handle.br { /* Bottom-right */
+        bottom: -6px;
+        right: -6px;
+        cursor: se-resize;
+    }
+
+
+    /* Header/Footer defaults */
+    #header-preview, #footer-preview {
+        transition: color 0.3s ease;
+    }
+
+
+    /* --- Theme: Light (Default) --- */
+    .theme-light .template-title {
+        background-color: #4f46e5; /* indigo-600 */
+        color: white;
+    }
+    .theme-light .template-content {
+        background-color: white;
+        color: #1f2937; /* gray-800 */
+    }
+    .theme-light .template-content h2 {
+        color: #111827; /* gray-900 */
+    }
+    .theme-light #header-preview,
+    .theme-light #footer-preview {
+        color: #4b5563; /* gray-600 */
+    }
+    .theme-light .template-canvas { background-color: white; }
+    .theme-light .template-video {
+        background-color: white;
+        color: #1f2937;
+    }
+    .theme-light .template-video h2 { color: #111827; }
+
+
+    /* --- Theme: Dark --- */
+    .theme-dark .template-title {
+        background-color: #3730a3; /* indigo-800 */
+        color: #e5e7eb; /* gray-200 */
+    }
+    .theme-dark .template-content {
+        background-color: #1f2937; /* gray-800 */
+        color: #d1d5db; /* gray-300 */
+    }
+    .theme-dark .template-content h2 {
+        color: white;
+    }
+    .theme-dark img.slide-image {
+        background-color: #374151; /* gray-700 */
+    }
+    .theme-dark #header-preview,
+    .theme-dark #footer-preview {
+        color: #d1d5db; /* gray-300 */
+    }
+    .theme-dark .template-canvas { background-color: #1f2937; }
+    .theme-dark .template-video {
+        background-color: #1f2937;
+        color: #d1d5db;
+    }
+    .theme-dark .template-video h2 { color: white; }
+
+    /* --- Theme: Corporate --- */
+    .theme-corporate .template-title {
+        background-color: #065f46; /* green-900 */
+        color: white;
+    }
+    .theme-corporate .template-content {
+        background-color: #f9fafb; /* gray-50 */
+        color: #1f2937; /* gray-800 */
+    }
+    .theme-corporate .template-content h2 {
+        color: #047857; /* green-700 */
+    }
+    .theme-corporate .template-content .content-text {
+        color: #1f2937;
+    }
+    .theme-corporate img.slide-image {
+        background-color: #e5e7eb; /* gray-200 */
+    }
+    .theme-corporate #header-preview,
+    .theme-corporate #footer-preview {
+        color: #4b5563; /* gray-600 */
+    }
+    .theme-corporate .template-canvas { background-color: #f9fafb; }
+    .theme-corporate .template-video {
+        background-color: #f9fafb;
+        color: #1f2937;
+    }
+    .theme-corporate .template-video h2 { color: #047857; }
+
+
+    /* --- Theme: Custom --- */
+    .theme-custom .template-title {
+        background-color: var(--custom-title-bg, #4f46e5);
+        color: var(--custom-title-text, #ffffff);
+    }
+    
+    /* Base styles for custom content slides */
+    .theme-custom .template-content,
+    .theme-custom .template-video,
+    .theme-custom .template-canvas {
+        color: var(--custom-content-text, #1f2937);
+        background-image: none; /* Default pattern */
+    }
+    .theme-custom .template-content h2,
+    .theme-custom .template-video h2 {
+        color: var(--custom-content-heading, #111827);
+    }
+    
+    .theme-custom img.slide-image {
+        background-color: var(--custom-image-bg, #e0e0e0);
+    }
+    .theme-custom #header-preview,
+    .theme-custom #footer-preview {
+        color: var(--custom-header-text, #4b5563);
+    }
+
+    /* ----------------------------------------------------
+       Viewport-level Background Types & Patterns (CUSTOM)
+       This replaces earlier slide-scoped rules so the viewport shows through.
+       ---------------------------------------------------- */
+
+    /* Base: ensure the viewport uses the custom color if present */
+    .theme-custom {
+      background-color: var(--custom-content-bg, #ffffff);
+      /* ensure safe defaults for background layering */
+      --background-gradient: none;
+      background-image: var(--background-gradient);
+      background-repeat: repeat;
+      background-size: auto;
+    }
+
+    /* Background Type: Solid (no gradient) */
+    .theme-custom.bg-solid {
+      --background-gradient: none;
+      background-image: var(--background-gradient);
+    }
+
+    /* Background Type: Linear Gradient */
+    .theme-custom.bg-linear {
+      --background-gradient: linear-gradient(135deg, var(--custom-content-bg, #ffffff), var(--custom-content-bg-2, #f0f0f0));
+      background-image: var(--background-gradient);
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+
+    /* Background Type: Radial Gradient */
+    .theme-custom.bg-radial {
+      --background-gradient: radial-gradient(circle at center, var(--custom-content-bg, #ffffff), var(--custom-content-bg-2, #f0f0f0));
+      background-image: var(--background-gradient);
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+
+    /* Patterns: use an additional layer that sits above the base gradient.
+       We combine the pattern with the gradient using comma-separated background-image.
+       The pattern uses var(--custom-pattern-color). */
+
+    /* No pattern: keep gradient only */
+    .theme-custom.pattern-none {
+      background-image: var(--background-gradient);
+    }
+
+    /* Dots pattern (repeating radial) */
+    .theme-custom.pattern-dots {
+      background-image:
+        repeating-radial-gradient(circle at center, var(--custom-pattern-color, #aeaeae) 0, var(--custom-pattern-color, #aeaeae) 1px, transparent 1px, transparent 10px),
+        var(--background-gradient);
+      background-size: 10px 10px, cover;
+    }
+
+    /* Diagonal lines pattern */
+    .theme-custom.pattern-lines {
+      background-image:
+        repeating-linear-gradient(45deg, var(--custom-pattern-color, #aeaeae) 0, var(--custom-pattern-color, #aeaeae) 1px, transparent 1px, transparent 10px),
+        var(--background-gradient);
+      background-size: 10px 10px, cover;
+    }
+
+    /* Grid (horizontal + vertical) */
+    .theme-custom.pattern-grid {
+      background-image:
+        repeating-linear-gradient(0deg, var(--custom-pattern-color, #aeaeae) 0, var(--custom-pattern-color, #aeaeae) 1px, transparent 1px, transparent 20px),
+        repeating-linear-gradient(90deg, var(--custom-pattern-color, #aeaeae) 0, var(--custom-pattern-color, #aeaeae) 1px, transparent 1px, transparent 20px),
+        var(--background-gradient);
+      background-size: 20px 20px, 20px 20px, cover;
+    }
+
+    /* Make sure slide inner templates don't override the viewport when theme-custom is active.
+       This helps slides keep transparent backgrounds so the viewport shows through. */
+    .theme-custom .template-content,
+    .theme-custom .template-video,
+    .theme-custom .template-canvas {
+      background: transparent !important;
+    }
+
+    /* Also apply to presentation-mode viewport specifically (if styles are scoped differently) */
+    #presentation-mode-viewport.theme-custom,
+    #presentation-mode-viewport.theme-custom.bg-linear,
+    #presentation-mode-viewport.theme-custom.bg-radial,
+    #presentation-mode-viewport.theme-custom.pattern-dots,
+    #presentation-mode-viewport.theme-custom.pattern-lines,
+    #presentation-mode-viewport.theme-custom.pattern-grid {
+      background-image: var(--background-gradient);
+    }
+
+    /* Re-apply gradient if it exists so pattern layers on top (kept for compatibility) */
+    .theme-custom.pattern-dots.bg-linear .template-content,
+    .theme-custom.pattern-dots.bg-linear .template-video,
+    .theme-custom.pattern-dots.bg-linear .template-canvas,
+    .theme-custom.pattern-lines.bg-linear .template-content,
+    .theme-custom.pattern-lines.bg-linear .template-video,
+    .theme-custom.pattern-lines.bg-linear .template-canvas,
+    .theme-custom.pattern-grid.bg-linear .template-content,
+    .theme-custom.pattern-grid.bg-linear .template-video,
+    .theme-custom.pattern-grid.bg-linear .template-canvas {
+        --background-gradient: linear-gradient(135deg, var(--custom-content-bg, #ffffff), var(--custom-content-bg-2, #f0f0f0));
+    }
+
+    .theme-custom.pattern-dots.bg-radial .template-content,
+    .theme-custom.pattern-dots.bg-radial .template-video,
+    .theme-custom.pattern-dots.bg-radial .template-canvas,
+    .theme-custom.pattern-lines.bg-radial .template-content,
+    .theme-custom.pattern-lines.bg-radial .template-video,
+    .theme-custom.pattern-lines.bg-radial .template-canvas,
+    .theme-custom.pattern-grid.bg-radial .template-content,
+    .theme-custom.pattern-grid.bg-radial .template-video,
+    .theme-custom.pattern-grid.bg-radial .template-canvas {
+        --background-gradient: radial-gradient(circle, var(--custom-content-bg, #ffffff), var(--custom-content-bg-2, #f0f0f0));
+    }
+    
+    
+    /* Custom color picker style */
+    .color-picker-wrapper {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .color-picker-wrapper input[type="color"] {
+        -webkit-appearance: none;
+        width: 40px;
+        height: 24px;
+        border: 1px solid #4b5563; /* gray-600 */
+        border-radius: 4px;
+        cursor: pointer;
+        padding: 0;
+        background-color: transparent;
+    }
+    .color-picker-wrapper input[type="color"]::-webkit-color-swatch-wrapper {
+        padding: 0;
+    }
+    .color-picker-wrapper input[type="color"]::-webkit-color-swatch {
+        border: none;
+        border-radius: 3px;
+    }
+
+    /* --- Presentation Mode --- */
+    #presentation-mode {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: #000;
+        z-index: 9990;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    #presentation-mode.visible {
+        visibility: visible;
+        opacity: 1;
+    }
+    #presentation-mode-viewport {
+        width: 100%;
+        max-width: 95vw; /* Maximize width */
+        background-color: #FFF; /* Will be set by theme */
+        box-shadow: 0 0 100px rgba(255, 255, 255, 0.1);
+        border-radius: 0.5rem;
+        overflow: hidden;
+        position: relative;
+        aspect-ratio: 16 / 9;
+    }
+    #presentation-mode-slide-container {
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
+    #presentation-mode-header,
+    #presentation-mode-footer {
+        position: absolute;
+        left: 0;
+        width: 100%;
+        padding: 1.5rem; /* Larger padding for presentation */
+        font-size: 1rem;
+        z-index: 9992;
+    }
+    #presentation-mode-header {
+        top: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    #presentation-mode-footer {
+        bottom: 0;
+    }
+    #presentation-mode-logo {
+        height: 2.5rem; /* Taller logo */
+    }
+    #presentation-mode-logo img {
+        max-height: 100%;
+        object-fit: contain;
+    }
+    
+</style>
+
+</head>
+<body class="bg-gray-900 text-white h-screen m-0 p-0 flex overflow-hidden">
+
+    <div id="controls-panel" class="w-1/3 max-w-sm h-full bg-gray-800 p-6 overflow-y-auto shadow-2xl space-y-6">
+        <h1 class="text-3xl font-bold text-indigo-400">Presentation Genie</h1>
+        
+        <div class="space-y-4 p-4 bg-gray-700 rounded-lg">
+            <h2 class="text-xl font-semibold border-b border-gray-600 pb-2">Global Settings</h2>
+            <div>
+                <label for="header-input" class="block text-sm font-medium text-gray-300">Header Text</label>
+                <input type="text" id="header-input" placeholder="e.g., Company Confidential" class="mt-1 w-full p-2 bg-gray-800 border border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500 text-white">
+            </div>
+            <div>
+                <label for="logo-input" class="block text-sm font-medium text-gray-300">Logo URL</label>
+                <input type="text" id="logo-input" placeholder="https://.../logo.png" class="mt-1 w-full p-2 bg-gray-800 border border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500 text-white">
+            </div>
+            <div>
+                <label for="footer-input" class="block text-sm font-medium text-gray-300">Footer Text</label>
+                <input type="text" id="footer-input" placeholder="e.g., Q4 Review" class="mt-1 w-full p-2 bg-gray-800 border border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500 text-white">
+            </div>
+            <div>
+                <label for="animation-select" class="block text-sm font-medium text-gray-300">Animation</label>
+                <select id="animation-select" class="mt-1 w-full p-2 bg-gray-800 border border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500 text-white">
+                    <option value="fade">Fade</option>
+                    <option value="slide">Slide</option>
+                    <option value="zoom">Zoom</option>
+                </select>
+            </div>
+            <div>
+                <label for="font-select" class="block text-sm font-medium text-gray-300">Font</label>
+                <select id="font-select" class="mt-1 w-full p-2 bg-gray-800 border border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500 text-white">
+                    <option value="font-sans">Inter (Sans Serif)</option>
+                    <option value="font-serif">Merriweather (Serif)</option>
+                    <option value="font-mono">Roboto Mono (Monospace)</option>
+                </select>
+            </div>
+            <div>
+                <label for="theme-select" class="block text-sm font-medium text-gray-300">Theme</label>
+                <select id="theme-select" class="mt-1 w-full p-2 bg-gray-800 border border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500 text-white">
+                    <option value="theme-light">Light</option>
+                    <option value="theme-dark">Dark</option>
+                    <option value="theme-corporate">Corporate</option>
+                    <option value="theme-custom">Custom</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="custom-theme-settings" class="space-y-4 p-4 bg-gray-700 rounded-lg hidden">
+            <h2 class="text-xl font-semibold border-b border-gray-600 pb-2">Custom Theme</h2>
+            <div class="color-picker-wrapper">
+                <label for="custom-title-bg" class="text-sm font-medium text-gray-300">Title Background</label>
+                <input type="color" id="custom-title-bg" value="#4f46e5">
+            </div>
+            <div class="color-picker-wrapper">
+                <label for="custom-title-text" class="text-sm font-medium text-gray-300">Title Text</label>
+                <input type="color" id="custom-title-text" value="#ffffff">
+            </div>
+            <div class="color-picker-wrapper">
+                <label for="custom-content-bg" class="text-sm font-medium text-gray-300">Background Color 1</label>
+                <input type="color" id="custom-content-bg" value="#ffffff">
+            </div>
+            <div class="color-picker-wrapper">
+                <label for="custom-content-bg-2" class="text-sm font-medium text-gray-300">Background Color 2</label>
+                <input type="color" id="custom-content-bg-2" value="#f0f0f0">
+            </div>
+            <div class="color-picker-wrapper">
+                <label for="custom-content-heading" class="text-sm font-medium text-gray-300">Content Heading</label>
+                <input type="color" id="custom-content-heading" value="#111827">
+            </div>
+            <div class="color-picker-wrapper">
+                <label for="custom-content-text" class="text-sm font-medium text-gray-300">Content Text</label>
+                <input type="color" id="custom-content-text" value="#1f2937">
+            </div>
+            <div class="color-picker-wrapper">
+                <label for="custom-image-bg" class="text-sm font-medium text-gray-300">Image Placeholder</label>
+                <input type="color" id="custom-image-bg" value="#e0e0e0">
+            </div>
+            <div class="color-picker-wrapper">
+                <label for="custom-header-text" class="text-sm font-medium text-gray-300">Header/Footer Text</label>
+                <input type="color" id="custom-header-text" value="#4b5563">
+            </div>
+            <div class="color-picker-wrapper">
+                <label for="custom-pattern-color" class="text-sm font-medium text-gray-300">Pattern Color</label>
+                <input type="color" id="custom-pattern-color" value="#aeaeae"> </div>
+            <div>
+                <label for="custom-bg-pattern" class="block text-sm font-medium text-gray-300">Background Pattern</label>
+                <select id="custom-bg-pattern" class="mt-1 w-full p-2 bg-gray-800 border border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500 text-white">
+                    <option value="pattern-none">None (Solid Color)</option>
+                    <option value="pattern-dots">Dots</option>
+                    <option value="pattern-lines">Diagonal Lines</option>
+                    <option value="pattern-grid">Grid</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="space-y-4 p-4 bg-gray-700 rounded-lg">
+            <h2 class="text-xl font-semibold border-b border-gray-600 pb-2">Project</h2>
+            <button id="load-project" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition duration-150">
+                Load Project (.rs)
+            </button>
+            <button id="save-project" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
+                Save Project (.rs)
+            </button>
+            <input type="file" id="load-project-input" class="hidden" accept=".rs,application/json">
+            <div id="project-message" class="text-green-400 text-xs mt-2 min-h-[1em]"></div>
+        </div>
+
+        <div class="space-y-4 p-4 bg-gray-700 rounded-lg">
+            <h2 class="text-xl font-semibold border-b border-gray-600 pb-2">Slide Management</h2>
+            <div class="grid grid-cols-2 gap-2">
+                <button id="add-title-slide" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md transition duration-150">
+                    Add Title
+                </button>
+                <button id="add-content-slide" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition duration-150">
+                    Add Content
+                </button>
+                <button id="add-video-slide" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md transition duration-150">
+                    Add Video
+                </button>
+                <button id="add-canvas-slide" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-md transition duration-150">
+                    Add Canvas
+                </button>
+            </div>
+            <button id="delete-slide" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
+                Delete Current Slide
+            </button>
+        </div>
+
+        <div class="space-y-4 p-4 bg-gray-700 rounded-lg">
+            <h2 class="text-xl font-semibold border-b border-gray-600 pb-2" id="editor-title">
+                Edit Slide 1
+            </h2>
+            <div id="slide-editor-content" class="space-y-4">
+                </div>
+        </div>
+    </div>
+
+    <div class="flex-1 h-full flex flex-col items-center justify-center p-8 bg-gray-900">
+        <div id="presentation-viewport" class="w-full max-w-6xl bg-white shadow-xl rounded-lg overflow-hidden relative theme-light" style="aspect-ratio: 16 / 9;">
+            
+            <div id="slide-container" class="w-full h-full">
+                </div>
+
+            <div id="header-preview" class="absolute top-0 left-0 w-full p-4 text-sm z-10 flex items-center justify-between">
+                <span id="header-text-preview" class=""></span>
+                <div id="logo-preview-container" class="h-8">
+                    </div>
+            </div>
+            
+            <div id="footer-preview" class="absolute bottom-0 left-0 w-full p-4 text-sm z-10">
+                </div>
+        </div>
+
+        <div class="mt-6 flex items-center justify-center space-x-6">
+            <button id="prev-slide" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
+                &larr; Prev
+            </button>
+            <span id="slide-counter" class="text-lg font-medium text-gray-300">
+                Slide 1 / 1
+            </span>
+            <button id="next-slide" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
+                Next &rarr;
+            </button>
+            <button id="present-mode-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed" title="Enter Presentation Mode (F5)">
+                Present
+            </button>
+        </div>
+    </div>
+
+    <div id="presentation-mode">
+        <div id="presentation-mode-viewport">
+            <div id="presentation-mode-slide-container">
+                </div>
+            <div id="presentation-mode-header">
+                <span id="presentation-mode-header-text"></span>
+                <div id="presentation-mode-logo"></div>
+            </div>
+            <div id="presentation-mode-footer"></div>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- STATE ---
+            let slides = [];
+            let currentSlideIndex = 0;
+            let globalSettings = {
+                header: '',
+                logoUrl: '',
+                footer: '',
+                animation: 'fade', // 'fade', 'slide', 'zoom'
+                font: 'font-sans',      // 'font-sans', 'font-serif', 'font-mono'
+                theme: 'theme-light',
+                backgroundPattern: 'pattern-none',
+                backgroundType: 'bg-solid', // NEW: 'bg-solid', 'bg-linear', 'bg-radial'
+                customColors: { 
+                    '--custom-title-bg': '#4f46e5',
+                    '--custom-title-text': '#ffffff',
+                    '--custom-content-bg': '#ffffff',
+                    '--custom-content-bg-2': '#f0f0f0', // NEW
+                    '--custom-content-heading': '#111827',
+                    '--custom-content-text': '#1f2937',
+                    '--custom-image-bg': '#e0e0e0',
+                    '--custom-header-text': '#4b5563',
+                    '--custom-pattern-color': '#aeaeae' // BUG FIX: Changed from #cccccc
+                }
+            };
+            let dragState = {}; // For drag and drop
+            let resizeState = {}; // For resizing
+            let selectedElementId = null; // For canvas elements
+            let editingTextElementId = null; // For inline text editing
+            let isPresenting = false; // For presentation mode
+
+            // --- TEMPLATES ---
+            const slideTemplates = {
+                'title': () => ({
+                    id: Date.now(),
+                    template: 'title',
+                    content: {
+                        title: 'New Title Slide',
+                        subtitle: 'A brief description'
+                    }
+                }),
+                'content': () => ({
+                    id: Date.now(),
+                    template: 'content',
+                    content: {
+                        title: 'Content Slide Title',
+                        text: 'Enter your supporting text here. You can add bullet points or paragraphs.',
+                        imageUrl: 'https://placehold.co/400x300/e2e8f0/4a5568?text=Paste+Image+URL'
+                    }
+                }),
+                'video': () => ({
+                    id: Date.now(),
+                    template: 'video',
+                    content: {
+                        title: 'Video Slide Title',
+                        text: 'Enter your supporting text here.',
+                        videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4'
+                    }
+                }),
+                'canvas': () => ({
+                    id: Date.now(),
+                    template: 'canvas',
+                    elements: [] // Array of element objects
+                })
+            };
+
+            const elementTemplates = {
+                'text': () => ({
+                    id: 'el-' + Date.now(),
+                    type: 'text',
+                    content: 'New Text Element',
+                    x: 10, y: 10, width: 30, fontSize: 20, color: '#333333'
+                }),
+                'image': () => ({
+                    id: 'el-' + Date.now(),
+                    type: 'image',
+                    content: 'https://placehold.co/400x300/e2e8f0/4a5568?text=New+Image',
+                    x: 15, y: 15, width: 40, height: 30
+                }),
+                'video': () => ({
+                    id: 'el-' + Date.now(),
+                    type: 'video',
+                    content: 'https://www.w3schools.com/html/mov_bbb.mp4',
+                    x: 20, y: 20, width: 40, height: 30
+                }),
+                'shape': () => ({ 
+                    id: 'el-' + Date.now(),
+                    type: 'shape',
+                    shapeType: 'rectangle', // Default shape
+                    fill: '#3b82f6', // blue-500
+                    stroke: '#1e3a8a', // blue-800
+                    x: 25, y: 25, width: 30, height: 20
+                })
+            };
+            
+            const svgShapes = {
+                'rectangle': (el) => `<rect x="0" y="0" width="100%" height="100%" fill="${el.fill}" stroke="${el.stroke}" stroke-width="2"/>`,
+                'circle': (el) => `<ellipse cx="50%" cy="50%" rx="50%" ry="50%" fill="${el.fill}" stroke="${el.stroke}" stroke-width="2"/>`,
+                'triangle': (el) => `<polygon points="50,0 100,100 0,100" fill="${el.fill}" stroke="${el.stroke}" stroke-width="2" transform="scale(1, 0.866)" />`, // Equilateral-ish
+                'star': (el) => `<polygon points="50,0 61,35 98,35 68,57 79,91 50,70 21,91 32,57 2,35 39,35" fill="${el.fill}" stroke="${el.stroke}" stroke-width="2"/>`,
+                'arrow': (el) => `<defs><marker id="arrowhead-${el.id}" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="${el.stroke}" /></marker></defs><line x1="0" y1="50%" x2="95%" y2="50%" stroke="${el.stroke}" stroke-width="5" marker-end="url(#arrowhead-${el.id})" />`,
+                'line': (el) => `<line x1="0" y1="50%" x2="100%" y2="50%" stroke="${el.stroke}" stroke-width="5" />`
+            };
+
+            // --- UI ELEMENTS ---
+            const controls = {
+                headerInput: document.getElementById('header-input'),
+                logoInput: document.getElementById('logo-input'),
+                footerInput: document.getElementById('footer-input'),
+                animationSelect: document.getElementById('animation-select'),
+                fontSelect: document.getElementById('font-select'),
+                themeSelect: document.getElementById('theme-select'),
+                addTitleSlideBtn: document.getElementById('add-title-slide'),
+                addContentSlideBtn: document.getElementById('add-content-slide'),
+                addVideoSlideBtn: document.getElementById('add-video-slide'),
+                addCanvasSlideBtn: document.getElementById('add-canvas-slide'),
+                deleteSlideBtn: document.getElementById('delete-slide'),
+                editorTitle: document.getElementById('editor-title'),
+                editorContent: document.getElementById('slide-editor-content'),
+                
+                customThemeSettings: document.getElementById('custom-theme-settings'),
+                customTitleBg: document.getElementById('custom-title-bg'),
+                customTitleText: document.getElementById('custom-title-text'),
+                customBgType: document.getElementById('custom-bg-type'), // NEW
+                customContentBg: document.getElementById('custom-content-bg'),
+                customContentBg2: document.getElementById('custom-content-bg-2'), // NEW
+                customContentHeading: document.getElementById('custom-content-heading'),
+                customContentText: document.getElementById('custom-content-text'),
+                customImageBg: document.getElementById('custom-image-bg'),
+                customHeaderText: document.getElementById('custom-header-text'),
+                customPatternColor: document.getElementById('custom-pattern-color'), 
+                customBgPattern: document.getElementById('custom-bg-pattern'), 
+                
+                // Project I/O
+                loadProjectBtn: document.getElementById('load-project'),
+                loadProjectInput: document.getElementById('load-project-input'),
+                saveProjectBtn: document.getElementById('save-project'),
+                projectMessage: document.getElementById('project-message'),
+            };
+
+            const preview = {
+                viewport: document.getElementById('presentation-viewport'),
+                slideContainer: document.getElementById('slide-container'),
+                header: document.getElementById('header-preview'),
+                headerText: document.getElementById('header-text-preview'),
+                logoContainer: document.getElementById('logo-preview-container'),
+                footer: document.getElementById('footer-preview'),
+                prevBtn: document.getElementById('prev-slide'),
+                nextBtn: document.getElementById('next-slide'),
+                counter: document.getElementById('slide-counter'),
+                presentBtn: document.getElementById('present-mode-btn'),
+            };
+            
+            // Presentation Mode UI
+            const presentation = {
+                overlay: document.getElementById('presentation-mode'),
+                viewport: document.getElementById('presentation-mode-viewport'),
+                slideContainer: document.getElementById('presentation-mode-slide-container'),
+                header: document.getElementById('presentation-mode-header'),
+                headerText: document.getElementById('presentation-mode-header-text'),
+                logo: document.getElementById('presentation-mode-logo'),
+                footer: document.getElementById('presentation-mode-footer'),
+            };
+
+            // --- CORE FUNCTIONS ---
+
+            /**
+             * Initializes the application
+             */
+            function init() {
+                addSlide('title');
+                bindControlEvents();
+                bindNavEvents();
+                applyCustomThemeColors(); // Apply on init
+                updateBackgroundPattern(); // Apply on init
+                updateBackgroundType(); // NEW: Apply on init
+                renderApp();
+            }
+
+            /**
+             * Binds listeners for the left control panel
+             */
+            function bindControlEvents() {
+                controls.headerInput.addEventListener('input', (e) => {
+                    globalSettings.header = e.target.value;
+                    updateGlobalElements();
+                });
+                controls.logoInput.addEventListener('input', (e) => {
+                    globalSettings.logoUrl = e.target.value;
+                    updateGlobalElements();
+                });
+                controls.footerInput.addEventListener('input', (e) => {
+                    globalSettings.footer = e.target.value;
+                    updateGlobalElements();
+                });
+                controls.animationSelect.addEventListener('change', (e) => {
+                    globalSettings.animation = e.target.value;
+                });
+                controls.fontSelect.addEventListener('change', (e) => {
+                    globalSettings.font = e.target.value;
+                    updateGlobalElements();
+                });
+                
+                controls.themeSelect.addEventListener('change', (e) => {
+                    globalSettings.theme = e.target.value;
+                    controls.customThemeSettings.classList.toggle('hidden', e.target.value !== 'theme-custom');
+                    if (e.target.value === 'theme-custom') {
+                        applyCustomThemeColors(); // Re-apply when switching to custom
+                    }
+                    updateGlobalElements();
+                });
+
+                controls.addTitleSlideBtn.addEventListener('click', () => addSlide('title'));
+                controls.addContentSlideBtn.addEventListener('click', () => addSlide('content'));
+                controls.addVideoSlideBtn.addEventListener('click', () => addSlide('video'));
+                controls.addCanvasSlideBtn.addEventListener('click', () => addSlide('canvas'));
+                controls.deleteSlideBtn.addEventListener('click', deleteCurrentSlide);
+
+                // Project I/O Listeners
+                controls.saveProjectBtn.addEventListener('click', saveProject);
+                controls.loadProjectBtn.addEventListener('click', () => controls.loadProjectInput.click());
+                controls.loadProjectInput.addEventListener('change', loadProject);
+
+                // Custom Theme Listeners
+                const customThemeInputs = [
+                    { el: controls.customTitleBg, prop: '--custom-title-bg' },
+                    { el: controls.customTitleText, prop: '--custom-title-text' },
+                    { el: controls.customContentBg, prop: '--custom-content-bg' },
+                    { el: controls.customContentBg2, prop: '--custom-content-bg-2' }, // NEW
+                    { el: controls.customContentHeading, prop: '--custom-content-heading' },
+                    { el: controls.customContentText, prop: '--custom-content-text' },
+                    { el: controls.customImageBg, prop: '--custom-image-bg' },
+                    { el: controls.customHeaderText, prop: '--custom-header-text' },
+                    { el: controls.customPatternColor, prop: '--custom-pattern-color' },
+                ];
+                
+                customThemeInputs.forEach(item => {
+                    // Set initial value from globalSettings
+                    item.el.value = globalSettings.customColors[item.prop];
+                    
+                    item.el.addEventListener('input', (e) => {
+                        globalSettings.customColors[item.prop] = e.target.value; // Store in settings
+                        applyCustomThemeColors(); // Apply to both viewports
+                    });
+                });
+                
+                // NEW: Background Type listener
+                controls.customBgType.addEventListener('change', (e) => {
+                    globalSettings.backgroundType = e.target.value;
+                    updateBackgroundType();
+                });
+
+                // Pattern listener
+                controls.customBgPattern.addEventListener('change', (e) => {
+                    globalSettings.backgroundPattern = e.target.value;
+                    updateBackgroundPattern();
+                });
+            }
+
+            /**
+             * Binds listeners for the preview navigation
+             */
+            function bindNavEvents() {
+                preview.prevBtn.addEventListener('click', () => goToSlide(currentSlideIndex - 1));
+                preview.nextBtn.addEventListener('click', () => goToSlide(currentSlideIndex + 1));
+                preview.presentBtn.addEventListener('click', startPresentation);
+                
+                // Drag and Drop Listeners
+                preview.slideContainer.addEventListener('mousedown', onDragStart);
+                preview.slideContainer.addEventListener('dblclick', onDoubleClick);
+                
+                // Presentation Mode Listeners
+                document.addEventListener('keydown', (e) => {
+                    if (isPresenting) {
+                        if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+                            e.preventDefault();
+                            goToSlide(currentSlideIndex + 1);
+                        } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                            e.preventDefault();
+                            goToSlide(currentSlideIndex - 1);
+                        } else if (e.key === 'Escape') {
+                            e.preventDefault();
+                            stopPresentation();
+                        }
+                    } else if (e.key === 'F5') {
+                        e.preventDefault();
+                        startPresentation();
+                    }
+                });
+            }
+            
+            /**
+             * Applies all custom colors to both viewports
+             */
+            function applyCustomThemeColors() {
+                for (const [prop, value] of Object.entries(globalSettings.customColors)) {
+                    preview.viewport.style.setProperty(prop, value);
+                    presentation.viewport.style.setProperty(prop, value); 
+                }
+            }
+            
+            /**
+             * Applies the correct pattern class to both viewports
+             */
+            function updateBackgroundPattern() {
+                const pattern = globalSettings.backgroundPattern || 'pattern-none';
+                const viewports = [preview.viewport, presentation.viewport];
+                
+                viewports.forEach(vp => {
+                    vp.classList.remove('pattern-none', 'pattern-dots', 'pattern-lines', 'pattern-grid');
+                    vp.classList.add(pattern);
+                });
+            }
+            
+            /**
+             * NEW: Applies the correct background type class to both viewports
+             */
+            function updateBackgroundType() {
+                const type = globalSettings.backgroundType || 'bg-solid';
+                const viewports = [preview.viewport, presentation.viewport];
+                
+                viewports.forEach(vp => {
+                    vp.classList.remove('bg-solid', 'bg-linear', 'bg-radial');
+                    vp.classList.add(type);
+                });
+            }
+
+            /**
+             * Main render function, calls sub-renderers
+             */
+            function renderApp() {
+                if (slides.length === 0) {
+                    // Handle empty state
+                    preview.slideContainer.innerHTML = `<div class="p-8 text-gray-500 flex items-center justify-center h-full">Add a slide to get started!</div>`;
+                    controls.editorContent.innerHTML = `<p class="text-gray-400">No slide selected.</p>`;
+                    updateNav();
+                    updateGlobalElements();
+                    return;
+                }
+
+                if (currentSlideIndex < 0 || currentSlideIndex >= slides.length) {
+                    currentSlideIndex = Math.max(0, Math.min(slides.length - 1, currentSlideIndex));
+                }
+                
+                if (selectedElementId) {
+                    selectedElementId = null;
+                }
+
+                // Render presentation mode if active
+                if (isPresenting) {
+                    renderPresentationSlide();
+                } else {
+                    renderCurrentSlide();
+                    renderEditor();
+                }
+                updateNav();
+                updateGlobalElements();
+            }
+
+            /**
+             * Helper function to build a slide's HTML
+             * Returns a DOM element
+             */
+            function buildSlideHtml(slide) {
+                const slideEl = document.createElement('div');
+                // Apply global font and template class
+                slideEl.className = `slide ${globalSettings.font} template-${slide.template}`;
+                slideEl.dataset.id = slide.id;
+                
+                switch (slide.template) {
+                    case 'title':
+                        slideEl.innerHTML = `
+                            <div class="slide-wrapper">
+                                <h1 class="break-words">${sanitize(slide.content.title)}</h1>
+                                <p class="break-words">${sanitize(slide.content.subtitle)}</p>
+                            </div>
+                        `;
+                        break;
+                    case 'content':
+                        slideEl.innerHTML = `
+                            <div class="slide-wrapper">
+                                <h2 class="break-words">${sanitize(slide.content.title)}</h2>
+                                <div class="content-grid">
+                                    <div class="content-text break-words whitespace-pre-wrap">${sanitize(slide.content.text)}</div>
+                                    <div class="content-image">
+                                        <img src="${slide.content.imageUrl}" 
+                                             alt="Slide image" 
+                                             class="slide-image object-contain max-h-full max-w-full rounded-lg shadow-md"
+                                             onerror="this.src='https://placehold.co/400x300/f87171/ffffff?text=Image+Failed+to+Load'; this.alt='Image failed to load'">
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        break;
+                    case 'video':
+                        slideEl.innerHTML = `
+                            <div class="slide-wrapper">
+                                <h2 class="break-words">${sanitize(slide.content.title)}</h2>
+                                <div class="content-grid">
+                                    <div class="content-text break-words whitespace-pre-wrap">${sanitize(slide.content.text)}</div>
+                                    <div class="content-video">
+                                        <video src="${slide.content.videoUrl}" 
+                                             controls loop muted playsinline
+                                             onerror="this.outerHTML='<div class=\\'text-red-500 p-4 bg-red-100 rounded-lg\\'>Video failed to load. Check URL.</div>'">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        break;
+                    case 'canvas':
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'slide-wrapper w-full h-full';
+                        
+                        slide.elements.forEach(el => {
+                            const elWrapper = document.createElement('div');
+                            elWrapper.className = `canvas-element`;
+                            elWrapper.dataset.elementId = el.id;
+                            elWrapper.style.left = `${el.x}%`;
+                            elWrapper.style.top = `${el.y}%`;
+                            elWrapper.style.width = `${el.width}%`;
+                            
+                            if (el.type === 'text') {
+                                elWrapper.style.color = el.color;
+                                elWrapper.style.fontSize = `${el.fontSize}px`;
+                                elWrapper.style.height = 'auto'; // Text height is auto
+                                const contentDiv = document.createElement('div');
+                                contentDiv.className = 'content-editable p-2 break-words';
+                                contentDiv.innerHTML = sanitize(el.content);
+                                contentDiv.contentEditable = (editingTextElementId === el.id).toString();
+                                if (editingTextElementId === el.id) {
+                                    contentDiv.classList.add('editing');
+                                }
+                                
+                                contentDiv.addEventListener('blur', (e) => {
+                                    if (editingTextElementId === el.id) {
+                                        el.content = e.target.innerText;
+                                        editingTextElementId = null;
+                                        e.target.contentEditable = 'false';
+                                        renderEditor();
+                                    }
+                                });
+                                
+                                contentDiv.addEventListener('keydown', (e) => {
+                                    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); e.target.blur(); } 
+                                    else if (e.key === 'Escape') { e.target.innerText = el.content; e.target.blur(); }
+                                });
+                                
+                                elWrapper.appendChild(contentDiv);
+                            } else if (el.type === 'image') {
+                                elWrapper.style.height = `${el.height}%`;
+                                elWrapper.innerHTML = `<img src="${el.content}" alt="Canvas image" class="rounded w-full h-full object-cover" onerror="this.src='https://placehold.co/400x300/f87171/ffffff?text=Image+Load+Failed'">`;
+                            } else if (el.type === 'video') {
+                                elWrapper.style.height = `${el.height}%`;
+                                elWrapper.innerHTML = `<video src="${el.content}" controls loop muted playsinline class="rounded" onerror="this.outerHTML='<div class=\\'text-red-500 p-2 bg-red-100 rounded-lg text-xs\\'>Video failed</div>'"></video>`;
+                                const video = elWrapper.querySelector('video');
+                                video.addEventListener('mousedown', (e) => e.stopPropagation());
+                            } else if (el.type === 'shape') { 
+                                elWrapper.style.height = `${el.height}%`;
+                                const shapeFunc = svgShapes[el.shapeType] || svgShapes['rectangle'];
+                                elWrapper.innerHTML = `<svg preserveAspectRatio="none" viewBox="${el.shapeType.includes('line') || el.shapeType === 'arrow' ? '0 0 100 100' : '0 0 100 100'}">${shapeFunc(el)}</svg>`;
+                            }
+                            
+                            if (selectedElementId === el.id && !isPresenting) { // Only show selection in editor
+                                elWrapper.classList.add('selected');
+                                elWrapper.style.zIndex = 10;
+                                const brHandle = document.createElement('div');
+                                brHandle.className = 'resize-handle br';
+                                elWrapper.appendChild(brHandle);
+                            }
+                            wrapper.appendChild(elWrapper);
+                        });
+                        slideEl.appendChild(wrapper);
+                        
+                        const toFocus = slideEl.querySelector('.editing');
+                        if (toFocus) {
+                            setTimeout(() => {
+                                const range = document.createRange();
+                                const sel = window.getSelection();
+                                range.selectNodeContents(toFocus);
+                                range.collapse(false);
+                                sel.removeAllRanges();
+                                sel.addRange(range);
+                                toFocus.focus();
+                            }, 0);
+                        }
+                        break;
+                }
+                return slideEl;
+            }
+
+            /**
+             * Renders the current slide in the *editor* viewport
+             */
+            function renderCurrentSlide() {
+                const slide = slides[currentSlideIndex];
+                if (!slide) return;
+                
+                const slideEl = buildSlideHtml(slide);
+
+                const oldSlide = preview.slideContainer.querySelector('.slide');
+                
+                preview.slideContainer.appendChild(slideEl);
+                void slideEl.offsetWidth; 
+                slideEl.classList.add('visible', `anim-${globalSettings.animation}`);
+
+                if (oldSlide) {
+                    oldSlide.classList.remove('visible');
+                    setTimeout(() => {
+                        if (oldSlide.parentNode) {
+                            oldSlide.parentNode.removeChild(oldSlide);
+                        }
+                    }, 600);
+                }
+            }
+            
+            /**
+             * Renders the current slide in the *presentation* viewport
+             */
+            function renderPresentationSlide() {
+                const slide = slides[currentSlideIndex];
+                if (!slide) return;
+                
+                const slideEl = buildSlideHtml(slide); // Reuse the same build logic
+                
+                // Apply theme and font to viewport
+                presentation.viewport.className = `theme-${globalSettings.theme.replace('theme-', '')} ${globalSettings.font}`;
+                // Apply pattern and background type classes
+                presentation.viewport.classList.add(globalSettings.backgroundPattern || 'pattern-none');
+                presentation.viewport.classList.add(globalSettings.backgroundType || 'bg-solid');
+                
+                // Apply global elements
+                presentation.headerText.textContent = globalSettings.header;
+                presentation.footer.textContent = globalSettings.footer;
+                presentation.logo.innerHTML = '';
+                if (globalSettings.logoUrl) {
+                    presentation.logo.innerHTML = `<img src="${globalSettings.logoUrl}" alt="Logo">`;
+                }
+                
+                // Apply global text color (from theme)
+                const computedColor = getComputedStyle(preview.header).color;
+                presentation.header.style.color = computedColor;
+                presentation.footer.style.color = computedColor;
+
+                // Animate slide
+                const oldSlide = presentation.slideContainer.querySelector('.slide');
+                presentation.slideContainer.appendChild(slideEl);
+                void slideEl.offsetWidth; 
+                slideEl.classList.add('visible', `anim-${globalSettings.animation}`);
+
+                if (oldSlide) {
+                    oldSlide.classList.remove('visible');
+                    setTimeout(() => {
+                        if (oldSlide.parentNode) {
+                            oldSlide.parentNode.removeChild(oldSlide);
+                        }
+                    }, 600);
+                }
+            }
+
+
+            /**
+             * Renders the editor controls for the current slide
+             */
+            function renderEditor() {
+                const slide = slides[currentSlideIndex];
+                if (!slide) {
+                    controls.editorTitle.textContent = 'Edit Slide';
+                    controls.editorContent.innerHTML = `<p class="text-gray-400">No slide selected.</p>`;
+                    return;
+                }
+
+                controls.editorTitle.textContent = `Edit Slide ${currentSlideIndex + 1}`;
+                controls.editorContent.innerHTML = ''; // Clear old editor
+
+                const createInput = (key, type = 'text', labelText) => {
+                    const value = slide.content[key];
+                    const wrapper = document.createElement('div');
+                    
+                    const label = document.createElement('label');
+                    label.className = 'block text-sm font-medium text-gray-300';
+                    label.textContent = labelText;
+                    
+                    let input;
+                    if (type === 'textarea') {
+                        input = document.createElement('textarea');
+                        input.rows = 5;
+                        input.className = 'mt-1 w-full p-2 bg-gray-800 border border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500 text-white';
+                        input.value = value;
+                    } else {
+                        input = document.createElement('input');
+                        input.type = type;
+                        input.className = 'mt-1 w-full p-2 bg-gray-800 border border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500 text-white';
+                        input.value = value;
+                    }
+
+                    input.addEventListener('input', (e) => {
+                        slide.content[key] = e.target.value;
+                        renderCurrentSlide(); 
+                    });
+                    
+                    wrapper.appendChild(label);
+                    wrapper.appendChild(input);
+                    return wrapper;
+                };
+
+                switch (slide.template) {
+                    case 'title':
+                        controls.editorContent.appendChild(createInput('title', 'text', 'Title'));
+                        controls.editorContent.appendChild(createInput('subtitle', 'text', 'Subtitle'));
+                        break;
+                    case 'content':
+                        controls.editorContent.appendChild(createInput('title', 'text', 'Title'));
+                        controls.editorContent.appendChild(createInput('text', 'textarea', 'Text Content'));
+                        controls.editorContent.appendChild(createInput('imageUrl', 'text', 'Image URL'));
+                        break;
+                    case 'video':
+                        controls.editorContent.appendChild(createInput('title', 'text', 'Title'));
+                        controls.editorContent.appendChild(createInput('text', 'textarea', 'Text Content'));
+                        controls.editorContent.appendChild(createInput('videoUrl', 'text', 'Video URL'));
+                        break;
+                    case 'canvas':
+                        controls.editorContent.innerHTML = `
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button id="add-text-el" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition duration-150">
+                                        Add Text
+                                    </button>
+                                    <button id="add-image-el" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition duration-150">
+                                        Add Image
+                                    </button>
+                                    <button id="add-video-el" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md transition duration-150">
+                                        Add Video
+                                    </button>
+                                    <button id="add-shape-el" class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-md transition duration-150">
+                                        Add Shape
+                                    </button>
+                                </div>
+                                <h3 class="text-lg font-medium text-gray-300 pt-2 border-t border-gray-600">Elements</h3>
+                                <div id="canvas-elements-list" class="space-y-2 max-h-60 overflow-y-auto"></div>
+                            </div>
+                        `;
+
+                        document.getElementById('add-text-el').addEventListener('click', () => {
+                            const newEl = elementTemplates['text']();
+                            slide.elements.push(newEl);
+                            selectedElementId = newEl.id;
+                            renderCurrentSlide();
+                            renderEditor();
+                        });
+                        
+                        document.getElementById('add-image-el').addEventListener('click', () => {
+                            const newEl = elementTemplates['image']();
+                            slide.elements.push(newEl);
+                            selectedElementId = newEl.id;
+                            renderCurrentSlide();
+                            renderEditor();
+                        });
+
+                        document.getElementById('add-video-el').addEventListener('click', () => {
+                            const newEl = elementTemplates['video']();
+                            slide.elements.push(newEl);
+                            selectedElementId = newEl.id;
+                            renderCurrentSlide();
+                            renderEditor();
+                        });
+                        
+                        document.getElementById('add-shape-el').addEventListener('click', () => {
+                            const newEl = elementTemplates['shape']();
+                            slide.elements.push(newEl);
+                            selectedElementId = newEl.id;
+                            renderCurrentSlide();
+                            renderEditor();
+                        });
+
+                        const listEl = document.getElementById('canvas-elements-list');
+                        if (slide.elements.length === 0) {
+                            listEl.innerHTML = `<p class="text-gray-400 text-sm">No elements on this slide.</p>`;
+                        } else {
+                            slide.elements.forEach(el => {
+                                const item = document.createElement('div');
+                                item.className = `flex items-center justify-between p-2 rounded-md ${selectedElementId === el.id ? 'bg-indigo-900' : 'bg-gray-800'}`;
+                                item.innerHTML = `
+                                    <span class="text-sm truncate">${el.type}: ${el.type === 'text' ? sanitize(el.content) : (el.type === 'shape' ? el.shapeType : el.type)}</span>
+                                    <button data-delete-id="${el.id}" class="text-red-500 hover:text-red-400 font-bold text-lg">&times;</button>
+                                `;
+                                item.addEventListener('click', (e) => {
+                                    if (!e.target.matches('button')) {
+                                        selectedElementId = el.id;
+                                        renderCurrentSlide();
+                                        renderEditor();
+                                    }
+                                });
+                                item.querySelector('button').addEventListener('click', (e) => {
+                                    const id = e.target.dataset.deleteId;
+                                    slide.elements = slide.elements.filter(elem => elem.id !== id);
+                                    if (selectedElementId === id) selectedElementId = null;
+                                    renderCurrentSlide();
+                                    renderEditor();
+                                });
+                                listEl.appendChild(item);
+                            });
+                        }
+                        
+                        if (selectedElementId) {
+                            const el = slide.elements.find(e => e.id === selectedElementId);
+                            if (el) {
+                                const propsWrapper = document.createElement('div');
+                                propsWrapper.className = 'space-y-4 pt-4 border-t border-gray-600';
+                                propsWrapper.innerHTML = `<h3 class="text-lg font-medium text-gray-300">Properties</h3>`;
+                                
+                                const createPropInput = (key, type, labelText, props = {}) => {
+                                    const val = el[key];
+                                    const wrapper = document.createElement('div');
+                                    const label = document.createElement('label');
+                                    label.className = 'block text-sm font-medium text-gray-300';
+                                    label.textContent = labelText;
+                                    
+                                    let input;
+                                    if (type === 'textarea') {
+                                        input = document.createElement('textarea');
+                                        input.rows = 3;
+                                        input.className = 'mt-1 w-full p-2 bg-gray-800 border border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500 text-white';
+                                        input.value = val;
+                                    } else if (type === 'select') {
+                                        input = document.createElement('select');
+                                        input.className = 'mt-1 w-full p-2 bg-gray-800 border border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500 text-white';
+                                        props.options.forEach(opt => {
+                                            const option = document.createElement('option');
+                                            option.value = opt.value;
+                                            option.textContent = opt.label;
+                                            if (val === opt.value) option.selected = true;
+                                            input.appendChild(option);
+                                        });
+                                    } else {
+                                        input = document.createElement('input');
+                                        input.type = type;
+                                        input.value = val;
+                                        input.className = 'mt-1 w-full p-2 bg-gray-800 border border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500 text-white';
+                                        if (type === 'color') input.className += ' h-10';
+                                        Object.assign(input, props);
+                                    }
+                                    
+                                    input.addEventListener('input', (e) => {
+                                        let newValue = e.target.value;
+                                        if (type === 'number') newValue = parseFloat(newValue) || 0;
+                                        el[key] = newValue;
+                                        if (key === 'content' && el.type === 'text') el.content = newValue.replace(/\n/g, '<br>');
+                                        renderCurrentSlide();
+                                    });
+                                    
+                                    wrapper.appendChild(label);
+                                    wrapper.appendChild(input);
+                                    return wrapper;
+                                };
+
+                                if (el.type === 'text') {
+                                    const textContent = el.content.replace(/<br>/g, '\n');
+                                    el['contentForEditor'] = textContent;
+                                    propsWrapper.appendChild(createPropInput('contentForEditor', 'textarea', 'Text'));
+                                    propsWrapper.appendChild(createPropInput('fontSize', 'number', 'Font Size (px)', { min: 8, step: 1 }));
+                                    propsWrapper.appendChild(createPropInput('color', 'color', 'Color'));
+                                } else if (el.type === 'image') {
+                                    propsWrapper.appendChild(createPropInput('content', 'text', 'Image URL'));
+                                } else if (el.type === 'video') {
+                                    propsWrapper.appendChild(createPropInput('content', 'text', 'Video URL'));
+                                } else if (el.type === 'shape') { 
+                                    propsWrapper.appendChild(createPropInput('shapeType', 'select', 'Shape Type', {
+                                        options: [
+                                            { value: 'rectangle', label: 'Rectangle' },
+                                            { value: 'circle', label: 'Circle' },
+                                            { value: 'triangle', label: 'Triangle' },
+                                            { value: 'star', label: 'Star' },
+                                            { value: 'arrow', label: 'Arrow' },
+                                            { value: 'line', label: 'Line' },
+                                        ]
+                                    }));
+                                    propsWrapper.appendChild(createPropInput('fill', 'color', 'Fill Color'));
+                                    propsWrapper.appendChild(createPropInput('stroke', 'color', 'Stroke Color'));
+                                }
+                                
+                                controls.editorContent.appendChild(propsWrapper);
+                                
+                                if (el.type === 'text') {
+                                    const textarea = propsWrapper.querySelector('textarea');
+                                    textarea.addEventListener('input', (e) => {
+                                        el.content = e.target.value;
+                                        renderCurrentSlide();
+                                    });
+                                    textarea.value = el.content;
+                                }
+                            }
+                        }
+                        break;
+                }
+            }
+
+            /**
+             * Updates navigation buttons (disabled states) and counter
+             */
+            function updateNav() {
+                const count = slides.length;
+                preview.counter.textContent = `Slide ${count === 0 ? 0 : currentSlideIndex + 1} / ${count}`;
+                
+                const hasSlides = count > 0;
+                preview.prevBtn.disabled = (currentSlideIndex === 0) || !hasSlides;
+                preview.nextBtn.disabled = (currentSlideIndex === count - 1) || !hasSlides;
+                preview.presentBtn.disabled = !hasSlides;
+                controls.deleteSlideBtn.disabled = !hasSlides;
+                controls.saveProjectBtn.disabled = !hasSlides;
+            }
+
+            /**
+             * Updates header, footer, font, theme, and logo
+             */
+            function updateGlobalElements() {
+                preview.headerText.textContent = globalSettings.header;
+                preview.logoContainer.innerHTML = '';
+                if (globalSettings.logoUrl) {
+                    const logoImg = document.createElement('img');
+                    logoImg.src = globalSettings.logoUrl;
+                    logoImg.alt = 'Logo';
+                    logoImg.className = 'max-h-8 h-full object-contain';
+                    logoImg.onerror = () => { preview.logoContainer.innerHTML = '<span class="text-red-500 text-xs">Logo failed</span>'; };
+                    preview.logoContainer.appendChild(logoImg);
+                }
+                
+                preview.footer.textContent = globalSettings.footer;
+                
+                preview.viewport.classList.remove('font-sans', 'font-serif', 'font-mono');
+                preview.viewport.classList.add(globalSettings.font);
+
+                preview.viewport.classList.remove('theme-light', 'theme-dark', 'theme-corporate', 'theme-custom');
+                preview.viewport.classList.add(globalSettings.theme);
+            }
+
+            // --- STATE-MODIFYING ACTIONS ---
+
+            function addSlide(templateName) {
+                const newSlide = slideTemplates[templateName]();
+                slides.push(newSlide);
+                currentSlideIndex = slides.length - 1;
+                renderApp();
+            }
+
+            function deleteCurrentSlide() {
+                if (slides.length === 0) return;
+                slides.splice(currentSlideIndex, 1);
+                if (currentSlideIndex >= slides.length) {
+                    currentSlideIndex = Math.max(0, slides.length - 1);
+                }
+                renderApp();
+            }
+
+            function goToSlide(index) {
+                if (index < 0 || index >= slides.length) {
+                    return;
+                }
+                currentSlideIndex = index;
+                renderApp();
+            }
+
+            // --- DRAG AND DROP FUNCTIONS ---
+
+            function onDragStart(e) {
+                if (slides[currentSlideIndex].template !== 'canvas') return;
+                const targetElement = e.target.closest('.canvas-element');
+                const resizeHandle = e.target.closest('.resize-handle');
+
+                if (resizeHandle && targetElement) {
+                    const elementId = targetElement.dataset.elementId;
+                    const elementData = slides[currentSlideIndex].elements.find(el => el.id === elementId);
+                    onResizeStart(e, resizeHandle, targetElement, elementData);
+                    return;
+                }
+
+                if (!targetElement) {
+                    if (selectedElementId) {
+                        selectedElementId = null;
+                        renderCurrentSlide();
+                        renderEditor();
+                    }
+                    return;
+                }
+                
+                if (e.target.isContentEditable || e.target.tagName === 'VIDEO' || e.target.closest('video') !== null) {
+                    return;
+                }
+
+                e.preventDefault();
+                
+                const slide = slides[currentSlideIndex];
+                const elementId = targetElement.dataset.elementId;
+                const elementData = slide.elements.find(el => el.id === elementId);
+                
+                if (selectedElementId !== elementId) {
+                    selectedElementId = elementId;
+                    renderCurrentSlide();
+                    renderEditor();
+                }
+
+                const slideRect = preview.slideContainer.getBoundingClientRect();
+
+                dragState = {
+                    targetElement, elementData, slideRect,
+                    initialXPercent: elementData.x,
+                    initialYPercent: elementData.y,
+                    startX: e.clientX,
+                    startY: e.clientY,
+                };
+
+                document.addEventListener('mousemove', onDragMove);
+                document.addEventListener('mouseup', onDragEnd);
+            }
+
+            function onDragMove(e) {
+                if (!dragState.targetElement) return;
+
+                const dx = e.clientX - dragState.startX;
+                const dy = e.clientY - dragState.startY;
+                const dxPercent = (dx / dragState.slideRect.width) * 100;
+                const dyPercent = (dy / dragState.slideRect.height) * 100;
+
+                let newX = dragState.initialXPercent + dxPercent;
+                let newY = dragState.initialYPercent + dyPercent;
+
+                const elWidthPercent = parseFloat(dragState.targetElement.style.width);
+                const elHeightPercent = parseFloat(dragState.targetElement.style.height) || (dragState.targetElement.offsetHeight / dragState.slideRect.height) * 100;
+
+                newX = Math.max(0, Math.min(newX, 100 - elWidthPercent));
+                newY = Math.max(0, Math.min(newY, 100 - elHeightPercent));
+
+                dragState.elementData.x = newX;
+                dragState.elementData.y = newY;
+                dragState.targetElement.style.left = `${newX}%`;
+                dragState.targetElement.style.top = `${newY}%`;
+            }
+
+            function onDragEnd() {
+                document.removeEventListener('mousemove', onDragMove);
+                document.removeEventListener('mouseup', onDragEnd);
+                dragState = {};
+            }
+
+            // --- RESIZE FUNCTIONS ---
+
+            function onResizeStart(e, handle, targetElement, elementData) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const slideRect = preview.slideContainer.getBoundingClientRect();
+                
+                resizeState = {
+                    handle, targetElement, elementData, slideRect,
+                    startX: e.clientX,
+                    startY: e.clientY,
+                    startWidthPercent: elementData.width,
+                    startHeightPercent: elementData.height,
+                    isText: elementData.type === 'text',
+                };
+                
+                document.addEventListener('mousemove', onResizeMove);
+                document.addEventListener('mouseup', onResizeEnd);
+            }
+
+            function onResizeMove(e) {
+                if (!resizeState.targetElement) return;
+
+                const dx = e.clientX - resizeState.startX;
+                const dy = e.clientY - resizeState.startY;
+                const dxPercent = (dx / resizeState.slideRect.width) * 100;
+                const dyPercent = (dy / resizeState.slideRect.height) * 100;
+
+                let newWidthPercent = resizeState.startWidthPercent + dxPercent;
+                newWidthPercent = Math.max(5, Math.min(newWidthPercent, 100 - resizeState.elementData.x));
+                
+                resizeState.elementData.width = newWidthPercent;
+                resizeState.targetElement.style.width = `${newWidthPercent}%`;
+
+                if (!resizeState.isText) {
+                    let newHeightPercent = resizeState.startHeightPercent + dyPercent;
+                    newHeightPercent = Math.max(5, Math.min(newHeightPercent, 100 - resizeState.elementData.y));
+                    resizeState.elementData.height = newHeightPercent;
+                    resizeState.targetElement.style.height = `${newHeightPercent}%`;
+                }
+            }
+
+            function onResizeEnd() {
+                document.removeEventListener('mousemove', onResizeMove);
+                document.removeEventListener('mouseup', onResizeEnd);
+                resizeState = {};
+            }
+
+            // --- INLINE EDIT FUNCTION ---
+
+            function onDoubleClick(e) {
+                if (slides[currentSlideIndex].template !== 'canvas') return;
+                const targetElement = e.target.closest('.canvas-element');
+                if (!targetElement) return;
+
+                const elementId = targetElement.dataset.elementId;
+                const el = slides[currentSlideIndex].elements.find(e => e.id === elementId);
+
+                if (el && el.type === 'text') {
+                    editingTextElementId = el.id;
+                    selectedElementId = el.id;
+                    renderCurrentSlide();
+                    renderEditor();
+                }
+            }
+            
+            // --- PROJECT I/O FUNCTIONS ---
+            
+            function saveProject() {
+                const projectData = {
+                    globalSettings: globalSettings,
+                    slides: slides
+                };
+                const dataStr = JSON.stringify(projectData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'presentation.rs'; // Save with .rs extension
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showProjectMessage("Project saved as presentation.rs!");
+            }
+
+            function loadProject(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const projectData = JSON.parse(event.target.result);
+                        if (projectData && projectData.globalSettings && projectData.slides) {
+                            
+                            // Merge loaded settings with defaults to ensure new properties exist
+                            const defaultSettings = {
+                                backgroundPattern: 'pattern-none',
+                                backgroundType: 'bg-solid',
+                                customColors: globalSettings.customColors
+                            };
+                            
+                            globalSettings = { ...defaultSettings, ...projectData.globalSettings };
+                            slides = projectData.slides;
+                            currentSlideIndex = 0;
+                            
+                            // Ensure new settings exist
+                            globalSettings.customColors = { ...defaultSettings.customColors, ...globalSettings.customColors };
+
+                            
+                            // Restore UI from loaded settings
+                            controls.headerInput.value = globalSettings.header;
+                            controls.logoInput.value = globalSettings.logoUrl;
+                            controls.footerInput.value = globalSettings.footer;
+                            controls.animationSelect.value = globalSettings.animation;
+                            controls.fontSelect.value = globalSettings.font;
+                            controls.themeSelect.value = globalSettings.theme;
+                            controls.customThemeSettings.classList.toggle('hidden', globalSettings.theme !== 'theme-custom');
+                            
+                            // Restore Custom Theme UI
+                            const customThemeInputs = [
+                                { el: controls.customTitleBg, prop: '--custom-title-bg' },
+                                { el: controls.customTitleText, prop: '--custom-title-text' },
+                                { el: controls.customContentBg, prop: '--custom-content-bg' },
+                                { el: controls.customContentBg2, prop: '--custom-content-bg-2' },
+                                { el: controls.customContentHeading, prop: '--custom-content-heading' },
+                                { el: controls.customContentText, prop: '--custom-content-text' },
+                                { el: controls.customImageBg, prop: '--custom-image-bg' },
+                                { el: controls.customHeaderText, prop: '--custom-header-text' },
+                                { el: controls.customPatternColor, prop: '--custom-pattern-color' },
+                            ];
+                            
+                            customThemeInputs.forEach(item => {
+                                if (globalSettings.customColors[item.prop]) {
+                                    item.el.value = globalSettings.customColors[item.prop];
+                                }
+                            });
+                            
+                            controls.customBgPattern.value = globalSettings.backgroundPattern;
+                            controls.customBgType.value = globalSettings.backgroundType; // NEW
+
+                            // Apply loaded custom theme
+                            if (globalSettings.theme === 'theme-custom') {
+                                applyCustomThemeColors();
+                                updateBackgroundPattern();
+                                updateBackgroundType(); // NEW
+                            }
+
+                            renderApp();
+                            showProjectMessage("Project loaded successfully!");
+                        } else {
+                            throw new Error('Invalid project file format.');
+                        }
+                    } catch (err) {
+                        console.error("Failed to load project:", err);
+                        showProjectMessage("Error: Could not load file. Invalid format.", true);
+                    }
+                };
+                reader.readAsText(file);
+                
+                // Clear the input to allow loading the same file again
+                e.target.value = null;
+            }
+            
+            function showProjectMessage(message, isError = false) {
+                controls.projectMessage.textContent = message;
+                controls.projectMessage.className = isError ? 'text-red-400 text-xs mt-2 min-h-[1em]' : 'text-green-400 text-xs mt-2 min-h-[1em]';
+                setTimeout(() => {
+                    controls.projectMessage.textContent = '';
+                }, 3000);
+            }
+
+            // --- PRESENTATION MODE FUNCTIONS ---
+            
+            function startPresentation() {
+                if (slides.length === 0) return;
+                
+                isPresenting = true;
+                presentation.overlay.classList.add('visible');
+                
+                // Ensure custom styles are applied before rendering
+                if (globalSettings.theme === 'theme-custom') {
+                    applyCustomThemeColors();
+                    updateBackgroundPattern();
+                    updateBackgroundType(); // NEW
+                }
+                
+                try {
+                    // Try to enter fullscreen
+                    document.documentElement.requestFullscreen();
+                } catch (err) {
+                    console.warn("Could not enter fullscreen:", err);
+                }
+                
+                renderPresentationSlide(); // Render the first slide
+            }
+            
+            function stopPresentation() {
+                isPresenting = false;
+                presentation.overlay.classList.remove('visible');
+                
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                }
+                
+                // Clear presentation slide container
+                presentation.slideContainer.innerHTML = '';
+                
+                // Re-render editor view
+                renderApp();
+            }
+
+            function sanitize(str) {
+                if (!str) return '';
+                return str.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&lt;br&GgTt;/g, '<br>');
+            }
+            
+            // --- START THE APP ---
+            init();
+        });
+    </script>
+</body>
+</html>

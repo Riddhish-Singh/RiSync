@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Groundup Pay Slip Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <style>
+        /* Base styles */
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
+        .container { max-width: 1100px; margin: auto; background: white; padding: 30px; border: 1px solid #ccc; box-shadow: 0 0 10px rgba(0,0,0,0.1); box-sizing: border-box; } 
+
+        /* Header and Logo */
+        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
+        .header img { 
+            max-width: 150px; 
+            height: auto; 
+            margin-bottom: 10px; 
+            border: none; 
+            padding: 5px; 
+        }
+        .header h1 { font-size: 1.8rem; color: #333; margin-bottom: 5px;}
+        .header p { font-size: 1rem; color: #555; }
+
+        /* Two-Column Generator Layout */
+        .generator-section { display: flex; gap: 30px; }
+        .input-form { width: 35%; background-color: #f9f9f9; padding: 15px; border: 1px solid #ddd; border-radius: 5px;}
+        .payslip { width: 65%; background-color: #fff; padding: 10px 0; }
+
+        /* Form styling */
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 3px; color: #333; }
+        .form-group input { width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 3px; box-sizing: border-box; font-size: 0.9rem; }
+        .form-title { font-size: 1.1rem; font-weight: bold; margin-bottom: 10px; border-bottom: 2px solid #555; padding-bottom: 5px; color: #007bff; }
+        .input-form button { width: 100%; padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; margin-top: 15px; }
+        .input-form button:hover { background-color: #0056b3; }
+
+        /* Payslip table structure */
+        .payslip-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 10px; }
+        .payslip-table th, .payslip-table td { border: 1px solid #000; padding: 6px 8px; text-align: left; }
+        .payslip-table th { background-color: #eee; font-weight: bold; text-align: center; }
+
+        /* Employee Details Section */
+        .payslip-details { margin-bottom: 15px; }
+        .payslip-details table { width: 100%; border-collapse: collapse; table-layout: fixed;}
+        .payslip-details td { padding: 5px 10px; border: 1px solid #000; font-size: 0.85rem; }
+        .payslip-details .label { font-weight: bold; width: 25%; background-color: #f1f1f1; }
+        .payslip-details .value { width: 25%; }
+
+        /* Totals and Net Payable */
+        .total-row td { font-weight: bold; background-color: #e9e9e9; }
+        .total-row td:nth-child(2), .total-row td:nth-child(3) { text-align: right; }
+        .payslip-table td.amount { text-align: right; }
+
+        /* NEW SINGLE LINE GREEN BOX STYLE */
+        .net-salary-combined {
+            margin-top: 25px;
+            background-color: #104b46; /* Light green background */
+            color: #ffffff; /* Dark green text */
+            padding: 12px 15px;
+            font-size: 1rem;
+            border-left: 6px solid #28a745; /* The accent bar on the left */
+            display: flex;
+            align-items: baseline; /* Aligns text baselines */
+            flex-wrap: wrap; /* Allows wrapping on very small screens if needed */
+        }
+
+        .net-salary-main {
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .net-salary-words {
+            font-weight: normal;
+            font-size: 0.8rem;
+            color: #ffffff;
+        }
+        
+        .sub-note {
+            font-size: 0.75rem;
+            color: #777;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .footer { text-align: center; margin-top: 40px; font-size: 0.8rem; color: #777; }
+
+        /* --- PDF GENERATION STYLES (COMPACT MODE) --- */
+        /* These styles ONLY apply when generating the PDF to ensure it fits on 1 page */
+        
+        body.generating-pdf { background-color: white !important; padding: 0 !important; }
+        body.generating-pdf .input-form { display: none !important; }
+        body.generating-pdf .payslip { width: 100% !important; padding: 0 !important; }
+        
+        body.generating-pdf .container {
+            width: 700px !important; 
+            max-width: 700px !important;
+            margin: 0 auto !important;
+            box-shadow: none !important;
+            border: none !important;
+            padding: 10px 20px !important; /* Reduced padding */
+        }
+
+        /* COMPACT ELEMENTS FOR PDF */
+        body.generating-pdf .header { margin-bottom: 10px; padding-bottom: 5px; }
+        body.generating-pdf .header img { max-width: 100px; margin-bottom: 5px; } /* Smaller Logo */
+        body.generating-pdf .header h1 { font-size: 1.5rem; margin-bottom: 2px; }
+        body.generating-pdf .header p { font-size: 0.9rem; margin: 0; }
+        
+        body.generating-pdf .form-title { font-size: 1rem; margin-bottom: 5px; padding-bottom: 3px; }
+        
+        body.generating-pdf .payslip-details { margin-bottom: 10px; }
+        body.generating-pdf .payslip-details td { padding: 4px 6px; font-size: 0.8rem; } /* Tighter cells */
+        
+        body.generating-pdf .payslip-table { margin-top: 5px; font-size: 0.8rem; }
+        body.generating-pdf .payslip-table th, 
+        body.generating-pdf .payslip-table td { padding: 4px 6px; } /* Tighter table */
+        
+        body.generating-pdf .net-salary-combined { 
+            margin-top: 15px; 
+            padding: 8px 12px; 
+            font-size: 0.9rem;
+            border-left-width: 4px;
+        }
+        body.generating-pdf .net-salary-words { font-size: 0.85rem; }
+
+        body.generating-pdf .footer { margin-top: 30px; font-size: 0.7rem; }
+    </style>
+</head>
+<body>
+
+<div class="container" id="payslip-container">
+    <div class="header">
+        <img src="Groundup.png" alt="Groundup Logo" onerror="this.style.display='none'">
+        <h1>Pay Slip</h1>
+        <p>For the Month of <span id="slip_month_display"></span></p>
+    </div>
+
+    <div class="generator-section">
+        <div class="input-form">
+            <div class="form-title">Enter Payslip Details</div>
+            <form id="salaryForm">
+                <div class="form-group">
+                    <label for="input_month">Salary Month & Year:</label>
+                    <input type="month" id="input_month" value="2025-11" required>
+                </div>
+                
+                <div class="form-title" style="margin-top: 20px;">Employee Info</div>
+                <div class="form-group">
+                    <label for="input_name">Employee Full Name:</label>
+                    <input type="text" id="input_name" value="ABC ABC" required>
+                </div>
+                <div class="form-group">
+                    <label for="input_designation">Designation:</label>
+                    <input type="text" id="input_designation" value="Manager">
+                </div>
+                <div class="form-group">
+                    <label for="input_emp_id">Employee ID:</label>
+                    <input type="text" id="input_emp_id" value="GA-001">
+                </div>
+                <div class="form-group">
+                    <label for="input_doj">Date of Joining:</label>
+                    <input type="date" id="input_doj" value="2025-01-15">
+                </div>
+                <div class="form-group">
+                    <label for="input_pan">PAN:</label>
+                    <input type="text" id="input_pan" value="XXXXXXXXXX">
+                </div>
+                <div class="form-group">
+                    <label for="input_bank">Bank Account No:</label>
+                    <input type="text" id="input_bank" value="XXXX XXXX 1234">
+                </div>
+
+                <div class="form-title" style="margin-top: 20px;">Earnings (Monthly)</div>
+                <div class="form-group">
+                    <label for="input_basic">Basic:</label>
+                    <input type="number" id="input_basic" value="40000" required>
+                </div>
+                <div class="form-group">
+                    <label for="input_hra">HRA:</label>
+                    <input type="number" id="input_hra" value="15000" required>
+                </div>
+                <div class="form-group">
+                    <label for="input_lta">Leave Travel Allowance:</label>
+                    <input type="number" id="input_lta" value="2000">
+                </div>
+                <div class="form-group">
+                    <label for="input_conveyance">Conveyance Allowance:</label>
+                    <input type="number" id="input_conveyance" value="1600">
+                </div>
+                <div class="form-group">
+                    <label for="input_medical">Medical Allowance:</label>
+                    <input type="number" id="input_medical" value="1250">
+                </div>
+                <div class="form-group">
+                    <label for="input_sa">Special Allowance/Other:</label>
+                    <input type="number" id="input_sa" value="15000">
+                </div>
+                <div class="form-group">
+                    <label for="input_arrears">Arrears/Incentive:</label>
+                    <input type="number" id="input_arrears" value="0">
+                </div>
+
+                <div class="form-title" style="margin-top: 20px;">Deductions (Monthly)</div>
+                <div class="form-group">
+                    <label for="input_pt">Professional Tax:</label>
+                    <input type="number" id="input_pt" value="200" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="input_tds">TDS:</label>
+                    <input type="number" id="input_tds" value="0" min="0" required>
+                </div>
+
+                <button type="submit">Generate / Update Payslip</button>
+                <button type="button" onclick="downloadPDF()" style="background-color: #28a745;">Save as PDF</button>
+                <button type="button" id="shareEmailBtn" style="background-color: #17a2b8;">Share via Email</button>
+            </form>
+        </div>
+        <div class="payslip">
+            <div class="form-title" style="border-bottom: 2px solid #000; color: #333;">Employee Details</div>
+            <div class="payslip-details">
+                <table>
+                    <tr>
+                        <td class="label">Employee Name</td>
+                        <td class="value" id="slip_name"></td>
+                        <td class="label">Pay Period</td>
+                        <td class="value" id="slip_pay_period"></td>
+                    </tr>
+                    <tr>
+                        <td class="label">Designation</td>
+                        <td class="value" id="slip_designation"></td>
+                        <td class="label">Employee ID</td>
+                        <td class="value" id="slip_emp_id"></td>
+                    </tr>
+                    <tr>
+                        <td class="label">Date of Joining</td>
+                        <td class="value" id="slip_doj"></td>
+                        <td class="label">PAN</td>
+                        <td class="value" id="slip_pan"></td>
+                    </tr>
+                    <tr>
+                        <td class="label">Bank A/c No</td>
+                        <td class="value" id="slip_bank" colspan="3"></td>
+                    </tr>
+                    </table>
+            </div>
+
+            <div class="form-title" style="border-bottom: 2px solid #000; color: #333;">Earnings and Deductions</div>
+            <table class="payslip-table">
+                <thead>
+                    <tr>
+                        <th style="width: 30%;">Earning Head</th>
+                        <th style="width: 20%;">Amount</th>
+                        <th style="width: 30%;">Deduction Head</th>
+                        <th style="width: 20%;">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Basic</td>
+                        <td class="amount" id="slip_basic"></td>
+                        <td>Professional Tax</td>
+                        <td class="amount" id="slip_pt"></td>
+                    </tr>
+                    <tr>
+                        <td>HRA</td>
+                        <td class="amount" id="slip_hra"></td>
+                        <td>TDS</td>
+                        <td class="amount" id="slip_tds"></td>
+                    </tr>
+                    <tr>
+                        <td>Leave Travel Allowance</td>
+                        <td class="amount" id="slip_lta"></td>
+                        <td></td>
+                        <td class="amount"></td>
+                    </tr>
+                    <tr>
+                        <td>Conveyance Allowance</td>
+                        <td class="amount" id="slip_conveyance"></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Medical Allowance</td>
+                        <td class="amount" id="slip_medical"></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Special Allowance/Other</td>
+                        <td class="amount" id="slip_sa"></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Arrears/Incentive</td>
+                        <td class="amount" id="slip_arrears"></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr class="total-row">
+                        <td>GROSS EARNINGS</td>
+                        <td class="amount" id="slip_total_earnings"></td>
+                        <td>TOTAL DEDUCTIONS</td>
+                        <td class="amount" id="slip_total_deductions"></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="net-salary-combined">
+                <span class="net-salary-main">Total Net Payable ₹<span id="slip_net_salary"></span></span>
+                <span class="net-salary-words">(<span id="slip_net_salary_in_words"></span>)</span>
+            </div>
+            <div class="sub-note">
+                **Total Net Payable = Gross Earnings - Total Deductions
+            </div>
+
+            <div class="footer">
+                <p>-- This is a system-generated document. --</p>
+            </div>
+        </div>
+        </div>
+</div>
+
+<script>
+    document.getElementById('salaryForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        generatePayslip();
+    });
+
+    document.getElementById('shareEmailBtn').addEventListener('click', function() {
+        generatePayslip();
+        const fullName = document.getElementById('input_name').value;
+        const month = document.getElementById('slip_month_display').textContent;
+        if (!fullName) { alert('Please enter an employee name.'); return; }
+
+        const firstName = fullName.split(' ')[0];
+        // Assuming a standard email format based on the domain
+        const emailTo = `${firstName.toLowerCase()}@groundupasia.com`;
+        const subject = `Pay Slip for ${fullName} - ${month}`;
+        const body = `Hi ${firstName},\n\nPlease find your pay slip for ${month} attached.\n\nBest regards,\nGroundup Accounts`;
+        
+        // Using a generic mailto link instead of Outlook specific app link for broader compatibility
+        window.location.href = `mailto:${emailTo}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    });
+
+    // PDF GENERATION FUNCTION
+    function downloadPDF() {
+        generatePayslip();
+        const empName = document.getElementById('input_name').value.trim() || 'Employee';
+        
+        // Get the Month info from the display and replace spaces with underscores
+        let monthYearStr = document.getElementById('slip_month_display').textContent.trim();
+        monthYearStr = monthYearStr.replace(/ /g, '_').replace(/,/g, ''); // e.g., November_2025
+
+        // Updated Filename Format: EMPLOYEE NAME_MONTH_GroundUp-Payslip.pdf
+        const finalFileName = `${empName}_${monthYearStr}_GroundUp-Payslip.pdf`;
+
+        // 1. Add class to BODY for compact styling
+        document.body.classList.add('generating-pdf');
+
+        const element = document.getElementById('payslip-container');
+
+        const opt = {
+            margin:       [0.3, 0.3, 0.3, 0.3], // Top, Left, Bottom, Right inches
+            filename:     finalFileName,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true, scrollY: 0 }, 
+            jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+        };
+
+        // 2. Generate PDF
+        html2pdf().set(opt).from(element).save().then(() => {
+            // 3. Remove class to restore original layout
+            document.body.classList.remove('generating-pdf');
+        }).catch((err) => {
+            console.error(err);
+            document.body.classList.remove('generating-pdf');
+        });
+    }
+
+    // Function to convert number to Title Cased words (e.g. One Hundred Twenty)
+    function toTitleCase(str) {
+        return str.replace(
+            /\w\S*/g,
+            function(txt) {
+                return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+            }
+        );
+    }
+
+    function numberToWords(n) {
+        if (n === 0) return "Indian Rupee Zero Only";
+        
+        const units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+        const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+        const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+
+        const convertLessThanOneThousand = (num) => {
+            let str = '';
+            if (num >= 100) { str += units[Math.floor(num / 100)] + ' Hundred '; num %= 100; }
+            if (num >= 10 && num <= 19) { str += teens[num - 10] + ' '; } 
+            else { 
+                str += tens[Math.floor(num / 10)] + ' '; 
+                str += units[num % 10] + ' '; 
+            }
+            return str.trim();
+        };
+
+        let num = Math.floor(n);
+        let output = '';
+        if (num >= 10000000) { output += convertLessThanOneThousand(Math.floor(num / 10000000)) + ' Crore '; num %= 10000000; }
+        if (num >= 100000) { output += convertLessThanOneThousand(Math.floor(num / 100000)) + ' Lakh '; num %= 100000; }
+        if (num >= 1000) { output += convertLessThanOneThousand(Math.floor(num / 1000)) + ' Thousand '; num %= 1000; }
+        if (num > 0) { output += convertLessThanOneThousand(num); }
+        
+        // Clean up extra spaces and ensure Title Case format matching image
+        let finalOutput = output.replace(/\s+/g, ' ').trim();
+        finalOutput = toTitleCase(finalOutput);
+
+        return `Indian Rupee ${finalOutput} Only`;
+    }
+
+    function formatCurrency(amount) {
+        return parseFloat(amount).toLocaleString('en-IN', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function generatePayslip() {
+        const monthInput = document.getElementById('input_month').value;
+        const dateObj = new Date(monthInput + '-01');
+        // Using a fixed locale date string to ensure Consistent Month Year format across browsers
+        const monthYear = dateObj.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+        document.getElementById('slip_month_display').textContent = monthYear;
+        document.getElementById('slip_pay_period').textContent = monthYear;
+        document.getElementById('slip_name').textContent = document.getElementById('input_name').value;
+        document.getElementById('slip_designation').textContent = document.getElementById('input_designation').value;
+        // Map Employee ID
+        document.getElementById('slip_emp_id').textContent = document.getElementById('input_emp_id').value;
+
+        document.getElementById('slip_pan').textContent = document.getElementById('input_pan').value;
+        document.getElementById('slip_bank').textContent = document.getElementById('input_bank').value;
+        
+        const dojValue = document.getElementById('input_doj').value;
+        // Simple date formatting to avoid timezone issues
+        if(dojValue) {
+             const [yyyy, mm, dd] = dojValue.split('-');
+             document.getElementById('slip_doj').textContent = `${dd}/${mm}/${yyyy}`;
+        } else {
+             document.getElementById('slip_doj').textContent = 'N/A';
+        }
+
+        // Removed Leave Data Mapping
+        
+        const basic = parseFloat(document.getElementById('input_basic').value) || 0;
+        const hra = parseFloat(document.getElementById('input_hra').value) || 0;
+        const lta = parseFloat(document.getElementById('input_lta').value) || 0;
+        const conveyance = parseFloat(document.getElementById('input_conveyance').value) || 0;
+        const medical = parseFloat(document.getElementById('input_medical').value) || 0;
+        const specialAllowance = parseFloat(document.getElementById('input_sa').value) || 0;
+        const arrears = parseFloat(document.getElementById('input_arrears').value) || 0;
+        
+        const pt = parseFloat(document.getElementById('input_pt').value) || 0;
+        const tds = parseFloat(document.getElementById('input_tds').value) || 0;
+
+        const totalEarnings = basic + hra + lta + conveyance + medical + specialAllowance + arrears;
+        const totalDeductions = pt + tds; 
+        // Rounding to nearest integer for net salary as is common practice, though currency format shows .00
+        const netSalary = Math.round(totalEarnings - totalDeductions);
+
+        document.getElementById('slip_basic').textContent = formatCurrency(basic);
+        document.getElementById('slip_hra').textContent = formatCurrency(hra);
+        document.getElementById('slip_lta').textContent = formatCurrency(lta);
+        document.getElementById('slip_conveyance').textContent = formatCurrency(conveyance);
+        document.getElementById('slip_medical').textContent = formatCurrency(medical);
+        document.getElementById('slip_sa').textContent = formatCurrency(specialAllowance); 
+        document.getElementById('slip_arrears').textContent = formatCurrency(arrears);
+        
+        document.getElementById('slip_pt').textContent = formatCurrency(pt);
+        document.getElementById('slip_tds').textContent = formatCurrency(tds);
+
+        document.getElementById('slip_total_earnings').textContent = formatCurrency(totalEarnings);
+        document.getElementById('slip_total_deductions').textContent = formatCurrency(totalDeductions);
+        // Display Net Salary with decimals
+        document.getElementById('slip_net_salary').textContent = formatCurrency(netSalary);
+        // Convert the rounded net salary to words
+        document.getElementById('slip_net_salary_in_words').textContent = numberToWords(netSalary);
+    }
+    
+    // Generate on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        // Set default month to current month
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+        document.getElementById('input_month').value = `${year}-${month}`;
+        generatePayslip();
+    });
+</script>
+</body>
+</html>

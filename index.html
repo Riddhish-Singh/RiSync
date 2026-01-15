@@ -1,1558 +1,593 @@
-<script src='https://www.noupe.com/embed/0199be53273d727ab162fb659f7290ad9948.js'></script><!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
-  <title>RiSync • P2P Tutoring | Math, Science & More</title>
-  <meta name="description" content="RiSync is a peer-to-peer tutoring platform that makes learning collaborative and fun. Connect with fellow students for help in Math, Science, IT, and more.">
-  
-  <meta property="og:title" content="RiSync • P2P Tutoring | Level Up Your Learning">
-  <meta property="og:description" content="Join RiSync to connect with student tutors, access a huge resource library, and make learning a team sport. Sign up for free!">
-  <meta property="og:image" content="assets/social-preview.png">
-  <meta property="og:url" content="https://www.risync.com">
-  <meta property="og:type" content="website">
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <style>
-:root {
-  --primary-blue: #4A90E2;
-  --secondary-orange: #FF7043;
-  --dark-blue: #1D3557;
-  --light-grey: #F7F9FB;
-  --white: #ffffff;
-  --text-color: #333;
-  --box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-  --transition-speed: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
-
-body {
-  font-family: 'Poppins', sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: var(--light-grey);
-  min-height: 100vh;
-  color: var(--text-color);
-  overflow-x: hidden;
-}
-
-/* --- NEW SPLASH SCREEN STYLES --- */
-#splash-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: var(--dark-blue);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 10000;
-    opacity: 1;
-    transition: opacity 0.8s ease-out;
-    /* Animation for the background */
-    background: radial-gradient(circle, #2c4a75 0%, #1d3557 100%);
-    animation: radial-pulse 6s ease-in-out infinite alternate;
-}
-
-#splash-screen.hidden {
-    opacity: 0;
-    pointer-events: none;
-}
-
-#splash-screen img {
-    max-width: 200px;
-    opacity: 0;
-    /* The main logo animation with multiple steps */
-    animation: logo-animation 3.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-}
-
-/* Stars container and individual star animation */
-#stars {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-}
-.star {
-    position: absolute;
-    background-color: var(--white);
-    border-radius: 50%;
-    opacity: 0;
-    animation: star-sparkle 1.5s ease-in-out infinite alternate;
-}
-
-/* New keyframe for the radial gradient background animation */
-@keyframes radial-pulse {
-    0%   { background: radial-gradient(circle, #2c4a75 0%, #1d3557 100%); }
-    100% { background: radial-gradient(circle, #345c8c 0%, #203b61 100%); }
-}
-
-/* Updated logo animation with more steps and effects */
-@keyframes logo-animation {
-    20%  { transform: scale(1.1); opacity: 1; filter: blur(0px); text-shadow: 0 0 10px rgba(255, 255, 255, 0.8); }
-    40%  { transform: scale(0.95); opacity: 1; }
-    60%  { transform: scale(1); opacity: 1; text-shadow: 0 0 25px rgba(255, 255, 255, 0.9); }
-    85%  { transform: scale(1.1); opacity: 1; text-shadow: 0 0 40px rgba(255, 255, 255, 1); }
-}
-
-@keyframes star-sparkle {
-  0%   { opacity: 0; transform: scale(0); }
-  50%  { opacity: 1; transform: scale(1); }
-  100% { opacity: 0; transform: scale(0); }
-}
-
-/* Hide content initially */
-body.loading > *:not(#splash-screen) {
-    opacity: 0;
-}
-
-/* Animations for content reveal */
-body.loaded .slider-container,
-body.loaded nav {
-    opacity: 1;
-    transform: translateY(0);
-    transition: opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-    transition-delay: 0.2s; /* Stagger the animation */
-}
-
-.slider-container {
-    opacity: 0;
-    transform: translateY(-50px);
-}
-
-nav {
-    opacity: 0;
-    transform: translateY(-50px);
-}
-/* --- END SPLASH SCREEN STYLES --- */
-
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes slideInDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-@keyframes slideInUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-@keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-@keyframes typing {
-    from { width: 0; }
-    to { width: 100%; }
-}
-@keyframes blink-caret {
-    from, to { border-color: transparent; }
-    50% { border-color: var(--white); }
-}
-
-header.slider-container {
-  position: relative;
-  height: 60vh;
-  min-height: 400px;
-  color: var(--white);
-  overflow: hidden;
-  border-bottom: 5px solid var(--secondary-orange);
-}
-
-.slides {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-}
-
-.slide {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-  opacity: 0;
-  transition: opacity 1.5s ease-in-out;
-  transform: scale(1.05);
-}
-
-.slide.active {
-  opacity: 1;
-  transform: scale(1);
-  transition: opacity 1.5s ease-in-out, transform 8s linear;
-}
-
-.header-content {
-  position: relative;
-  z-index: 2;
-  background-color: rgba(29, 53, 87, 0.8);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  padding: 20px;
-}
-
-.header-content img {
-  max-width: 130px;
-  display: block;
-  margin: 0 auto 20px;
-  animation: slideInDown 0.8s ease-out;
-}
-
-.header-content h1 {
-  font-size: 48px;
-  color: var(--secondary-orange);
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
-  margin-bottom: 15px;
-  font-weight: 700;
-  animation: slideInDown 1s ease-out;
-}
-
-.header-content p {
-  font-size: 20px;
-  color: var(--white);
-  font-weight: 400;
-  border-right: 2px solid var(--white);
-  white-space: nowrap;
-  overflow: hidden;
-  width: 0;
-  animation:
-    typing 3.5s steps(40, end) forwards,
-    blink-caret 0.75s step-end infinite;
-  animation-delay: 1.2s;
-}
-
-.slider-nav {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  transform: translateY(-50%);
-  display: flex;
-  justify-content: space-between;
-  z-index: 3;
-  padding: 0 20px;
-}
-
-.slider-nav button {
-  background-color: rgba(0, 0, 0, 0.4);
-  border: none;
-  color: var(--white);
-  font-size: 24px;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.slider-nav button:hover {
-  background-color: rgba(0, 0, 0, 0.7);
-}
-
-nav {
-  background-color: var(--dark-blue);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  position: sticky;
-  top: 0;
-  z-index: 990;
-  padding: 0 20px;
-}
-
-.nav-links {
-    display: flex;
-    justify-content: center;
-    flex-grow: 1;
-}
-
-nav a {
-  color: var(--white);
-  text-decoration: none;
-  padding: 20px 25px;
-  font-size: 16px;
-  font-weight: bold;
-  text-transform: uppercase;
-  transition: color 0.3s ease, transform 0.3s ease;
-  position: relative;
-}
-
-nav a::after {
-    content: '';
-    position: absolute;
-    width: 100%;
-    transform: scaleX(0);
-    height: 3px;
-    bottom: 10px;
-    left: 0;
-    background-color: var(--secondary-orange);
-    transform-origin: bottom right;
-    transition: transform 0.25s ease-out;
-}
-
-nav a:hover::after {
-    transform: scaleX(1);
-    transform-origin: bottom left;
-}
-
-nav a:hover {
-  color: var(--secondary-orange);
-  transform: translateY(-2px);
-}
-
-.nav-cta {
-    display: flex;
-    gap: 15px;
-}
-
-.nav-cta .button {
-    padding: 10px 22px;
-    font-size: 16px;
-    text-transform: uppercase;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
-    font-weight: bold;
-}
-
-.nav-cta .signin {
-    background-color: transparent;
-    color: var(--white);
-    border-color: var(--secondary-orange);
-}
-.nav-cta .signin:hover {
-    background-color: var(--secondary-orange);
-    color: var(--dark-blue);
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-}
-
-.nav-cta .signup {
-    background-image: linear-gradient(45deg, var(--secondary-orange) 0%, #FFA726 100%);
-    color: var(--dark-blue);
-}
-.nav-cta .signup:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-}
-
-
-main {
-  padding: 40px;
-  background-color: var(--light-grey);
-  min-height: 80vh;
-  color: var(--text-color);
-  box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.05);
-}
-
-section {
-  margin-bottom: 60px;
-  padding: 50px;
-  background-color: var(--white);
-  border-radius: 12px;
-  box-shadow: var(--box-shadow);
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-}
-
-section.animate-in {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.feature-card.highlight {
-    animation: pulse 1s infinite alternate;
-    box-shadow: 0 0 0 5px rgba(74, 144, 226, 0.5), 0 8px 32px 0 rgba(31, 38, 135, 0.2);
-    z-index: 10;
-    position: relative;
-}
-
-h2 {
-  font-size: 36px;
-  color: var(--primary-blue);
-  margin-bottom: 30px;
-  text-align: center;
-  position: relative;
-  font-weight: 700;
-}
-
-h2::after {
-  content: '';
-  display: block;
-  width: 70px;
-  height: 4px;
-  background: var(--secondary-orange);
-  margin: 12px auto 0;
-  border-radius: 2px;
-}
-
-.section-intro {
-    text-align: center;
-    max-width: 800px;
-    margin: -15px auto 40px;
-    font-size: 18px;
-    line-height: 1.7;
-    color: #555;
-}
-
-.scrolling-container {
-  width: 100%;
-  overflow: hidden;
-  position: relative;
-}
-
-.scrolling-content {
-  display: flex;
-  animation: marquee-scroll 25s linear infinite;
-}
-
-.scrolling-content:hover {
-  animation-play-state: paused;
-}
-
-.feature-grid {
-  display: flex;
-  flex-shrink: 0;
-  gap: 30px;
-  padding: 0 15px;
-  width: 100%;
-  justify-content: center;
-}
-
-@keyframes marquee-scroll {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-100%); }
-}
-
-.feature-card {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    padding: 30px;
-    border-radius: 12px;
-    text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    min-width: 280px;
-}
-.feature-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 12px 40px rgba(31, 38, 135, 0.3);
-}
-.feature-card i {
-    font-size: 40px;
-    color: var(--primary-blue);
-    margin-bottom: 15px;
-}
-.feature-card h3 {
-    font-size: 22px;
-    color: var(--dark-blue);
-    margin-bottom: 10px;
-}
-.feature-card p {
-    font-size: 16px;
-    line-height: 1.6;
-    color: #444;
-}
-
-.subject-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 40px;
-}
-
-.subject, .classes {
-  color: var(--white);
-  padding: 30px;
-  border-radius: 10px;
-  text-align: center;
-  cursor: pointer;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s ease;
-  opacity: 0;
-  transform: scale(0.9);
-  font-size: 20px;
-  font-weight: bold;
-  text-decoration: none;
-}
-
-.subject { background-image: linear-gradient(45deg, var(--secondary-orange) 0%, #FFA726 100%); }
-.classes { background-image: linear-gradient(45deg, var(--primary-blue) 0%, #63a4ff 100%); }
-
-a.classes {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.subject.animate-in, .classes.animate-in { animation: popIn 0.5s ease-out forwards; }
-.subject:hover, .classes:hover {
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25);
-  transform: translateY(-5px) scale(1.03);
-}
-
-.testimonial-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
-    margin-top: 40px;
-}
-.testimonial-card {
-    background: #fdfdfd;
-    border: 1px solid #eee;
-    padding: 25px;
-    border-radius: 10px;
-    box-shadow: var(--box-shadow);
-}
-.testimonial-card p {
-    font-style: italic;
-    color: #555;
-    margin-bottom: 15px;
-}
-.testimonial-card p::before {
-    content: '“';
-    font-size: 24px;
-    font-weight: bold;
-    color: var(--secondary-orange);
-    margin-right: 5px;
-}
-.testimonial-author {
-    font-weight: bold;
-    color: var(--primary-blue);
-}
-
-#self-learning p,
-#self-learning ul {
-  color: var(--dark-blue);
-  line-height: 1.8;
-  font-size: 18px;
-}
-
-#self-learning a {
-    color: var(--secondary-orange);
-    font-weight: bold;
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-#self-learning a:hover {
-    color: var(--primary-blue);
-    text-decoration: underline;
-}
-
-#self-learning ul {
-    list-style: none;
-    padding-left: 0;
-}
-
-#self-learning li {
-    margin-bottom: 15px;
-    padding-left: 30px;
-    position: relative;
-}
-#self-learning li::before {
-    content: '\f058';
-    font-family: 'Font Awesome 6 Free';
-    font-weight: 900;
-    position: absolute;
-    left: 0;
-    top: 5px;
-    color: var(--secondary-orange);
-}
-
-#self-learning img[alt="YT Logo"] {
-  width: 24px;
-  height: auto;
-  vertical-align: middle;
-  margin-right: 8px;
-}
-
-footer {
-  background-color: var(--primary-blue);
-  padding: 30px 25px;
-  text-align: center;
-  color: var(--white);
-  font-size: 16px;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-}
-
-footer a {
-  color: var(--secondary-orange);
-  text-decoration: none;
-  font-weight: bold;
-  transition: text-decoration 0.3s ease, color 0.3s ease;
-}
-
-footer a:hover {
-  text-decoration: underline;
-  color: var(--white);
-}
-
-.fab-container {
-    position: fixed;
-    bottom: 25px;
-    right: 25px;
-    z-index: 1000;
-}
-.fab {
-    width: 55px;
-    height: 55px;
-    background-color: var(--primary-blue);
-    color: white;
-    border-radius: 50%;
-    border: none;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    font-size: 24px;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: transform 0.3s ease, background-color 0.3s ease;
-}
-.fab:hover {
-    background-color: var(--secondary-orange);
-    transform: rotate(90deg);
-}
-.fab-options {
-    position: absolute;
-    bottom: 65px;
-    right: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(10px);
-    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
-}
-.fab-container.active .fab-options {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-}
-.fab-option {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background-color: var(--primary-blue);
-    color: white;
-    border: none;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-    font-size: 22px;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: transform 0.3s ease, background-color 0.3s ease;
-}
-.fab-option:hover {
-    background-color: var(--secondary-orange);
-    transform: scale(1.1);
-}
-
-.ai-chatbot-container {
-  position: fixed;
-  bottom: 20px;
-  right: 90px;
-  width: 380px;
-  height: 520px;
-  background-color: var(--white);
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-  display: none;
-  flex-direction: column;
-  overflow: hidden;
-  z-index: 998;
-  transform: scale(0.5);
-  opacity: 0;
-  transform-origin: bottom right;
-  transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.4s ease-out, width 0.3s ease, height 0.3s ease, top 0.3s ease, right 0.3s ease, bottom 0.3s ease, left 0.3s ease;
-}
-.ai-chatbot-container.active { display: flex; transform: scale(1); opacity: 1; }
-.ai-chatbot-container.fullscreen { top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; border-radius: 0; transform: scale(1); opacity: 1; z-index: 1001; display: flex; }
-.ai-chatbot-header { background-color: var(--primary-blue); color: var(--white); padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 20px; font-weight: bold; border-top-left-radius: 15px; border-top-right-radius: 15px; flex-shrink: 0; }
-.ai-chatbot-container.fullscreen .ai-chatbot-header { border-radius: 0; }
-.ai-chatbot-header .header-controls { display: flex; gap: 12px; }
-.ai-chatbot-header button { background: none; border: none; color: var(--white); font-size: 26px; cursor: pointer; line-height: 1; transition: color 0.3s ease, transform 0.3s ease; }
-.ai-chatbot-header button:hover { color: var(--secondary-orange); transform: scale(1.1); }
-.ai-chatbot-messages { flex-grow: 1; padding: 20px; overflow-y: auto; background-color: #f9f9f9; color: var(--text-color); display: flex; flex-direction: column; }
-.ai-chatbot-message { margin-bottom: 12px; padding: 10px 15px; border-radius: 20px; max-width: 85%; position: relative; animation: fadeIn 0.3s ease-out, slideInUp 0.3s ease-out; }
-.ai-chatbot-message.user { background-color: #e0e0e0; align-self: flex-end; margin-left: auto; border-bottom-right-radius: 5px; }
-.ai-chatbot-message.bot { background-color: #d1e7dd; align-self: flex-start; margin-right: auto; display: flex; flex-direction: column; padding-right: 40px; border-bottom-left-radius: 5px; }
-.ai-chatbot-message.bot .message-text-content { flex-grow: 1; font-size: 16px; }
-.ai-chatbot-message.bot .speaker-icon { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #888; font-size: 1.1em; transition: color 0.2s ease-in-out, transform 0.2s ease; }
-.ai-chatbot-message.bot .speaker-icon:hover { color: var(--primary-blue); transform: translateY(-50%) scale(1.15); }
-.ai-chatbot-message.bot .speaker-icon:active { transform: translateY(-50%) scale(0.95); }
-.ai-chatbot-message.typing-indicator { background-color: #e0e0e0; display: flex; gap: 4px; padding: 10px 15px; width: fit-content; align-items: center; }
-.ai-chatbot-message.typing-indicator span { width: 8px; height: 8px; background-color: #888; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out; }
-.ai-chatbot-message.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-.ai-chatbot-message.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
-@keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
-.ai-chatbot-predefined-questions { padding: 15px 20px; border-top: 1px solid #eee; background-color: #f1f1f1; display: flex; flex-wrap: wrap; gap: 10px; max-height: 180px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--secondary-orange) #f1f1f1; flex-shrink: 0; }
-.ai-chatbot-predefined-questions::-webkit-scrollbar { width: 8px; }
-.ai-chatbot-predefined-questions::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-.ai-chatbot-predefined-questions::-webkit-scrollbar-thumb { background-color: var(--secondary-orange); border-radius: 10px; border: 2px solid #f1f1f1; }
-.ai-chatbot-predefined-questions::-webkit-scrollbar-thumb:hover { background-color: #e07a21; }
-.ai-chatbot-predefined-questions button { background-color: var(--secondary-orange); color: var(--white); border: none; border-radius: 25px; padding: 10px 18px; cursor: pointer; font-size: 15px; transition: background-color 0.2s, transform 0.1s; flex-shrink: 0; animation: fadeIn 0.4s ease-out; }
-.ai-chatbot-predefined-questions button:hover { background-color: #e07a21; transform: translateY(-2px); }
-.ai-chatbot-predefined-questions button:active { transform: translateY(0); }
-
-#robot-pointer {
-    position: fixed;
-    bottom: 100px;
-    right: 100px;
-    font-size: 40px;
-    color: var(--secondary-orange);
-    display: none;
-    z-index: 1002;
-    transform-origin: bottom right;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-}
-
-#robot-pointer i {
-  animation: flying-motion 3s ease-in-out infinite alternate;
-  text-shadow: 0 0 10px rgba(0,0,0,0.3);
-}
-
-#robot-pointer::after {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 15px 15px 0 15px;
-    border-color: var(--secondary-orange) transparent transparent transparent;
-    bottom: -25px;
-    left: 50%;
-    transform: translateX(-50%);
-    animation: pointer-wiggle 0.5s ease-in-out infinite alternate;
-}
-
-@keyframes fly-to-ribot {
-    from {
-        bottom: 100px;
-        right: 100px;
-        transform: scale(0.5);
-    }
-    to {
-        bottom: var(--target-y);
-        right: var(--target-x);
-        transform: scale(1.2);
-    }
-}
-
-@keyframes flying-motion {
-    0% { transform: translateY(0px) rotate(5deg); }
-    50% { transform: translateY(-10px) rotate(-5deg); }
-    100% { transform: translateY(0px) rotate(5deg); }
-}
-
-@keyframes pulse {
-    from { transform: scale(1); }
-    to { transform: scale(1.05); }
-}
-
-.video-container {
-  max-width: 900px;
-  margin: 0 auto 20px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.responsive-video {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-@media (max-width: 992px) {
-    .nav-links {
-        justify-content: flex-start;
-        flex-grow: 0;
-    }
-    nav {
-        justify-content: space-between;
-    }
-}
-
-@media (max-width: 768px) {
-  body { background-attachment: scroll; }
-  header.slider-container { height: 50vh; }
-  .header-content img { max-width: 120px; }
-  .header-content h1 { font-size: 42px; }
-  .header-content p { font-size: 20px; }
-
-  nav { flex-wrap: wrap; justify-content: center; padding: 10px 0; }
-  .nav-links { width: 100%; justify-content: center; margin-bottom: 10px; }
-  .nav-cta { width: 100%; justify-content: center; }
-
-  main { padding: 20px; }
-  section { padding: 25px; }
-  h2 { font-size: 32px; }
-  .subject-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 25px; }
-  #self-learning p, #self-learning ul { font-size: 16px; }
-
-  .ai-chatbot-container { width: 320px; height: 480px; right: 70px; bottom: 70px; }
-}
-
-@media (max-width: 480px) {
-  header.slider-container { height: 45vh; }
-  .header-content img { max-width: 100px; }
-  .header-content h1 { font-size: 34px; }
-  .header-content p { font-size: 18px; }
-
-  nav { padding: 15px 0; }
-  nav a { font-size: 16px; padding: 10px 15px; }
-  .nav-links { border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-  .nav-links a { padding: 12px 15px; }
-
-  main { padding: 15px; }
-  section { padding: 20px; }
-  h2 { font-size: 28px; }
-
-  .feature-grid, .subject-grid, .testimonial-grid { grid-template-columns: 1fr; gap: 20px; }
-
-  #self-learning p, #self-learning ul { font-size: 15px; }
-  #self-learning ul { padding-left: 20px; }
-
-  footer { padding: 20px; font-size: 14px; }
-
-  .ai-chatbot-container.active { top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; border-radius: 0; transform: scale(1); opacity: 1; z-index: 1001; }
-}
-
-/* Self-learning: image-left compact layout */
-#self-learning {
-  display: flex;
-  gap: 18px;
-  align-items: flex-start;
-  flex-wrap: nowrap;
-  padding: 20px;
-  background: var(--white);
-  border-radius: 12px;
-  box-shadow: var(--box-shadow);
-}
-
-#self-learning .self-img {
-  flex: 0 0 140px;           /* fixed width so it won't take more space */
-  width: 140px;
-  height: 140px;
-  border-radius: 12px;
-  object-fit: cover;         /* keeps image aspect and crops neatly */
-  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-  margin-top: 4px;
-}
-
-#self-learning .self-content {
-  flex: 1 1 auto;
-  min-width: 0;              /* important for flex item text truncation */
-}
-
-#self-learning .self-content p,
-#self-learning .self-content ul {
-  margin-top: 8px;
-  line-height: 1.7;
-  color: var(--text-color);
-}
-
-/* small screens: stack */
-@media (max-width: 720px) {
-  #self-learning {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  #self-learning .self-img {
-    width: 100%;
-    height: auto;
-    flex: 0 0 auto;
-  }
-}
-  </style>
-</head>
-<body class="loading">
-
-  <div id="splash-screen">
-       <a href="index.html" class="logo">
-    <img src="assets/logo.png" alt="RiSync Logo">
-</a>
-    <div id="stars"></div>
-  </div>
-  <header class="slider-container">
-    <div class="slides">
-        <div class="slide" style="background-image: url('https://placehold.co/1920x1080/1D3557/FFFFFF?text=Collaborative+Learning');"></div>
-		<div class="slide" style="background-image: url('https://raw.githubusercontent.com/Riddhish-Singh/RiSync-Web/main/assets/students.png');"></div>
-        <div class="slide" style="background-image: url('https://placehold.co/1920x1080/4A90E2/FFFFFF?text=Interactive+Sessions');"></div>
-		<div class="slide" style="background-image: url('https://raw.githubusercontent.com/Riddhish-Singh/RiSync-Web/main/assets/Robot_students.png');"></div>
-        <div class="slide" style="background-image: url('https://placehold.co/1920x1080/FF7043/FFFFFF?text=Achieve+Your+Goals');"></div>
-		<div class="slide" style="background-image: url('https://raw.githubusercontent.com/Riddhish-Singh/RiSync-Web/main/assets/image.png');"></div>
-    </div>
-    <div class="header-content">
-       <a href="index.html" class="logo">
-    <img src="assets/logo.png" alt="RiSync Logo">
-</a>
-        <h1>RiSync</h1>
-        <p>Level Up Your Learning. Peer to Peer.</p>
-    </div>
-    <div class="slider-nav">
-        <button class="prev"><i class="fas fa-chevron-left"></i></button>
-        <button class="next"><i class="fas fa-chevron-right"></i></button>
-    </div>
-  </header>
-
-  <nav>
-    <div class="nav-links">
-        <a href="#features">Features</a>
-        <a href="#subjects">Subjects</a>
-        <a href="#classes">Grades</a>
-    </div>
-    <div class="nav-cta">
-        <button class="button signin" onclick="window.location.href='html/signin.html'">Sign In</button>
-        <button class="button signup" onclick="window.location.href='html/signup.html'">Create New Account</button>
-    </div>
-  </nav>
-
-  <main>
-    <section id="features">
-        <h2>Why RiSync?</h2>
-        <p class="section-intro">We're not just another tutoring site. We're a community hub built on powerful, interactive tools designed to make learning collaborative, effective, and actually fun.</p>
-        <div class="scrolling-container">
-            <div class="scrolling-content">
-                <div class="feature-grid">
-                    <div class="feature-card">
-                        <i class="fas fa-users"></i>
-                        <h3>Peer-to-Peer Matching</h3>
-                        <p>Our smart AI connects you with the perfect <br> student tutor based on subject, skill level, <br> and learning style.</p>
-                    </div>
-                    <div class="feature-card">
-                        <i class="fas fa-chalkboard-teacher"></i>
-                        <h3>Live Whiteboards</h3>
-                        <p>Tackle tricky problems together in <br> real-time with collaborative digital whiteboards. <br> Perfect for math and science!</p>
-                    </div>
-                    <div class="feature-card" data-ribot-target>
-                        <i class="fas fa-brain"></i>
-                        <h3>Meet RiBot, Your AI Pal</h3>
-                        <p>Got a question at 3 AM? RiBot,<br> our 24/7 AI assistant, is always ready<br> to help you find answers and resources<br> related to <b>RiSync</b>.</p>
-                    </div>
-                </div>
-                <div class="feature-grid">
-                    <div class="feature-card">
-                        <i class="fas fa-users"></i>
-                        <h3>Peer-to-Peer Matching</h3>
-                        <p>Our smart AI connects you with the perfect <br> student tutor based on subject, skill level, <br> and learning style.</p>
-                    </div>
-                    <div class="feature-card">
-                        <i class="fas fa-chalkboard-teacher"></i>
-                        <h3>Live Whiteboards</h3>
-                        <p>Tackle tricky problems together in <br> real-time with collaborative digital whiteboards. <br> Perfect for math and science!</p>
-                    </div>
-                    <div class="feature-card" data-ribot-target>
-                        <i class="fas fa-brain"></i>
-                        <h3>Meet RiBot, Your AI Pal</h3>
-                        <p>Got a question at 3 AM? RiBot,<br> our 24/7 AI assistant, is always ready<br> to help you find answers and resources<br> related to <b>RiSync</b>.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="ad-video">
-        <h2>See RiSync in Action</h2>
-        <p class="section-intro">Watch this quick video to see how RiSync makes learning a dynamic and collaborative experience.</p>
-        <div class="video-container">
-            <video controls playsinline poster="assets/video-thumbnail.jpg" class="responsive-video">
-                <source src="https://raw.githubusercontent.com/Riddhish-Singh/RiSync-Web/main/assets/RiSync_Final_Ad.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-        </div>
-    </section>
-    <section id="subjects">
-      <h2>Find Your Subject</h2>
-      <p class="section-intro">Whatever you're stuck on, we've got your back. Dive into our core subjects and find the support you need.</p>
-      <div class="subject-grid">
-		<a href="#classes" class="subject" aria-label="Math">Math</a>
-		<a href="#classes" class="subject" aria-label="Science">Science</a>
-		<a href="#classes" class="subject" aria-label="IT">IT</a>
-		<a href="#classes" class="subject" aria-label="Social Sciences">Social Sciences</a>
-      </div>
-    </section>
-
-    <section id="classes">
-      <h2>Choose Your Grade</h2>
-      <p class="section-intro">Learning is a journey. Select your grade to find tailored sessions and resources just for you.</p>
-      <div class="subject-grid">
-        <a href="html/signup.html?class=1" class="classes">1st</a>
-        <a href="html/signup.html?class=2" class="classes">2nd</a>
-        <a href="html/signup.html?class=3" class="classes">3rd</a>
-        <a href="html/signup.html?class=4" class="classes">4th</a>
-        <a href="html/signup.html?class=5" class="classes">5th</a>
-        <a href="html/signup.html?class=6" class="classes">6th</a>
-        <a href="html/signup.html?class=7" class="classes">7th</a>
-        <a href="html/signup.html?class=8" class="classes">8th</a>
-      </div>
-    </section>
-
-    <section id="gamification">
-        <h2>Make Learning a Flex</h2>
-        <p class="section-intro">Who said studying has to be a grind? We turn learning into a game with points, badges, and leaderboards. Stay motivated, challenge your friends, and celebrate every win.</p>
-        <div class="feature-grid">
-            <div class="feature-card">
-                <i class="fas fa-trophy"></i>
-                <h3>Earn XP & Badges</h3>
-                <p>Get recognized for your hard work! Earn points for attending sessions, helping others, and acing quizzes.</p>
-            </div>
-            <div class="feature-card">
-                <i class="fas fa-chart-line"></i>
-                <h3>Climb the Leaderboard</h3>
-                <p>See how you stack up against your peers. Friendly competition to be the "Top Tutor of the Week" keeps things spicy.</p>
-            </div>
-            <div class="feature-card">
-                <i class="fas fa-star"></i>
-                <h3>Track Your Streaks</h3>
-                <p>Build powerful study habits by maintaining daily and weekly streaks. Watch your progress skyrocket!</p>
-            </div>
-        </div>
-    </section>
-
-    <section id="testimonials">
-        <h2>What Students Say</h2>
-        <p class="section-intro">Don't just take our word for it. Here's what actual students think about learning with RiSync.</p>
-        <div class="testimonial-grid">
-            <div class="testimonial-card">
-                <p>I was so confused about algebra, but my peer tutor explained it in a way that just clicked. Way less awkward than asking a teacher.</p>
-                <div class="testimonial-author">- Ayushi, 6th Grade</div>
-            </div>
-            <div class="testimonial-card">
-                <p>The resource library is a lifesaver. Found the perfect worksheet for my science project. 10/10 would recommend.</p>
-                <div class="testimonial-author">- Ben, 8th Grade</div>
-            </div>
-            <div class="testimonial-card">
-                <p>Honestly, trying to get on the leaderboard is my new favorite game. It actually makes me want to study more.</p>
-                <div class="testimonial-author">- Rizul, 7th Grade</div>
-            </div>
-        </div>
-    </section>
-
-<section id="self-learning" aria-labelledby="own-your-growth" style="padding:30px 20px;background:#fff;border-radius:12px;">
-  <div class="self-wrapper" style="display:flex;gap:30px;align-items:center;flex-wrap:nowrap;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RiSync | The Portfolio of Riddhish Singh</title>
+    <meta name="description" content="Riddhish Singh: 11-Year-Old Frontend Developer, Author, and Founder of RiSync.">
     
-    <!-- Left: Text Content -->
-    <div class="self-content" style="flex:1 1 auto;min-width:0;">
-      <h2 id="own-your-growth" style="margin-top:0;margin-bottom:14px;color:#4A90E2;font-size:1.8rem;">Own Your Growth</h2>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-      <p style="margin:6px 0 16px;font-size:1rem;line-height:1.6;">
-        <a href="https://www.youtube.com/@RiSync" target="_blank" rel="noopener" style="font-weight:600;color:#FF7043;text-decoration:none;">
-          Learn more from RiSync
-          <img src="https://raw.githubusercontent.com/Riddhish-Singh/RiSync-Web/main/assets/yt.png"
-               alt="YouTube logo"
-               style="width:20px;height:auto;vertical-align:middle;margin-left:6px;"
-               onerror="this.onerror=null;this.src='https://placehold.co/20x20/FF0000/FFFFFF?text=YT';">
-        </a>
-      </p>
-
-      <p style="margin:0 0 14px;font-size:1rem;line-height:1.6;color:#444;">
-        Our platform gives you the keys to drive your own learning journey. Ditch the stress and study smarter with features like:
-      </p>
-
-      <ul style="margin:0;padding-left:20px;line-height:1.8;font-size:1rem;color:#333;">
-        <li>Interactive quizzes that make testing your knowledge fun.</li>
-        <li>Huge resource libraries to go deeper into any subject.</li>
-        <li>Active discussion forums to brainstorm and share ideas.</li>
-        <li>Personalized learning paths that adapt to your goals.</li>
-      </ul>
-    </div>
-
-  </div>
-
-  <!-- Mobile responsive styling -->
-  <style>
-    @media (max-width: 720px) {
-      #self-learning .self-wrapper {
-        flex-direction: column;
-        gap: 18px;
-        text-align: center;
-      }
-      #self-learning ul {
-        text-align: left;
-        display: inline-block;
-      }
-      #self-learning img {
-        max-width: 200px;
-        margin-top: 8px;
-      }
-    }
-  </style>
-</section>
-
-
-
-
-
-  </main>
-
-  <footer>
-    <p>© 2025 RiSync Tutoring. All rights reserved.</p>
-    <p><a href="Terms of Service.html" target="_blank">Terms of Service</a> | <a href="Privacy Policy.html" target="_blank">Privacy Policy</a></p>
-  </footer>
-
-  <audio id="bg-music" loop preload="auto">
-    <source src="assets/logo.mp3" type="audio/mpeg">
-    Your browser does not support the audio element.
-  </audio>
-
-  <div class="fab-container" id="fab-container">
-    <div class="fab-options">
-        <a href="#" id="back-to-top" class="fab-option" title="Back to Top">
-            <i class="fas fa-arrow-up"></i>
-        </a>
-    </div>
-    <button class="fab" id="fab">
-        <i class="fas fa-plus"></i>
-    </button>
-  </div>
-
-  <div class="ai-chatbot-container" id="ai-chatbot-container">
-    <div class="ai-chatbot-header">
-      <span>RiBot</span>
-      <div class="header-controls">
-        <button id="fullscreen-btn" onclick="toggleFullscreen()" title="Toggle Fullscreen">
-            <i class="fas fa-expand-alt"></i>
-        </button>
-        <button class="close-btn" onclick="toggleAIChat(true)" title="Close Chat">
-            <i class="fas fa-times"></i>
-        </button>
-      </div>
-    </div>
-    <div class="ai-chatbot-messages" id="ai-chatbot-messages">
-      <div class="ai-chatbot-message bot">
-        <span class="message-text-content">Hey there! I'm RiBot, your AI study buddy. Ready to make learning awesome? Ask me about our features or how to get started!</span>
-        <i class="fas fa-volume-up speaker-icon" title="Read aloud" aria-label="Read message aloud"></i>
-      </div>
-    </div>
-    <div class="ai-chatbot-predefined-questions" id="ai-chatbot-predefined-questions">
-      </div>
-  </div>
-  
-  <div id="robot-pointer"><i class="fas fa-robot"></i></div>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        
-        // --- NEW SPLASH SCREEN SCRIPT ---
-        const splashScreen = document.getElementById('splash-screen');
-        const starsContainer = document.getElementById('stars');
-
-        // Function to create and position stars
-        function createStars() {
-            const numStars = 50; 
-            for (let i = 0; i < numStars; i++) {
-                const star = document.createElement('div');
-                star.classList.add('star');
-                const size = Math.random() * 3 + 1; // 1px to 4px
-                const x = Math.random() * 100;
-                const y = Math.random() * 100;
-                const duration = Math.random() * 2 + 1.5; // 1.5s to 3.5s
-                const delay = Math.random() * 3; // 0s to 3s
-
-                star.style.width = `${size}px`;
-                star.style.height = `${size}px`;
-                star.style.left = `${x}vw`;
-                star.style.top = `${y}vh`;
-                star.style.animationDuration = `${duration}s`;
-                star.style.animationDelay = `${delay}s`;
-
-                starsContainer.appendChild(star);
-            }
-        }
-        
-        createStars();
-
-        setTimeout(() => {
-            if (splashScreen) {
-                splashScreen.classList.add('hidden');
-                
-                // After the fade-out transition ends, remove it from the DOM flow
-                splashScreen.addEventListener('transitionend', () => {
-                    splashScreen.style.display = 'none';
-                }, { once: true });
-                
-                // Reveal the main content
-                document.body.classList.remove('loading');
-                document.body.classList.add('loaded');
-            }
-        }, 4000); // This duration should be slightly longer than the logo animation
-        // --- END SPLASH SCREEN SCRIPT ---
-
-
-        const audio = document.getElementById('bg-music');
-        const musicButton = document.getElementById('music-btn');
-        let hasInteracted = false;
-
-        function toggleMusic() {
-          if (!hasInteracted) {
-            audio.volume = 0.5;
-            audio.play().then(() => {
-              hasInteracted = true;
-              updateMusicIcon();
-            }).catch(err => {
-              console.warn("Autoplay blocked or failed:", err);
-            });
-          } else {
-            if (audio.paused) {
-              audio.play();
-            } else {
-              audio.pause();
-            }
-          }
-          updateMusicIcon();
-        }
-
-        function updateMusicIcon() {
-          if (!musicButton) return;
-          musicButton.innerHTML = audio.paused ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
-        }
-
-        audio.onplay = updateMusicIcon;
-        audio.onpause = updateMusicIcon;
-
-        const fabContainer = document.getElementById('fab-container');
-        const fab = document.getElementById('fab');
-        fab.addEventListener('click', () => {
-            fabContainer.classList.toggle('active');
-        });
-
-        const backToTopBtn = document.getElementById('back-to-top');
-        window.addEventListener('scroll', () => {
-          if (window.scrollY > 300) {
-            backToTopBtn.style.display = 'flex';
-          } else {
-            backToTopBtn.style.display = 'none';
-          }
-        });
-
-        backToTopBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-
-        const aiChatbotContainer = document.getElementById('ai-chatbot-container');
-        const aiChatbotMessages = document.getElementById('ai-chatbot-messages');
-        const predefinedQuestionsDiv = document.getElementById('ai-chatbot-predefined-questions');
-        const fullscreenBtn = document.getElementById('fullscreen-btn');
-        const robotPointer = document.getElementById('robot-pointer');
-
-        let currentUtterance = null;
-        let currentSpeakerIcon = null;
-        let selectedVoice = null;
-
-        function initializeSpeechSynthesis() {
-            if ('speechSynthesis' in window) {
-                speechSynthesis.onvoiceschanged = () => {
-                    selectedVoice = getHumanLikeVoice();
-                };
-                if (speechSynthesis.getVoices().length > 0) {
-                    selectedVoice = getHumanLikeVoice();
-                }
-            } else {
-                console.warn("Web Speech API not supported in this browser.");
-            }
-        }
-
-        function getHumanLikeVoice() {
-            const voices = speechSynthesis.getVoices();
-            let chosenVoice = voices.find(voice => voice.lang === 'en-US' && voice.name.includes('Google US English'));
-            if (chosenVoice) return chosenVoice;
-            chosenVoice = voices.find(voice => voice.lang.startsWith('en-') && (voice.name.includes('Google') || voice.name.includes('Microsoft')));
-            if (chosenVoice) return chosenVoice;
-            chosenVoice = voices.find(voice => voice.lang.startsWith('en-'));
-            return chosenVoice || voices[0] || null;
-        }
-
-        function stopSpeaking(iconElement, originalTextContent) {
-            if ('speechSynthesis' in window && window.speechSynthesis.speaking) {
-                window.speechSynthesis.cancel();
-            }
-            if (iconElement && iconElement === currentSpeakerIcon) {
-                iconElement.className = 'fas fa-volume-up speaker-icon';
-                iconElement.onclick = () => speakText(originalTextContent, iconElement);
-            }
-            currentUtterance = null;
-            currentSpeakerIcon = null;
-        }
-
-        function speakText(text, iconElement) {
-            if (!('speechSynthesis' in window)) return;
-
-            if (window.speechSynthesis.speaking) {
-                const previouslySpeakingIconText = currentSpeakerIcon ? (currentSpeakerIcon.closest('.ai-chatbot-message')?.querySelector('.message-text-content')?.textContent || '') : '';
-                stopSpeaking(currentSpeakerIcon, previouslySpeakingIconText);
-            }
-
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'en-US';
-            if (selectedVoice) utterance.voice = selectedVoice;
+    <style>
+        :root {
+            /* Theme Tokens: "Obsidian & Starlight" */
+            --bg-void: #000000;
+            --bg-surface: #0e0e11;
+            --bg-surface-light: #18181b;
             
-            currentUtterance = utterance;
-            currentSpeakerIcon = iconElement;
+            --border-dim: rgba(255, 255, 255, 0.08);
+            --border-glow: rgba(255, 255, 255, 0.15);
+            
+            --accent-blue: #4285F4; /* Google Blue */
+            --accent-violet: #A142F4;
+            --accent-teal: #24C1E0;
+            
+            --text-primary: #ffffff;
+            --text-secondary: #9aa0a6;
+            --text-tertiary: #5f6368;
 
-            if (iconElement) {
-                iconElement.className = 'fas fa-volume-mute speaker-icon';
-                iconElement.onclick = () => stopSpeaking(iconElement, text);
-            }
-
-            utterance.onend = () => stopSpeaking(iconElement, text);
-            utterance.oncancel = () => stopSpeaking(iconElement, text);
-            utterance.onerror = (event) => { console.error('Speech synthesis error:', event.error); stopSpeaking(iconElement, text); };
-
-            window.speechSynthesis.speak(utterance);
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            
+            --radius-xl: 32px;
+            --radius-lg: 20px;
         }
 
-        const predefinedQuestions = [
-          { id: 'tutoring', text: 'What is Intelligent Peer-to-Peer Tutoring?', answer: 'It\'s a smart platform where students learn from each other, with AI matching them based on skill, topic, and availability. It builds community, boosts confidence, and is more relatable than adult tutors.' },
-          { id: 'booking', text: 'How does the Booking System work?', answer: 'It allows students to book live 1-on-1 or group tutoring sessions with calendar integration to avoid double bookings. You choose a subject, select a time, confirm, and get reminders.' },
-          { id: 'live_sessions', text: 'Tell me about Live Tutoring Sessions.', answer: 'These are real-time sessions with an optional live video/audio and a collaborative digital whiteboard. It feels like a real classroom and is ideal for explaining Maths, Diagrams, and Flowcharts.' },
-          { id: 'chatbot', text: 'What is RiBot?', answer: 'RiBot is an intelligent chatbot that answers any questions students have and supports group chatrooms. It\'s a 24x7 learning assistant, can be multilingual, supports text-to-speech/speech-to-text, and can quiz kids with MCQs or riddles.' },
-          { id: 'resources', text: 'What is the Learning Resource Library?', answer: 'It\'s a growing bank of curated notes, worksheets, videos, quizzes, and more, created by students, for students. Resources are divided by subjects, grades, difficulty, and are downloadable.' },
-          { id: 'gamification', text: 'How does Gamification work?', answer: 'It adds fun through points, badges, levels, and leaderboards to keep students motivated and foster friendly competition. Examples include earning points for solving doubts or badges for "Top Tutor of the Week".' },
-          { id: 'quizzes', text: 'What is the Smart Quiz & Assessment Builder?', answer: 'Teachers or mentors can create dynamic quizzes, and AI can auto-generate questions. It allows for personalized learning with adaptive difficulty, featuring MCQs, drag & drop, timed quizzes, and instant feedback.' },
-          { id: 'accessibility', text: 'What about Accessibility Features?', answer: 'The platform is designed for inclusivity, supporting students with visual, hearing, or motor challenges. It includes text-to-speech, Braille-compatible output, high contrast mode, font sizing, and keyboard-only navigation.' },
-          { id: 'parental_dashboard', text: 'Is there a Parental Dashboard?', answer: 'Yes, parents can view their child’s progress, session history, and scores without micro-managing. It provides growth charts, areas of concern, weekly email reports, and options to message tutors.' },
-          { id: 'admin_panel', text: 'What is the Admin & Mentor Panel?', answer: 'This panel is for the RiSync team or appointed mentors to moderate, analyze, and grow the platform, ensuring community safety. It allows approval/rejection of uploads, blocking users, and access to analytics.' },
-          { id: 'sync', text: 'Does it sync with mobile?', answer: 'RiSync works as a responsive web app and can sync with mobile devices for learning on the go, with cross-device sync, notifications, and offline access coming soon.' },
-          { id: 'future_roadmap', text: 'What\'s in the future roadmap?', answer: 'Future plans include AI-based learning path recommendations, global collaborations, story-based learning, and NGO/School Partnerships for underprivileged learners.' }
+        /* --- Base Setup --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background-color: var(--bg-void);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* --- Dynamic Grain Background --- */
+        .noise-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            opacity: 0.07;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .ambient-glow {
+            position: fixed;
+            top: -20%; right: -10%;
+            width: 800px; height: 800px;
+            background: radial-gradient(circle, rgba(66, 133, 244, 0.15) 0%, transparent 70%);
+            filter: blur(80px);
+            z-index: -2;
+            animation: pulseGlow 10s infinite alternate;
+        }
+
+        /* --- Navigation --- */
+        nav {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            padding: 24px 0;
+            z-index: 50;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-dim);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: white;
+        }
+
+        .brand-box img {
+            height: 36px;
+            width: auto;
+        }
+
+        .brand-text {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.4rem;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-socials {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-socials a {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-socials a:hover {
+            color: var(--text-primary);
+            transform: translateY(-2px);
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 120px 24px 60px;
+            position: relative;
+        }
+
+        .hero-content h1 {
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 10vw, 6.5rem);
+            line-height: 1;
+            font-weight: 700;
+            letter-spacing: -0.04em;
+            margin-bottom: 24px;
+            background: linear-gradient(180deg, #FFFFFF 0%, #7d7d7d 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: fadeUp 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 40px;
+            animation: fadeUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s backwards;
+        }
+
+        .pill-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 16px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid var(--border-dim);
+            border-radius: 100px;
+            font-size: 0.85rem;
+            color: var(--accent-blue);
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease 0.5s backwards;
+        }
+
+        /* --- Section 2: DEFINING RIDDHISH (The Bio) --- */
+        .profile-section {
+            padding: 100px 0;
+            border-top: 1px solid var(--border-dim);
+            border-bottom: 1px solid var(--border-dim);
+            background: var(--bg-surface);
+        }
+
+        .profile-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .profile-text h2 {
+            font-family: var(--font-display);
+            font-size: 3rem;
+            margin-bottom: 24px;
+            line-height: 1.1;
+        }
+
+        .profile-text p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            text-align: justify;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .stat-item h4 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            font-family: var(--font-display);
+        }
+        .stat-item span {
+            font-size: 0.9rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .profile-card {
+            background: var(--bg-surface-light);
+            border: 1px solid var(--border-dim);
+            border-radius: var(--radius-xl);
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Decorative code splash */
+        .code-splash {
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.05);
+            position: absolute;
+            top: 20px; right: 20px;
+            text-align: right;
+            pointer-events: none;
+        }
+
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .tag {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-dim);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* --- Section 3: Projects --- */
+        .projects-section {
+            padding: 100px 0;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 50px;
+            padding: 0 24px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .search-bar {
+            position: relative;
+            width: 300px;
+        }
+        
+        .search-bar input {
+            width: 100%;
+            background: var(--bg-surface-light);
+            border: 1px solid var(--border-dim);
+            padding: 14px 20px 14px 45px;
+            border-radius: 12px;
+            color: white;
+            outline: none;
+            transition: 0.3s;
+        }
+        
+        .search-bar input:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 4px rgba(66, 133, 244, 0.1);
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 18px; top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            padding: 0 24px;
+        }
+
+        .card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-dim);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 260px;
+            text-decoration: none;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            background: var(--bg-surface-light);
+            border-color: var(--border-glow);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .card-icon {
+            width: 50px; height: 50px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .card-arrow {
+            position: absolute;
+            bottom: 30px; right: 30px;
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: 0.3s;
+            color: var(--accent-blue);
+        }
+
+        .card:hover .card-arrow {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* --- Footer --- */
+        footer {
+            text-align: center;
+            padding: 80px 0;
+            border-top: 1px solid var(--border-dim);
+            color: var(--text-tertiary);
+            font-size: 0.9rem;
+        }
+
+        /* Animations */
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes pulseGlow { 0% { opacity: 0.3; } 100% { opacity: 0.6; } }
+
+        /* Responsive */
+        @media(max-width: 900px) {
+            .profile-grid { grid-template-columns: 1fr; }
+            .hero-content h1 { font-size: 3.5rem; }
+            .controls { flex-direction: column; align-items: flex-start; }
+            .search-bar { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="noise-overlay"></div>
+    <div class="ambient-glow"></div>
+
+    <nav>
+        <div class="nav-container">
+            <a href="#" class="brand-box">
+                <img src="logo.png" alt="RiSync Logo" onerror="this.style.display='none'; document.getElementById('logo-text').style.display='block'">
+                <span id="logo-text" class="brand-text" style="display:none">RiSync.</span>
+            </a>
+            
+            <div class="nav-socials">
+                <a href="https://in.linkedin.com/in/riddhish-singh-075324368" target="_blank" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                <a href="https://www.youtube.com/@RiSync" target="_blank" title="YouTube"><i class="fab fa-youtube"></i></a>
+                <a href="https://www.instagram.com/risyncp2p/" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="https://www.bribooks.com/author/riddhish-singh/" target="_blank" title="My Books"><i class="fas fa-book-open"></i></a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <div class="pill-badge">v3.0 System Online</div>
+            <h1>Riddhish Singh</h1>
+            <p class="hero-subtitle">
+                The Architect of <span style="color: white; font-weight: 600;">RiSync</span>. <br>
+                11-Year-Old <span id="typewriter" style="color: var(--accent-blue);"></span>
+            </p>
+            <a href="#profile" style="text-decoration: none; color: white; border-bottom: 1px solid var(--text-secondary); padding-bottom: 4px; font-size: 0.9rem;">Read Bio &darr;</a>
+        </div>
+    </section>
+
+    <section id="profile" class="profile-section">
+        <div class="profile-grid">
+            <div class="profile-text">
+                <h2>Defining the Creator</h2>
+                <p>
+                    I am not just writing code; I am building ecosystems. At <strong>11 years old</strong>, I bridge the gap between creative imagination and functional engineering.
+                </p>
+                <p>
+                    Based in India, I founded <strong>RiSync</strong> with a singular vision: to create a unified digital workspace where tools communicate seamlessly. From authoring the <em>"Me and My Rocket"</em> series to deploying complex web applications, my work is defined by a relentless pursuit of innovation.
+                </p>
+                
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <h4>11</h4>
+                        <span>Years Old</span>
+                    </div>
+                    <div class="stat-item">
+                        <h4>15+</h4>
+                        <span>Projects</span>
+                    </div>
+                    <div class="stat-item">
+                        <h4>5</h4>
+                        <span>Books</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-card">
+                <div class="code-splash">
+                    const creator = {<br>
+                    &nbsp;&nbsp;name: "Riddhish",<br>
+                    &nbsp;&nbsp;role: "Founder",<br>
+                    &nbsp;&nbsp;vision: "Infinite"<br>
+                    };
+                </div>
+                <h3 style="font-family: var(--font-display); font-size: 1.5rem; margin-bottom: 20px;">Technical Arsenal</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">Tools used to build the RiSync Ecosystem:</p>
+                
+                <div class="skill-tags">
+                    <div class="tag"><i class="fab fa-html5"></i> HTML5</div>
+                    <div class="tag"><i class="fab fa-css3-alt"></i> CSS3</div>
+                    <div class="tag"><i class="fab fa-js"></i> JavaScript</div>
+                    <div class="tag"><i class="fas fa-brain"></i> AI Integration</div>
+                    <div class="tag"><i class="fas fa-pen-fancy"></i> Creative Writing</div>
+                    <div class="tag"><i class="fas fa-mobile-alt"></i> UI/UX Design</div>
+                </div>
+                
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border-dim);">
+                    <a href="https://www.bribooks.com/author/riddhish-singh/" target="_blank" style="color: var(--accent-blue); text-decoration: none; font-weight: 500;">
+                        <i class="fas fa-book-open"></i> View Published Books
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="projects-section">
+        <div class="controls">
+            <div>
+                <h2 style="font-family: var(--font-display); font-size: 2rem;">The Matrix</h2>
+                <p style="color: var(--text-tertiary);">Explore the modules of the RiSync ecosystem.</p>
+            </div>
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search modules...">
+            </div>
+        </div>
+
+        <div class="grid" id="grid">
+            </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Riddhish Singh. Engineered for the Future.</p>
+    </footer>
+
+    <script>
+        // --- Project Data ---
+        const projects = [
+            { name: "RiArt", path: "RiArt", desc: "Digital Creativity Suite", icon: "fa-palette" },
+            { name: "RiBot", path: "RiBot", desc: "AI Conversational Agent", icon: "fa-robot" },
+            { name: "RiQuiz", path: "RiQuiz", desc: "Interactive Learning", icon: "fa-brain" },
+            { name: "RiResume", path: "RiResume", desc: "Portfolio Generator", icon: "fa-id-badge" },
+            { name: "RiDiary", path: "RiDiary", desc: "Personal Encrypted Journal", icon: "fa-book" },
+            { name: "ASVI Slip", path: "ASVI_SLIP", desc: "Financial Record System", icon: "fa-file-invoice-dollar" },
+            { name: "ASVI Appraisals", path: "ASVI-APPRAISALS", desc: "HR Management Tool", icon: "fa-chart-pie" },
+            { name: "GroundUp", path: "GroundUp", desc: "Startup Resources", icon: "fa-rocket" },
+            { name: "Presentation Genie", path: "Presentation-Genie", desc: "AI Slide Creator", icon: "fa-magic" },
+            { name: "RiForm", path: "RiForm", desc: "Data Collection Engine", icon: "fa-table" },
+            { name: "RiCall", path: "RiCall", desc: "Communication Hub", icon: "fa-phone-alt" },
+            { name: "RiDesign", path: "RiDesign", desc: "UI/UX Design System", icon: "fa-pen-ruler" },
+            { name: "RiQR", path: "RiQR", desc: "QR Code Utility", icon: "fa-qrcode" },
+            { name: "DCM YES", path: "DCM-YES", desc: "Educational Portal", icon: "fa-graduation-cap" },
+            { name: "G4U", path: "G4U", desc: "Gaming Interface", icon: "fa-gamepad" },
+            { name: "Proficient", path: "Proficient", desc: "Business Logic", icon: "fa-briefcase" }
         ];
 
-        function toggleAIChat(forceClose = false) {
-          if (aiChatbotContainer.classList.contains('active') || forceClose) {
-            aiChatbotContainer.classList.remove('active', 'fullscreen');
-            stopSpeaking(currentSpeakerIcon, '');
-            aiChatbotContainer.addEventListener('transitionend', function handler() {
-                if (!aiChatbotContainer.classList.contains('active')) {
-                    aiChatbotContainer.style.display = 'none';
-                }
-                aiChatbotContainer.removeEventListener('transitionend', handler);
-            });
-          } else {
-            aiChatbotContainer.style.display = 'flex';
-            startRobotAnimation();
-            setTimeout(() => {
-                aiChatbotContainer.classList.add('active');
-                aiChatbotMessages.innerHTML = `
-                    <div class="ai-chatbot-message bot">
-                        <span class="message-text-content">Hey there! I'm RiBot, your AI study buddy. Ready to make learning awesome? Ask me about our features or how to get started!</span>
-                        <i class="fas fa-volume-up speaker-icon" title="Read aloud" aria-label="Read message aloud"></i>
+        // --- Grid Renderer ---
+        const grid = document.getElementById('grid');
+        const searchInput = document.getElementById('searchInput');
+
+        function renderProjects(filter = '') {
+            grid.innerHTML = '';
+            const filtered = projects.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()));
+            
+            filtered.forEach((p, idx) => {
+                const card = document.createElement('a');
+                card.href = `./${p.path}/index.html`;
+                card.className = 'card';
+                card.style.animation = `fadeUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) backwards ${idx * 0.05}s`;
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="card-icon">
+                            <i class="fas ${p.icon}"></i>
+                        </div>
+                        <h3>${p.name}</h3>
+                        <p>${p.desc}</p>
+                    </div>
+                    <div class="card-arrow">
+                        <i class="fas fa-arrow-right"></i>
                     </div>
                 `;
-                const initialBotMessage = aiChatbotMessages.querySelector('.ai-chatbot-message.bot');
-                const initialTextContent = initialBotMessage.querySelector('.message-text-content').textContent;
-                const initialSpeakerIcon = initialBotMessage.querySelector('.speaker-icon');
-                if (initialSpeakerIcon && initialTextContent) {
-                    initialSpeakerIcon.onclick = () => speakText(initialTextContent, initialSpeakerIcon);
-                }
-
-                populatePredefinedQuestions();
-                aiChatbotMessages.scrollTop = aiChatbotMessages.scrollHeight;
-
-                if (window.innerWidth <= 480 && !aiChatbotContainer.classList.contains('fullscreen')) {
-                    toggleFullscreen();
-                }
-            }, 10);
-          }
-          updateFullscreenButtonIcon();
-        }
-
-        function populatePredefinedQuestions() {
-          predefinedQuestionsDiv.innerHTML = '';
-          predefinedQuestions.forEach((q, index) => {
-            const button = document.createElement('button');
-            button.textContent = q.text;
-            button.onclick = () => askQuestion(q.id);
-            button.style.animationDelay = `${0.1 * index + 0.3}s`;
-            predefinedQuestionsDiv.appendChild(button);
-          });
-        }
-
-        function askQuestion(questionId) {
-          stopSpeaking(currentSpeakerIcon, '');
-
-          const question = predefinedQuestions.find(q => q.id === questionId);
-          if (question) {
-            const userMessage = document.createElement('div');
-            userMessage.classList.add('ai-chatbot-message', 'user');
-            userMessage.textContent = question.text;
-            aiChatbotMessages.appendChild(userMessage);
-            aiChatbotMessages.scrollTop = aiChatbotMessages.scrollHeight;
-
-            const typingIndicator = document.createElement('div');
-            typingIndicator.classList.add('ai-chatbot-message', 'bot', 'typing-indicator');
-            typingIndicator.innerHTML = '<span></span><span></span><span></span>';
-            aiChatbotMessages.appendChild(typingIndicator);
-            aiChatbotMessages.scrollTop = aiChatbotMessages.scrollHeight;
-
-            setTimeout(() => {
-              if (aiChatbotMessages.contains(typingIndicator)) {
-                aiChatbotMessages.removeChild(typingIndicator);
-              }
-              const botMessage = document.createElement('div');
-              botMessage.classList.add('ai-chatbot-message', 'bot');
-              const textContentSpan = document.createElement('span');
-              textContentSpan.classList.add('message-text-content');
-              textContentSpan.innerHTML = question.answer;
-              botMessage.appendChild(textContentSpan);
-              const speakerIcon = document.createElement('i');
-              speakerIcon.className = 'fas fa-volume-up speaker-icon';
-              speakerIcon.title = 'Read aloud';
-              speakerIcon.setAttribute('aria-label', 'Read message aloud');
-              speakerIcon.onclick = () => speakText(textContentSpan.textContent, speakerIcon);
-              botMessage.appendChild(speakerIcon);
-              aiChatbotMessages.appendChild(botMessage);
-              aiChatbotMessages.scrollTop = aiChatbotMessages.scrollHeight;
-            }, 1200);
-          }
-        }
-
-        function toggleFullscreen() {
-            const isCurrentlyFullscreenCSS = aiChatbotContainer.classList.contains('fullscreen');
-            aiChatbotContainer.classList.toggle('fullscreen');
-
-            if (document.fullscreenEnabled) {
-                if (!isCurrentlyFullscreenCSS) { 
-                    aiChatbotContainer.requestFullscreen().catch(err => {
-                        aiChatbotContainer.classList.remove('fullscreen');
-                        updateFullscreenButtonIcon();
-                    });
-                } else {
-                    if (document.exitFullscreen) {
-                        document.exitFullscreen().catch(err => {
-                            aiChatbotContainer.classList.add('fullscreen');
-                            updateFullscreenButtonIcon();
-                        });
-                    }
-                }
-            }
-            updateFullscreenButtonIcon();
-        }
-
-        document.addEventListener('fullscreenchange', updateFullscreenButtonIcon);
-        function updateFullscreenButtonIcon() {
-            const isFullscreen = aiChatbotContainer.classList.contains('fullscreen');
-            if (fullscreenBtn) {
-                fullscreenBtn.innerHTML = isFullscreen ? '<i class="fas fa-compress-alt"></i>' : '<i class="fas fa-expand-alt"></i>';
-                fullscreenBtn.title = isFullscreen ? 'Exit Fullscreen' : 'Toggle Fullscreen';
-            }
-        }
-
-        function startRobotAnimation() {
-          const targetCard = document.querySelector('.feature-card[data-ribot-target]');
-          if (!targetCard) return;
-
-          const cardRect = targetCard.getBoundingClientRect();
-          const targetX = window.innerWidth - cardRect.right - (cardRect.width / 2) + 20;
-          const targetY = window.innerHeight - cardRect.bottom - (cardRect.height / 2) + 20;
-
-          robotPointer.style.setProperty('--target-x', `${targetX}px`);
-          robotPointer.style.setProperty('--target-y', `${targetY}px`);
-
-          robotPointer.style.display = 'block';
-          robotPointer.style.animation = 'fly-to-ribot 2s ease-in-out forwards';
-          robotPointer.style.opacity = '1';
-          
-          setTimeout(() => {
-            targetCard.classList.add('highlight');
-          }, 2000);
-
-          setTimeout(() => {
-            robotPointer.style.animation = '';
-            robotPointer.style.opacity = '0';
-            targetCard.classList.remove('highlight');
-          }, 5000);
-
-          setTimeout(() => {
-            robotPointer.style.display = 'none';
-          }, 5500);
-        }
-
-        const sections = document.querySelectorAll('section');
-        const sectionObserver = new IntersectionObserver((entries, observer) => {
-          entries.forEach(entry => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('animate-in');
-              const gridItems = entry.target.querySelectorAll('.subject, .classes');
-              gridItems.forEach((item, index) => {
-                item.style.animationDelay = `${0.1 * index + 0.3}s`;
-                item.classList.add('animate-in');
-              });
-              observer.unobserve(entry.target);
-            }
-          });
-        }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
-
-        sections.forEach(section => {
-          sectionObserver.observe(section);
-        });
-
-        initializeSpeechSynthesis();
-        populatePredefinedQuestions();
-
-        const initialBotMessage = aiChatbotMessages.querySelector('.ai-chatbot-message.bot');
-        const initialTextContent = initialBotMessage.querySelector('.message-text-content').textContent;
-        const initialSpeakerIcon = initialBotMessage.querySelector('.speaker-icon');
-        if (initialSpeakerIcon && initialTextContent) {
-            initialSpeakerIcon.onclick = () => speakText(initialTextContent, initialSpeakerIcon);
-        }
-        updateFullscreenButtonIcon();
-
-        const slides = document.querySelectorAll('.slide');
-        const prevBtn = document.querySelector('.slider-nav .prev');
-        const nextBtn = document.querySelector('.slider-nav .next');
-        let currentSlide = 0;
-        let slideInterval;
-
-        function showSlide(n) {
-            slides.forEach((slide, index) => {
-                slide.classList.remove('active');
+                grid.appendChild(card);
             });
-            slides[n].classList.add('active');
+            
+            if(filtered.length === 0) {
+                grid.innerHTML = '<p style="color:gray">System: No matching modules found.</p>';
+            }
         }
 
-        function nextSlide() {
-            currentSlide = (currentSlide + 1) % slides.length;
-            showSlide(currentSlide);
+        searchInput.addEventListener('input', (e) => renderProjects(e.target.value));
+        renderProjects();
+
+        // --- Typewriter ---
+        const typeSpan = document.getElementById('typewriter');
+        const roles = ["Frontend Developer", "Published Author", "Founder", "Visionary"];
+        let roleIdx = 0;
+        let charIdx = 0;
+        let isDeleting = false;
+
+        function type() {
+            const currentRole = roles[roleIdx];
+            if(isDeleting) {
+                typeSpan.innerText = currentRole.substring(0, charIdx - 1);
+                charIdx--;
+            } else {
+                typeSpan.innerText = currentRole.substring(0, charIdx + 1);
+                charIdx++;
+            }
+
+            if(!isDeleting && charIdx === currentRole.length) {
+                isDeleting = true;
+                setTimeout(type, 2000);
+            } else if(isDeleting && charIdx === 0) {
+                isDeleting = false;
+                roleIdx = (roleIdx + 1) % roles.length;
+                setTimeout(type, 500);
+            } else {
+                setTimeout(type, isDeleting ? 50 : 100);
+            }
         }
-
-        function prevSlide() {
-            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-            showSlide(currentSlide);
-        }
-
-        function startSlider() {
-            showSlide(currentSlide);
-            slideInterval = setInterval(nextSlide, 5000);
-        }
-
-        function resetInterval() {
-            clearInterval(slideInterval);
-            slideInterval = setInterval(nextSlide, 5000);
-        }
-
-        prevBtn.addEventListener('click', () => {
-            prevSlide();
-            resetInterval();
-        });
-
-        nextBtn.addEventListener('click', () => {
-            nextSlide();
-            resetInterval();
-        });
-
-        startSlider();
-    });
-  </script>
+        type();
+    </script>
 </body>
 </html>

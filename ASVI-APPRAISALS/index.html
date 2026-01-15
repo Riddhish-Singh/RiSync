@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HRMS | Asvi Thoughtworks</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
+    <style>
+        /* THEME: Asvi Thoughtworks (Custom Palette) */
+        :root {
+            --brand-primary: #51285d;
+            --brand-primary-dark: #3a1c42;
+            --brand-accent: #e85046;
+            --brand-accent-hover: #d13e35;
+            --tint-purple: #f3eff5;
+            --tint-red: #fef2f2;
+            --bg-body: #f4f4f5;
+            --bg-card: #ffffff;
+            --text-main: #1d1d1d;
+            --text-muted: #6b7280;
+            --border-color: #e5e5e5;
+            --success-text: #047857;
+            --success-bg: #d1fae5;
+            --error-text: #b91c1c;
+            --error-bg: #fef2f2;
+            --radius: 6px;
+            --shadow: 0 4px 6px -1px rgba(81, 40, 93, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            background-color: var(--brand-primary);
+            height: 80px;
+            padding: 0 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-sizing: border-box;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .brand-container { display: flex; align-items: center; gap: 15px; }
+        .brand-logo-img { height: 45px; display: block; }
+        .user-menu { display: none; align-items: center; gap: 20px; }
+        .user-info { text-align: right; line-height: 1.3; }
+        .u-name { display: block; font-weight: 600; font-size: 0.95rem; color: #ffffff; }
+        .u-role { font-size: 0.75rem; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.05em; }
+
+        .btn-logout {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .btn-logout:hover { background-color: rgba(255,255,255,0.2); border-color: #ffffff; }
+
+        /* --- MAIN LAYOUT --- */
+        .main-container {
+            margin-top: 110px;
+            padding: 0 20px 60px 20px;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .app-card {
+            background: var(--bg-card);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            padding: 40px;
+            width: 100%;
+            max-width: 950px;
+            animation: fadeIn 0.5s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .app-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: var(--brand-accent);
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        h2 { margin: 0 0 10px 0; font-size: 1.75rem; color: var(--brand-primary); font-weight: 700; letter-spacing: -0.02em; }
+        p.subtitle { margin: 0 0 32px 0; color: var(--text-muted); font-size: 1rem; line-height: 1.6; }
+
+        /* --- TABS --- */
+        .tabs-header {
+            display: flex;
+            border-bottom: 2px solid var(--tint-purple);
+            margin-bottom: 35px;
+            gap: 30px;
+        }
+        .tab-btn {
+            padding: 12px 0;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            margin-bottom: -2px;
+        }
+        .tab-btn:hover { color: var(--brand-primary); }
+        .tab-btn.active {
+            color: var(--brand-primary);
+            border-bottom-color: var(--brand-accent);
+            font-weight: 700;
+        }
+
+        /* --- FORMS --- */
+        .form-grid { display: grid; gap: 24px; }
+        
+        .input-wrapper label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--brand-primary);
+        }
+
+        .input-wrapper input,
+        .input-wrapper select,
+        .input-wrapper textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
+            background-color: #fff;
+            box-sizing: border-box;
+            transition: all 0.2s;
+        }
+
+        .input-wrapper input:focus,
+        .input-wrapper select:focus,
+        .input-wrapper textarea:focus {
+            outline: none;
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 0 3px rgba(81, 40, 93, 0.1);
+        }
+        
+        /* Disabled input styling */
+        .input-wrapper input:disabled,
+        .input-wrapper select:disabled,
+        .input-wrapper textarea:disabled {
+            background-color: #f3f4f6;
+            color: #6b7280;
+            cursor: not-allowed;
+            border-color: #e5e5e5;
+        }
+
+        /* --- BUTTONS --- */
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background-color: var(--brand-accent);
+            color: #fff;
+            border: none;
+            padding: 14px 28px;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary:hover { background-color: var(--brand-accent-hover); }
+        
+        .btn-secondary {
+            background-color: #fff;
+            border: 1px solid var(--border-color);
+            color: var(--brand-primary);
+            padding: 14px 28px; /* Matched height with primary */
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .btn-secondary:hover { 
+            border-color: var(--brand-primary); 
+            background-color: var(--tint-purple); 
+        }
+
+        /* --- ALERTS --- */
+        .status-alert {
+            padding: 16px;
+            border-radius: var(--radius);
+            margin-bottom: 24px;
+            font-size: 0.9rem;
+            text-align: center;
+            display: none;
+            font-weight: 500;
+        }
+        .status-error { background-color: var(--error-bg); color: var(--error-text); border: 1px solid #FCA5A5; }
+        .status-success { background-color: var(--success-bg); color: var(--success-text); border: 1px solid #6EE7B7; }
+        .status-info { background-color: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+
+        /* --- TABLE --- */
+        .table-responsive { overflow-x: auto; border: 1px solid var(--border-color); border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        
+        thead { background-color: var(--tint-purple); }
+        
+        th {
+            color: var(--brand-primary);
+            font-weight: 700;
+            text-align: left;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        td { padding: 16px 24px; border-bottom: 1px solid var(--border-color); vertical-align: top; line-height: 1.5; color: var(--text-main); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: #fafafa; }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+        .badge-self { background-color: var(--tint-purple); color: var(--brand-primary); border: 1px solid rgba(81, 40, 93, 0.1); } 
+        .badge-manager { background-color: var(--tint-red); color: var(--brand-accent); border: 1px solid rgba(232, 80, 70, 0.1); }
+
+        /* --- SPINNER --- */
+        .spinner {
+            width: 18px; height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .view-section { display: none; }
+        .active-view { display: block; }
+        .admin-actions { display: flex; gap: 12px; }
+        
+        /* Small helper for the draft status text */
+        .draft-notice {
+            font-size: 0.8rem;
+            color: #d97706; /* Amber color */
+            margin-bottom: 10px;
+            display: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="brand-container">
+            <img src="https://www.asvithoughtworks.com/images/asvi_logo.svg" alt="Asvi Thoughtworks" class="brand-logo-img">
+        </div>
+        <div id="userMenu" class="user-menu">
+            <div class="user-info">
+                <span id="navUserName" class="u-name">User Name</span>
+                <span id="navUserRole" class="u-role">Employee</span>
+            </div>
+            <button onclick="logout()" class="btn-logout">Sign Out</button>
+        </div>
+    </nav>
+
+    <div class="main-container">
+
+        <div id="statusAlert" class="status-alert"></div>
+
+        <div id="authView" class="view-section active-view app-card" style="max-width: 450px;">
+            <div style="text-align:center; margin-bottom:35px;">
+                <div style="width: 50px; height: 50px; background: var(--tint-purple); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#51285d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                        <polyline points="10 17 15 12 10 7"></polyline>
+                        <line x1="15" y1="12" x2="3" y2="12"></line>
+                    </svg>
+                </div>
+                <h2>Employee Login</h2>
+                <p class="subtitle" style="margin: 0 auto;">Strategic HR Services Portal</p>
+            </div>
+
+            <div class="form-grid">
+                <div class="input-wrapper">
+                    <label>Official Email</label>
+                    <input type="email" id="emailInput" placeholder="name@vtion.in">
+                </div>
+                <div class="input-wrapper">
+                    <label>Password</label>
+                    <input type="password" id="passwordInput" placeholder="••••••••">
+                </div>
+                <button onclick="handleLogin()" id="loginBtn" class="btn-primary">
+                    <span id="btnText">Sign In</span>
+                    <div id="btnSpinner" class="spinner"></div>
+                </button>
+            </div>
+        </div>
+
+        <div id="employeeView" class="view-section app-card">
+            
+            <div class="tabs-header">
+                <div class="tab-btn active" onclick="switchTab('tabSelf')">Self Appraisal</div>
+                <div class="tab-btn" onclick="switchTab('tabMyData')">My History</div>
+                <div class="tab-btn" id="managerTabBtn" style="display:none;" onclick="switchTab('tabManager')">Manager Zone</div>
+            </div>
+
+            <div id="tabSelf" class="tab-content">
+                <div style="margin-bottom:30px; border-bottom:1px solid #e5e5e5; padding-bottom:20px;">
+                    <h2>Self Appraisal</h2>
+                    <p class="subtitle">Evaluate your performance for the current cycle.</p>
+                    <div id="selfDraftNotice" class="draft-notice">Draft loaded. You can continue editing.</div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="input-wrapper">
+                        <label>Key Accomplishments</label>
+                        <textarea id="selfAccom" rows="5" placeholder="Highlight your wins, completed projects, and value delivered..."></textarea>
+                    </div>
+                    <div class="input-wrapper">
+                        <label>Challenges & Growth Areas</label>
+                        <textarea id="selfChall" rows="5" placeholder="What obstacles did you face? What support do you need?"></textarea>
+                    </div>
+                    <div class="input-wrapper">
+                        <label>Self Rating (1-5)</label>
+                        <select id="selfRating">
+                            <option value="">Select Rating...</option>
+                            <option value="5">5 - Outstanding</option>
+                            <option value="4">4 - Exceeds Expectations</option>
+                            <option value="3">3 - Meets Expectations</option>
+                            <option value="2">2 - Needs Improvement</option>
+                            <option value="1">1 - Unsatisfactory</option>
+                        </select>
+                    </div>
+                    
+                    <div id="selfBtnGroup" class="btn-group">
+                        <button onclick="saveSelfDraft()" class="btn-secondary">Save Draft</button>
+                        <button onclick="submitSelfAppraisal()" class="btn-primary">Submit Final</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tabMyData" class="tab-content" style="display:none;">
+                <div style="margin-bottom:30px;">
+                    <h2>Submission History</h2>
+                    <p class="subtitle" style="margin-bottom:0;">Past submitted appraisals.</p>
+                </div>
+                <div id="myFeedbackList" style="margin-top:20px;">
+                    <div style="padding: 40px; text-align: center; background: #fafafa; border-radius: 8px; color: #666;">Loading your data...</div>
+                </div>
+            </div>
+
+            <div id="tabManager" class="tab-content" style="display:none;">
+                <div style="margin-bottom:30px; border-bottom:1px solid #e5e5e5; padding-bottom:20px;">
+                    <h2>Team Review</h2>
+                    <p class="subtitle">Submit evaluations for your direct reports.</p>
+                    <div id="managerDraftNotice" class="draft-notice">Draft loaded for this employee.</div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="input-wrapper">
+                        <label>Select Team Member</label>
+                        <select id="reporteeSelect" onchange="checkManagerDraft()">
+                            <option value="">-- Choose Employee --</option>
+                        </select>
+                    </div>
+                    
+                    <div id="employeeSelfView" style="display:none;">
+                        </div>
+
+                    <div class="input-wrapper">
+                        <label>Manager's Feedback</label>
+                        <textarea id="managerFeedback" rows="5" placeholder="Provide constructive feedback..."></textarea>
+                    </div>
+                    <div class="input-wrapper">
+                        <label>Performance Rating</label>
+                        <select id="managerRating">
+                            <option value="">Select Rating...</option>
+                            <option value="5">5 - Outstanding</option>
+                            <option value="4">4 - Exceeds Expectations</option>
+                            <option value="3">3 - Meets Expectations</option>
+                            <option value="2">2 - Needs Improvement</option>
+                            <option value="1">1 - Unsatisfactory</option>
+                        </select>
+                    </div>
+                    
+                    <div id="managerBtnGroup" class="btn-group">
+                        <button onclick="saveManagerDraft()" class="btn-secondary">Save Draft</button>
+                        <button onclick="submitManagerReview()" class="btn-primary">Submit Review</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="adminView" class="view-section app-card" style="max-width: 1100px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; padding-bottom:20px; border-bottom:1px solid #e5e5e5;">
+                <div>
+                    <h2>Performance Dashboard</h2>
+                    <p class="subtitle" style="margin-bottom:0;">Consolidated view of all submitted data.</p>
+                </div>
+                <div class="admin-actions">
+                    <button class="btn-secondary" style="padding: 8px 16px;" onclick="loadAdminData()">Refresh Data</button>
+                    <button class="btn-primary" style="width: auto; padding: 8px 20px;" onclick="downloadExcel()">
+                        Export Excel
+                    </button>
+                </div>
+            </div>
+            
+            <div class="table-responsive">
+                <table id="adminTable">
+                    <thead>
+                        <tr>
+                            <th style="width:100px;">Type</th>
+                            <th style="width:220px;">Employee</th>
+                            <th style="width:200px;">Reviewer</th>
+                            <th style="width:80px;">Rating</th>
+                            <th>Feedback Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminBody">
+                        <tr><td colspan="5" style="text-align:center; padding:60px; color:#6b7280;">Loading records...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+<script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, Timestamp, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+        // FIREBASE CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyDdZjWSU5UnCnywbA1ycyF7jqEVjG9HMnk",
+            authDomain: "vtion-a378f.firebaseapp.com",
+            projectId: "vtion-a378f",
+            storageBucket: "vtion-a378f.firebasestorage.app",
+            messagingSenderId: "748402719504",
+            appId: "1:748402719504:web:0b785006d1e1a5026e0395",
+            measurementId: "G-VC975C949T"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // DATA: Employee Hierarchy
+        const DIRECTORY = {
+            "human.capital@vtion.in": { name: "Snigdha Tripathi", manager: "manoj.dawane@vtion.in" },
+            "manoj.dawane@vtion.in": { name: "Manoj Dawane", manager: "" }, 
+            "abhinav.lalam@vtion.in": { name: "Abhinav Lalam", manager: "shubham.saxena@vtion.in" },
+            "reshma.doshi@vtion.in": { name: "Reshma Doshi", manager: "manoj.dawane@vtion.in" },
+            "piyush.gupta@vtion.in": { name: "Piyush Gupta", manager: "manoj.dawane@vtion.in" },
+            "shubham.saxena@vtion.in": { name: "Shubham Saxena", manager: "manoj.dawane@vtion.in" },
+            "mahesh.marapalli@vtion.in": { name: "Mahesh Marapalli", manager: "shubham.saxena@vtion.in" },
+            "bipin@vtion.in": { name: "Bipin Koli", manager: "shubham.saxena@vtion.in" },
+            "shailesh.varudkar@vtion.in": { name: "Shailesh Varudkar", manager: "manoj.dawane@vtion.in" },
+            "srividya.tn@vtion.in": { name: "Srividya Trichur", manager: "manoj.dawane@vtion.in" },
+            "aditya.choudhary@vtion.in": { name: "Aditya Choudhary", manager: "manoj.dawane@vtion.in" },
+            "kapil.bhawariwal@vtion.in": { name: "Kapil Bhanwariwal", manager: "abhinav.lalam@vtion.in" },
+            "gautam.agrawal@vtion.in": { name: "Gautam Agrawal", manager: "abhinav.lalam@vtion.in" },
+            "pulkit.bharadwaj@vtion.in": { name: "Pulkit Bhardwaj", manager: "abhinav.lalam@vtion.in" },
+            "vishal.singh@vtion.in": { name: "Vishal Singh", manager: "abhinav.lalam@vtion.in" },
+            "yashali.navalkar@vtion.in": { name: "Yashali Navalkar", manager: "abhinav.lalam@vtion.in" },
+            "mahesh.kadam@vtion.in": { name: "Mahesh Kadam", manager: "abhinav.lalam@vtion.in" },
+            "ripula.gulati@vtion.in": { name: "Ripula Gulati", manager: "abhinav.lalam@vtion.in" },
+            "shivam.awasthi@vtion.in": { name: "Shivam Awasthi", manager: "abhinav.lalam@vtion.in" },
+            "riju.chaudhuri@vtion.in": { name: "Riju Chaudhuri", manager: "reshma.doshi@vtion.in" },
+            "abhishek.pingle@vtion.in": { name: "Abhishek Pingle", manager: "reshma.doshi@vtion.in" },
+            "harshad.nabar@vtion.in": { name: "Harshad Nabar", manager: "reshma.doshi@vtion.in" },
+            "swapnil.shetty@vtion.in": { name: "Swapnil Shetty", manager: "reshma.doshi@vtion.in" },
+            "anurag.chaturvedi@vtion.in": { name: "Anurag Chaturvedi", manager: "reshma.doshi@vtion.in" },
+            "aditya.roongta@vtion.in": { name: "Aditya Roongta", manager: "reshma.doshi@vtion.in" },
+            "apurva.londekar@vtion.in": { name: "Apurva Londekar", manager: "reshma.doshi@vtion.in" },
+            "bhumika.pithadia@vtion.in": { name: "Bhumika Pithadia", manager: "reshma.doshi@vtion.in" },
+            "hema.gala@vtion.in": { name: "Hema Gala", manager: "reshma.doshi@vtion.in" },
+            "divya.bansal@vtion.in": { name: "Divya Bansal", manager: "piyush.gupta@vtion.in" },
+            "saurabh.singh@vtion.in": { name: "Saurabh Singh", manager: "piyush.gupta@vtion.in" },
+            "aanya.aggarwaal@vtion.in": { name: "Aanya Aggarwaal", manager: "piyush.gupta@vtion.in" },
+            "abhishek.mohite@vtion.in": { name: "Abhishek Mohite", manager: "bipin@vtion.in" },
+            "kamal.thakur@vtion.in": { name: "Kamal Thakur", manager: "bipin@vtion.in" },
+            "parvinder.singh@vtion.in": { name: "Parvinder Siyan", manager: "mahesh.marapalli@vtion.in" },
+            "indrajeet.jyoti@vtion.in": { name: "Indrajeet Jyoti", manager: "mahesh.marapalli@vtion.in" },
+            "priyanka.yadav@vtion.in": { name: "Piyush Yadav", manager: "mahesh.marapalli@vtion.in" },
+            "ankit.jain@vtion.in": { name: "Ankit Jain", manager: "mahesh.marapalli@vtion.in" },
+            "utsav.kumar@vtion.in": { name: "Utsav Kumar", manager: "mahesh.marapalli@vtion.in" },
+            "amber.sharma@vtion.in": { name: "Amber Sharma", manager: "shailesh.varudkar@vtion.in" },
+            "anushka.shetty@vtion.in": { name: "Anushka Shetty", manager: "shailesh.varudkar@vtion.in" },
+            "satyajeet.binwade@vtion.in": { name: "Satyajeet Binwade", manager: "shailesh.varudkar@vtion.in" },
+            "parthivi.khullar@vtion.in": { name: "Parthivi Khullar", manager: "shailesh.varudkar@vtion.in" },
+            "aniket.bhosale@vtion.in": { name: "Aniket Bhosale", manager: "srividya.tn@vtion.in" },
+            "abhishek.dhiman@vtion.in": { name: "Abhishek Dhiman", manager: "shubham.saxena@vtion.in" },
+            "deepanshu@vtion.in": { name: "Deepanshu Kumar", manager: "shubham.saxena@vtion.in" },
+            "amit.nevrekar@vtion.in": { name: "Amit Nevrekar", manager: "manoj.dawane@vtion.in" },
+            "prajakta.joshi@vtion.in": { name: "Prajakta Joshi", manager: "manoj.dawane@vtion.in" },
+            "sanjay.natra@vtion.in": { name: "Sanjay Natra", manager: "aditya.choudhary@vtion.in" }
+        };
+
+        const ADMINS = ["human.capital@vtion.in", "manoj.dawane@vtion.in"];
+        let currentUser = null;
+        let currentSelfDraftId = null;
+        let currentManagerDraftId = null;
+        
+        window.adminExportData = [];
+
+        // EXPORTS
+        window.handleLogin = handleLogin;
+        window.logout = logout;
+        window.switchTab = switchTab;
+        window.submitSelfAppraisal = submitSelfAppraisal;
+        window.submitManagerReview = submitManagerReview;
+        window.saveSelfDraft = saveSelfDraft;
+        window.saveManagerDraft = saveManagerDraft;
+        window.checkManagerDraft = checkManagerDraft;
+        window.loadAdminData = loadAdminData;
+        window.downloadExcel = downloadExcel;
+
+        // --- AUTH ---
+        async function handleLogin() {
+            const email = document.getElementById('emailInput').value.trim().toLowerCase();
+            const pass = document.getElementById('passwordInput').value;
+            const btn = document.getElementById('loginBtn');
+            const spinner = document.getElementById('btnSpinner');
+            const btnText = document.getElementById('btnText');
+
+            if (!email || !pass) return showAlert("Please enter your credentials.", "error");
+            if (!DIRECTORY[email]) return showAlert("Access Denied: Email not in directory.", "error");
+
+            btn.disabled = true;
+            btnText.style.visibility = "hidden";
+            spinner.style.display = "block";
+
+            try {
+                await signInWithEmailAndPassword(auth, email, pass);
+            } catch (err) {
+                if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+                    try {
+                        await createUserWithEmailAndPassword(auth, email, pass);
+                        showAlert("Account created. Signing in...", "success");
+                    } catch (regErr) {
+                        showAlert(regErr.message, "error");
+                        resetBtn();
+                    }
+                } else {
+                    showAlert("Login Failed: " + err.message, "error");
+                    resetBtn();
+                }
+            }
+        }
+
+        function resetBtn() {
+            document.getElementById('loginBtn').disabled = false;
+            document.getElementById('btnText').style.visibility = "visible";
+            document.getElementById('btnSpinner').style.display = "none";
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const email = user.email.toLowerCase();
+                currentUser = { ...DIRECTORY[email], email };
+
+                document.getElementById('userMenu').style.display = 'flex';
+                document.getElementById('navUserName').innerText = currentUser.name;
+                document.getElementById('navUserRole').innerText = ADMINS.includes(email) ? "Administrator" : "Employee";
+
+                document.querySelectorAll('.view-section').forEach(el => el.style.display = 'none');
+
+                if (ADMINS.includes(email)) {
+                    document.getElementById('adminView').style.display = 'block';
+                    loadAdminData();
+                } else {
+                    document.getElementById('employeeView').style.display = 'block';
+                    initEmployeeView();
+                }
+            } else {
+                document.getElementById('userMenu').style.display = 'none';
+                document.querySelectorAll('.view-section').forEach(el => el.style.display = 'none');
+                document.getElementById('authView').style.display = 'block';
+                resetBtn();
+                currentSelfDraftId = null;
+                currentManagerDraftId = null;
+            }
+        });
+
+        // --- EMPLOYEE LOGIC ---
+        function initEmployeeView() {
+            const reports = Object.entries(DIRECTORY).filter(([e, d]) => d.manager === currentUser.email);
+            if(reports.length > 0) {
+                document.getElementById('managerTabBtn').style.display = 'block';
+                const select = document.getElementById('reporteeSelect');
+                select.innerHTML = '<option value="">-- Choose Employee --</option>';
+                reports.forEach(([e, d]) => {
+                    const opt = document.createElement('option');
+                    opt.value = e;
+                    opt.innerText = d.name;
+                    select.appendChild(opt);
+                });
+            }
+            checkSelfDraft();
+            loadMySubmissions();
+        }
+
+        // --- DRAFTS & SUBMISSIONS: SELF ---
+        async function checkSelfDraft() {
+            // Reset Fields
+            document.getElementById('selfAccom').value = "";
+            document.getElementById('selfChall').value = "";
+            document.getElementById('selfRating').value = "";
+            
+            const notice = document.getElementById('selfDraftNotice');
+            notice.style.display = 'none';
+            notice.style.color = '#d97706'; // Reset color to amber (draft default)
+
+            const btnGroup = document.getElementById('selfBtnGroup');
+            const inputs = document.querySelectorAll('#tabSelf textarea, #tabSelf select');
+            
+            // Enable by default
+            inputs.forEach(el => el.disabled = false);
+            btnGroup.style.display = 'flex';
+
+            currentSelfDraftId = null;
+
+            try {
+                // Fetch all self appraisals for this user
+                const q = query(
+                    collection(db, "appraisals"),
+                    where("targetEmail", "==", currentUser.email),
+                    where("type", "==", "self")
+                );
+                const snap = await getDocs(q);
+                
+                // 1. Check if ANY document is submitted
+                const submittedDoc = snap.docs.find(d => d.data().status === 'submitted');
+                
+                if (submittedDoc) {
+                    const data = submittedDoc.data();
+                    // Populate fields
+                    document.getElementById('selfAccom').value = data.accomplishments || "";
+                    document.getElementById('selfChall').value = data.challenges || "";
+                    document.getElementById('selfRating').value = data.rating || "";
+                    
+                    // LOCK UI
+                    inputs.forEach(el => el.disabled = true);
+                    btnGroup.style.display = 'none';
+                    
+                    notice.innerText = "You have already submitted your appraisal.";
+                    notice.style.color = "var(--success-text)"; // Green
+                    notice.style.display = "block";
+                    return; // Stop here
+                }
+
+                // 2. If no submission, check for draft
+                const draftDoc = snap.docs.find(d => d.data().status === 'draft');
+                if (draftDoc) {
+                    const data = draftDoc.data();
+                    currentSelfDraftId = draftDoc.id;
+                    document.getElementById('selfAccom').value = data.accomplishments || "";
+                    document.getElementById('selfChall').value = data.challenges || "";
+                    document.getElementById('selfRating').value = data.rating || "";
+                    
+                    notice.innerText = "Draft loaded. You can continue editing.";
+                    notice.style.display = 'block';
+                }
+
+            } catch (e) { console.error("Error checking draft", e); }
+        }
+
+        async function saveSelfDraft() {
+            const accom = document.getElementById('selfAccom').value;
+            const chall = document.getElementById('selfChall').value;
+            const rate = document.getElementById('selfRating').value;
+
+            const payload = {
+                type: "self",
+                status: "draft",
+                targetEmail: currentUser.email,
+                reviewerEmail: currentUser.email,
+                reviewerName: currentUser.name,
+                targetName: currentUser.name,
+                accomplishments: accom,
+                challenges: chall,
+                rating: rate,
+                timestamp: Timestamp.now()
+            };
+
+            try {
+                if (currentSelfDraftId) {
+                    await updateDoc(doc(db, "appraisals", currentSelfDraftId), payload);
+                    showAlert("Draft updated.", "info");
+                } else {
+                    const ref = await addDoc(collection(db, "appraisals"), payload);
+                    currentSelfDraftId = ref.id;
+                    document.getElementById('selfDraftNotice').style.display = 'block';
+                    document.getElementById('selfDraftNotice').innerText = "Draft loaded. You can continue editing.";
+                    showAlert("Draft saved successfully.", "info");
+                }
+            } catch (e) { showAlert("Error saving draft: " + e.message, "error"); }
+        }
+
+        async function submitSelfAppraisal() {
+            const accom = document.getElementById('selfAccom').value;
+            const chall = document.getElementById('selfChall').value;
+            const rate = document.getElementById('selfRating').value;
+
+            if(!accom || !chall || !rate) return showAlert("Please fill all fields before submitting.", "error");
+
+            const payload = {
+                type: "self",
+                status: "submitted",
+                targetEmail: currentUser.email,
+                reviewerEmail: currentUser.email,
+                reviewerName: currentUser.name,
+                targetName: currentUser.name,
+                accomplishments: accom,
+                challenges: chall,
+                rating: rate,
+                timestamp: Timestamp.now()
+            };
+
+            try {
+                if (currentSelfDraftId) {
+                    await updateDoc(doc(db, "appraisals", currentSelfDraftId), payload);
+                    currentSelfDraftId = null;
+                } else {
+                    await addDoc(collection(db, "appraisals"), payload);
+                }
+                showAlert("Self appraisal submitted successfully.", "success");
+                
+                // Refresh to lock UI
+                checkSelfDraft();
+                
+                loadMySubmissions();
+            } catch (e) { console.error(e); showAlert("Error submitting: " + e.message, "error"); }
+        }
+
+        // --- DRAFTS & SUBMISSIONS: MANAGER ---
+        async function checkManagerDraft() {
+            const target = document.getElementById('reporteeSelect').value;
+            
+            // Reset UI
+            document.getElementById('managerFeedback').value = "";
+            document.getElementById('managerRating').value = "";
+            
+            const notice = document.getElementById('managerDraftNotice');
+            notice.style.display = 'none';
+            notice.style.color = '#d97706';
+            
+            const empView = document.getElementById('employeeSelfView');
+            empView.style.display = 'none';
+            empView.innerHTML = "";
+
+            const btnGroup = document.getElementById('managerBtnGroup');
+            const inputs = document.querySelectorAll('#tabManager textarea, #tabManager select:not(#reporteeSelect)'); 
+            
+            inputs.forEach(el => el.disabled = false);
+            btnGroup.style.display = 'flex';
+
+            currentManagerDraftId = null;
+
+            if(!target) return;
+
+            // NEW: LOAD EMPLOYEE SELF APPRAISAL DATA
+            await loadEmployeeSelfAppraisal(target);
+
+            try {
+                // Fetch appraisals by this manager for this target
+                const q = query(
+                    collection(db, "appraisals"),
+                    where("type", "==", "manager"),
+                    where("reviewerEmail", "==", currentUser.email),
+                    where("targetEmail", "==", target)
+                );
+                const snap = await getDocs(q);
+                
+                // 1. Check for Submitted
+                const submittedDoc = snap.docs.find(d => d.data().status === 'submitted');
+                if (submittedDoc) {
+                    const data = submittedDoc.data();
+                    document.getElementById('managerFeedback').value = data.feedback || "";
+                    document.getElementById('managerRating').value = data.rating || "";
+
+                    // LOCK UI
+                    inputs.forEach(el => el.disabled = true);
+                    btnGroup.style.display = 'none';
+
+                    notice.innerText = "You have already submitted a review for this employee.";
+                    notice.style.color = "var(--success-text)";
+                    notice.style.display = 'block';
+                    return;
+                }
+
+                // 2. Check for Draft
+                const draftDoc = snap.docs.find(d => d.data().status === 'draft');
+                if (draftDoc) {
+                    const data = draftDoc.data();
+                    currentManagerDraftId = draftDoc.id;
+                    document.getElementById('managerFeedback').value = data.feedback || "";
+                    document.getElementById('managerRating').value = data.rating || "";
+                    
+                    notice.innerText = "Draft loaded for this employee.";
+                    notice.style.display = 'block';
+                }
+            } catch(e) { console.error("Draft check error", e); }
+        }
+
+        async function loadEmployeeSelfAppraisal(targetEmail) {
+            const container = document.getElementById('employeeSelfView');
+            container.style.display = 'block';
+            container.innerHTML = '<p class="subtitle" style="font-size:0.85rem;">Fetching employee self-review...</p>';
+            
+            try {
+                // Query: Get all docs for this target
+                const q = query(collection(db, "appraisals"), where("targetEmail", "==", targetEmail));
+                const snap = await getDocs(q);
+                
+                // Client-side filter: find type="self" and status="submitted"
+                // We use latest if multiple exist (though logic prevents multiple)
+                const selfDocs = snap.docs
+                    .map(d => d.data())
+                    .filter(d => d.type === 'self' && d.status === 'submitted')
+                    .sort((a,b) => b.timestamp.seconds - a.timestamp.seconds);
+                
+                const data = selfDocs.length > 0 ? selfDocs[0] : null;
+
+                if (data) {
+                    container.innerHTML = `
+                        <div style="background: var(--tint-purple); border: 1px solid rgba(81, 40, 93, 0.2); border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+                            <h4 style="margin-top:0; margin-bottom:15px; color:var(--brand-primary); border-bottom:1px solid rgba(81, 40, 93, 0.1); padding-bottom:8px;">
+                                ${data.targetName}'s Self Appraisal
+                            </h4>
+                            <div style="margin-bottom:12px;">
+                                <strong style="font-size:0.85rem; color:#6b7280; text-transform:uppercase;">Key Accomplishments</strong>
+                                <p style="margin:4px 0 0 0; color:var(--text-main); white-space:pre-wrap;">${data.accomplishments}</p>
+                            </div>
+                            <div style="margin-bottom:12px;">
+                                <strong style="font-size:0.85rem; color:#6b7280; text-transform:uppercase;">Challenges</strong>
+                                <p style="margin:4px 0 0 0; color:var(--text-main); white-space:pre-wrap;">${data.challenges}</p>
+                            </div>
+                            <div>
+                                <strong style="font-size:0.85rem; color:#6b7280; text-transform:uppercase;">Self Rating</strong>
+                                <span style="display:inline-block; margin-left:8px; font-weight:700; color:var(--brand-primary);">${data.rating}/5</span>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `
+                        <div style="background: #f9fafb; border: 1px dashed #d1d5db; border-radius: 8px; padding: 15px; margin-bottom: 24px; color: #6b7280; text-align: center; font-size:0.9rem;">
+                            <em>This employee has not submitted their self-appraisal yet.</em>
+                        </div>
+                    `;
+                }
+
+            } catch (e) {
+                console.error("Error loading employee data", e);
+                container.innerHTML = '<p style="color:red; font-size:0.85rem;">Error loading employee self-appraisal.</p>';
+            }
+        }
+
+        async function saveManagerDraft() {
+            const target = document.getElementById('reporteeSelect').value;
+            const feed = document.getElementById('managerFeedback').value;
+            const rate = document.getElementById('managerRating').value;
+
+            if(!target) return showAlert("Please select an employee first.", "error");
+
+            const targetName = DIRECTORY[target].name;
+            const payload = {
+                type: "manager",
+                status: "draft",
+                targetEmail: target,
+                reviewerEmail: currentUser.email,
+                reviewerName: currentUser.name,
+                targetName: targetName,
+                feedback: feed,
+                rating: rate,
+                timestamp: Timestamp.now()
+            };
+
+            try {
+                if (currentManagerDraftId) {
+                    await updateDoc(doc(db, "appraisals", currentManagerDraftId), payload);
+                    showAlert("Review draft updated.", "info");
+                } else {
+                    const ref = await addDoc(collection(db, "appraisals"), payload);
+                    currentManagerDraftId = ref.id;
+                    document.getElementById('managerDraftNotice').style.display = 'block';
+                    document.getElementById('managerDraftNotice').innerText = "Draft loaded for this employee.";
+                    showAlert("Review draft saved.", "info");
+                }
+            } catch(e) { showAlert("Error saving draft.", "error"); }
+        }
+
+        async function submitManagerReview() {
+            const target = document.getElementById('reporteeSelect').value;
+            const feed = document.getElementById('managerFeedback').value;
+            const rate = document.getElementById('managerRating').value;
+
+            if(!target || !feed || !rate) return showAlert("Please fill all fields.", "error");
+
+            const targetName = DIRECTORY[target].name;
+            const payload = {
+                type: "manager",
+                status: "submitted",
+                targetEmail: target,
+                reviewerEmail: currentUser.email,
+                reviewerName: currentUser.name,
+                targetName: targetName,
+                feedback: feed,
+                rating: rate,
+                timestamp: Timestamp.now()
+            };
+
+            try {
+                if (currentManagerDraftId) {
+                    await updateDoc(doc(db, "appraisals", currentManagerDraftId), payload);
+                    currentManagerDraftId = null;
+                } else {
+                    await addDoc(collection(db, "appraisals"), payload);
+                }
+                showAlert("Manager review submitted.", "success");
+                
+                // Re-check to lock UI
+                checkManagerDraft();
+
+            } catch (e) { console.error(e); showAlert("Error submitting review.", "error"); }
+        }
+
+        // --- LOAD DATA (UPDATED TO FIX INDEX ISSUE) ---
+        async function loadMySubmissions() {
+            const div = document.getElementById('myFeedbackList');
+            div.innerHTML = "<div style='padding:40px; text-align:center; color:#666;'>Loading your data...</div>";
+
+            try {
+                // 1. Fetch ALL records for this user (No filtering by status/type in DB to avoid Index issues)
+                const q = query(collection(db, "appraisals"), where("targetEmail", "==", currentUser.email));
+                const snap = await getDocs(q);
+
+                // 2. Filter & Sort in JavaScript
+                const submissions = [];
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    // Show if it is Self Appraisal AND Submitted
+                    if (data.type === 'self' && data.status === 'submitted') {
+                        submissions.push(data);
+                    }
+                });
+
+                // Sort descending by time
+                submissions.sort((a, b) => b.timestamp.seconds - a.timestamp.seconds);
+
+                if(submissions.length === 0) {
+                    div.innerHTML = "<div style='padding:20px; background:#fafafa; border-radius:6px; text-align:center;'>No submitted appraisals yet.</div>";
+                    return;
+                }
+
+                div.innerHTML = "";
+                submissions.forEach(data => {
+                    div.innerHTML += `
+                        <div style="background:#FFFFFF; padding:24px; border:1px solid #E5E7EB; border-radius:8px; margin-bottom:16px; box-shadow:0 1px 2px rgba(0,0,0,0.05);">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:12px; align-items:center;">
+                                <strong style="color:#51285d;">${data.timestamp.toDate().toLocaleDateString()}</strong>
+                                <span style="background:#fef2f2; color:#e85046; padding:4px 12px; border-radius:20px; font-size:0.8rem; font-weight:700;">Rating: ${data.rating}/5</span>
+                            </div>
+                            <p style="margin:0 0 12px 0; color:#374151;"><strong>Accomplishments:</strong><br>${data.accomplishments}</p>
+                            <p style="margin:0; color:#374151;"><strong>Challenges:</strong><br>${data.challenges}</p>
+                        </div>
+                    `;
+                });
+            } catch (e) {
+                console.error(e);
+                div.innerHTML = `<div style='padding:20px; color:red; text-align:center;'>Error loading data: ${e.message}</div>`;
+            }
+        }
+
+        // --- ADMIN FUNCTIONS (UPDATED TO FIX INDEX ISSUE) ---
+        async function loadAdminData() {
+            const tbody = document.getElementById('adminBody');
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:40px; color:#6B7280;">Fetching records...</td></tr>';
+            window.adminExportData = [];
+
+            try {
+                // 1. Fetch ALL records (Simple query, no index needed)
+                const q = query(collection(db, "appraisals"));
+                const snap = await getDocs(q);
+                
+                // 2. Filter & Sort in JavaScript
+                const allRecords = [];
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    if(data.status === 'submitted') {
+                        allRecords.push(data);
+                    }
+                });
+
+                // Sort descending
+                allRecords.sort((a, b) => b.timestamp.seconds - a.timestamp.seconds);
+                
+                tbody.innerHTML = "";
+                if(allRecords.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:40px; color:#6B7280;">No records found.</td></tr>';
+                    return;
+                }
+
+                allRecords.forEach(data => {
+                    const isSelf = data.type === 'self';
+                    
+                    window.adminExportData.push({
+                        "Date": data.timestamp.toDate().toLocaleDateString(),
+                        "Type": isSelf ? "Self Appraisal" : "Manager Review",
+                        "Employee Name": data.targetName,
+                        "Employee Email": data.targetEmail,
+                        "Reviewer": isSelf ? "Self" : data.reviewerName,
+                        "Rating": data.rating,
+                        "Accomplishments/Feedback": isSelf ? data.accomplishments : data.feedback,
+                        "Challenges": isSelf ? data.challenges : "N/A"
+                    });
+
+                    const row = `
+                        <tr>
+                            <td><span class="badge ${isSelf ? 'badge-self' : 'badge-manager'}">${isSelf ? 'Self' : 'Manager'}</span></td>
+                            <td>
+                                <strong style="color:#111827;">${data.targetName}</strong><br>
+                                <span style="font-size:0.75rem; color:#6B7280;">${data.targetEmail}</span>
+                            </td>
+                            <td>${isSelf ? '<span style="color:#9CA3AF;">-</span>' : data.reviewerName}</td>
+                            <td><span style="font-weight:600; color:#51285d;">${data.rating}/5</span></td>
+                            <td style="color:#4B5563; font-size:0.85rem;">
+                                ${isSelf 
+                                    ? `<strong>Wins:</strong> ${data.accomplishments}<br><strong style="display:inline-block; margin-top:4px;">Challenges:</strong> ${data.challenges}`
+                                    : data.feedback
+                                }
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+            } catch (e) {
+                console.error(e);
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#B91C1C;">Error: ${e.message}</td></tr>`;
+            }
+        }
+
+        function downloadExcel() {
+            if (!window.adminExportData || window.adminExportData.length === 0) {
+                showAlert("No data available to export.", "error");
+                return;
+            }
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(window.adminExportData);
+            XLSX.utils.book_append_sheet(wb, ws, "Performance Report");
+            XLSX.writeFile(wb, "Asvi_Performance_Report.xlsx");
+        }
+
+        // --- UTILS ---
+        function switchTab(id) {
+            document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(id).style.display = 'block';
+            
+            if(id === 'tabSelf') {
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                checkSelfDraft();
+            }
+            if(id === 'tabMyData') document.querySelectorAll('.tab-btn')[1].classList.add('active');
+            if(id === 'tabManager') document.getElementById('managerTabBtn').classList.add('active');
+        }
+
+        function showAlert(msg, type) {
+            const el = document.getElementById('statusAlert');
+            el.innerText = msg;
+            el.className = `status-alert status-${type}`;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 4000);
+        }
+
+        function logout() { signOut(auth).then(()=>location.reload()); }
+    </script>
+</body>
+</html>
