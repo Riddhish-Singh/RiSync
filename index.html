@@ -525,7 +525,7 @@
     <script>
         // --- Configuration: ALL projects now start with "Ri" ---
         const projects = [
-            { name: "RiArt", path: "RiArt", desc: "Digital Art Canvas", icon: "fa-palette" },
+            { name: "RiArt", path: "RiArt-html/", desc: "Digital Art Canvas", icon: "fa-palette" },
             { name: "RiBot", path: "RiBot", desc: "AI Assistant", icon: "fa-robot" },
             { name: "RiQuiz", path: "RiQuiz", desc: "Knowledge Engine", icon: "fa-brain" },
             { name: "RiResume", path: "RiResume", desc: "CV Builder", icon: "fa-id-badge" },
@@ -557,7 +557,8 @@
             filtered.forEach((p, i) => {
                 const el = document.createElement('a');
                 
-                // --- Logic: Disable ALL links because they ALL start with "Ri" ---
+                // --- Logic Check ---
+                // Currently checks if name starts with "Ai" (likely meant "Ri" to disable, but keeping as provided)
                 const isRiProject = p.name.startsWith("Ai");
                 
                 if (isRiProject) {
@@ -566,6 +567,8 @@
                     el.title = "Access Restricted";
                 } else {
                     el.className = 'app-card';
+                    // --- FIX: Assign the href for active links ---
+                    el.href = p.path; 
                 }
                 
                 el.style.animation = `slideUp 0.5s ease-out backwards ${i * 0.05}s`;
