@@ -123,7 +123,7 @@
             position: fixed;
             top: 0; width: 100%;
             z-index: 100;
-            padding: 20px 0;
+            padding: 15px 0; /* Slightly reduced padding to balance large logo */
             /* Deep Blue Blur */
             background: rgba(2, 18, 48, 0.85);
             backdrop-filter: blur(15px);
@@ -139,14 +139,19 @@
         .logo {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
             text-decoration: none;
             color: white;
             font-family: var(--font-head);
             font-weight: 700;
-            font-size: 1.4rem;
+            font-size: 2rem; /* Increased font size for fallback text */
         }
-        .logo img { height: 40px; width: auto; }
+        
+        /* --- LOGO SIZE ADJUSTMENT --- */
+        .logo img { 
+            height: 80px; /* Increased from 40px to 80px */
+            width: auto; 
+        }
 
         .social-nav { display: flex; gap: 16px; }
         .social-nav a {
@@ -174,7 +179,8 @@
             justify-content: center;
             text-align: center;
             position: relative;
-            padding-top: 80px;
+            /* Increased padding-top to account for the larger fixed navbar */
+            padding-top: 140px; 
         }
         
         .hero h1 {
