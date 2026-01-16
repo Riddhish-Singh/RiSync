@@ -532,14 +532,14 @@
             { name: "RiDiary", path: "RiDiary", desc: "Secure Journal", icon: "fa-book" },
             { name: "RiSlip", path: "ASVI_SLIP", desc: "Finance Tool", icon: "fa-file-invoice-dollar" },
             { name: "RiAppraisals", path: "ASVI-APPRAISALS", desc: "HR System", icon: "fa-chart-pie" },
-            { name: "RiGroundUp", path: "GroundUp", desc: "Startup Hub", icon: "fa-rocket" },
+            { name: "RiNature", path: "GroundUp", desc: "Startup Hub", icon: "fa-solid fa-leaf" },
             { name: "RiGenie", path: "Presentation-Genie", desc: "Slide Generator", icon: "fa-magic" },
             { name: "RiForm", path: "RiForm", desc: "Data Collection", icon: "fa-table" },
             { name: "RiCall", path: "RiCall", desc: "Video Comm", icon: "fa-phone-alt" },
             { name: "RiDesign", path: "RiDesign", desc: "UI Library", icon: "fa-pen-ruler" },
             { name: "RiQR", path: "RiQR", desc: "QR Generator", icon: "fa-qrcode" },
             { name: "RiEducate", path: "DCM-YES", desc: "School Portal", icon: "fa-graduation-cap" },
-            { name: "RiEcom", path: "G4U", desc: "Web Ecommerce", icon: "fa-gamepad" },
+            { name: "RiEcom", path: "G4U", desc: "Web Ecommerce", icon: "fa-solid fa-cart-shopping" },
             { name: "Riattend", path: "Proficient", desc: "Business Suite", icon: "fa-briefcase" }
         ];
 
@@ -558,14 +558,13 @@
                 const el = document.createElement('a');
                 
                 // --- Logic: Disable ALL links because they ALL start with "Ri" ---
-                const isRiProject = p.name.startsWith("Ri");
+                const isRiProject = p.name.startsWith("Ai");
                 
                 if (isRiProject) {
                     el.href = "javascript:void(0)"; 
                     el.className = 'app-card disabled-link'; 
                     el.title = "Access Restricted";
                 } else {
-                    el.href = `./${p.path}/index.html`;
                     el.className = 'app-card';
                 }
                 
