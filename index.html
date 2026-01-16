@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RiSync | The Portfolio of Riddhish Singh</title>
-    <meta name="description" content="Riddhish Singh: 11-Year-Old Frontend Developer, Author, and Founder of RiSync.">
+    <title>RiSync</title>
+    <meta name="description" content="RiSync: Built By A 11-Year-Old Frontend Developer, Author, and Founder of RiSync.">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,19 +13,23 @@
 
     <style>
         :root {
-            /* Theme: Deep Space & Google Blue */
-            --bg-void: #050505;
-            --bg-surface: #0f0f11;
-            --bg-card: #161618;
+            /* --- Theme: RiSync Logo Colors --- */
+            /* Background: Deep Royal Blue like the logo sphere */
+            --bg-void: #021230; 
+            --bg-surface: #051d45;
+            --bg-card: #0a2a61;
             
-            --border: rgba(255, 255, 255, 0.08);
-            --border-hover: rgba(66, 133, 244, 0.3);
+            /* Borders: Lighter blue/white mix */
+            --border: rgba(255, 255, 255, 0.12);
+            --border-hover: rgba(255, 136, 51, 0.5); /* Orange hover glow */
             
-            --accent: #4285F4;
-            --accent-glow: rgba(66, 133, 244, 0.4);
+            /* Accent: The Solar Orange from the logo center */
+            --accent: #FF8833;
+            --accent-secondary: #4da6ff; /* Lighter blue from 'RS' letters */
+            --accent-glow: rgba(255, 136, 51, 0.4);
             
             --text-main: #ffffff;
-            --text-muted: #9ca3af;
+            --text-muted: #a3b8d6; /* Blue-tinted grey for better harmony */
             
             --font-head: 'Space Grotesk', sans-serif;
             --font-body: 'Inter', sans-serif;
@@ -40,7 +44,16 @@
             font-family: var(--font-body);
             line-height: 1.6;
             overflow-x: hidden;
+            /* Subtle gradient background to mimic the logo sphere */
+            background-image: radial-gradient(circle at 50% 0%, #0a2a61 0%, var(--bg-void) 60%);
+            background-attachment: fixed;
         }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-void); }
+        ::-webkit-scrollbar-thumb { background: var(--bg-card); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
         /* --- Global Components --- */
         .container {
@@ -57,6 +70,7 @@
             font-weight: 600;
             margin-bottom: 16px;
             display: block;
+            text-shadow: 0 0 10px rgba(255, 136, 51, 0.3);
         }
 
         h2 {
@@ -64,6 +78,7 @@
             font-size: clamp(2rem, 5vw, 3rem);
             margin-bottom: 24px;
             line-height: 1.1;
+            color: white;
         }
 
         p { color: var(--text-muted); font-size: 1.1rem; }
@@ -75,22 +90,33 @@
             padding: 12px 28px;
             border-radius: 50px;
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 600;
             transition: all 0.3s ease;
             margin-top: 24px;
         }
 
+        /* Primary Button: Orange (Logo Accent) */
         .btn-primary {
-            background: var(--text-main);
-            color: var(--bg-void);
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 4px 20px var(--accent-glow);
         }
-        .btn-primary:hover { background: var(--accent); color: white; }
+        .btn-primary:hover { 
+            background: #ff9955; 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px var(--accent-glow);
+        }
 
         .btn-outline {
             border: 1px solid var(--border);
             color: var(--text-main);
+            background: rgba(255,255,255,0.02);
         }
-        .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+        .btn-outline:hover { 
+            border-color: var(--accent); 
+            color: var(--accent);
+            background: rgba(255, 136, 51, 0.05);
+        }
 
         /* --- Navigation --- */
         nav {
@@ -98,7 +124,8 @@
             top: 0; width: 100%;
             z-index: 100;
             padding: 20px 0;
-            background: rgba(5,5,5,0.8);
+            /* Deep Blue Blur */
+            background: rgba(2, 18, 48, 0.85);
             backdrop-filter: blur(15px);
             border-bottom: 1px solid var(--border);
         }
@@ -119,7 +146,7 @@
             font-weight: 700;
             font-size: 1.4rem;
         }
-        .logo img { height: 32px; width: auto; }
+        .logo img { height: 40px; width: auto; }
 
         .social-nav { display: flex; gap: 16px; }
         .social-nav a {
@@ -130,11 +157,13 @@
             color: var(--text-muted);
             text-decoration: none;
             transition: 0.3s;
+            background: rgba(255,255,255,0.03);
         }
         .social-nav a:hover {
             color: white;
             border-color: var(--accent);
-            background: rgba(66, 133, 244, 0.1);
+            background: var(--accent);
+            transform: translateY(-3px);
         }
 
         /* --- Hero --- */
@@ -154,10 +183,12 @@
             font-weight: 700;
             line-height: 1;
             margin-bottom: 24px;
-            background: linear-gradient(180deg, #fff 0%, #888 100%);
+            /* Gradient Text: White to Light Blue */
+            background: linear-gradient(180deg, #fff 0%, #8ebaff 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             animation: slideUp 0.8s ease-out;
+            text-shadow: 0 0 30px rgba(77, 166, 255, 0.3);
         }
 
         /* --- Sector Layout (Alternating Zig Zag) --- */
@@ -173,12 +204,11 @@
             align-items: center;
         }
 
-        /* Reverses order on even sections for visual zigzag */
         .split-section:nth-child(even) .split-grid {
-            direction: rtl; /* simple trick to swap columns */
+            direction: rtl; 
         }
         .split-section:nth-child(even) .split-grid > * {
-            direction: ltr; /* reset text direction inside */
+            direction: ltr; 
         }
 
         .visual-card {
@@ -190,21 +220,22 @@
             align-items: center;
             justify-content: center;
             font-size: 5rem;
-            color: var(--text-muted);
+            color: white;
             position: relative;
             overflow: hidden;
             transition: transform 0.5s ease;
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3);
         }
         
-        .visual-card:hover { transform: scale(1.02); }
+        .visual-card:hover { transform: scale(1.02); border-color: var(--accent); }
 
-        .visual-card i { z-index: 2; }
+        .visual-card i { z-index: 2; text-shadow: 0 10px 20px rgba(0,0,0,0.5); }
         
-        /* Gradients for visuals */
-        .visual-books { background: radial-gradient(circle at center, #2e1065 0%, var(--bg-card) 70%); }
+        /* Revised Gradients matching Logo Vibe (Blue Bases with Colored Glows) */
+        .visual-books { background: radial-gradient(circle at center, #5b21b6 0%, var(--bg-card) 70%); }
         .visual-yt { background: radial-gradient(circle at center, #991b1b 0%, var(--bg-card) 70%); }
-        .visual-li { background: radial-gradient(circle at center, #004e7c 0%, var(--bg-card) 70%); }
-        .visual-ig { background: radial-gradient(circle at center, #833ab4 0%, var(--bg-card) 70%); }
+        .visual-li { background: radial-gradient(circle at center, #0284c7 0%, var(--bg-card) 70%); }
+        .visual-ig { background: radial-gradient(circle at center, #be185d 0%, var(--bg-card) 70%); }
 
         /* --- App Matrix (Grid) --- */
         .matrix-section { padding: 100px 0; }
@@ -231,6 +262,11 @@
             border-radius: 12px;
             color: white;
             outline: none;
+            transition: 0.3s;
+        }
+        .search-box input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(255, 136, 51, 0.2);
         }
         .search-box i {
             position: absolute; right: 15px; top: 50%;
@@ -256,19 +292,35 @@
             justify-content: space-between;
             height: 200px;
             color: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Subtle gradient overlay on cards */
+        .app-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0) 100%);
+            pointer-events: none;
         }
 
         .app-card:not(.disabled-link):hover {
             border-color: var(--accent);
             transform: translateY(-5px);
-            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px -10px rgba(0, 20, 60, 0.5);
+        }
+        .app-card:not(.disabled-link):hover .icon-box {
+            background: var(--accent);
+            color: white;
         }
 
         /* Link disabled state */
         .disabled-link {
-            opacity: 0.5;
+            opacity: 0.6;
             cursor: not-allowed;
-            border-color: rgba(255,255,255,0.02);
+            background: rgba(10, 42, 97, 0.5);
+            border-color: transparent;
         }
 
         .icon-box {
@@ -278,6 +330,15 @@
             display: flex; align-items: center; justify-content: center;
             font-size: 1.2rem; color: var(--text-main);
             margin-bottom: 20px;
+            transition: 0.3s;
+        }
+
+        /* --- Philanthropy / Foundation Section --- */
+        .foundation-section {
+            background: linear-gradient(180deg, rgba(2, 18, 48, 0) 0%, rgba(5, 29, 69, 0.4) 100%);
+            padding: 80px 0;
+            text-align: center;
+            border-top: 1px solid var(--border);
         }
 
         /* --- Footer --- */
@@ -287,6 +348,7 @@
             text-align: center;
             color: var(--text-muted);
             font-size: 0.9rem;
+            background: rgba(2, 18, 48, 0.5);
         }
 
         /* Animations */
@@ -295,10 +357,10 @@
         /* Mobile */
         @media(max-width: 768px) {
             .split-grid { grid-template-columns: 1fr; }
-            .split-section:nth-child(even) .split-grid { direction: ltr; } /* Disable zig zag on mobile */
+            .split-section:nth-child(even) .split-grid { direction: ltr; } 
             .hero h1 { font-size: 3.5rem; }
             .matrix-header { flex-direction: column; align-items: flex-start; }
-            .visual-card { order: -1; margin-bottom: 20px; } /* Image always top on mobile */
+            .visual-card { order: -1; margin-bottom: 20px; }
         }
     </style>
 </head>
@@ -324,15 +386,15 @@
             <div style="margin-bottom: 20px; color: var(--accent); font-weight: 600; letter-spacing: 1px;">THE DIGITAL WORKSPACE OF</div>
             <h1>RiSync</h1>
             <p style="max-width: 600px; margin: 0 auto 40px;">
-                11-Year-Old <span id="typewriter" style="color: white; font-weight: 600;"></span><br>
+                Built By A 11-Year-Old <span id="typewriter" style="color: var(--accent-secondary); font-weight: 600;"></span><br>
                 Merging logic with imagination to build the future.
             </p>
             <a href="#author" class="btn btn-primary">Start The Journey <i class="fas fa-arrow-down"></i></a>
         </div>
         
-        <div style="position: absolute; top:0; left:0; width:100%; height:100%; z-index:-1; opacity: 0.5; overflow:hidden; pointer-events: none;">
-            <div style="position:absolute; top:20%; left:10%; width:300px; height:300px; background:var(--accent); filter:blur(150px); opacity:0.2;"></div>
-            <div style="position:absolute; bottom:20%; right:10%; width:400px; height:400px; background:#8b5cf6; filter:blur(150px); opacity:0.2;"></div>
+        <div style="position: absolute; top:0; left:0; width:100%; height:100%; z-index:-1; opacity: 0.6; overflow:hidden; pointer-events: none;">
+            <div style="position:absolute; top:20%; left:10%; width:300px; height:300px; background:var(--accent-secondary); filter:blur(150px); opacity:0.15;"></div>
+            <div style="position:absolute; bottom:20%; right:10%; width:400px; height:400px; background:var(--accent); filter:blur(150px); opacity:0.15;"></div>
         </div>
     </header>
 
@@ -432,6 +494,19 @@
 
             <div class="grid" id="grid">
                 </div>
+        </div>
+    </section>
+
+    <section class="foundation-section" id="charity">
+        <div class="container">
+            <span class="section-tag">Social Initiative</span>
+            <h2>Pledge a Smile Foundation</h2>
+            <p style="max-width: 600px; margin: 0 auto 30px;">
+                True innovation isn't just about technology; it's about lifting others up. Join me in supporting the Pledge a Smile Foundation to bring happiness, resources, and hope to those who need it most.
+            </p>
+            <a href="https://rzp.io/rzp/i0FjYQj" target="_blank" class="btn btn-primary">
+                Donate to Foundation <i class="fas fa-heart"></i>
+            </a>
         </div>
     </section>
 
