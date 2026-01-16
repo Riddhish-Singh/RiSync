@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RiQuiz - Book a Demo</title>
+    <style>
+        /* CSS Reset and Base Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body, html {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Container for the Full Screen Image */
+        .hero-section {
+            /* The image file must be in the same directory */
+            background-image: url('RiQuiz-html.png');
+            
+            /* Full screen height */
+            height: 100vh;
+            width: 100%;
+
+            /* Center and scale the image */
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            
+            /* Fallback color if image is missing */
+            background-color: #f0f0f0;
+
+            /* Flexbox to center the button */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
+            /* Relative positioning for any potential overlays */
+            position: relative;
+        }
+
+        /* Button Styling */
+        .book-demo-btn {
+            background-color: #0077b5; /* LinkedIn Blue style */
+            color: white;
+            padding: 15px 35px;
+            font-size: 18px;
+            font-weight: bold;
+            text-decoration: none; /* Remove underline from link */
+            border-radius: 50px; /* Rounded pill shape */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 2px solid transparent;
+        }
+
+        /* Button Hover Effects */
+        .book-demo-btn:hover {
+            background-color: #004182;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Button Active/Click Effect */
+        .book-demo-btn:active {
+            transform: translateY(1px);
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 600px) {
+            .book-demo-btn {
+                padding: 12px 25px;
+                font-size: 16px;
+                width: 80%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hero-section" id="hero">
+        <a href="https://in.linkedin.com/in/riddhish-singh-075324368" 
+           class="book-demo-btn" 
+           target="_blank" 
+           id="demoButton">
+           Book A Demo
+        </a>
+    </div>
+
+    <script>
+        // JS Functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const btn = document.getElementById('demoButton');
+            
+            // Log to console to verify loading
+            console.log('RiQuiz Landing Page Loaded');
+
+            // Optional: Add a subtle click tracking or alert if needed
+            btn.addEventListener('click', function(e) {
+                console.log('User clicked "Book A Demo"');
+                // The link will open naturally in a new tab due to target="_blank"
+            });
+        });
+    </script>
+
+</body>
+</html>
