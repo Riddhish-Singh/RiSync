@@ -13,399 +13,305 @@
 
     <style>
         :root {
-            /* Theme Tokens: "Obsidian & Starlight" */
-            --bg-void: #000000;
-            --bg-surface: #0e0e11;
-            --bg-surface-light: #18181b;
+            /* Theme: Deep Space & Google Blue */
+            --bg-void: #050505;
+            --bg-surface: #0f0f11;
+            --bg-card: #161618;
             
-            --border-dim: rgba(255, 255, 255, 0.08);
-            --border-glow: rgba(255, 255, 255, 0.15);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(66, 133, 244, 0.3);
             
-            --accent-blue: #4285F4; /* Google Blue */
-            --accent-violet: #A142F4;
-            --accent-teal: #24C1E0;
+            --accent: #4285F4;
+            --accent-glow: rgba(66, 133, 244, 0.4);
             
-            --text-primary: #ffffff;
-            --text-secondary: #9aa0a6;
-            --text-tertiary: #5f6368;
-
-            --font-display: 'Space Grotesk', sans-serif;
+            --text-main: #ffffff;
+            --text-muted: #9ca3af;
+            
+            --font-head: 'Space Grotesk', sans-serif;
             --font-body: 'Inter', sans-serif;
-            
-            --radius-xl: 32px;
-            --radius-lg: 20px;
         }
 
-        /* --- Base Setup --- */
+        /* Base & Reset */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             background-color: var(--bg-void);
-            color: var(--text-primary);
+            color: var(--text-main);
             font-family: var(--font-body);
             line-height: 1.6;
             overflow-x: hidden;
         }
 
-        /* --- Dynamic Grain Background --- */
-        .noise-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
-            opacity: 0.07;
-            z-index: -1;
-            pointer-events: none;
+        /* --- Global Components --- */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
         }
 
-        .ambient-glow {
-            position: fixed;
-            top: -20%; right: -10%;
-            width: 800px; height: 800px;
-            background: radial-gradient(circle, rgba(66, 133, 244, 0.15) 0%, transparent 70%);
-            filter: blur(80px);
-            z-index: -2;
-            animation: pulseGlow 10s infinite alternate;
+        .section-tag {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: block;
         }
+
+        h2 {
+            font-family: var(--font-head);
+            font-size: clamp(2rem, 5vw, 3rem);
+            margin-bottom: 24px;
+            line-height: 1.1;
+        }
+
+        p { color: var(--text-muted); font-size: 1.1rem; }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 28px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-top: 24px;
+        }
+
+        .btn-primary {
+            background: var(--text-main);
+            color: var(--bg-void);
+        }
+        .btn-primary:hover { background: var(--accent); color: white; }
+
+        .btn-outline {
+            border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+        .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
 
         /* --- Navigation --- */
         nav {
             position: fixed;
-            top: 0; left: 0; width: 100%;
-            padding: 24px 0;
-            z-index: 50;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border-dim);
+            top: 0; width: 100%;
+            z-index: 100;
+            padding: 20px 0;
+            background: rgba(5,5,5,0.8);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border);
         }
 
-        .nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 24px;
+        .nav-inner {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .brand-box {
+        .logo {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             text-decoration: none;
             color: white;
-        }
-
-        .brand-box img {
-            height: 36px;
-            width: auto;
-        }
-
-        .brand-text {
-            font-family: var(--font-display);
+            font-family: var(--font-head);
             font-weight: 700;
             font-size: 1.4rem;
-            letter-spacing: -0.02em;
+        }
+        .logo img { height: 32px; width: auto; }
+
+        .social-nav { display: flex; gap: 16px; }
+        .social-nav a {
+            width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .social-nav a:hover {
+            color: white;
+            border-color: var(--accent);
+            background: rgba(66, 133, 244, 0.1);
         }
 
-        .nav-socials {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .nav-socials a {
-            color: var(--text-secondary);
-            font-size: 1.2rem;
-            transition: all 0.3s ease;
-        }
-
-        .nav-socials a:hover {
-            color: var(--text-primary);
-            transform: translateY(-2px);
-            text-shadow: 0 0 10px rgba(255,255,255,0.5);
-        }
-
-        /* --- Hero Section --- */
+        /* --- Hero --- */
         .hero {
             min-height: 90vh;
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 120px 24px 60px;
             position: relative;
+            padding-top: 80px;
         }
-
-        .hero-content h1 {
-            font-family: var(--font-display);
-            font-size: clamp(3rem, 10vw, 6.5rem);
-            line-height: 1;
+        
+        .hero h1 {
+            font-family: var(--font-head);
+            font-size: clamp(3.5rem, 10vw, 7rem);
             font-weight: 700;
-            letter-spacing: -0.04em;
+            line-height: 1;
             margin-bottom: 24px;
-            background: linear-gradient(180deg, #FFFFFF 0%, #7d7d7d 100%);
+            background: linear-gradient(180deg, #fff 0%, #888 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            animation: fadeUp 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+            animation: slideUp 0.8s ease-out;
         }
 
-        .hero-subtitle {
-            font-size: clamp(1.1rem, 2.5vw, 1.5rem);
-            color: var(--text-secondary);
-            max-width: 700px;
-            margin: 0 auto 40px;
-            animation: fadeUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s backwards;
+        /* --- Sector Layout (Alternating Zig Zag) --- */
+        .split-section {
+            padding: 80px 0;
+            border-bottom: 1px solid var(--border);
         }
-
-        .pill-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 6px 16px;
-            background: rgba(255,255,255,0.08);
-            border: 1px solid var(--border-dim);
-            border-radius: 100px;
-            font-size: 0.85rem;
-            color: var(--accent-blue);
-            margin-bottom: 30px;
-            animation: fadeIn 1s ease 0.5s backwards;
-        }
-
-        /* --- Section 2: DEFINING RIDDHISH (The Bio) --- */
-        .profile-section {
-            padding: 100px 0;
-            border-top: 1px solid var(--border-dim);
-            border-bottom: 1px solid var(--border-dim);
-            background: var(--bg-surface);
-        }
-
-        .profile-grid {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 24px;
+        
+        .split-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 60px;
+            gap: 80px;
             align-items: center;
         }
 
-        .profile-text h2 {
-            font-family: var(--font-display);
-            font-size: 3rem;
-            margin-bottom: 24px;
-            line-height: 1.1;
+        /* Reverses order on even sections for visual zigzag */
+        .split-section:nth-child(even) .split-grid {
+            direction: rtl; /* simple trick to swap columns */
+        }
+        .split-section:nth-child(even) .split-grid > * {
+            direction: ltr; /* reset text direction inside */
         }
 
-        .profile-text p {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            margin-bottom: 30px;
-            text-align: justify;
-        }
-
-        .stats-row {
+        .visual-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            aspect-ratio: 16/9;
             display: flex;
-            gap: 40px;
-            margin-top: 40px;
-        }
-
-        .stat-item h4 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--accent-blue);
-            font-family: var(--font-display);
-        }
-        .stat-item span {
-            font-size: 0.9rem;
-            color: var(--text-tertiary);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .profile-card {
-            background: var(--bg-surface-light);
-            border: 1px solid var(--border-dim);
-            border-radius: var(--radius-xl);
-            padding: 40px;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            color: var(--text-muted);
             position: relative;
             overflow: hidden;
+            transition: transform 0.5s ease;
         }
         
-        /* Decorative code splash */
-        .code-splash {
-            font-family: 'Courier New', monospace;
-            font-size: 0.8rem;
-            color: rgba(255,255,255,0.05);
-            position: absolute;
-            top: 20px; right: 20px;
-            text-align: right;
-            pointer-events: none;
-        }
+        .visual-card:hover { transform: scale(1.02); }
 
-        .skill-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 20px;
-        }
+        .visual-card i { z-index: 2; }
         
-        .tag {
-            padding: 8px 16px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--border-dim);
-            border-radius: 8px;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
+        /* Gradients for visuals */
+        .visual-books { background: radial-gradient(circle at center, #2e1065 0%, var(--bg-card) 70%); }
+        .visual-yt { background: radial-gradient(circle at center, #991b1b 0%, var(--bg-card) 70%); }
+        .visual-li { background: radial-gradient(circle at center, #004e7c 0%, var(--bg-card) 70%); }
+        .visual-ig { background: radial-gradient(circle at center, #833ab4 0%, var(--bg-card) 70%); }
 
-        /* --- Section 3: Projects --- */
-        .projects-section {
-            padding: 100px 0;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .controls {
+        /* --- App Matrix (Grid) --- */
+        .matrix-section { padding: 100px 0; }
+        
+        .matrix-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
-            margin-bottom: 50px;
-            padding: 0 24px;
+            margin-bottom: 40px;
             flex-wrap: wrap;
             gap: 20px;
         }
 
-        .search-bar {
+        .search-box {
             position: relative;
-            width: 300px;
-        }
-        
-        .search-bar input {
             width: 100%;
-            background: var(--bg-surface-light);
-            border: 1px solid var(--border-dim);
-            padding: 14px 20px 14px 45px;
+            max-width: 320px;
+        }
+        .search-box input {
+            width: 100%;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 14px 45px 14px 20px;
             border-radius: 12px;
             color: white;
             outline: none;
-            transition: 0.3s;
         }
-        
-        .search-bar input:focus {
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 0 4px rgba(66, 133, 244, 0.1);
-        }
-
-        .search-bar i {
-            position: absolute;
-            left: 18px; top: 50%;
+        .search-box i {
+            position: absolute; right: 15px; top: 50%;
             transform: translateY(-50%);
-            color: var(--text-tertiary);
+            color: var(--text-muted);
         }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 24px;
-            padding: 0 24px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
         }
 
-        .card {
-            background: var(--bg-surface);
-            border: 1px solid var(--border-dim);
-            border-radius: var(--radius-lg);
-            padding: 30px;
+        .app-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            text-decoration: none;
+            transition: all 0.3s;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            height: 260px;
-            text-decoration: none;
-            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            position: relative;
-            overflow: hidden;
+            height: 200px;
+            color: inherit;
         }
 
-        .card:hover {
-            transform: translateY(-8px);
-            background: var(--bg-surface-light);
-            border-color: var(--border-glow);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        .app-card:not(.disabled-link):hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
         }
 
-        .card-icon {
-            width: 50px; height: 50px;
-            background: rgba(255,255,255,0.03);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.4rem;
-            color: var(--text-primary);
+        /* Link disabled state */
+        .disabled-link {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: rgba(255,255,255,0.02);
+        }
+
+        .icon-box {
+            width: 48px; height: 48px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; color: var(--text-main);
             margin-bottom: 20px;
-        }
-
-        .card h3 {
-            font-family: var(--font-display);
-            font-size: 1.4rem;
-            margin-bottom: 8px;
-            color: var(--text-primary);
-        }
-
-        .card p {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        .card-arrow {
-            position: absolute;
-            bottom: 30px; right: 30px;
-            opacity: 0;
-            transform: translateX(-10px);
-            transition: 0.3s;
-            color: var(--accent-blue);
-        }
-
-        .card:hover .card-arrow {
-            opacity: 1;
-            transform: translateX(0);
         }
 
         /* --- Footer --- */
         footer {
+            border-top: 1px solid var(--border);
+            padding: 60px 0;
             text-align: center;
-            padding: 80px 0;
-            border-top: 1px solid var(--border-dim);
-            color: var(--text-tertiary);
+            color: var(--text-muted);
             font-size: 0.9rem;
         }
 
         /* Animations */
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes pulseGlow { 0% { opacity: 0.3; } 100% { opacity: 0.6; } }
-
-        /* Responsive */
-        @media(max-width: 900px) {
-            .profile-grid { grid-template-columns: 1fr; }
-            .hero-content h1 { font-size: 3.5rem; }
-            .controls { flex-direction: column; align-items: flex-start; }
-            .search-bar { width: 100%; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Mobile */
+        @media(max-width: 768px) {
+            .split-grid { grid-template-columns: 1fr; }
+            .split-section:nth-child(even) .split-grid { direction: ltr; } /* Disable zig zag on mobile */
+            .hero h1 { font-size: 3.5rem; }
+            .matrix-header { flex-direction: column; align-items: flex-start; }
+            .visual-card { order: -1; margin-bottom: 20px; } /* Image always top on mobile */
         }
     </style>
 </head>
 <body>
 
-    <div class="noise-overlay"></div>
-    <div class="ambient-glow"></div>
-
     <nav>
-        <div class="nav-container">
-            <a href="#" class="brand-box">
-                <img src="logo.png" alt="RiSync Logo" onerror="this.style.display='none'; document.getElementById('logo-text').style.display='block'">
-                <span id="logo-text" class="brand-text" style="display:none">RiSync.</span>
+        <div class="container nav-inner">
+            <a href="#" class="logo">
+                <img src="logo.png" alt="RiSync" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+                <span style="display:none">RiSync.</span>
             </a>
-            
-            <div class="nav-socials">
-                <a href="https://in.linkedin.com/in/riddhish-singh-075324368" target="_blank" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+            <div class="social-nav">
+                <a href="https://in.linkedin.com/in/riddhish-singh-075324368" target="_blank" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
                 <a href="https://www.youtube.com/@RiSync" target="_blank" title="YouTube"><i class="fab fa-youtube"></i></a>
                 <a href="https://www.instagram.com/risyncp2p/" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
                 <a href="https://www.bribooks.com/author/riddhish-singh/" target="_blank" title="My Books"><i class="fas fa-book-open"></i></a>
@@ -413,179 +319,211 @@
         </div>
     </nav>
 
-    <section class="hero">
-        <div class="hero-content">
-            <div class="pill-badge">v3.0 System Online</div>
-            <h1>Riddhish Singh</h1>
-            <p class="hero-subtitle">
-                The Architect of <span style="color: white; font-weight: 600;">RiSync</span>. <br>
-                11-Year-Old <span id="typewriter" style="color: var(--accent-blue);"></span>
+    <header class="hero">
+        <div class="container">
+            <div style="margin-bottom: 20px; color: var(--accent); font-weight: 600; letter-spacing: 1px;">THE DIGITAL WORKSPACE OF</div>
+            <h1>RiSync</h1>
+            <p style="max-width: 600px; margin: 0 auto 40px;">
+                11-Year-Old <span id="typewriter" style="color: white; font-weight: 600;"></span><br>
+                Merging logic with imagination to build the future.
             </p>
-            <a href="#profile" style="text-decoration: none; color: white; border-bottom: 1px solid var(--text-secondary); padding-bottom: 4px; font-size: 0.9rem;">Read Bio &darr;</a>
+            <a href="#author" class="btn btn-primary">Start The Journey <i class="fas fa-arrow-down"></i></a>
         </div>
-    </section>
+        
+        <div style="position: absolute; top:0; left:0; width:100%; height:100%; z-index:-1; opacity: 0.5; overflow:hidden; pointer-events: none;">
+            <div style="position:absolute; top:20%; left:10%; width:300px; height:300px; background:var(--accent); filter:blur(150px); opacity:0.2;"></div>
+            <div style="position:absolute; bottom:20%; right:10%; width:400px; height:400px; background:#8b5cf6; filter:blur(150px); opacity:0.2;"></div>
+        </div>
+    </header>
 
-    <section id="profile" class="profile-section">
-        <div class="profile-grid">
-            <div class="profile-text">
-                <h2>Defining the Creator</h2>
-                <p>
-                    I am not just writing code; I am building ecosystems. At <strong>11 years old</strong>, I bridge the gap between creative imagination and functional engineering.
-                </p>
-                <p>
-                    Based in India, I founded <strong>RiSync</strong> with a singular vision: to create a unified digital workspace where tools communicate seamlessly. From authoring the <em>"Me and My Rocket"</em> series to deploying complex web applications, my work is defined by a relentless pursuit of innovation.
-                </p>
-                
-                <div class="stats-row">
-                    <div class="stat-item">
-                        <h4>11</h4>
-                        <span>Years Old</span>
-                    </div>
-                    <div class="stat-item">
-                        <h4>15+</h4>
-                        <span>Projects</span>
-                    </div>
-                    <div class="stat-item">
-                        <h4>5</h4>
-                        <span>Books</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="profile-card">
-                <div class="code-splash">
-                    const creator = {<br>
-                    &nbsp;&nbsp;name: "Riddhish",<br>
-                    &nbsp;&nbsp;role: "Founder",<br>
-                    &nbsp;&nbsp;vision: "Infinite"<br>
-                    };
-                </div>
-                <h3 style="font-family: var(--font-display); font-size: 1.5rem; margin-bottom: 20px;">Technical Arsenal</h3>
-                <p style="color: var(--text-secondary); margin-bottom: 20px;">Tools used to build the RiSync Ecosystem:</p>
-                
-                <div class="skill-tags">
-                    <div class="tag"><i class="fab fa-html5"></i> HTML5</div>
-                    <div class="tag"><i class="fab fa-css3-alt"></i> CSS3</div>
-                    <div class="tag"><i class="fab fa-js"></i> JavaScript</div>
-                    <div class="tag"><i class="fas fa-brain"></i> AI Integration</div>
-                    <div class="tag"><i class="fas fa-pen-fancy"></i> Creative Writing</div>
-                    <div class="tag"><i class="fas fa-mobile-alt"></i> UI/UX Design</div>
-                </div>
-                
-                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border-dim);">
-                    <a href="https://www.bribooks.com/author/riddhish-singh/" target="_blank" style="color: var(--accent-blue); text-decoration: none; font-weight: 500;">
-                        <i class="fas fa-book-open"></i> View Published Books
+    <section class="split-section" id="author">
+        <div class="container">
+            <div class="split-grid">
+                <div>
+                    <span class="section-tag">Literary Works</span>
+                    <h2>The Author</h2>
+                    <p>
+                        Writing is the source code of imagination. I am the author of the <strong>"Me and My Rocket"</strong> series and other titles available globally. My stories blend adventure with curiosity, distributed on BriBooks.
+                    </p>
+                    <a href="https://www.bribooks.com/author/riddhish-singh/" target="_blank" class="btn btn-outline">
+                        Read My Books <i class="fas fa-external-link-alt"></i>
                     </a>
                 </div>
+                <div class="visual-card visual-books">
+                    <i class="fas fa-book-open"></i>
+                </div>
             </div>
         </div>
     </section>
 
-    <section class="projects-section">
-        <div class="controls">
-            <div>
-                <h2 style="font-family: var(--font-display); font-size: 2rem;">The Matrix</h2>
-                <p style="color: var(--text-tertiary);">Explore the modules of the RiSync ecosystem.</p>
-            </div>
-            <div class="search-bar">
-                <i class="fas fa-search"></i>
-                <input type="text" id="searchInput" placeholder="Search modules...">
+    <section class="split-section" id="creator">
+        <div class="container">
+            <div class="split-grid">
+                <div>
+                    <span class="section-tag">Content & Animation</span>
+                    <h2>The Creator</h2>
+                    <p>
+                        From cartoons to tech demonstrations, the <strong>RiSync YouTube Channel</strong> is where I visualize ideas. I produce animated episodes, development logs, and tutorials documenting my coding journey.
+                    </p>
+                    <a href="https://www.youtube.com/@RiSync" target="_blank" class="btn btn-outline">
+                        Watch Channel <i class="fab fa-youtube"></i>
+                    </a>
+                </div>
+                <div class="visual-card visual-yt">
+                    <i class="fab fa-youtube"></i>
+                </div>
             </div>
         </div>
+    </section>
 
-        <div class="grid" id="grid">
+    <section class="split-section" id="network">
+        <div class="container">
+            <div class="split-grid">
+                <div>
+                    <span class="section-tag">Professional Network</span>
+                    <h2>The Founder</h2>
+                    <p>
+                        Connect with me on <strong>LinkedIn</strong>. This is where I share my professional milestones, startup updates for RiSync, and engage with the broader tech community. I believe in building in public and learning from industry leaders.
+                    </p>
+                    <a href="https://in.linkedin.com/in/riddhish-singh-075324368" target="_blank" class="btn btn-outline">
+                        Connect on LinkedIn <i class="fab fa-linkedin"></i>
+                    </a>
+                </div>
+                <div class="visual-card visual-li">
+                    <i class="fab fa-linkedin-in"></i>
+                </div>
             </div>
+        </div>
+    </section>
+
+    <section class="split-section" id="social">
+        <div class="container">
+            <div class="split-grid">
+                <div>
+                    <span class="section-tag">Social Hub</span>
+                    <h2>The Community</h2>
+                    <p>
+                        Follow <strong>@risyncp2p</strong> on Instagram for the behind-the-scenes look at my workspace. Get daily updates on what I'm building, quick coding tips, and sneak peeks of upcoming books and tools.
+                    </p>
+                    <a href="https://www.instagram.com/risyncp2p/" target="_blank" class="btn btn-outline">
+                        Follow on Instagram <i class="fab fa-instagram"></i>
+                    </a>
+                </div>
+                <div class="visual-card visual-ig">
+                    <i class="fab fa-instagram"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="matrix-section" id="matrix">
+        <div class="container">
+            <div class="matrix-header">
+                <div>
+                    <span class="section-tag">Development</span>
+                    <h2>Innovation Matrix</h2>
+                    <p>The full stack of RiSync applications and tools.</p>
+                </div>
+                <div class="search-box">
+                    <input type="text" id="search" placeholder="Filter projects...">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+
+            <div class="grid" id="grid">
+                </div>
+        </div>
     </section>
 
     <footer>
-        <p>&copy; 2026 Riddhish Singh. Engineered for the Future.</p>
+        <div class="container">
+            <p>&copy; 2026 Riddhish Singh. All Rights Reserved. <br> Powered by RiSync.</p>
+        </div>
     </footer>
 
     <script>
-        // --- Project Data ---
+        // --- Configuration: ALL projects now start with "Ri" ---
         const projects = [
-            { name: "RiArt", path: "RiArt", desc: "Digital Creativity Suite", icon: "fa-palette" },
-            { name: "RiBot", path: "RiBot", desc: "AI Conversational Agent", icon: "fa-robot" },
-            { name: "RiQuiz", path: "RiQuiz", desc: "Interactive Learning", icon: "fa-brain" },
-            { name: "RiResume", path: "RiResume", desc: "Portfolio Generator", icon: "fa-id-badge" },
-            { name: "RiDiary", path: "RiDiary", desc: "Personal Encrypted Journal", icon: "fa-book" },
-            { name: "ASVI Slip", path: "ASVI_SLIP", desc: "Financial Record System", icon: "fa-file-invoice-dollar" },
-            { name: "ASVI Appraisals", path: "ASVI-APPRAISALS", desc: "HR Management Tool", icon: "fa-chart-pie" },
-            { name: "GroundUp", path: "GroundUp", desc: "Startup Resources", icon: "fa-rocket" },
-            { name: "Presentation Genie", path: "Presentation-Genie", desc: "AI Slide Creator", icon: "fa-magic" },
-            { name: "RiForm", path: "RiForm", desc: "Data Collection Engine", icon: "fa-table" },
-            { name: "RiCall", path: "RiCall", desc: "Communication Hub", icon: "fa-phone-alt" },
-            { name: "RiDesign", path: "RiDesign", desc: "UI/UX Design System", icon: "fa-pen-ruler" },
-            { name: "RiQR", path: "RiQR", desc: "QR Code Utility", icon: "fa-qrcode" },
-            { name: "DCM YES", path: "DCM-YES", desc: "Educational Portal", icon: "fa-graduation-cap" },
-            { name: "G4U", path: "G4U", desc: "Gaming Interface", icon: "fa-gamepad" },
-            { name: "Proficient", path: "Proficient", desc: "Business Logic", icon: "fa-briefcase" }
+            { name: "RiArt", path: "RiArt", desc: "Digital Art Canvas", icon: "fa-palette" },
+            { name: "RiBot", path: "RiBot", desc: "AI Assistant", icon: "fa-robot" },
+            { name: "RiQuiz", path: "RiQuiz", desc: "Knowledge Engine", icon: "fa-brain" },
+            { name: "RiResume", path: "RiResume", desc: "CV Builder", icon: "fa-id-badge" },
+            { name: "RiDiary", path: "RiDiary", desc: "Secure Journal", icon: "fa-book" },
+            { name: "RiSlip", path: "ASVI_SLIP", desc: "Finance Tool", icon: "fa-file-invoice-dollar" },
+            { name: "RiAppraisals", path: "ASVI-APPRAISALS", desc: "HR System", icon: "fa-chart-pie" },
+            { name: "RiGroundUp", path: "GroundUp", desc: "Startup Hub", icon: "fa-rocket" },
+            { name: "RiGenie", path: "Presentation-Genie", desc: "Slide Generator", icon: "fa-magic" },
+            { name: "RiForm", path: "RiForm", desc: "Data Collection", icon: "fa-table" },
+            { name: "RiCall", path: "RiCall", desc: "Video Comm", icon: "fa-phone-alt" },
+            { name: "RiDesign", path: "RiDesign", desc: "UI Library", icon: "fa-pen-ruler" },
+            { name: "RiQR", path: "RiQR", desc: "QR Generator", icon: "fa-qrcode" },
+            { name: "RiEducate", path: "DCM-YES", desc: "School Portal", icon: "fa-graduation-cap" },
+            { name: "RiEcom", path: "G4U", desc: "Web Ecommerce", icon: "fa-gamepad" },
+            { name: "Riattend", path: "Proficient", desc: "Business Suite", icon: "fa-briefcase" }
         ];
 
-        // --- Grid Renderer ---
+        // --- Render Logic ---
         const grid = document.getElementById('grid');
-        const searchInput = document.getElementById('searchInput');
+        const search = document.getElementById('search');
 
-        function renderProjects(filter = '') {
+        function render(filter = '') {
             grid.innerHTML = '';
-            const filtered = projects.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()));
-            
-            filtered.forEach((p, idx) => {
-                const card = document.createElement('a');
-                card.href = `./${p.path}/index.html`;
-                card.className = 'card';
-                card.style.animation = `fadeUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) backwards ${idx * 0.05}s`;
+            const filtered = projects.filter(p => 
+                p.name.toLowerCase().includes(filter.toLowerCase()) || 
+                p.desc.toLowerCase().includes(filter.toLowerCase())
+            );
+
+            filtered.forEach((p, i) => {
+                const el = document.createElement('a');
                 
-                card.innerHTML = `
+                // --- Logic: Disable ALL links because they ALL start with "Ri" ---
+                const isRiProject = p.name.startsWith("Ri");
+                
+                if (isRiProject) {
+                    el.href = "javascript:void(0)"; 
+                    el.className = 'app-card disabled-link'; 
+                    el.title = "Access Restricted";
+                } else {
+                    el.href = `./${p.path}/index.html`;
+                    el.className = 'app-card';
+                }
+                
+                el.style.animation = `slideUp 0.5s ease-out backwards ${i * 0.05}s`;
+                
+                // Lock icon if disabled
+                const actionIcon = isRiProject ? 'fa-lock' : 'fa-arrow-right';
+
+                el.innerHTML = `
                     <div>
-                        <div class="card-icon">
-                            <i class="fas ${p.icon}"></i>
-                        </div>
-                        <h3>${p.name}</h3>
-                        <p>${p.desc}</p>
+                        <div class="icon-box"><i class="fas ${p.icon}"></i></div>
+                        <h3 style="font-family:var(--font-head); margin-bottom:5px;">${p.name}</h3>
+                        <p style="font-size:0.9rem;">${p.desc}</p>
                     </div>
-                    <div class="card-arrow">
-                        <i class="fas fa-arrow-right"></i>
+                    <div style="text-align:right; color:var(--accent); font-size:0.9rem;">
+                        <i class="fas ${actionIcon}"></i>
                     </div>
                 `;
-                grid.appendChild(card);
+                grid.appendChild(el);
             });
-            
-            if(filtered.length === 0) {
-                grid.innerHTML = '<p style="color:gray">System: No matching modules found.</p>';
-            }
+
+            if(filtered.length === 0) grid.innerHTML = `<p style="grid-column:1/-1; text-align:center;">No projects found.</p>`;
         }
 
-        searchInput.addEventListener('input', (e) => renderProjects(e.target.value));
-        renderProjects();
+        search.addEventListener('input', e => render(e.target.value));
+        render();
 
         // --- Typewriter ---
         const typeSpan = document.getElementById('typewriter');
-        const roles = ["Frontend Developer", "Published Author", "Founder", "Visionary"];
-        let roleIdx = 0;
-        let charIdx = 0;
-        let isDeleting = false;
+        const txts = ["Developer", "Author", "Founder", "Visionary"];
+        let tIdx = 0, cIdx = 0, isDel = false;
 
         function type() {
-            const currentRole = roles[roleIdx];
-            if(isDeleting) {
-                typeSpan.innerText = currentRole.substring(0, charIdx - 1);
-                charIdx--;
-            } else {
-                typeSpan.innerText = currentRole.substring(0, charIdx + 1);
-                charIdx++;
-            }
-
-            if(!isDeleting && charIdx === currentRole.length) {
-                isDeleting = true;
-                setTimeout(type, 2000);
-            } else if(isDeleting && charIdx === 0) {
-                isDeleting = false;
-                roleIdx = (roleIdx + 1) % roles.length;
-                setTimeout(type, 500);
-            } else {
-                setTimeout(type, isDeleting ? 50 : 100);
-            }
+            let txt = txts[tIdx];
+            typeSpan.innerText = txt.substring(0, isDel ? cIdx-- : cIdx++);
+            
+            if(!isDel && cIdx === txt.length + 1) { isDel = true; setTimeout(type, 2000); }
+            else if(isDel && cIdx === 0) { isDel = false; tIdx = (tIdx+1)%txts.length; setTimeout(type, 500); }
+            else setTimeout(type, isDel ? 50 : 100);
         }
         type();
     </script>
