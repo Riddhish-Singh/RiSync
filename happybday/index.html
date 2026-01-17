@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday | risync.in</title>
+    
+    <!-- Dependencies -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- Configuration & Theme -->
+    <script>
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        mono: ['Space Grotesk', 'monospace'],
+                    },
+                    colors: {
+                        space: { 900: '#0B0C15', 800: '#151725', 700: '#232640' },
+                        neon: {
+                            blue: '#4FACFE',
+                            purple: '#A855F7',
+                            orange: '#FF8C42',
+                            green: '#00F260',
+                        }
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'float-delayed': 'float 6s ease-in-out 3s infinite',
+                        'pulse-glow': 'pulseGlow 2s infinite',
+                        'spin-slow': 'spin 12s linear infinite',
+                        'bounce-slight': 'bounceSlight 2s infinite',
+                        'breathe': 'breathe 4s ease-in-out infinite',
+                        'type-line': 'typeLine 2s steps(40, end) infinite',
+                        'vibrate': 'vibrate 0.1s linear infinite',
+                        'wave': 'wave 1.2s ease-in-out infinite',
+                        'bounce-playful': 'bouncePlayful 0.8s infinite',
+                        'scroll-pulse': 'scrollPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { boxShadow: '0 0 10px rgba(79, 172, 254, 0.5)' },
+                            '50%': { boxShadow: '0 0 25px rgba(79, 172, 254, 0.8)' },
+                        },
+                        bounceSlight: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-5px)' },
+                        },
+                        breathe: {
+                            '0%, 100%': { transform: 'scale(1)', opacity: '0.5' },
+                            '50%': { transform: 'scale(1.5)', opacity: '0.2' },
+                        },
+                        vibrate: {
+                            '0%, 100%': { transform: 'translate(0, 0) rotate(45deg)' },
+                            '25%': { transform: 'translate(0.5px, -0.5px) rotate(45deg)' },
+                            '50%': { transform: 'translate(-0.5px, 0.5px) rotate(45deg)' },
+                            '75%': { transform: 'translate(0.5px, 0.5px) rotate(45deg)' },
+                        },
+                        wave: {
+                            '0%, 100%': { transform: 'translateY(6px)' },
+                            '50%': { transform: 'translateY(-6px)' },
+                        },
+                        bouncePlayful: {
+                            '0%, 100%': { transform: 'translateY(-60px)', animationTimingFunction: 'cubic-bezier(0.8, 0, 1, 1)' },
+                            '50%': { transform: 'translateY(0)', animationTimingFunction: 'cubic-bezier(0, 0, 0.2, 1)' },
+                        },
+                        scrollPulse: {
+                            '0%, 100%': { opacity: '0.1' },
+                            '50%': { opacity: '1' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Core Layout */
+        body {
+            background-color: #0B0C15;
+            overflow-x: hidden;
+            overflow-y: auto;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        ::-webkit-scrollbar { display: none; }
+
+        /* Stars Animation */
+        #star-container {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle var(--duration) ease-in-out infinite;
+            animation-delay: var(--delay);
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.1; transform: scale(0.8); box-shadow: 0 0 0px rgba(255,255,255,0); }
+            50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 4px rgba(255,255,255,0.8); }
+            100% { opacity: 0.1; transform: scale(0.8); box-shadow: 0 0 0px rgba(255,255,255,0); }
+        }
+
+        /* Space Whizz Animation */
+        .whizz-particle {
+            position: absolute;
+            background: white;
+            border-radius: 2px;
+            opacity: 0;
+            pointer-events: none;
+            animation: spaceWhizz var(--duration) linear infinite;
+        }
+
+        @keyframes spaceWhizz {
+            0% { 
+                left: 120%; /* Start off-screen right */
+                top: var(--start-y);
+                transform: scale(0); 
+                opacity: 0; 
+            }
+            10% { opacity: 0.8; }
+            100% { 
+                left: -20%; /* Go past left edge */
+                top: var(--end-y);
+                transform: scale(1.5); 
+                opacity: 0; 
+            }
+        }
+
+        /* UI Components */
+        .glass-card {
+            background: rgba(21, 23, 37, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .glass-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(79, 172, 254, 0.5);
+            background: rgba(21, 23, 37, 0.8);
+            box-shadow: 0 15px 35px -10px rgba(79, 172, 254, 0.3);
+        }
+
+        .gradient-text-honey {
+            background: linear-gradient(to right, #FFB75E, #ED8F03);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Typing Animation */
+        .typing-line {
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            margin-bottom: 6px;
+            width: 0;
+            animation: typeWidth 2s ease-in-out infinite;
+        }
+        @keyframes typeWidth {
+            0%, 100% { width: 0; }
+            50% { width: 80%; }
+        }
+    </style>
+</head>
+<body class="text-white relative min-h-screen font-sans">
+
+    <!-- Background Layers -->
+    <div id="star-container"></div>
+    
+    <!-- Content Wrapper -->
+    <div class="relative z-10 flex flex-col items-center min-h-screen px-4 pb-12">
+        
+        <!-- Navbar -->
+        <nav class="w-full max-w-6xl flex justify-between items-center py-8 animate-float">
+            <div class="flex items-center gap-2">
+                <i data-lucide="terminal" class="text-neon-green w-6 h-6" aria-hidden="true"></i>
+                <span class="font-mono font-bold text-xl tracking-wider">RISYNC.IN</span>
+            </div>
+            <div class="text-xs font-mono text-gray-400 border border-gray-700 rounded-full px-3 py-1 bg-gray-900/50">
+                STATUS: BIRTHDAY MODE
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <main class="w-full max-w-5xl mt-2 md:mt-6 text-center flex flex-col items-center">
+            
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight mb-12 leading-tight">
+                Happy Birthday, <br>
+                <span class="gradient-text-honey">Honey Singh!</span>
+            </h1>
+
+            <p class="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-12 font-light">
+                Welcome to <span class="text-white font-semibold">Risync.in</span>. 
+                Your personal launchpad for code, space, music, and everything in between. 
+                Keep <span class="text-white font-bold">surging beyond limits!</span>
+            </p>
+
+            <!-- Launch Button -->
+            <button id="launch-btn" class="group relative inline-flex items-center gap-3 bg-white text-black px-8 py-4 rounded-full font-bold text-lg hover:bg-neon-blue hover:text-white transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_40px_rgba(79,172,254,0.7)] hover:scale-105" aria-label="Launch celebration confetti">
+                <i data-lucide="rocket" class="group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform duration-300" aria-hidden="true"></i>
+                <span>Initialize Celebration</span>
+            </button>
+
+            <!-- Scroll Indicator -->
+            <div class="mt-12 flex flex-col items-center justify-center pointer-events-none">
+                <i data-lucide="chevron-down" class="w-8 h-8 text-white animate-scroll-pulse opacity-20" aria-hidden="true" style="animation-delay: 0ms;"></i>
+                <i data-lucide="chevron-down" class="w-8 h-8 text-white animate-scroll-pulse -mt-5 opacity-20" aria-hidden="true" style="animation-delay: 150ms;"></i>
+                <i data-lucide="chevron-down" class="w-8 h-8 text-white animate-scroll-pulse -mt-5 opacity-20" aria-hidden="true" style="animation-delay: 300ms;"></i>
+            </div>
+        </main>
+
+        <!-- Interest Grid -->
+        <section class="w-full max-w-6xl mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            <!-- Coding Card -->
+            <div class="glass-card p-8 rounded-2xl relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-700">
+                    <i data-lucide="code-2" class="w-32 h-32" aria-hidden="true"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="bg-blue-500/20 p-3 rounded-xl text-neon-blue group-hover:rotate-12 transition-transform">
+                            <i data-lucide="laptop" class="w-6 h-6" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="font-bold text-2xl font-mono">The Developer</h3>
+                    </div>
+                    
+                    <div class="relative w-full h-32 overflow-hidden rounded-xl bg-black/40 border border-gray-800 mb-6 shadow-inner flex flex-col justify-center p-4">
+                        <div class="font-mono text-sm text-gray-300">
+                            <p><span class="text-neon-blue">while</span>(alive) {</p>
+                            <p class="pl-4">learn();</p>
+                            <p class="pl-4">build();</p>
+                            <p class="pl-4">deploy();</p>
+                            <p>}</p>
+                        </div>
+                    </div>
+                    
+                    <p class="text-gray-300 text-lg leading-relaxed text-center font-medium">
+                        Living Logic
+                    </p>
+                </div>
+            </div>
+
+            <!-- Space Card -->
+            <div class="glass-card p-8 rounded-2xl relative overflow-hidden group">
+                <!-- Faint Background Icon (Consistency Update) -->
+                <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-700">
+                    <i data-lucide="orbit" class="w-32 h-32 text-purple-500" aria-hidden="true"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="bg-purple-500/20 p-3 rounded-xl text-neon-purple group-hover:rotate-12 transition-transform">
+                            <i data-lucide="rocket" class="w-6 h-6" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="font-bold text-2xl font-mono">The Voyager</h3>
+                    </div>
+                    
+                    <div class="relative w-full h-32 overflow-hidden rounded-xl bg-black/40 border border-gray-800 mb-6 shadow-inner">
+                        <div id="whizz-container" class="absolute inset-0"></div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="animate-vibrate text-neon-purple drop-shadow-[0_0_8px_rgba(168,85,247,0.6)]">
+                                <i data-lucide="rocket" class="w-10 h-10" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-purple-500/5 pointer-events-none"></div>
+                    </div>
+
+                    <p class="text-gray-300 text-lg leading-relaxed text-center font-medium">
+                        Beyond Skies
+                    </p>
+                </div>
+            </div>
+
+            <!-- Music Card -->
+            <div class="glass-card p-8 rounded-2xl relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <i data-lucide="headphones" class="w-32 h-32 text-pink-500" aria-hidden="true"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="bg-pink-500/20 p-3 rounded-xl text-pink-400 group-hover:rotate-12 transition-transform">
+                            <i data-lucide="music" class="w-6 h-6" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="font-bold text-2xl font-mono">The Maestro</h3>
+                    </div>
+                    
+                    <div class="relative w-full h-32 overflow-hidden rounded-xl bg-black/40 border border-gray-800 mb-6 shadow-inner flex items-center justify-center">
+                        <div class="flex items-end gap-1 h-12 justify-center opacity-80">
+                            <div class="w-1.5 bg-pink-500 rounded-t h-4 animate-[pulse_1s_ease-in-out_infinite]"></div>
+                            <div class="w-1.5 bg-pink-500 rounded-t h-8 animate-[pulse_1.2s_ease-in-out_infinite]"></div>
+                            <div class="w-1.5 bg-pink-500 rounded-t h-6 animate-[pulse_0.8s_ease-in-out_infinite]"></div>
+                            <div class="w-1.5 bg-pink-500 rounded-t h-10 animate-[pulse_1.5s_ease-in-out_infinite]"></div>
+                            <div class="w-1.5 bg-pink-500 rounded-t h-5 animate-[pulse_0.9s_ease-in-out_infinite]"></div>
+                            <div class="w-1.5 bg-pink-500 rounded-t h-7 animate-[pulse_1.1s_ease-in-out_infinite]"></div>
+                        </div>
+                    </div>
+                    
+                    <p class="text-gray-300 text-lg leading-relaxed text-center font-medium">
+                        Rhythmic Flow
+                    </p>
+                </div>
+            </div>
+
+            <!-- Yoga Card -->
+            <div class="glass-card p-8 rounded-2xl relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <i data-lucide="person-standing" class="w-32 h-32 text-teal-400" aria-hidden="true"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="bg-teal-500/20 p-3 rounded-xl text-teal-400 group-hover:rotate-12 transition-transform">
+                            <i data-lucide="waves" class="w-6 h-6" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="font-bold text-2xl font-mono">The Yogi</h3>
+                    </div>
+                    
+                    <div class="relative w-full h-32 overflow-hidden rounded-xl bg-black/40 border border-gray-800 mb-6 shadow-inner flex items-center justify-center">
+                        <div class="flex items-center gap-1.5">
+                            <div class="w-3 h-3 bg-teal-500 rounded-full animate-wave" style="animation-delay: 0.0s;"></div>
+                            <div class="w-3 h-3 bg-teal-400 rounded-full animate-wave" style="animation-delay: 0.1s;"></div>
+                            <div class="w-3 h-3 bg-teal-300 rounded-full animate-wave" style="animation-delay: 0.2s;"></div>
+                            <div class="w-3 h-3 bg-teal-400 rounded-full animate-wave" style="animation-delay: 0.3s;"></div>
+                            <div class="w-3 h-3 bg-teal-500 rounded-full animate-wave" style="animation-delay: 0.4s;"></div>
+                        </div>
+                    </div>
+                    
+                    <p class="text-gray-300 text-lg leading-relaxed text-center font-medium">
+                        Flex Power
+                    </p>
+                </div>
+            </div>
+
+            <!-- Basketball Card -->
+            <div class="glass-card p-8 rounded-2xl relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <i data-lucide="dribbble" class="w-32 h-32 text-orange-500" aria-hidden="true"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="bg-orange-500/20 p-3 rounded-xl text-neon-orange group-hover:rotate-12 transition-transform">
+                            <i data-lucide="trophy" class="w-6 h-6" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="font-bold text-2xl font-mono">The Baller</h3>
+                    </div>
+                    
+                    <div class="relative w-full h-32 overflow-hidden rounded-xl bg-black/40 border border-gray-800 mb-6 shadow-inner flex items-end justify-center pb-2">
+                        <div class="w-10 h-10 rounded-full border-2 border-orange-500 bg-orange-500/20 animate-bounce-playful shadow-[0_0_15px_rgba(255,140,66,0.5)]"></div>
+                    </div>
+                    
+                    <p class="text-gray-300 text-lg leading-relaxed text-center font-medium">
+                        Court Vision
+                    </p>
+                </div>
+            </div>
+
+            <!-- Writer Card -->
+            <div class="glass-card p-8 rounded-2xl relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <i data-lucide="feather" class="w-32 h-32 text-yellow-400" aria-hidden="true"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="bg-yellow-500/20 p-3 rounded-xl text-yellow-400 group-hover:rotate-12 transition-transform">
+                            <i data-lucide="pen-tool" class="w-6 h-6" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="font-bold text-2xl font-mono">The Writer</h3>
+                    </div>
+                    
+                    <div class="relative w-full h-32 overflow-hidden rounded-xl bg-black/40 border border-gray-800 mb-6 shadow-inner flex flex-col justify-center items-center px-8">
+                        <div class="typing-line w-full bg-yellow-500/60"></div>
+                        <div class="typing-line w-3/4 bg-yellow-500/60" style="animation-delay: 0.5s;"></div>
+                        <div class="typing-line w-1/2 bg-yellow-500/60" style="animation-delay: 1s;"></div>
+                    </div>
+                    
+                    <p class="text-gray-300 text-lg leading-relaxed text-center font-medium">
+                        Word Worlds
+                    </p>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Footer -->
+        <footer class="mt-24 text-center text-gray-600 text-sm font-mono pb-8">
+            <p>System Online: 2026 • Built for one of the coolest 11-year-old on the web.</p>
+            <p class="mt-2 text-xs opacity-50 hover:text-white transition-colors cursor-pointer">risync.in</p>
+        </footer>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Icons
+            lucide.createIcons();
+
+            // Config for Colors
+            const THEME_COLORS = ['#4FACFE', '#00F260', '#A855F7', '#FF8C42'];
+
+            // -----------------------
+            // Optimized Space Whizz
+            // -----------------------
+            const initSpaceWhizz = () => {
+                const container = document.getElementById('whizz-container');
+                if (!container) return;
+
+                const particleCount = 20;
+                // Use Fragment to minimize Reflows/Repaints
+                const fragment = document.createDocumentFragment();
+
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.classList.add('whizz-particle');
+                    
+                    const duration = Math.random() * 0.5 + 0.3;
+                    const delay = Math.random() * 2;
+                    const sizeW = Math.random() * 30 + 10;
+                    const sizeH = Math.random() * 2 + 1;
+                    
+                    // STRATIFIED DISTRIBUTION for perfect uniformity
+                    // Divide 0-100% into equal slots based on particle count
+                    const slotSize = 100 / particleCount;
+                    // Base position + random offset within slot
+                    const startY = (i * slotSize) + (Math.random() * slotSize);
+                    
+                    // Slight vertical drift
+                    const endY = startY + (Math.random() * 20 - 10);
+                    
+                    // Changed color to only white with varying brightness (opacity)
+                    const opacity = Math.random() * 0.7 + 0.3; // 0.3 to 1.0
+                    const color = `rgba(255, 255, 255, ${opacity})`;
+
+                    particle.style.width = `${sizeW}px`;
+                    particle.style.height = `${sizeH}px`;
+                    // Use percentages to ensure coverage of full container height
+                    particle.style.setProperty('--start-y', `${startY}%`);
+                    particle.style.setProperty('--end-y', `${endY}%`);
+                    particle.style.setProperty('--duration', `${duration}s`);
+                    particle.style.animationDelay = `${delay}s`;
+                    particle.style.background = color;
+
+                    fragment.appendChild(particle);
+                }
+                container.appendChild(fragment);
+            };
+
+            // -----------------------
+            // Optimized Star Gen
+            // -----------------------
+            const initStars = () => {
+                const starContainer = document.getElementById('star-container');
+                if (!starContainer) return;
+
+                const starCount = 80;
+                const fragment = document.createDocumentFragment();
+
+                for (let i = 0; i < starCount; i++) {
+                    const star = document.createElement('div');
+                    star.classList.add('star');
+                    
+                    const x = Math.random() * 100;
+                    const y = Math.random() * 100;
+                    const size = Math.random() * 3 + 1;
+                    const duration = Math.random() * 3 + 2;
+                    const delay = Math.random() * 5;
+
+                    star.style.left = `${x}%`;
+                    star.style.top = `${y}%`;
+                    star.style.width = `${size}px`;
+                    star.style.height = `${size}px`;
+                    star.style.setProperty('--duration', `${duration}s`);
+                    star.style.setProperty('--delay', `${delay}s`);
+
+                    fragment.appendChild(star);
+                }
+                starContainer.appendChild(fragment);
+            };
+
+            // -----------------------
+            // Confetti Logic
+            // -----------------------
+            const launchSurprise = (btnElement) => {
+                // Burst 1: Bottom center
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 1 },
+                    startVelocity: 60,
+                    colors: THEME_COLORS
+                });
+
+                // Burst 2: Right side
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 100,
+                        angle: 120,
+                        spread: 70,
+                        origin: { x: 1, y: 1 },
+                        startVelocity: 60,
+                        colors: THEME_COLORS
+                    });
+                }, 250);
+
+                // Burst 3: Left side
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 100,
+                        angle: 60,
+                        spread: 70,
+                        origin: { x: 0, y: 1 },
+                        startVelocity: 60,
+                        colors: THEME_COLORS
+                    });
+                }, 500);
+
+                // Button Text Feedback
+                if (btnElement) {
+                    const span = btnElement.querySelector('span');
+                    if (span) {
+                        const originalText = span.innerText;
+                        span.innerText = "WooooHoo!";
+                        setTimeout(() => {
+                            span.innerText = originalText;
+                        }, 3000);
+                    }
+                }
+            };
+
+            // -----------------------
+            // Auto-Run Animation
+            // -----------------------
+            const runIntroConfetti = () => {
+                setTimeout(() => {
+                    const duration = 3000;
+                    const animationEnd = Date.now() + duration;
+                    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+                    const randomInRange = (min, max) => Math.random() * (max - min) + min;
+
+                    const interval = setInterval(() => {
+                        const timeLeft = animationEnd - Date.now();
+                        if (timeLeft <= 0) return clearInterval(interval);
+
+                        const particleCount = 50 * (timeLeft / duration);
+                        confetti({ 
+                            ...defaults, 
+                            particleCount, 
+                            origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } 
+                        });
+                        confetti({ 
+                            ...defaults, 
+                            particleCount, 
+                            origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } 
+                        });
+                    }, 250);
+                }, 500);
+            };
+
+            // -----------------------
+            // Execution
+            // -----------------------
+            initSpaceWhizz();
+            initStars();
+            runIntroConfetti();
+
+            // Attach Event Listener
+            const launchBtn = document.getElementById('launch-btn');
+            if (launchBtn) {
+                launchBtn.addEventListener('click', () => launchSurprise(launchBtn));
+            }
+        });
+    </script>
+</body>
+</html>
+
+

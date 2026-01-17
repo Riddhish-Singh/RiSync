@@ -86,6 +86,7 @@
         .btn {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 10px;
             padding: 12px 28px;
             border-radius: 50px;
@@ -93,6 +94,9 @@
             font-weight: 600;
             transition: all 0.3s ease;
             margin-top: 24px;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
         }
 
         /* Primary Button: Orange (Logo Accent) */
@@ -123,8 +127,7 @@
             position: fixed;
             top: 0; width: 100%;
             z-index: 100;
-            padding: 15px 0; /* Slightly reduced padding to balance large logo */
-            /* Deep Blue Blur */
+            padding: 15px 0; 
             background: rgba(2, 18, 48, 0.85);
             backdrop-filter: blur(15px);
             border-bottom: 1px solid var(--border);
@@ -144,12 +147,11 @@
             color: white;
             font-family: var(--font-head);
             font-weight: 700;
-            font-size: 2rem; /* Increased font size for fallback text */
+            font-size: 2rem; 
         }
         
-        /* --- LOGO SIZE ADJUSTMENT --- */
         .logo img { 
-            height: 80px; /* Increased from 40px to 80px */
+            height: 80px; 
             width: auto; 
         }
 
@@ -179,7 +181,6 @@
             justify-content: center;
             text-align: center;
             position: relative;
-            /* Increased padding-top to account for the larger fixed navbar */
             padding-top: 140px; 
         }
         
@@ -189,7 +190,6 @@
             font-weight: 700;
             line-height: 1;
             margin-bottom: 24px;
-            /* Gradient Text: White to Light Blue */
             background: linear-gradient(180deg, #fff 0%, #8ebaff 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -197,7 +197,7 @@
             text-shadow: 0 0 30px rgba(77, 166, 255, 0.3);
         }
 
-        /* --- Sector Layout (Alternating Zig Zag) --- */
+        /* --- Sections --- */
         .split-section {
             padding: 80px 0;
             border-bottom: 1px solid var(--border);
@@ -210,12 +210,8 @@
             align-items: center;
         }
 
-        .split-section:nth-child(even) .split-grid {
-            direction: rtl; 
-        }
-        .split-section:nth-child(even) .split-grid > * {
-            direction: ltr; 
-        }
+        .split-section:nth-child(even) .split-grid { direction: rtl; }
+        .split-section:nth-child(even) .split-grid > * { direction: ltr; }
 
         .visual-card {
             background: var(--bg-card);
@@ -234,16 +230,14 @@
         }
         
         .visual-card:hover { transform: scale(1.02); border-color: var(--accent); }
-
         .visual-card i { z-index: 2; text-shadow: 0 10px 20px rgba(0,0,0,0.5); }
         
-        /* Revised Gradients matching Logo Vibe (Blue Bases with Colored Glows) */
         .visual-books { background: radial-gradient(circle at center, #5b21b6 0%, var(--bg-card) 70%); }
         .visual-yt { background: radial-gradient(circle at center, #991b1b 0%, var(--bg-card) 70%); }
         .visual-li { background: radial-gradient(circle at center, #0284c7 0%, var(--bg-card) 70%); }
         .visual-ig { background: radial-gradient(circle at center, #be185d 0%, var(--bg-card) 70%); }
 
-        /* --- App Matrix (Grid) --- */
+        /* --- App Matrix --- */
         .matrix-section { padding: 100px 0; }
         
         .matrix-header {
@@ -255,11 +249,7 @@
             gap: 20px;
         }
 
-        .search-box {
-            position: relative;
-            width: 100%;
-            max-width: 320px;
-        }
+        .search-box { position: relative; width: 100%; max-width: 320px; }
         .search-box input {
             width: 100%;
             background: var(--bg-card);
@@ -301,8 +291,6 @@
             position: relative;
             overflow: hidden;
         }
-
-        /* Subtle gradient overlay on cards */
         .app-card::before {
             content: '';
             position: absolute;
@@ -310,25 +298,13 @@
             background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0) 100%);
             pointer-events: none;
         }
-
         .app-card:not(.disabled-link):hover {
             border-color: var(--accent);
             transform: translateY(-5px);
             box-shadow: 0 10px 30px -10px rgba(0, 20, 60, 0.5);
         }
-        .app-card:not(.disabled-link):hover .icon-box {
-            background: var(--accent);
-            color: white;
-        }
-
-        /* Link disabled state */
-        .disabled-link {
-            opacity: 0.6;
-            cursor: not-allowed;
-            background: rgba(10, 42, 97, 0.5);
-            border-color: transparent;
-        }
-
+        .app-card:not(.disabled-link):hover .icon-box { background: var(--accent); color: white; }
+        .disabled-link { opacity: 0.6; cursor: not-allowed; background: rgba(10, 42, 97, 0.5); border-color: transparent; }
         .icon-box {
             width: 48px; height: 48px;
             background: rgba(255,255,255,0.05);
@@ -339,7 +315,50 @@
             transition: 0.3s;
         }
 
-        /* --- Philanthropy / Foundation Section --- */
+        /* --- CONTACT FORM STYLES (NEW) --- */
+        .contact-section {
+            padding: 80px 0;
+            background: linear-gradient(0deg, var(--bg-void) 0%, rgba(5, 29, 69, 0.4) 100%);
+            border-top: 1px solid var(--border);
+        }
+        .contact-form {
+            background: var(--bg-card);
+            padding: 40px;
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .form-group { margin-bottom: 20px; text-align: left; }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .form-input {
+            width: 100%;
+            background: rgba(2, 18, 48, 0.5);
+            border: 1px solid var(--border);
+            padding: 14px;
+            border-radius: 12px;
+            color: white;
+            font-family: var(--font-body);
+            font-size: 1rem;
+            outline: none;
+            transition: 0.3s;
+        }
+        .form-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 10px rgba(255, 136, 51, 0.1);
+            background: var(--bg-void);
+        }
+        textarea.form-input { resize: vertical; min-height: 120px; }
+        .form-btn { width: 100%; margin-top: 10px; }
+
+        /* --- Philanthropy --- */
         .foundation-section {
             background: linear-gradient(180deg, rgba(2, 18, 48, 0) 0%, rgba(5, 29, 69, 0.4) 100%);
             padding: 80px 0;
@@ -367,6 +386,7 @@
             .hero h1 { font-size: 3.5rem; }
             .matrix-header { flex-direction: column; align-items: flex-start; }
             .visual-card { order: -1; margin-bottom: 20px; }
+            .contact-form { padding: 24px; }
         }
     </style>
 </head>
@@ -379,10 +399,10 @@
                 <span style="display:none">RiSync.</span>
             </a>
             <div class="social-nav">
+                <a href="#contact" title="Contact Me"><i class="fas fa-envelope"></i></a>
                 <a href="https://in.linkedin.com/in/riddhish-singh-075324368" target="_blank" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
                 <a href="https://www.youtube.com/@RiSync" target="_blank" title="YouTube"><i class="fab fa-youtube"></i></a>
                 <a href="https://www.instagram.com/risyncp2p/" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
-                <a href="https://www.bribooks.com/author/riddhish-singh/" target="_blank" title="My Books"><i class="fas fa-book-open"></i></a>
             </div>
         </div>
     </nav>
@@ -516,6 +536,38 @@
         </div>
     </section>
 
+    <section class="contact-section" id="contact">
+        <div class="container" style="text-align: center;">
+            <span class="section-tag">Get In Touch</span>
+            <h2>Contact Riddhish</h2>
+            <p style="max-width: 500px; margin: 0 auto 40px;">
+                Have a question or an idea? Send me a message directly.
+            </p>
+            
+            <div class="contact-form">
+                <form action="https://formsubmit.co/riddhishsingh2015@gmail.com" method="POST">
+                    <input type="hidden" name="_subject" value="New Message from RiSync Website!">
+                    <input type="hidden" name="_captcha" value="false">
+                    <input type="hidden" name="_next" value="https://risync-riddhish.web.app/"> <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" class="form-input" required placeholder="Your Name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" class="form-input" required placeholder="your@email.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" class="form-input" required placeholder="How can I help you?"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary form-btn">Send Message <i class="fas fa-paper-plane"></i></button>
+                </form>
+            </div>
+        </div>
+    </section>
     <footer>
         <div class="container">
             <p>&copy; 2026 Riddhish Singh. All Rights Reserved. <br> Powered by RiSync.</p>
