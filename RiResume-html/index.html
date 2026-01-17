@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book A Demo</title>
+    <style>
+        /* CSS Styles */
+        * {
+            box-sizing: border-box;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden; /* Prevents scrollbars */
+        }
+
+        .background-container {
+            /* The image specified */
+            background-image: url('RiResume-html.png');
+            
+            /* Full screen settings */
+            height: 100vh;
+            width: 100vw;
+            
+            /* Center the background image and scale it nicely */
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            
+            /* Flexbox to center the button */
+            display: flex;
+            justify-content: center; /* Horizontal center */
+            align-items: center;     /* Vertical center */
+            
+            position: relative;
+        }
+
+        /* Button Styles */
+        .demo-btn {
+            background-color: #007bff; /* Primary Blue */
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 50px; /* Rounded pill shape */
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            z-index: 10; /* Ensures button is on top of image */
+        }
+
+        .demo-btn:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+            transform: translateY(-2px); /* Slight lift effect */
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .demo-btn:active {
+            transform: translateY(1px);
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 600px) {
+            .demo-btn {
+                width: 80%;
+                padding: 15px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="background-container">
+        <a href="https://risync.in/#contact" class="demo-btn" id="bookBtn">
+            Book A Demo
+        </a>
+    </div>
+
+    <script>
+        // JavaScript Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const button = document.getElementById('bookBtn');
+
+            button.addEventListener('click', (event) => {
+                // Optional: Console log to track clicks
+                console.log('Book A Demo button clicked');
+                
+                // The redirection is handled by the <a href>, 
+                // but we can add smooth scrolling behavior or analytics here if needed.
+            });
+
+            // Fallback: Check if image loads, log warning if not found
+            const img = new Image();
+            img.src = 'RiResume-html.png';
+            img.onerror = function() {
+                console.warn("Image 'RiResume-html.png' was not found. Please ensure it is in the same folder as this HTML file.");
+                // Optional: Set a fallback background color if image fails
+                document.querySelector('.background-container').style.backgroundColor = "#f0f0f0";
+            };
+        });
+    </script>
+</body>
+</html>
