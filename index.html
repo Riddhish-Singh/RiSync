@@ -11,6 +11,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
     <style>
         :root {
             /* --- Theme: RiSync Logo Colors --- */
@@ -566,6 +569,11 @@
                         <label for="email">Email</label>
                         <input type="email" id="email" name="email" class="form-input" required placeholder="your@email.com">
                     </div>
+
+                    <div class="form-group">
+                        <label for="mobile">Mobile Number</label>
+                        <input type="tel" id="mobile" name="mobile" class="form-input" required placeholder="Your Phone Number">
+                    </div>
                     
                     <div class="form-group">
                         <label for="message">Message</label>
@@ -592,24 +600,79 @@
     </footer>
 
     <script>
-        // --- Configuration ---
+        // --- 2. Initialize Firebase (Code to Save to Database) ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCT1N_q8uO9eXgUyyAoLx5JWaFz9oeclPA",
+            authDomain: "chat-backend---risync.firebaseapp.com",
+            projectId: "chat-backend---risync",
+            storageBucket: "chat-backend---risync.firebasestorage.app",
+            messagingSenderId: "338401781669",
+            appId: "1:338401781669:web:a3f342a1439f0fd821ea4c",
+            measurementId: "G-95PC7NYZ8G"
+        };
+
+        // Initialize safely
+        if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        
+        // --- Logic to Save to Firestore AND Send Email ---
+        const contactForm = document.getElementById('contactForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const successMessage = document.getElementById('successMessage');
+
+        contactForm.addEventListener('submit', function() {
+            // A. Save to Firebase
+            if (typeof firebase !== 'undefined') {
+                const db = firebase.firestore();
+                db.collection("mail").add({
+                    name: document.getElementById('name').value,
+                    email: document.getElementById('email').value,
+                    mobile: document.getElementById('mobile').value, // Saving Mobile Number
+                    message: document.getElementById('message').value,
+                    timestamp: new Date()
+                }).then(() => {
+                    console.log("Saved to Firebase!");
+                }).catch((error) => {
+                    console.error("Firebase Error:", error);
+                });
+            }
+
+            // B. UI Updates (The form also submits to FormSubmit via HTML)
+            submitBtn.innerHTML = 'Sending... <i class="fas fa-spinner fa-spin"></i>';
+            submitBtn.disabled = true;
+
+            setTimeout(() => {
+                submitBtn.innerHTML = 'Message Sent <i class="fas fa-check"></i>';
+                successMessage.style.display = 'block';
+                contactForm.reset();
+                
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Send Message <i class="fas fa-paper-plane"></i>';
+                    successMessage.style.display = 'none';
+                }, 4000);
+            }, 1500);
+        });
+
+        // --- Original Projects Configuration ---
         const projects = [
             { name: "RiArt", path: "RiArt-html/", desc: "Digital Art Canvas", icon: "fa-palette" },
             { name: "RiBot", path: "RiBot-html/", desc: "AI Assistant", icon: "fa-robot" },
             { name: "RiQuiz", path: "RiQuiz-html/", desc: "Knowledge Engine", icon: "fa-brain" },
-            { name: "RiResume", path: "RiResume", desc: "CV Builder", icon: "fa-id-badge" },
-            { name: "RiDiary", path: "RiDiary", desc: "Secure Journal", icon: "fa-book" },
-            { name: "RiSlip", path: "ASVI_SLIP", desc: "Finance Tool", icon: "fa-file-invoice-dollar" },
-            { name: "RiAppraisals", path: "ASVI-APPRAISALS", desc: "HR System", icon: "fa-chart-pie" },
-            { name: "RiNature", path: "GroundUp", desc: "Startup Hub", icon: "fa-solid fa-leaf" },
-            { name: "RiGenie", path: "Presentation-Genie", desc: "Slide Generator", icon: "fa-magic" },
-            { name: "RiForm", path: "RiForm", desc: "Data Collection", icon: "fa-table" },
-            { name: "RiCall", path: "RiCall", desc: "Video Comm", icon: "fa-phone-alt" },
-            { name: "RiDesign", path: "RiDesign", desc: "UI Library", icon: "fa-pen-ruler" },
-            { name: "RiQR", path: "RiQR", desc: "QR Generator", icon: "fa-qrcode" },
-            { name: "RiEducate", path: "DCM-YES", desc: "School Portal", icon: "fa-graduation-cap" },
-            { name: "RiEcom", path: "G4U", desc: "Web Ecommerce", icon: "fa-solid fa-cart-shopping" },
-            { name: "Riattend", path: "Proficient", desc: "Business Suite", icon: "fa-briefcase" }
+            { name: "RiResume", path: "RiResume-html/", desc: "CV Builder", icon: "fa-id-badge" },
+            { name: "RiDiary", path: "RiDiary-html/", desc: "Secure Journal", icon: "fa-book" },
+            { name: "RiSlip", path: "RiSlip-html", desc: "Finance Tool", icon: "fa-file-invoice-dollar" },
+            { name: "RiAppraisals", path: "RiAppraisals-html/", desc: "HR System", icon: "fa-chart-pie" },
+            { name: "RiNature", path: "RiNature-html/", desc: "Startup Hub", icon: "fa-solid fa-leaf" },
+            { name: "RiGenie", path: "RiGenie-html/", desc: "Slide Generator", icon: "fa-magic" },
+            { name: "RiForm", path: "RiForm-html", desc: "Data Collection", icon: "fa-table" },
+            { name: "RiCall", path: "RiCall-html", desc: "Video Comm", icon: "fa-phone-alt" },
+            { name: "RiDesign", path: "RiDesign-html", desc: "UI Library", icon: "fa-pen-ruler" },
+            { name: "RiQR", path: "RiQR-html", desc: "QR Generator", icon: "fa-qrcode" },
+            { name: "RiEducate", path: "RiEducate-html/", desc: "School Portal", icon: "fa-graduation-cap" },
+            { name: "RiEcom", path: "RiEcom-html/", desc: "Web Ecommerce", icon: "fa-solid fa-cart-shopping" },
+            { name: "RiAttend", path: "RiAttend-html/", desc: "Business Suite", icon: "fa-briefcase" }
         ];
 
         // --- Render Logic ---
@@ -625,9 +688,7 @@
 
             filtered.forEach((p, i) => {
                 const el = document.createElement('a');
-                
                 const isRiProject = p.name.startsWith("Ai");
-                
                 if (isRiProject) {
                     el.href = "javascript:void(0)"; 
                     el.className = 'app-card disabled-link'; 
@@ -636,7 +697,6 @@
                     el.className = 'app-card';
                     el.href = p.path; 
                 }
-                
                 el.style.animation = `slideUp 0.5s ease-out backwards ${i * 0.05}s`;
                 const actionIcon = isRiProject ? 'fa-lock' : 'fa-arrow-right';
 
@@ -667,38 +727,11 @@
         function type() {
             let txt = txts[tIdx];
             typeSpan.innerText = txt.substring(0, isDel ? cIdx-- : cIdx++);
-            
             if(!isDel && cIdx === txt.length + 1) { isDel = true; setTimeout(type, 2000); }
             else if(isDel && cIdx === 0) { isDel = false; tIdx = (tIdx+1)%txts.length; setTimeout(type, 500); }
             else setTimeout(type, isDel ? 50 : 100);
         }
         type();
-
-        // --- CONTACT FORM UI HANDLER ---
-        // Since the form sends to an iframe, the page won't reload.
-        // We use JS to fake the "Success" message so the user knows it worked.
-        const contactForm = document.getElementById('contactForm');
-        const submitBtn = document.getElementById('submitBtn');
-        const successMessage = document.getElementById('successMessage');
-
-        contactForm.addEventListener('submit', function() {
-            submitBtn.innerHTML = 'Sending... <i class="fas fa-spinner fa-spin"></i>';
-            submitBtn.disabled = true;
-
-            // Wait 2 seconds then show success (Simulated)
-            setTimeout(() => {
-                submitBtn.innerHTML = 'Message Sent <i class="fas fa-check"></i>';
-                successMessage.style.display = 'block';
-                contactForm.reset();
-                
-                // Reset button after 3 seconds
-                setTimeout(() => {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = 'Send Message <i class="fas fa-paper-plane"></i>';
-                    successMessage.style.display = 'none';
-                }, 4000);
-            }, 1500);
-        });
     </script>
 </body>
 </html>
