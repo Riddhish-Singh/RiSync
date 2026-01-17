@@ -316,6 +316,81 @@
             transition: 0.3s;
         }
 
+        /* --- Philanthropy Marquee Styles --- */
+        .foundation-section {
+            background: linear-gradient(180deg, rgba(2, 18, 48, 0) 0%, rgba(5, 29, 69, 0.4) 100%);
+            padding: 80px 0;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            position: relative;
+            overflow: hidden; /* Important to contain the marquee */
+        }
+        
+        .foundation-content {
+            position: relative;
+            z-index: 2; /* Keep text above images */
+        }
+
+        .marquee-col {
+            position: absolute;
+            top: 0;
+            width: 15%; /* Width of the image columns */
+            min-width: 140px;
+            max-width: 200px;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.5; /* Fade images slightly so text is readable */
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .marquee-col.left { left: 0; border-right: 1px solid var(--border); background: rgba(0,0,0,0.2); }
+        .marquee-col.right { right: 0; border-left: 1px solid var(--border); background: rgba(0,0,0,0.2); }
+
+        .marquee-track {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        /* Animation Keyframes */
+        @keyframes scrollUp {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-50%); }
+        }
+
+        @keyframes scrollDown {
+            0% { transform: translateY(-50%); }
+            100% { transform: translateY(0%); }
+        }
+
+        .animate-up { animation: scrollUp 25s linear infinite; }
+        .animate-down { animation: scrollDown 25s linear infinite; }
+
+        .marquee-img {
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            object-fit: cover;
+            aspect-ratio: 3/4; /* Standardize aspect ratio */
+            transition: 0.3s;
+        }
+        .marquee-img:hover {
+            opacity: 1;
+            transform: scale(1.05);
+            border-color: var(--accent);
+            z-index: 10;
+        }
+
+        /* Responsive Marquee */
+        @media(max-width: 768px) {
+            .marquee-col { display: none; } /* Hide on mobile to save space */
+        }
+
+
         /* --- CONTACT FORM STYLES --- */
         .contact-section {
             padding: 80px 0;
@@ -370,14 +445,6 @@
             text-align: center;
         }
 
-        /* --- Philanthropy --- */
-        .foundation-section {
-            background: linear-gradient(180deg, rgba(2, 18, 48, 0) 0%, rgba(5, 29, 69, 0.4) 100%);
-            padding: 80px 0;
-            text-align: center;
-            border-top: 1px solid var(--border);
-        }
-
         /* --- Footer --- */
         footer {
             border-top: 1px solid var(--border);
@@ -427,7 +494,7 @@
                 Built By A 11-Year-Old <span id="typewriter" style="color: var(--accent-secondary); font-weight: 600;"></span><br>
                 Merging logic with imagination to build the future.
             </p>
-            <a href="#author" class="btn btn-primary">Start The Journey <i class="fas fa-arrow-down"></i></a>
+            <a href="#matrix" class="btn btn-primary">Start The Journey <i class="fas fa-arrow-down"></i></a>
         </div>
         
         <div style="position: absolute; top:0; left:0; width:100%; height:100%; z-index:-1; opacity: 0.6; overflow:hidden; pointer-events: none;">
@@ -436,6 +503,25 @@
         </div>
     </header>
 
+
+    <section class="matrix-section" id="matrix">
+        <div class="container">
+            <div class="matrix-header">
+                <div>
+                    <span class="section-tag">Development</span>
+                    <h2>Innovation Matrix</h2>
+                    <p>The full stack of RiSync applications and tools.</p>
+                </div>
+                <div class="search-box">
+                    <input type="text" id="search" placeholder="Filter projects...">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+
+            <div class="grid" id="grid">
+                </div>
+        </div>
+    </section>
     <section class="split-section" id="author">
         <div class="container">
             <div class="split-grid">
@@ -516,27 +602,35 @@
         </div>
     </section>
 
-    <section class="matrix-section" id="matrix">
-        <div class="container">
-            <div class="matrix-header">
-                <div>
-                    <span class="section-tag">Development</span>
-                    <h2>Innovation Matrix</h2>
-                    <p>The full stack of RiSync applications and tools.</p>
-                </div>
-                <div class="search-box">
-                    <input type="text" id="search" placeholder="Filter projects...">
-                    <i class="fas fa-search"></i>
-                </div>
-            </div>
-
-            <div class="grid" id="grid">
-                </div>
-        </div>
-    </section>
-
     <section class="foundation-section" id="charity">
-        <div class="container">
+        
+        <div class="marquee-col left">
+            <div class="marquee-track animate-up">
+                <img src="https://pledgeasmile.com/wp-content/uploads/2022/05/WhatsApp-Image-2021-06-25-at-8.45.00-PM-14.jpeg" class="marquee-img" alt="Charity 1">
+                <img src="https://pledgeasmile.com/wp-content/uploads/2022/05/WhatsApp-Image-2021-06-21-at-8.27.58-AM.jpeg" class="marquee-img" alt="Charity 2">
+                <img src="https://pledgeasmile.com/wp-content/uploads/2022/05/WhatsApp-Image-2021-06-21-at-8.27.57-AM.jpeg" class="marquee-img" alt="Charity 3">
+                <img src="https://pledgeasmile.com/wp-content/uploads/2022/05/WhatsApp-Image-2021-06-21-at-8.27.56-AM.jpeg" class="marquee-img" alt="Charity 4">
+                <img src="https://pledgeasmile.com/wp-content/uploads/2022/05/WhatsApp-Image-2021-06-25-at-8.45.00-PM-14.jpeg" class="marquee-img" alt="Charity 1">
+                <img src="https://pledgeasmile.com/wp-content/uploads/2022/05/WhatsApp-Image-2021-06-21-at-8.27.58-AM.jpeg" class="marquee-img" alt="Charity 2">
+                <img src="https://pledgeasmile.com/wp-content/uploads/2022/05/WhatsApp-Image-2021-06-21-at-8.27.57-AM.jpeg" class="marquee-img" alt="Charity 3">
+                <img src="https://pledgeasmile.com/wp-content/uploads/2022/05/WhatsApp-Image-2021-06-21-at-8.27.56-AM.jpeg" class="marquee-img" alt="Charity 4">
+            </div>
+        </div>
+
+        <div class="marquee-col right">
+            <div class="marquee-track animate-down">
+                <img src="https://pledgeasmile.com/wp-content/uploads/2022/05/WhatsApp-Image-2021-06-21-at-2.02.26-PM.jpeg" class="marquee-img" alt="Charity 5">
+                <img src="https://pledgeasmile.com/wp-content/uploads/2022/05/WhatsApp-Image-2021-06-21-at-8.27.07-AM.jpeg" class="marquee-img" alt="Charity 6">
+                <img src="https://pledgeasmile.com/wp-content/uploads/2022/05/WhatsApp-Image-2021-06-21-at-2.02.26-PM-1.jpeg" class="marquee-img" alt="Charity 7">
+                <img src="https://pledgeasmile.com/wp-content/uploads/2022/05/WhatsApp-Image-2021-06-11-at-1.04.07-PM-8.jpeg" class="marquee-img" alt="Charity 8">
+                <img src="https://pledgeasmile.com/wp-content/uploads/2022/05/WhatsApp-Image-2021-06-21-at-2.02.26-PM.jpeg" class="marquee-img" alt="Charity 5">
+                <img src="https://pledgeasmile.com/wp-content/uploads/2022/05/WhatsApp-Image-2021-06-21-at-8.27.07-AM.jpeg" class="marquee-img" alt="Charity 6">
+                <img src="https://pledgeasmile.com/wp-content/uploads/2022/05/WhatsApp-Image-2021-06-21-at-2.02.26-PM-1.jpeg" class="marquee-img" alt="Charity 7">
+                <img src="https://pledgeasmile.com/wp-content/uploads/2022/05/WhatsApp-Image-2021-06-11-at-1.04.07-PM-8.jpeg" class="marquee-img" alt="Charity 8">
+            </div>
+        </div>
+
+        <div class="container foundation-content">
             <span class="section-tag">Social Initiative</span>
             <h2>Pledge a Smile Foundation</h2>
             <p style="max-width: 600px; margin: 0 auto 30px;">
