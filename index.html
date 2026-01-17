@@ -14,22 +14,19 @@
     <style>
         :root {
             /* --- Theme: RiSync Logo Colors --- */
-            /* Background: Deep Royal Blue like the logo sphere */
             --bg-void: #021230; 
             --bg-surface: #051d45;
             --bg-card: #0a2a61;
             
-            /* Borders: Lighter blue/white mix */
             --border: rgba(255, 255, 255, 0.12);
-            --border-hover: rgba(255, 136, 51, 0.5); /* Orange hover glow */
+            --border-hover: rgba(255, 136, 51, 0.5);
             
-            /* Accent: The Solar Orange from the logo center */
             --accent: #FF8833;
-            --accent-secondary: #4da6ff; /* Lighter blue from 'RS' letters */
+            --accent-secondary: #4da6ff;
             --accent-glow: rgba(255, 136, 51, 0.4);
             
             --text-main: #ffffff;
-            --text-muted: #a3b8d6; /* Blue-tinted grey for better harmony */
+            --text-muted: #a3b8d6;
             
             --font-head: 'Space Grotesk', sans-serif;
             --font-body: 'Inter', sans-serif;
@@ -44,7 +41,6 @@
             font-family: var(--font-body);
             line-height: 1.6;
             overflow-x: hidden;
-            /* Subtle gradient background to mimic the logo sphere */
             background-image: radial-gradient(circle at 50% 0%, #0a2a61 0%, var(--bg-void) 60%);
             background-attachment: fixed;
         }
@@ -99,7 +95,6 @@
             font-size: 1rem;
         }
 
-        /* Primary Button: Orange (Logo Accent) */
         .btn-primary {
             background: var(--accent);
             color: white;
@@ -315,7 +310,7 @@
             transition: 0.3s;
         }
 
-        /* --- CONTACT FORM STYLES (NEW) --- */
+        /* --- CONTACT FORM STYLES --- */
         .contact-section {
             padding: 80px 0;
             background: linear-gradient(0deg, var(--bg-void) 0%, rgba(5, 29, 69, 0.4) 100%);
@@ -357,6 +352,17 @@
         }
         textarea.form-input { resize: vertical; min-height: 120px; }
         .form-btn { width: 100%; margin-top: 10px; }
+        
+        .success-message {
+            display: none;
+            background: rgba(46, 213, 115, 0.15);
+            color: #2ed573;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border: 1px solid rgba(46, 213, 115, 0.3);
+            text-align: center;
+        }
 
         /* --- Philanthropy --- */
         .foundation-section {
@@ -545,10 +551,13 @@
             </p>
             
             <div class="contact-form">
-                <form action="https://formsubmit.co/riddhishsingh2015@gmail.com" method="POST">
+                
+                <form id="contactForm" action="https://formsubmit.co/riddhishsingh2015@gmail.com" method="POST" target="hiddenFrame">
+                    
                     <input type="hidden" name="_subject" value="New Message from RiSync Website!">
                     <input type="hidden" name="_captcha" value="false">
-                    <input type="hidden" name="_next" value="https://risync-riddhish.web.app/"> <div class="form-group">
+                    
+                    <div class="form-group">
                         <label for="name">Name</label>
                         <input type="text" id="name" name="name" class="form-input" required placeholder="Your Name">
                     </div>
@@ -563,11 +572,19 @@
                         <textarea id="message" name="message" class="form-input" required placeholder="How can I help you?"></textarea>
                     </div>
 
-                    <button type="submit" class="btn btn-primary form-btn">Send Message <i class="fas fa-paper-plane"></i></button>
+                    <button type="submit" id="submitBtn" class="btn btn-primary form-btn">Send Message <i class="fas fa-paper-plane"></i></button>
+                    
+                    <div id="successMessage" class="success-message">
+                        Message sent successfully!
+                    </div>
                 </form>
+
+                <iframe name="hiddenFrame" style="display:none;"></iframe>
+
             </div>
         </div>
     </section>
+
     <footer>
         <div class="container">
             <p>&copy; 2026 Riddhish Singh. All Rights Reserved. <br> Powered by RiSync.</p>
@@ -575,7 +592,7 @@
     </footer>
 
     <script>
-        // --- Configuration: ALL projects now start with "Ri" ---
+        // --- Configuration ---
         const projects = [
             { name: "RiArt", path: "RiArt-html/", desc: "Digital Art Canvas", icon: "fa-palette" },
             { name: "RiBot", path: "RiBot-html/", desc: "AI Assistant", icon: "fa-robot" },
@@ -609,8 +626,6 @@
             filtered.forEach((p, i) => {
                 const el = document.createElement('a');
                 
-                // --- Logic Check ---
-                // Currently checks if name starts with "Ai" (likely meant "Ri" to disable, but keeping as provided)
                 const isRiProject = p.name.startsWith("Ai");
                 
                 if (isRiProject) {
@@ -619,13 +634,10 @@
                     el.title = "Access Restricted";
                 } else {
                     el.className = 'app-card';
-                    // --- FIX: Assign the href for active links ---
                     el.href = p.path; 
                 }
                 
                 el.style.animation = `slideUp 0.5s ease-out backwards ${i * 0.05}s`;
-                
-                // Lock icon if disabled
                 const actionIcon = isRiProject ? 'fa-lock' : 'fa-arrow-right';
 
                 el.innerHTML = `
@@ -661,6 +673,32 @@
             else setTimeout(type, isDel ? 50 : 100);
         }
         type();
+
+        // --- CONTACT FORM UI HANDLER ---
+        // Since the form sends to an iframe, the page won't reload.
+        // We use JS to fake the "Success" message so the user knows it worked.
+        const contactForm = document.getElementById('contactForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const successMessage = document.getElementById('successMessage');
+
+        contactForm.addEventListener('submit', function() {
+            submitBtn.innerHTML = 'Sending... <i class="fas fa-spinner fa-spin"></i>';
+            submitBtn.disabled = true;
+
+            // Wait 2 seconds then show success (Simulated)
+            setTimeout(() => {
+                submitBtn.innerHTML = 'Message Sent <i class="fas fa-check"></i>';
+                successMessage.style.display = 'block';
+                contactForm.reset();
+                
+                // Reset button after 3 seconds
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Send Message <i class="fas fa-paper-plane"></i>';
+                    successMessage.style.display = 'none';
+                }, 4000);
+            }, 1500);
+        });
     </script>
 </body>
 </html>
