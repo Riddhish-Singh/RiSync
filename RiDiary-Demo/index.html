@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RiDiary Demo</title>
+    <style>
+        /* CSS Reset and Basic Setup */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* The Container for the Full Screen Image 
+           We use flexbox to center the button perfectly.
+        */
+        .hero-container {
+            /* The Image Filename */
+            background-image: url('RiDiary-Demo.png');
+            
+            /* Sizing and Positioning */
+            height: 100vh; /* 100% of the viewport height */
+            width: 100%;
+            
+            /* Ensures the image covers the screen without repeating */
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat;
+            
+            /* Fallback color if image fails to load */
+            background-color: #333; 
+
+            /* Flexbox to center the button */
+            display: flex;
+            justify-content: center; /* Horizontal Center */
+            align-items: center;     /* Vertical Center */
+            
+            /* Optional: Add a dark overlay so the button pops? 
+               Uncomment the line below to dim the image slightly */
+            /* box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.3); */
+        }
+
+        /* Button Styling */
+        .cta-button {
+            display: inline-block;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #ffffff;
+            background-color: #007BFF; /* Primary Blue Color */
+            text-decoration: none;
+            border-radius: 50px;
+            border: 2px solid #007BFF;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            letter-spacing: 0.5px;
+        }
+
+        /* Button Hover Effects */
+        .cta-button:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+            transform: translateY(-2px); /* Slight lift effect */
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Button Active (Click) Effect */
+        .cta-button:active {
+            transform: translateY(1px);
+        }
+        
+        /* Mobile Responsiveness */
+        @media (max-width: 600px) {
+            .cta-button {
+                padding: 12px 30px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hero-container">
+        <a href="https://risync.in/#contact" class="cta-button" id="demoBtn">
+            Book A Demo
+        </a>
+    </div>
+
+    <script>
+        // JS functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const button = document.getElementById('demoBtn');
+
+            // Optional: Add a console log to track clicks for debugging
+            button.addEventListener('click', (e) => {
+                console.log('User clicked "Book A Demo" at ' + new Date().toLocaleTimeString());
+                
+                // The href in the <a> tag handles the navigation, 
+                // but if you ever wanted to handle it via JS strictly:
+                // e.preventDefault();
+                // window.location.href = 'https://risync.in/#contact';
+            });
+        });
+    </script>
+
+</body>
+</html>
