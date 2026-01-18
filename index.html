@@ -271,6 +271,22 @@
             color: var(--text-muted);
         }
 
+        /* --- Updated Categories & Grid --- */
+        .category-group {
+            margin-bottom: 60px;
+        }
+        .category-title {
+            color: var(--accent-secondary);
+            font-family: var(--font-head);
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -511,7 +527,7 @@
                 <div>
                     <span class="section-tag">Development</span>
                     <h2>Innovation Matrix</h2>
-                    <p>The full stack of RiSync applications and tools.</p>
+                    <p>The full stack of RiSync applications by Department.</p>
                 </div>
                 <div class="search-box">
                     <input type="text" id="search" placeholder="Filter projects...">
@@ -519,8 +535,8 @@
                 </div>
             </div>
 
-            <div class="grid" id="grid">
-                </div>
+            <div id="matrix-content">
+            </div>
         </div>
     </section>
     <section class="split-section" id="author">
@@ -753,69 +769,144 @@
             }, 1500);
         });
 
-        // --- Original Projects Configuration ---
-        const projects = [
-            { name: "RiArt", path: "RiArt-Demo/", desc: "Digital Art Canvas", icon: "fa-palette" },
-            { name: "RiBot", path: "RiBot-Demo/", desc: "AI Assistant", icon: "fa-robot" },
-            { name: "RiQuiz", path: "RiQuiz-Demo/", desc: "Knowledge Engine", icon: "fa-brain" },
-            { name: "RiResume", path: "RiResume-Demo/", desc: "CV Builder", icon: "fa-id-badge" },
-            { name: "RiDiary", path: "RiDiary-Demo/", desc: "Secure Journal", icon: "fa-book" },
-            { name: "RiSlip", path: "RiSlip-Demo", desc: "Finance Tool", icon: "fa-file-invoice-dollar" },
-            { name: "RiAppraisals", path: "RiAppraisals-Demo/", desc: "HR System", icon: "fa-chart-pie" },
-            { name: "RiNature", path: "RiNature-Demo/", desc: "Startup Hub", icon: "fa-solid fa-leaf" },
-            { name: "RiGenie", path: "RiGenie-Demo/", desc: "Slide Generator", icon: "fa-magic" },
-            { name: "RiForm", path: "RiForm-Demo", desc: "Data Collection", icon: "fa-table" },
-            { name: "RiCall", path: "RiCall-Demo", desc: "Video Comm", icon: "fa-phone-alt" },
-            { name: "RiDesign", path: "RiDesign-Demo", desc: "UI Library", icon: "fa-pen-ruler" },
-            { name: "RiQR", path: "RiQR-Demo", desc: "QR Generator", icon: "fa-qrcode" },
-            { name: "RiEducate", path: "RiEducate-Demo/", desc: "School Portal", icon: "fa-graduation-cap" },
-            { name: "RiEcom", path: "RiEcom-Demo/", desc: "Web Ecommerce", icon: "fa-solid fa-cart-shopping" },
-            { name: "RiAttend", path: "RiAttend-Demo/", desc: "Business Suite", icon: "fa-briefcase" }
+        // --- Categories Configuration ---
+        const categories = [
+            {
+                title: "Education & Learning",
+                icon: "fa-graduation-cap",
+                projects: [
+                    { name: "RiEducate", path: "RiEducate-Demo/", desc: "School Portal", icon: "fa-graduation-cap" },
+                    { name: "RiQuiz", path: "RiQuiz-Demo/", desc: "Knowledge Engine", icon: "fa-brain" }
+                ]
+            },
+            {
+                title: "IT & Development",
+                icon: "fa-code",
+                projects: [
+                    { name: "RiBot", path: "RiBot-Demo/", desc: "AI Assistant", icon: "fa-robot" },
+                    { name: "RiDesign", path: "RiDesign-Demo", desc: "UI Library & Design System", icon: "fa-pen-ruler" },
+                    { name: "RiCall", path: "RiCall-Demo", desc: "Video Comm", icon: "fa-phone-alt" }
+                ]
+            },
+            {
+                title: "Sales & Commerce",
+                icon: "fa-shopping-cart",
+                projects: [
+                    { name: "RiEcom", path: "RiEcom-Demo/", desc: "Web Ecommerce", icon: "fa-solid fa-cart-shopping" }
+                ]
+            },
+            {
+                title: "Marketing & Creative",
+                icon: "fa-paint-brush",
+                projects: [
+                    { name: "RiArt", path: "RiArt-Demo/", desc: "Digital Art Canvas", icon: "fa-palette" },
+                    { name: "RiGenie", path: "RiGenie-Demo/", desc: "Slide Generator", icon: "fa-magic" },
+                    { name: "RiQR", path: "RiQR-Demo", desc: "QR Generator", icon: "fa-qrcode" }
+                ]
+            },
+            {
+                title: "Finance & Personal",
+                icon: "fa-wallet",
+                projects: [
+                    { name: "RiSlip", path: "RiSlip-Demo", desc: "Finance Tool", icon: "fa-file-invoice-dollar" },
+                    { name: "RiDiary", path: "RiDiary-Demo/", desc: "Secure Journal", icon: "fa-book" }
+                ]
+            },
+            {
+                title: "Operations & Admin",
+                icon: "fa-cogs",
+                projects: [
+                    { name: "RiForm", path: "RiForm-Demo", desc: "Data Collection", icon: "fa-table" },
+                    { name: "RiNature", path: "RiNature-Demo/", desc: "Startup Hub", icon: "fa-solid fa-leaf" }
+                ]
+            },
+            {
+                title: "Human Resources (HR)",
+                icon: "fa-users",
+                projects: [
+                    { name: "RiAppraisals", path: "RiAppraisals-Demo/", desc: "HR Performance System", icon: "fa-chart-pie" },
+                    { name: "RiResume", path: "RiResume-Demo/", desc: "CV Builder", icon: "fa-id-badge" },
+                    { name: "RiAttend", path: "RiAttend-Demo/", desc: "Business Suite & Attendance", icon: "fa-briefcase" }
+                ]
+            }
         ];
 
         // --- Render Logic ---
-        const grid = document.getElementById('grid');
+        const matrixContent = document.getElementById('matrix-content');
         const search = document.getElementById('search');
 
         function render(filter = '') {
-            grid.innerHTML = '';
-            const filtered = projects.filter(p => 
-                p.name.toLowerCase().includes(filter.toLowerCase()) || 
-                p.desc.toLowerCase().includes(filter.toLowerCase())
-            );
+            matrixContent.innerHTML = '';
+            let hasResults = false;
 
-            filtered.forEach((p, i) => {
-                const el = document.createElement('a');
-                const isRiProject = p.name.startsWith("Ai");
-                if (isRiProject) {
-                    el.href = "javascript:void(0)"; 
-                    el.className = 'app-card disabled-link'; 
-                    el.title = "Access Restricted";
-                } else {
-                    el.className = 'app-card';
-                    el.href = p.path; 
+            categories.forEach(cat => {
+                // Filter projects within this category
+                const filteredProjects = cat.projects.filter(p => 
+                    p.name.toLowerCase().includes(filter.toLowerCase()) || 
+                    p.desc.toLowerCase().includes(filter.toLowerCase())
+                );
+
+                // Only render the category if it has matching projects
+                if (filteredProjects.length > 0) {
+                    hasResults = true;
+                    
+                    // Create Category Container
+                    const catGroup = document.createElement('div');
+                    catGroup.className = 'category-group';
+                    
+                    // Create Header
+                    const header = document.createElement('div');
+                    header.className = 'category-title';
+                    header.innerHTML = `<i class="fas ${cat.icon}"></i> ${cat.title}`;
+                    catGroup.appendChild(header);
+
+                    // Create Grid
+                    const grid = document.createElement('div');
+                    grid.className = 'grid';
+
+                    // Populate Grid
+                    filteredProjects.forEach((p, i) => {
+                        const el = document.createElement('a');
+                        const isRiProject = p.name.startsWith("Ai"); // Logic kept from original
+                        if (isRiProject) {
+                            el.href = "javascript:void(0)"; 
+                            el.className = 'app-card disabled-link'; 
+                            el.title = "Access Restricted";
+                        } else {
+                            el.className = 'app-card';
+                            el.href = p.path; 
+                        }
+                        
+                        // Stagger animation based on index
+                        el.style.animation = `slideUp 0.5s ease-out backwards ${i * 0.05}s`;
+                        
+                        const actionIcon = isRiProject ? 'fa-lock' : 'fa-arrow-right';
+
+                        el.innerHTML = `
+                            <div>
+                                <div class="icon-box"><i class="fas ${p.icon}"></i></div>
+                                <h3 style="font-family:var(--font-head); margin-bottom:5px;">${p.name}</h3>
+                                <p style="font-size:0.9rem;">${p.desc}</p>
+                            </div>
+                            <div style="text-align:right; color:var(--accent); font-size:0.9rem;">
+                                <i class="fas ${actionIcon}"></i>
+                            </div>
+                        `;
+                        grid.appendChild(el);
+                    });
+
+                    catGroup.appendChild(grid);
+                    matrixContent.appendChild(catGroup);
                 }
-                el.style.animation = `slideUp 0.5s ease-out backwards ${i * 0.05}s`;
-                const actionIcon = isRiProject ? 'fa-lock' : 'fa-arrow-right';
-
-                el.innerHTML = `
-                    <div>
-                        <div class="icon-box"><i class="fas ${p.icon}"></i></div>
-                        <h3 style="font-family:var(--font-head); margin-bottom:5px;">${p.name}</h3>
-                        <p style="font-size:0.9rem;">${p.desc}</p>
-                    </div>
-                    <div style="text-align:right; color:var(--accent); font-size:0.9rem;">
-                        <i class="fas ${actionIcon}"></i>
-                    </div>
-                `;
-                grid.appendChild(el);
             });
 
-            if(filtered.length === 0) grid.innerHTML = `<p style="grid-column:1/-1; text-align:center;">No projects found.</p>`;
+            if(!hasResults) {
+                matrixContent.innerHTML = `<p style="text-align:center; padding:40px;">No projects found matching "${filter}".</p>`;
+            }
         }
 
         search.addEventListener('input', e => render(e.target.value));
-        render();
+        render(); // Initial Render
 
         // --- Typewriter ---
         const typeSpan = document.getElementById('typewriter');
