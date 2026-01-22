@@ -7,10 +7,11 @@
   
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600&display=swap" rel="stylesheet">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
   
   <style>
-    /* --- CSS VARIABLES --- */
     :root {
+      /* Light Mode Variables (Default) */
       --wa-header-bg: #f0f2f5;
       --wa-sidebar-bg: #ffffff;
       --wa-chat-bg: #efeae2;
@@ -23,6 +24,38 @@
       --wa-bg-strip: #00a884;
       --dropdown-bg: #ffffff;
       --dropdown-hover: #f5f6f6;
+      --bubble-mine: #d9fdd3;
+      --bubble-other: #ffffff;
+      --bubble-bot: #f3e5f5;
+      --mention-color: #009de2;
+      --modal-bg: #ffffff;
+      --modal-text: #111b21;
+      --icon-color: #54656f;
+      --chat-overlay: rgba(255,255,255,0.4);
+    }
+
+    /* DARK MODE VARIABLES */
+    [data-theme="dark"] {
+      --wa-header-bg: #202c33;
+      --wa-sidebar-bg: #111b21;
+      --wa-chat-bg: #0b141a;
+      --wa-green: #00a884;
+      --wa-green-dark: #008f6f;
+      --wa-text-primary: #e9edef;
+      --wa-text-secondary: #8696a0;
+      --wa-border: #222e35;
+      --wa-input-bg: #2a3942;
+      --wa-bg-strip: #202c33; /* Darker strip */
+      --dropdown-bg: #233138;
+      --dropdown-hover: #182229;
+      --bubble-mine: #005c4b;
+      --bubble-other: #202c33;
+      --bubble-bot: #2e1a36;
+      --mention-color: #53bdeb;
+      --modal-bg: #222e35;
+      --modal-text: #e9edef;
+      --icon-color: #aebac1;
+      --chat-overlay: rgba(11,20,26,0.95);
     }
 
     * { box-sizing: border-box; }
@@ -38,9 +71,11 @@
       justify-content: center;
       align-items: center;
       position: relative;
+      transition: background-color 0.3s;
     }
+    
+    [data-theme="dark"] body { background-color: #090e11; }
 
-    /* Green background strip */
     body::before {
       content: "";
       position: absolute;
@@ -50,18 +85,22 @@
       height: 127px;
       background-color: var(--wa-bg-strip);
       z-index: 0;
+      transition: background-color 0.3s;
     }
 
     .app-container {
       width: 100%;
       height: 100%;
       max-width: 1600px;
-      background-color: #fff;
+      background-color: var(--wa-sidebar-bg);
       display: flex;
       z-index: 1;
       box-shadow: 0 17px 50px 0 rgba(11,20,26,.19), 0 12px 15px 0 rgba(11,20,26,.24);
       overflow: hidden;
+      transition: background-color 0.3s;
     }
+
+    [data-theme="dark"] .app-container { box-shadow: none; border: 1px solid #333; }
 
     @media (min-width: 1441px) {
       .app-container {
@@ -70,7 +109,6 @@
       }
     }
 
-    /* --- SIDEBAR --- */
     aside.sidebar {
       width: 30%;
       min-width: 320px;
@@ -92,6 +130,7 @@
       flex-shrink: 0;
       border-right: 1px solid rgba(0,0,0,0.05);
       position: relative;
+      transition: background-color 0.3s;
     }
 
     .user-profile-section {
@@ -121,12 +160,11 @@
     .header-icons {
       display: flex;
       gap: 20px;
-      color: #54656f;
+      color: var(--icon-color);
       align-items: center;
     }
     .header-icons i { cursor: pointer; font-size: 18px; }
 
-    /* Dropdown Menus */
     .dropdown-menu {
         display: none;
         position: absolute;
@@ -141,9 +179,7 @@
         padding: 5px 0;
     }
     
-    .dropdown-menu.show {
-        display: flex;
-    }
+    .dropdown-menu.show { display: flex; }
 
     .dropdown-item {
         padding: 10px 20px;
@@ -152,12 +188,8 @@
         cursor: pointer;
         transition: background 0.2s;
     }
+    .dropdown-item:hover { background-color: var(--dropdown-hover); }
 
-    .dropdown-item:hover {
-        background-color: var(--dropdown-hover);
-    }
-
-    /* Search Bar */
     .search-bar-container {
       background-color: var(--wa-sidebar-bg);
       padding: 7px 12px;
@@ -177,9 +209,9 @@
       width: 100%;
       outline: none;
       font-size: 14px;
+      color: var(--wa-text-primary);
     }
 
-    /* Chat List */
     .chat-list {
       flex: 1;
       overflow-y: auto;
@@ -195,8 +227,8 @@
       border-bottom: 1px solid var(--wa-border);
       transition: background-color 0.2s;
     }
-    .chat-item:hover { background-color: #f5f6f6; }
-    .chat-item.active { background-color: #f0f2f5; }
+    .chat-item:hover { background-color: var(--dropdown-hover); }
+    .chat-item.active { background-color: var(--wa-header-bg); }
 
     .chat-item img {
       width: 49px;
@@ -237,10 +269,9 @@
       max-width: 200px;
     }
 
-    /* Senior Footer */
     .senior-section {
       padding: 15px;
-      background: #f8f9fa;
+      background: var(--wa-header-bg);
       border-top: 1px solid var(--wa-border);
     }
     .senior-section h4 {
@@ -250,16 +281,15 @@
       text-transform: uppercase;
       font-weight: 600;
     }
-    .senior-controls {
-      display: flex;
-      gap: 10px;
-    }
+    .senior-controls { display: flex; gap: 10px; }
     select {
       flex: 1;
       padding: 8px;
-      border: 1px solid #ddd;
+      border: 1px solid var(--wa-border);
       border-radius: 5px;
       font-family: inherit;
+      background: var(--wa-input-bg);
+      color: var(--wa-text-primary);
     }
     .btn-go {
       background-color: var(--wa-green);
@@ -273,16 +303,15 @@
     .btn-go:disabled { background-color: #ccc; cursor: not-allowed; }
 
     .credit-badge {
-      background: #e9edef;
+      background: var(--wa-input-bg);
       padding: 4px 8px;
       border-radius: 4px;
       font-size: 11px;
-      color: #54656f;
+      color: var(--wa-text-secondary);
       display: inline-block;
       margin-bottom: 5px;
     }
 
-    /* --- RIGHT CHAT AREA --- */
     main.chat-area {
       flex: 1;
       display: flex;
@@ -290,18 +319,28 @@
       background-color: var(--wa-chat-bg);
       background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); 
       background-repeat: repeat;
-      opacity: 0.95;
       position: relative;
+    }
+    
+    /* Dark mode overlay for chat background */
+    main.chat-area::before {
+      content: "";
+      position: absolute; top:0; left:0; width:100%; height:100%;
+      background: var(--chat-overlay);
+      pointer-events: none;
+      z-index: 0;
     }
 
     main.chat-area header {
       border-left: 1px solid var(--wa-border);
+      z-index: 2;
     }
 
     .room-details {
       display: flex;
       flex-direction: column;
       margin-left: 15px;
+      flex: 1;
     }
     .room-name {
       font-weight: 600;
@@ -311,23 +350,378 @@
       font-size: 12px;
       color: var(--wa-text-secondary);
     }
+    
+    .timer-badge {
+        background: var(--modal-bg);
+        border: 2px solid var(--wa-green);
+        color: var(--wa-green);
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-weight: bold;
+        display: none;
+        align-items: center;
+        gap: 8px;
+        margin-right: 15px;
+        font-variant-numeric: tabular-nums;
+        font-family: 'Segoe UI', monospace;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .timer-badge.active { display: flex; animation: pulse-green 2s infinite; }
+    .timer-badge:hover { background: var(--wa-green); color: white; }
 
-    /* TLK.IO Iframe Wrapper */
-    .iframe-container {
+    .timer-options {
+        display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; justify-content: center;
+    }
+    .timer-btn {
+        background: var(--wa-input-bg);
+        color: var(--wa-text-primary);
+        border: 1px solid var(--wa-border);
+        padding: 10px 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        flex: 1 1 40%;
+        transition: background 0.2s;
+        font-weight: 500;
+    }
+    .timer-btn:hover { background: var(--dropdown-hover); }
+
+    .messages-container {
       flex: 1;
+      padding: 20px 60px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      z-index: 1; /* Above bg overlay */
+    }
+
+    .message {
+      max-width: 65%;
+      padding: 6px 7px 8px 9px;
+      border-radius: 7.5px;
+      font-size: 14.2px;
       position: relative;
-      overflow: hidden; 
-      width: 100%;
-      height: 100%;
+      word-wrap: break-word;
+      box-shadow: 0 1px 0.5px rgba(0,0,0,0.13);
+      margin-bottom: 2px;
+      line-height: 19px;
+      color: var(--wa-text-primary);
+    }
+    
+    .message:hover .msg-actions { display: block; }
+    .msg-actions {
+        display: none;
+        position: absolute;
+        top: 0;
+        right: 0;
+        background: var(--wa-sidebar-bg);
+        border-radius: 5px;
+        padding: 5px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        z-index: 10;
+        cursor: pointer;
+        border: 1px solid var(--wa-border);
+    }
+    .msg-actions i { color: var(--wa-text-secondary); font-size: 12px; padding: 2px 5px; }
+    .msg-actions i:hover { color: var(--wa-green); }
+
+    .my-message {
+      align-self: flex-end;
+      background: var(--bubble-mine);
+      border-top-right-radius: 0;
     }
 
-    iframe {
+    .other-message {
+      align-self: flex-start;
+      background: var(--bubble-other);
+      border-top-left-radius: 0;
+    }
+
+    .bot-message {
+      background: var(--bubble-bot) !important;
+      align-self: flex-start;
+      border-top-left-radius: 0;
+    }
+
+    .msg-sender {
+      font-size: 11px;
+      font-weight: bold;
+      color: #e542a3;
+      margin-bottom: 2px;
+      display: block;
+    }
+    .bot-message .msg-sender { color: #d05ce3; }
+    .my-message .msg-sender { display: none; }
+
+    .msg-time {
+      float: right;
+      font-size: 10px;
+      color: var(--wa-text-secondary);
+      margin-top: 5px;
+      margin-left: 10px;
+      position: relative;
+      top: 4px;
+    }
+
+    .mention-highlight { color: var(--mention-color); font-weight: 600; }
+
+    .spoiler {
+        filter: blur(5px);
+        background-color: var(--wa-text-secondary);
+        color: transparent;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-radius: 4px;
+        user-select: none;
+        padding: 0 2px;
+    }
+    .spoiler:hover { background-color: var(--wa-text-primary); }
+    .spoiler.revealed { filter: none; background-color: transparent; color: inherit; cursor: text; user-select: text; }
+
+    .msg-image { max-width: 100%; border-radius: 5px; margin-top: 5px; cursor: pointer; }
+    
+    /* FILE CARD STYLES */
+    .msg-file-card {
+        display: flex;
+        align-items: center;
+        background: rgba(0,0,0,0.06);
+        padding: 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        gap: 12px;
+        margin-top: 5px;
+        transition: background 0.2s, transform 0.1s;
+        border: 1px solid rgba(0,0,0,0.1);
+        user-select: none;
+    }
+    .msg-file-card:hover { 
+        background: rgba(0,0,0,0.1); 
+    }
+    .msg-file-card:active {
+        transform: scale(0.99);
+    }
+    [data-theme="dark"] .msg-file-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
+    [data-theme="dark"] .msg-file-card:hover { background: rgba(255,255,255,0.1); }
+    
+    .file-icon-circle {
+        width: 42px; height: 42px;
+        background: #f06565; /* Generic Red for files */
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        color: white; font-size: 20px;
+        flex-shrink: 0;
+    }
+    .file-details { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+    .file-name-text { font-weight: 600; font-size: 14px; color: var(--wa-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-sub-text { font-size: 11px; color: var(--wa-text-secondary); margin-top: 2px; }
+    .file-download-icon { color: var(--wa-text-secondary); font-size: 18px; margin-left: 5px; }
+
+    
+    .reply-context-bubble {
+        background: rgba(0,0,0,0.05);
+        border-left: 4px solid var(--wa-green);
+        padding: 5px 8px;
+        border-radius: 4px;
+        margin-bottom: 5px;
+        font-size: 12px;
+        display: flex;
+        flex-direction: column;
+        cursor: pointer;
+        opacity: 0.8;
+    }
+    [data-theme="dark"] .reply-context-bubble { background: rgba(0,0,0,0.2); }
+    .reply-context-user { color: var(--wa-green); font-weight: bold; font-size: 11px; margin-bottom: 2px; }
+    .reply-context-text { color: var(--wa-text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* POLL STYLES */
+    .poll-container {
+        width: 100%;
+        min-width: 250px;
+        margin-top: 5px;
+    }
+    .poll-title {
+        font-weight: 600;
+        margin-bottom: 10px;
+        font-size: 15px;
+    }
+    .poll-option {
+        margin-bottom: 8px;
+        cursor: pointer;
+    }
+    .poll-bar-bg {
+        height: 30px;
+        background: rgba(0,0,0,0.05);
+        border-radius: 5px;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+    }
+    [data-theme="dark"] .poll-bar-bg { background: rgba(255,255,255,0.05); }
+    
+    .poll-bar-fill {
+        position: absolute;
+        top: 0; left: 0;
+        height: 100%;
+        background: rgba(0, 168, 132, 0.2);
+        transition: width 0.3s ease;
+        z-index: 1;
+    }
+    .poll-text {
+        z-index: 2;
+        flex: 1;
+        font-size: 14px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .poll-count {
+        z-index: 2;
+        font-size: 12px;
+        color: var(--wa-text-secondary);
+        margin-left: 10px;
+    }
+    .poll-check {
+        margin-right: 10px;
+        color: transparent;
+        width: 16px; height: 16px;
+        border: 2px solid #888;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 10px;
+        z-index: 2;
+    }
+    .poll-option.voted .poll-check {
+        background: var(--wa-green);
+        border-color: var(--wa-green);
+        color: white;
+    }
+    .poll-total {
+        font-size: 11px;
+        color: var(--wa-text-secondary);
+        text-align: right;
+        margin-top: 5px;
+    }
+
+    .chat-footer {
+      min-height: 62px;
+      background: var(--wa-header-bg);
+      padding: 5px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-left: 1px solid var(--wa-border);
+      position: relative;
+      z-index: 2;
+    }
+    
+    .reply-preview-bar {
+        display: none;
+        background: var(--wa-header-bg);
+        border-left: 5px solid var(--wa-green);
+        padding: 8px 15px;
+        position: absolute;
+        bottom: 100%;
+        left: 0;
+        width: 100%;
+        z-index: 50;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+        border-top: 1px solid var(--wa-border);
+    }
+    .reply-preview-bar.show { display: flex; }
+    .reply-preview-content { flex: 1; font-size: 13px; display: flex; flex-direction: column; }
+    .reply-preview-title { font-weight: bold; color: var(--wa-green); font-size: 12px; margin-bottom: 2px; }
+    .reply-preview-text { color: var(--wa-text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80%; }
+    .reply-preview-close { cursor: pointer; padding: 5px; font-size: 16px; color: var(--wa-text-secondary); }
+
+    .input-wrapper {
+      flex: 1;
+      background: var(--wa-sidebar-bg); /* Use sidebar bg (white/dark) */
+      border-radius: 8px;
+      padding: 9px 12px;
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+
+    .input-wrapper input {
       width: 100%;
-      height: 100%;
       border: none;
+      outline: none;
+      font-size: 15px;
+      font-family: inherit;
+      background: transparent;
+      color: var(--wa-text-primary);
     }
 
-    /* Modal for Alerts */
+    .footer-icon {
+      color: var(--icon-color);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 8px;
+      transition: color 0.3s;
+    }
+    .footer-icon:hover { color: var(--wa-text-primary); }
+
+    .footer-icon.recording { color: #ff3b30; animation: pulse 1s infinite; }
+
+    .btn-send {
+      color: var(--icon-color);
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 8px;
+    }
+    .btn-send:hover { color: var(--wa-green); }
+
+    emoji-picker {
+        position: absolute;
+        bottom: 70px;
+        left: 20px;
+        z-index: 100;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        display: none; 
+        --num-columns: 8;
+        --emoji-size: 1.5rem;
+    }
+    emoji-picker.show { display: flex; }
+
+    .mention-box {
+        position: absolute;
+        bottom: 100%;
+        left: 0;
+        width: 100%;
+        background: var(--dropdown-bg);
+        border-radius: 8px;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 5px;
+        display: none;
+        flex-direction: column;
+        z-index: 101;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    .mention-box.show { display: flex; }
+    .mention-item {
+        padding: 10px 15px;
+        cursor: pointer;
+        border-bottom: 1px solid var(--wa-border);
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--wa-text-primary);
+    }
+    .mention-item:hover { background-color: var(--dropdown-hover); }
+    .mention-item img { width: 25px; height: 25px; border-radius: 50%; }
+
+    /* Modal for Alerts & Status */
     .modal {
       display: none;
       position: fixed;
@@ -337,8 +731,81 @@
       align-items: center;
       justify-content: center;
     }
+    
+    .status-modal-card {
+        background: var(--modal-bg);
+        color: var(--modal-text);
+        width: 400px;
+        max-width: 90%;
+        height: 600px;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+    
+    .status-header {
+        background: var(--wa-green);
+        color: white;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    .status-header h3 { margin: 0; font-size: 16px; font-weight: 600; }
+    
+    .status-input-area {
+        padding: 15px;
+        border-bottom: 1px solid var(--wa-border);
+        background: var(--wa-header-bg);
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+    .status-input-area input {
+        flex: 1;
+        border: 1px solid var(--wa-border);
+        border-radius: 20px;
+        padding: 8px 15px;
+        outline: none;
+        background: var(--wa-input-bg);
+        color: var(--wa-text-primary);
+    }
+    
+    .status-feed {
+        flex: 1;
+        overflow-y: auto;
+        padding: 10px 0;
+        background: var(--modal-bg);
+    }
+    
+    .status-entry {
+        display: flex;
+        align-items: flex-start;
+        padding: 12px 15px;
+        border-bottom: 1px solid var(--wa-border);
+    }
+    .status-ring {
+        width: 44px; height: 44px;
+        border-radius: 50%;
+        border: 2px solid var(--wa-green);
+        padding: 2px;
+        margin-right: 12px;
+    }
+    .status-ring img {
+        width: 100%; height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    .status-content h5 { margin: 0 0 4px 0; font-size: 14px; color: var(--wa-text-primary); }
+    .status-content p { margin: 0; font-size: 13.5px; color: var(--wa-text-secondary); line-height: 1.4; }
+    .status-content .time { font-size: 11px; color: var(--wa-text-secondary); margin-top: 5px; display: block; }
+    .status-img-preview { max-width: 200px; border-radius: 8px; margin-top: 5px; }
+
     .modal-card {
-      background: white;
+      background: var(--modal-bg);
+      color: var(--modal-text);
       padding: 20px 30px;
       border-radius: 10px;
       text-align: center;
@@ -358,39 +825,167 @@
         width: 100%;
         padding: 10px;
         margin-top: 10px;
-        border: 1px solid #ddd;
+        border: 1px solid var(--wa-border);
         border-radius: 5px;
+        background: var(--wa-input-bg);
+        color: var(--wa-text-primary);
+    }
+
+    /* DRAWING CANVAS MODAL */
+    #drawingModal .status-modal-card {
+        width: 90%;
+        max-width: 800px;
+        height: 80vh;
+        background: var(--wa-header-bg);
+    }
+    #drawingCanvas {
+        background: white;
+        touch-action: none;
+        cursor: crosshair;
+        margin: 10px auto;
+        display: block;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .drawing-toolbar {
+        padding: 10px 20px;
+        background: var(--modal-bg);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--wa-border);
+    }
+    .color-picker {
+        display: flex;
+        gap: 5px;
+    }
+    .color-dot {
+        width: 24px; height: 24px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid white;
+        box-shadow: 0 0 0 1px #ddd;
+    }
+    .color-dot.active {
+        box-shadow: 0 0 0 2px var(--wa-text-primary);
+        transform: scale(1.1);
+    }
+
+    /* LOGIN OVERLAY CSS */
+    #loginOverlay {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background-color: var(--wa-bg-strip);
+        z-index: 2000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+    .login-box {
+        background: var(--modal-bg);
+        color: var(--modal-text);
+        padding: 30px 40px;
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        width: 90%;
+        max-width: 400px;
+        text-align: center;
+    }
+    .login-box h2 { color: var(--wa-green); margin-bottom: 20px; }
+    .login-box input, .login-box select {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 15px;
+        border: 1px solid var(--wa-border);
+        border-radius: 5px;
+        font-size: 16px;
+        background: var(--wa-input-bg);
+        color: var(--wa-text-primary);
+    }
+    .login-box button {
+        width: 100%;
+        padding: 12px;
+        background: var(--wa-green);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    .login-box button:hover { background: var(--wa-green-dark); }
+    .login-box .switch-link {
+        margin-top: 15px;
+        font-size: 14px;
+        color: var(--wa-green);
+        cursor: pointer;
+        text-decoration: underline;
+    }
+    .login-box .error-msg {
+        color: red; font-size: 13px; margin-bottom: 10px; display: none;
     }
   </style>
 </head>
 <body>
 
+<div id="loginOverlay" style="display: none;">
+    <div style="color:white; margin-bottom: 20px; font-size: 24px; font-weight: bold; display: flex; align-items: center; gap: 10px;">
+        <i class="fab fa-whatsapp" style="font-size: 40px;"></i> RiSync Web
+    </div>
+    
+    <div class="login-box" id="registerBox">
+        <h2>Student Registration</h2>
+        <p class="error-msg" id="regError"></p>
+        <input type="text" id="regName" placeholder="Full Name (e.g. Rahul Kumar)">
+        <input type="email" id="regEmail" placeholder="Unique ID / Email">
+        <select id="regClass">
+            <option value="" disabled selected>Select Your Class</option>
+            <option value="5">Class 5</option>
+            <option value="6">Class 6</option>
+            <option value="7">Class 7</option>
+            <option value="8">Class 8</option>
+            <option value="9">Class 9</option>
+            <option value="10">Class 10</option>
+            <option value="11">Class 11</option>
+            <option value="12">Class 12</option>
+        </select>
+        <button onclick="handleRegister()">Start Chatting</button>
+        <div class="switch-link" onclick="showLogin()">Already have an ID? Login</div>
+    </div>
+
+    <div class="login-box" id="loginBox" style="display: none;">
+        <h2>Welcome Back</h2>
+        <p class="error-msg" id="loginError"></p>
+        <input type="email" id="loginEmail" placeholder="Enter your registered ID">
+        <button onclick="handleLogin()">Login</button>
+        <div class="switch-link" onclick="showRegister()">New Student? Register</div>
+    </div>
+</div>
+
 <div class="app-container">
   
   <aside class="sidebar">
     <header>
-      <div class="user-profile-section" onclick="window.location.href='profile.html'">
+      <div class="user-profile-section" onclick="alert('Profile view coming soon!')">
         <img src="https://placehold.co/40x40/f58220/ffffff?text=U" alt="Profile" class="user-avatar" id="sidebarAvatar" title="Click to view Profile">
         <span class="user-name-display" id="sidebarName">Guest</span>
       </div>
       <div class="header-icons">
-        <a href="content.html" style="color:inherit;" title="Dashboard"><i class="fas fa-home"></i></a>
-        <i class="fas fa-circle-notch" title="Status" onclick="openModal('status')"></i>
+        <i class="fas fa-circle-notch" title="Study Status" onclick="openStatusModal()"></i>
         <i class="fas fa-comment-alt" title="New Chat" onclick="openModal('newChat')"></i>
         <i class="fas fa-ellipsis-v" title="Menu" onclick="toggleDropdown('sidebarDropdown')"></i>
       </div>
 
       <div class="dropdown-menu" id="sidebarDropdown">
           <div class="dropdown-item" onclick="openModal('newChat')">New Chat</div>
-          <div class="dropdown-item" onclick="window.location.href='profile.html'">Profile</div>
-          <div class="dropdown-item" onclick="toggleTheme()">Toggle Theme (Beta)</div>
+          <div class="dropdown-item" onclick="toggleTheme()">Toggle Dark Mode</div>
           <div class="dropdown-item" onclick="handleLogout()" style="color: red;">Log out</div>
       </div>
     </header>
 
     <div class="search-bar-container">
       <div class="search-input-wrapper">
-        <i class="fas fa-search" style="color: #54656f; font-size: 14px;"></i>
+        <i class="fas fa-search" style="color: var(--icon-color); font-size: 14px;"></i>
         <input type="text" id="searchInput" placeholder="Search chats" onkeyup="filterChats()">
       </div>
     </div>
@@ -421,7 +1016,7 @@
         </select>
         <button class="btn-go" id="askSeniorBtn"><i class="fas fa-paper-plane"></i></button>
       </div>
-      <p style="font-size: 11px; color: #888; margin-top: 5px;">Costs 1 Credit per visit.</p>
+      <p style="font-size: 11px; color: var(--wa-text-secondary); margin-top: 5px;">Costs 1 Credit per visit.</p>
     </div>
   </aside>
 
@@ -433,31 +1028,111 @@
           <span class="room-name" id="roomTitle">Select a chat</span>
           <span class="room-participants" id="roomSub">online</span>
         </div>
+        
+        <div id="activeTimer" class="timer-badge" title="Focus Session Active">
+            <i class="fas fa-stopwatch"></i> <span id="timerCountdown">00:00</span>
+        </div>
+
       </div>
       <div class="header-icons">
+        <i class="fas fa-stopwatch" title="Start Focus Session" onclick="openModal('timerSetup')"></i>
         <i class="fas fa-search" onclick="openModal('searchMsg')"></i>
         <i class="fas fa-ellipsis-v" onclick="toggleDropdown('chatDropdown')"></i>
       </div>
 
       <div class="dropdown-menu" id="chatDropdown">
-        <div class="dropdown-item" onclick="refreshChat()">Refresh Chat</div>
-        <div class="dropdown-item" onclick="openModal('contactInfo')">Contact Info</div>
-        <div class="dropdown-item" onclick="refreshChat()">Clear Messages</div>
+        <div class="dropdown-item" onclick="clearLocalChat()">Clear View</div>
+        <div class="dropdown-item" onclick="openModal('contactInfo')">Group Info</div>
     </div>
     </header>
 
-    <div class="iframe-container">
-      <iframe id="chatFrame" src="" allow="camera; microphone"></iframe>
+    <div class="messages-container" id="chatWindow">
     </div>
+
+    <div class="chat-footer">
+        
+        <div class="reply-preview-bar" id="replyPreviewBar">
+            <div class="reply-preview-content">
+                <div class="reply-preview-title" id="replyPreviewUser">Replying to...</div>
+                <div class="reply-preview-text" id="replyPreviewText">Message content</div>
+            </div>
+            <i class="fas fa-times reply-preview-close" onclick="cancelReply()"></i>
+        </div>
+
+        <emoji-picker id="emojiPicker"></emoji-picker>
+        <input type="file" id="fileInput" hidden>
+
+        <i class="far fa-smile footer-icon" id="emojiBtn" title="Emoji"></i>
+        <i class="fas fa-paperclip footer-icon" id="attachBtn" title="Attach File"></i>
+        <i class="fas fa-pencil-alt footer-icon" id="drawBtn" title="Draw"></i> 
+        <i class="fas fa-poll-h footer-icon" id="pollBtn" title="Create Poll" onclick="openModal('poll')"></i> <form id="chatForm" style="flex: 1; display: flex; align-items: center;">
+            <div class="input-wrapper">
+                <div class="mention-box" id="mentionBox"></div>
+                <input type="text" id="msgInput" placeholder="Type a message (@ to mention)" autocomplete="off">
+            </div>
+            <button type="submit" class="btn-send"><i class="fas fa-paper-plane"></i></button>
+        </form>
+        
+        <i class="fas fa-microphone footer-icon" id="micBtn" title="Voice Message"></i>
+    </div>
+
   </main>
 
+</div>
+
+<div id="statusModal" class="modal">
+    <div class="status-modal-card">
+        <div class="status-header">
+            <i class="fas fa-arrow-left" style="cursor:pointer;" onclick="closeStatusModal()"></i>
+            <h3>Study Updates</h3>
+        </div>
+        
+        <div class="status-input-area">
+            <input type="text" id="statusTextInput" placeholder="What are you studying?">
+            <input type="file" id="statusFileInput" hidden>
+            <i class="fas fa-paperclip" style="color:var(--icon-color); cursor:pointer;" onclick="document.getElementById('statusFileInput').click()"></i>
+            <button class="btn-go" onclick="submitStatus()">Post</button>
+        </div>
+
+        <div class="status-feed" id="statusFeed">
+            <div style="text-align:center; padding:20px; color:#888;">
+                <i class="fas fa-circle-notch fa-spin"></i> Loading updates...
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="drawingModal" class="modal">
+    <div class="status-modal-card">
+        <div class="status-header">
+            <i class="fas fa-times" style="cursor:pointer;" onclick="document.getElementById('drawingModal').style.display='none'"></i>
+            <h3>Drawing Canvas</h3>
+        </div>
+        
+        <div class="drawing-toolbar">
+            <div class="color-picker">
+                <div class="color-dot active" style="background: #000;" onclick="setColor('#000', this)"></div>
+                <div class="color-dot" style="background: #ff3b30;" onclick="setColor('#ff3b30', this)"></div>
+                <div class="color-dot" style="background: #007aff;" onclick="setColor('#007aff', this)"></div>
+                <div class="color-dot" style="background: #4cd964;" onclick="setColor('#4cd964', this)"></div>
+            </div>
+            <div style="display:flex; gap:10px;">
+                 <button class="btn-go" style="background:#888;" onclick="clearCanvas()">Clear</button>
+                 <button class="btn-go" id="sendDrawingBtn" onclick="sendDrawing()">Send</button>
+            </div>
+        </div>
+        
+        <div style="flex:1; background:#ddd; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+             <canvas id="drawingCanvas"></canvas>
+        </div>
+    </div>
 </div>
 
 <div id="alertModal" class="modal">
   <div class="modal-card">
     <h3 id="modalTitle">Alert</h3>
     <div id="modalContent">
-        <p id="modalMsg" style="color: #555; margin: 10px 0;">Message</p>
+        <p id="modalMsg" style="color: var(--wa-text-secondary); margin: 10px 0;">Message</p>
     </div>
     <div id="modalActions">
         <button class="modal-btn" onclick="closeModal()">OK</button>
@@ -465,94 +1140,903 @@
   </div>
 </div>
 
-<script>
-  // --- 1. DATA & USER MANAGEMENT ---
-  function ensureUserData() {
-    let email = localStorage.getItem("currentUserEmail");
-    let users = JSON.parse(localStorage.getItem("users")) || [];
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+    import { 
+        getFirestore, collection, addDoc, onSnapshot, query, where, orderBy, serverTimestamp, setDoc, doc, updateDoc
+    } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
     
-    // Auto-fix if no user
-    if (!email || users.length === 0) {
-        const defaultUser = { fullname: "RiSync Guest", email: "guest@risync.com", class: "5" };
-        users.push(defaultUser);
-        localStorage.setItem("users", JSON.stringify(users));
-        localStorage.setItem("currentUserEmail", defaultUser.email);
-        email = defaultUser.email;
+    // NOTE: Removed Firebase Storage import entirely as requested.
+    // Files will now be encoded to Base64 and stored in Firestore.
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyC667ajtfBEfsqOk5PZQVJOLOQaBbf8VKM",
+        authDomain: "richat-risync.firebaseapp.com",
+        projectId: "richat-risync",
+        storageBucket: "richat-risync.firebasestorage.app",
+        messagingSenderId: "152864251884",
+        appId: "1:152864251884:web:587948dcadf65ed2596ac9",
+        measurementId: "G-R9DS3XR122"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    // const storage = getStorage(app); // Removed
+    const messagesRef = collection(db, "messages");
+    const statusesRef = collection(db, "statuses");
+
+    let currentUser = null;
+    let currentRoomId = "";
+    let unsubscribeChat = null;
+    let unsubscribeStatus = null;
+    let unsubscribeTimer = null;
+    let roomUsers = new Set(['ribot']); 
+    
+    // Reply State
+    let currentReplyData = null; 
+    // Timer State
+    let timerInterval = null;
+
+    // --- DRAWING CANVAS LOGIC ---
+    const canvas = document.getElementById("drawingCanvas");
+    const ctx = canvas.getContext("2d");
+    let isDrawing = false;
+    let currentColor = "#000";
+
+    function resizeCanvas() {
+        const parent = canvas.parentElement;
+        canvas.width = parent.clientWidth - 20; 
+        canvas.height = parent.clientHeight - 20;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.strokeStyle = currentColor;
+        ctx.lineWidth = 3;
     }
-    return users.find(u => u.email === email);
+
+    window.openDrawingModal = function() {
+        document.getElementById("drawingModal").style.display = "flex";
+        setTimeout(resizeCanvas, 100); 
+    }
+    
+    window.setColor = function(color, el) {
+        currentColor = color;
+        ctx.strokeStyle = currentColor;
+        document.querySelectorAll(".color-dot").forEach(d => d.classList.remove("active"));
+        el.classList.add("active");
+    }
+
+    window.clearCanvas = function() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function startDraw(e) {
+        isDrawing = true;
+        draw(e);
+    }
+    function endDraw() {
+        isDrawing = false;
+        ctx.beginPath();
+    }
+    function draw(e) {
+        if (!isDrawing) return;
+        
+        const rect = canvas.getBoundingClientRect();
+        const x = (e.clientX || e.touches[0].clientX) - rect.left;
+        const y = (e.clientY || e.touches[0].clientY) - rect.top;
+
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+    }
+
+    canvas.addEventListener("mousedown", startDraw);
+    canvas.addEventListener("mouseup", endDraw);
+    canvas.addEventListener("mousemove", draw);
+    canvas.addEventListener("touchstart", (e) => { e.preventDefault(); startDraw(e); });
+    canvas.addEventListener("touchend", (e) => { e.preventDefault(); endDraw(); });
+    canvas.addEventListener("touchmove", (e) => { e.preventDefault(); draw(e); });
+
+    window.sendDrawing = function() {
+        canvas.toBlob(async (blob) => {
+            if (blob) {
+                const btn = document.getElementById("sendDrawingBtn");
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                
+                const file = new File([blob], "drawing.png", { type: "image/png" });
+                await window.handleFileUpload(file);
+                
+                btn.innerHTML = 'Send';
+                document.getElementById("drawingModal").style.display = "none";
+                clearCanvas();
+            }
+        });
+    }
+
+    document.getElementById("drawBtn").addEventListener("click", window.openDrawingModal);
+    
+    // --- POLL LOGIC ---
+    window.addPollOptionInput = function() {
+        const container = document.getElementById("pollOptionsContainer");
+        const count = container.children.length + 1;
+        if(count > 10) return;
+        const input = document.createElement("input");
+        input.type = "text";
+        input.className = "modal-input";
+        input.placeholder = `Option ${count}`;
+        input.style.marginTop = "5px";
+        container.appendChild(input);
+    }
+
+    window.createPoll = async function() {
+        const question = document.getElementById("pollQuestion").value.trim();
+        const inputs = document.getElementById("pollOptionsContainer").querySelectorAll("input");
+        const options = [];
+        
+        inputs.forEach((inp, idx) => {
+            if(inp.value.trim()) {
+                options.push({
+                    id: idx,
+                    text: inp.value.trim(),
+                    voters: [] 
+                });
+            }
+        });
+
+        if(!question || options.length < 2) {
+            alert("Please provide a question and at least 2 options.");
+            return;
+        }
+
+        await window.sendFirebaseMessage("Poll", "poll", null, null, {
+            question: question,
+            options: options
+        });
+        
+        closeModal();
+    }
+
+    window.handleVote = async function(msgId, optionId, currentOptions) {
+        const user = getCurrentUserProfile();
+        const email = user.email;
+        
+        const newOptions = currentOptions.map(opt => {
+            if(opt.id === optionId) {
+                if(opt.voters.includes(email)) {
+                     return { ...opt, voters: opt.voters.filter(e => e !== email) };
+                } else {
+                     return { ...opt, voters: [...opt.voters, email] };
+                }
+            }
+            return opt;
+        });
+
+        try {
+            const msgRef = doc(db, "messages", msgId);
+            await updateDoc(msgRef, { pollData: { ...currentOptions.pollData, options: newOptions } });
+        } catch(e) {
+            console.error("Vote Error:", e);
+        }
+    }
+
+    window.startFirebaseChat = function(roomId) {
+        if (currentRoomId === roomId && unsubscribeChat) return;
+
+        if (unsubscribeChat) unsubscribeChat();
+        if (unsubscribeTimer) unsubscribeTimer();
+        if (timerInterval) clearInterval(timerInterval);
+        document.getElementById("chatWindow").innerHTML = '';
+        document.getElementById("activeTimer").classList.remove("active");
+
+        currentRoomId = roomId;
+        const chatWindow = document.getElementById("chatWindow");
+        roomUsers = new Set(['ribot']); 
+        
+        window.cancelReply();
+
+        const q = query(
+            messagesRef, 
+            where("roomId", "==", roomId),
+            orderBy("createdAt", "asc") 
+        );
+
+        unsubscribeChat = onSnapshot(q, (snapshot) => {
+            chatWindow.innerHTML = ''; 
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                data.id = doc.id; 
+                if(data.user) roomUsers.add(data.user); 
+                renderMessage(data);
+            });
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }, (error) => {
+            console.error("Firebase Query Error:", error);
+        });
+
+        unsubscribeTimer = onSnapshot(doc(db, "timers", roomId), (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                handleTimerUpdate(data);
+            } else {
+                handleTimerUpdate(null);
+            }
+        });
+    }
+
+    // --- TIMER LOGIC ---
+    window.setFocusTimer = async function(minutes) {
+        if(!currentRoomId) return;
+        const endTime = Date.now() + (minutes * 60 * 1000);
+        const user = getCurrentUserProfile();
+        
+        try {
+            await setDoc(doc(db, "timers", currentRoomId), {
+                endTime: endTime,
+                duration: minutes,
+                startedBy: user.fullname,
+                isActive: true
+            });
+            await window.sendFirebaseMessage(`⏱️ Started a ${minutes}-minute Focus Session!`, 'text');
+            closeModal();
+        } catch(e) {
+            console.error("Timer Set Error", e);
+            alert("Could not set timer: " + e.message);
+        }
+    }
+
+    function handleTimerUpdate(data) {
+        const badge = document.getElementById("activeTimer");
+        const display = document.getElementById("timerCountdown");
+
+        if (timerInterval) clearInterval(timerInterval);
+
+        if (!data || !data.isActive || !data.endTime || data.endTime < Date.now()) {
+            badge.classList.remove("active");
+            return;
+        }
+
+        badge.classList.add("active");
+        badge.title = `Focus Session by ${data.startedBy}`;
+
+        timerInterval = setInterval(() => {
+            const now = Date.now();
+            const diff = data.endTime - now;
+
+            if (diff <= 0) {
+                clearInterval(timerInterval);
+                display.textContent = "00:00";
+                badge.classList.remove("active");
+                return;
+            }
+
+            const minutes = Math.floor(diff / 60000);
+            const seconds = Math.floor((diff % 60000) / 1000);
+            display.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }, 1000);
+    }
+    
+    // --- UPDATED FILE DOWNLOAD LOGIC (Base64) ---
+    window.downloadFile = function(dataUrl, filename) {
+        try {
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = filename; 
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        } catch (error) {
+            console.error("Download failed:", error);
+            alert("Could not download file.");
+        }
+    }
+
+    // --- REPLACED UPLOAD LOGIC: Convert to Base64 (No Storage) ---
+    window.handleFileUpload = async function(file) {
+        if (!file) return;
+
+        // SIZE CHECK: Firestore doc limit is 1MB. 
+        // We limit to 800KB to be safe with Base64 overhead (approx 33% increase).
+        if (file.size > 800 * 1024) {
+            alert("File is too large! Please upload files smaller than 800KB since we are not using cloud storage.");
+            return;
+        }
+
+        const btn = document.getElementById("attachBtn");
+        const originalIcon = btn.className;
+        btn.className = "fas fa-spinner fa-spin footer-icon";
+
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            const base64Data = e.target.result;
+            const type = file.type.startsWith('image/') ? 'image' : 'file';
+            
+            // Send the HUGE string directly to Firestore
+            await window.sendFirebaseMessage(base64Data, type, file.name);
+            btn.className = originalIcon;
+        };
+        reader.onerror = function() {
+            alert("Error reading file.");
+            btn.className = originalIcon;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    window.postStatusToFirebase = async function(text, file = null) {
+        const userProfile = getCurrentUserProfile();
+        
+        if (file) {
+            if (file.size > 800 * 1024) {
+                alert("Image too large (Max 800KB).");
+                return;
+            }
+
+            const btn = document.querySelector(".btn-go");
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const base64Data = e.target.result;
+                await saveStatusDoc(text, base64Data, 'image', userProfile);
+                btn.innerHTML = 'Post';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            await saveStatusDoc(text, null, 'text', userProfile);
+        }
+    }
+
+    async function saveStatusDoc(text, fileUrl, type, userProfile) {
+        try {
+            await addDoc(statusesRef, {
+                text: text || (type === 'image' ? 'Image Update' : ''),
+                fileUrl: fileUrl, // This is now Base64 string
+                type: type,
+                user: userProfile.fullname,
+                uid: userProfile.email,
+                createdAt: serverTimestamp()
+            });
+            document.getElementById("statusTextInput").value = "";
+            document.getElementById("statusFileInput").value = ""; 
+        } catch (err) {
+            alert("Failed to post status: " + err.message);
+        }
+    }
+
+    window.listenToStatuses = function() {
+        if (unsubscribeStatus) return; 
+
+        const q = query(statusesRef, orderBy("createdAt", "desc"));
+
+        unsubscribeStatus = onSnapshot(q, (snapshot) => {
+            const feed = document.getElementById("statusFeed");
+            feed.innerHTML = "";
+            
+            const now = new Date();
+            let hasUpdates = false;
+
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                if(!data.createdAt) return;
+
+                const postDate = data.createdAt.toDate();
+                const diffHours = (now - postDate) / (1000 * 60 * 60);
+
+                if (diffHours < 24) {
+                    hasUpdates = true;
+                    renderStatusItem(data, feed);
+                }
+            });
+
+            if (!hasUpdates) {
+                feed.innerHTML = `<div style="text-align:center; padding:30px; color:#aaa;">No study updates in the last 24h. Be the first!</div>`;
+            }
+        });
+    }
+
+    window.stopStatusListener = function() {
+        if(unsubscribeStatus) {
+            unsubscribeStatus();
+            unsubscribeStatus = null;
+        }
+    }
+
+    function renderStatusItem(data, container) {
+        const div = document.createElement("div");
+        div.className = "status-entry";
+        
+        let mediaHtml = "";
+        // fileUrl is now a Base64 string
+        if (data.type === 'image' && data.fileUrl) {
+            mediaHtml = `<img src="${data.fileUrl}" class="status-img-preview" onclick="window.open(this.src)">`;
+        }
+
+        const date = data.createdAt.toDate();
+        const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        div.innerHTML = `
+            <div class="status-ring">
+                <img src="https://placehold.co/40x40/00a884/ffffff?text=${data.user.charAt(0)}" alt="U">
+            </div>
+            <div class="status-content">
+                <h5>${escapeHtml(data.user)}</h5>
+                <p>${escapeHtml(data.text)}</p>
+                ${mediaHtml}
+                <span class="time">Today at ${timeStr}</span>
+            </div>
+        `;
+        container.appendChild(div);
+    }
+    
+    // --- REPLY FUNCTIONS ---
+    window.initiateReply = function(user, text, msgId) {
+        currentReplyData = { user, text, msgId };
+        document.getElementById("replyPreviewUser").textContent = user;
+        document.getElementById("replyPreviewText").textContent = text;
+        document.getElementById("replyPreviewBar").classList.add("show");
+        document.getElementById("msgInput").focus();
+    }
+    
+    window.cancelReply = function() {
+        currentReplyData = null;
+        document.getElementById("replyPreviewBar").classList.remove("show");
+    }
+
+    window.sendFirebaseMessage = async function(content, type = 'text', fileName = null, overrideUser = null, pollData = null) {
+        if(!currentRoomId) return;
+
+        const userProfile = overrideUser || getCurrentUserProfile(); 
+        
+        const payload = {
+            user: userProfile.fullname,
+            uid: userProfile.email,
+            roomId: currentRoomId,
+            createdAt: serverTimestamp(),
+            type: type 
+        };
+
+        if (currentReplyData) {
+            payload.replyTo = currentReplyData;
+            window.cancelReply();
+        }
+
+        if (type === 'text') payload.text = content;
+        else if (type === 'image' || type === 'file') {
+            payload.text = fileName || "Attachment"; // Text is the filename
+            payload.fileUrl = content; // This is the Base64 string now
+        }
+        else if (type === 'poll') {
+            payload.text = "Poll";
+            payload.pollData = pollData;
+        }
+
+        try {
+            await addDoc(messagesRef, payload);
+        } catch (err) {
+            console.error("Send Error:", err);
+            alert("Failed to send message. " + err.message);
+        }
+    }
+
+    async function handleBotCommand(text) {
+        await window.sendFirebaseMessage(text, 'text');
+        const prompt = text.replace('@ribot', '').trim();
+        if(!prompt) return;
+
+        try {
+            const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
+            const aiText = await response.text();
+            const botProfile = { fullname: "RiBot 🤖", email: "ribot-agent" };
+            await window.sendFirebaseMessage(aiText, 'text', null, botProfile);
+        } catch (error) {
+            const botProfile = { fullname: "RiBot 🤖", email: "ribot-agent" };
+            await window.sendFirebaseMessage("Error connecting to AI.", 'text', null, botProfile);
+        }
+    }
+
+    function renderMessage(data) {
+        const chatWindow = document.getElementById("chatWindow");
+        const userProfile = getCurrentUserProfile();
+        
+        const isMe = data.uid === userProfile.email;
+        const isBot = data.uid === "ribot-agent";
+
+        const div = document.createElement('div');
+        let msgClass = isMe ? 'my-message' : (isBot ? 'bot-message' : 'other-message');
+        div.className = `message ${msgClass}`;
+        
+        let timeStr = "";
+        if (data.createdAt) {
+            const date = data.createdAt.toDate();
+            timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+        
+        let replyHtml = "";
+        if (data.replyTo) {
+            replyHtml = `
+            <div class="reply-context-bubble">
+                <span class="reply-context-user">${escapeHtml(data.replyTo.user)}</span>
+                <span class="reply-context-text">${escapeHtml(data.replyTo.text)}</span>
+            </div>`;
+        }
+
+        let contentHtml = "";
+        
+        // --- RENDER LOGIC START ---
+        if (data.type === 'image') {
+            // data.fileUrl is Base64
+            contentHtml = `<img src="${data.fileUrl}" class="msg-image" onclick="window.open(this.src)">`;
+        } 
+        else if (data.type === 'file') {
+            // STRICT FILE CARD - NO RAW URL
+            // Pass the data.fileUrl (base64) to the updated downloadFile function
+            // Note: Since base64 strings can be huge, we can't easily put them in onclick HTML attribute sometimes
+            // But browsers usually handle it. 
+            
+            // To be safe with quotes, we'll assign ID and use JS listener, OR careful quoting.
+            // Using simple onclick for now with care.
+            
+            contentHtml = `
+            <div class="msg-file-card" id="file-${data.id}">
+                <div class="file-icon-circle">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="file-details">
+                    <span class="file-name-text">${escapeHtml(data.text)}</span>
+                    <span class="file-sub-text">Click to download</span>
+                </div>
+                <div class="file-download-icon">
+                    <i class="fas fa-arrow-down"></i>
+                </div>
+            </div>
+            `;
+            
+            // We attach the click listener after appending to DOM to avoid putting huge strings in HTML
+            setTimeout(() => {
+                const card = document.getElementById(`file-${data.id}`);
+                if(card) {
+                    card.onclick = () => window.downloadFile(data.fileUrl, data.text);
+                }
+            }, 0);
+        } 
+        else if (data.type === 'poll' && data.pollData) {
+            const p = data.pollData;
+            const totalVotes = p.options.reduce((acc, curr) => acc + (curr.voters ? curr.voters.length : 0), 0);
+            
+            let optionsHtml = '';
+            p.options.forEach(opt => {
+                const votes = opt.voters ? opt.voters.length : 0;
+                const percent = totalVotes === 0 ? 0 : Math.round((votes / totalVotes) * 100);
+                const isVoted = opt.voters && opt.voters.includes(userProfile.email);
+                
+                optionsHtml += `
+                    <div class="poll-option ${isVoted ? 'voted' : ''}" onclick='window.handleVote("${data.id}", ${opt.id}, ${JSON.stringify(p.options)})'>
+                        <div class="poll-bar-bg">
+                            <div class="poll-bar-fill" style="width: ${percent}%"></div>
+                            <div class="poll-check"><i class="fas fa-check"></i></div>
+                            <span class="poll-text">${escapeHtml(opt.text)}</span>
+                            <span class="poll-count">${votes}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            contentHtml = `
+                <div class="poll-container">
+                    <div class="poll-title">${escapeHtml(p.question)}</div>
+                    ${optionsHtml}
+                    <div class="poll-total">${totalVotes} votes</div>
+                </div>
+            `;
+        } else {
+            // Text Message
+            let safeText = escapeHtml(data.text);
+            safeText = safeText.replace(/@(\w+)/g, '<span class="mention-highlight">@$1</span>');
+            safeText = safeText.replace(
+                /\|\|(.*?)\|\|/g, 
+                '<span class="spoiler" onclick="this.classList.add(\'revealed\')">$1</span>'
+            );
+            contentHtml = `<span>${safeText}</span>`;
+        }
+        // --- RENDER LOGIC END ---
+        
+        const safeUser = data.user ? data.user.replace(/'/g, "\\'") : 'Unknown';
+        const safeMsgText = data.text ? data.text.replace(/'/g, "\\'") : 'Attachment';
+
+        div.innerHTML = `
+            <div class="msg-actions" onclick="initiateReply('${safeUser}', '${safeMsgText}', '${data.id}')">
+                <i class="fas fa-reply" title="Reply"></i>
+            </div>
+            <span class="msg-sender">${escapeHtml(data.user || 'Unknown')}</span>
+            ${replyHtml}
+            ${contentHtml}
+            <span class="msg-time">${timeStr}</span>
+        `;
+        chatWindow.appendChild(div);
+    }
+
+    const msgInput = document.getElementById("msgInput");
+    const mentionBox = document.getElementById("mentionBox");
+
+    msgInput.addEventListener("keyup", (e) => {
+        const val = msgInput.value;
+        const lastWord = val.split(" ").pop();
+        if (lastWord.startsWith("@")) {
+            const query = lastWord.substring(1).toLowerCase();
+            showMentions(query);
+        } else {
+            mentionBox.classList.remove("show");
+        }
+    });
+
+    function showMentions(query) {
+        mentionBox.innerHTML = "";
+        const users = Array.from(roomUsers);
+        if(users.length === 0) users.push("Everyone", "RiBot"); 
+        const matches = users.filter(u => u.toLowerCase().includes(query));
+        if (matches.length > 0) {
+            matches.forEach(user => {
+                const div = document.createElement("div");
+                div.className = "mention-item";
+                div.innerHTML = `<img src="https://placehold.co/25x25/00a884/ffffff?text=${user.charAt(0)}" /> ${user}`;
+                div.onclick = () => {
+                    const words = msgInput.value.split(" ");
+                    words.pop(); 
+                    words.push(`@${user} `); 
+                    msgInput.value = words.join(" ");
+                    mentionBox.classList.remove("show");
+                    msgInput.focus();
+                };
+                mentionBox.appendChild(div);
+            });
+            mentionBox.classList.add("show");
+        } else {
+            mentionBox.classList.remove("show");
+        }
+    }
+
+    const fileInput = document.getElementById("fileInput");
+    document.getElementById("attachBtn").addEventListener("click", () => fileInput.click());
+    fileInput.addEventListener("change", (e) => {
+        if(e.target.files.length > 0) window.handleFileUpload(e.target.files[0]);
+    });
+
+    const emojiBtn = document.getElementById("emojiBtn");
+    const emojiPicker = document.getElementById("emojiPicker");
+    emojiBtn.addEventListener("click", () => emojiPicker.classList.toggle("show"));
+    emojiPicker.addEventListener('emoji-click', event => {
+        msgInput.value += event.detail.unicode;
+        msgInput.focus();
+    });
+    document.addEventListener('click', (e) => {
+        if (!emojiPicker.contains(e.target) && e.target !== emojiBtn) emojiPicker.classList.remove("show");
+        if (!mentionBox.contains(e.target) && e.target !== msgInput) mentionBox.classList.remove("show");
+    });
+
+    const micBtn = document.getElementById("micBtn");
+    let recognition;
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.lang = 'en-US';
+        recognition.onstart = () => micBtn.classList.add("recording");
+        recognition.onend = () => micBtn.classList.remove("recording");
+        recognition.onresult = (event) => {
+            msgInput.value += (msgInput.value ? " " : "") + event.results[0][0].transcript;
+        };
+        micBtn.onclick = () => micBtn.classList.contains("recording") ? recognition.stop() : recognition.start();
+    }
+
+    function escapeHtml(str) {
+        if(!str) return "";
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    function getCurrentUserProfile() {
+        let email = localStorage.getItem("currentUserEmail");
+        let users = JSON.parse(localStorage.getItem("users")) || [];
+        return users.find(u => u.email === email) || null;
+    }
+
+    window.handleChatSubmit = function(e) {
+        e.preventDefault();
+        const text = msgInput.value.trim();
+        if(text) {
+            if (text.toLowerCase().startsWith('@ribot')) handleBotCommand(text);
+            else sendFirebaseMessage(text, 'text');
+            msgInput.value = "";
+            emojiPicker.classList.remove("show");
+            mentionBox.classList.remove("show");
+        }
+    }
+    document.getElementById("chatForm").addEventListener("submit", window.handleChatSubmit);
+
+</script>
+
+<script>
+  // ----- AUTHENTICATION LOGIC START -----
+
+  const loginOverlay = document.getElementById("loginOverlay");
+  const registerBox = document.getElementById("registerBox");
+  const loginBox = document.getElementById("loginBox");
+  const regError = document.getElementById("regError");
+  const loginError = document.getElementById("loginError");
+
+  function showRegister() {
+      registerBox.style.display = "block";
+      loginBox.style.display = "none";
+      regError.style.display = "none";
   }
 
-  const currentUser = ensureUserData();
-  const myClass = parseInt(currentUser.class) || 5;
-  let currentRoomId = "";
+  function showLogin() {
+      registerBox.style.display = "none";
+      loginBox.style.display = "block";
+      loginError.style.display = "none";
+  }
 
-  // --- 2. INITIALIZATION ---
-  const myClassItem = document.getElementById("myClassItem");
-  const chatFrame = document.getElementById("chatFrame");
-  const sidebarAvatar = document.getElementById("sidebarAvatar");
+  window.handleRegister = function() {
+      const name = document.getElementById("regName").value.trim();
+      const email = document.getElementById("regEmail").value.trim().toLowerCase();
+      const cls = document.getElementById("regClass").value;
+
+      if (!name || !email || !cls) {
+          regError.textContent = "Please fill in all fields.";
+          regError.style.display = "block";
+          return;
+      }
+
+      let users = JSON.parse(localStorage.getItem("users")) || [];
+      const existing = users.find(u => u.email === email);
+
+      if (existing) {
+          regError.textContent = "User ID already taken on this device! Please choose another.";
+          regError.style.display = "block";
+          return;
+      }
+
+      const newUser = { fullname: name, email: email, class: cls };
+      users.push(newUser);
+      localStorage.setItem("users", JSON.stringify(users));
+      localStorage.setItem("currentUserEmail", email);
+      
+      loginOverlay.style.display = "none";
+      window.location.reload(); 
+  }
+
+  window.handleLogin = function() {
+      const email = document.getElementById("loginEmail").value.trim().toLowerCase();
+      if (!email) {
+          loginError.textContent = "Please enter your ID.";
+          loginError.style.display = "block";
+          return;
+      }
+
+      let users = JSON.parse(localStorage.getItem("users")) || [];
+      const user = users.find(u => u.email === email);
+
+      if (!user) {
+          loginError.textContent = "ID not found. Please register.";
+          loginError.style.display = "block";
+      } else {
+          localStorage.setItem("currentUserEmail", email);
+          loginOverlay.style.display = "none";
+          window.location.reload();
+      }
+  }
+
+  function checkAuth() {
+      let email = localStorage.getItem("currentUserEmail");
+      let users = JSON.parse(localStorage.getItem("users")) || [];
+      const user = users.find(u => u.email === email);
+
+      if (!user) {
+          loginOverlay.style.display = "flex";
+          showRegister(); 
+          return null;
+      }
+      return user;
+  }
+
+  // ----- AUTHENTICATION LOGIC END -----
+
+  let currentUser = null;
+  let myClass = 5;
+  let credits = 0;
   
-  // Credits
-  let credits = parseInt(localStorage.getItem("risync_credits"));
-  if (isNaN(credits)) { credits = 10; localStorage.setItem("risync_credits", credits); }
+  const myClassItem = document.getElementById("myClassItem");
+  const sidebarAvatar = document.getElementById("sidebarAvatar");
 
   function init() {
-    // User Profile
-    document.getElementById("sidebarName").textContent = currentUser.fullname;
-    const savedImage = localStorage.getItem("profileImage");
-    if (savedImage) sidebarAvatar.src = savedImage;
+    currentUser = checkAuth();
+    if (!currentUser) return; 
     
-    // Class Setup
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    if(savedTheme === 'dark') document.body.setAttribute('data-theme', 'dark');
+
+    myClass = parseInt(currentUser.class) || 5;
+    credits = parseInt(localStorage.getItem("risync_credits"));
+    if (isNaN(credits)) { credits = 10; localStorage.setItem("risync_credits", credits); }
+
+    document.getElementById("sidebarName").textContent = currentUser.fullname;
+    const initial = currentUser.fullname.charAt(0).toUpperCase();
+    const savedImage = localStorage.getItem("profileImage");
+    sidebarAvatar.src = savedImage || `https://placehold.co/40x40/f58220/ffffff?text=${initial}`;
+    
     document.getElementById("myClassName").textContent = `Class ${myClass} Group`;
     
     updateCreditUI();
     populateSeniorOptions();
-    loadRoom(myClass, `Class ${myClass} Group`);
-
-    // Global Click to close dropdowns
+    
     document.addEventListener('click', function(event) {
         if (!event.target.matches('.fa-ellipsis-v')) {
             document.querySelectorAll(".dropdown-menu").forEach(d => d.classList.remove('show'));
         }
     });
+
+    loadRoom(myClass, `Class ${myClass} Group`);
+  }
+  
+  window.toggleTheme = function() {
+      const body = document.body;
+      const current = body.getAttribute('data-theme');
+      const newTheme = current === 'dark' ? 'light' : 'dark';
+      body.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      document.getElementById('sidebarDropdown').classList.remove('show');
   }
 
-  // --- 3. CHAT LOGIC (TLK.IO) ---
   function loadRoom(identifier, title, isSenior = false) {
-    // Determine Room ID
-    let roomId = "";
-    if (typeof identifier === 'number') roomId = `risync-class-${identifier}`;
-    else roomId = `risync-${identifier}`; // Custom room
-
-    currentRoomId = roomId;
-    const cleanName = currentUser.fullname.split(' ')[0] || "Student";
+    let roomId = typeof identifier === 'number' ? `risync-class-${identifier}` : `risync-${identifier}`;
     
-    // Set Iframe with 'theme=minimal' to reduce branding
-    chatFrame.src = `https://tlk.io/${roomId}?nickname=${encodeURIComponent(cleanName)}&theme=day`; 
-
-    // Update Header
     document.getElementById("roomTitle").textContent = title;
     document.getElementById("roomSub").textContent = isSenior ? "Senior Help Room" : "Active Now";
-    
-    // Update Avatar
     const avatarText = isSenior ? "S" : title.charAt(0).toUpperCase();
     const avatarColor = isSenior ? "f58220" : "00a884";
     document.getElementById("roomAvatar").src = `https://placehold.co/40x40/${avatarColor}/ffffff?text=${avatarText}`;
 
-    // Highlight Sidebar
     document.querySelectorAll('.chat-item').forEach(i => i.classList.remove('active'));
-    
     if (identifier === myClass && !isSenior) {
       myClassItem.classList.add('active');
     } else {
-        // Ensure sidebar item exists
         let domId = `chatItem-${identifier}`;
         let item = document.getElementById(domId);
         if (!item) {
             createSidebarItem(identifier, title, isSenior);
             item = document.getElementById(domId);
         }
-        item.classList.add('active');
+        if(item) item.classList.add('active');
     }
+
+    waitForFirebaseAndConnect(roomId);
+  }
+
+  function waitForFirebaseAndConnect(roomId, attempt = 1) {
+    if (window.startFirebaseChat) {
+        window.startFirebaseChat(roomId);
+    } else if (attempt < 20) {
+        setTimeout(() => waitForFirebaseAndConnect(roomId, attempt + 1), 500);
+    }
+  }
+
+  window.openStatusModal = function() {
+      document.getElementById("statusModal").style.display = "flex";
+      if(window.listenToStatuses) window.listenToStatuses();
+  }
+  
+  window.closeStatusModal = function() {
+      document.getElementById("statusModal").style.display = "none";
+      if(window.stopStatusListener) window.stopStatusListener();
+  }
+  
+  window.submitStatus = function() {
+      const text = document.getElementById("statusTextInput").value.trim();
+      const file = document.getElementById("statusFileInput").files[0];
+      
+      if(text || file) {
+          if(window.postStatusToFirebase) {
+              window.postStatusToFirebase(text, file);
+          }
+      }
   }
 
   function createSidebarItem(id, title, isSenior) {
@@ -560,54 +2044,24 @@
     div.className = "chat-item";
     div.id = `chatItem-${id}`;
     div.onclick = () => loadRoom(id, title, isSenior);
-    
     const color = isSenior ? "f58220" : "00a884";
     const letter = isSenior ? "S" : title.charAt(0).toUpperCase();
-
-    div.innerHTML = `
-        <img src="https://placehold.co/49x49/${color}/ffffff?text=${letter}" alt="Chat">
-        <div class="chat-info">
-          <div class="chat-top">
-            <span class="chat-name">${title}</span>
-            <span class="chat-time">Now</span>
-          </div>
-          <div class="chat-msg"><span>Tap to open...</span></div>
-        </div>
-    `;
+    div.innerHTML = `<img src="https://placehold.co/49x49/${color}/ffffff?text=${letter}" alt="Chat"><div class="chat-info"><div class="chat-top"><span class="chat-name">${title}</span><span class="chat-time">Now</span></div><div class="chat-msg"><span>Tap to open...</span></div></div>`;
     document.getElementById("chatList").appendChild(div);
   }
 
-  function returnToMyClass() {
-    loadRoom(myClass, `Class ${myClass} Group`);
-  }
-
-  function refreshChat() {
-      chatFrame.src = chatFrame.src; // Reloads iframe
-  }
-
-  // --- 4. BUTTONS & MENUS ---
-
+  function returnToMyClass() { loadRoom(myClass, `Class ${myClass} Group`); }
+  function clearLocalChat() { document.getElementById("chatWindow").innerHTML = ''; }
   function toggleDropdown(id) {
-      // Close others first
-      document.querySelectorAll(".dropdown-menu").forEach(d => {
-          if (d.id !== id) d.classList.remove('show');
-      });
+      document.querySelectorAll(".dropdown-menu").forEach(d => { if (d.id !== id) d.classList.remove('show'); });
       document.getElementById(id).classList.toggle("show");
   }
-
   function handleLogout() {
-      if(confirm("Are you sure you want to log out?")) {
-          // Clear current session but keep users DB
-          localStorage.removeItem("currentUserEmail");
-          window.location.href = "signin.html"; 
+      if(confirm("Are you sure you want to log out?")) { 
+          localStorage.removeItem("currentUserEmail"); 
+          window.location.reload(); 
       }
   }
-
-  function toggleTheme() {
-      alert("Dark mode is coming in the next update!");
-  }
-
-  // --- 5. SENIOR LOGIC ---
   function populateSeniorOptions() {
     const seniorSelect = document.getElementById("seniorSelect");
     seniorSelect.innerHTML = '<option value="" disabled selected>Select Grade</option>';
@@ -620,14 +2074,12 @@
       }
     }
   }
-
   function updateCreditUI() {
     document.getElementById("creditDisplay").textContent = credits;
     localStorage.setItem("risync_credits", credits);
     const btn = document.getElementById("askSeniorBtn");
     if (credits <= 0) { btn.disabled = true; btn.style.background = "#ccc"; }
   }
-
   document.getElementById("askSeniorBtn").addEventListener('click', () => {
     const target = document.getElementById("seniorSelect").value;
     if (!target) { openModal('alert', "Please select a class first."); return; }
@@ -637,50 +2089,58 @@
       loadRoom(target, name, true);
     } else { openModal('alert', "Not enough credits!"); }
   });
-
-  // --- 6. MODALS & TOOLS ---
-
   function openModal(type, msg = "") {
       const modal = document.getElementById("alertModal");
       const title = document.getElementById("modalTitle");
       const content = document.getElementById("modalContent");
       const actions = document.getElementById("modalActions");
-
       modal.style.display = "flex";
       content.innerHTML = ""; 
       actions.innerHTML = '<button class="modal-btn" onclick="closeModal()">OK</button>';
-
-      if (type === 'status') {
-          title.textContent = "Status Updates";
-          content.innerHTML = `<div style="text-align:center;"><i class="fas fa-circle-notch fa-spin" style="font-size:30px; color:#00a884;"></i><p>No new status updates from your class.</p></div>`;
-      } else if (type === 'newChat') {
+      
+      if (type === 'newChat') {
           title.textContent = "Start New Chat";
-          content.innerHTML = `<p>Enter a topic or room name (e.g. 'Science-Project'):</p><input type="text" id="newChatInput" class="modal-input" placeholder="Room Name">`;
+          content.innerHTML = `<p>Enter a topic or room name:</p><input type="text" id="newChatInput" class="modal-input" placeholder="Room Name">`;
           actions.innerHTML = `<button class="modal-btn" onclick="startNewChat()">Start Chat</button> <button class="modal-btn" style="background:#ccc" onclick="closeModal()">Cancel</button>`;
       } else if (type === 'contactInfo') {
-          title.textContent = "Contact Info";
-          content.innerHTML = `<p><strong>Room ID:</strong> ${currentRoomId}</p><p>This is a secure channel powered by tlk.io.</p>`;
+          title.textContent = "Group Info";
+          content.innerHTML = `<p><strong>RiSync Chat</strong></p><p>Powered by Google Firebase.</p>`;
       } else if (type === 'searchMsg') {
           title.textContent = "Search Messages";
           content.innerHTML = `<p>Use Ctrl+F to search within the chat window.</p>`;
+      } else if (type === 'timerSetup') {
+          title.textContent = "Start Focus Session";
+          content.innerHTML = `
+              <p>Select duration. The timer will sync for everyone in this room.</p>
+              <div class="timer-options">
+                  <div class="timer-btn" onclick="window.setFocusTimer(15)">15 Min</div>
+                  <div class="timer-btn" onclick="window.setFocusTimer(25)">25 Min</div>
+                  <div class="timer-btn" onclick="window.setFocusTimer(45)">45 Min</div>
+                  <div class="timer-btn" onclick="window.setFocusTimer(60)">60 Min</div>
+              </div>
+          `;
+          actions.innerHTML = `<button class="modal-btn" style="background:#ccc" onclick="closeModal()">Cancel</button>`;
+      } else if (type === 'poll') {
+          title.textContent = "Create a Poll";
+          content.innerHTML = `
+              <input type="text" id="pollQuestion" class="modal-input" placeholder="Ask a question..." style="font-weight:bold; margin-bottom:10px;">
+              <div id="pollOptionsContainer">
+                  <input type="text" class="modal-input" placeholder="Option 1" style="margin-top:5px;">
+                  <input type="text" class="modal-input" placeholder="Option 2" style="margin-top:5px;">
+              </div>
+              <button class="modal-btn" style="background:#eee; color:#333; margin-top:10px; font-size:12px;" onclick="addPollOptionInput()">+ Add Option</button>
+          `;
+          actions.innerHTML = `<button class="modal-btn" onclick="createPoll()">Create Poll</button> <button class="modal-btn" style="background:#ccc" onclick="closeModal()">Cancel</button>`;
       } else {
           title.textContent = "Alert";
           content.innerHTML = `<p>${msg}</p>`;
       }
   }
-
   function startNewChat() {
       const name = document.getElementById("newChatInput").value.trim().replace(/\s+/g, '-');
-      if(name) {
-          loadRoom(name.toLowerCase(), name);
-          closeModal();
-      }
+      if(name) { loadRoom(name.toLowerCase(), name); closeModal(); }
   }
-
-  function closeModal() {
-      document.getElementById("alertModal").style.display = "none";
-  }
-
+  function closeModal() { document.getElementById("alertModal").style.display = "none"; }
   function filterChats() {
     const filter = document.getElementById('searchInput').value.toLowerCase();
     document.querySelectorAll('.chat-item').forEach(item => {
@@ -690,7 +2150,6 @@
   }
 
   init();
-
 </script>
 </body>
 </html>
