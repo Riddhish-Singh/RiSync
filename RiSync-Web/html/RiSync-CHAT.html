@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>RiSync Web</title>
+  <title>RiSync Web - Study Chat</title>
   
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600&display=swap" rel="stylesheet">
@@ -1617,13 +1617,19 @@
         }
     }
 
+    // --- AI BOT COMMAND LOGIC (STRICT TEACHER) ---
     async function handleBotCommand(text) {
-        await window.sendFirebaseMessage(text, 'text');
-        const prompt = text.replace('@ribot', '').trim();
-        if(!prompt) return;
+        const userPrompt = text.replace('@ribot', '').trim();
+        if(!userPrompt) return;
+
+        // Strict System Prompt using 'openai' model via Pollinations
+        const systemPrompt = `System: You are RiBot, a strict educational AI assistant for school students (age 11). You ONLY answer questions about school subjects (Math, Science, English, History, Art). If the user asks about pranks, teasing, games, movies, or anything non-educational, strictly refuse and tell them to focus on studies. Keep answers short and helpful for a child. \n\nUser: ${userPrompt}`;
+        
+        // Force model=openai for smarter reasoning
+        const url = `https://text.pollinations.ai/${encodeURIComponent(systemPrompt)}?model=openai`;
 
         try {
-            const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
+            const response = await fetch(url);
             const aiText = await response.text();
             const botProfile = { fullname: "RiBot 🤖", email: "ribot-agent" };
             await window.sendFirebaseMessage(aiText, 'text', null, botProfile);
@@ -1667,14 +1673,6 @@
             contentHtml = `<img src="${data.fileUrl}" class="msg-image" onclick="window.open(this.src)">`;
         } 
         else if (data.type === 'file') {
-            // STRICT FILE CARD - NO RAW URL
-            // Pass the data.fileUrl (base64) to the updated downloadFile function
-            // Note: Since base64 strings can be huge, we can't easily put them in onclick HTML attribute sometimes
-            // But browsers usually handle it. 
-            
-            // To be safe with quotes, we'll assign ID and use JS listener, OR careful quoting.
-            // Using simple onclick for now with care.
-            
             contentHtml = `
             <div class="msg-file-card" id="file-${data.id}">
                 <div class="file-icon-circle">
@@ -1690,7 +1688,6 @@
             </div>
             `;
             
-            // We attach the click listener after appending to DOM to avoid putting huge strings in HTML
             setTimeout(() => {
                 const card = document.getElementById(`file-${data.id}`);
                 if(card) {
@@ -1838,12 +1835,120 @@
         return users.find(u => u.email === email) || null;
     }
 
+    // --- AI MODERATION & SUSPENSION LOGIC START ---
+
+    window.checkMessageRelevance = async function(text) {
+        if (!text || text.length < 2) return; // Ignore very short msg
+
+        // Prompt tailored for strict study/classroom environment
+        const prompt = `You are a strict school moderator for 11-year-olds. 
+        Determine if the following message is related to studies, school work, classroom greetings, or app help.
+        If it is about gaming, dating, movies, rude behavior, pranks, teasing, or purely distracting nonsense, reply NO. 
+        If it is safe/relevant, reply YES. 
+        Strictly answer only YES or NO.
+        Message: "${text}"`;
+
+        try {
+            // UPGRADE: Use 'openai' model for smarter, stricter checking
+            const url = `https://text.pollinations.ai/${encodeURIComponent(prompt)}?model=openai`;
+            const response = await fetch(url);
+            const answer = await response.text();
+            
+            if (answer.trim().toUpperCase().includes("NO")) {
+                handleViolation();
+            }
+        } catch (e) {
+            console.error("AI Check Failed", e);
+            // Fallback: If OpenAI fails, try default model as backup
+            try {
+                 const responseBackup = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
+                 const answerBackup = await responseBackup.text();
+                 if (answerBackup.trim().toUpperCase().includes("NO")) handleViolation();
+            } catch(err) {
+                console.log("Both AI models failed. Skipping check.");
+            }
+        }
+    }
+
+    function handleViolation() {
+        const email = localStorage.getItem("currentUserEmail");
+        let users = JSON.parse(localStorage.getItem("users")) || [];
+        const idx = users.findIndex(u => u.email === email);
+        
+        if (idx !== -1) {
+            let user = users[idx];
+            user.warnings = (user.warnings || 0) + 1;
+            
+            let alertMsg = "";
+            let isSuspended = false;
+
+            if (user.warnings === 1) {
+                alertMsg = "Warning 1/3: Please keep the conversation study-related.";
+            } else if (user.warnings === 2) {
+                alertMsg = "Warning 2/3: Next violation will result in suspension.";
+            } else if (user.warnings >= 3) {
+                // Suspend for 24 hours
+                user.suspendedUntil = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+                user.warnings = 0; // Reset warnings after suspension
+                isSuspended = true;
+                alertMsg = "Suspended! You cannot send messages for 24 hours due to off-topic chat.";
+            }
+            
+            users[idx] = user;
+            localStorage.setItem("users", JSON.stringify(users));
+            
+            // Show Alert
+            alert(alertMsg);
+            
+            if(isSuspended) {
+                window.location.reload();
+            }
+        }
+    }
+
+    function checkSuspension() {
+        const user = getCurrentUserProfile();
+        if (user && user.suspendedUntil) {
+            const suspendTime = new Date(user.suspendedUntil);
+            const now = new Date();
+            if (suspendTime > now) {
+                const timeLeft = Math.ceil((suspendTime - now) / (1000 * 60 * 60));
+                alert(`You are suspended. Try again in ${timeLeft} hours.`);
+                return true; // Is suspended
+            } else {
+                // Suspension over, clear it
+                let users = JSON.parse(localStorage.getItem("users")) || [];
+                const idx = users.findIndex(u => u.email === user.email);
+                if(idx !== -1) {
+                    delete users[idx].suspendedUntil;
+                    localStorage.setItem("users", JSON.stringify(users));
+                }
+            }
+        }
+        return false;
+    }
+
+    // --- AI MODERATION LOGIC END ---
+
     window.handleChatSubmit = function(e) {
         e.preventDefault();
+        
+        // Step 1: Check Suspension
+        if (checkSuspension()) return;
+
         const text = msgInput.value.trim();
         if(text) {
-            if (text.toLowerCase().startsWith('@ribot')) handleBotCommand(text);
-            else sendFirebaseMessage(text, 'text');
+            // ALWAYS Send Message First for Speed
+            sendFirebaseMessage(text, 'text');
+
+            // ALWAYS Run Background AI Check (Even for Bot Commands)
+            window.checkMessageRelevance(text);
+            
+            // Handle Bot Command
+            if (text.toLowerCase().startsWith('@ribot')) {
+                handleBotCommand(text);
+            } 
+            
             msgInput.value = "";
             emojiPicker.classList.remove("show");
             mentionBox.classList.remove("show");
