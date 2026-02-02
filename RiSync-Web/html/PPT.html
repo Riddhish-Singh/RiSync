@@ -1857,6 +1857,39 @@ strikethroughBtn.addEventListener('click', () => {
   });
 
 </script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
+  const firebaseConfig = {
+    apiKey: "AIzaSyBWAwm_TDtD1qXDtjxJu0jrDP45c3p1Bxg",
+    authDomain: "risync-risync.firebaseapp.com",
+    projectId: "risync-risync",
+    storageBucket: "risync-risync.firebasestorage.app",
+    messagingSenderId: "195106250121",
+    appId: "1:195106250121:web:57b23c5b94d5771995d558"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // AUTH PROTECTION: Check if user is logged in
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      // If not logged in, redirect to signin.html
+      window.location.href = "signin.html";
+    } else {
+      console.log("RiSync User Verified:", user.email);
+      // Optional: Load user data for the specific tool
+      if (typeof onUserLoad === "function") onUserLoad(user);
+    }
+  });
+
+  // Make db and auth accessible to your other scripts
+  window.risyncAuth = auth;
+  window.risyncDb = db;
+</script>
 </body>
 </html>

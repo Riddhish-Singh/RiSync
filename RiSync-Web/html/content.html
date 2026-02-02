@@ -2827,5 +2827,43 @@ const initialLang = saved && translations[saved] ? saved : 'en';
 setLanguage(initialLang);
 
 </script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBWAwm_TDtD1qXDtjxJu0jrDP45c3p1Bxg",
+  authDomain: "risync-risync.firebaseapp.com",
+  projectId: "risync-risync",
+  storageBucket: "risync-risync.firebasestorage.app",
+  messagingSenderId: "195106250121",
+  appId: "1:195106250121:web:57b23c5b94d5771995d558"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Check login status and load data
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    // 1. Fetch user profile from Firestore
+    const docRef = doc(db, "users", user.uid);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      const userData = docSnap.data();
+      // 2. Update the UI with real database data
+      document.getElementById('welcomeName').innerText = userData.fullname;
+      document.getElementById('displayBranch').innerText = userData.branch;
+      console.log("Profile loaded from Firestore!");
+    }
+  } else {
+    // Redirect if not logged in
+    window.location.href = "signin.html";
+  }
+});
+</script>
 </body>
 </html>
