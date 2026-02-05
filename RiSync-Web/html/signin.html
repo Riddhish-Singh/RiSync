@@ -48,7 +48,7 @@
     input[type="password"] {
       width: 100%;
       padding: 12px;
-      margin-bottom: 5px; /* Reduced margin to make space for error messages */
+      margin-bottom: 5px;
       border: none;
       border-radius: 8px;
       font-size: 16px;
@@ -68,9 +68,9 @@
     .error {
       color: #FF6F61;
       font-size: 12px;
-      margin-bottom: 10px; /* Space below error message */
+      margin-bottom: 10px;
       text-align: left;
-      min-height: 18px; /* Ensure consistent spacing even if no error */
+      min-height: 18px;
     }
     .signin-button,
     .go-back-button {
@@ -141,11 +141,12 @@
   <div class="container">
     <div class="logo">
        <a href="../index.html" class="logo">
-    <img src="../assets/logo.png" alt="RiSync Logo" style="width:80px; height:auto;">
-</a>>
+         <img src="../assets/logo.png" alt="RiSync Logo" style="width:80px; height:auto;">
+       </a>
     </div>
     <h1>RiSync Sign-In</h1>
-    <form id="signinForm" onsubmit="event.preventDefault(); validateAndRedirect();">
+    
+    <form id="signinForm">
       <label for="email">Email Address</label>
       <input type="email" id="email" name="email" placeholder="Enter your email" autocomplete="username" required />
       <div id="emailError" class="error"></div>
@@ -155,7 +156,7 @@
       <div id="passwordError" class="error"></div>
 
       <div id="showPasswordContainer">
-        <input type="checkbox" id="showPassword" onclick="togglePassword()" />
+        <input type="checkbox" id="showPassword" />
         <label for="showPassword" style="display: inline;">Show Password</label>
       </div>
 
@@ -169,69 +170,91 @@
     <button type="button" class="go-back-button" onclick="window.location.href='../index.html'">GO BACK TO THE MAIN PAGE</button>
   </div>
 
-  <script>
-    /**
-     * Toggles the visibility of the password field.
-     */
-    function togglePassword() {
-      const pwField = document.getElementById("password");
-      pwField.type = pwField.type === "password" ? "text" : "password";
-    }
+  <script type="module">
+    // --- FIREBASE CONFIGURATION ---
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
 
-    /**
-     * Validates the email and password against stored user data in localStorage
-     * and redirects to content.html on successful authentication.
-     */
-    function validateAndRedirect() {
-      // Clear previous error messages
-      document.getElementById("emailError").textContent = "";
-      document.getElementById("passwordError").textContent = "";
+    const firebaseConfig = {
+      apiKey: "AIzaSyBWAwm_TDtD1qXDtjxJu0jrDP45c3p1Bxg",
+      authDomain: "risync-risync.firebaseapp.com",
+      projectId: "risync-risync",
+      storageBucket: "risync-risync.firebasestorage.app",
+      messagingSenderId: "195106250121",
+      appId: "1:195106250121:web:57b23c5b94d5771995d558",
+      measurementId: "G-D5WSLQ706Z"
+    };
 
-      const emailInput = document.getElementById("email").value.trim().toLowerCase();
-      const passwordInput = document.getElementById("password").value;
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth(app);
 
-      // Basic email format validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(emailInput)) {
-        document.getElementById("emailError").textContent = "Please enter a valid email address.";
-        return;
+    // --- DOM ELEMENT REFERENCES ---
+    const signinForm = document.getElementById('signinForm');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const showPasswordCheckbox = document.getElementById('showPassword');
+    const emailError = document.getElementById('emailError');
+    const passwordError = document.getElementById('passwordError');
+
+    // --- EVENT LISTENERS ---
+
+    // 1. Toggle Password Visibility
+    showPasswordCheckbox.addEventListener('change', () => {
+      passwordInput.type = showPasswordCheckbox.checked ? "text" : "password";
+    });
+
+    // 2. Handle Form Submission (Sign In)
+    signinForm.addEventListener('submit', async (event) => {
+      event.preventDefault(); // Prevent page reload
+
+      // Clear previous errors
+      emailError.textContent = "";
+      passwordError.textContent = "";
+
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+
+      try {
+        // Attempt to sign in with Firebase
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // Optional: You can still save email to localStorage if other pages expect it
+        // localStorage.setItem("currentUserEmail", email);
+
+        // Show success and redirect
+        alert("Sign-in successful!");
+        window.location.href = "content.html";
+
+      } catch (error) {
+        console.error("Error signing in:", error);
+        
+        // Handle specific Firebase error codes
+        switch (error.code) {
+          case 'auth/invalid-email':
+            emailError.textContent = "Please enter a valid email address.";
+            break;
+          case 'auth/user-not-found':
+            emailError.textContent = "No account found with this email.";
+            break;
+          case 'auth/wrong-password':
+            passwordError.textContent = "Incorrect password.";
+            break;
+          case 'auth/too-many-requests':
+            emailError.textContent = "Too many failed attempts. Please try again later.";
+            break;
+          case 'auth/invalid-credential':
+             // New Firebase generic error for security
+             passwordError.textContent = "Incorrect email or password.";
+             break;
+          default:
+            emailError.textContent = "Sign-in failed. Please check your connection.";
+        }
       }
-
-      // Retrieve all users from localStorage
-      const usersRaw = localStorage.getItem("users");
-      const users = usersRaw ? JSON.parse(usersRaw) : [];
-
-      // Find the user with the matching email
-      const foundUser = users.find(user => user.email === emailInput);
-
-      if (!foundUser) {
-        document.getElementById("emailError").textContent = "No account found with this email. Please sign up first.";
-        return;
-      }
-
-      // Authenticate against the stored password for the found user
-      if (passwordInput !== foundUser.password) {
-        document.getElementById("passwordError").textContent = "Incorrect password.";
-        return;
-      }
-
-      // If authentication is successful, store the current user's email (optional, for content.html)
-      localStorage.setItem("currentUserEmail", emailInput);
-
-      // Show success message (using alert for simplicity, consider a custom modal)
-      alert("Sign-in successful!");
-
-      // Redirect to the content page
-      window.location.href = "content.html";
-    }
-
-    /**
-     * Redirects the user back to the main index page.
-     */
-    function goBack() {
-      window.location.href = "./index.html";
-    }
+    });
   </script>
-  
 </body>
 </html>

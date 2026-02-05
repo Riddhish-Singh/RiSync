@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Innovator Dashboard | Vigyanshaala</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        brand: { 50: '#f0fdfa', 100: '#ccfbf1', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e', 900: '#134e4a' },
+                        ocean: { 500: '#0ea5e9', 600: '#0284c7' },
+                        fresh: { 400: '#a3e635', 500: '#84cc16' },
+                        spark: { 400: '#facc15' }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { transition: background-color 0.3s; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .dark .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Sidebar Active State */
+        .nav-item.active {
+            background: linear-gradient(to right, #f0fdfa, transparent);
+            border-right: 3px solid #0d9488;
+            color: #0d9488;
+        }
+        .dark .nav-item.active {
+            background: linear-gradient(to right, #134e4a, transparent);
+            color: #2dd4bf;
+        }
+
+        /* Loading Skeleton Animation */
+        .skeleton {
+            background: #e2e8f0;
+            background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        .dark .skeleton {
+            background: #334155;
+            background: linear-gradient(90deg, #334155 25%, #475569 50%, #334155 75%);
+        }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 flex h-screen overflow-hidden">
+
+    <aside class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 hidden md:flex flex-col z-20">
+        <div class="h-16 flex items-center px-6 border-b border-slate-100 dark:border-slate-800">
+            <img src="https://vigyanshaala.com/wp-content/uploads/2021/06/VS-logo.png" alt="Logo" class="h-8 w-auto mr-2">
+            <span class="font-bold text-lg tracking-tight">Idea Lab</span>
+        </div>
+
+        <nav class="flex-1 py-6 space-y-1">
+            <a href="index.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition group">
+                <i class="fas fa-home w-6 group-hover:text-brand-600 transition"></i>
+                <span class="font-medium text-sm">Home</span>
+            </a>
+            <a href="#" class="nav-item active flex items-center px-6 py-3 text-brand-600 dark:text-brand-400">
+                <i class="fas fa-chart-pie w-6"></i>
+                <span class="font-medium text-sm">Dashboard</span>
+            </a>
+            <a href="submit.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition group">
+                <i class="fas fa-plus-circle w-6 group-hover:text-brand-600 transition"></i>
+                <span class="font-medium text-sm">New Idea</span>
+            </a>
+            <a href="challenges.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition group">
+                <i class="fas fa-trophy w-6 group-hover:text-brand-600 transition"></i>
+                <span class="font-medium text-sm">Challenges</span>
+            </a>
+            <a href="#" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition group">
+                <i class="fas fa-users w-6 group-hover:text-brand-600 transition"></i>
+                <span class="font-medium text-sm">Community</span>
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-slate-100 dark:border-slate-800">
+            <div class="bg-gradient-to-br from-brand-600 to-ocean-600 rounded-xl p-4 text-white text-center">
+                <p class="text-xs font-medium opacity-90 mb-1">Season 5 Ends In</p>
+                <div id="countdown" class="text-xl font-bold font-mono">12d 04h 20m</div>
+            </div>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col h-screen overflow-hidden relative">
+        
+        <header class="h-16 glass-panel border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 sm:px-8 z-10">
+            <div class="flex items-center gap-4 md:hidden">
+                <button class="text-slate-500"><i class="fas fa-bars text-xl"></i></button>
+                <span class="font-bold">Dashboard</span>
+            </div>
+            
+            <div class="hidden md:block">
+                <h1 class="text-xl font-bold text-slate-800 dark:text-white" id="welcomeMsg">Welcome back!</h1>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button id="themeToggle" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-brand-600 transition">
+                    <i class="fas fa-moon dark:hidden"></i>
+                    <i class="fas fa-sun hidden dark:block text-spark-400"></i>
+                </button>
+                
+                <div class="h-8 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+
+                <div class="flex items-center gap-3">
+                    <div class="text-right hidden sm:block">
+                        <div id="userName" class="text-sm font-bold text-slate-700 dark:text-slate-200">Loading...</div>
+                        <div class="text-xs text-slate-500">Student Innovator</div>
+                    </div>
+                    <img id="userAvatar" src="https://ui-avatars.com/api/?name=User" class="w-9 h-9 rounded-full border-2 border-white dark:border-slate-700 shadow-sm">
+                    
+                    <button id="logoutBtn" class="text-slate-400 hover:text-red-500 transition ml-2" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-4 sm:p-8 relative">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 relative overflow-hidden group">
+                    <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition">
+                        <i class="fas fa-lightbulb text-6xl text-brand-600"></i>
+                    </div>
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Ideas Submitted</p>
+                    <h3 id="statIdeas" class="text-3xl font-extrabold text-slate-800 dark:text-white">...</h3>
+                    <div class="mt-2 text-xs text-green-500 flex items-center font-medium">
+                        <i class="fas fa-arrow-up mr-1"></i> 2 this month
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 relative overflow-hidden group">
+                    <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition">
+                        <i class="fas fa-check-circle text-6xl text-fresh-500"></i>
+                    </div>
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Shortlisted</p>
+                    <h3 id="statShortlisted" class="text-3xl font-extrabold text-slate-800 dark:text-white">...</h3>
+                    <div class="mt-2 text-xs text-slate-400">Awaiting final review</div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 relative overflow-hidden group">
+                    <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition">
+                        <i class="fas fa-star text-6xl text-spark-500"></i>
+                    </div>
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Total Points</p>
+                    <h3 id="statPoints" class="text-3xl font-extrabold text-slate-800 dark:text-white">...</h3>
+                    <div class="mt-2 text-xs text-brand-500 font-bold">Top 10% of users</div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 relative overflow-hidden group">
+                    <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition">
+                        <i class="fas fa-medal text-6xl text-ocean-500"></i>
+                    </div>
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Milestones</p>
+                    <h3 id="statMilestones" class="text-3xl font-extrabold text-slate-800 dark:text-white">...</h3>
+                    <div class="mt-2 text-xs text-slate-400">Next: "Pro Solver"</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-lg font-bold">Active Challenges</h2>
+                        <a href="challenges.html" class="text-sm text-brand-600 hover:underline">View All</a>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row gap-6">
+                        <div class="w-full sm:w-32 h-32 bg-slate-100 rounded-lg flex-shrink-0 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1497436072909-60f360e1d4b0?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <span class="text-xs font-bold text-fresh-600 bg-fresh-100 px-2 py-0.5 rounded">Sustainability</span>
+                                    <h3 class="font-bold text-lg mt-1">Clean Water for Rural India</h3>
+                                </div>
+                                <span class="text-xs font-bold text-slate-400"><i class="far fa-clock"></i> 5 days left</span>
+                            </div>
+                            <p class="text-sm text-slate-500 mt-2 mb-4">Design a low-cost filtration system using locally sourced materials.</p>
+                            
+                            <div class="w-full bg-slate-100 rounded-full h-2 mb-2">
+                                <div class="bg-brand-500 h-2 rounded-full" style="width: 70%"></div>
+                            </div>
+                            <div class="flex justify-between text-xs text-slate-500">
+                                <span>70% Submissions Full</span>
+                                <span>145 Participants</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-brand-900 to-slate-900 rounded-xl p-8 text-white relative overflow-hidden">
+                        <div class="relative z-10">
+                            <h3 class="text-xl font-bold mb-2">Have a revolutionary idea?</h3>
+                            <p class="text-brand-100 text-sm mb-6 max-w-md">Don't wait for a challenge. Submit your unique innovation today and get mentorship.</p>
+                            <a href="submit.html" class="bg-white text-brand-900 px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-brand-50 transition">Submit Idea</a>
+                        </div>
+                        <div class="absolute right-0 bottom-0 opacity-10 transform translate-x-10 translate-y-10">
+                            <i class="fas fa-rocket text-9xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-1">
+                    <h2 class="text-lg font-bold mb-6">Recent Activity</h2>
+                    <div class="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-100 dark:border-slate-700 shadow-sm h-full">
+                        <div class="relative pl-4 border-l-2 border-slate-100 dark:border-slate-700 space-y-8">
+                            
+                            <div class="relative">
+                                <div class="absolute -left-[21px] top-1 w-3 h-3 bg-brand-500 rounded-full ring-4 ring-white dark:ring-slate-800"></div>
+                                <p class="text-xs text-slate-400 mb-1">Today, 10:30 AM</p>
+                                <h4 class="text-sm font-bold">Logged In</h4>
+                                <p class="text-xs text-slate-500">Access from Chrome on Windows.</p>
+                            </div>
+
+                            <div class="relative">
+                                <div class="absolute -left-[21px] top-1 w-3 h-3 bg-ocean-500 rounded-full ring-4 ring-white dark:ring-slate-800"></div>
+                                <p class="text-xs text-slate-400 mb-1">Yesterday</p>
+                                <h4 class="text-sm font-bold">Profile Updated</h4>
+                                <p class="text-xs text-slate-500">Changed avatar image.</p>
+                            </div>
+
+                            <div class="relative">
+                                <div class="absolute -left-[21px] top-1 w-3 h-3 bg-slate-300 rounded-full ring-4 ring-white dark:ring-slate-800"></div>
+                                <p class="text-xs text-slate-400 mb-1">Feb 1, 2026</p>
+                                <h4 class="text-sm font-bold">Points Added</h4>
+                                <p class="text-xs text-slate-500">Earned +50 points for weekly streak.</p>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAGpwRwsJfD8QlCHOnXPxxLyGb34ezokgQ",
+            authDomain: "vs-idea-labs.firebaseapp.com",
+            projectId: "vs-idea-labs",
+            storageBucket: "vs-idea-labs.firebasestorage.app",
+            messagingSenderId: "789407499622",
+            appId: "1:789407499622:web:18758c729f4b283ddcf4a7",
+            measurementId: "G-XKFLFPDZLP"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // UI Elements
+        const welcomeMsg = document.getElementById('welcomeMsg');
+        const userName = document.getElementById('userName');
+        const userAvatar = document.getElementById('userAvatar');
+        const logoutBtn = document.getElementById('logoutBtn');
+        
+        // Stats Elements
+        const statIdeas = document.getElementById('statIdeas');
+        const statShortlisted = document.getElementById('statShortlisted');
+        const statPoints = document.getElementById('statPoints');
+        const statMilestones = document.getElementById('statMilestones');
+
+        // --- AUTH & REDIRECT ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // Set User Info
+                userName.textContent = user.displayName || "Innovator";
+                welcomeMsg.textContent = `Welcome back, ${user.displayName ? user.displayName.split(' ')[0] : 'Innovator'}!`;
+                if(user.photoURL) userAvatar.src = user.photoURL;
+
+                // Load Data
+                loadDashboardData(user.uid);
+            } else {
+                // Redirect if not logged in
+                window.location.href = "index.html";
+            }
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            signOut(auth).then(() => window.location.href = "index.html");
+        });
+
+        // --- DATA FETCHING ---
+        async function loadDashboardData(uid) {
+            try {
+                // 1. Fetch User Profile (Points/Milestones)
+                // Note: If 'users' collection doesn't exist yet, we show defaults
+                const userRef = doc(db, "users", uid);
+                const userSnap = await getDoc(userRef);
+                
+                if (userSnap.exists()) {
+                    const data = userSnap.data();
+                    statPoints.textContent = data.points || 0;
+                    statMilestones.textContent = data.milestones || 1;
+                } else {
+                    statPoints.textContent = "0";
+                    statMilestones.textContent = "1";
+                }
+
+                // 2. Fetch Idea Counts
+                const ideasRef = collection(db, "ideas");
+                const q = query(ideasRef, where("userId", "==", uid));
+                const querySnapshot = await getDocs(q);
+                
+                let totalIdeas = 0;
+                let shortlisted = 0;
+
+                querySnapshot.forEach((doc) => {
+                    totalIdeas++;
+                    const status = doc.data().status;
+                    if(status === 'Approved' || status === 'Shortlisted') shortlisted++;
+                });
+
+                statIdeas.textContent = totalIdeas;
+                statShortlisted.textContent = shortlisted;
+
+            } catch (error) {
+                console.error("Error loading dashboard:", error);
+                // Fallback for demo if permission fails or DB empty
+                statIdeas.textContent = "0";
+                statShortlisted.textContent = "0";
+                statPoints.textContent = "0";
+                statMilestones.textContent = "1";
+            }
+        }
+    </script>
+
+    <script>
+        // Theme Toggle
+        const themeBtn = document.getElementById('themeToggle');
+        const html = document.documentElement;
+
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+        }
+
+        themeBtn.onclick = () => {
+            html.classList.toggle('dark');
+            localStorage.theme = html.classList.contains('dark') ? 'dark' : 'light';
+        };
+
+        // Countdown Timer Logic
+        function updateCountdown() {
+            // Set date to 12 days from now for demo
+            const now = new Date();
+            const endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 12);
+            
+            const diff = endDate - now;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            
+            document.getElementById('countdown').textContent = `${days}d ${hours}h`;
+        }
+        updateCountdown();
+    </script>
+</body>
+</html>

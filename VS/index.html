@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vigyanshaala Idea Lab | Innovate & Inspire</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        // Teal/Blue Mix (Primary Brand)
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            200: '#99f6e4',
+                            300: '#5eead4',
+                            400: '#2dd4bf',
+                            500: '#14b8a6', // Teal Base
+                            600: '#0d9488', // Teal Darker
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                        },
+                        // Deep Blue (For Gradients/Contrast)
+                        ocean: {
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            900: '#0c4a6e',
+                        },
+                        // Bright Green (Growth/Success)
+                        fresh: {
+                            400: '#a3e635', // Lime-ish Green
+                            500: '#84cc16',
+                            600: '#65a30d',
+                        },
+                        // Yellow (Ideas/Accents)
+                        spark: {
+                            400: '#facc15', // Bright Yellow
+                            500: '#eab308',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .dark .glass-panel {
+            background: rgba(19, 78, 74, 0.4); /* Dark Teal Tint */
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(13, 148, 136, 0.15), 0 8px 10px -6px rgba(13, 148, 136, 0.1);
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #0d9488; }
+        .dark ::-webkit-scrollbar-thumb { background: #334155; }
+        .dark ::-webkit-scrollbar-thumb:hover { background: #2dd4bf; }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0d9488; /* Brand Teal */
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+
+    <nav class="fixed w-full z-50 glass-panel border-b border-brand-100 dark:border-brand-900/30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="#" class="flex-shrink-0 flex items-center gap-3">
+                        <img src="https://vigyanshaala.com/wp-content/uploads/2021/06/VS-logo.png" 
+                             alt="Vigyanshaala Logo" 
+                             class="h-10 w-auto rounded-md object-contain">
+                             
+                        <span class="font-bold text-xl tracking-tight text-slate-800 dark:text-white hidden sm:block">
+                            Vigyanshaala <span class="text-brand-600 dark:text-brand-400">Idea Lab</span>
+                        </span>
+                    </a>
+                    
+                    <div class="hidden md:ml-10 md:flex md:space-x-8 text-sm font-medium">
+                        <a href="#" class="text-brand-700 dark:text-brand-300 border-b-2 border-brand-500">Home</a>
+                        <a href="dashboard.html" class="text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-300 transition">Dashboard</a>
+                        <a href="submit.html" class="text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-300 transition">Submit Idea</a>
+                        <a href="ideas.html" class="text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-300 transition">My Ideas</a>
+                        <a href="challenges.html" class="text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-300 transition">Challenges</a>
+                        <a href="leaderboard.html" class="text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-300 transition">Leaderboard</a>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <button id="themeToggle" class="p-2 rounded-full hover:bg-brand-50 dark:hover:bg-brand-900/30 transition text-brand-600 dark:text-brand-300">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:block text-spark-400"></i>
+                    </button>
+
+                    <div id="authContainer">
+                        <button id="loginBtn" class="bg-gradient-to-r from-brand-600 to-ocean-600 hover:from-brand-700 hover:to-ocean-700 text-white px-5 py-2 rounded-lg text-sm font-medium transition shadow-md shadow-brand-500/20">
+                            Login
+                        </button>
+                        <div id="userProfile" class="hidden flex items-center gap-3">
+                            <span id="userName" class="text-sm font-medium hidden sm:block text-brand-700 dark:text-brand-200">User</span>
+                            <div id="userAvatar" class="w-8 h-8 rounded-full bg-brand-100 ring-2 ring-fresh-400 overflow-hidden">
+                                <img src="https://ui-avatars.com/api/?name=User&background=0d9488&color=fff" alt="Profile" class="w-full h-full object-cover">
+                            </div>
+                            <button id="logoutBtn" class="text-xs text-red-500 hover:text-red-700 ml-2 font-medium">Logout</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full relative overflow-hidden">
+        
+        <div class="absolute top-0 left-1/4 w-96 h-96 bg-brand-200/50 dark:bg-brand-900/20 rounded-full blur-3xl -z-10 mix-blend-multiply dark:mix-blend-screen"></div>
+        <div class="absolute top-10 right-1/4 w-72 h-72 bg-fresh-400/30 dark:bg-fresh-900/10 rounded-full blur-3xl -z-10 mix-blend-multiply dark:mix-blend-screen"></div>
+
+        <section class="text-center py-12 lg:py-20 relative">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-fresh-400/20 text-fresh-600 dark:text-fresh-400 text-xs font-bold uppercase tracking-wider mb-6 border border-fresh-400/30">
+                <span class="w-2 h-2 rounded-full bg-fresh-500 animate-pulse"></span>
+                Innovation Active
+            </div>
+            
+            <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight mb-6 text-slate-900 dark:text-white">
+                Where Ideas Turn into <br />
+                <span class="bg-clip-text text-transparent bg-gradient-to-r from-brand-500 via-brand-400 to-fresh-400">Impact.</span>
+            </h1>
+            
+            <p class="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mb-10">
+                Vigyanshaala Idea Lab is the ecosystem for young minds to design, prototype, and build the future. 
+            </p>
+            
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="dashboard.html" class="bg-brand-600 hover:bg-brand-700 text-white px-8 py-3.5 rounded-xl font-bold shadow-lg shadow-brand-500/30 transition transform hover:-translate-y-1 flex items-center justify-center gap-2">
+                    <i class="fas fa-rocket"></i> Start Innovating
+                </a>
+                <a href="challenges.html" class="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 px-8 py-3.5 rounded-xl font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center justify-center gap-2">
+                    <i class="fas fa-play-circle text-fresh-500"></i> View Challenges
+                </a>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-4">
+            
+            <div class="lg:col-span-2 space-y-6">
+                <div class="flex items-center justify-between mb-2">
+                    <h2 class="text-2xl font-bold flex items-center gap-2 text-slate-800 dark:text-white">
+                        <i class="fas fa-lightbulb text-spark-400 text-3xl"></i> Latest Ideas
+                    </h2>
+                    <span class="text-sm font-medium text-brand-600 dark:text-brand-400 cursor-pointer hover:underline">View All</span>
+                </div>
+
+                <div id="ideasContainer" class="space-y-4">
+                    <div class="glass-panel p-10 rounded-2xl text-center border-dashed border-2 border-brand-200 dark:border-brand-800">
+                        <div class="loader mx-auto mb-4"></div>
+                        <p class="text-brand-600 dark:text-brand-300 font-medium">Connecting to secure database...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-1 space-y-6">
+                <div class="flex items-center justify-between mb-2">
+                    <h2 class="text-2xl font-bold flex items-center gap-2 text-slate-800 dark:text-white">
+                        <i class="fas fa-trophy text-spark-400 text-3xl"></i> Top Solvers
+                    </h2>
+                </div>
+
+                <div class="glass-panel rounded-2xl overflow-hidden shadow-lg shadow-brand-900/5">
+                    <div class="bg-gradient-to-r from-brand-600 to-ocean-600 p-4">
+                        <div class="flex justify-between items-center text-white">
+                            <span class="text-sm font-medium opacity-90">Current Season</span>
+                            <span class="bg-white/20 px-2 py-0.5 rounded text-xs">Week 5</span>
+                        </div>
+                    </div>
+                    <div id="leaderboardContainer" class="divide-y divide-slate-100 dark:divide-slate-700/50">
+                        <div class="p-8 text-center text-slate-500 text-sm">
+                            <i class="fas fa-lock mb-3 block text-2xl text-slate-300"></i>
+                            Login to see who's leading
+                        </div>
+                    </div>
+                    <div class="p-3 bg-slate-50 dark:bg-slate-800/50 text-center border-t border-slate-100 dark:border-slate-700">
+                        <a href="#" class="text-xs font-bold uppercase tracking-wide text-brand-600 dark:text-brand-400 hover:text-brand-800">Full Leaderboard &rarr;</a>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-brand-900 to-slate-900 rounded-2xl p-6 text-white shadow-xl border border-brand-700 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-fresh-500 rounded-full blur-2xl opacity-20 group-hover:opacity-30 transition"></div>
+                    
+                    <h3 class="font-bold text-lg mb-1 flex items-center gap-2">
+                        <i class="fas fa-bolt text-spark-400"></i> Next Challenge
+                    </h3>
+                    <p class="text-brand-100 text-xs mb-4 uppercase tracking-wider">Sustainable Energy 2026</p>
+                    <p class="text-slate-300 text-sm mb-5 leading-relaxed">
+                        Submit your green energy prototypes before March 1st to win exclusive mentorship.
+                    </p>
+                    <button class="w-full bg-fresh-500 hover:bg-fresh-600 text-slate-900 font-bold py-2.5 rounded-lg text-sm transition shadow-lg shadow-fresh-500/20">
+                        Join Challenge
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-10 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <div class="flex justify-center items-center gap-2 mb-4">
+                <img src="https://vigyanshaala.com/wp-content/uploads/2021/06/VS-logo.png" 
+                     alt="Vigyanshaala Logo" 
+                     class="h-8 w-auto rounded opacity-80 grayscale hover:grayscale-0 transition duration-300">
+                <span class="font-bold text-slate-700 dark:text-slate-300">Vigyanshaala</span>
+            </div>
+            <p class="text-slate-500 text-sm">© 2026 Idea Lab. Empowering the next generation of innovators.</p>
+        </div>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
+        import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+        import { getFirestore, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAGpwRwsJfD8QlCHOnXPxxLyGb34ezokgQ",
+            authDomain: "vs-idea-labs.firebaseapp.com",
+            projectId: "vs-idea-labs",
+            storageBucket: "vs-idea-labs.firebasestorage.app",
+            messagingSenderId: "789407499622",
+            appId: "1:789407499622:web:18758c729f4b283ddcf4a7",
+            measurementId: "G-XKFLFPDZLP"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- DOM Elements ---
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const userProfile = document.getElementById('userProfile');
+        const userNameDisplay = document.getElementById('userName');
+        const userAvatar = document.querySelector('#userAvatar img');
+        const ideasContainer = document.getElementById('ideasContainer');
+        const leaderboardContainer = document.getElementById('leaderboardContainer');
+
+        // --- Authentication Logic ---
+        const provider = new GoogleAuthProvider();
+
+        loginBtn.addEventListener('click', () => {
+            signInWithPopup(auth, provider)
+                .then((result) => {
+                    console.log("Logged in:", result.user.displayName);
+                }).catch((error) => {
+                    console.error("Login Failed:", error);
+                    alert("Login failed: " + error.message);
+                });
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            signOut(auth).then(() => {
+                console.log("Logged out");
+                renderLockedState();
+            });
+        });
+
+        // --- Real-time Auth Listener ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // UI Update: Logged In
+                loginBtn.classList.add('hidden');
+                userProfile.classList.remove('hidden');
+                userNameDisplay.textContent = user.displayName || "Innovator";
+                if(user.photoURL) userAvatar.src = user.photoURL;
+
+                // Fetch Data
+                fetchIdeas();
+                fetchLeaderboard();
+            } else {
+                // UI Update: Logged Out
+                loginBtn.classList.remove('hidden');
+                userProfile.classList.add('hidden');
+                renderLockedState();
+            }
+        });
+
+        // --- Firestore Data Fetching ---
+
+        async function fetchIdeas() {
+            try {
+                ideasContainer.innerHTML = '<div class="loader mx-auto my-4"></div>';
+                
+                const q = query(collection(db, "ideas"), orderBy("timestamp", "desc"), limit(5));
+                const querySnapshot = await getDocs(q);
+                
+                ideasContainer.innerHTML = ""; 
+
+                if (querySnapshot.empty) {
+                    ideasContainer.innerHTML = `
+                        <div class="p-8 text-center text-slate-500 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
+                            <i class="fas fa-inbox text-4xl mb-3 text-slate-300"></i>
+                            <p>No ideas submitted yet. Be the first!</p>
+                        </div>`;
+                    return;
+                }
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    
+                    // Status Badge Styling
+                    const statusConfig = {
+                        'New': { color: 'bg-fresh-100 text-fresh-700 border-fresh-200', icon: 'fa-star' },
+                        'Approved': { color: 'bg-brand-100 text-brand-700 border-brand-200', icon: 'fa-check' },
+                        'In Progress': { color: 'bg-spark-100 text-spark-700 border-spark-200', icon: 'fa-tools' },
+                        'Rejected': { color: 'bg-red-100 text-red-700 border-red-200', icon: 'fa-times' }
+                    };
+                    
+                    const config = statusConfig[data.status] || statusConfig['New'];
+
+                    const card = `
+                        <div class="glass-panel p-6 rounded-xl card-hover relative group border border-white/50 dark:border-slate-700/50">
+                            <div class="absolute top-4 right-4">
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold border ${config.color} flex items-center gap-1">
+                                    <i class="fas ${config.icon} text-[10px]"></i> ${data.status || 'New'}
+                                </span>
+                            </div>
+                            
+                            <span class="text-xs font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400 mb-2 block">
+                                ${data.category || 'General Innovation'}
+                            </span>
+                            
+                            <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2 group-hover:text-brand-600 transition">
+                                ${data.title || 'Untitled Idea'}
+                            </h3>
+                            
+                            <p class="text-slate-600 dark:text-slate-300 text-sm line-clamp-2 mb-4 leading-relaxed">
+                                ${data.shortDescription || 'No description provided.'}
+                            </p>
+                            
+                            <div class="flex items-center gap-4 text-xs text-slate-400 border-t border-slate-100 dark:border-slate-700/50 pt-3">
+                                <div class="flex items-center gap-1">
+                                    <i class="far fa-clock"></i>
+                                    <span>${data.timestamp ? new Date(data.timestamp.toDate()).toLocaleDateString() : 'Just now'}</span>
+                                </div>
+                                <div class="flex items-center gap-1 ml-auto text-brand-500 font-medium cursor-pointer hover:text-brand-700">
+                                    Read Details <i class="fas fa-arrow-right"></i>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    ideasContainer.innerHTML += card;
+                });
+
+            } catch (error) {
+                console.error("Error fetching ideas:", error);
+                ideasContainer.innerHTML = `
+                    <div class="p-4 bg-red-50 border border-red-100 text-red-600 rounded-lg text-sm flex items-center gap-2">
+                        <i class="fas fa-exclamation-circle"></i> Error loading ideas. Permission denied.
+                    </div>`;
+            }
+        }
+
+        async function fetchLeaderboard() {
+            try {
+                const q = query(collection(db, "users"), orderBy("points", "desc"), limit(5));
+                const querySnapshot = await getDocs(q);
+
+                let html = "";
+                let rank = 1;
+
+                if (querySnapshot.empty) {
+                    leaderboardContainer.innerHTML = '<div class="p-4 text-center text-sm text-slate-500">No active users found.</div>';
+                    return;
+                }
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    
+                    // Medals
+                    let rankIcon = `<span class="text-slate-400 font-bold text-sm w-6 text-center">#${rank}</span>`;
+                    if (rank === 1) rankIcon = `<i class="fas fa-trophy text-spark-400 text-lg w-6 text-center drop-shadow-sm"></i>`;
+                    if (rank === 2) rankIcon = `<i class="fas fa-medal text-slate-400 text-lg w-6 text-center"></i>`;
+                    if (rank === 3) rankIcon = `<i class="fas fa-medal text-orange-400 text-lg w-6 text-center"></i>`;
+
+                    // Highlight top user
+                    const bgClass = rank === 1 ? 'bg-brand-50/50 dark:bg-brand-900/10' : '';
+                    
+                    html += `
+                        <div class="flex items-center justify-between p-3.5 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition ${bgClass}">
+                            <div class="flex items-center gap-3">
+                                ${rankIcon}
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-brand-400 to-ocean-500 p-[2px]">
+                                    <div class="w-full h-full bg-white dark:bg-slate-800 rounded-full flex items-center justify-center text-xs font-bold text-brand-700 dark:text-brand-300">
+                                        ${data.name ? data.name.charAt(0) : 'U'}
+                                    </div>
+                                </div>
+                                <span class="font-medium text-sm text-slate-700 dark:text-slate-200 truncate max-w-[100px] sm:max-w-none">
+                                    ${data.name || 'Anonymous'}
+                                </span>
+                            </div>
+                            <span class="font-bold text-brand-600 dark:text-brand-400 text-sm bg-brand-100 dark:bg-brand-900/30 px-2 py-0.5 rounded-md">
+                                ${data.points || 0} pts
+                            </span>
+                        </div>
+                    `;
+                    rank++;
+                });
+                leaderboardContainer.innerHTML = html;
+
+            } catch (error) {
+                console.error("Error fetching leaderboard:", error);
+                leaderboardContainer.innerHTML = `<div class="p-4 text-center text-sm text-slate-500">Unable to load rankings.</div>`;
+            }
+        }
+
+        function renderLockedState() {
+            ideasContainer.innerHTML = `
+                <div class="glass-panel p-10 rounded-2xl text-center border-dashed border-2 border-slate-300 dark:border-slate-700 group cursor-not-allowed">
+                    <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition">
+                        <i class="fas fa-lock text-2xl text-slate-400"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-2">Login Required</h3>
+                    <p class="text-slate-500 text-sm mb-6 max-w-xs mx-auto">Access the idea vault, view blueprints, and collaborate with peers.</p>
+                </div>
+            `;
+            leaderboardContainer.innerHTML = `
+                 <div class="p-8 text-center text-slate-500 text-sm">
+                    <i class="fas fa-lock mb-3 block text-2xl text-slate-300"></i>
+                    <p>Login to see who's leading</p>
+                </div>
+            `;
+        }
+    </script>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+        } else {
+            html.classList.remove('dark');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                html.classList.add('dark');
+                localStorage.theme = 'dark';
+            }
+        });
+    </script>
+</body>
+</html>

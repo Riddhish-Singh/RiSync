@@ -130,12 +130,11 @@
   <div class="container">
     <div class="logo">
        <a href="../index.html" class="logo">
-    <img src="../assets/logo.png" alt="RiSync Logo" style="width:80px; height:auto;">
-</a>
+         <img src="../assets/logo.png" alt="RiSync Logo" style="width:80px; height:auto;">
+       </a>
     </div>
     <h1>RiSync Sign-Up</h1>
 
-    <!-- NOTE: id is signupForm (camelCase). We'll attach a submit listener to this. -->
     <form id="signupForm" novalidate>
       <label for="fullname">Full Name</label>
       <input type="text" id="fullname" placeholder="Enter your full name" autocomplete="name" required>
@@ -182,201 +181,22 @@
         <input type="checkbox" id="showPassword"> Show Password
       </label>
 
-      <!-- Make this a submit button so the form's submit handler runs -->
       <button type="submit" class="signup-button" id="signupBtn">Sign Up</button>
     </form>
 
     <div class="signin-link">
-      <p>Already have an account? <a href="signin.html" target="_blank" rel="noopener">Sign In</a>.</p>
+      <p>Already have an account? <a href="signin.html">Sign In</a>.</p>
     </div>
 
     <button type="button" class="go-back-button" onclick="window.location.href='../index.html'">GO BACK TO THE MAIN PAGE</button>
   </div>
 
-<script>
-/* -------------------------
-   Utilities
---------------------------*/
-
-// Simple debounce for live validation
-function debounce(fn, delay = 500) {
-  let t;
-  return (...args) => {
-    clearTimeout(t);
-    t = setTimeout(() => fn(...args), delay);
-  };
-}
-
-// Abortable fetch with timeout (prevents hanging)
-async function fetchWithTimeout(resource, options = {}) {
-  const { timeout = 6000 } = options;
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeout);
-  try {
-    const response = await fetch(resource, { ...options, signal: controller.signal });
-    return response;
-  } finally {
-    clearTimeout(id);
-  }
-}
-
-/* -------------------------
-   Email validation
-   1) Regex format
-   2) MX lookup via Google DNS (free)
---------------------------*/
-function isEmailFormatValid(email) {
-  // Basic but solid: no spaces, single @, at least one dot in domain
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
-
-// Returns boolean; true if domain has MX records
-async function hasMXRecord(domain) {
-  try {
-    const res = await fetchWithTimeout(`https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=MX`, { timeout: 6000 });
-    if (!res.ok) return false;
-    const data = await res.json();
-    return Array.isArray(data.Answer) && data.Answer.length > 0;
-  } catch (err) {
-    // Network/CORS/timeout => treat as invalid to be safe, or you can choose to "skip"
-    console.warn("MX check failed:", err?.message || err);
-    return false;
-  }
-}
-
-async function isEmailDomainValid(email) {
-  if (!isEmailFormatValid(email)) return false;
-  const domain = email.split("@")[1].toLowerCase();
-  // Quick guard: forbid obviously bad TLD lengths (like .c)
-  const lastDot = domain.lastIndexOf(".");
-  if (lastDot === -1 || domain.length - lastDot - 1 < 2) return false;
-  // MX lookup
-  return await hasMXRecord(domain);
-}
-
-/* -------------------------
-   Live feedback for kids
---------------------------*/
-const emailInput = document.getElementById("email");
-const emailStatus = document.getElementById("emailStatus");
-const signupBtn = document.getElementById("signupBtn");
-
-const showEmailStatus = (msg, ok) => {
-  emailStatus.textContent = msg;
-  emailStatus.className = "helper " + (ok ? "ok" : "err");
-  emailInput.style.border = ok ? "2px solid lightgreen" : "2px solid #ff8080";
-};
-
-const clearEmailStatus = () => {
-  emailStatus.textContent = "";
-  emailStatus.className = "helper";
-  emailInput.style.border = "";
-};
-
-// Validate while typing (debounced MX check)
-emailInput.addEventListener("input", debounce(async () => {
-  const email = emailInput.value.trim().toLowerCase();
-  if (email === "") {
-    clearEmailStatus();
-    signupBtn.disabled = false;
-    return;
-  }
-
-  // First, quick format feedback (instant)
-  if (!isEmailFormatValid(email)) {
-    showEmailStatus("That doesn’t look like an email. Try name@school.edu.in", false);
-    signupBtn.disabled = true;
-    return;
-  }
-
-  // Then async MX check
-  signupBtn.disabled = true;
-  showEmailStatus("Checking if the email domain can receive mail…", false);
-  const ok = await isEmailDomainValid(email);
-  if (ok) {
-    showEmailStatus("Nice! This domain can receive emails.", true);
-    signupBtn.disabled = false;
-  } else {
-    showEmailStatus("This email’s domain can’t receive mail. Try your school or a real provider.", false);
-    signupBtn.disabled = true;
-  }
-}, 600));
-
-/* -------------------------
-   Form logic
---------------------------*/
-document.getElementById("showPassword").addEventListener("change", function () {
-  const passwordField = document.getElementById("password");
-  passwordField.type = this.checked ? "text" : "password";
-});
-
-// Read ?class= from URL and preselect it
-document.addEventListener('DOMContentLoaded', () => {
-  const params = new URLSearchParams(window.location.search);
-  const selectedClass = params.get('class');
-  if (selectedClass) {
-    const classDropdown = document.getElementById('class');
-    const optionToSelect = classDropdown.querySelector(`option[value="${selectedClass}"]`);
-    if (optionToSelect) optionToSelect.selected = true;
-  }
-});
-
-// IMPORTANT: your original code attached listener to #signup-form (wrong id) and used #name (no such id).
-// Fixed: we listen on #signupForm and read #fullname, etc.
-document.getElementById('signupForm').addEventListener('submit', async function (e) {
-  e.preventDefault(); // we control submission
-
-  const fullname = document.getElementById("fullname").value.trim();
-  const branch = document.getElementById("branch").value;
-  const userClass = document.getElementById("class").value;
-  const email = document.getElementById("email").value.trim().toLowerCase();
-  const password = document.getElementById("password").value;
-
-  // Front checks
-  if (!fullname || !branch || !userClass || !email || !password) {
-    alert("Please fill in all fields.");
-    return;
-  }
-  if (password.length < 6) {
-    alert("Password should be at least 6 characters.");
-    return;
-  }
-
-  // Final gate: MX check before saving (free API)
-  signupBtn.disabled = true;
-  showEmailStatus("Verifying email domain…", false);
-  const mxOk = await isEmailDomainValid(email);
-  if (!mxOk) {
-    showEmailStatus("This email domain isn’t valid. Use your school email or a real provider.", false);
-    signupBtn.disabled = false;
-    return;
-  }
-  showEmailStatus("Email domain verified ✅", true);
-
-  // Local storage persistence
-  let users = JSON.parse(localStorage.getItem("users")) || [];
-  const userExists = users.some(user => user.email === email);
-  if (userExists) {
-    alert("Account already exists with this email.");
-    signupBtn.disabled = false;
-    return;
-  }
-
-  users.push({ fullname, branch, class: userClass, email, password });
-  localStorage.setItem("users", JSON.stringify(users));
-  localStorage.setItem("currentUserEmail", email);
-  localStorage.setItem("username", fullname);
-
-  alert("Account created successfully!");
-  // navigate (you can keep window.open if you prefer new tab)
-  window.location.href = "content.html";
-});
-</script>
 <script type="module">
+  // --- FIREBASE IMPORTS & SETUP ---
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
+  import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBWAwm_TDtD1qXDtjxJu0jrDP45c3p1Bxg",
@@ -384,28 +204,202 @@ document.getElementById('signupForm').addEventListener('submit', async function 
     projectId: "risync-risync",
     storageBucket: "risync-risync.firebasestorage.app",
     messagingSenderId: "195106250121",
-    appId: "1:195106250121:web:57b23c5b94d5771995d558"
+    appId: "1:195106250121:web:57b23c5b94d5771995d558",
+    measurementId: "G-D5WSLQ706Z"
   };
 
+  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  // AUTH PROTECTION: Check if user is logged in
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      // If not logged in, redirect to signin.html
-      window.location.href = "signin.html";
+  /* -------------------------
+     Utilities (Validation)
+  --------------------------*/
+  function debounce(fn, delay = 500) {
+    let t;
+    return (...args) => {
+      clearTimeout(t);
+      t = setTimeout(() => fn(...args), delay);
+    };
+  }
+
+  async function fetchWithTimeout(resource, options = {}) {
+    const { timeout = 6000 } = options;
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    try {
+      const response = await fetch(resource, { ...options, signal: controller.signal });
+      return response;
+    } finally {
+      clearTimeout(id);
+    }
+  }
+
+  function isEmailFormatValid(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  async function hasMXRecord(domain) {
+    try {
+      const res = await fetchWithTimeout(`https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=MX`, { timeout: 6000 });
+      if (!res.ok) return false;
+      const data = await res.json();
+      return Array.isArray(data.Answer) && data.Answer.length > 0;
+    } catch (err) {
+      console.warn("MX check failed:", err?.message || err);
+      // We assume true on failure so we don't block valid users if Google DNS is unreachable
+      return true; 
+    }
+  }
+
+  async function isEmailDomainValid(email) {
+    if (!isEmailFormatValid(email)) return false;
+    const domain = email.split("@")[1].toLowerCase();
+    const lastDot = domain.lastIndexOf(".");
+    if (lastDot === -1 || domain.length - lastDot - 1 < 2) return false;
+    return await hasMXRecord(domain);
+  }
+
+  /* -------------------------
+     DOM Interactions
+  --------------------------*/
+  const emailInput = document.getElementById("email");
+  const emailStatus = document.getElementById("emailStatus");
+  const signupBtn = document.getElementById("signupBtn");
+
+  const showEmailStatus = (msg, ok) => {
+    emailStatus.textContent = msg;
+    emailStatus.className = "helper " + (ok ? "ok" : "err");
+    emailInput.style.border = ok ? "2px solid lightgreen" : "2px solid #ff8080";
+  };
+
+  const clearEmailStatus = () => {
+    emailStatus.textContent = "";
+    emailStatus.className = "helper";
+    emailInput.style.border = "";
+  };
+
+  // Live Email Validation
+  emailInput.addEventListener("input", debounce(async () => {
+    const email = emailInput.value.trim().toLowerCase();
+    if (email === "") {
+      clearEmailStatus();
+      signupBtn.disabled = false;
+      return;
+    }
+
+    if (!isEmailFormatValid(email)) {
+      showEmailStatus("That doesn’t look like an email. Try name@school.edu.in", false);
+      signupBtn.disabled = true;
+      return;
+    }
+
+    signupBtn.disabled = true;
+    showEmailStatus("Checking if the email domain can receive mail…", false);
+    
+    const ok = await isEmailDomainValid(email);
+    
+    if (ok) {
+      showEmailStatus("Nice! This domain can receive emails.", true);
+      signupBtn.disabled = false;
     } else {
-      console.log("RiSync User Verified:", user.email);
-      // Optional: Load user data for the specific tool
-      if (typeof onUserLoad === "function") onUserLoad(user);
+      showEmailStatus("This email’s domain can’t receive mail. Try your school or a real provider.", false);
+      signupBtn.disabled = true;
+    }
+  }, 600));
+
+  // Password Toggle
+  document.getElementById("showPassword").addEventListener("change", function () {
+    const passwordField = document.getElementById("password");
+    passwordField.type = this.checked ? "text" : "password";
+  });
+
+  // Pre-select Class from URL
+  document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const selectedClass = params.get('class');
+    if (selectedClass) {
+      const classDropdown = document.getElementById('class');
+      const optionToSelect = classDropdown.querySelector(`option[value="${selectedClass}"]`);
+      if (optionToSelect) optionToSelect.selected = true;
     }
   });
 
-  // Make db and auth accessible to your other scripts
-  window.risyncAuth = auth;
-  window.risyncDb = db;
+  /* -------------------------
+     Main Submission Logic (Firebase)
+  --------------------------*/
+  document.getElementById('signupForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const fullname = document.getElementById("fullname").value.trim();
+    const branch = document.getElementById("branch").value;
+    const userClass = document.getElementById("class").value;
+    const email = document.getElementById("email").value.trim().toLowerCase();
+    const password = document.getElementById("password").value;
+
+    // Basic fields check
+    if (!fullname || !branch || !userClass || !email || !password) {
+      alert("Please fill in all fields.");
+      return;
+    }
+    if (password.length < 6) {
+      alert("Password should be at least 6 characters.");
+      return;
+    }
+
+    // Double check email domain before sending to Firebase
+    signupBtn.disabled = true;
+    signupBtn.textContent = "Creating Account...";
+    
+    const mxOk = await isEmailDomainValid(email);
+    if (!mxOk) {
+      showEmailStatus("This email domain isn’t valid.", false);
+      signupBtn.disabled = false;
+      signupBtn.textContent = "Sign Up";
+      return;
+    }
+
+    try {
+      // 1. Create User in Firebase Authentication
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // 2. Update Auth Profile (Display Name)
+      await updateProfile(user, {
+        displayName: fullname
+      });
+
+      // 3. Store Extra Data in Firestore (Branch, Class)
+      // We use setDoc with the user's UID so the doc ID matches the Auth ID
+      await setDoc(doc(db, "users", user.uid), {
+        fullname: fullname,
+        branch: branch,
+        class: userClass,
+        email: email,
+        createdAt: new Date().toISOString()
+      });
+
+      alert("Account created successfully!");
+      window.location.href = "content.html";
+
+    } catch (error) {
+      console.error("Signup Error:", error);
+      signupBtn.disabled = false;
+      signupBtn.textContent = "Sign Up";
+
+      // Handle Firebase specific errors
+      if (error.code === 'auth/email-already-in-use') {
+        alert("This email is already registered. Please sign in instead.");
+      } else if (error.code === 'auth/weak-password') {
+        alert("Password is too weak. Please use a stronger password.");
+      } else {
+        alert("Error creating account: " + error.message);
+      }
+    }
+  });
 </script>
 </body>
 </html>
