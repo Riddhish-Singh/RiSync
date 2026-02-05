@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard | Vigyanshaala Idea Lab</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        brand: { 50: '#f0fdfa', 100: '#ccfbf1', 500: '#14b8a6', 600: '#0d9488', 900: '#134e4a' },
+                        ocean: { 500: '#0ea5e9', 600: '#0284c7' },
+                        gold: { 400: '#facc15', 500: '#eab308' }, // 1st Place
+                        silver: { 400: '#94a3b8', 500: '#64748b' }, // 2nd Place
+                        bronze: { 400: '#fbbf24', 500: '#b45309' }  // 3rd Place (Orange-ish)
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { transition: background-color 0.3s; }
+        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.5); }
+        .dark .glass-panel { background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255, 255, 255, 0.05); }
+        
+        .nav-item.active { background: #f0fdfa; color: #0d9488; border-right: 3px solid #0d9488; }
+        .dark .nav-item.active { background: rgba(13, 148, 136, 0.1); color: #2dd4bf; border-right: 3px solid #2dd4bf; }
+
+        /* Podium Animations */
+        @keyframes popUp { 0% { transform: translateY(100%); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+        .podium-1 { animation: popUp 0.8s ease-out forwards; }
+        .podium-2 { animation: popUp 0.8s ease-out 0.2s forwards; }
+        .podium-3 { animation: popUp 0.8s ease-out 0.4s forwards; }
+
+        /* Custom Scrollbar for Table */
+        .table-container::-webkit-scrollbar { height: 6px; }
+        .table-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .dark .table-container::-webkit-scrollbar-thumb { background: #475569; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 flex h-screen overflow-hidden">
+
+    <aside class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 hidden md:flex flex-col z-20">
+        <div class="h-16 flex items-center px-6 border-b border-slate-100 dark:border-slate-800">
+            <span class="font-bold text-lg tracking-tight text-brand-600 dark:text-brand-400">Vigyanshaala</span>
+        </div>
+        <nav class="flex-1 py-6 space-y-1">
+            <a href="index.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:text-brand-600 transition">
+                <i class="fas fa-home w-6"></i> <span class="font-medium text-sm">Home</span>
+            </a>
+            <a href="dashboard.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:text-brand-600 transition">
+                <i class="fas fa-chart-pie w-6"></i> <span class="font-medium text-sm">Dashboard</span>
+            </a>
+            <a href="leaderboard.html" class="nav-item active flex items-center px-6 py-3 text-brand-600 dark:text-brand-400">
+                <i class="fas fa-medal w-6"></i> <span class="font-medium text-sm">Leaderboard</span>
+            </a>
+            <a href="submit.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:text-brand-600 transition">
+                <i class="fas fa-plus-circle w-6"></i> <span class="font-medium text-sm">New Idea</span>
+            </a>
+            <a href="challenges.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:text-brand-600 transition">
+                <i class="fas fa-trophy w-6"></i> <span class="font-medium text-sm">Challenges</span>
+            </a>
+        </nav>
+    </aside>
+
+    <div class="flex-1 flex flex-col h-screen overflow-hidden relative">
+        
+        <header class="h-16 glass-panel border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 z-10">
+            <h1 class="text-xl font-bold flex items-center gap-2">
+                <i class="fas fa-trophy text-gold-500"></i> Top Innovators
+            </h1>
+            <div class="flex items-center gap-4">
+                <button id="themeToggle" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-300">
+                    <i class="fas fa-moon dark:hidden"></i><i class="fas fa-sun hidden dark:block"></i>
+                </button>
+                <div class="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-slate-700">
+                    <span id="userName" class="text-sm font-bold hidden sm:block">Guest</span>
+                    <img id="userAvatar" src="https://ui-avatars.com/api/?name=Guest" class="w-9 h-9 rounded-full bg-slate-200">
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-50 dark:bg-slate-900">
+            
+            <div class="max-w-6xl mx-auto">
+                
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-10 gap-4">
+                    <div class="flex gap-2 p-1 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                        <button onclick="filterDept('All')" class="filter-btn active px-4 py-2 rounded-md text-sm font-medium transition bg-brand-50 text-brand-700 dark:bg-brand-900/30 dark:text-brand-300">All</button>
+                        <button onclick="filterDept('Engineering')" class="filter-btn px-4 py-2 rounded-md text-sm font-medium text-slate-500 hover:text-brand-600 transition">Engineering</button>
+                        <button onclick="filterDept('Science')" class="filter-btn px-4 py-2 rounded-md text-sm font-medium text-slate-500 hover:text-brand-600 transition">Science</button>
+                        <button onclick="filterDept('Arts')" class="filter-btn px-4 py-2 rounded-md text-sm font-medium text-slate-500 hover:text-brand-600 transition">Arts</button>
+                    </div>
+                </div>
+
+                <div id="podiumContainer" class="flex justify-center items-end gap-4 mb-12 min-h-[240px]">
+                    <div class="podium-2 flex flex-col items-center opacity-0">
+                        <div class="w-16 h-16 rounded-full border-4 border-silver-400 overflow-hidden mb-2 relative">
+                            <img id="img-2" src="https://ui-avatars.com/api/?name=?" class="w-full h-full object-cover">
+                            <div class="absolute bottom-0 w-full bg-silver-500 text-white text-[10px] font-bold text-center">2nd</div>
+                        </div>
+                        <div class="text-center mb-2">
+                            <div id="name-2" class="font-bold text-sm text-slate-700 dark:text-slate-200">...</div>
+                            <div id="pts-2" class="text-xs text-silver-500 font-bold">0 pts</div>
+                        </div>
+                        <div class="w-20 h-24 bg-gradient-to-t from-silver-500 to-silver-400 rounded-t-lg shadow-lg flex items-end justify-center pb-4 text-white font-bold text-2xl opacity-80">
+                            2
+                        </div>
+                    </div>
+
+                    <div class="podium-1 flex flex-col items-center z-10 opacity-0">
+                        <div class="w-24 h-24 rounded-full border-4 border-gold-400 overflow-hidden mb-3 relative shadow-xl shadow-gold-400/20">
+                            <i class="fas fa-crown absolute -top-3 left-1/2 transform -translate-x-1/2 text-gold-500 text-2xl drop-shadow-md"></i>
+                            <img id="img-1" src="https://ui-avatars.com/api/?name=?" class="w-full h-full object-cover">
+                        </div>
+                        <div class="text-center mb-2">
+                            <div id="name-1" class="font-bold text-lg text-slate-800 dark:text-white">...</div>
+                            <div id="pts-1" class="text-sm text-gold-500 font-bold">0 pts</div>
+                        </div>
+                        <div class="w-24 h-32 bg-gradient-to-t from-gold-500 to-gold-400 rounded-t-lg shadow-lg flex items-end justify-center pb-4 text-white font-bold text-4xl">
+                            1
+                        </div>
+                    </div>
+
+                    <div class="podium-3 flex flex-col items-center opacity-0">
+                        <div class="w-16 h-16 rounded-full border-4 border-bronze-400 overflow-hidden mb-2 relative">
+                            <img id="img-3" src="https://ui-avatars.com/api/?name=?" class="w-full h-full object-cover">
+                            <div class="absolute bottom-0 w-full bg-bronze-500 text-white text-[10px] font-bold text-center">3rd</div>
+                        </div>
+                        <div class="text-center mb-2">
+                            <div id="name-3" class="font-bold text-sm text-slate-700 dark:text-slate-200">...</div>
+                            <div id="pts-3" class="text-xs text-bronze-500 font-bold">0 pts</div>
+                        </div>
+                        <div class="w-20 h-16 bg-gradient-to-t from-bronze-500 to-bronze-400 rounded-t-lg shadow-lg flex items-end justify-center pb-4 text-white font-bold text-2xl opacity-80">
+                            3
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-2xl overflow-hidden shadow-sm table-container">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50 dark:bg-slate-800/50 text-xs uppercase text-slate-500 border-b border-slate-200 dark:border-slate-700">
+                            <tr>
+                                <th class="px-6 py-4 font-bold text-center w-20">Rank</th>
+                                <th class="px-6 py-4 font-bold">Innovator</th>
+                                <th class="px-6 py-4 font-bold hidden sm:table-cell">Department</th>
+                                <th class="px-6 py-4 font-bold hidden md:table-cell">Badges</th>
+                                <th class="px-6 py-4 font-bold text-right">Points</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboardBody" class="divide-y divide-slate-100 dark:divide-slate-700/50 text-sm">
+                            <tr>
+                                <td colspan="5" class="p-8 text-center text-slate-500">
+                                    <i class="fas fa-circle-notch fa-spin text-brand-500 mr-2"></i> Loading Rankings...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+        import { getFirestore, collection, query, orderBy, limit, getDocs, where } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAGpwRwsJfD8QlCHOnXPxxLyGb34ezokgQ",
+            authDomain: "vs-idea-labs.firebaseapp.com",
+            projectId: "vs-idea-labs",
+            storageBucket: "vs-idea-labs.firebasestorage.app",
+            messagingSenderId: "789407499622",
+            appId: "1:789407499622:web:18758c729f4b283ddcf4a7",
+            measurementId: "G-XKFLFPDZLP"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- AUTH ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('userName').textContent = user.displayName || 'User';
+                if(user.photoURL) document.getElementById('userAvatar').src = user.photoURL;
+            } else {
+                // For leaderboard, we might allow public view, but usually redirect
+                // window.location.href = "index.html";
+            }
+        });
+
+        // --- FILTER LOGIC ---
+        window.filterDept = (dept) => {
+            // Update Buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if(btn.innerText === dept) {
+                    btn.classList.add('bg-brand-50', 'text-brand-700', 'dark:bg-brand-900/30', 'dark:text-brand-300');
+                    btn.classList.remove('text-slate-500');
+                } else {
+                    btn.classList.remove('bg-brand-50', 'text-brand-700', 'dark:bg-brand-900/30', 'dark:text-brand-300');
+                    btn.classList.add('text-slate-500');
+                }
+            });
+            fetchLeaderboard(dept);
+        };
+
+        // --- FETCH DATA ---
+        async function fetchLeaderboard(department = 'All') {
+            const tbody = document.getElementById('leaderboardBody');
+            tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500"><i class="fas fa-circle-notch fa-spin text-brand-500 mr-2"></i> Updating...</td></tr>`;
+
+            try {
+                let q;
+                const usersRef = collection(db, "users");
+
+                // Construct Query
+                if (department === 'All') {
+                    q = query(usersRef, orderBy("points", "desc"), limit(50));
+                } else {
+                    // Requires Index in Firestore: 'department' Ascending, 'points' Descending
+                    // Fallback: Fetch all sorted by points, filter client side if index missing
+                    // For robust demo, we'll try direct query. If it fails due to index, console will show link.
+                    q = query(usersRef, where("department", "==", department), orderBy("points", "desc"), limit(50));
+                }
+
+                const snapshot = await getDocs(q);
+                const users = [];
+                snapshot.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
+
+                // If no department users found
+                if (users.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500">No innovators found in this category yet.</td></tr>`;
+                    resetPodium();
+                    return;
+                }
+
+                updatePodium(users.slice(0, 3));
+                renderTable(users);
+
+            } catch (error) {
+                console.error("Leaderboard Error:", error);
+                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500">Error loading rankings. <br><span class="text-xs text-slate-400">If using filters, ensure Firestore Index exists.</span></td></tr>`;
+            }
+        }
+
+        // --- RENDER PODIUM ---
+        function updatePodium(top3) {
+            // Reset
+            ['1','2','3'].forEach(i => {
+                document.getElementById(`name-${i}`).textContent = '-';
+                document.getElementById(`pts-${i}`).textContent = '';
+                document.getElementById(`img-${i}`).src = `https://ui-avatars.com/api/?name=?`;
+            });
+
+            if(top3[0]) setPodiumData('1', top3[0]);
+            if(top3[1]) setPodiumData('2', top3[1]);
+            if(top3[2]) setPodiumData('3', top3[2]);
+        }
+
+        function setPodiumData(rank, user) {
+            document.getElementById(`name-${rank}`).textContent = user.name || 'Anonymous';
+            document.getElementById(`pts-${rank}`).textContent = `${user.points || 0} pts`;
+            if(user.photoURL) document.getElementById(`img-${rank}`).src = user.photoURL;
+            else document.getElementById(`img-${rank}`).src = `https://ui-avatars.com/api/?name=${user.name || 'U'}&background=random`;
+        }
+
+        function resetPodium() {
+             ['1','2','3'].forEach(i => {
+                document.getElementById(`name-${i}`).textContent = '-';
+                document.getElementById(`pts-${i}`).textContent = '';
+            });
+        }
+
+        // --- RENDER TABLE ---
+        function renderTable(users) {
+            const tbody = document.getElementById('leaderboardBody');
+            tbody.innerHTML = '';
+
+            users.forEach((user, index) => {
+                const rank = index + 1;
+                let rankDisplay = `<span class="font-bold text-slate-500">#${rank}</span>`;
+                
+                // Medals for table list (Top 3 handled by podium, but good to keep consistent)
+                if (rank === 1) rankDisplay = `<i class="fas fa-medal text-gold-500 text-lg"></i>`;
+                if (rank === 2) rankDisplay = `<i class="fas fa-medal text-silver-500 text-lg"></i>`;
+                if (rank === 3) rankDisplay = `<i class="fas fa-medal text-bronze-500 text-lg"></i>`;
+
+                // Badges Logic (Mockup if array empty)
+                let badgesHtml = '';
+                if (user.badges && user.badges.length > 0) {
+                    badgesHtml = user.badges.map(b => `<i class="fas fa-certificate text-brand-400" title="${b}"></i>`).join(' ');
+                } else if (user.points > 100) {
+                     badgesHtml = `<i class="fas fa-star text-spark-400" title="Rising Star"></i>`;
+                }
+
+                const row = `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition border-b border-slate-50 dark:border-slate-800/50 group">
+                        <td class="px-6 py-4 text-center">${rankDisplay}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <img src="${user.photoURL || `https://ui-avatars.com/api/?name=${user.name}`}" class="w-8 h-8 rounded-full bg-slate-200">
+                                <span class="font-bold text-slate-700 dark:text-slate-200">${user.name || 'Anonymous'}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-slate-500 hidden sm:table-cell">
+                            <span class="px-2 py-1 rounded text-xs bg-slate-100 dark:bg-slate-800">${user.department || 'General'}</span>
+                        </td>
+                        <td class="px-6 py-4 text-slate-400 text-xs hidden md:table-cell gap-1">
+                            ${badgesHtml}
+                        </td>
+                        <td class="px-6 py-4 text-right font-bold text-brand-600 dark:text-brand-400">
+                            ${user.points || 0}
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        // Initial Load
+        fetchLeaderboard();
+
+    </script>
+
+    <script>
+        const themeBtn = document.getElementById('themeToggle');
+        const html = document.documentElement;
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+        }
+        themeBtn.onclick = () => {
+            html.classList.toggle('dark');
+            localStorage.theme = html.classList.contains('dark') ? 'dark' : 'light';
+        };
+    </script>
+</body>
+</html>
