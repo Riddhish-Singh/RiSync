@@ -19,10 +19,9 @@
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
                         brand: { 50: '#f0fdfa', 100: '#ccfbf1', 500: '#14b8a6', 600: '#0d9488', 900: '#134e4a' },
-                        ocean: { 500: '#0ea5e9', 600: '#0284c7' },
-                        gold: { 400: '#facc15', 500: '#eab308' }, // 1st Place
-                        silver: { 400: '#94a3b8', 500: '#64748b' }, // 2nd Place
-                        bronze: { 400: '#fbbf24', 500: '#b45309' }  // 3rd Place (Orange-ish)
+                        gold: { 400: '#facc15', 500: '#eab308', 600: '#ca8a04' },
+                        silver: { 400: '#94a3b8', 500: '#64748b', 600: '#475569' },
+                        bronze: { 400: '#fbbf24', 500: '#b45309', 600: '#92400e' }
                     }
                 }
             }
@@ -38,15 +37,19 @@
         .dark .nav-item.active { background: rgba(13, 148, 136, 0.1); color: #2dd4bf; border-right: 3px solid #2dd4bf; }
 
         /* Podium Animations */
-        @keyframes popUp { 0% { transform: translateY(100%); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
-        .podium-1 { animation: popUp 0.8s ease-out forwards; }
-        .podium-2 { animation: popUp 0.8s ease-out 0.2s forwards; }
-        .podium-3 { animation: popUp 0.8s ease-out 0.4s forwards; }
+        @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .podium-1 { animation: slideUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .podium-2 { animation: slideUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s forwards; }
+        .podium-3 { animation: slideUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.3s forwards; }
 
-        /* Custom Scrollbar for Table */
-        .table-container::-webkit-scrollbar { height: 6px; }
-        .table-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-        .dark .table-container::-webkit-scrollbar-thumb { background: #475569; }
+        /* Crown Shine */
+        @keyframes shine { 0% { background-position: -100px; } 100% { background-position: 200px; } }
+        .crown-shine { 
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent); 
+            background-size: 50px 100%;
+            background-repeat: no-repeat;
+            animation: shine 2s infinite linear;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 flex h-screen overflow-hidden">
@@ -62,7 +65,7 @@
             <a href="dashboard.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:text-brand-600 transition">
                 <i class="fas fa-chart-pie w-6"></i> <span class="font-medium text-sm">Dashboard</span>
             </a>
-            <a href="leaderboard.html" class="nav-item active flex items-center px-6 py-3 text-brand-600 dark:text-brand-400">
+            <a href="#" class="nav-item active flex items-center px-6 py-3">
                 <i class="fas fa-medal w-6"></i> <span class="font-medium text-sm">Leaderboard</span>
             </a>
             <a href="submit.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:text-brand-600 transition">
@@ -78,7 +81,7 @@
         
         <header class="h-16 glass-panel border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 z-10">
             <h1 class="text-xl font-bold flex items-center gap-2">
-                <i class="fas fa-trophy text-gold-500"></i> Top Innovators
+                <i class="fas fa-trophy text-gold-500"></i> Innovator Rankings
             </h1>
             <div class="flex items-center gap-4">
                 <button id="themeToggle" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-300">
@@ -92,77 +95,86 @@
         </header>
 
         <main class="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-50 dark:bg-slate-900">
-            
-            <div class="max-w-6xl mx-auto">
+            <div class="max-w-5xl mx-auto">
                 
-                <div class="flex flex-col sm:flex-row justify-between items-center mb-10 gap-4">
-                    <div class="flex gap-2 p-1 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
-                        <button onclick="filterDept('All')" class="filter-btn active px-4 py-2 rounded-md text-sm font-medium transition bg-brand-50 text-brand-700 dark:bg-brand-900/30 dark:text-brand-300">All</button>
-                        <button onclick="filterDept('Engineering')" class="filter-btn px-4 py-2 rounded-md text-sm font-medium text-slate-500 hover:text-brand-600 transition">Engineering</button>
-                        <button onclick="filterDept('Science')" class="filter-btn px-4 py-2 rounded-md text-sm font-medium text-slate-500 hover:text-brand-600 transition">Science</button>
-                        <button onclick="filterDept('Arts')" class="filter-btn px-4 py-2 rounded-md text-sm font-medium text-slate-500 hover:text-brand-600 transition">Arts</button>
+                <div class="flex justify-center mb-8">
+                    <div class="bg-white dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 inline-flex shadow-sm">
+                        <button onclick="window.filterTable('All')" class="filter-btn active px-4 py-2 rounded-lg text-sm font-bold text-brand-600 bg-brand-50 dark:bg-brand-900/30 dark:text-brand-300 transition">All</button>
+                        <button onclick="window.filterTable('Engineering')" class="filter-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition">Engineering</button>
+                        <button onclick="window.filterTable('Science')" class="filter-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition">Science</button>
+                        <button onclick="window.filterTable('Arts')" class="filter-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition">Arts</button>
                     </div>
                 </div>
 
-                <div id="podiumContainer" class="flex justify-center items-end gap-4 mb-12 min-h-[240px]">
-                    <div class="podium-2 flex flex-col items-center opacity-0">
-                        <div class="w-16 h-16 rounded-full border-4 border-silver-400 overflow-hidden mb-2 relative">
-                            <img id="img-2" src="https://ui-avatars.com/api/?name=?" class="w-full h-full object-cover">
-                            <div class="absolute bottom-0 w-full bg-silver-500 text-white text-[10px] font-bold text-center">2nd</div>
+                <div id="podium" class="flex items-end justify-center gap-4 sm:gap-8 mb-12 min-h-[280px]">
+                    
+                    <div class="podium-2 flex flex-col items-center opacity-0 transform translate-y-10">
+                        <div class="relative mb-2">
+                            <div class="w-16 h-16 rounded-full border-4 border-silver-400 overflow-hidden shadow-lg">
+                                <img id="p2-img" src="https://ui-avatars.com/api/?name=?" class="w-full h-full object-cover">
+                            </div>
+                            <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-silver-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full border border-white dark:border-slate-800">2nd</div>
                         </div>
                         <div class="text-center mb-2">
-                            <div id="name-2" class="font-bold text-sm text-slate-700 dark:text-slate-200">...</div>
-                            <div id="pts-2" class="text-xs text-silver-500 font-bold">0 pts</div>
+                            <h3 id="p2-name" class="font-bold text-sm text-slate-700 dark:text-slate-200 max-w-[100px] truncate">...</h3>
+                            <p id="p2-pts" class="text-xs font-bold text-silver-500">0 pts</p>
                         </div>
-                        <div class="w-20 h-24 bg-gradient-to-t from-silver-500 to-silver-400 rounded-t-lg shadow-lg flex items-end justify-center pb-4 text-white font-bold text-2xl opacity-80">
-                            2
+                        <div class="w-20 sm:w-24 h-24 bg-gradient-to-b from-silver-300 to-silver-500 rounded-t-lg shadow-lg flex items-end justify-center pb-2">
+                            <i class="fas fa-medal text-white text-3xl opacity-50"></i>
                         </div>
                     </div>
 
-                    <div class="podium-1 flex flex-col items-center z-10 opacity-0">
-                        <div class="w-24 h-24 rounded-full border-4 border-gold-400 overflow-hidden mb-3 relative shadow-xl shadow-gold-400/20">
-                            <i class="fas fa-crown absolute -top-3 left-1/2 transform -translate-x-1/2 text-gold-500 text-2xl drop-shadow-md"></i>
-                            <img id="img-1" src="https://ui-avatars.com/api/?name=?" class="w-full h-full object-cover">
+                    <div class="podium-1 flex flex-col items-center z-10 opacity-0 transform translate-y-10">
+                        <div class="relative mb-3">
+                            <i class="fas fa-crown text-gold-500 text-3xl absolute -top-6 left-1/2 transform -translate-x-1/2 drop-shadow-md animate-bounce"></i>
+                            <div class="w-24 h-24 rounded-full border-4 border-gold-400 overflow-hidden shadow-xl ring-4 ring-gold-400/20">
+                                <img id="p1-img" src="https://ui-avatars.com/api/?name=?" class="w-full h-full object-cover">
+                            </div>
+                            <div class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-gold-500 text-white text-xs font-bold px-3 py-1 rounded-full border-2 border-white dark:border-slate-800">1st</div>
                         </div>
                         <div class="text-center mb-2">
-                            <div id="name-1" class="font-bold text-lg text-slate-800 dark:text-white">...</div>
-                            <div id="pts-1" class="text-sm text-gold-500 font-bold">0 pts</div>
+                            <h3 id="p1-name" class="font-bold text-lg text-slate-800 dark:text-white max-w-[140px] truncate">...</h3>
+                            <p id="p1-pts" class="text-sm font-bold text-gold-600">0 pts</p>
                         </div>
-                        <div class="w-24 h-32 bg-gradient-to-t from-gold-500 to-gold-400 rounded-t-lg shadow-lg flex items-end justify-center pb-4 text-white font-bold text-4xl">
-                            1
+                        <div class="w-24 sm:w-28 h-32 bg-gradient-to-b from-gold-300 to-gold-500 rounded-t-lg shadow-xl flex items-end justify-center pb-4 relative overflow-hidden">
+                            <div class="crown-shine absolute inset-0 w-full h-full"></div>
+                            <span class="text-white font-black text-5xl opacity-80">1</span>
                         </div>
                     </div>
 
-                    <div class="podium-3 flex flex-col items-center opacity-0">
-                        <div class="w-16 h-16 rounded-full border-4 border-bronze-400 overflow-hidden mb-2 relative">
-                            <img id="img-3" src="https://ui-avatars.com/api/?name=?" class="w-full h-full object-cover">
-                            <div class="absolute bottom-0 w-full bg-bronze-500 text-white text-[10px] font-bold text-center">3rd</div>
+                    <div class="podium-3 flex flex-col items-center opacity-0 transform translate-y-10">
+                        <div class="relative mb-2">
+                            <div class="w-16 h-16 rounded-full border-4 border-bronze-400 overflow-hidden shadow-lg">
+                                <img id="p3-img" src="https://ui-avatars.com/api/?name=?" class="w-full h-full object-cover">
+                            </div>
+                            <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-bronze-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full border border-white dark:border-slate-800">3rd</div>
                         </div>
                         <div class="text-center mb-2">
-                            <div id="name-3" class="font-bold text-sm text-slate-700 dark:text-slate-200">...</div>
-                            <div id="pts-3" class="text-xs text-bronze-500 font-bold">0 pts</div>
+                            <h3 id="p3-name" class="font-bold text-sm text-slate-700 dark:text-slate-200 max-w-[100px] truncate">...</h3>
+                            <p id="p3-pts" class="text-xs font-bold text-bronze-600">0 pts</p>
                         </div>
-                        <div class="w-20 h-16 bg-gradient-to-t from-bronze-500 to-bronze-400 rounded-t-lg shadow-lg flex items-end justify-center pb-4 text-white font-bold text-2xl opacity-80">
-                            3
+                        <div class="w-20 sm:w-24 h-16 bg-gradient-to-b from-bronze-300 to-bronze-500 rounded-t-lg shadow-lg flex items-end justify-center pb-2">
+                             <i class="fas fa-medal text-white text-3xl opacity-50"></i>
                         </div>
                     </div>
+
                 </div>
 
-                <div class="glass-panel rounded-2xl overflow-hidden shadow-sm table-container">
+                <div class="glass-panel rounded-2xl overflow-hidden shadow-sm">
                     <table class="w-full text-left border-collapse">
-                        <thead class="bg-slate-50 dark:bg-slate-800/50 text-xs uppercase text-slate-500 border-b border-slate-200 dark:border-slate-700">
+                        <thead class="bg-slate-50 dark:bg-slate-800/50 text-xs uppercase text-slate-500 font-bold tracking-wider">
                             <tr>
-                                <th class="px-6 py-4 font-bold text-center w-20">Rank</th>
-                                <th class="px-6 py-4 font-bold">Innovator</th>
-                                <th class="px-6 py-4 font-bold hidden sm:table-cell">Department</th>
-                                <th class="px-6 py-4 font-bold hidden md:table-cell">Badges</th>
-                                <th class="px-6 py-4 font-bold text-right">Points</th>
+                                <th class="px-6 py-4 text-center w-20">Rank</th>
+                                <th class="px-6 py-4">Innovator</th>
+                                <th class="px-6 py-4 text-center hidden sm:table-cell">Dept.</th>
+                                <th class="px-6 py-4 text-center hidden md:table-cell">Badges</th>
+                                <th class="px-6 py-4 text-right">Points</th>
                             </tr>
                         </thead>
                         <tbody id="leaderboardBody" class="divide-y divide-slate-100 dark:divide-slate-700/50 text-sm">
                             <tr>
                                 <td colspan="5" class="p-8 text-center text-slate-500">
-                                    <i class="fas fa-circle-notch fa-spin text-brand-500 mr-2"></i> Loading Rankings...
+                                    <i class="fas fa-circle-notch fa-spin text-brand-500 mr-2"></i> Fetching rankings...
                                 </td>
                             </tr>
                         </tbody>
@@ -192,147 +204,136 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- AUTH ---
+        // --- AUTH UI SYNC ---
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                document.getElementById('userName').textContent = user.displayName || 'User';
+                document.getElementById('userName').textContent = user.displayName || 'Innovator';
                 if(user.photoURL) document.getElementById('userAvatar').src = user.photoURL;
-            } else {
-                // For leaderboard, we might allow public view, but usually redirect
-                // window.location.href = "index.html";
             }
         });
 
-        // --- FILTER LOGIC ---
-        window.filterDept = (dept) => {
-            // Update Buttons
+        // --- FETCH & RENDER LOGIC ---
+        
+        window.filterTable = (dept) => {
+            // UI Toggle
             document.querySelectorAll('.filter-btn').forEach(btn => {
-                if(btn.innerText === dept) {
-                    btn.classList.add('bg-brand-50', 'text-brand-700', 'dark:bg-brand-900/30', 'dark:text-brand-300');
+                if (btn.innerText === dept) {
+                    btn.classList.add('active', 'bg-brand-50', 'text-brand-600', 'dark:bg-brand-900/30', 'dark:text-brand-300');
                     btn.classList.remove('text-slate-500');
                 } else {
-                    btn.classList.remove('bg-brand-50', 'text-brand-700', 'dark:bg-brand-900/30', 'dark:text-brand-300');
+                    btn.classList.remove('active', 'bg-brand-50', 'text-brand-600', 'dark:bg-brand-900/30', 'dark:text-brand-300');
                     btn.classList.add('text-slate-500');
                 }
             });
-            fetchLeaderboard(dept);
-        };
+            fetchData(dept);
+        }
 
-        // --- FETCH DATA ---
-        async function fetchLeaderboard(department = 'All') {
+        async function fetchData(department = 'All') {
             const tbody = document.getElementById('leaderboardBody');
-            tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500"><i class="fas fa-circle-notch fa-spin text-brand-500 mr-2"></i> Updating...</td></tr>`;
-
+            
             try {
-                let q;
+                // 1. Construct Query
                 const usersRef = collection(db, "users");
+                let q;
 
-                // Construct Query
                 if (department === 'All') {
                     q = query(usersRef, orderBy("points", "desc"), limit(50));
                 } else {
-                    // Requires Index in Firestore: 'department' Ascending, 'points' Descending
-                    // Fallback: Fetch all sorted by points, filter client side if index missing
-                    // For robust demo, we'll try direct query. If it fails due to index, console will show link.
+                    // NOTE: This requires a composite index in Firestore (Department ASC, Points DESC)
+                    // If console shows error, click the link provided in the error message to create it.
                     q = query(usersRef, where("department", "==", department), orderBy("points", "desc"), limit(50));
                 }
 
+                // 2. Fetch
                 const snapshot = await getDocs(q);
                 const users = [];
                 snapshot.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
 
-                // If no department users found
+                // 3. Clear UI
+                tbody.innerHTML = "";
+                resetPodium();
+
                 if (users.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500">No innovators found in this category yet.</td></tr>`;
-                    resetPodium();
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500">No innovators found in this category.</td></tr>`;
                     return;
                 }
 
-                updatePodium(users.slice(0, 3));
-                renderTable(users);
+                // 4. Update Podium (Top 3)
+                if (users[0]) updatePodiumItem('1', users[0]);
+                if (users[1]) updatePodiumItem('2', users[1]);
+                if (users[2]) updatePodiumItem('3', users[2]);
+
+                // 5. Render Table (All)
+                users.forEach((user, index) => {
+                    renderRow(user, index + 1);
+                });
 
             } catch (error) {
                 console.error("Leaderboard Error:", error);
-                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500">Error loading rankings. <br><span class="text-xs text-slate-400">If using filters, ensure Firestore Index exists.</span></td></tr>`;
+                // Helpful error message for Index issues
+                if(error.message.includes("index")) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500 text-xs">Missing Index. Open console (F12) and click the Firebase link to fix.</td></tr>`;
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500">Error loading data.</td></tr>`;
+                }
             }
         }
 
-        // --- RENDER PODIUM ---
-        function updatePodium(top3) {
-            // Reset
-            ['1','2','3'].forEach(i => {
-                document.getElementById(`name-${i}`).textContent = '-';
-                document.getElementById(`pts-${i}`).textContent = '';
-                document.getElementById(`img-${i}`).src = `https://ui-avatars.com/api/?name=?`;
-            });
-
-            if(top3[0]) setPodiumData('1', top3[0]);
-            if(top3[1]) setPodiumData('2', top3[1]);
-            if(top3[2]) setPodiumData('3', top3[2]);
-        }
-
-        function setPodiumData(rank, user) {
-            document.getElementById(`name-${rank}`).textContent = user.name || 'Anonymous';
-            document.getElementById(`pts-${rank}`).textContent = `${user.points || 0} pts`;
-            if(user.photoURL) document.getElementById(`img-${rank}`).src = user.photoURL;
-            else document.getElementById(`img-${rank}`).src = `https://ui-avatars.com/api/?name=${user.name || 'U'}&background=random`;
+        function updatePodiumItem(rank, user) {
+            document.getElementById(`p${rank}-name`).textContent = user.name || 'Anonymous';
+            document.getElementById(`p${rank}-pts`).textContent = `${user.points || 0} pts`;
+            if (user.photoURL) document.getElementById(`p${rank}-img`).src = user.photoURL;
+            else document.getElementById(`p${rank}-img`).src = `https://ui-avatars.com/api/?name=${user.name}&background=random`;
         }
 
         function resetPodium() {
-             ['1','2','3'].forEach(i => {
-                document.getElementById(`name-${i}`).textContent = '-';
-                document.getElementById(`pts-${i}`).textContent = '';
+            ['1','2','3'].forEach(r => {
+                document.getElementById(`p${r}-name`).textContent = '...';
+                document.getElementById(`p${r}-pts`).textContent = '0 pts';
+                document.getElementById(`p${r}-img`).src = 'https://ui-avatars.com/api/?name=?';
             });
         }
 
-        // --- RENDER TABLE ---
-        function renderTable(users) {
+        function renderRow(user, rank) {
             const tbody = document.getElementById('leaderboardBody');
-            tbody.innerHTML = '';
+            
+            // Medals for top 3 in list view too
+            let rankIcon = `<span class="font-bold text-slate-500">#${rank}</span>`;
+            if (rank === 1) rankIcon = `<i class="fas fa-medal text-gold-500 text-lg"></i>`;
+            if (rank === 2) rankIcon = `<i class="fas fa-medal text-silver-500 text-lg"></i>`;
+            if (rank === 3) rankIcon = `<i class="fas fa-medal text-bronze-500 text-lg"></i>`;
 
-            users.forEach((user, index) => {
-                const rank = index + 1;
-                let rankDisplay = `<span class="font-bold text-slate-500">#${rank}</span>`;
-                
-                // Medals for table list (Top 3 handled by podium, but good to keep consistent)
-                if (rank === 1) rankDisplay = `<i class="fas fa-medal text-gold-500 text-lg"></i>`;
-                if (rank === 2) rankDisplay = `<i class="fas fa-medal text-silver-500 text-lg"></i>`;
-                if (rank === 3) rankDisplay = `<i class="fas fa-medal text-bronze-500 text-lg"></i>`;
+            // Badges
+            let badgesHTML = '';
+            if (user.badges && Array.isArray(user.badges)) {
+                badgesHTML = user.badges.slice(0,3).map(b => `<i class="fas fa-certificate text-brand-400" title="${b}"></i>`).join(' ');
+            }
 
-                // Badges Logic (Mockup if array empty)
-                let badgesHtml = '';
-                if (user.badges && user.badges.length > 0) {
-                    badgesHtml = user.badges.map(b => `<i class="fas fa-certificate text-brand-400" title="${b}"></i>`).join(' ');
-                } else if (user.points > 100) {
-                     badgesHtml = `<i class="fas fa-star text-spark-400" title="Rising Star"></i>`;
-                }
-
-                const row = `
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition border-b border-slate-50 dark:border-slate-800/50 group">
-                        <td class="px-6 py-4 text-center">${rankDisplay}</td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-3">
-                                <img src="${user.photoURL || `https://ui-avatars.com/api/?name=${user.name}`}" class="w-8 h-8 rounded-full bg-slate-200">
-                                <span class="font-bold text-slate-700 dark:text-slate-200">${user.name || 'Anonymous'}</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-slate-500 hidden sm:table-cell">
-                            <span class="px-2 py-1 rounded text-xs bg-slate-100 dark:bg-slate-800">${user.department || 'General'}</span>
-                        </td>
-                        <td class="px-6 py-4 text-slate-400 text-xs hidden md:table-cell gap-1">
-                            ${badgesHtml}
-                        </td>
-                        <td class="px-6 py-4 text-right font-bold text-brand-600 dark:text-brand-400">
-                            ${user.points || 0}
-                        </td>
-                    </tr>
-                `;
-                tbody.innerHTML += row;
-            });
+            const tr = `
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition border-b border-slate-50 dark:border-slate-800/50">
+                    <td class="px-6 py-4 text-center">${rankIcon}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <img src="${user.photoURL || `https://ui-avatars.com/api/?name=${user.name}`}" class="w-8 h-8 rounded-full bg-slate-200">
+                            <span class="font-bold text-slate-700 dark:text-slate-200">${user.name || 'Anonymous'}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-center hidden sm:table-cell">
+                        <span class="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-slate-500">${user.department || 'N/A'}</span>
+                    </td>
+                    <td class="px-6 py-4 text-center text-xs hidden md:table-cell gap-1">
+                        ${badgesHTML}
+                    </td>
+                    <td class="px-6 py-4 text-right font-bold text-brand-600 dark:text-brand-400">
+                        ${user.points || 0}
+                    </td>
+                </tr>
+            `;
+            tbody.innerHTML += tr;
         }
 
-        // Initial Load
-        fetchLeaderboard();
+        // Initialize
+        fetchData();
 
     </script>
 
