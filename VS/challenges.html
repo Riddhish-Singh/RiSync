@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Challenges | Vigyanshaala Idea Lab</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        brand: { 50: '#f0fdfa', 100: '#ccfbf1', 500: '#14b8a6', 600: '#0d9488', 900: '#134e4a' },
+                        ocean: { 500: '#0ea5e9', 600: '#0284c7' },
+                        fresh: { 400: '#a3e635', 500: '#84cc16' },
+                        spark: { 400: '#facc15' }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { transition: background-color 0.3s; }
+        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.5); }
+        .dark .glass-panel { background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255, 255, 255, 0.05); }
+        
+        .nav-item.active { background: #f0fdfa; color: #0d9488; border-right: 3px solid #0d9488; }
+        .dark .nav-item.active { background: rgba(13, 148, 136, 0.1); color: #2dd4bf; border-right: 3px solid #2dd4bf; }
+
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #0d9488; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 flex h-screen overflow-hidden">
+
+    <aside class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 hidden md:flex flex-col z-20">
+        <div class="h-16 flex items-center px-6 border-b border-slate-100 dark:border-slate-800">
+            <span class="font-bold text-lg tracking-tight text-brand-600 dark:text-brand-400">Vigyanshaala</span>
+        </div>
+        <nav class="flex-1 py-6 space-y-1">
+            <a href="index.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:text-brand-600 transition">
+                <i class="fas fa-home w-6"></i> <span class="font-medium text-sm">Home</span>
+            </a>
+            <a href="dashboard.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:text-brand-600 transition">
+                <i class="fas fa-chart-pie w-6"></i> <span class="font-medium text-sm">Dashboard</span>
+            </a>
+            <a href="submit.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:text-brand-600 transition">
+                <i class="fas fa-plus-circle w-6"></i> <span class="font-medium text-sm">New Idea</span>
+            </a>
+            <a href="#" class="nav-item active flex items-center px-6 py-3">
+                <i class="fas fa-trophy w-6"></i> <span class="font-medium text-sm">Challenges</span>
+            </a>
+        </nav>
+    </aside>
+
+    <div class="flex-1 flex flex-col h-screen overflow-hidden relative">
+        
+        <header class="h-16 glass-panel border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 z-10">
+            <h1 class="text-xl font-bold flex items-center gap-2">
+                <i class="fas fa-flag-checkered text-ocean-500"></i> Active Challenges
+            </h1>
+            <div class="flex items-center gap-4">
+                <button id="themeToggle" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-300">
+                    <i class="fas fa-moon dark:hidden"></i><i class="fas fa-sun hidden dark:block"></i>
+                </button>
+                <div class="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-slate-700">
+                    <span id="userName" class="text-sm font-bold hidden sm:block">Guest</span>
+                    <img id="userAvatar" src="https://ui-avatars.com/api/?name=Guest" class="w-9 h-9 rounded-full bg-slate-200">
+                    <button id="loginBtnHeader" class="text-xs bg-brand-600 text-white px-3 py-1 rounded hidden">Login</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-50 dark:bg-slate-900">
+            
+            <div class="max-w-7xl mx-auto">
+                
+                <div class="bg-gradient-to-r from-brand-900 to-ocean-900 rounded-2xl p-8 sm:p-12 text-white mb-10 relative overflow-hidden shadow-xl">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-brand-500 rounded-full blur-3xl opacity-20 transform translate-x-10 -translate-y-10"></div>
+                    <div class="relative z-10">
+                        <span class="inline-block py-1 px-3 rounded-full bg-brand-500/20 border border-brand-400/30 text-brand-200 text-xs font-bold uppercase tracking-wider mb-4">
+                            Featured Event
+                        </span>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold mb-4">Innovation Season 2026</h2>
+                        <p class="text-brand-100 max-w-2xl text-lg mb-8">
+                            Join over 5,000 students solving real-world problems. Win mentorship, funding, and recognition.
+                        </p>
+                        <div class="flex gap-4">
+                            <button onclick="document.getElementById('challengesGrid').scrollIntoView({behavior: 'smooth'})" class="bg-fresh-500 hover:bg-fresh-600 text-slate-900 px-6 py-3 rounded-xl font-bold transition shadow-lg shadow-fresh-500/20">
+                                Explore Challenges
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold text-slate-800 dark:text-white">All Challenges</h3>
+                    <div class="flex gap-2 text-sm">
+                        <select class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-brand-500">
+                            <option>Status: Active</option>
+                            <option>Status: Upcoming</option>
+                            <option>Status: Closed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="challengesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="col-span-full py-20 text-center">
+                        <div class="loader mx-auto mb-4"></div>
+                        <p class="text-slate-500">Loading opportunities...</p>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+        import { getFirestore, collection, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAGpwRwsJfD8QlCHOnXPxxLyGb34ezokgQ",
+            authDomain: "vs-idea-labs.firebaseapp.com",
+            projectId: "vs-idea-labs",
+            storageBucket: "vs-idea-labs.firebasestorage.app",
+            messagingSenderId: "789407499622",
+            appId: "1:789407499622:web:18758c729f4b283ddcf4a7",
+            measurementId: "G-XKFLFPDZLP"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+
+        const grid = document.getElementById('challengesGrid');
+        let currentUser = null;
+
+        // Auth Logic
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('userName').textContent = user.displayName || 'Innovator';
+                if(user.photoURL) document.getElementById('userAvatar').src = user.photoURL;
+                document.getElementById('loginBtnHeader').classList.add('hidden');
+            } else {
+                document.getElementById('loginBtnHeader').classList.remove('hidden');
+                document.getElementById('loginBtnHeader').onclick = () => signInWithPopup(auth, provider);
+            }
+            // Fetch regardless of auth (Challenges can be public view)
+            fetchChallenges();
+        });
+
+        async function fetchChallenges() {
+            try {
+                // Fetch from Firestore
+                // Note: Ensure you have a 'challenges' collection
+                const q = query(collection(db, "challenges"), orderBy("endDate", "desc"));
+                const querySnapshot = await getDocs(q);
+
+                grid.innerHTML = ""; // Clear loader
+
+                if (querySnapshot.empty) {
+                    // Fallback Dummy Data if DB is empty
+                    renderFallbackChallenges();
+                    return;
+                }
+
+                querySnapshot.forEach((doc) => {
+                    renderChallengeCard(doc.data(), doc.id);
+                });
+
+            } catch (error) {
+                console.error("Error fetching challenges:", error);
+                renderFallbackChallenges(); // Fallback on error
+            }
+        }
+
+        function renderChallengeCard(data, id) {
+            // Calculate Days Left
+            const end = data.endDate ? data.endDate.toDate() : new Date();
+            const now = new Date();
+            const diffTime = Math.abs(end - now);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const isExpired = end < now;
+            
+            const daysDisplay = isExpired ? "Closed" : `${diffDays} Days Left`;
+            const badgeColor = isExpired ? "bg-red-100 text-red-700" : "bg-brand-100 text-brand-700";
+
+            // Date Formatting
+            const startStr = data.startDate ? data.startDate.toDate().toLocaleDateString() : 'TBA';
+            const endStr = data.endDate ? data.endDate.toDate().toLocaleDateString() : 'TBA';
+
+            // Image Fallback
+            const imgSrc = data.image || `https://source.unsplash.com/random/800x600/?technology,${data.category || 'abstract'}`;
+
+            const html = `
+                <div class="glass-panel rounded-2xl overflow-hidden hover:shadow-xl transition group flex flex-col h-full border border-slate-200 dark:border-slate-700">
+                    <div class="h-48 overflow-hidden relative">
+                        <img src="${imgSrc}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                        <div class="absolute top-4 right-4">
+                            <span class="px-3 py-1 rounded-full text-xs font-bold ${badgeColor} shadow-sm">
+                                ${daysDisplay}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6 flex flex-col flex-grow">
+                        <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">${data.title || 'Untitled Challenge'}</h3>
+                        
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mb-6 line-clamp-3 flex-grow">
+                            ${data.description || 'No description available.'}
+                        </p>
+                        
+                        <div class="space-y-3 mb-6">
+                            <div class="flex items-center text-sm text-slate-500">
+                                <i class="far fa-calendar-alt w-6 text-center text-brand-500"></i>
+                                <span>${startStr} - ${endStr}</span>
+                            </div>
+                            <div class="flex items-center text-sm text-slate-500">
+                                <i class="fas fa-users w-6 text-center text-ocean-500"></i>
+                                <span>${data.participants || 0} Innovators Joined</span>
+                            </div>
+                        </div>
+
+                        <button onclick="joinChallenge('${id}')" class="w-full ${isExpired ? 'bg-slate-300 cursor-not-allowed' : 'bg-brand-600 hover:bg-brand-700'} text-white font-bold py-3 rounded-xl transition shadow-lg shadow-brand-500/20">
+                            ${isExpired ? 'Challenge Closed' : 'Join Challenge'}
+                        </button>
+                    </div>
+                </div>
+            `;
+            grid.innerHTML += html;
+        }
+
+        // Simulating the "Join" Action
+        window.joinChallenge = (id) => {
+            if (!currentUser) {
+                alert("Please login to join this challenge.");
+                return;
+            }
+            // Here you would add code to update Firestore (e.g., add userId to 'participants' array)
+            alert(`Success! You have registered for this challenge. Check your dashboard for updates.`);
+        };
+
+        // Fallback Data (Shows if DB is empty)
+        function renderFallbackChallenges() {
+            const dummies = [
+                {
+                    title: "Clean Energy Hackathon",
+                    description: "Develop sustainable energy solutions for rural communities using local resources.",
+                    startDate: { toDate: () => new Date() },
+                    endDate: { toDate: () => new Date(Date.now() + 864000000) }, // +10 days
+                    participants: 120,
+                    image: "https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?w=800&q=80"
+                },
+                {
+                    title: "AI for Healthcare",
+                    description: "Build predictive models to assist early diagnosis of common diseases.",
+                    startDate: { toDate: () => new Date() },
+                    endDate: { toDate: () => new Date(Date.now() + 1200000000) }, // +14 days
+                    participants: 85,
+                    image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80"
+                }
+            ];
+            
+            dummies.forEach((d, i) => renderChallengeCard(d, 'dummy-'+i));
+        }
+
+    </script>
+
+    <script>
+        const themeBtn = document.getElementById('themeToggle');
+        const html = document.documentElement;
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+        }
+        themeBtn.onclick = () => {
+            html.classList.toggle('dark');
+            localStorage.theme = html.classList.contains('dark') ? 'dark' : 'light';
+        };
+    </script>
+</body>
+</html>
