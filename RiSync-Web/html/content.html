@@ -1005,15 +1005,17 @@
     import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
     // --- FIREBASE CONFIGURATION ---
-    const firebaseConfig = {
-      apiKey: "AIzaSyBWAwm_TDtD1qXDtjxJu0jrDP45c3p1Bxg",
-      authDomain: "risync-risync.firebaseapp.com",
-      projectId: "risync-risync",
-      storageBucket: "risync-risync.firebasestorage.app",
-      messagingSenderId: "195106250121",
-      appId: "1:195106250121:web:57b23c5b94d5771995d558",
-      measurementId: "G-D5WSLQ706Z"
-    };
+const firebaseConfig = {
+    apiKey: "AIzaSyBWAwm_TDtD1qXDtjxJu0jrDP45c3p1Bxg",
+    authDomain: "risync-risync.firebaseapp.com",
+    // ADD THIS LINE BELOW (This is your database address)
+    databaseURL: "https://risync-risync-default-rtdb.firebaseio.com/", 
+    projectId: "risync-risync",
+    storageBucket: "risync-risync.firebasestorage.app",
+    messagingSenderId: "195106250121",
+    appId: "1:195106250121:web:57b23c5b94d5771995d558",
+    measurementId: "G-D5WSLQ706Z"
+};
 
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
