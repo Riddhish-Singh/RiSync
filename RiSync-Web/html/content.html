@@ -1333,5 +1333,95 @@
       loadProfileImage();
     });
   </script>
+	<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getDatabase, ref, set, push, onDisconnect, serverTimestamp } 
+  from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBWAwm_TDtD1qXDtjxJu0jrDP45c3p1Bxg",
+    authDomain: "risync-risync.firebaseapp.com",
+    projectId: "risync-risync",
+    storageBucket: "risync-risync.firebasestorage.app",
+    messagingSenderId: "195106250121",
+    appId: "1:195106250121:web:57b23c5b94d5771995d558",
+    measurementId: "G-D5WSLQ706Z"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const USER_ID = "child_001"; // Hardcoded ID for demo
+
+  // Refs
+  const statusRef = ref(db, `monitoring/${USER_ID}/status`);
+  const logsRef = ref(db, `monitoring/${USER_ID}/logs`);
+
+  // --- 1. SESSION INITIALIZATION ---
+  // Set user as online immediately
+  set(statusRef, {
+      state: 'online',
+      current_page: 'content.html',
+      tab_visible: true,
+      last_seen: serverTimestamp()
+  });
+  // If user closes tab, mark offline automatically
+  onDisconnect(statusRef).update({ state: 'offline', last_seen: serverTimestamp() });
+
+  // --- 2. LOGGING FUNCTION ---
+  function log(action, details) {
+      // Save to Firebase
+      push(logsRef, {
+          action: action,
+          details: details,
+          timestamp: serverTimestamp()
+      });
+      
+      // Save to LocalStorage (Backup)
+      const lsData = JSON.parse(localStorage.getItem('risync_logs') || "[]");
+      lsData.push({ action, details, time: Date.now() });
+      localStorage.setItem('risync_logs', JSON.stringify(lsData.slice(-50)));
+  }
+
+  // --- 3. TRACKING EVENTS ---
+
+  // A. Page Load
+  log("PAGE_VIEW", "Opened Content Page");
+
+  // B. Tab Switching (Cheating Monitor)
+  document.addEventListener("visibilitychange", () => {
+      const isVisible = !document.hidden;
+      // Update status instantly
+      statusRef.update({ tab_visible: isVisible });
+      
+      if (document.hidden) {
+          log("TAB_HIDDEN", "User switched tabs or minimized browser");
+      } else {
+          log("TAB_FOCUS", "User returned to content page");
+      }
+  });
+
+  // C. Scroll Depth (Reading Monitor)
+  let maxScroll = 0;
+  window.addEventListener("scroll", () => {
+      const scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
+      if (scrollPercent > maxScroll + 10) { // Only log every 10% increase
+          maxScroll = scrollPercent;
+          statusRef.update({ scroll_depth: maxScroll }); // Live update
+          if(maxScroll % 25 === 0) { // Log history at 25, 50, 75, 100%
+             log("READING_PROGRESS", `Scrolled to ${maxScroll}%`);
+          }
+      }
+  });
+
+  // D. Generic Interaction (Clicks)
+  document.addEventListener("click", (e) => {
+      // Try to identify what was clicked (ID, Class, or Text)
+      const target = e.target.closest('button, a, video, input');
+      if (target) {
+          const id = target.id || target.className || target.innerText.substring(0, 20);
+          log("INTERACTION", `Clicked on: ${id}`);
+      }
+  });
+</script>
 </body>
 </html>
