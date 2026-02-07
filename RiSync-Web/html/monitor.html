@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- saved from url=(0046)https://risync.in/RiSync-Web/html/monitor.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -144,3 +143,151 @@
 </script>
 
 </body></html>
+=======
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RiSync | Live Parent Monitor</title>
+    <style>
+        :root {
+            --bg: #0f172a; --panel: #1e293b; --text: #f8fafc; --mute: #94a3b8;
+            --accent: #3b82f6; --green: #22c55e; --red: #ef4444; --orange: #f59e0b;
+        }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: sans-serif; display: flex; justify-content: center; padding: 20px; }
+        .dashboard { width: 100%; max-width: 800px; display: grid; gap: 20px; }
+        
+        /* Header Card */
+        .card { background: var(--panel); padding: 20px; border-radius: 12px; border: 1px solid #334155; }
+        .header { display: flex; justify-content: space-between; align-items: center; }
+        .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; text-transform: uppercase; }
+        .status-online { background: rgba(34, 197, 94, 0.2); color: var(--green); border: 1px solid var(--green); }
+        .status-offline { background: rgba(239, 68, 68, 0.2); color: var(--red); border: 1px solid var(--red); }
+        
+        /* Stats Grid */
+        .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .stat-box { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; text-align: center; }
+        .stat-label { font-size: 0.75rem; color: var(--mute); text-transform: uppercase; letter-spacing: 1px; }
+        .stat-value { font-size: 1.25rem; font-weight: 600; margin-top: 5px; color: var(--accent); }
+
+        /* Activity Feed */
+        .feed-box { height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .log { display: flex; gap: 15px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border-left: 3px solid var(--mute); font-size: 0.9rem; }
+        .log.focus { border-left-color: var(--green); }
+        .log.blur { border-left-color: var(--orange); }
+        .log.navigation { border-left-color: var(--accent); }
+        .log-time { color: var(--mute); min-width: 60px; font-size: 0.8rem; }
+        .log-detail { color: var(--text); }
+    </style>
+</head>
+<body>
+
+<div class="dashboard">
+    <div class="card">
+        <div class="header">
+            <div>
+                <h1 style="margin:0; font-size:1.5rem;">RiSync Monitor</h1>
+                <p style="margin:5px 0 0 0; color:var(--mute); font-size:0.9rem;">Target: content.html</p>
+            </div>
+            <div id="statusBadge" class="status-badge status-offline">Offline</div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-label">Current Page</div>
+                <div class="stat-value" id="currPage">--</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Scroll Depth</div>
+                <div class="stat-value" id="scrollDepth">0%</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Tab Status</div>
+                <div class="stat-value" id="tabStatus">Unknown</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3 style="margin-top:0; border-bottom:1px solid #334155; padding-bottom:10px;">Live Activity Feed</h3>
+        <div class="feed-box" id="feed">
+            <div style="text-align:center; padding:20px; color:var(--mute)">Waiting for child to connect...</div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, onValue, query, limitToLast } 
+    from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBWAwm_TDtD1qXDtjxJu0jrDP45c3p1Bxg",
+        authDomain: "risync-risync.firebaseapp.com",
+        projectId: "risync-risync",
+        storageBucket: "risync-risync.firebasestorage.app",
+        messagingSenderId: "195106250121",
+        appId: "1:195106250121:web:57b23c5b94d5771995d558",
+        measurementId: "G-D5WSLQ706Z"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const USER_ID = "child_001"; // Must match the ID in the tracking script
+
+    // 1. Listen for Realtime Status
+    onValue(ref(db, `monitoring/${USER_ID}/status`), (snap) => {
+        const data = snap.val();
+        if(!data) return;
+
+        // Update Badge
+        const badge = document.getElementById('statusBadge');
+        if(data.state === 'online') {
+            badge.textContent = "ACTIVE NOW";
+            badge.className = "status-badge status-online";
+        } else {
+            badge.textContent = "OFFLINE";
+            badge.className = "status-badge status-offline";
+        }
+
+        // Update Stats
+        document.getElementById('currPage').textContent = data.current_page || "Unknown";
+        document.getElementById('scrollDepth').textContent = (data.scroll_depth || 0) + "%";
+        
+        // Tab Status Logic
+        const tabEl = document.getElementById('tabStatus');
+        tabEl.textContent = data.tab_visible ? "Focused" : "Tab Hidden";
+        tabEl.style.color = data.tab_visible ? "var(--green)" : "var(--orange)";
+    });
+
+    // 2. Listen for Logs
+    const logQuery = query(ref(db, `monitoring/${USER_ID}/logs`), limitToLast(20));
+    onValue(logQuery, (snap) => {
+        const feed = document.getElementById('feed');
+        feed.innerHTML = ""; // Reset
+        
+        const logs = [];
+        snap.forEach(c => logs.push(c.val()));
+
+        logs.reverse().forEach(log => {
+            const div = document.createElement('div');
+            let typeClass = "";
+            if(log.action.includes("FOCUS")) typeClass = "focus";
+            if(log.action.includes("HIDDEN")) typeClass = "blur";
+            if(log.action.includes("NAV")) typeClass = "navigation";
+
+            div.className = `log ${typeClass}`;
+            div.innerHTML = `
+                <div class="log-time">${new Date(log.timestamp).toLocaleTimeString()}</div>
+                <div class="log-detail">
+                    <strong>${log.action}</strong>: ${log.details}
+                </div>
+            `;
+            feed.appendChild(div);
+        });
+    });
+</script>
+</body>
+</html>
+>>>>>>> f514aebc3248c59fd48ed11f48494ffffbff8b33
