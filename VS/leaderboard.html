@@ -185,11 +185,12 @@
         </main>
     </div>
 
-    <script type="module">
+<script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
         import { getFirestore, collection, query, orderBy, limit, getDocs, where } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
+        // --- PASTE YOUR CONFIG HERE ---
         const firebaseConfig = {
             apiKey: "AIzaSyAGpwRwsJfD8QlCHOnXPxxLyGb34ezokgQ",
             authDomain: "vs-idea-labs.firebaseapp.com",
@@ -204,18 +205,23 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- AUTH UI SYNC ---
+        // --- AUTH SYNC ---
         onAuthStateChanged(auth, (user) => {
             if (user) {
+                console.log("User is logged in:", user.uid);
                 document.getElementById('userName').textContent = user.displayName || 'Innovator';
                 if(user.photoURL) document.getElementById('userAvatar').src = user.photoURL;
+            } else {
+                console.log("User is NOT logged in (Guest Mode)");
             }
+            // Trigger fetch after auth state is known
+            fetchData('All');
         });
 
-        // --- FETCH & RENDER LOGIC ---
-        
+        // --- FILTER FUNCTION ---
         window.filterTable = (dept) => {
-            // UI Toggle
+            console.log("Switching filter to:", dept);
+            // Update Buttons UI
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 if (btn.innerText === dept) {
                     btn.classList.add('active', 'bg-brand-50', 'text-brand-600', 'dark:bg-brand-900/30', 'dark:text-brand-300');
@@ -228,54 +234,64 @@
             fetchData(dept);
         }
 
-        async function fetchData(department = 'All') {
+        // --- MAIN FETCH FUNCTION ---
+        async function fetchData(department) {
             const tbody = document.getElementById('leaderboardBody');
             
             try {
-                // 1. Construct Query
+                console.log(`Fetching users for department: ${department}...`);
+                
                 const usersRef = collection(db, "users");
                 let q;
 
                 if (department === 'All') {
+                    // Simple Sort
                     q = query(usersRef, orderBy("points", "desc"), limit(50));
                 } else {
-                    // NOTE: This requires a composite index in Firestore (Department ASC, Points DESC)
-                    // If console shows error, click the link provided in the error message to create it.
+                    // Filter + Sort (Requires Index)
                     q = query(usersRef, where("department", "==", department), orderBy("points", "desc"), limit(50));
                 }
 
-                // 2. Fetch
                 const snapshot = await getDocs(q);
-                const users = [];
-                snapshot.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
+                console.log(`Found ${snapshot.size} documents.`);
 
-                // 3. Clear UI
+                const users = [];
+                snapshot.forEach(doc => {
+                    const d = doc.data();
+                    console.log("Doc Data:", d); // Check console to see if fields are correct
+                    users.push({ id: doc.id, ...d });
+                });
+
                 tbody.innerHTML = "";
                 resetPodium();
 
                 if (users.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500">No innovators found in this category.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500">No data found in 'users' collection.</td></tr>`;
                     return;
                 }
 
-                // 4. Update Podium (Top 3)
+                // Update Podium
                 if (users[0]) updatePodiumItem('1', users[0]);
                 if (users[1]) updatePodiumItem('2', users[1]);
                 if (users[2]) updatePodiumItem('3', users[2]);
 
-                // 5. Render Table (All)
+                // Render Rows
                 users.forEach((user, index) => {
                     renderRow(user, index + 1);
                 });
 
             } catch (error) {
-                console.error("Leaderboard Error:", error);
-                // Helpful error message for Index issues
-                if(error.message.includes("index")) {
-                    tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500 text-xs">Missing Index. Open console (F12) and click the Firebase link to fix.</td></tr>`;
+                console.error("FULL ERROR DETAILS:", error);
+                
+                if (error.code === 'permission-denied') {
+                    alert("Error: Permission Denied. Check your Firestore Security Rules.");
+                } else if (error.code === 'failed-precondition') {
+                    alert("Error: Missing Index. Open Console (F12) and click the link from Firebase.");
                 } else {
-                    tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500">Error loading data.</td></tr>`;
+                    alert("Error: " + error.message);
                 }
+                
+                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500">Error: ${error.message}</td></tr>`;
             }
         }
 
@@ -297,13 +313,11 @@
         function renderRow(user, rank) {
             const tbody = document.getElementById('leaderboardBody');
             
-            // Medals for top 3 in list view too
             let rankIcon = `<span class="font-bold text-slate-500">#${rank}</span>`;
             if (rank === 1) rankIcon = `<i class="fas fa-medal text-gold-500 text-lg"></i>`;
             if (rank === 2) rankIcon = `<i class="fas fa-medal text-silver-500 text-lg"></i>`;
             if (rank === 3) rankIcon = `<i class="fas fa-medal text-bronze-500 text-lg"></i>`;
 
-            // Badges
             let badgesHTML = '';
             if (user.badges && Array.isArray(user.badges)) {
                 badgesHTML = user.badges.slice(0,3).map(b => `<i class="fas fa-certificate text-brand-400" title="${b}"></i>`).join(' ');
@@ -331,10 +345,6 @@
             `;
             tbody.innerHTML += tr;
         }
-
-        // Initialize
-        fetchData();
-
     </script>
 
     <script>
