@@ -43,11 +43,18 @@
             to { transform: translateX(0); opacity: 1; }
         }
         .toast { animation: slideIn 0.3s ease-out forwards; }
+        
+        /* Modal Animation */
+        .modal-enter { animation: modalFadeIn 0.2s ease-out forwards; }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
 
-    <nav class="sticky top-0 z-50 glass-panel border-b border-brand-100 dark:border-brand-900/30">
+    <nav class="sticky top-0 z-40 glass-panel border-b border-brand-100 dark:border-brand-900/30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center gap-3">
@@ -115,12 +122,23 @@
 
     </main>
 
+    <div id="detailsModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative modal-enter">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-red-500 transition z-10 w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-700">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div id="modalContent" class="p-0">
+                </div>
+        </div>
+    </div>
+
     <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2"></div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-        import { getFirestore, collection, query, orderBy, getDocs, doc, updateDoc, increment, getDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, query, orderBy, getDocs, doc, updateDoc, increment, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAGpwRwsJfD8QlCHOnXPxxLyGb34ezokgQ",
@@ -136,15 +154,21 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // --- GLOBAL STATE ---
+        let allIdeasData = {}; // Stores loaded ideas to avoid re-fetching
+
         // --- DOM Elements ---
         const ideasFeed = document.getElementById('ideasFeed');
         const adminLeaderboard = document.getElementById('adminLeaderboard');
         const adminEmailDisplay = document.getElementById('adminEmail');
+        const detailsModal = document.getElementById('detailsModal');
+        const modalContent = document.getElementById('modalContent');
         
         // --- Auth Check ---
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                if(user.email !== "hr@vigyanshaala.com") {
+                // Strict Admin Email Check
+                if(user.email.toLowerCase() !== "hr@vigyanshaala.com") {
                     alert("Unauthorized Access");
                     window.location.href = "index.html";
                 }
@@ -162,13 +186,14 @@
 
         // --- 1. Fetch & Render Ideas ---
         window.fetchIdeas = async function() {
-            ideasFeed.innerHTML = '<div class="text-center py-10"><div class="loader inline-block"></div></div>';
+            ideasFeed.innerHTML = '<div class="text-center py-10"><div class="loader inline-block border-4 border-brand-500 border-t-transparent rounded-full w-8 h-8 animate-spin"></div></div>';
             
             try {
                 const q = query(collection(db, "ideas"), orderBy("timestamp", "desc"));
                 const querySnapshot = await getDocs(q);
                 
                 ideasFeed.innerHTML = "";
+                allIdeasData = {}; // Reset storage
 
                 if (querySnapshot.empty) {
                     ideasFeed.innerHTML = `<div class="p-8 text-center text-slate-400">No ideas pending review.</div>`;
@@ -179,43 +204,47 @@
                     const data = docSnap.data();
                     const id = docSnap.id;
                     
-                    // Logic to check if points were already given (optional flag)
-                    const pointsGivenClass = data.pointsAwarded ? "opacity-50 grayscale" : "";
+                    // Store data for Modal
+                    allIdeasData[id] = { id, ...data };
+                    
+                    const pointsGivenClass = data.pointsAwarded ? "opacity-60 grayscale-[0.5]" : "";
                     const btnDisable = data.pointsAwarded ? "disabled" : "";
 
                     const card = `
                         <div class="glass-panel p-6 rounded-xl border border-slate-200 dark:border-slate-700 relative group transition hover:shadow-lg ${pointsGivenClass}">
-                            <div class="flex justify-between items-start mb-4">
+                            <div class="flex justify-between items-start mb-3">
                                 <div>
                                     <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-slate-100 dark:bg-slate-800 text-slate-500 mb-2">
                                         ${data.category || 'General'}
                                     </span>
-                                    <h3 class="text-lg font-bold text-slate-800 dark:text-white">${data.title}</h3>
+                                    <h3 class="text-lg font-bold text-slate-800 dark:text-white leading-tight">${data.title}</h3>
                                     <p class="text-xs text-brand-600 dark:text-brand-400 font-medium mt-1">
                                         By: ${data.userName || 'Unknown User'}
                                     </p>
                                 </div>
-                                <div class="text-right">
-                                    <span class="text-[10px] text-slate-400 block">${data.timestamp ? new Date(data.timestamp.toDate()).toLocaleDateString() : 'Date N/A'}</span>
-                                    <span class="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-bold ${getStatusColor(data.status)}">
+                                <div class="text-right flex flex-col items-end gap-2">
+                                    <span class="inline-block px-2 py-0.5 rounded-full text-xs font-bold ${getStatusColor(data.status)}">
                                         ${data.status || 'New'}
                                     </span>
+                                    <button onclick="openModal('${id}')" class="text-xs bg-slate-100 dark:bg-slate-800 hover:bg-brand-500 hover:text-white text-slate-600 dark:text-slate-300 px-3 py-1.5 rounded-md transition font-medium flex items-center gap-2">
+                                        <i class="fas fa-eye"></i> View Details
+                                    </button>
                                 </div>
                             </div>
                             
-                            <p class="text-sm text-slate-600 dark:text-slate-300 mb-6 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-100 dark:border-slate-800">
-                                ${data.description || 'No description.'}
+                            <p class="text-sm text-slate-600 dark:text-slate-300 mb-4 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-100 dark:border-slate-800 line-clamp-3">
+                                ${data.problem || 'No description provided.'}
                             </p>
 
                             <div class="flex items-center gap-3 border-t border-slate-100 dark:border-slate-700/50 pt-4">
                                 <div class="flex-1">
-                                    <p class="text-[10px] uppercase font-bold text-slate-400 mb-1">Actions</p>
+                                    <p class="text-[10px] uppercase font-bold text-slate-400 mb-1">Status</p>
                                     <div class="flex gap-2">
                                         <button onclick="updateStatus('${id}', 'Approved')" class="px-3 py-1.5 rounded bg-brand-100 text-brand-700 hover:bg-brand-200 text-xs font-bold transition">
-                                            <i class="fas fa-check"></i> Approve
+                                            <i class="fas fa-check"></i>
                                         </button>
                                         <button onclick="updateStatus('${id}', 'Rejected')" class="px-3 py-1.5 rounded bg-red-100 text-red-700 hover:bg-red-200 text-xs font-bold transition">
-                                            <i class="fas fa-times"></i> Reject
+                                            <i class="fas fa-times"></i>
                                         </button>
                                     </div>
                                 </div>
@@ -239,18 +268,107 @@
             }
         }
 
-        // --- 2. Fetch & Render Leaderboard ---
+        // --- 2. Modal Logic (VIEW DETAILS) ---
+        window.openModal = function(id) {
+            const data = allIdeasData[id];
+            if(!data) return;
+
+            // Render Modal Content
+            modalContent.innerHTML = `
+                <div class="bg-slate-50 dark:bg-slate-900/50 px-8 py-6 border-b border-slate-100 dark:border-slate-700">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <span class="text-xs font-bold uppercase text-brand-600 dark:text-brand-400 tracking-wider">${data.category || 'Innovation'}</span>
+                            <h2 class="text-2xl font-bold text-slate-800 dark:text-white mt-1 mb-2">${data.title}</h2>
+                            <div class="flex items-center gap-2 text-sm text-slate-500">
+                                <i class="fas fa-user-circle"></i>
+                                <span>${data.userName}</span>
+                                <span class="text-slate-300">|</span>
+                                <i class="fas fa-envelope"></i>
+                                <span>${data.userEmail || 'No email'}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-8 space-y-6">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-red-50 dark:bg-red-900/10 p-4 rounded-xl border border-red-100 dark:border-red-900/30">
+                            <h4 class="font-bold text-red-600 dark:text-red-400 text-sm mb-2 flex items-center gap-2">
+                                <i class="fas fa-exclamation-circle"></i> Problem
+                            </h4>
+                            <p class="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">${data.problem}</p>
+                        </div>
+                        <div class="bg-brand-50 dark:bg-brand-900/10 p-4 rounded-xl border border-brand-100 dark:border-brand-900/30">
+                            <h4 class="font-bold text-brand-600 dark:text-brand-400 text-sm mb-2 flex items-center gap-2">
+                                <i class="fas fa-lightbulb"></i> Solution
+                            </h4>
+                            <p class="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">${data.solution}</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-slate-800 dark:text-white text-sm mb-2">Impact & Benefits</h4>
+                        <p class="text-slate-600 dark:text-slate-400 text-sm bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-100 dark:border-slate-700">
+                            ${data.impact || 'Not specified'}
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-slate-800 dark:text-white text-sm mb-2">Implementation Plan</h4>
+                        <p class="text-slate-600 dark:text-slate-400 text-sm bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-100 dark:border-slate-700">
+                            ${data.plan || 'Not specified'}
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100 dark:border-slate-700">
+                        <div>
+                            <h4 class="font-bold text-slate-400 text-xs uppercase mb-2">Team Members</h4>
+                            <p class="text-sm font-medium text-slate-700 dark:text-slate-200">${data.team || 'Solo Project'}</p>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-400 text-xs uppercase mb-2">Support Requested</h4>
+                            <div class="flex flex-wrap gap-2">
+                                ${(data.supportNeeded || []).map(tag => 
+                                    `<span class="px-2 py-1 rounded bg-ocean-50 dark:bg-ocean-900/30 text-ocean-600 dark:text-ocean-300 text-xs font-bold border border-ocean-100 dark:border-ocean-800">${tag}</span>`
+                                ).join('') || '<span class="text-sm text-slate-400">None</span>'}
+                            </div>
+                        </div>
+                    </div>
+
+                    ${data.fileUrl ? `
+                    <div class="mt-6">
+                        <a href="${data.fileUrl}" target="_blank" class="block w-full text-center bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-xl transition shadow-lg flex items-center justify-center gap-2">
+                            <i class="fas fa-external-link-alt"></i> View Project Presentation / Video
+                        </a>
+                    </div>` : ''}
+
+                </div>
+            `;
+            detailsModal.classList.remove('hidden');
+        }
+
+        window.closeModal = function() {
+            detailsModal.classList.add('hidden');
+        }
+
+        // Close modal on click outside
+        detailsModal.addEventListener('click', (e) => {
+            if(e.target === detailsModal) closeModal();
+        });
+
+
+        // --- 3. Fetch Leaderboard ---
         window.fetchUsers = async function() {
             try {
                 const q = query(collection(db, "users"), orderBy("points", "desc"));
                 const querySnapshot = await getDocs(q);
-                
                 adminLeaderboard.innerHTML = "";
                 
                 querySnapshot.forEach((docSnap) => {
                     const user = docSnap.data();
-                    const userId = docSnap.id; // Use Doc ID as User ID
-                    
+                    const userId = docSnap.id;
                     const row = `
                         <div class="flex items-center justify-between p-3 rounded-lg bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/50 hover:border-brand-500 transition group">
                             <div class="flex items-center gap-3">
@@ -275,55 +393,32 @@
             } catch(e) { console.error(e); }
         }
 
-        // --- 3. Actions ---
-        
+        // --- 4. Actions ---
         window.updateStatus = async function(docId, newStatus) {
             try {
                 const ref = doc(db, "ideas", docId);
                 await updateDoc(ref, { status: newStatus });
                 showToast(`Idea marked as ${newStatus}`, newStatus === 'Approved' ? 'success' : 'neutral');
-                fetchIdeas(); // Refresh UI
-            } catch (error) {
-                showToast("Error updating status", "error");
-            }
+                fetchIdeas();
+            } catch (error) { showToast("Error updating status", "error"); }
         }
 
         window.givePoints = async function(userId, ideaId, points) {
-            if (!userId) { showToast("Error: No User ID linked to this idea", "error"); return; }
-            
+            if (!userId) { showToast("Error: No User ID linked", "error"); return; }
             try {
-                // 1. Update User Points
-                // Note: We assume the user document ID is the same as the userId stored in the idea
-                // If your user IDs are stored differently, you might need a query here.
-                // Assuming standard Auth UIDs:
                 const userRef = doc(db, "users", userId);
-                
-                // Check if user doc exists first
                 const userSnap = await getDoc(userRef);
-                if (!userSnap.exists()) {
-                    showToast("User document not found within Leaderboard", "error");
-                    return;
-                }
+                if (!userSnap.exists()) { showToast("User profile not found", "error"); return; }
 
-                await updateDoc(userRef, {
-                    points: increment(points)
-                });
-
-                // 2. Mark Idea as "Points Awarded" so we don't double count
+                await updateDoc(userRef, { points: increment(points) });
+                
                 const ideaRef = doc(db, "ideas", ideaId);
-                await updateDoc(ideaRef, {
-                    pointsAwarded: true,
-                    status: 'Approved' // Auto approve if points given
-                });
+                await updateDoc(ideaRef, { pointsAwarded: true, status: 'Approved' });
 
-                showToast(`Awared ${points} points!`, "success");
+                showToast(`Awarded ${points} points!`, "success");
                 fetchIdeas();
-                fetchUsers(); // Update leaderboard sidebar
-
-            } catch (error) {
-                console.error("Points Error:", error);
-                showToast("Failed to award points", "error");
-            }
+                fetchUsers();
+            } catch (error) { showToast("Failed to award points", "error"); }
         }
 
         window.manualAdjust = async function(userId, name) {
@@ -332,7 +427,7 @@
                 try {
                     const userRef = doc(db, "users", userId);
                     await updateDoc(userRef, { points: increment(parseInt(points)) });
-                    showToast("Points updated manually", "success");
+                    showToast("Points updated", "success");
                     fetchUsers();
                 } catch(e) { showToast("Error", "error"); }
             }
@@ -348,10 +443,8 @@
         function showToast(msg, type = 'success') {
             const toast = document.createElement('div');
             const colors = type === 'success' ? 'bg-emerald-500' : type === 'error' ? 'bg-red-500' : 'bg-slate-600';
-            
             toast.className = `toast ${colors} text-white px-6 py-3 rounded-lg shadow-xl font-medium text-sm flex items-center gap-2`;
             toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i> ${msg}`;
-            
             document.getElementById('toastContainer').appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
         }

@@ -146,8 +146,7 @@
         </div>
     </nav>
 
-    <main class="flex-grow pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full relative overflow-hidden">
-        
+    <main class="flex-grow pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full relative overflow-hidden">        <a href="admin-leaderboard.html" class="text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-300 transition">Admin Login</a>
         <div class="absolute top-0 left-1/4 w-96 h-96 bg-brand-200/50 dark:bg-brand-900/20 rounded-full blur-3xl -z-10 mix-blend-multiply dark:mix-blend-screen"></div>
         <div class="absolute top-10 right-1/4 w-72 h-72 bg-fresh-400/30 dark:bg-fresh-900/10 rounded-full blur-3xl -z-10 mix-blend-multiply dark:mix-blend-screen"></div>
 
@@ -173,6 +172,7 @@
                 <a href="challenges.html" class="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 px-8 py-3.5 rounded-xl font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center justify-center gap-2">
                     <i class="fas fa-play-circle text-fresh-500"></i> View Challenges
                 </a>
+				<button href="admin-leaderboard.html" class="bg-gradient-to-r from-brand-600 to-ocean-600 hover:from-brand-700 hover:to-ocean-700 text-white px-5 py-2 rounded-lg text-sm font-medium transition shadow-md shadow-brand-500/20"><b>Admin Login</b></button>
             </div>
         </section>
 
@@ -250,11 +250,11 @@
         </div>
     </footer>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
-        import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-        import { getFirestore, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+<script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+        import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, query, orderBy, limit, getDocs, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAGpwRwsJfD8QlCHOnXPxxLyGb34ezokgQ",
@@ -286,8 +286,10 @@
 
         loginBtn.addEventListener('click', () => {
             signInWithPopup(auth, provider)
-                .then((result) => {
-                    console.log("Logged in:", result.user.displayName);
+                .then(async (result) => {
+                    const user = result.user;
+                    console.log("Logged in:", user.displayName);
+                    // The onAuthStateChanged listener below handles the database creation
                 }).catch((error) => {
                     console.error("Login Failed:", error);
                     alert("Login failed: " + error.message);
@@ -301,16 +303,37 @@
             });
         });
 
-        // --- Real-time Auth Listener ---
-        onAuthStateChanged(auth, (user) => {
+        // --- Real-time Auth Listener & DB SYNC ---
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
-                // UI Update: Logged In
+                // 1. UI Update
                 loginBtn.classList.add('hidden');
                 userProfile.classList.remove('hidden');
                 userNameDisplay.textContent = user.displayName || "Innovator";
                 if(user.photoURL) userAvatar.src = user.photoURL;
 
-                // Fetch Data
+                // 2. CRITICAL FIX: Ensure User Exists in Database
+                const userRef = doc(db, "users", user.uid);
+                const userSnap = await getDoc(userRef);
+
+                if (!userSnap.exists()) {
+                    // Create the missing profile
+                    try {
+                        await setDoc(userRef, {
+                            name: user.displayName || 'Anonymous',
+                            email: user.email,
+                            photoURL: user.photoURL,
+                            points: 0, // Initialize points!
+                            role: 'student',
+                            joinedAt: new Date()
+                        });
+                        console.log("User profile created in Database.");
+                    } catch (e) {
+                        console.error("Error creating profile:", e);
+                    }
+                }
+
+                // 3. Fetch Data
                 fetchIdeas();
                 fetchLeaderboard();
             } else {
@@ -348,7 +371,6 @@
                     const statusConfig = {
                         'New': { color: 'bg-fresh-100 text-fresh-700 border-fresh-200', icon: 'fa-star' },
                         'Approved': { color: 'bg-brand-100 text-brand-700 border-brand-200', icon: 'fa-check' },
-                        'In Progress': { color: 'bg-spark-100 text-spark-700 border-spark-200', icon: 'fa-tools' },
                         'Rejected': { color: 'bg-red-100 text-red-700 border-red-200', icon: 'fa-times' }
                     };
                     
@@ -371,16 +393,13 @@
                             </h3>
                             
                             <p class="text-slate-600 dark:text-slate-300 text-sm line-clamp-2 mb-4 leading-relaxed">
-                                ${data.shortDescription || 'No description provided.'}
+                                ${data.problem || 'No description provided.'}
                             </p>
                             
                             <div class="flex items-center gap-4 text-xs text-slate-400 border-t border-slate-100 dark:border-slate-700/50 pt-3">
                                 <div class="flex items-center gap-1">
                                     <i class="far fa-clock"></i>
                                     <span>${data.timestamp ? new Date(data.timestamp.toDate()).toLocaleDateString() : 'Just now'}</span>
-                                </div>
-                                <div class="flex items-center gap-1 ml-auto text-brand-500 font-medium cursor-pointer hover:text-brand-700">
-                                    Read Details <i class="fas fa-arrow-right"></i>
                                 </div>
                             </div>
                         </div>
@@ -392,7 +411,7 @@
                 console.error("Error fetching ideas:", error);
                 ideasContainer.innerHTML = `
                     <div class="p-4 bg-red-50 border border-red-100 text-red-600 rounded-lg text-sm flex items-center gap-2">
-                        <i class="fas fa-exclamation-circle"></i> Error loading ideas. Permission denied.
+                        <i class="fas fa-exclamation-circle"></i> Error loading ideas. Check permissions.
                     </div>`;
             }
         }
