@@ -8,7 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <script>
@@ -84,7 +83,7 @@
                 <i class="fas fa-chart-pie w-6"></i> <span class="font-medium text-sm">Dashboard</span>
             </a>
             <a href="leaderboard.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition group">
-			<i class="fas fa-medal w-6"></i> <span class="font-medium text-sm">Leaderboard</span>
+                <i class="fas fa-medal w-6"></i> <span class="font-medium text-sm">Leaderboard</span>
             </a>
             <a href="#" class="nav-item active flex items-center px-6 py-3">
                 <i class="fas fa-plus-circle w-6"></i> <span class="font-medium text-sm">New Idea</span>
@@ -220,13 +219,15 @@
                         </div>
 
                         <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2">Upload Diagram / Presentation (Optional)</label>
-                            <div class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-6 text-center hover:bg-slate-50 dark:hover:bg-slate-800/50 transition relative">
-                                <input type="file" id="fileInput" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                                <i class="fas fa-cloud-upload-alt text-3xl text-brand-500 mb-2"></i>
-                                <p class="text-sm text-slate-600 dark:text-slate-300 font-medium">Click or Drag file here</p>
-                                <p class="text-xs text-slate-400 mt-1">PDF, JPG, PNG (Max 5MB)</p>
-                                <p id="fileNameDisplay" class="text-xs text-brand-600 mt-2 font-bold"></p>
+                            <label class="block text-sm font-medium mb-2">Project Presentation Link</label>
+                            <p class="text-xs text-slate-500 mb-2">Paste a public link to your Google Slides, Drive Folder, or YouTube Video.</p>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-link text-slate-400"></i>
+                                </div>
+                                <input type="url" id="projectLink" required 
+                                    class="form-input pl-10 text-brand-600" 
+                                    placeholder="https://docs.google.com/presentation/d/...">
                             </div>
                         </div>
 
@@ -267,12 +268,12 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-storage.js";
+        // 1. Fixed Imports (Version 10.8.0)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Config
+        // 2. Your Config
         const firebaseConfig = {
             apiKey: "AIzaSyAGpwRwsJfD8QlCHOnXPxxLyGb34ezokgQ",
             authDomain: "vs-idea-labs.firebaseapp.com",
@@ -286,33 +287,21 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const storage = getStorage(app);
 
         let currentUser = null;
 
-        // --- Auth Check ---
+        // Auth Listener
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
                 document.getElementById('userName').textContent = user.displayName || 'Innovator';
                 if(user.photoURL) document.getElementById('userAvatar').src = user.photoURL;
             } else {
-                // Protect Route
-                window.location.href = "index.html";
+                window.location.href = "index.html"; // Protect Route
             }
         });
 
-        // --- File Input UI ---
-        const fileInput = document.getElementById('fileInput');
-        const fileNameDisplay = document.getElementById('fileNameDisplay');
-        
-        fileInput.addEventListener('change', function(e) {
-            if(this.files && this.files[0]) {
-                fileNameDisplay.textContent = `Selected: ${this.files[0].name}`;
-            }
-        });
-
-        // --- Form Submission ---
+        // Submit Logic
         document.getElementById('ideaForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -321,12 +310,12 @@
             const submitBtn = document.getElementById('submitBtn');
             const originalBtnText = submitBtn.innerHTML;
             
-            // 1. Loading State
+            // Loading UI
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
             try {
-                // 2. Gather Data
+                // Gather Data
                 const title = document.getElementById('title').value;
                 const category = document.getElementById('category').value;
                 const problem = document.getElementById('problem').value;
@@ -334,22 +323,12 @@
                 const impact = document.getElementById('impact').value;
                 const plan = document.getElementById('plan').value;
                 const team = document.getElementById('team').value;
+                const projectLink = document.getElementById('projectLink').value; // Get Link
                 
-                // Get selected checkboxes
+                // Get Checkboxes
                 const support = Array.from(document.querySelectorAll('input[name="support"]:checked')).map(cb => cb.value);
 
-                // 3. Handle File Upload (If exists)
-                let fileUrl = null;
-                const file = fileInput.files[0];
-                
-                if (file) {
-                    const storagePath = `ideas/${currentUser.uid}/${Date.now()}_${file.name}`;
-                    const storageRef = ref(storage, storagePath);
-                    const snapshot = await uploadBytes(storageRef, file);
-                    fileUrl = await getDownloadURL(snapshot.ref);
-                }
-
-                // 4. Save to Firestore
+                // Create Data Object
                 const ideaData = {
                     userId: currentUser.uid,
                     userName: currentUser.displayName || 'Anonymous',
@@ -362,15 +341,16 @@
                     plan: plan,
                     team: team,
                     supportNeeded: support,
-                    fileUrl: fileUrl, // URL or null
-                    status: "Submitted",
-                    milestone: "Concept Validation",
+                    fileUrl: projectLink, // Storing the link here
+                    status: "New",
+                    pointsAwarded: false,
                     timestamp: serverTimestamp()
                 };
 
+                // Save to Firestore (Database Only)
                 await addDoc(collection(db, "ideas"), ideaData);
 
-                // 5. Success UI
+                // Success
                 showSuccessModal();
 
             } catch (error) {
