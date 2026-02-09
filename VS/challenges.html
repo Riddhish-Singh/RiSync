@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Challenges | Vigyanshaala Idea Lab</title>
+    <title>Employee Innovation Challenges | Vigyanshaala</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -36,8 +36,9 @@
         .nav-item.active { background: #f0fdfa; color: #0d9488; border-right: 3px solid #0d9488; }
         .dark .nav-item.active { background: rgba(13, 148, 136, 0.1); color: #2dd4bf; border-right: 3px solid #2dd4bf; }
 
-        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #0d9488; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* Modal Transitions */
+        .modal { transition: opacity 0.25s ease; }
+        body.modal-active { overflow-x: hidden; overflow-y: hidden !important; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 flex h-screen overflow-hidden">
@@ -47,20 +48,14 @@
             <span class="font-bold text-lg tracking-tight text-brand-600 dark:text-brand-400">Vigyanshaala</span>
         </div>
         <nav class="flex-1 py-6 space-y-1">
-            <a href="index.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:text-brand-600 transition">
+            <a href="#" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:text-brand-600 transition">
                 <i class="fas fa-home w-6"></i> <span class="font-medium text-sm">Home</span>
             </a>
-            <a href="dashboard.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:text-brand-600 transition">
+            <a href="#" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:text-brand-600 transition">
                 <i class="fas fa-chart-pie w-6"></i> <span class="font-medium text-sm">Dashboard</span>
             </a>
-            <a href="leaderboard.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition group">
-			<i class="fas fa-medal w-6"></i> <span class="font-medium text-sm">Leaderboard</span>
-            </a>
-            <a href="submit.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:text-brand-600 transition">
-                <i class="fas fa-plus-circle w-6"></i> <span class="font-medium text-sm">New Idea</span>
-            </a>
             <a href="#" class="nav-item active flex items-center px-6 py-3">
-                <i class="fas fa-trophy w-6"></i> <span class="font-medium text-sm">Challenges</span>
+                <i class="fas fa-trophy w-6"></i> <span class="font-medium text-sm">My Challenges</span>
             </a>
         </nav>
     </aside>
@@ -69,229 +64,336 @@
         
         <header class="h-16 glass-panel border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 z-10">
             <h1 class="text-xl font-bold flex items-center gap-2">
-                <i class="fas fa-flag-checkered text-ocean-500"></i> Active Challenges
+                <i class="fas fa-rocket text-ocean-500"></i> Monthly Innovation
             </h1>
             <div class="flex items-center gap-4">
                 <button id="themeToggle" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-300">
                     <i class="fas fa-moon dark:hidden"></i><i class="fas fa-sun hidden dark:block"></i>
                 </button>
                 <div class="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-slate-700">
-                    <span id="userName" class="text-sm font-bold hidden sm:block">Guest</span>
-                    <img id="userAvatar" src="https://ui-avatars.com/api/?name=Guest" class="w-9 h-9 rounded-full bg-slate-200">
-                    <button id="loginBtnHeader" class="text-xs bg-brand-600 text-white px-3 py-1 rounded hidden">Login</button>
+                    <span class="text-sm font-bold hidden sm:block">Employee</span>
+                    <img src="https://ui-avatars.com/api/?name=Employee+One&background=0d9488&color=fff" class="w-9 h-9 rounded-full bg-slate-200">
                 </div>
             </div>
         </header>
 
         <main class="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-50 dark:bg-slate-900">
-            
-            <div class="max-w-7xl mx-auto">
+            <div class="max-w-6xl mx-auto">
                 
                 <div class="bg-gradient-to-r from-brand-900 to-ocean-900 rounded-2xl p-8 sm:p-12 text-white mb-10 relative overflow-hidden shadow-xl">
                     <div class="absolute top-0 right-0 w-64 h-64 bg-brand-500 rounded-full blur-3xl opacity-20 transform translate-x-10 -translate-y-10"></div>
                     <div class="relative z-10">
                         <span class="inline-block py-1 px-3 rounded-full bg-brand-500/20 border border-brand-400/30 text-brand-200 text-xs font-bold uppercase tracking-wider mb-4">
-                            Featured Event
+                            Current Month Cycle
                         </span>
-                        <h2 class="text-3xl sm:text-4xl font-extrabold mb-4">Innovation Season 2026</h2>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold mb-4">Your Assigned Challenges</h2>
                         <p class="text-brand-100 max-w-2xl text-lg mb-8">
-                            Join over 5,000 students solving real-world problems. Win mentorship, funding, and recognition.
+                            Complete these 2 challenges this month to contribute to the innovation pool. 
+                            Review the "Impact Scoring Matrix" before submitting.
                         </p>
-                        <div class="flex gap-4">
-                            <button onclick="document.getElementById('challengesGrid').scrollIntoView({behavior: 'smooth'})" class="bg-fresh-500 hover:bg-fresh-600 text-slate-900 px-6 py-3 rounded-xl font-bold transition shadow-lg shadow-fresh-500/20">
-                                Explore Challenges
-                            </button>
-                        </div>
                     </div>
                 </div>
 
                 <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-xl font-bold text-slate-800 dark:text-white">All Challenges</h3>
-                    <div class="flex gap-2 text-sm">
-                        <select class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-brand-500">
-                            <option>Status: Active</option>
-                            <option>Status: Upcoming</option>
-                            <option>Status: Closed</option>
-                        </select>
-                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 dark:text-white">Active Assignments</h3>
+                    <button onclick="resetChallenges()" class="text-xs text-slate-400 hover:text-red-500 underline">
+                        (Debug: Reset Monthly Allocation)
+                    </button>
                 </div>
 
-                <div id="challengesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div class="col-span-full py-20 text-center">
-                        <div class="loader mx-auto mb-4"></div>
-                        <p class="text-slate-500">Loading opportunities...</p>
+                <div id="challengesGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     </div>
-                </div>
 
             </div>
         </main>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-        import { getFirestore, collection, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyAGpwRwsJfD8QlCHOnXPxxLyGb34ezokgQ",
-            authDomain: "vs-idea-labs.firebaseapp.com",
-            projectId: "vs-idea-labs",
-            storageBucket: "vs-idea-labs.firebasestorage.app",
-            messagingSenderId: "789407499622",
-            appId: "1:789407499622:web:18758c729f4b283ddcf4a7",
-            measurementId: "G-XKFLFPDZLP"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const provider = new GoogleAuthProvider();
-
-        const grid = document.getElementById('challengesGrid');
-        let currentUser = null;
-
-        // Auth Logic
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUser = user;
-                document.getElementById('userName').textContent = user.displayName || 'Innovator';
-                if(user.photoURL) document.getElementById('userAvatar').src = user.photoURL;
-                document.getElementById('loginBtnHeader').classList.add('hidden');
-            } else {
-                document.getElementById('loginBtnHeader').classList.remove('hidden');
-                document.getElementById('loginBtnHeader').onclick = () => signInWithPopup(auth, provider);
-            }
-            // Fetch regardless of auth (Challenges can be public view)
-            fetchChallenges();
-        });
-
-        async function fetchChallenges() {
-            try {
-                // Fetch from Firestore
-                // Note: Ensure you have a 'challenges' collection
-                const q = query(collection(db, "challenges"), orderBy("endDate", "desc"));
-                const querySnapshot = await getDocs(q);
-
-                grid.innerHTML = ""; // Clear loader
-
-                if (querySnapshot.empty) {
-                    // Fallback Dummy Data if DB is empty
-                    renderFallbackChallenges();
-                    return;
-                }
-
-                querySnapshot.forEach((doc) => {
-                    renderChallengeCard(doc.data(), doc.id);
-                });
-
-            } catch (error) {
-                console.error("Error fetching challenges:", error);
-                renderFallbackChallenges(); // Fallback on error
-            }
-        }
-
-        function renderChallengeCard(data, id) {
-            // Calculate Days Left
-            const end = data.endDate ? data.endDate.toDate() : new Date();
-            const now = new Date();
-            const diffTime = Math.abs(end - now);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            const isExpired = end < now;
+    <div id="submitModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50">
+        <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
+        
+        <div class="modal-container bg-white dark:bg-slate-800 w-11/12 md:max-w-2xl mx-auto rounded-2xl shadow-2xl z-50 overflow-y-auto max-h-[90vh]">
             
-            const daysDisplay = isExpired ? "Closed" : `${diffDays} Days Left`;
-            const badgeColor = isExpired ? "bg-red-100 text-red-700" : "bg-brand-100 text-brand-700";
-
-            // Date Formatting
-            const startStr = data.startDate ? data.startDate.toDate().toLocaleDateString() : 'TBA';
-            const endStr = data.endDate ? data.endDate.toDate().toLocaleDateString() : 'TBA';
-
-            // Image Fallback
-            const imgSrc = data.image || `https://source.unsplash.com/random/800x600/?technology,${data.category || 'abstract'}`;
-
-            const html = `
-                <div class="glass-panel rounded-2xl overflow-hidden hover:shadow-xl transition group flex flex-col h-full border border-slate-200 dark:border-slate-700">
-                    <div class="h-48 overflow-hidden relative">
-                        <img src="${imgSrc}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
-                        <div class="absolute top-4 right-4">
-                            <span class="px-3 py-1 rounded-full text-xs font-bold ${badgeColor} shadow-sm">
-                                ${daysDisplay}
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <div class="p-6 flex flex-col flex-grow">
-                        <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">${data.title || 'Untitled Challenge'}</h3>
-                        
-                        <p class="text-sm text-slate-500 dark:text-slate-400 mb-6 line-clamp-3 flex-grow">
-                            ${data.description || 'No description available.'}
-                        </p>
-                        
-                        <div class="space-y-3 mb-6">
-                            <div class="flex items-center text-sm text-slate-500">
-                                <i class="far fa-calendar-alt w-6 text-center text-brand-500"></i>
-                                <span>${startStr} - ${endStr}</span>
-                            </div>
-                            <div class="flex items-center text-sm text-slate-500">
-                                <i class="fas fa-users w-6 text-center text-ocean-500"></i>
-                                <span>${data.participants || 0} Innovators Joined</span>
-                            </div>
-                        </div>
-
-                        <button onclick="joinChallenge('${id}')" class="w-full ${isExpired ? 'bg-slate-300 cursor-not-allowed' : 'bg-brand-600 hover:bg-brand-700'} text-white font-bold py-3 rounded-xl transition shadow-lg shadow-brand-500/20">
-                            ${isExpired ? 'Challenge Closed' : 'Join Challenge'}
-                        </button>
+            <div class="modal-content py-4 text-left px-6">
+                <div class="flex justify-between items-center pb-3 border-b border-slate-200 dark:border-slate-700">
+                    <p class="text-2xl font-bold text-slate-800 dark:text-white" id="modalTitle">Submit Challenge</p>
+                    <div class="modal-close cursor-pointer z-50" onclick="toggleModal()">
+                        <i class="fas fa-times text-slate-500 hover:text-red-500"></i>
                     </div>
                 </div>
-            `;
-            grid.innerHTML += html;
-        }
 
-        // Simulating the "Join" Action
-        window.joinChallenge = (id) => {
-            if (!currentUser) {
-                alert("Please login to join this challenge.");
-                return;
-            }
-            // Here you would add code to update Firestore (e.g., add userId to 'participants' array)
-            alert(`Success! You have registered for this challenge. Check your dashboard for updates.`);
-        };
+                <div class="my-5">
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mb-4" id="modalDesc">
+                        Description goes here...
+                    </p>
 
-        // Fallback Data (Shows if DB is empty)
-        function renderFallbackChallenges() {
-            const dummies = [
-                {
-                    title: "Clean Energy Hackathon",
-                    description: "Develop sustainable energy solutions for rural communities using local resources.",
-                    startDate: { toDate: () => new Date() },
-                    endDate: { toDate: () => new Date(Date.now() + 864000000) }, // +10 days
-                    participants: 120,
-                    image: "https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?w=800&q=80"
-                },
-                {
-                    title: "AI for Healthcare",
-                    description: "Build predictive models to assist early diagnosis of common diseases.",
-                    startDate: { toDate: () => new Date() },
-                    endDate: { toDate: () => new Date(Date.now() + 1200000000) }, // +14 days
-                    participants: 85,
-                    image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80"
-                }
-            ];
-            
-            dummies.forEach((d, i) => renderChallengeCard(d, 'dummy-'+i));
-        }
+                    <div class="bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-4 mb-6">
+                        <p class="text-xs font-bold text-brand-600 uppercase mb-2">Grading Criteria (Impact Scoring Matrix)</p>
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-slate-500 uppercase bg-slate-100 dark:bg-slate-800">
+                                <tr>
+                                    <th class="px-3 py-2 rounded-l-md">Criteria</th>
+                                    <th class="px-3 py-2 rounded-r-md text-right">Weight</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-slate-700 dark:text-slate-300">
+                                <tr class="border-b border-slate-100 dark:border-slate-800"><td class="px-3 py-2">Strategic Alignment</td><td class="px-3 py-2 text-right font-bold">20</td></tr>
+                                <tr class="border-b border-slate-100 dark:border-slate-800"><td class="px-3 py-2">Innovation Depth</td><td class="px-3 py-2 text-right font-bold">20</td></tr>
+                                <tr class="border-b border-slate-100 dark:border-slate-800"><td class="px-3 py-2">Feasibility</td><td class="px-3 py-2 text-right font-bold">15</td></tr>
+                                <tr class="border-b border-slate-100 dark:border-slate-800"><td class="px-3 py-2">Measurable Impact</td><td class="px-3 py-2 text-right font-bold">20</td></tr>
+                                <tr class="border-b border-slate-100 dark:border-slate-800"><td class="px-3 py-2">Scalability</td><td class="px-3 py-2 text-right font-bold">15</td></tr>
+                                <tr><td class="px-3 py-2">Learning Value</td><td class="px-3 py-2 text-right font-bold">10</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-    </script>
+                    <form id="challengeForm" onsubmit="handleFormSubmit(event)">
+                        
+                        <div class="mb-4">
+                            <label class="block text-slate-700 dark:text-slate-300 text-sm font-bold mb-2" for="projectLink">
+                                Project Link (URL) <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-link text-slate-400"></i>
+                                </div>
+                                <input type="url" id="projectLink" class="shadow appearance-none border rounded w-full py-2 pl-10 pr-3 text-slate-700 dark:bg-slate-700 dark:text-white dark:border-slate-600 leading-tight focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="https://docs.google.com/..." required>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-1">Paste link to your Prototype, Google Doc, GitHub, or Slide Deck.</p>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="block text-slate-700 dark:text-slate-300 text-sm font-bold mb-2" for="solution">
+                                What did you do? (Description)
+                            </label>
+                            <textarea id="solution" class="shadow appearance-none border rounded w-full py-2 px-3 text-slate-700 dark:bg-slate-700 dark:text-white dark:border-slate-600 leading-tight focus:outline-none focus:ring-2 focus:ring-brand-500 h-32" required placeholder="Describe your methodology, key findings, and results..."></textarea>
+                        </div>
+                        
+                        <div class="flex justify-end pt-2">
+                            <button type="button" class="px-4 py-2 bg-transparent p-3 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 mr-2" onclick="toggleModal()">Cancel</button>
+                            <button type="submit" class="px-6 py-2 bg-brand-600 text-white font-bold rounded-lg shadow hover:bg-brand-700 transition">Submit Challenge</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        const themeBtn = document.getElementById('themeToggle');
-        const html = document.documentElement;
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            html.classList.add('dark');
+        // 1. The Database of 10 Challenges
+        const allChallenges = [
+            {
+                id: 1,
+                title: "The 10x Constraint Challenge",
+                theme: "Innovation under artificial constraints",
+                desc: "Improve an internal system by reducing cost by 70% OR increasing output by 3x without increasing headcount. (e.g., Automate 1 recurring manual task fully).",
+                icon: "fa-rocket",
+                color: "text-red-500"
+            },
+            {
+                id: 2,
+                title: "Kill Our Process",
+                theme: "Destroy to rebuild",
+                desc: "Pick one internal process, argue why it should be eliminated, and propose a radical redesign. Reward the boldest redesign, not the safest.",
+                icon: "fa-skull",
+                color: "text-slate-600"
+            },
+            {
+                id: 3,
+                title: "Research-to-Reality Sprint",
+                theme: "Turn research into deployable asset",
+                desc: "Pick 1 academic paper/insight and convert it into a learning module, workshop prototype, or research tool. Deliverable must be a live demo.",
+                icon: "fa-microscope",
+                color: "text-blue-500"
+            },
+            {
+                id: 4,
+                title: "The Zero-Budget Innovation",
+                theme: "Budget allowed: ₹0",
+                desc: "Launch a micro initiative using only existing resources that creates measurable impact. (e.g., Peer learning circle, Community mini event).",
+                icon: "fa-wallet",
+                color: "text-green-500"
+            },
+            {
+                id: 5,
+                title: "Build an Asset in 30 Days",
+                theme: "IP Repository Growth",
+                desc: "Create a reusable framework, toolkit, training template, or data dashboard. Winning criteria: Reusability and Scalability.",
+                icon: "fa-cubes",
+                color: "text-purple-500"
+            },
+            {
+                id: 6,
+                title: "The Future 2030 Simulation",
+                theme: "Long-term thinking",
+                desc: "Answer: 'If Vigyanshaala becomes 100x bigger by 2030, what breaks?' Identify 5 system failures and design scalable architecture today.",
+                icon: "fa-globe",
+                color: "text-indigo-500"
+            },
+            {
+                id: 7,
+                title: "Reverse Challenge (Leadership Hackathon)",
+                theme: "Solve Leadership Problems",
+                desc: "Solve a specific leadership problem (e.g., Improve engagement by 40%, Reduce dropouts) in 48 hours. Prototype + Pitch required.",
+                icon: "fa-chess-king",
+                color: "text-yellow-500"
+            },
+            {
+                id: 8,
+                title: "Cross-Department Swap",
+                theme: "Break Silos",
+                desc: "Pair with a different department (e.g., Research + Ops). Identify one friction point and solve it jointly.",
+                icon: "fa-handshake",
+                color: "text-pink-500"
+            },
+            {
+                id: 9,
+                title: "Build in Public",
+                theme: "Transparency & Learning",
+                desc: "Share weekly innovation logs, document experiments, and publish an internal learning memo to build a learning culture.",
+                icon: "fa-bullhorn",
+                color: "text-orange-500"
+            },
+            {
+                id: 10,
+                title: "Impact Scoring Matrix Review",
+                theme: "System Analysis",
+                desc: "Review current projects against the Impact Scoring Matrix (Strategic Alignment, Innovation Depth, etc.) and propose an optimization.",
+                icon: "fa-chart-bar",
+                color: "text-teal-500"
+            }
+        ];
+
+        // 2. Logic to Assign 2 Random Challenges Per Month
+        function getMonthlyChallenges() {
+            const date = new Date();
+            const currentMonthKey = `vs_challenges_${date.getFullYear()}_${date.getMonth()}`; // e.g., vs_challenges_2023_9
+            
+            // Check if we already assigned challenges for this month
+            const stored = localStorage.getItem(currentMonthKey);
+            
+            if (stored) {
+                return JSON.parse(stored);
+            } else {
+                // Generate 2 unique random indices
+                const indices = new Set();
+                while(indices.size < 2) {
+                    indices.add(Math.floor(Math.random() * allChallenges.length));
+                }
+                
+                // Map indices to challenge objects
+                const selected = Array.from(indices).map(i => allChallenges[i]);
+                
+                // Save to localStorage
+                localStorage.setItem(currentMonthKey, JSON.stringify(selected));
+                return selected;
+            }
         }
-        themeBtn.onclick = () => {
-            html.classList.toggle('dark');
-            localStorage.theme = html.classList.contains('dark') ? 'dark' : 'light';
+
+        // 3. Render Functions
+        function renderGrid() {
+            const grid = document.getElementById('challengesGrid');
+            const challenges = getMonthlyChallenges();
+            
+            grid.innerHTML = challenges.map((c, index) => `
+                <div class="glass-panel rounded-2xl overflow-hidden hover:shadow-xl transition flex flex-col h-full border border-slate-200 dark:border-slate-700 relative">
+                    <div class="absolute top-0 right-0 p-4 opacity-10">
+                        <i class="fas ${c.icon} text-9xl"></i>
+                    </div>
+                    
+                    <div class="p-8 flex flex-col flex-grow relative z-10">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                                <i class="fas ${c.icon} ${c.color} text-xl"></i>
+                            </div>
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Challenge #${c.id}</span>
+                        </div>
+                        
+                        <h3 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">${c.title}</h3>
+                        <p class="text-sm font-semibold text-brand-600 mb-4">${c.theme}</p>
+                        
+                        <p class="text-slate-600 dark:text-slate-400 mb-8 flex-grow leading-relaxed">
+                            ${c.desc}
+                        </p>
+                        
+                        <div class="mt-auto">
+                            <button onclick="openSubmitModal(${index})" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 rounded-xl transition shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2">
+                                <span>Do Challenge</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 4. Modal Logic
+        let currentChallengeIndex = null;
+
+        function toggleModal() {
+            const body = document.querySelector('body');
+            const modal = document.getElementById('submitModal');
+            modal.classList.toggle('opacity-0');
+            modal.classList.toggle('pointer-events-none');
+            body.classList.toggle('modal-active');
+        }
+
+        window.openSubmitModal = (arrayIndex) => {
+            const challenges = getMonthlyChallenges();
+            const challenge = challenges[arrayIndex];
+            
+            currentChallengeIndex = arrayIndex;
+            
+            document.getElementById('modalTitle').textContent = challenge.title;
+            document.getElementById('modalDesc').textContent = challenge.desc;
+            
+            // Clear form
+            document.getElementById('solution').value = "";
+            document.getElementById('projectLink').value = ""; 
+            
+            toggleModal();
+        }
+
+        window.handleFormSubmit = (e) => {
+            e.preventDefault();
+            const solution = document.getElementById('solution').value;
+            const link = document.getElementById('projectLink').value;
+            
+            if(solution.trim().length < 10) {
+                alert("Please provide a more detailed description.");
+                return;
+            }
+
+            // Mock Submission
+            alert(`Success! \n\nLink: ${link}\nDescription: ${solution.substring(0, 30)}...\n\nYour response has been recorded!`);
+            toggleModal();
         };
+
+        // Debug: Reset logic to test different challenges
+        window.resetChallenges = () => {
+            const date = new Date();
+            const currentMonthKey = `vs_challenges_${date.getFullYear()}_${date.getMonth()}`;
+            localStorage.removeItem(currentMonthKey);
+            location.reload();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderGrid();
+            
+            // Theme Toggle Logic
+            const themeBtn = document.getElementById('themeToggle');
+            const html = document.documentElement;
+            
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                html.classList.add('dark');
+            }
+            
+            themeBtn.onclick = () => {
+                html.classList.toggle('dark');
+                localStorage.theme = html.classList.contains('dark') ? 'dark' : 'light';
+            };
+        });
+
     </script>
 </body>
 </html>
