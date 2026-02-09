@@ -83,7 +83,7 @@
                 <span class="font-medium text-sm">Dashboard</span>
             </a>
             <a href="leaderboard.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition group">
-			<i class="fas fa-medal w-6"></i> <span class="font-medium text-sm">Leaderboard</span>
+            <i class="fas fa-medal w-6"></i> <span class="font-medium text-sm">Leaderboard</span>
             </a>
             <a href="submit.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition group">
                 <i class="fas fa-plus-circle w-6 group-hover:text-brand-600 transition"></i>
@@ -187,28 +187,8 @@
                         <a href="challenges.html" class="text-sm text-brand-600 hover:underline">View All</a>
                     </div>
 
-                    <div class="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row gap-6">
-                        <div class="w-full sm:w-32 h-32 bg-slate-100 rounded-lg flex-shrink-0 overflow-hidden">
-                            <img src="https://images.unsplash.com/photo-1497436072909-60f360e1d4b0?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" class="w-full h-full object-cover">
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <span class="text-xs font-bold text-fresh-600 bg-fresh-100 px-2 py-0.5 rounded">Sustainability</span>
-                                    <h3 class="font-bold text-lg mt-1">Clean Water for Rural India</h3>
-                                </div>
-                                <span class="text-xs font-bold text-slate-400"><i class="far fa-clock"></i> 5 days left</span>
-                            </div>
-                            <p class="text-sm text-slate-500 mt-2 mb-4">Design a low-cost filtration system using locally sourced materials.</p>
-                            
-                            <div class="w-full bg-slate-100 rounded-full h-2 mb-2">
-                                <div class="bg-brand-500 h-2 rounded-full" style="width: 70%"></div>
-                            </div>
-                            <div class="flex justify-between text-xs text-slate-500">
-                                <span>70% Submissions Full</span>
-                                <span>145 Participants</span>
-                            </div>
-                        </div>
+                    <div id="activeChallengeContainer" class="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row gap-6">
+                        <div class="w-full h-32 bg-slate-100 animate-pulse rounded-lg"></div>
                     </div>
 
                     <div class="bg-gradient-to-r from-brand-900 to-slate-900 rounded-xl p-8 text-white relative overflow-hidden">
@@ -312,8 +292,7 @@
         // --- DATA FETCHING ---
         async function loadDashboardData(uid) {
             try {
-                // 1. Fetch User Profile (Points/Milestones)
-                // Note: If 'users' collection doesn't exist yet, we show defaults
+                // 1. Fetch User Profile
                 const userRef = doc(db, "users", uid);
                 const userSnap = await getDoc(userRef);
                 
@@ -345,7 +324,6 @@
 
             } catch (error) {
                 console.error("Error loading dashboard:", error);
-                // Fallback for demo if permission fails or DB empty
                 statIdeas.textContent = "0";
                 statShortlisted.textContent = "0";
                 statPoints.textContent = "0";
@@ -355,6 +333,74 @@
     </script>
 
     <script>
+        // --- 1. THE ACTUAL CHALLENGES DATABASE ---
+        // (Copied from challenges.html for consistency)
+        const allChallenges = [
+            { id: 1, title: "The 10x Constraint Challenge", theme: "Innovation under artificial constraints", desc: "Improve an internal system by reducing cost by 70% OR increasing output by 3x without increasing headcount.", icon: "fa-rocket", color: "text-red-500" },
+            { id: 2, title: "Kill Our Process", theme: "Destroy to rebuild", desc: "Pick one internal process, argue why it should be eliminated, and propose a radical redesign.", icon: "fa-skull", color: "text-slate-600" },
+            { id: 3, title: "Research-to-Reality Sprint", theme: "Turn research into deployable asset", desc: "Pick 1 academic paper/insight and convert it into a learning module, workshop prototype, or research tool.", icon: "fa-microscope", color: "text-blue-500" },
+            { id: 4, title: "The Zero-Budget Innovation", theme: "Budget allowed: ₹0", desc: "Launch a micro initiative using only existing resources that creates measurable impact.", icon: "fa-wallet", color: "text-green-500" },
+            { id: 5, title: "Build an Asset in 30 Days", theme: "IP Repository Growth", desc: "Create a reusable framework, toolkit, training template, or data dashboard.", icon: "fa-cubes", color: "text-purple-500" },
+            { id: 6, title: "The Future 2030 Simulation", theme: "Long-term thinking", desc: "Answer: 'If Vigyanshaala becomes 100x bigger by 2030, what breaks?' Identify 5 system failures.", icon: "fa-globe", color: "text-indigo-500" },
+            { id: 7, title: "Reverse Challenge", theme: "Solve Leadership Problems", desc: "Solve a specific leadership problem (e.g., Improve engagement by 40%, Reduce dropouts) in 48 hours.", icon: "fa-chess-king", color: "text-yellow-500" },
+            { id: 8, title: "Cross-Department Swap", theme: "Break Silos", desc: "Pair with a different department (e.g., Research + Ops). Identify one friction point and solve it jointly.", icon: "fa-handshake", color: "text-pink-500" },
+            { id: 9, title: "Build in Public", theme: "Transparency & Learning", desc: "Share weekly innovation logs, document experiments, and publish an internal learning memo.", icon: "fa-bullhorn", color: "text-orange-500" },
+            { id: 10, title: "Impact Scoring Matrix Review", theme: "System Analysis", desc: "Review current projects against the Impact Scoring Matrix and propose an optimization.", icon: "fa-chart-bar", color: "text-teal-500" }
+        ];
+
+        // --- 2. RENDER FEATURED CHALLENGE ---
+        function loadFeaturedChallenge() {
+            const container = document.getElementById('activeChallengeContainer');
+            
+            // Try to find assigned challenges in localStorage (from challenges.html logic)
+            const date = new Date();
+            const currentMonthKey = `vs_challenges_${date.getFullYear()}_${date.getMonth()}`;
+            const stored = localStorage.getItem(currentMonthKey);
+            
+            let displayChallenge;
+
+            if (stored) {
+                // If user has visited challenges page, show their specific assignment (First one)
+                const assigned = JSON.parse(stored);
+                displayChallenge = assigned[0];
+            } else {
+                // Default fallback: Challenge #1
+                displayChallenge = allChallenges[0];
+            }
+
+            // Render HTML
+            container.innerHTML = `
+                <div class="w-full sm:w-32 h-32 bg-slate-100 dark:bg-slate-700 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center border border-slate-200 dark:border-slate-600">
+                     <i class="fas ${displayChallenge.icon} ${displayChallenge.color} text-4xl"></i>
+                </div>
+                <div class="flex-1">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-xs font-bold text-brand-600 bg-brand-100 dark:bg-brand-900/30 dark:text-brand-400 px-2 py-0.5 rounded uppercase tracking-wide">
+                                Monthly Goal
+                            </span>
+                            <h3 class="font-bold text-lg mt-1 text-slate-800 dark:text-white">${displayChallenge.title}</h3>
+                        </div>
+                        <span class="text-xs font-bold text-slate-400"><i class="far fa-clock"></i> Active Now</span>
+                    </div>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 mb-4 line-clamp-2">
+                        ${displayChallenge.desc}
+                    </p>
+                    
+                    <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2 mb-2">
+                        <div class="bg-brand-500 h-2 rounded-full" style="width: 15%"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400">
+                        <span>Status: In Progress</span>
+                        <span><a href="challenges.html" class="text-brand-600 hover:underline">View Details</a></span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Initialize
+        loadFeaturedChallenge();
+
         // Theme Toggle
         const themeBtn = document.getElementById('themeToggle');
         const html = document.documentElement;
@@ -370,7 +416,6 @@
 
         // Countdown Timer Logic
         function updateCountdown() {
-            // Set date to 12 days from now for demo
             const now = new Date();
             const endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 12);
             

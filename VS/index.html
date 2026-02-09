@@ -172,7 +172,7 @@
                 <a href="challenges.html" class="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 px-8 py-3.5 rounded-xl font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center justify-center gap-2">
                     <i class="fas fa-play-circle text-fresh-500"></i> View Challenges
                 </a>
-				<button onclick="window.location.href='admin-login.html'" class="bg-gradient-to-r from-brand-600 to-ocean-600 hover:from-brand-700 hover:to-ocean-700 text-white px-5 py-2 rounded-lg text-sm font-medium transition shadow-md shadow-brand-500/20">Admin Login</button>
+                <button onclick="window.location.href='admin-login.html'" class="bg-gradient-to-r from-brand-600 to-ocean-600 hover:from-brand-700 hover:to-ocean-700 text-white px-5 py-2 rounded-lg text-sm font-medium transition shadow-md shadow-brand-500/20">Admin Login</button>
             </div>
         </section>
 
@@ -223,14 +223,21 @@
                     <div class="absolute top-0 right-0 w-24 h-24 bg-fresh-500 rounded-full blur-2xl opacity-20 group-hover:opacity-30 transition"></div>
                     
                     <h3 class="font-bold text-lg mb-1 flex items-center gap-2">
-                        <i class="fas fa-bolt text-spark-400"></i> Next Challenge
+                        <i class="fas fa-bolt text-spark-400"></i> Featured Challenge
                     </h3>
-                    <p class="text-brand-100 text-xs mb-4 uppercase tracking-wider">Sustainable Energy 2026</p>
-                    <p class="text-slate-300 text-sm mb-5 leading-relaxed">
-                        Submit your green energy prototypes before March 1st to win exclusive mentorship.
+                    <p class="text-brand-100 text-xs mb-3 uppercase tracking-wider font-semibold">
+                        Innovation under artificial constraints
                     </p>
-                    <button class="w-full bg-fresh-500 hover:bg-fresh-600 text-slate-900 font-bold py-2.5 rounded-lg text-sm transition shadow-lg shadow-fresh-500/20">
-                        Join Challenge
+                    
+                    <h4 class="text-xl font-bold text-white mb-2 leading-tight">The 10x Constraint Challenge</h4>
+                    
+                    <p class="text-slate-300 text-sm mb-5 leading-relaxed">
+                        Improve an internal system by reducing cost by 70% OR increasing output by 3x without increasing headcount.
+                    </p>
+                    
+                    <button onclick="window.location.href='challenges.html'" class="w-full bg-fresh-500 hover:bg-fresh-600 text-slate-900 font-bold py-2.5 rounded-lg text-sm transition shadow-lg shadow-fresh-500/20 flex items-center justify-center gap-2">
+                        <span>View All Challenges</span>
+                        <i class="fas fa-arrow-right"></i>
                     </button>
                 </div>
             </div>
@@ -250,7 +257,7 @@
         </div>
     </footer>
 
-<script type="module">
+    <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
         import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -289,7 +296,6 @@
                 .then(async (result) => {
                     const user = result.user;
                     console.log("Logged in:", user.displayName);
-                    // The onAuthStateChanged listener below handles the database creation
                 }).catch((error) => {
                     console.error("Login Failed:", error);
                     alert("Login failed: " + error.message);

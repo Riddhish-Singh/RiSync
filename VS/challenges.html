@@ -47,15 +47,21 @@
         <div class="h-16 flex items-center px-6 border-b border-slate-100 dark:border-slate-800">
             <span class="font-bold text-lg tracking-tight text-brand-600 dark:text-brand-400">Vigyanshaala</span>
         </div>
-        <nav class="flex-1 py-6 space-y-1">
-            <a href="#" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:text-brand-600 transition">
+       <nav class="flex-1 py-6 space-y-1">
+            <a href="index.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:text-brand-600 transition">
                 <i class="fas fa-home w-6"></i> <span class="font-medium text-sm">Home</span>
             </a>
-            <a href="#" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:text-brand-600 transition">
+            <a href="dashboard.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:text-brand-600 transition">
                 <i class="fas fa-chart-pie w-6"></i> <span class="font-medium text-sm">Dashboard</span>
             </a>
+            <a href="leaderboard.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition group">
+                <i class="fas fa-medal w-6"></i> <span class="font-medium text-sm">Leaderboard</span>
+            </a>
+            <a href="submit.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:text-brand-600 transition">
+                <i class="fas fa-plus-circle w-6"></i> <span class="font-medium text-sm">New Idea</span>
+            </a>
             <a href="#" class="nav-item active flex items-center px-6 py-3">
-                <i class="fas fa-trophy w-6"></i> <span class="font-medium text-sm">My Challenges</span>
+                <i class="fas fa-trophy w-6"></i> <span class="font-medium text-sm">Challenges</span>
             </a>
         </nav>
     </aside>
@@ -115,64 +121,57 @@
             
             <div class="modal-content py-4 text-left px-6">
                 <div class="flex justify-between items-center pb-3 border-b border-slate-200 dark:border-slate-700">
-                    <p class="text-2xl font-bold text-slate-800 dark:text-white" id="modalTitle">Submit Challenge</p>
+                    <p class="text-xl font-bold text-slate-800 dark:text-white">Pre-Submission Review</p>
                     <div class="modal-close cursor-pointer z-50" onclick="toggleModal()">
                         <i class="fas fa-times text-slate-500 hover:text-red-500"></i>
                     </div>
                 </div>
 
                 <div class="my-5">
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mb-4" id="modalDesc">
+                    <h3 class="text-2xl font-bold text-brand-600 mb-2" id="modalTitle">Challenge Title</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mb-6" id="modalDesc">
                         Description goes here...
                     </p>
 
-                    <div class="bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-4 mb-6">
-                        <p class="text-xs font-bold text-brand-600 uppercase mb-2">Grading Criteria (Impact Scoring Matrix)</p>
-                        <table class="w-full text-sm text-left">
-                            <thead class="text-xs text-slate-500 uppercase bg-slate-100 dark:bg-slate-800">
-                                <tr>
-                                    <th class="px-3 py-2 rounded-l-md">Criteria</th>
-                                    <th class="px-3 py-2 rounded-r-md text-right">Weight</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-slate-700 dark:text-slate-300">
-                                <tr class="border-b border-slate-100 dark:border-slate-800"><td class="px-3 py-2">Strategic Alignment</td><td class="px-3 py-2 text-right font-bold">20</td></tr>
-                                <tr class="border-b border-slate-100 dark:border-slate-800"><td class="px-3 py-2">Innovation Depth</td><td class="px-3 py-2 text-right font-bold">20</td></tr>
-                                <tr class="border-b border-slate-100 dark:border-slate-800"><td class="px-3 py-2">Feasibility</td><td class="px-3 py-2 text-right font-bold">15</td></tr>
-                                <tr class="border-b border-slate-100 dark:border-slate-800"><td class="px-3 py-2">Measurable Impact</td><td class="px-3 py-2 text-right font-bold">20</td></tr>
-                                <tr class="border-b border-slate-100 dark:border-slate-800"><td class="px-3 py-2">Scalability</td><td class="px-3 py-2 text-right font-bold">15</td></tr>
-                                <tr><td class="px-3 py-2">Learning Value</td><td class="px-3 py-2 text-right font-bold">10</td></tr>
-                            </tbody>
-                        </table>
+                    <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800 p-6 mb-6">
+                        <div class="flex items-center gap-2 mb-4">
+                            <i class="fas fa-clipboard-check text-indigo-500 text-lg"></i>
+                            <h4 class="text-md font-bold text-indigo-800 dark:text-indigo-300 uppercase">Impact Scoring Matrix</h4>
+                        </div>
+                        
+                        <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                            Your submission will be graded against these criteria. Ensure your idea addresses these points strongly.
+                        </p>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left">
+                                <thead class="text-xs text-slate-500 uppercase bg-white dark:bg-slate-800 border-b dark:border-slate-700">
+                                    <tr>
+                                        <th class="px-4 py-3 rounded-tl-lg">Criteria</th>
+                                        <th class="px-4 py-3 text-right rounded-tr-lg">Weight</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-slate-700 dark:text-slate-300 divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800/50">
+                                    <tr><td class="px-4 py-3 font-medium">Strategic Alignment</td><td class="px-4 py-3 text-right font-bold text-brand-600">20%</td></tr>
+                                    <tr><td class="px-4 py-3 font-medium">Innovation Depth</td><td class="px-4 py-3 text-right font-bold text-brand-600">20%</td></tr>
+                                    <tr><td class="px-4 py-3 font-medium">Feasibility & Cost</td><td class="px-4 py-3 text-right font-bold text-brand-600">15%</td></tr>
+                                    <tr><td class="px-4 py-3 font-medium">Measurable Impact</td><td class="px-4 py-3 text-right font-bold text-brand-600">20%</td></tr>
+                                    <tr><td class="px-4 py-3 font-medium">Scalability</td><td class="px-4 py-3 text-right font-bold text-brand-600">15%</td></tr>
+                                    <tr><td class="px-4 py-3 font-medium">Learning Value</td><td class="px-4 py-3 text-right font-bold text-brand-600">10%</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
-                    <form id="challengeForm" onsubmit="handleFormSubmit(event)">
-                        
-                        <div class="mb-4">
-                            <label class="block text-slate-700 dark:text-slate-300 text-sm font-bold mb-2" for="projectLink">
-                                Project Link (URL) <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i class="fas fa-link text-slate-400"></i>
-                                </div>
-                                <input type="url" id="projectLink" class="shadow appearance-none border rounded w-full py-2 pl-10 pr-3 text-slate-700 dark:bg-slate-700 dark:text-white dark:border-slate-600 leading-tight focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="https://docs.google.com/..." required>
-                            </div>
-                            <p class="text-xs text-slate-500 mt-1">Paste link to your Prototype, Google Doc, GitHub, or Slide Deck.</p>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="block text-slate-700 dark:text-slate-300 text-sm font-bold mb-2" for="solution">
-                                What did you do? (Description)
-                            </label>
-                            <textarea id="solution" class="shadow appearance-none border rounded w-full py-2 px-3 text-slate-700 dark:bg-slate-700 dark:text-white dark:border-slate-600 leading-tight focus:outline-none focus:ring-2 focus:ring-brand-500 h-32" required placeholder="Describe your methodology, key findings, and results..."></textarea>
-                        </div>
-                        
-                        <div class="flex justify-end pt-2">
-                            <button type="button" class="px-4 py-2 bg-transparent p-3 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 mr-2" onclick="toggleModal()">Cancel</button>
-                            <button type="submit" class="px-6 py-2 bg-brand-600 text-white font-bold rounded-lg shadow hover:bg-brand-700 transition">Submit Challenge</button>
-                        </div>
-                    </form>
+                    <div class="flex justify-end pt-4 gap-3">
+                        <button type="button" class="px-5 py-3 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 font-medium transition" onclick="toggleModal()">
+                            Cancel
+                        </button>
+                        <button id="proceedBtn" onclick="proceedToSubmission()" class="px-6 py-3 bg-gradient-to-r from-brand-600 to-ocean-600 text-white font-bold rounded-lg shadow-lg hover:shadow-xl hover:from-brand-700 hover:to-ocean-700 transition flex items-center gap-2">
+                            <span>Proceed to Submit Idea</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -181,109 +180,32 @@
     <script>
         // 1. The Database of 10 Challenges
         const allChallenges = [
-            {
-                id: 1,
-                title: "The 10x Constraint Challenge",
-                theme: "Innovation under artificial constraints",
-                desc: "Improve an internal system by reducing cost by 70% OR increasing output by 3x without increasing headcount. (e.g., Automate 1 recurring manual task fully).",
-                icon: "fa-rocket",
-                color: "text-red-500"
-            },
-            {
-                id: 2,
-                title: "Kill Our Process",
-                theme: "Destroy to rebuild",
-                desc: "Pick one internal process, argue why it should be eliminated, and propose a radical redesign. Reward the boldest redesign, not the safest.",
-                icon: "fa-skull",
-                color: "text-slate-600"
-            },
-            {
-                id: 3,
-                title: "Research-to-Reality Sprint",
-                theme: "Turn research into deployable asset",
-                desc: "Pick 1 academic paper/insight and convert it into a learning module, workshop prototype, or research tool. Deliverable must be a live demo.",
-                icon: "fa-microscope",
-                color: "text-blue-500"
-            },
-            {
-                id: 4,
-                title: "The Zero-Budget Innovation",
-                theme: "Budget allowed: ₹0",
-                desc: "Launch a micro initiative using only existing resources that creates measurable impact. (e.g., Peer learning circle, Community mini event).",
-                icon: "fa-wallet",
-                color: "text-green-500"
-            },
-            {
-                id: 5,
-                title: "Build an Asset in 30 Days",
-                theme: "IP Repository Growth",
-                desc: "Create a reusable framework, toolkit, training template, or data dashboard. Winning criteria: Reusability and Scalability.",
-                icon: "fa-cubes",
-                color: "text-purple-500"
-            },
-            {
-                id: 6,
-                title: "The Future 2030 Simulation",
-                theme: "Long-term thinking",
-                desc: "Answer: 'If Vigyanshaala becomes 100x bigger by 2030, what breaks?' Identify 5 system failures and design scalable architecture today.",
-                icon: "fa-globe",
-                color: "text-indigo-500"
-            },
-            {
-                id: 7,
-                title: "Reverse Challenge (Leadership Hackathon)",
-                theme: "Solve Leadership Problems",
-                desc: "Solve a specific leadership problem (e.g., Improve engagement by 40%, Reduce dropouts) in 48 hours. Prototype + Pitch required.",
-                icon: "fa-chess-king",
-                color: "text-yellow-500"
-            },
-            {
-                id: 8,
-                title: "Cross-Department Swap",
-                theme: "Break Silos",
-                desc: "Pair with a different department (e.g., Research + Ops). Identify one friction point and solve it jointly.",
-                icon: "fa-handshake",
-                color: "text-pink-500"
-            },
-            {
-                id: 9,
-                title: "Build in Public",
-                theme: "Transparency & Learning",
-                desc: "Share weekly innovation logs, document experiments, and publish an internal learning memo to build a learning culture.",
-                icon: "fa-bullhorn",
-                color: "text-orange-500"
-            },
-            {
-                id: 10,
-                title: "Impact Scoring Matrix Review",
-                theme: "System Analysis",
-                desc: "Review current projects against the Impact Scoring Matrix (Strategic Alignment, Innovation Depth, etc.) and propose an optimization.",
-                icon: "fa-chart-bar",
-                color: "text-teal-500"
-            }
+            { id: 1, title: "The 10x Constraint Challenge", theme: "Innovation under artificial constraints", desc: "Improve an internal system by reducing cost by 70% OR increasing output by 3x without increasing headcount.", icon: "fa-rocket", color: "text-red-500" },
+            { id: 2, title: "Kill Our Process", theme: "Destroy to rebuild", desc: "Pick one internal process, argue why it should be eliminated, and propose a radical redesign.", icon: "fa-skull", color: "text-slate-600" },
+            { id: 3, title: "Research-to-Reality Sprint", theme: "Turn research into deployable asset", desc: "Pick 1 academic paper/insight and convert it into a learning module, workshop prototype, or research tool.", icon: "fa-microscope", color: "text-blue-500" },
+            { id: 4, title: "The Zero-Budget Innovation", theme: "Budget allowed: ₹0", desc: "Launch a micro initiative using only existing resources that creates measurable impact.", icon: "fa-wallet", color: "text-green-500" },
+            { id: 5, title: "Build an Asset in 30 Days", theme: "IP Repository Growth", desc: "Create a reusable framework, toolkit, training template, or data dashboard.", icon: "fa-cubes", color: "text-purple-500" },
+            { id: 6, title: "The Future 2030 Simulation", theme: "Long-term thinking", desc: "Answer: 'If Vigyanshaala becomes 100x bigger by 2030, what breaks?' Identify 5 system failures.", icon: "fa-globe", color: "text-indigo-500" },
+            { id: 7, title: "Reverse Challenge", theme: "Solve Leadership Problems", desc: "Solve a specific leadership problem (e.g., Improve engagement by 40%, Reduce dropouts) in 48 hours.", icon: "fa-chess-king", color: "text-yellow-500" },
+            { id: 8, title: "Cross-Department Swap", theme: "Break Silos", desc: "Pair with a different department (e.g., Research + Ops). Identify one friction point and solve it jointly.", icon: "fa-handshake", color: "text-pink-500" },
+            { id: 9, title: "Build in Public", theme: "Transparency & Learning", desc: "Share weekly innovation logs, document experiments, and publish an internal learning memo.", icon: "fa-bullhorn", color: "text-orange-500" },
+            { id: 10, title: "Impact Scoring Matrix Review", theme: "System Analysis", desc: "Review current projects against the Impact Scoring Matrix and propose an optimization.", icon: "fa-chart-bar", color: "text-teal-500" }
         ];
 
         // 2. Logic to Assign 2 Random Challenges Per Month
         function getMonthlyChallenges() {
             const date = new Date();
-            const currentMonthKey = `vs_challenges_${date.getFullYear()}_${date.getMonth()}`; // e.g., vs_challenges_2023_9
-            
-            // Check if we already assigned challenges for this month
+            const currentMonthKey = `vs_challenges_${date.getFullYear()}_${date.getMonth()}`;
             const stored = localStorage.getItem(currentMonthKey);
             
             if (stored) {
                 return JSON.parse(stored);
             } else {
-                // Generate 2 unique random indices
                 const indices = new Set();
                 while(indices.size < 2) {
                     indices.add(Math.floor(Math.random() * allChallenges.length));
                 }
-                
-                // Map indices to challenge objects
                 const selected = Array.from(indices).map(i => allChallenges[i]);
-                
-                // Save to localStorage
                 localStorage.setItem(currentMonthKey, JSON.stringify(selected));
                 return selected;
             }
@@ -299,7 +221,6 @@
                     <div class="absolute top-0 right-0 p-4 opacity-10">
                         <i class="fas ${c.icon} text-9xl"></i>
                     </div>
-                    
                     <div class="p-8 flex flex-col flex-grow relative z-10">
                         <div class="flex items-center gap-3 mb-4">
                             <div class="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
@@ -307,14 +228,11 @@
                             </div>
                             <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Challenge #${c.id}</span>
                         </div>
-                        
                         <h3 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">${c.title}</h3>
                         <p class="text-sm font-semibold text-brand-600 mb-4">${c.theme}</p>
-                        
                         <p class="text-slate-600 dark:text-slate-400 mb-8 flex-grow leading-relaxed">
                             ${c.desc}
                         </p>
-                        
                         <div class="mt-auto">
                             <button onclick="openSubmitModal(${index})" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 rounded-xl transition shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2">
                                 <span>Do Challenge</span>
@@ -327,7 +245,7 @@
         }
 
         // 4. Modal Logic
-        let currentChallengeIndex = null;
+        let currentChallengeData = null;
 
         function toggleModal() {
             const body = document.querySelector('body');
@@ -339,36 +257,30 @@
 
         window.openSubmitModal = (arrayIndex) => {
             const challenges = getMonthlyChallenges();
-            const challenge = challenges[arrayIndex];
+            currentChallengeData = challenges[arrayIndex];
             
-            currentChallengeIndex = arrayIndex;
-            
-            document.getElementById('modalTitle').textContent = challenge.title;
-            document.getElementById('modalDesc').textContent = challenge.desc;
-            
-            // Clear form
-            document.getElementById('solution').value = "";
-            document.getElementById('projectLink').value = ""; 
+            document.getElementById('modalTitle').textContent = currentChallengeData.title;
+            document.getElementById('modalDesc').textContent = currentChallengeData.desc;
             
             toggleModal();
         }
 
-        window.handleFormSubmit = (e) => {
-            e.preventDefault();
-            const solution = document.getElementById('solution').value;
-            const link = document.getElementById('projectLink').value;
+        // 5. Redirection Logic
+        window.proceedToSubmission = () => {
+            if(!currentChallengeData) return;
             
-            if(solution.trim().length < 10) {
-                alert("Please provide a more detailed description.");
-                return;
-            }
+            // Encode data to pass via URL
+            const params = new URLSearchParams({
+                mode: 'challenge',
+                id: currentChallengeData.id,
+                title: currentChallengeData.title,
+                theme: currentChallengeData.theme
+            });
 
-            // Mock Submission
-            alert(`Success! \n\nLink: ${link}\nDescription: ${solution.substring(0, 30)}...\n\nYour response has been recorded!`);
-            toggleModal();
+            // Redirect to submit page
+            window.location.href = `submit.html?${params.toString()}`;
         };
 
-        // Debug: Reset logic to test different challenges
         window.resetChallenges = () => {
             const date = new Date();
             const currentMonthKey = `vs_challenges_${date.getFullYear()}_${date.getMonth()}`;
@@ -376,24 +288,18 @@
             location.reload();
         }
 
-        // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             renderGrid();
-            
-            // Theme Toggle Logic
             const themeBtn = document.getElementById('themeToggle');
             const html = document.documentElement;
-            
             if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 html.classList.add('dark');
             }
-            
             themeBtn.onclick = () => {
                 html.classList.toggle('dark');
                 localStorage.theme = html.classList.contains('dark') ? 'dark' : 'light';
             };
         });
-
     </script>
 </body>
 </html>
