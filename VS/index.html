@@ -20,7 +20,6 @@
                         sans: ['Inter', 'sans-serif'],
                     },
                     colors: {
-                        // Teal/Blue Mix (Primary Brand)
                         brand: {
                             50: '#f0fdfa',
                             100: '#ccfbf1',
@@ -28,26 +27,23 @@
                             300: '#5eead4',
                             400: '#2dd4bf',
                             500: '#14b8a6', // Teal Base
-                            600: '#0d9488', // Teal Darker
+                            600: '#0d9488',
                             700: '#0f766e',
                             800: '#115e59',
                             900: '#134e4a',
                         },
-                        // Deep Blue (For Gradients/Contrast)
                         ocean: {
                             500: '#0ea5e9',
                             600: '#0284c7',
                             900: '#0c4a6e',
                         },
-                        // Bright Green (Growth/Success)
                         fresh: {
-                            400: '#a3e635', // Lime-ish Green
+                            400: '#a3e635',
                             500: '#84cc16',
                             600: '#65a30d',
                         },
-                        // Yellow (Ideas/Accents)
                         spark: {
-                            400: '#facc15', // Bright Yellow
+                            400: '#facc15',
                             500: '#eab308',
                         }
                     }
@@ -57,28 +53,23 @@
     </script>
 
     <style>
-        body {
-            transition: background-color 0.3s, color 0.3s;
-        }
+        body { transition: background-color 0.3s, color 0.3s; }
         .glass-panel {
             background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.5);
         }
         .dark .glass-panel {
-            background: rgba(19, 78, 74, 0.4); /* Dark Teal Tint */
+            background: rgba(19, 78, 74, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(12px);
         }
-        .card-hover {
-            transition: all 0.3s ease;
-        }
+        .card-hover { transition: all 0.3s ease; }
         .card-hover:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 25px -5px rgba(13, 148, 136, 0.15), 0 8px 10px -6px rgba(13, 148, 136, 0.1);
         }
         
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
@@ -88,7 +79,7 @@
 
         .loader {
             border: 4px solid #f3f3f3;
-            border-top: 4px solid #0d9488; /* Brand Teal */
+            border-top: 4px solid #0d9488;
             border-radius: 50%;
             width: 30px;
             height: 30px;
@@ -113,7 +104,7 @@
                         </span>
                     </a>
                     
-                    <div class="hidden md:ml-10 md:flex md:space-x-8 text-sm font-medium">
+                    <div id="mainNavLinks" class="hidden md:ml-10 md:flex md:space-x-8 text-sm font-medium items-center">
                         <a href="#" class="text-brand-700 dark:text-brand-300 border-b-2 border-brand-500">Home</a>
                         <a href="dashboard.html" class="text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-300 transition">Dashboard</a>
                         <a href="submit.html" class="text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-300 transition">Submit Idea</a>
@@ -273,7 +264,6 @@
             measurementId: "G-XKFLFPDZLP"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
         const auth = getAuth(app);
@@ -287,6 +277,7 @@
         const userAvatar = document.querySelector('#userAvatar img');
         const ideasContainer = document.getElementById('ideasContainer');
         const leaderboardContainer = document.getElementById('leaderboardContainer');
+        const mainNavLinks = document.getElementById('mainNavLinks');
 
         // --- Authentication Logic ---
         const provider = new GoogleAuthProvider();
@@ -318,24 +309,42 @@
                 userNameDisplay.textContent = user.displayName || "Innovator";
                 if(user.photoURL) userAvatar.src = user.photoURL;
 
-                // 2. CRITICAL FIX: Ensure User Exists in Database
+                // 2. Check/Create User in Database
                 const userRef = doc(db, "users", user.uid);
                 const userSnap = await getDoc(userRef);
+                
+                let userData = {};
 
                 if (!userSnap.exists()) {
-                    // Create the missing profile
                     try {
-                        await setDoc(userRef, {
+                        userData = {
                             name: user.displayName || 'Anonymous',
                             email: user.email,
                             photoURL: user.photoURL,
-                            points: 0, // Initialize points!
-                            role: 'student',
+                            points: 0, 
+                            role: 'student', 
                             joinedAt: new Date()
-                        });
+                        };
+                        await setDoc(userRef, userData);
                         console.log("User profile created in Database.");
                     } catch (e) {
                         console.error("Error creating profile:", e);
+                    }
+                } else {
+                    userData = userSnap.data();
+                }
+
+                // --- ADMIN CHECK: EMAIL or ROLE ---
+                const adminEmail = "hr@vigyanshaala.com";
+                
+                if (user.email === adminEmail || userData.role === 'admin') {
+                    if (!document.getElementById('adminNavLink')) {
+                        const adminLink = document.createElement('a');
+                        adminLink.id = 'adminNavLink';
+                        adminLink.href = 'admin-leaderboard.html';
+                        adminLink.className = 'text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 font-bold transition flex items-center gap-1';
+                        adminLink.innerHTML = '<i class="fas fa-user-shield"></i> Admin Leaderboard';
+                        mainNavLinks.appendChild(adminLink);
                     }
                 }
 
@@ -343,15 +352,17 @@
                 fetchIdeas();
                 fetchLeaderboard();
             } else {
-                // UI Update: Logged Out
                 loginBtn.classList.remove('hidden');
                 userProfile.classList.add('hidden');
+                
+                const existingAdminLink = document.getElementById('adminNavLink');
+                if (existingAdminLink) existingAdminLink.remove();
+
                 renderLockedState();
             }
         });
 
         // --- Firestore Data Fetching ---
-
         async function fetchIdeas() {
             try {
                 ideasContainer.innerHTML = '<div class="loader mx-auto my-4"></div>';
@@ -372,14 +383,11 @@
 
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
-                    
-                    // Status Badge Styling
                     const statusConfig = {
                         'New': { color: 'bg-fresh-100 text-fresh-700 border-fresh-200', icon: 'fa-star' },
                         'Approved': { color: 'bg-brand-100 text-brand-700 border-brand-200', icon: 'fa-check' },
                         'Rejected': { color: 'bg-red-100 text-red-700 border-red-200', icon: 'fa-times' }
                     };
-                    
                     const config = statusConfig[data.status] || statusConfig['New'];
 
                     const card = `
@@ -389,36 +397,19 @@
                                     <i class="fas ${config.icon} text-[10px]"></i> ${data.status || 'New'}
                                 </span>
                             </div>
-                            
-                            <span class="text-xs font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400 mb-2 block">
-                                ${data.category || 'General Innovation'}
-                            </span>
-                            
-                            <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2 group-hover:text-brand-600 transition">
-                                ${data.title || 'Untitled Idea'}
-                            </h3>
-                            
-                            <p class="text-slate-600 dark:text-slate-300 text-sm line-clamp-2 mb-4 leading-relaxed">
-                                ${data.problem || 'No description provided.'}
-                            </p>
-                            
+                            <span class="text-xs font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400 mb-2 block">${data.category || 'General Innovation'}</span>
+                            <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2 group-hover:text-brand-600 transition">${data.title || 'Untitled Idea'}</h3>
+                            <p class="text-slate-600 dark:text-slate-300 text-sm line-clamp-2 mb-4 leading-relaxed">${data.problem || 'No description provided.'}</p>
                             <div class="flex items-center gap-4 text-xs text-slate-400 border-t border-slate-100 dark:border-slate-700/50 pt-3">
-                                <div class="flex items-center gap-1">
-                                    <i class="far fa-clock"></i>
-                                    <span>${data.timestamp ? new Date(data.timestamp.toDate()).toLocaleDateString() : 'Just now'}</span>
-                                </div>
+                                <div class="flex items-center gap-1"><i class="far fa-clock"></i><span>${data.timestamp ? new Date(data.timestamp.toDate()).toLocaleDateString() : 'Just now'}</span></div>
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                     ideasContainer.innerHTML += card;
                 });
 
             } catch (error) {
                 console.error("Error fetching ideas:", error);
-                ideasContainer.innerHTML = `
-                    <div class="p-4 bg-red-50 border border-red-100 text-red-600 rounded-lg text-sm flex items-center gap-2">
-                        <i class="fas fa-exclamation-circle"></i> Error loading ideas. Check permissions.
-                    </div>`;
+                ideasContainer.innerHTML = `<div class="p-4 bg-red-50 border border-red-100 text-red-600 rounded-lg text-sm flex items-center gap-2"><i class="fas fa-exclamation-circle"></i> Error loading ideas.</div>`;
             }
         }
 
@@ -437,14 +428,10 @@
 
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
-                    
-                    // Medals
                     let rankIcon = `<span class="text-slate-400 font-bold text-sm w-6 text-center">#${rank}</span>`;
                     if (rank === 1) rankIcon = `<i class="fas fa-trophy text-spark-400 text-lg w-6 text-center drop-shadow-sm"></i>`;
                     if (rank === 2) rankIcon = `<i class="fas fa-medal text-slate-400 text-lg w-6 text-center"></i>`;
                     if (rank === 3) rankIcon = `<i class="fas fa-medal text-orange-400 text-lg w-6 text-center"></i>`;
-
-                    // Highlight top user
                     const bgClass = rank === 1 ? 'bg-brand-50/50 dark:bg-brand-900/10' : '';
                     
                     html += `
@@ -452,23 +439,15 @@
                             <div class="flex items-center gap-3">
                                 ${rankIcon}
                                 <div class="w-8 h-8 rounded-full bg-gradient-to-br from-brand-400 to-ocean-500 p-[2px]">
-                                    <div class="w-full h-full bg-white dark:bg-slate-800 rounded-full flex items-center justify-center text-xs font-bold text-brand-700 dark:text-brand-300">
-                                        ${data.name ? data.name.charAt(0) : 'U'}
-                                    </div>
+                                    <div class="w-full h-full bg-white dark:bg-slate-800 rounded-full flex items-center justify-center text-xs font-bold text-brand-700 dark:text-brand-300">${data.name ? data.name.charAt(0) : 'U'}</div>
                                 </div>
-                                <span class="font-medium text-sm text-slate-700 dark:text-slate-200 truncate max-w-[100px] sm:max-w-none">
-                                    ${data.name || 'Anonymous'}
-                                </span>
+                                <span class="font-medium text-sm text-slate-700 dark:text-slate-200 truncate max-w-[100px] sm:max-w-none">${data.name || 'Anonymous'}</span>
                             </div>
-                            <span class="font-bold text-brand-600 dark:text-brand-400 text-sm bg-brand-100 dark:bg-brand-900/30 px-2 py-0.5 rounded-md">
-                                ${data.points || 0} pts
-                            </span>
-                        </div>
-                    `;
+                            <span class="font-bold text-brand-600 dark:text-brand-400 text-sm bg-brand-100 dark:bg-brand-900/30 px-2 py-0.5 rounded-md">${data.points || 0} pts</span>
+                        </div>`;
                     rank++;
                 });
                 leaderboardContainer.innerHTML = html;
-
             } catch (error) {
                 console.error("Error fetching leaderboard:", error);
                 leaderboardContainer.innerHTML = `<div class="p-4 text-center text-sm text-slate-500">Unable to load rankings.</div>`;
@@ -478,32 +457,22 @@
         function renderLockedState() {
             ideasContainer.innerHTML = `
                 <div class="glass-panel p-10 rounded-2xl text-center border-dashed border-2 border-slate-300 dark:border-slate-700 group cursor-not-allowed">
-                    <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition">
-                        <i class="fas fa-lock text-2xl text-slate-400"></i>
-                    </div>
+                    <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition"><i class="fas fa-lock text-2xl text-slate-400"></i></div>
                     <h3 class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-2">Login Required</h3>
                     <p class="text-slate-500 text-sm mb-6 max-w-xs mx-auto">Access the idea vault, view blueprints, and collaborate with peers.</p>
-                </div>
-            `;
+                </div>`;
             leaderboardContainer.innerHTML = `
-                 <div class="p-8 text-center text-slate-500 text-sm">
-                    <i class="fas fa-lock mb-3 block text-2xl text-slate-300"></i>
-                    <p>Login to see who's leading</p>
-                </div>
-            `;
+                 <div class="p-8 text-center text-slate-500 text-sm"><i class="fas fa-lock mb-3 block text-2xl text-slate-300"></i><p>Login to see who's leading</p></div>`;
         }
-    </script>
 
-    <script>
+        // Theme Toggle Logic
         const themeToggle = document.getElementById('themeToggle');
         const html = document.documentElement;
-
         if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             html.classList.add('dark');
         } else {
             html.classList.remove('dark');
         }
-
         themeToggle.addEventListener('click', () => {
             if (html.classList.contains('dark')) {
                 html.classList.remove('dark');

@@ -37,14 +37,11 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(12px);
         }
-        /* Toast Animation */
         @keyframes slideIn {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
         .toast { animation: slideIn 0.3s ease-out forwards; }
-        
-        /* Modal Animation */
         .modal-enter { animation: modalFadeIn 0.2s ease-out forwards; }
         @keyframes modalFadeIn {
             from { opacity: 0; transform: scale(0.95); }
@@ -66,7 +63,6 @@
                         <span class="text-[10px] uppercase font-bold text-brand-600 dark:text-brand-400 tracking-wider">Vigyanshaala Idea Lab</span>
                     </div>
                 </div>
-
                 <div class="flex items-center gap-4">
                     <button id="themeToggle" class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition">
                         <i class="fas fa-moon dark:hidden text-slate-500"></i>
@@ -83,53 +79,36 @@
     </nav>
 
     <main class="flex-grow max-w-7xl mx-auto w-full p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-
         <div class="lg:col-span-8 space-y-6">
             <div class="flex items-center justify-between">
                 <h2 class="text-xl font-bold flex items-center gap-2">
-                    <i class="fas fa-inbox text-brand-500"></i> Pending Reviews
+                    <i class="fas fa-inbox text-brand-500"></i> Submission Feed
                 </h2>
                 <button onclick="fetchIdeas()" class="text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1 rounded-md hover:bg-slate-50 transition">
-                    <i class="fas fa-sync-alt mr-1"></i> Refresh
+                    <i class="fas fa-sync-alt mr-1"></i> Refresh Ideas
                 </button>
             </div>
-
-            <div id="ideasFeed" class="space-y-4">
-                <div class="glass-panel p-12 text-center rounded-xl animate-pulse">
-                    <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/3 mx-auto mb-4"></div>
-                    <div class="h-2 bg-slate-200 dark:bg-slate-700 rounded w-1/2 mx-auto"></div>
-                </div>
-            </div>
+            <div id="ideasFeed" class="space-y-4"></div>
         </div>
 
         <div class="lg:col-span-4 space-y-6">
             <div class="glass-panel rounded-xl p-5 border-t-4 border-t-ocean-500 sticky top-24">
                 <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
-                    <i class="fas fa-trophy text-yellow-400"></i> Live Rankings
+                    <i class="fas fa-trophy text-yellow-400"></i> Leaderboard
                 </h2>
-                
-                <div class="relative mb-4">
-                    <i class="fas fa-search absolute left-3 top-3 text-slate-400 text-xs"></i>
-                    <input type="text" id="userSearch" placeholder="Search student..." 
-                        class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg py-2 pl-8 pr-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none transition">
-                </div>
-
                 <div id="adminLeaderboard" class="space-y-2 max-h-[600px] overflow-y-auto pr-1">
-                    <div class="text-center text-xs text-slate-400 py-4">Loading users...</div>
+                    <div class="text-center text-xs text-slate-400 py-4">Loading...</div>
                 </div>
             </div>
         </div>
-
     </main>
 
     <div id="detailsModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative modal-enter">
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-red-500 transition z-10 w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-700">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-red-500 transition z-50 w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-slate-700 shadow-md">
                 <i class="fas fa-times"></i>
             </button>
-
-            <div id="modalContent" class="p-0">
-                </div>
+            <div id="modalContent" class="p-0"></div>
         </div>
     </div>
 
@@ -154,25 +133,15 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- GLOBAL STATE ---
-        let allIdeasData = {}; // Stores loaded ideas to avoid re-fetching
+        let allIdeasData = {};
 
-        // --- DOM Elements ---
-        const ideasFeed = document.getElementById('ideasFeed');
-        const adminLeaderboard = document.getElementById('adminLeaderboard');
-        const adminEmailDisplay = document.getElementById('adminEmail');
-        const detailsModal = document.getElementById('detailsModal');
-        const modalContent = document.getElementById('modalContent');
-        
-        // --- Auth Check ---
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // Strict Admin Email Check
                 if(user.email.toLowerCase() !== "hr@vigyanshaala.com") {
                     alert("Unauthorized Access");
                     window.location.href = "index.html";
                 }
-                adminEmailDisplay.textContent = user.email;
+                document.getElementById('adminEmail').textContent = user.email;
                 fetchIdeas();
                 fetchUsers();
             } else {
@@ -180,282 +149,158 @@
             }
         });
 
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            signOut(auth).then(() => window.location.href = "admin-login.html");
-        });
+        document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
 
-        // --- 1. Fetch & Render Ideas ---
         window.fetchIdeas = async function() {
-            ideasFeed.innerHTML = '<div class="text-center py-10"><div class="loader inline-block border-4 border-brand-500 border-t-transparent rounded-full w-8 h-8 animate-spin"></div></div>';
+            const feed = document.getElementById('ideasFeed');
+            feed.innerHTML = '<div class="text-center py-10"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500 mx-auto"></div></div>';
             
             try {
                 const q = query(collection(db, "ideas"), orderBy("timestamp", "desc"));
                 const querySnapshot = await getDocs(q);
+                feed.innerHTML = "";
                 
-                ideasFeed.innerHTML = "";
-                allIdeasData = {}; // Reset storage
-
                 if (querySnapshot.empty) {
-                    ideasFeed.innerHTML = `<div class="p-8 text-center text-slate-400">No ideas pending review.</div>`;
+                    feed.innerHTML = `<p class="text-center text-slate-400">No submissions found.</p>`;
                     return;
                 }
 
                 querySnapshot.forEach((docSnap) => {
                     const data = docSnap.data();
                     const id = docSnap.id;
+                    allIdeasData[id] = data;
                     
-                    // Store data for Modal
-                    allIdeasData[id] = { id, ...data };
-                    
-                    const pointsGivenClass = data.pointsAwarded ? "opacity-60 grayscale-[0.5]" : "";
-                    const btnDisable = data.pointsAwarded ? "disabled" : "";
+                    const isAwarded = data.pointsAwarded === true;
 
-                    const card = `
-                        <div class="glass-panel p-6 rounded-xl border border-slate-200 dark:border-slate-700 relative group transition hover:shadow-lg ${pointsGivenClass}">
-                            <div class="flex justify-between items-start mb-3">
+                    feed.innerHTML += `
+                        <div class="glass-panel p-6 rounded-xl border border-slate-200 dark:border-slate-700 transition hover:shadow-md ${isAwarded ? 'border-l-4 border-l-fresh-500' : ''}">
+                            <div class="flex justify-between items-start mb-4">
                                 <div>
-                                    <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-slate-100 dark:bg-slate-800 text-slate-500 mb-2">
-                                        ${data.category || 'General'}
-                                    </span>
-                                    <h3 class="text-lg font-bold text-slate-800 dark:text-white leading-tight">${data.title}</h3>
-                                    <p class="text-xs text-brand-600 dark:text-brand-400 font-medium mt-1">
-                                        By: ${data.userName || 'Unknown User'}
-                                    </p>
+                                    <h3 class="text-lg font-bold">${data.title}</h3>
+                                    <p class="text-xs text-brand-600 font-medium">By: ${data.userName || 'Anonymous'}</p>
                                 </div>
-                                <div class="text-right flex flex-col items-end gap-2">
-                                    <span class="inline-block px-2 py-0.5 rounded-full text-xs font-bold ${getStatusColor(data.status)}">
-                                        ${data.status || 'New'}
-                                    </span>
-                                    <button onclick="openModal('${id}')" class="text-xs bg-slate-100 dark:bg-slate-800 hover:bg-brand-500 hover:text-white text-slate-600 dark:text-slate-300 px-3 py-1.5 rounded-md transition font-medium flex items-center gap-2">
-                                        <i class="fas fa-eye"></i> View Details
-                                    </button>
-                                </div>
+                                <span class="px-2 py-1 rounded text-[10px] font-bold uppercase ${getStatusColor(data.status)}">${data.status || 'Pending'}</span>
                             </div>
                             
-                            <p class="text-sm text-slate-600 dark:text-slate-300 mb-4 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-100 dark:border-slate-800 line-clamp-3">
-                                ${data.problem || 'No description provided.'}
-                            </p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <button onclick="openModal('${id}')" class="text-xs bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-md hover:bg-brand-500 hover:text-white transition"><i class="fas fa-eye mr-1"></i> View Details</button>
+                                <button onclick="updateStatus('${id}', 'Approved')" class="text-xs bg-brand-50 text-brand-700 px-3 py-1.5 rounded-md hover:bg-brand-100 transition">Approve</button>
+                                <button onclick="updateStatus('${id}', 'Rejected')" class="text-xs bg-red-50 text-red-700 px-3 py-1.5 rounded-md hover:bg-red-100 transition">Reject</button>
+                            </div>
 
-                            <div class="flex items-center gap-3 border-t border-slate-100 dark:border-slate-700/50 pt-4">
-                                <div class="flex-1">
-                                    <p class="text-[10px] uppercase font-bold text-slate-400 mb-1">Status</p>
-                                    <div class="flex gap-2">
-                                        <button onclick="updateStatus('${id}', 'Approved')" class="px-3 py-1.5 rounded bg-brand-100 text-brand-700 hover:bg-brand-200 text-xs font-bold transition">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                        <button onclick="updateStatus('${id}', 'Rejected')" class="px-3 py-1.5 rounded bg-red-100 text-red-700 hover:bg-red-200 text-xs font-bold transition">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                                <div class="pl-4 border-l border-slate-200 dark:border-slate-700">
-                                    <p class="text-[10px] uppercase font-bold text-ocean-400 mb-1">Award Points</p>
-                                    <div class="flex gap-1">
-                                        <button onclick="givePoints('${data.userId}', '${id}', 10)" ${btnDisable} class="px-2 py-1.5 rounded bg-slate-100 dark:bg-slate-800 hover:bg-fresh-500 hover:text-white text-xs font-bold transition">+10</button>
-                                        <button onclick="givePoints('${data.userId}', '${id}', 50)" ${btnDisable} class="px-2 py-1.5 rounded bg-slate-100 dark:bg-slate-800 hover:bg-fresh-500 hover:text-white text-xs font-bold transition">+50</button>
-                                        <button onclick="givePoints('${data.userId}', '${id}', 100)" ${btnDisable} class="px-2 py-1.5 rounded bg-slate-100 dark:bg-slate-800 hover:bg-spark-500 hover:text-white text-xs font-bold transition">+100</button>
-                                    </div>
+                            <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                                <span class="text-[10px] uppercase font-bold text-slate-400">Award Points:</span>
+                                <div class="flex gap-2">
+                                    ${[10, 50, 100].map(pts => `
+                                        <button 
+                                            onclick="givePoints('${data.userId}', '${id}', ${pts})" 
+                                            ${isAwarded ? 'disabled' : ''}
+                                            class="px-3 py-1 rounded text-xs font-bold transition ${isAwarded ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-brand-500 text-white hover:bg-brand-600 active:scale-95'}"
+                                        >+${pts}</button>
+                                    `).join('')}
                                 </div>
                             </div>
                         </div>
                     `;
-                    ideasFeed.innerHTML += card;
                 });
-            } catch (error) {
-                console.error(error);
-                showToast("Error loading ideas", "error");
-            }
-        }
-
-        // --- 2. Modal Logic (VIEW DETAILS) ---
-        window.openModal = function(id) {
-            const data = allIdeasData[id];
-            if(!data) return;
-
-            // Render Modal Content
-            modalContent.innerHTML = `
-                <div class="bg-slate-50 dark:bg-slate-900/50 px-8 py-6 border-b border-slate-100 dark:border-slate-700">
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <span class="text-xs font-bold uppercase text-brand-600 dark:text-brand-400 tracking-wider">${data.category || 'Innovation'}</span>
-                            <h2 class="text-2xl font-bold text-slate-800 dark:text-white mt-1 mb-2">${data.title}</h2>
-                            <div class="flex items-center gap-2 text-sm text-slate-500">
-                                <i class="fas fa-user-circle"></i>
-                                <span>${data.userName}</span>
-                                <span class="text-slate-300">|</span>
-                                <i class="fas fa-envelope"></i>
-                                <span>${data.userEmail || 'No email'}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="p-8 space-y-6">
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-red-50 dark:bg-red-900/10 p-4 rounded-xl border border-red-100 dark:border-red-900/30">
-                            <h4 class="font-bold text-red-600 dark:text-red-400 text-sm mb-2 flex items-center gap-2">
-                                <i class="fas fa-exclamation-circle"></i> Problem
-                            </h4>
-                            <p class="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">${data.problem}</p>
-                        </div>
-                        <div class="bg-brand-50 dark:bg-brand-900/10 p-4 rounded-xl border border-brand-100 dark:border-brand-900/30">
-                            <h4 class="font-bold text-brand-600 dark:text-brand-400 text-sm mb-2 flex items-center gap-2">
-                                <i class="fas fa-lightbulb"></i> Solution
-                            </h4>
-                            <p class="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">${data.solution}</p>
-                        </div>
-                    </div>
-
-                    <div>
-                        <h4 class="font-bold text-slate-800 dark:text-white text-sm mb-2">Impact & Benefits</h4>
-                        <p class="text-slate-600 dark:text-slate-400 text-sm bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-100 dark:border-slate-700">
-                            ${data.impact || 'Not specified'}
-                        </p>
-                    </div>
-
-                    <div>
-                        <h4 class="font-bold text-slate-800 dark:text-white text-sm mb-2">Implementation Plan</h4>
-                        <p class="text-slate-600 dark:text-slate-400 text-sm bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-100 dark:border-slate-700">
-                            ${data.plan || 'Not specified'}
-                        </p>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100 dark:border-slate-700">
-                        <div>
-                            <h4 class="font-bold text-slate-400 text-xs uppercase mb-2">Team Members</h4>
-                            <p class="text-sm font-medium text-slate-700 dark:text-slate-200">${data.team || 'Solo Project'}</p>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-slate-400 text-xs uppercase mb-2">Support Requested</h4>
-                            <div class="flex flex-wrap gap-2">
-                                ${(data.supportNeeded || []).map(tag => 
-                                    `<span class="px-2 py-1 rounded bg-ocean-50 dark:bg-ocean-900/30 text-ocean-600 dark:text-ocean-300 text-xs font-bold border border-ocean-100 dark:border-ocean-800">${tag}</span>`
-                                ).join('') || '<span class="text-sm text-slate-400">None</span>'}
-                            </div>
-                        </div>
-                    </div>
-
-                    ${data.fileUrl ? `
-                    <div class="mt-6">
-                        <a href="${data.fileUrl}" target="_blank" class="block w-full text-center bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-xl transition shadow-lg flex items-center justify-center gap-2">
-                            <i class="fas fa-external-link-alt"></i> View Project Presentation / Video
-                        </a>
-                    </div>` : ''}
-
-                </div>
-            `;
-            detailsModal.classList.remove('hidden');
-        }
-
-        window.closeModal = function() {
-            detailsModal.classList.add('hidden');
-        }
-
-        // Close modal on click outside
-        detailsModal.addEventListener('click', (e) => {
-            if(e.target === detailsModal) closeModal();
-        });
-
-
-        // --- 3. Fetch Leaderboard ---
-        window.fetchUsers = async function() {
-            try {
-                const q = query(collection(db, "users"), orderBy("points", "desc"));
-                const querySnapshot = await getDocs(q);
-                adminLeaderboard.innerHTML = "";
-                
-                querySnapshot.forEach((docSnap) => {
-                    const user = docSnap.data();
-                    const userId = docSnap.id;
-                    const row = `
-                        <div class="flex items-center justify-between p-3 rounded-lg bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/50 hover:border-brand-500 transition group">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-xs font-bold">
-                                    ${user.name ? user.name.charAt(0) : 'U'}
-                                </div>
-                                <div class="leading-tight">
-                                    <p class="text-sm font-bold text-slate-700 dark:text-slate-200">${user.name || 'Anonymous'}</p>
-                                    <p class="text-[10px] text-slate-400">${user.email || 'No Email'}</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-brand-600 dark:text-brand-400 font-bold text-sm">${user.points || 0} pts</span>
-                                <button onclick="manualAdjust('${userId}', '${user.name}')" class="text-slate-400 hover:text-brand-500 p-1 opacity-0 group-hover:opacity-100 transition">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                    adminLeaderboard.innerHTML += row;
-                });
-            } catch(e) { console.error(e); }
-        }
-
-        // --- 4. Actions ---
-        window.updateStatus = async function(docId, newStatus) {
-            try {
-                const ref = doc(db, "ideas", docId);
-                await updateDoc(ref, { status: newStatus });
-                showToast(`Idea marked as ${newStatus}`, newStatus === 'Approved' ? 'success' : 'neutral');
-                fetchIdeas();
-            } catch (error) { showToast("Error updating status", "error"); }
+            } catch (error) { showToast("Error loading feed", "error"); }
         }
 
         window.givePoints = async function(userId, ideaId, points) {
-            if (!userId) { showToast("Error: No User ID linked", "error"); return; }
+            if (!userId || userId === "undefined") {
+                showToast("Error: This idea has no User ID attached.", "error");
+                console.error("Missing userId for idea:", ideaId);
+                return;
+            }
+
             try {
                 const userRef = doc(db, "users", userId);
-                const userSnap = await getDoc(userRef);
-                if (!userSnap.exists()) { showToast("User profile not found", "error"); return; }
+                const ideaRef = doc(db, "ideas", ideaId);
 
+                // Update User Points
                 await updateDoc(userRef, { points: increment(points) });
                 
-                const ideaRef = doc(db, "ideas", ideaId);
-                await updateDoc(ideaRef, { pointsAwarded: true, status: 'Approved' });
+                // Mark Idea as Awarded
+                await updateDoc(ideaRef, { 
+                    pointsAwarded: true, 
+                    status: 'Approved',
+                    awardedAt: new Date().toISOString()
+                });
 
-                showToast(`Awarded ${points} points!`, "success");
+                showToast(`Success! ${points} points awarded.`, "success");
                 fetchIdeas();
                 fetchUsers();
-            } catch (error) { showToast("Failed to award points", "error"); }
-        }
-
-        window.manualAdjust = async function(userId, name) {
-            const points = prompt(`Add points for ${name} (use negative to subtract):`, "10");
-            if(points && !isNaN(points)) {
-                try {
-                    const userRef = doc(db, "users", userId);
-                    await updateDoc(userRef, { points: increment(parseInt(points)) });
-                    showToast("Points updated", "success");
-                    fetchUsers();
-                } catch(e) { showToast("Error", "error"); }
+            } catch (error) {
+                console.error(error);
+                showToast("Failed to award points. Check console.", "error");
             }
         }
 
-        // --- Utilities ---
-        function getStatusColor(status) {
-            if (status === 'Approved') return 'bg-brand-100 text-brand-700';
-            if (status === 'Rejected') return 'bg-red-100 text-red-700';
-            return 'bg-yellow-100 text-yellow-700';
+        window.updateStatus = async function(docId, newStatus) {
+            try {
+                await updateDoc(doc(db, "ideas", docId), { status: newStatus });
+                showToast(`Status updated to ${newStatus}`);
+                fetchIdeas();
+            } catch (e) { showToast("Update failed", "error"); }
         }
 
-        function showToast(msg, type = 'success') {
-            const toast = document.createElement('div');
-            const colors = type === 'success' ? 'bg-emerald-500' : type === 'error' ? 'bg-red-500' : 'bg-slate-600';
-            toast.className = `toast ${colors} text-white px-6 py-3 rounded-lg shadow-xl font-medium text-sm flex items-center gap-2`;
-            toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i> ${msg}`;
-            document.getElementById('toastContainer').appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+        window.fetchUsers = async function() {
+            try {
+                const q = query(collection(db, "users"), orderBy("points", "desc"));
+                const snap = await getDocs(q);
+                const lb = document.getElementById('adminLeaderboard');
+                lb.innerHTML = "";
+                snap.forEach(d => {
+                    const u = d.data();
+                    lb.innerHTML += `
+                        <div class="flex justify-between p-2 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700 text-sm">
+                            <span class="truncate pr-2">${u.name || 'User'}</span>
+                            <span class="font-bold text-brand-500">${u.points || 0}</span>
+                        </div>
+                    `;
+                });
+            } catch(e) {}
         }
 
-        // --- Theme Logic ---
+        function getStatusColor(s) {
+            if (s === 'Approved') return 'bg-emerald-100 text-emerald-700';
+            if (s === 'Rejected') return 'bg-red-100 text-red-700';
+            return 'bg-amber-100 text-amber-700';
+        }
+
+        function showToast(m, type = 'success') {
+            const t = document.createElement('div');
+            t.className = `toast p-4 rounded-lg shadow-lg text-white text-sm font-bold ${type === 'success' ? 'bg-emerald-500' : 'bg-red-500'}`;
+            t.innerText = m;
+            document.getElementById('toastContainer').appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
+
+        window.openModal = function(id) {
+            const d = allIdeasData[id];
+            document.getElementById('modalContent').innerHTML = `
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-4">${d.title}</h2>
+                    <div class="space-y-4">
+                        <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg">
+                            <h4 class="font-bold text-brand-600 text-xs uppercase mb-1">The Problem</h4>
+                            <p class="text-sm">${d.problem}</p>
+                        </div>
+                        <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg">
+                            <h4 class="font-bold text-brand-600 text-xs uppercase mb-1">The Solution</h4>
+                            <p class="text-sm">${d.solution}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('detailsModal').classList.remove('hidden');
+        }
+
+        window.closeModal = () => document.getElementById('detailsModal').classList.add('hidden');
+
         const themeToggle = document.getElementById('themeToggle');
-        const html = document.documentElement;
-        if (localStorage.theme === 'dark') html.classList.add('dark');
         themeToggle.addEventListener('click', () => {
-            html.classList.toggle('dark');
-            localStorage.theme = html.classList.contains('dark') ? 'dark' : 'light';
+            document.documentElement.classList.toggle('dark');
         });
 
     </script>

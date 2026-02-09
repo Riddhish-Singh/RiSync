@@ -276,11 +276,17 @@
 
     <div id="successModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/50 backdrop-blur-sm">
         <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-2xl text-center max-w-sm mx-4 transform scale-90 opacity-0 transition-all duration-300" id="modalContent">
-            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div class="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                 <i class="fas fa-check text-3xl text-green-500"></i>
             </div>
             <h3 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">Idea Submitted!</h3>
-            <p class="text-slate-500 mb-6 text-sm">Your concept has been securely recorded. Good luck on your innovation journey!</p>
+            
+            <div class="my-4 py-2 px-4 bg-brand-50 dark:bg-brand-900/20 rounded-lg border border-brand-100 dark:border-brand-900/50">
+                <p class="text-sm text-slate-600 dark:text-slate-300">Points Earned</p>
+                <p class="text-xl font-extrabold text-brand-600 dark:text-brand-400" id="pointsEarnedDisplay">+0 Pts</p>
+            </div>
+
+            <p class="text-slate-500 text-sm mb-6">Your concept has been securely recorded. Good luck on your innovation journey!</p>
             <button onclick="window.location.href='dashboard.html'" class="w-full bg-brand-600 text-white py-2.5 rounded-lg font-bold hover:bg-brand-700 transition">
                 Go to Dashboard
             </button>
@@ -291,7 +297,7 @@
         // 1. Fixed Imports (Version 10.8.0)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, doc, setDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // 2. Your Config
         const firebaseConfig = {
@@ -384,6 +390,9 @@
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
             try {
+                // Determine Points
+                const pointsEarned = currentSubmissionMode === 'challenge' ? 100 : 50;
+
                 // Gather Data
                 const title = document.getElementById('title').value;
                 const category = document.getElementById('category').value;
@@ -411,16 +420,26 @@
                     supportNeeded: support,
                     fileUrl: projectLink,
                     status: "New",
-                    pointsAwarded: false,
-                    submissionType: currentSubmissionMode, // NEW FIELD
-                    challengeId: currentSubmissionMode === 'challenge' ? currentChallengeId : null, // NEW FIELD
+                    pointsAwarded: true, // Marked as awarded
+                    pointsValue: pointsEarned,
+                    submissionType: currentSubmissionMode, 
+                    challengeId: currentSubmissionMode === 'challenge' ? currentChallengeId : null, 
                     timestamp: serverTimestamp()
                 };
 
-                // Save to Firestore
+                // 1. Save to Ideas Collection
                 await addDoc(collection(db, "ideas"), ideaData);
 
-                showSuccessModal();
+                // 2. SAVE POINTS TO USER PROFILE (The requested feature)
+                const userRef = doc(db, "users", currentUser.uid);
+                await setDoc(userRef, {
+                    points: increment(pointsEarned), // Atomically increment points
+                    ideasSubmitted: increment(1),    // Track count
+                    lastActive: serverTimestamp()
+                }, { merge: true }); // Merge ensures we don't overwrite other fields, and creates doc if missing
+
+                // Success
+                showSuccessModal(pointsEarned);
 
             } catch (error) {
                 console.error("Error submitting idea:", error);
@@ -430,9 +449,13 @@
             }
         });
 
-        function showSuccessModal() {
+        function showSuccessModal(points) {
             const modal = document.getElementById('successModal');
             const content = document.getElementById('modalContent');
+            const ptsDisplay = document.getElementById('pointsEarnedDisplay');
+            
+            ptsDisplay.textContent = `+${points} Pts`;
+
             modal.classList.remove('hidden');
             setTimeout(() => {
                 content.classList.remove('scale-90', 'opacity-0');

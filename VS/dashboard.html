@@ -147,7 +147,7 @@
                     <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Ideas Submitted</p>
                     <h3 id="statIdeas" class="text-3xl font-extrabold text-slate-800 dark:text-white">...</h3>
                     <div class="mt-2 text-xs text-green-500 flex items-center font-medium">
-                        <i class="fas fa-arrow-up mr-1"></i> 2 this month
+                        <i class="fas fa-arrow-up mr-1"></i> Active
                     </div>
                 </div>
 
@@ -205,31 +205,18 @@
 
                 <div class="lg:col-span-1">
                     <h2 class="text-lg font-bold mb-6">Recent Activity</h2>
-                    <div class="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-100 dark:border-slate-700 shadow-sm h-full">
-                        <div class="relative pl-4 border-l-2 border-slate-100 dark:border-slate-700 space-y-8">
+                    <div class="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-100 dark:border-slate-700 shadow-sm h-full overflow-y-auto max-h-[500px]">
+                        
+                        <div id="activityContainer" class="relative pl-4 border-l-2 border-slate-100 dark:border-slate-700 space-y-8">
                             
-                            <div class="relative">
-                                <div class="absolute -left-[21px] top-1 w-3 h-3 bg-brand-500 rounded-full ring-4 ring-white dark:ring-slate-800"></div>
-                                <p class="text-xs text-slate-400 mb-1">Today, 10:30 AM</p>
-                                <h4 class="text-sm font-bold">Logged In</h4>
-                                <p class="text-xs text-slate-500">Access from Chrome on Windows.</p>
+                            <div class="relative animate-pulse">
+                                <div class="absolute -left-[21px] top-1 w-3 h-3 bg-slate-200 rounded-full ring-4 ring-white dark:ring-slate-800"></div>
+                                <div class="h-3 bg-slate-200 rounded w-1/3 mb-2"></div>
+                                <div class="h-4 bg-slate-200 rounded w-2/3"></div>
                             </div>
-
-                            <div class="relative">
-                                <div class="absolute -left-[21px] top-1 w-3 h-3 bg-ocean-500 rounded-full ring-4 ring-white dark:ring-slate-800"></div>
-                                <p class="text-xs text-slate-400 mb-1">Yesterday</p>
-                                <h4 class="text-sm font-bold">Profile Updated</h4>
-                                <p class="text-xs text-slate-500">Changed avatar image.</p>
-                            </div>
-
-                            <div class="relative">
-                                <div class="absolute -left-[21px] top-1 w-3 h-3 bg-slate-300 rounded-full ring-4 ring-white dark:ring-slate-800"></div>
-                                <p class="text-xs text-slate-400 mb-1">Feb 1, 2026</p>
-                                <h4 class="text-sm font-bold">Points Added</h4>
-                                <p class="text-xs text-slate-500">Earned +50 points for weekly streak.</p>
-                            </div>
-
+                            
                         </div>
+                        
                     </div>
                 </div>
 
@@ -239,9 +226,9 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, query, where, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAGpwRwsJfD8QlCHOnXPxxLyGb34ezokgQ",
@@ -262,6 +249,7 @@
         const userName = document.getElementById('userName');
         const userAvatar = document.getElementById('userAvatar');
         const logoutBtn = document.getElementById('logoutBtn');
+        const activityContainer = document.getElementById('activityContainer');
         
         // Stats Elements
         const statIdeas = document.getElementById('statIdeas');
@@ -277,8 +265,9 @@
                 welcomeMsg.textContent = `Welcome back, ${user.displayName ? user.displayName.split(' ')[0] : 'Innovator'}!`;
                 if(user.photoURL) userAvatar.src = user.photoURL;
 
-                // Load Data
+                // Load All Data
                 loadDashboardData(user.uid);
+                loadRecentActivity(user.uid);
             } else {
                 // Redirect if not logged in
                 window.location.href = "index.html";
@@ -330,6 +319,85 @@
                 statMilestones.textContent = "1";
             }
         }
+
+        // --- NEW: RECENT ACTIVITY FETCHER ---
+        async function loadRecentActivity(uid) {
+            activityContainer.innerHTML = ''; // Clear skeleton
+
+            // 1. Add "Logged In" Event (Static)
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            const loginHTML = `
+                <div class="relative">
+                    <div class="absolute -left-[21px] top-1 w-3 h-3 bg-fresh-500 rounded-full ring-4 ring-white dark:ring-slate-800"></div>
+                    <p class="text-xs text-slate-400 mb-1">Today, ${timeString}</p>
+                    <h4 class="text-sm font-bold text-slate-800 dark:text-white">Active Session</h4>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Logged in via Web Dashboard</p>
+                </div>
+            `;
+            activityContainer.innerHTML += loginHTML;
+
+            // 2. Fetch Recent Ideas from Firestore
+            try {
+                const q = query(
+                    collection(db, "ideas"), 
+                    where("userId", "==", uid), 
+                    orderBy("timestamp", "desc"), 
+                    limit(5)
+                );
+                
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.empty) {
+                    // Only show login event
+                    return;
+                }
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    
+                    // Format Date
+                    let dateStr = "Recently";
+                    if (data.timestamp) {
+                        const date = data.timestamp.toDate();
+                        const isToday = date.toDateString() === new Date().toDateString();
+                        dateStr = isToday 
+                            ? `Today, ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` 
+                            : date.toLocaleDateString();
+                    }
+
+                    // Determine Icon/Color based on type
+                    let iconColor = "bg-brand-500";
+                    let titleText = "Idea Submitted";
+                    
+                    if(data.submissionType === 'challenge') {
+                        iconColor = "bg-spark-500"; // Yellow for Challenges
+                        titleText = "Challenge Response";
+                    }
+
+                    const html = `
+                        <div class="relative group">
+                            <div class="absolute -left-[21px] top-1 w-3 h-3 ${iconColor} rounded-full ring-4 ring-white dark:ring-slate-800 transition group-hover:scale-125"></div>
+                            <p class="text-xs text-slate-400 mb-1">${dateStr}</p>
+                            <h4 class="text-sm font-bold text-slate-800 dark:text-white">${titleText}</h4>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 italic">"${data.title}"</p>
+                            <div class="mt-1">
+                                <span class="text-[10px] px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-slate-500 border border-slate-200 dark:border-slate-600">
+                                    Status: ${data.status || 'Pending'}
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                    activityContainer.innerHTML += html;
+                });
+
+            } catch (error) {
+                console.error("Error loading activity:", error);
+                // We rely on the index creation. If index is missing, it logs here.
+                // Fallback for non-indexed queries (remove orderBy temporarily if needed)
+            }
+        }
     </script>
 
     <script>
@@ -352,7 +420,7 @@
         function loadFeaturedChallenge() {
             const container = document.getElementById('activeChallengeContainer');
             
-            // Try to find assigned challenges in localStorage (from challenges.html logic)
+            // Try to find assigned challenges in localStorage
             const date = new Date();
             const currentMonthKey = `vs_challenges_${date.getFullYear()}_${date.getMonth()}`;
             const stored = localStorage.getItem(currentMonthKey);
@@ -360,7 +428,7 @@
             let displayChallenge;
 
             if (stored) {
-                // If user has visited challenges page, show their specific assignment (First one)
+                // If user has visited challenges page, show their specific assignment
                 const assigned = JSON.parse(stored);
                 displayChallenge = assigned[0];
             } else {
@@ -398,7 +466,6 @@
             `;
         }
 
-        // Initialize
         loadFeaturedChallenge();
 
         // Theme Toggle
