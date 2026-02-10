@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gold Rush: High Stakes</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Changa:wght@500;800&display=swap');
+
+        :root {
+            --sky: #87CEEB;
+            --ui-bg: #fff8e7; 
+            --ui-border: #5d4037;
+            --btn-color: #ffb74d;
+        }
+
+        body {
+            margin: 0;
+            background: #222;
+            color: #3e2723;
+            font-family: 'Changa', sans-serif;
+            overflow: hidden;
+            user-select: none;
+            touch-action: none;
+        }
+
+        /* --- UI OVERLAY --- */
+        #ui-layer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .top-bar {
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            text-shadow: 2px 2px 0px rgba(255,255,255,0.5);
+        }
+
+        .stats-box {
+            background: var(--ui-bg);
+            border: 3px solid var(--ui-border);
+            padding: 8px 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+        }
+
+        .big-text { font-size: 1.8rem; font-weight: 800; display: block; line-height: 1; }
+        .label { font-size: 0.8rem; color: #8d6e63; text-transform: uppercase; font-weight: bold; }
+
+        .timer {
+            background: #ff5252;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 2rem;
+            font-weight: 800;
+            border: 3px solid white;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+            text-shadow: none;
+        }
+
+        /* --- UPGRADE SHOP --- */
+        .upgrade-dock {
+            pointer-events: auto;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px;
+            background: rgba(0,0,0,0.1);
+        }
+
+        .shop-btn {
+            background: var(--btn-color);
+            border: 3px solid var(--ui-border);
+            color: #3e2723;
+            padding: 10px 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.1s;
+            min-width: 130px;
+            position: relative;
+            box-shadow: 0 5px 0 #bf360c;
+        }
+
+        .shop-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #bf360c; }
+        .shop-btn span { display: block; }
+        .cost { color: #fff; font-weight: 800; font-size: 1.1rem; text-shadow: 1px 1px 0 #000; }
+        
+        .key-hint { 
+            position: absolute; right: 5px; top: 5px; 
+            font-size: 0.8rem; background: rgba(0,0,0,0.2); color: white;
+            padding: 2px 6px; border-radius: 4px; font-weight: bold;
+        }
+
+        /* --- LOBBY --- */
+        #lobby {
+            position: absolute;
+            z-index: 100;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #87CEEB;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
+            background-image: radial-gradient(white 20%, transparent 20%), radial-gradient(white 20%, transparent 20%);
+            background-position: 0 0, 50px 50px;
+            background-size: 100px 100px;
+        }
+
+        h1 {
+            font-size: 4rem; margin: 0; color: #ffb300;
+            text-shadow: 4px 4px 0 #3e2723, -2px -2px 0 #fff;
+            transform: rotate(-3deg);
+        }
+
+        .name-input {
+            margin-top: 20px;
+            padding: 15px;
+            font-size: 1.2rem;
+            border: 3px solid #5d4037;
+            border-radius: 8px;
+            background: #fff8e7;
+            color: #3e2723;
+            font-family: inherit;
+            font-weight: bold;
+            text-align: center;
+            outline: none;
+            width: 250px;
+        }
+
+        .play-btn {
+            background: #4CAF50;
+            color: white;
+            border: 4px solid #1b5e20;
+            padding: 15px 50px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            font-family: inherit;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 8px 0 #1b5e20;
+            transition: 0.1s;
+            margin-top: 20px;
+        }
+        .play-btn:hover { transform: scale(1.05); }
+        .play-btn:active { transform: translateY(4px) scale(1.05); box-shadow: 0 4px 0 #1b5e20; }
+        
+        /* --- BANNED SCREEN --- */
+        #banned-screen {
+            position: absolute;
+            z-index: 999;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #212121;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #e57373;
+            text-align: center;
+        }
+        
+        /* --- GAME OVER SCREEN --- */
+        #game-over-screen {
+            position: absolute;
+            z-index: 200;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            pointer-events: auto;
+        }
+
+        .result-card {
+            background: var(--ui-bg);
+            border: 5px solid var(--ui-border);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            color: #3e2723;
+            box-shadow: 0 0 50px rgba(255, 183, 77, 0.5);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-width: 90%;
+        }
+
+        @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+
+        .winner-title { font-size: 3rem; margin: 0; color: #d84315; }
+        .score-row { font-size: 1.5rem; margin: 10px 0; font-weight: bold; }
+        
+        .strike-badge {
+            background: #d32f2f;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 1rem;
+            margin-top: 10px;
+            display: inline-block;
+            border: 2px solid white;
+        }
+
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #6d4c41;
+        }
+
+        canvas { 
+            background: #87CEEB; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="banned-screen">
+        <h1 style="color: #c62828; font-size: 5rem; transform: rotate(0deg);">BANKRUPT</h1>
+        <p style="font-size: 1.5rem; color: #fff;">You lost 2 times.</p>
+        <p style="font-size: 1.2rem; color: #9e9e9e;">Your mining license has been permanently revoked.</p>
+        <div style="font-size: 4rem; margin-top:20px;">🚫</div>
+    </div>
+
+    <div id="lobby">
+        <h1>GOLD RUSH</h1>
+        <div id="greeting-area"></div>
+        
+        <div id="lobby-strike-display" class="strike-badge">Strikes: 0 / 2</div>
+                        <a href="results.html" class="text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-300 transition">See Results</a>
+        
+        <input type="text" id="player-name" class="name-input" placeholder="Enter Your Name" maxlength="10">
+        <button class="play-btn" id="match-btn" onclick="findMatch()">START DIGGING</button>
+        <p id="status-log" style="color: #1b5e20; margin-top: 20px; font-weight: bold; background:rgba(255,255,255,0.5); padding: 5px 10px; border-radius:10px;">Waiting for player...</p>
+    </div>
+
+    <div id="ui-layer" style="display: none;">
+        <div class="top-bar">
+            <div class="stats-box">
+                <span class="label">NUGGETS</span>
+                <span id="score-val" class="big-text" style="color:#d84315">0</span>
+            </div>
+            <div class="timer" id="timer-val">60</div>
+            <div class="stats-box" style="text-align: right;">
+                <span class="label">DEPTH</span>
+                <span id="depth-val" class="big-text">0m</span>
+            </div>
+        </div>
+
+        <div class="upgrade-dock">
+            <button class="shop-btn" onclick="buyUpgrade('speed')">
+                <span class="key-hint">1</span>
+                <span style="font-size:0.9rem; font-weight:bold;">Turbo Boots</span>
+                <span class="cost">15 Gold</span>
+            </button>
+            <button class="shop-btn" onclick="buyUpgrade('drill')">
+                <span class="key-hint">2</span>
+                <span style="font-size:0.9rem; font-weight:bold;">Super Pickaxe</span>
+                <span class="cost">15 Gold</span>
+            </button>
+        </div>
+    </div>
+
+    <div id="game-over-screen">
+        <div class="result-card">
+            <h2 class="winner-title" id="winner-display">WINNER!</h2>
+            <div style="margin: 20px 0; border-top: 2px dashed #aaa; border-bottom: 2px dashed #aaa; padding: 10px 0;">
+                <div class="score-row" id="end-my-score">Me: 0</div>
+                <div class="score-row" id="end-opp-score">Opponent: 0</div>
+            </div>
+            
+            <div id="end-message" style="color: #d32f2f; font-weight: bold; margin-bottom: 10px;"></div>
+            
+            <button id="replay-btn" class="play-btn" onclick="location.reload()">PLAY AGAIN</button>
+        </div>
+    </div>
+
+    <div id="canvas-container">
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue, update, runTransaction, onDisconnect, remove } 
+               from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC46INaqbxzQcsbCZ4V9sHCYd4YXr0-rIo",
+            authDomain: "vs-game-22908.firebaseapp.com",
+            projectId: "vs-game-22908",
+            storageBucket: "vs-game-22908.firebasestorage.app",
+            messagingSenderId: "273027508112",
+            appId: "1:273027508112:web:bd7e7220f3613a76cd7515"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // --- CONSTANTS ---
+        const TILE_SIZE = 40;
+        const GRID_W = 15;
+        const MAX_LOSSES = 2;
+        
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // --- STATE ---
+        let gameId = null;
+        let myRole = null; 
+        let myName = "Player";
+        let isGameActive = false;
+        let lastTime = 0;
+        let currentLosses = 0;
+        
+        let player = {
+            x: 7, y: 0, 
+            pixelX: 0, pixelY: 0, 
+            score: 0,
+            drillPower: 1, 
+            moveSpeed: 0.15,
+            dir: 0,
+            action: 'idle'
+        };
+
+        // Opponent Data
+        let opponent = { 
+            x: 7, y: 0, 
+            score: 0, 
+            name: "Waiting..." 
+        };
+        
+        let brokenTiles = {};
+        let particles = [];
+        let cameraY = 0;
+        let timeLeft = 60;
+        let upgradeCost = 15;
+
+        // --- CHECK BAN STATUS IMMEDIATELY ---
+        function checkBanStatus() {
+            currentLosses = parseInt(localStorage.getItem('gr_losses') || '0');
+            
+            // Update Lobby UI
+            const strikeDisplay = document.getElementById('lobby-strike-display');
+            strikeDisplay.innerText = `Strikes: ${currentLosses} / ${MAX_LOSSES}`;
+            
+            if (currentLosses >= MAX_LOSSES) {
+                document.getElementById('lobby').style.display = 'none';
+                document.getElementById('banned-screen').style.display = 'flex';
+                // Remove game inputs
+                document.getElementById('match-btn').disabled = true;
+                return true; // Is Banned
+            }
+            return false;
+        }
+
+        // Run check on load
+        if(checkBanStatus()) {
+            // Stop execution if banned
+            throw new Error("Player is banned.");
+        }
+
+        // --- INITIALIZATION (AUTO-FILL NAME) ---
+        const savedName = localStorage.getItem('gold_rush_username');
+        if (savedName) {
+            const input = document.getElementById('player-name');
+            input.value = savedName; 
+            input.style.display = 'none'; 
+
+            const greetArea = document.getElementById('greeting-area');
+            greetArea.innerHTML = `
+                <h2 style="color:#3e2723; margin: 10px 0;">
+                    Welcome, ${savedName}! 
+                </h2>
+                <div style="margin-bottom:5px; font-size: 0.9rem;">
+                    <a href="#" id="change-name-link" style="color: #d84315; text-decoration: underline; cursor: pointer;">(Not you? Change Name)</a>
+                </div>
+            `;
+            
+            document.getElementById('change-name-link').onclick = (e) => {
+                e.preventDefault();
+                localStorage.removeItem('gold_rush_username');
+                location.reload();
+            };
+        }
+
+        // --- MATCHMAKING ---
+        window.findMatch = function() {
+            if (currentLosses >= MAX_LOSSES) return;
+
+            const nameInput = document.getElementById('player-name').value.trim();
+            if(!nameInput) {
+                alert("Please sign the register with your name!");
+                return;
+            }
+            // Sanitize name for Firebase keys (remove . # $ [ ])
+            myName = nameInput.replace(/[.#$[\]]/g, "_");
+            
+            localStorage.setItem('gold_rush_username', myName);
+
+            const btn = document.getElementById('match-btn');
+            const log = document.getElementById('status-log');
+            btn.innerText = "CONNECTING...";
+            btn.disabled = true;
+            log.innerText = "Radioing HQ...";
+
+            const queueRef = ref(db, 'gold_rush_queue');
+            const newId = "rush_" + Date.now();
+
+            runTransaction(queueRef, (data) => {
+                if (data === null) return { gameId: newId, status: 'waiting' };
+                if (data.status === 'waiting') return { ...data, status: 'matched' };
+                return undefined;
+            }).then(({ committed, snapshot }) => {
+                if (!committed) return setTimeout(window.findMatch, 1000);
+                
+                const val = snapshot.val();
+                if (val.gameId === newId && val.status === 'waiting') {
+                    myRole = 'p1';
+                    gameId = newId;
+                    log.innerText = "Camp established. Waiting for partner...";
+                    onDisconnect(queueRef).remove();
+                    
+                    const unsub = onValue(queueRef, (snap) => {
+                        if (snap.val()?.status === 'matched') {
+                            remove(queueRef);
+                            unsub();
+                            startGame();
+                        }
+                    });
+                } else {
+                    myRole = 'p2';
+                    gameId = val.gameId;
+                    log.innerText = "Partner found! Starting...";
+                    startGame();
+                }
+            });
+        };
+
+        function startGame() {
+            document.getElementById('lobby').style.display = 'none';
+            document.getElementById('ui-layer').style.display = 'flex';
+            
+            canvas.width = GRID_W * TILE_SIZE;
+            canvas.height = window.innerHeight;
+            
+            if (myRole === 'p1') {
+                set(ref(db, `games/${gameId}`), {
+                    startTime: Date.now(),
+                    broken: {}
+                });
+            }
+
+            onValue(ref(db, `games/${gameId}/broken`), (snap) => brokenTiles = snap.val() || {});
+
+            const oppRole = myRole === 'p1' ? 'p2' : 'p1';
+            onValue(ref(db, `games/${gameId}/${oppRole}`), (snap) => {
+                if(snap.val()) opponent = snap.val();
+            });
+
+            update(ref(db, `games/${gameId}/${myRole}`), {
+                name: myName,
+                score: 0,
+                x: 7, y: 0
+            });
+
+            const timerInt = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer-val').innerText = timeLeft;
+                if(timeLeft <= 0) {
+                    clearInterval(timerInt);
+                    isGameActive = false;
+                    showGameOver();
+                }
+            }, 1000);
+
+            isGameActive = true;
+            player.pixelX = player.x * TILE_SIZE;
+            player.pixelY = player.y * TILE_SIZE;
+            requestAnimationFrame(gameLoop);
+        }
+
+        function showGameOver() {
+            const screen = document.getElementById('game-over-screen');
+            const winnerText = document.getElementById('winner-display');
+            const myScoreText = document.getElementById('end-my-score');
+            const oppScoreText = document.getElementById('end-opp-score');
+            const endMsg = document.getElementById('end-message');
+            const replayBtn = document.getElementById('replay-btn');
+
+            screen.style.display = 'flex';
+
+            let winnerName = "";
+            let userLost = false;
+
+            if (player.score > opponent.score) {
+                winnerName = myName;
+                winnerText.style.color = "#4CAF50"; 
+                winnerText.innerText = "YOU WIN!";
+            } else if (opponent.score > player.score) {
+                winnerName = opponent.name || "Rival";
+                winnerText.style.color = "#d84315"; 
+                winnerText.innerText = `${winnerName.toUpperCase()} WINS!`;
+                userLost = true;
+            } else {
+                winnerText.style.color = "#ffb74d";
+                winnerText.innerText = "DRAW!";
+            }
+
+            myScoreText.innerText = `${myName}: ${player.score}`;
+            oppScoreText.innerText = `${opponent.name || 'Rival'}: ${opponent.score}`;
+
+            // --- LOSS LOGIC ---
+            if (userLost) {
+                currentLosses++;
+                localStorage.setItem('gr_losses', currentLosses);
+                
+                if (currentLosses >= MAX_LOSSES) {
+                    // *** CRITICAL UPDATE: Write to Firebase Banned List ***
+                    // This allows the Gazette page to see that this user is banned.
+                    const banRef = ref(db, 'banned_users/' + myName);
+                    set(banRef, {
+                        bannedAt: Date.now(),
+                        reason: "Bankruptcy (2 Losses)"
+                    });
+
+                    endMsg.innerText = "This was your 2nd Strike. You are BANKRUPT.";
+                    replayBtn.innerText = "LEAVE";
+                    replayBtn.style.background = "#d32f2f";
+                    replayBtn.style.borderColor = "#b71c1c";
+                    // When they click Leave (reload), checkBanStatus will run and lock them out
+                } else {
+                    endMsg.innerText = `Strike 1 / ${MAX_LOSSES}. Be careful!`;
+                }
+            }
+        }
+
+        // --- TILE LOGIC ---
+        function getTileType(x, y) {
+            if (y < 2) return 'empty';
+            if (brokenTiles[`${x}_${y}`]) return 'empty';
+            
+            const seed = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
+            const rand = seed - Math.floor(seed);
+
+            if (rand > 0.96) return 'diamond'; 
+            if (rand > 0.85) return 'gold';    
+            if (rand > 0.65) return 'iron';    
+            return 'dirt';                     
+        }
+
+        function getTileHP(type) {
+            if (type === 'diamond') return 40;
+            if (type === 'gold') return 25;
+            if (type === 'iron') return 15;
+            if (type === 'dirt') return 10;
+            return 0;
+        }
+
+        // --- GAME LOOP ---
+        function gameLoop(timestamp) {
+            if (!isGameActive) return;
+            lastTime = timestamp;
+            updatePhysics();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // --- INPUT ---
+        const keys = {};
+        window.onkeydown = (e) => {
+            keys[e.key] = true;
+            if(e.key === '1') buyUpgrade('speed');
+            if(e.key === '2') buyUpgrade('drill');
+        };
+        window.onkeyup = (e) => keys[e.key] = false;
+
+        let miningTarget = null;
+        let miningProgress = 0;
+
+        function updatePhysics() {
+            let tx = player.x;
+            let ty = player.y;
+
+            if (keys['ArrowRight'] || keys['d']) tx++;
+            else if (keys['ArrowLeft'] || keys['a']) tx--;
+            else if (keys['ArrowDown'] || keys['s']) ty++;
+            else if (keys['ArrowUp'] || keys['w']) ty--;
+
+            if (tx < 0) tx = 0;
+            if (tx >= GRID_W) tx = GRID_W - 1;
+            if (ty < 0) ty = 0;
+
+            const tile = getTileType(tx, ty);
+
+            if (tile === 'empty') {
+                player.x = tx;
+                player.y = ty;
+                miningTarget = null;
+            } else {
+                miningTarget = {x: tx, y: ty};
+                miningProgress += player.drillPower;
+                
+                spawnParticles(tx * TILE_SIZE + 20, ty * TILE_SIZE + 20, '#8B4513', 1);
+
+                if (miningProgress >= getTileHP(tile)) {
+                    breakTile(tx, ty, tile);
+                    player.x = tx;
+                    player.y = ty;
+                    miningProgress = 0;
+                    miningTarget = null;
+                }
+            }
+
+            player.pixelX += (player.x * TILE_SIZE - player.pixelX) * 0.2;
+            player.pixelY += (player.y * TILE_SIZE - player.pixelY) * 0.2;
+            
+            cameraY = player.pixelY - (canvas.height / 2);
+            if (cameraY < 0) cameraY = 0;
+
+            if (Math.random() > 0.9) {
+                update(ref(db, `games/${gameId}/${myRole}`), {
+                    x: player.x, 
+                    y: player.y, 
+                    score: player.score,
+                    name: myName
+                });
+            }
+
+            document.getElementById('score-val').innerText = player.score;
+            document.getElementById('depth-val').innerText = player.y + "m";
+        }
+
+        function breakTile(x, y, type) {
+            brokenTiles[`${x}_${y}`] = true; 
+            
+            const updates = {};
+            updates[`games/${gameId}/broken/${x}_${y}`] = true;
+            update(ref(db), updates);
+
+            let pts = 0;
+            let color = '#5d4037';
+            if (type === 'iron') { pts = 2; color = '#aaa'; }
+            if (type === 'gold') { pts = 10; color = '#FFD700'; }
+            if (type === 'diamond') { pts = 50; color = '#9932CC'; }
+            
+            player.score += pts;
+            spawnParticles(x * TILE_SIZE + 20, y * TILE_SIZE + 20, color, 15);
+        }
+
+        window.buyUpgrade = function(type) {
+            if (player.score >= upgradeCost) {
+                player.score -= upgradeCost;
+                if (type === 'speed') player.moveSpeed *= 1.2;
+                if (type === 'drill') player.drillPower += 0.5;
+                upgradeCost = Math.floor(upgradeCost * 1.5);
+                document.querySelectorAll('.cost').forEach(b => b.innerText = upgradeCost + " Gold");
+            }
+        }
+
+        // --- DRAWING ---
+        function draw() {
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.save();
+            ctx.translate(0, -cameraY);
+
+            if (cameraY < 500) {
+                ctx.fillStyle = "rgba(255,255,255,0.6)";
+                ctx.beginPath();
+                ctx.arc(100, -100, 60, 0, Math.PI*2);
+                ctx.arc(200, -80, 70, 0, Math.PI*2);
+                ctx.fill();
+            }
+
+            const startRow = Math.floor(cameraY / TILE_SIZE);
+            const endRow = startRow + (canvas.height / TILE_SIZE) + 2;
+
+            for (let y = startRow; y < endRow; y++) {
+                for (let x = 0; x < GRID_W; x++) {
+                    const type = getTileType(x, y);
+                    const px = x * TILE_SIZE;
+                    const py = y * TILE_SIZE;
+
+                    if (type !== 'empty') {
+                        if (type === 'dirt') ctx.fillStyle = '#8B5A2B';
+                        else ctx.fillStyle = '#6d4c41'; 
+                        
+                        ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+                        ctx.fillStyle = 'rgba(255,255,255,0.1)';
+                        ctx.fillRect(px, py, TILE_SIZE, 4);
+                        ctx.fillStyle = 'rgba(0,0,0,0.2)';
+                        ctx.fillRect(px, py + TILE_SIZE - 4, TILE_SIZE, 4);
+
+                        if (type === 'iron') {
+                            ctx.fillStyle = '#B0C4DE';
+                            ctx.beginPath(); ctx.arc(px+20, py+20, 10, 0, Math.PI*2); ctx.fill();
+                        }
+                        if (type === 'gold') {
+                            ctx.fillStyle = '#FFD700';
+                            ctx.fillRect(px+10, py+10, 15, 15);
+                            ctx.fillStyle = '#FFFACD';
+                            ctx.fillRect(px+12, py+12, 5, 5);
+                        }
+                        if (type === 'diamond') {
+                            ctx.fillStyle = '#E0FFFF';
+                            ctx.beginPath(); ctx.moveTo(px+20, py+5); ctx.lineTo(px+35, py+20); ctx.lineTo(px+20, py+35); ctx.lineTo(px+5, py+20); ctx.fill();
+                        }
+
+                        if (miningTarget && miningTarget.x === x && miningTarget.y === y) {
+                            ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+                            ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            ctx.moveTo(px+5, py+5); ctx.lineTo(px+35, py+35);
+                            ctx.moveTo(px+35, py+5); ctx.lineTo(px+5, py+35);
+                            ctx.stroke();
+                        }
+                    } else {
+                        ctx.fillStyle = 'rgba(0,0,0,0.2)';
+                        ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+                    }
+                }
+            }
+
+            drawMiner(opponent.x * TILE_SIZE, opponent.y * TILE_SIZE, '#757575', false, opponent.name || "Rival");
+            drawMiner(player.pixelX, player.pixelY, '#FF5722', true, myName);
+
+            particles.forEach((p, i) => {
+                p.x += p.vx; p.y += p.vy; p.vy += 0.2;
+                p.life -= 0.05;
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = Math.max(0, p.life);
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+                if(p.life <= 0) particles.splice(i, 1);
+            });
+            ctx.globalAlpha = 1;
+
+            ctx.restore();
+        }
+
+        function drawMiner(x, y, color, isSelf, nameText) {
+            ctx.fillStyle = color;
+            ctx.fillRect(x + 8, y + 10, 24, 20);
+            
+            ctx.fillStyle = isSelf ? '#FFC107' : '#BDBDBD';
+            ctx.beginPath();
+            ctx.arc(x + 20, y + 10, 14, Math.PI, 0); 
+            ctx.fill();
+
+            ctx.fillStyle = 'black';
+            ctx.fillRect(x + 14, y + 14, 4, 4);
+            ctx.fillRect(x + 22, y + 14, 4, 4);
+
+            if(isSelf && player.action === 'drill') {
+               const offset = Math.sin(Date.now() / 50) * 5;
+               ctx.fillStyle = '#795548';
+               ctx.fillRect(x+30, y+10 + offset, 4, 15);
+               ctx.fillStyle = '#9E9E9E';
+               ctx.fillRect(x+26, y+10 + offset, 12, 4);
+            }
+            
+            ctx.save();
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 12px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.shadowColor = 'black';
+            ctx.shadowBlur = 4;
+            ctx.fillText(nameText, x + 20, y - 5);
+            ctx.restore();
+        }
+
+        function spawnParticles(x, y, color, count) {
+            for(let i=0; i<count; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 6,
+                    vy: (Math.random() - 0.5) * 6,
+                    life: 1.0,
+                    color: color,
+                    size: Math.random() * 5 + 3
+                });
+            }
+        }
+
+    </script>
+</body>
+</html>

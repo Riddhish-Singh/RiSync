@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gold Rush Gazette - Daily News</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Changa:wght@400;800&family=Rye&display=swap');
+
+        :root {
+            --paper-bg: #fdf5e6;
+            --ink: #2c1b18;
+            --highlight: #d32f2f;
+            --gold: #ffb300;
+        }
+
+        body {
+            background-color: #222;
+            background-image: radial-gradient(#3e2723 1px, transparent 1px);
+            background-size: 20px 20px;
+            font-family: 'Changa', sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: var(--ink);
+            display: flex;
+            justify-content: center;
+        }
+
+        /* NEWSPAPER CONTAINER */
+        .newspaper {
+            background: var(--paper-bg);
+            width: 100%;
+            max-width: 900px;
+            padding: 40px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            position: relative;
+        }
+
+        /* HEADER */
+        header {
+            text-align: center;
+            border-bottom: 4px double var(--ink);
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            font-family: 'Rye', serif;
+            font-size: 4rem;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            line-height: 1;
+        }
+
+        .sub-head {
+            font-size: 1.2rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            border-top: 2px solid var(--ink);
+            border-bottom: 2px solid var(--ink);
+            padding: 5px 0;
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+
+        /* COLUMNS */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 700px) {
+            .content-grid { grid-template-columns: 1fr; }
+            h1 { font-size: 2.5rem; }
+        }
+
+        /* SECTIONS */
+        .section-title {
+            font-family: 'Rye', serif;
+            font-size: 2rem;
+            border-bottom: 2px solid var(--ink);
+            margin-bottom: 15px;
+        }
+
+        /* TABLES */
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th { text-align: left; border-bottom: 2px solid var(--ink); padding: 5px; }
+        td { padding: 8px 5px; border-bottom: 1px solid #ccc; font-weight: bold; }
+        
+        .rank { color: var(--highlight); font-family: 'Rye'; font-size: 1.2rem; }
+        .score { text-align: right; color: #e65100; }
+        
+        /* STATUS BADGES */
+        .badge-safe { background: #4CAF50; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; }
+        .badge-risk { background: #ff9800; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; }
+        .badge-banned { background: var(--highlight); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; text-decoration: line-through; }
+
+        /* GRAVEYARD */
+        .graveyard-box {
+            background: #d7ccc8;
+            padding: 15px;
+            border: 2px solid var(--ink);
+        }
+        
+        .tombstone {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px dashed #5d4037;
+            font-size: 0.9rem;
+        }
+
+        /* FOOTER */
+        .footer-nav {
+            margin-top: 30px;
+            text-align: center;
+            border-top: 4px double var(--ink);
+            padding-top: 15px;
+        }
+        
+        .btn {
+            background: var(--ink);
+            color: var(--paper-bg);
+            text-decoration: none;
+            padding: 10px 20px;
+            font-weight: bold;
+            font-family: 'Rye';
+            display: inline-block;
+            transition: 0.2s;
+        }
+        .btn:hover { transform: scale(1.05); background: var(--highlight); }
+
+    </style>
+</head>
+<body>
+
+    <div class="newspaper">
+        <header>
+            <h1>The Gold Rush Gazette</h1>
+            <div class="sub-head">
+                <span>Vol. 1</span>
+                <span>Updates Every Second</span>
+                <span>Price: 1 Nugget</span>
+            </div>
+        </header>
+
+        <div class="content-grid">
+            <div class="main-column">
+                <div class="section-title">Richest Miners (Highest Scores)</div>
+                <p>Extra! Extra! Read all about the wealthiest diggers in the valley.</p>
+                
+                <table id="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">Rank</th>
+                            <th>Miner Name</th>
+                            <th>Status</th>
+                            <th style="text-align: right;">Gold Found</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-body">
+                        <tr><td colspan="4" style="text-align:center;">Loading telegrams...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="side-column">
+                <div class="graveyard-box">
+                    <div class="section-title" style="font-size: 1.5rem; color: #d32f2f;">☠️ The Banned List</div>
+                    <p style="font-size: 0.9rem; font-style: italic;">
+                        These poor souls lost 2 strikes and went bankrupt.
+                    </p>
+                    <div id="banned-list">
+                        </div>
+                </div>
+
+                <div style="margin-top: 30px;">
+                    <div class="section-title" style="font-size: 1.5rem;">Population Report</div>
+                    <ul style="list-style: none; padding: 0;">
+                        <li>🟢 Active Miners: <strong id="count-active">0</strong></li>
+                        <li>☠️ Bankrupt: <strong id="count-banned">0</strong></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-nav">
+            <p>Ready to test your luck?</p>
+            <a href="wow.html" class="btn">GO TO THE MINES (PLAY GAME)</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC46INaqbxzQcsbCZ4V9sHCYd4YXr0-rIo",
+            authDomain: "vs-game-22908.firebaseapp.com",
+            projectId: "vs-game-22908",
+            storageBucket: "vs-game-22908.firebasestorage.app",
+            messagingSenderId: "273027508112",
+            appId: "1:273027508112:web:bd7e7220f3613a76cd7515"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // --- 1. FETCH GAMES (Leaderboard) ---
+        const gamesRef = ref(db, 'games');
+
+        onValue(gamesRef, (snapshot) => {
+            const games = snapshot.val() || {};
+            const players = [];
+
+            // Gather players from active games
+            Object.values(games).forEach(game => {
+                if (game.p1 && game.p1.name) players.push({ ...game.p1 });
+                if (game.p2 && game.p2.name) players.push({ ...game.p2 });
+            });
+
+            // Sort by Score
+            players.sort((a, b) => b.score - a.score);
+
+            // Render Table
+            const tbody = document.getElementById('leaderboard-body');
+            tbody.innerHTML = '';
+            
+            const uniquePlayers = [];
+            const namesSeen = new Set();
+            
+            players.forEach(p => {
+                if (!namesSeen.has(p.name)) {
+                    namesSeen.add(p.name);
+                    uniquePlayers.push(p);
+                }
+            });
+
+            uniquePlayers.forEach((p, index) => {
+                const row = document.createElement('tr');
+                
+                let rankHTML = `<span class="rank">#${index + 1}</span>`;
+                if(index === 0) rankHTML = '👑';
+
+                row.innerHTML = `
+                    <td>${rankHTML}</td>
+                    <td>${p.name}</td>
+                    <td><span class="badge-safe">Active</span></td>
+                    <td class="score">${p.score} G</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            if (uniquePlayers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No miners currently in the tunnels.</td></tr>';
+            }
+
+            document.getElementById('count-active').innerText = uniquePlayers.length;
+        });
+
+        // --- 2. FETCH BANNED USERS (The Fix) ---
+        const bannedRef = ref(db, 'banned_users');
+        
+        onValue(bannedRef, (snapshot) => {
+            const bannedData = snapshot.val() || {};
+            const bannedListDiv = document.getElementById('banned-list');
+            bannedListDiv.innerHTML = '';
+            
+            const bannedNames = Object.keys(bannedData);
+            document.getElementById('count-banned').innerText = bannedNames.length;
+
+            if (bannedNames.length === 0) {
+                bannedListDiv.innerHTML = '<div style="text-align:center; color:#5d4037; padding:10px;">The graveyard is empty... for now.</div>';
+            } else {
+                bannedNames.forEach(name => {
+                    const div = document.createElement('div');
+                    div.className = 'tombstone';
+                    // We replace underscores back to something readable if we want, 
+                    // but the raw name is usually fine.
+                    div.innerHTML = `
+                        <span>🪦 ${name}</span>
+                        <span style="color:#d32f2f; font-weight:bold;">BANKRUPT</span>
+                    `;
+                    bannedListDiv.appendChild(div);
+                });
+            }
+        });
+
+    </script>
+</body>
+</html>

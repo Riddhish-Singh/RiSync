@@ -73,11 +73,17 @@
             <a href="index.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:text-brand-600 transition">
                 <i class="fas fa-home w-6"></i> <span class="font-medium text-sm">Home</span>
             </a>
+            <a href="about.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:text-brand-600 transition">
+                <i class="fas fa-info-circle w-6"></i> <span class="font-medium text-sm">About</span>
+            </a>
             <a href="dashboard.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:text-brand-600 transition">
                 <i class="fas fa-chart-pie w-6"></i> <span class="font-medium text-sm">Dashboard</span>
             </a>
             <a href="leaderboard.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition group">
                 <i class="fas fa-medal w-6"></i> <span class="font-medium text-sm">Leaderboard</span>
+            </a>
+            <a href="my-ideas.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:text-brand-600 transition">
+                <i class="fas fa-folder-open w-6"></i> <span class="font-medium text-sm">My Ideas</span>
             </a>
             <a href="#" class="nav-item active flex items-center px-6 py-3">
                 <i class="fas fa-plus-circle w-6"></i> <span class="font-medium text-sm">New Idea</span>
@@ -147,6 +153,21 @@
                             </div>
 
                             <div>
+                                <label class="block text-sm font-medium mb-2">Your Department <span class="text-red-500">*</span></label>
+                                <div class="relative">
+                                    <select id="userDepartment" required class="form-input appearance-none cursor-pointer">
+                                        <option value="" disabled selected>Select Department</option>
+                                        <option value="Engineering">Engineering</option>
+                                        <option value="Science">Science</option>
+                                        <option value="Arts">Arts</option>
+                                    </select>
+                                    <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500">
+                                        <i class="fas fa-chevron-down text-xs"></i>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-1">This will update your profile for the Leaderboard.</p>
+                            </div>
+                            <div>
                                 <label class="block text-sm font-medium mb-2">Category <span class="text-red-500">*</span></label>
                                 <div class="relative">
                                     <select id="category" required class="form-input appearance-none cursor-pointer">
@@ -164,8 +185,8 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <div>
+                            
+                            <div class="col-span-1 md:col-span-2">
                                 <label class="block text-sm font-medium mb-2">Team Members</label>
                                 <input type="text" id="team" class="form-input" placeholder="Names/Emails separated by comma">
                             </div>
@@ -297,7 +318,7 @@
         // 1. Fixed Imports (Version 10.8.0)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, serverTimestamp, doc, setDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, doc, setDoc, increment, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // 2. Your Config
         const firebaseConfig = {
@@ -319,11 +340,17 @@
         let currentChallengeId = null;
 
         // Auth Listener
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
                 document.getElementById('userName').textContent = user.displayName || 'Innovator';
                 if(user.photoURL) document.getElementById('userAvatar').src = user.photoURL;
+
+                // PRE-FILL DEPARTMENT IF IT EXISTS
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if(userDoc.exists() && userDoc.data().department) {
+                    document.getElementById('userDepartment').value = userDoc.data().department;
+                }
             } else {
                 window.location.href = "index.html"; 
             }
@@ -396,6 +423,9 @@
                 // Gather Data
                 const title = document.getElementById('title').value;
                 const category = document.getElementById('category').value;
+                // CAPTURE THE NEW DEPARTMENT FIELD
+                const userDepartment = document.getElementById('userDepartment').value;
+
                 const problem = document.getElementById('problem').value;
                 const solution = document.getElementById('solution').value;
                 const impact = document.getElementById('impact').value;
@@ -410,6 +440,7 @@
                     userId: currentUser.uid,
                     userName: currentUser.displayName || 'Anonymous',
                     userEmail: currentUser.email,
+                    department: userDepartment, // Store it in the idea as well for good measure
                     title: title,
                     category: category,
                     problem: problem,
@@ -430,13 +461,16 @@
                 // 1. Save to Ideas Collection
                 await addDoc(collection(db, "ideas"), ideaData);
 
-                // 2. SAVE POINTS TO USER PROFILE (The requested feature)
+                // 2. SAVE POINTS AND DEPARTMENT TO USER PROFILE (The permanent fix)
                 const userRef = doc(db, "users", currentUser.uid);
                 await setDoc(userRef, {
-                    points: increment(pointsEarned), // Atomically increment points
-                    ideasSubmitted: increment(1),    // Track count
-                    lastActive: serverTimestamp()
-                }, { merge: true }); // Merge ensures we don't overwrite other fields, and creates doc if missing
+                    department: userDepartment, // <--- This saves the department so Leaderboard works!
+                    points: increment(pointsEarned),
+                    ideasSubmitted: increment(1),
+                    lastActive: serverTimestamp(),
+                    name: currentUser.displayName || 'Anonymous', // Ensure name is always fresh
+                    email: currentUser.email
+                }, { merge: true }); 
 
                 // Success
                 showSuccessModal(pointsEarned);
