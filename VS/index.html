@@ -308,7 +308,7 @@
 
                         <div class="mb-6">
                             <label class="block text-sm font-medium mb-3">Support Needed (Select all that apply)</label>
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                                 <label class="cursor-pointer">
                                     <input type="checkbox" name="support" value="Mentorship" class="hidden peer">
                                     <div class="checkbox-card p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-center text-sm font-medium text-slate-600 dark:text-slate-400 peer-checked:ring-1 peer-checked:ring-brand-500">
@@ -333,6 +333,25 @@
                                         <i class="fas fa-network-wired mb-1 block text-lg"></i> Networking
                                     </div>
                                 </label>
+                                
+                                <label class="cursor-pointer">
+                                    <input type="checkbox" name="support" value="N/A" class="hidden peer">
+                                    <div class="checkbox-card p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-center text-sm font-medium text-slate-600 dark:text-slate-400 peer-checked:ring-1 peer-checked:ring-brand-500">
+                                        <i class="fas fa-ban mb-1 block text-lg"></i> N/A
+                                    </div>
+                                </label>
+
+                                <label class="cursor-pointer">
+                                    <input type="checkbox" name="support" value="Other" id="supportOtherCheckbox" class="hidden peer">
+                                    <div class="checkbox-card p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-center text-sm font-medium text-slate-600 dark:text-slate-400 peer-checked:ring-1 peer-checked:ring-brand-500">
+                                        <i class="fas fa-plus mb-1 block text-lg"></i> Other
+                                    </div>
+                                </label>
+                            </div>
+                            
+                            <div id="supportOtherContainer" class="hidden mt-3 animate-fade-in">
+                                <label class="block text-sm font-medium mb-2 text-brand-600">Please specify "Other" Support</label>
+                                <input type="text" id="supportOtherInput" class="form-input border-brand-300 bg-brand-50" placeholder="e.g. Legal Advice, Distribution Partners...">
                             </div>
                         </div>
 
@@ -463,7 +482,7 @@
         const submitForm = document.getElementById('ideaForm');
         const mainNavLinks = document.getElementById('mainNavLinks');
 
-        // Toggle "Other" Input
+        // Toggle "Other" Category Input
         const categorySelect = document.getElementById('userCategory');
         const otherContainer = document.getElementById('otherCategoryContainer');
         const otherInput = document.getElementById('otherCategoryInput');
@@ -480,6 +499,21 @@
             }
         });
 
+        // Toggle "Other" Support Input
+        const supportOtherCheckbox = document.getElementById('supportOtherCheckbox');
+        const supportOtherContainer = document.getElementById('supportOtherContainer');
+        const supportOtherInput = document.getElementById('supportOtherInput');
+
+        supportOtherCheckbox.addEventListener('change', () => {
+            if (supportOtherCheckbox.checked) {
+                supportOtherContainer.classList.remove('hidden');
+                supportOtherInput.focus();
+            } else {
+                supportOtherContainer.classList.add('hidden');
+                supportOtherInput.value = ''; // Clear value if unchecked
+            }
+        });
+
         let currentUser = null;
         let currentSubmissionMode = 'new';
         let currentChallengeId = null;
@@ -490,7 +524,6 @@
             "Internal Systems & Operations": "points_systems",
             "Core Program & Research Innovation": "points_research",
             "Education & EdTech": "points_education"
-            // "Other" maps to nothing specific, just total points
         };
 
         // Auth State Listener
@@ -618,12 +651,22 @@
                 }
 
                 const problem = document.getElementById('problem').value;
-                const solution = document.getElementById('solution').value; // Now optional
+                const solution = document.getElementById('solution').value; 
                 const impact = document.getElementById('impact').value;
                 const plan = document.getElementById('plan').value;
                 const team = document.getElementById('team').value;
                 const projectLink = document.getElementById('projectLink').value;
-                const support = Array.from(document.querySelectorAll('input[name="support"]:checked')).map(cb => cb.value);
+                
+                // Logic to handle Support needed (with "Other" text replacement)
+                let support = Array.from(document.querySelectorAll('input[name="support"]:checked')).map(cb => cb.value);
+                if (support.includes('Other')) {
+                    const otherText = document.getElementById('supportOtherInput').value;
+                    if (otherText.trim() !== "") {
+                        // Replace "Other" with "Other: [Text]"
+                        const idx = support.indexOf('Other');
+                        support[idx] = `Other: ${otherText}`;
+                    }
+                }
 
                 // Determine the specific points field to increment (undefined if 'Other')
                 const specificPointsField = categoryFieldMap[selectedCategory];
@@ -655,15 +698,14 @@
                 
                 // Prepare update object: always increment total points
                 const updateData = {
-                    category: finalCategory, // Update last used category
-                    points: increment(pointsEarned), // Total global points
+                    category: finalCategory, 
+                    points: increment(pointsEarned), 
                     ideasSubmitted: increment(1),
                     lastActive: serverTimestamp(),
                     name: currentUser.displayName || 'Anonymous',
                     email: currentUser.email
                 };
 
-                // If a valid category (not Other) is selected, increment specific points too
                 if (specificPointsField) {
                     updateData[specificPointsField] = increment(pointsEarned);
                 }
