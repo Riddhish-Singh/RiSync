@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Innovator Dashboard | Vigyanshaala</title>
+    <title>Dashboard & My Ideas | Vigyanshaala Idea Lab</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <script>
@@ -21,7 +19,7 @@
                         brand: { 50: '#f0fdfa', 100: '#ccfbf1', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e', 900: '#134e4a' },
                         ocean: { 500: '#0ea5e9', 600: '#0284c7' },
                         fresh: { 400: '#a3e635', 500: '#84cc16' },
-                        spark: { 400: '#facc15' }
+                        spark: { 400: '#facc15', 500: '#eab308' }
                     }
                 }
             }
@@ -39,19 +37,6 @@
             background: rgba(30, 41, 59, 0.7);
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
-        
-        /* Sidebar Active State */
-        .nav-item.active {
-            background: linear-gradient(to right, #f0fdfa, transparent);
-            border-right: 3px solid #0d9488;
-            color: #0d9488;
-        }
-        .dark .nav-item.active {
-            background: linear-gradient(to right, #134e4a, transparent);
-            color: #2dd4bf;
-        }
-
-        /* Loading Skeleton Animation */
         .skeleton {
             background: #e2e8f0;
             background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
@@ -65,82 +50,69 @@
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 flex h-screen overflow-hidden">
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
 
-    <aside class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 hidden md:flex flex-col z-20">
-        <div class="h-16 flex items-center px-6 border-b border-slate-100 dark:border-slate-800">
-            <img src="https://vigyanshaala.com/wp-content/uploads/2021/06/VS-logo.png" alt="Logo" class="h-8 w-auto mr-2">
-            <span class="font-bold text-lg tracking-tight">Idea Lab</span>
-        </div>
-
-        <nav class="flex-1 py-6 space-y-1">
-            <a href="index.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:text-brand-600 transition">
-                <i class="fas fa-home w-6"></i> <span class="font-medium text-sm">Home</span>
-            </a>
-						<a href="about.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:text-brand-600 transition">
-                <i class="fas fa-home w-6"></i> <span class="font-medium text-sm">About 	</span>
-            </a>
-            <a href="#" class="nav-item active flex items-center px-6 py-3">
-                <i class="fas fa-chart-pie w-6"></i> <span class="font-medium text-sm">Dashboard</span>
-            </a>
-            <a href="leaderboard.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition group">
-			<i class="fas fa-medal w-6"></i> <span class="font-medium text-sm">Leaderboard</span>
-            </a>
-			<a href="my-ideas.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:text-brand-600 transition">
-                <i class="fas fa-folder-open w-6"></i> <span class="font-medium text-sm">My Ideas</span>
-            </a>
-            <a href="submit.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:text-brand-600 transition">
-                <i class="fas fa-plus-circle w-6"></i> <span class="font-medium text-sm">New Idea</span>
-            </a>
-            <a href="challenges.html" class="nav-item flex items-center px-6 py-3 text-slate-500 hover:text-brand-600 transition">
-                <i class="fas fa-trophy w-6"></i> <span class="font-medium text-sm">Challenges</span>
-            </a>
-        </nav>
-
-        <div class="p-4 border-t border-slate-100 dark:border-slate-800">
-            <div class="bg-gradient-to-br from-brand-600 to-ocean-600 rounded-xl p-4 text-white text-center">
-                <p class="text-xs font-medium opacity-90 mb-1">Season 5 Ends In</p>
-                <div id="countdown" class="text-xl font-bold font-mono">12d 04h 20m</div>
-            </div>
-        </div>
-    </aside>
-
-    <div class="flex-1 flex flex-col h-screen overflow-hidden relative">
-        
-        <header class="h-16 glass-panel border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 sm:px-8 z-10">
-            <div class="flex items-center gap-4 md:hidden">
-                <button class="text-slate-500"><i class="fas fa-bars text-xl"></i></button>
-                <span class="font-bold">Dashboard</span>
-            </div>
-            
-            <div class="hidden md:block">
-                <h1 class="text-xl font-bold text-slate-800 dark:text-white" id="welcomeMsg">Welcome back!</h1>
-            </div>
-
-            <div class="flex items-center gap-4">
-                <button id="themeToggle" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-brand-600 transition">
-                    <i class="fas fa-moon dark:hidden"></i>
-                    <i class="fas fa-sun hidden dark:block text-spark-400"></i>
-                </button>
-                
-                <div class="h-8 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
-
-                <div class="flex items-center gap-3">
-                    <div class="text-right hidden sm:block">
-                        <div id="userName" class="text-sm font-bold text-slate-700 dark:text-slate-200">Loading...</div>
-                        <div class="text-xs text-slate-500">Student Innovator</div>
-                    </div>
-                    <img id="userAvatar" src="https://ui-avatars.com/api/?name=User" class="w-9 h-9 rounded-full border-2 border-white dark:border-slate-700 shadow-sm">
+    <!-- TOP NAVIGATION -->
+    <nav class="fixed w-full z-50 glass-panel border-b border-brand-100 dark:border-brand-900/30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="flex-shrink-0 flex items-center gap-3">
+                        <img src="https://vigyanshaala.com/wp-content/uploads/2021/06/VS-logo.png" 
+                             alt="Vigyanshaala Logo" 
+                             class="h-10 w-auto rounded-md object-contain">
+                        <span class="font-bold text-xl tracking-tight text-slate-800 dark:text-white hidden sm:block">
+                            Vigyanshaala <span class="text-brand-600 dark:text-brand-400">Idea Lab</span>
+                        </span>
+                    </a>
                     
-                    <button id="logoutBtn" class="text-slate-400 hover:text-red-500 transition ml-2" title="Logout">
-                        <i class="fas fa-sign-out-alt"></i>
+                    <div id="mainNavLinks" class="hidden md:ml-10 md:flex md:space-x-8 text-sm font-medium items-center">
+                        <a href="index.html" class="text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-300 transition">Home</a>
+                        <a href="challenges-leaderboard.html" class="text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-300 transition">Challenges & Leaderboard</a>
+                        <a href="dashboard.html" class="text-brand-700 dark:text-brand-300 border-b-2 border-brand-500">Dashboard & My Ideas</a>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <button id="themeToggle" class="p-2 rounded-full hover:bg-brand-50 dark:hover:bg-brand-900/30 transition text-brand-600 dark:text-brand-300">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:block text-spark-400"></i>
                     </button>
+
+                    <div class="flex items-center gap-3">
+                        <span id="userName" class="text-sm font-medium hidden sm:block text-brand-700 dark:text-brand-200">Loading...</span>
+                        <img id="userAvatar" src="https://ui-avatars.com/api/?name=User" class="w-9 h-9 rounded-full border-2 border-white dark:border-slate-700 shadow-sm">
+                        <button id="logoutBtn" class="text-slate-400 hover:text-red-500 transition ml-2" title="Logout">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </header>
+        </div>
+    </nav>
 
-        <main class="flex-1 overflow-y-auto p-4 sm:p-8 relative">
-            
+    <main class="flex-grow pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+        
+        <!-- TAB SWITCHER -->
+        <div class="flex justify-center mb-8">
+            <div class="bg-white dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 inline-flex shadow-sm">
+                <button onclick="showTab('dashboard')" id="dashboardTab" class="tab-btn px-6 py-3 rounded-lg text-sm font-bold text-white bg-brand-600 transition">
+                    <i class="fas fa-chart-pie mr-2"></i>Dashboard
+                </button>
+                <button onclick="showTab('myideas')" id="myideasTab" class="tab-btn px-6 py-3 rounded-lg text-sm font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition">
+                    <i class="fas fa-folder-open mr-2"></i>My Ideas
+                </button>
+            </div>
+        </div>
+
+        <!-- DASHBOARD SECTION -->
+        <div id="dashboardSection">
+            <div class="mb-6">
+                <h1 class="text-2xl font-bold text-slate-800 dark:text-white mb-2" id="welcomeMsg">Welcome back!</h1>
+                <p class="text-slate-500 dark:text-slate-400">Track your innovation journey and achievements</p>
+            </div>
+
+            <!-- Stats Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 relative overflow-hidden group">
                     <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition">
@@ -148,18 +120,16 @@
                     </div>
                     <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Ideas Submitted</p>
                     <h3 id="statIdeas" class="text-3xl font-extrabold text-slate-800 dark:text-white">...</h3>
-                    <div class="mt-2 text-xs text-green-500 flex items-center font-medium">
-                        <i class="fas fa-arrow-up mr-1"></i> Active
-                    </div>
+                    <p class="text-xs text-slate-400 mt-2">Total contributions</p>
                 </div>
 
                 <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 relative overflow-hidden group">
                     <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition">
                         <i class="fas fa-check-circle text-6xl text-fresh-500"></i>
                     </div>
-                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Shortlisted</p>
-                    <h3 id="statShortlisted" class="text-3xl font-extrabold text-slate-800 dark:text-white">...</h3>
-                    <div class="mt-2 text-xs text-slate-400">Awaiting final review</div>
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Approved Ideas</p>
+                    <h3 id="statApproved" class="text-3xl font-extrabold text-fresh-600 dark:text-fresh-400">...</h3>
+                    <p class="text-xs text-slate-400 mt-2">Success rate</p>
                 </div>
 
                 <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 relative overflow-hidden group">
@@ -167,70 +137,117 @@
                         <i class="fas fa-star text-6xl text-spark-500"></i>
                     </div>
                     <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Total Points</p>
-                    <h3 id="statPoints" class="text-3xl font-extrabold text-slate-800 dark:text-white">...</h3>
-                    <div class="mt-2 text-xs text-brand-500 font-bold">Top 10% of users</div>
+                    <h3 id="statPoints" class="text-3xl font-extrabold text-spark-600 dark:text-spark-400">...</h3>
+                    <p class="text-xs text-slate-400 mt-2">Innovation score</p>
                 </div>
 
                 <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 relative overflow-hidden group">
                     <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition">
                         <i class="fas fa-medal text-6xl text-ocean-500"></i>
                     </div>
-                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Milestones</p>
-                    <h3 id="statMilestones" class="text-3xl font-extrabold text-slate-800 dark:text-white">...</h3>
-                    <div class="mt-2 text-xs text-slate-400">Next: "Pro Solver"</div>
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Your Rank</p>
+                    <h3 id="statRank" class="text-3xl font-extrabold text-ocean-600 dark:text-ocean-400">...</h3>
+                    <p class="text-xs text-slate-400 mt-2">Global position</p>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                
-                <div class="lg:col-span-2 space-y-6">
-                    <div class="flex justify-between items-center">
-                        <h2 class="text-lg font-bold">Active Challenges</h2>
-                        <a href="challenges.html" class="text-sm text-brand-600 hover:underline">View All</a>
-                    </div>
-
-                    <div id="activeChallengeContainer" class="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row gap-6">
-                        <div class="w-full h-32 bg-slate-100 animate-pulse rounded-lg"></div>
-                    </div>
-
-                    <div class="bg-gradient-to-r from-brand-900 to-slate-900 rounded-xl p-8 text-white relative overflow-hidden">
-                        <div class="relative z-10">
-                            <h3 class="text-xl font-bold mb-2">Have a revolutionary idea?</h3>
-                            <p class="text-brand-100 text-sm mb-6 max-w-md">Don't wait for a challenge. Submit your unique innovation today and get mentorship.</p>
-                            <a href="submit.html" class="bg-white text-brand-900 px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-brand-50 transition">Submit Idea</a>
-                        </div>
-                        <div class="absolute right-0 bottom-0 opacity-10 transform translate-x-10 translate-y-10">
-                            <i class="fas fa-rocket text-9xl"></i>
-                        </div>
+            <!-- Activity Chart Placeholder -->
+            <div class="grid md:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+                    <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4">
+                        <i class="fas fa-chart-line text-brand-600 mr-2"></i>
+                        Recent Activity
+                    </h3>
+                    <div id="activityList" class="space-y-3">
+                        <!-- Activity items will be loaded here -->
                     </div>
                 </div>
 
-                <div class="lg:col-span-1">
-                    <h2 class="text-lg font-bold mb-6">Recent Activity</h2>
-                    <div class="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-100 dark:border-slate-700 shadow-sm h-full overflow-y-auto max-h-[500px]">
-                        
-                        <div id="activityContainer" class="relative pl-4 border-l-2 border-slate-100 dark:border-slate-700 space-y-8">
-                            
-                            <div class="relative animate-pulse">
-                                <div class="absolute -left-[21px] top-1 w-3 h-3 bg-slate-200 rounded-full ring-4 ring-white dark:ring-slate-800"></div>
-                                <div class="h-3 bg-slate-200 rounded w-1/3 mb-2"></div>
-                                <div class="h-4 bg-slate-200 rounded w-2/3"></div>
+                <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+                    <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4">
+                        <i class="fas fa-trophy text-spark-500 mr-2"></i>
+                        Achievements
+                    </h3>
+                    <div id="achievementsList" class="space-y-3">
+                        <div class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                            <div class="w-10 h-10 rounded-full bg-spark-100 dark:bg-spark-900/30 flex items-center justify-center">
+                                <i class="fas fa-fire text-spark-600 dark:text-spark-400"></i>
                             </div>
-                            
+                            <div>
+                                <p class="text-sm font-bold text-slate-800 dark:text-white">First Submission</p>
+                                <p class="text-xs text-slate-500">Submitted your first idea</p>
+                            </div>
                         </div>
-                        
                     </div>
                 </div>
-
             </div>
 
-        </main>
-    </div>
+            <!-- Quick Actions -->
+            <div class="bg-gradient-to-r from-brand-600 to-ocean-600 rounded-2xl p-8 text-white text-center">
+                <h3 class="text-2xl font-bold mb-4">Ready to Innovate?</h3>
+                <p class="text-brand-100 mb-6 max-w-xl mx-auto">
+                    Share your next breakthrough idea and contribute to the innovation pool.
+                </p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <a href="index.html#submitSection" class="bg-white text-brand-700 font-bold px-6 py-3 rounded-lg hover:bg-brand-50 transition shadow-lg">
+                        <i class="fas fa-lightbulb mr-2"></i>Submit New Idea
+                    </a>
+                    <a href="challenges-leaderboard.html" class="bg-white/10 backdrop-blur-sm border border-white/20 text-white font-bold px-6 py-3 rounded-lg hover:bg-white/20 transition">
+                        <i class="fas fa-trophy mr-2"></i>View Challenges
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- MY IDEAS SECTION -->
+        <div id="myideasSection" class="hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">My Innovation Portfolio</h2>
+                    <p class="text-slate-500 dark:text-slate-400">View and manage all your submitted ideas</p>
+                </div>
+                <a href="index.html#submitSection" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-6 py-3 rounded-lg transition shadow-lg">
+                    <i class="fas fa-plus mr-2"></i>New Idea
+                </a>
+            </div>
+
+            <!-- Filter Buttons -->
+            <div class="flex gap-2 mb-6 flex-wrap">
+                <button onclick="filterIdeas('All')" id="filterAll" class="filter-btn px-4 py-2 bg-brand-600 text-white border border-brand-600 rounded-lg text-xs font-bold shadow-sm">All</button>
+                <button onclick="filterIdeas('New')" id="filterNew" class="filter-btn px-4 py-2 bg-transparent border border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800 rounded-lg text-xs font-medium text-slate-500">New</button>
+                <button onclick="filterIdeas('Approved')" id="filterApproved" class="filter-btn px-4 py-2 bg-transparent border border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800 rounded-lg text-xs font-medium text-slate-500">Approved</button>
+                <button onclick="filterIdeas('Rejected')" id="filterRejected" class="filter-btn px-4 py-2 bg-transparent border border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800 rounded-lg text-xs font-medium text-slate-500">Rejected</button>
+            </div>
+
+            <!-- Ideas Grid -->
+            <div id="ideasGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="col-span-full flex flex-col items-center justify-center py-20">
+                    <div class="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
+                        <i class="fas fa-spinner fa-spin text-2xl text-brand-600"></i>
+                    </div>
+                    <p class="text-slate-500 text-sm">Loading your ideas...</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-10 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <div class="flex justify-center items-center gap-2 mb-4">
+                <img src="https://vigyanshaala.com/wp-content/uploads/2021/06/VS-logo.png" 
+                     alt="Vigyanshaala Logo" 
+                     class="h-8 w-auto rounded opacity-80">
+                <span class="font-bold text-slate-700 dark:text-slate-300">Vigyanshaala</span>
+            </div>
+            <p class="text-slate-500 text-sm">© 2026 Idea Lab. Empowering the next generation of innovators.</p>
+        </div>
+    </footer>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, collection, query, where, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+        import { getFirestore, collection, query, where, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAGpwRwsJfD8QlCHOnXPxxLyGb34ezokgQ",
@@ -238,263 +255,233 @@
             projectId: "vs-idea-labs",
             storageBucket: "vs-idea-labs.firebasestorage.app",
             messagingSenderId: "789407499622",
-            appId: "1:789407499622:web:18758c729f4b283ddcf4a7",
-            measurementId: "G-XKFLFPDZLP"
+            appId: "1:789407499622:web:18758c729f4b283ddcf4a7"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // UI Elements
-        const welcomeMsg = document.getElementById('welcomeMsg');
-        const userName = document.getElementById('userName');
-        const userAvatar = document.getElementById('userAvatar');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const activityContainer = document.getElementById('activityContainer');
-        
-        // Stats Elements
-        const statIdeas = document.getElementById('statIdeas');
-        const statShortlisted = document.getElementById('statShortlisted');
-        const statPoints = document.getElementById('statPoints');
-        const statMilestones = document.getElementById('statMilestones');
+        let currentUser = null;
+        let allUserIdeas = [];
 
-        // --- AUTH & REDIRECT ---
+        // Auth State
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                // Set User Info
-                userName.textContent = user.displayName || "Innovator";
-                welcomeMsg.textContent = `Welcome back, ${user.displayName ? user.displayName.split(' ')[0] : 'Innovator'}!`;
-                if(user.photoURL) userAvatar.src = user.photoURL;
-
-                // Load All Data
-                loadDashboardData(user.uid);
-                loadRecentActivity(user.uid);
+                currentUser = user;
+                document.getElementById('userName').textContent = user.displayName || 'User';
+                document.getElementById('welcomeMsg').textContent = `Welcome back, ${user.displayName || 'Innovator'}!`;
+                document.getElementById('userAvatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}`;
+                
+                await fetchDashboardStats(user.uid);
+                await fetchUserIdeas(user.uid);
             } else {
-                // Redirect if not logged in
                 window.location.href = "index.html";
             }
         });
 
-        logoutBtn.addEventListener('click', () => {
-            signOut(auth).then(() => window.location.href = "index.html");
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
         });
 
-        // --- DATA FETCHING ---
-        async function loadDashboardData(uid) {
-            try {
-                // 1. Fetch User Profile
-                const userRef = doc(db, "users", uid);
-                const userSnap = await getDoc(userRef);
-                
-                if (userSnap.exists()) {
-                    const data = userSnap.data();
-                    statPoints.textContent = data.points || 0;
-                    statMilestones.textContent = data.milestones || 1;
-                } else {
-                    statPoints.textContent = "0";
-                    statMilestones.textContent = "1";
-                }
+        // Tab Switching
+        window.showTab = (tab) => {
+            const dashboardSection = document.getElementById('dashboardSection');
+            const myideasSection = document.getElementById('myideasSection');
+            const dashboardTab = document.getElementById('dashboardTab');
+            const myideasTab = document.getElementById('myideasTab');
 
-                // 2. Fetch Idea Counts
-                const ideasRef = collection(db, "ideas");
-                const q = query(ideasRef, where("userId", "==", uid));
-                const querySnapshot = await getDocs(q);
-                
-                let totalIdeas = 0;
-                let shortlisted = 0;
-
-                querySnapshot.forEach((doc) => {
-                    totalIdeas++;
-                    const status = doc.data().status;
-                    if(status === 'Approved' || status === 'Shortlisted') shortlisted++;
-                });
-
-                statIdeas.textContent = totalIdeas;
-                statShortlisted.textContent = shortlisted;
-
-            } catch (error) {
-                console.error("Error loading dashboard:", error);
-                statIdeas.textContent = "0";
-                statShortlisted.textContent = "0";
-                statPoints.textContent = "0";
-                statMilestones.textContent = "1";
-            }
-        }
-
-        // --- NEW: RECENT ACTIVITY FETCHER ---
-        async function loadRecentActivity(uid) {
-            activityContainer.innerHTML = ''; // Clear skeleton
-
-            // 1. Add "Logged In" Event (Static)
-            const now = new Date();
-            const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            
-            const loginHTML = `
-                <div class="relative">
-                    <div class="absolute -left-[21px] top-1 w-3 h-3 bg-fresh-500 rounded-full ring-4 ring-white dark:ring-slate-800"></div>
-                    <p class="text-xs text-slate-400 mb-1">Today, ${timeString}</p>
-                    <h4 class="text-sm font-bold text-slate-800 dark:text-white">Active Session</h4>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Logged in via Web Dashboard</p>
-                </div>
-            `;
-            activityContainer.innerHTML += loginHTML;
-
-            // 2. Fetch Recent Ideas from Firestore
-            try {
-                const q = query(
-                    collection(db, "ideas"), 
-                    where("userId", "==", uid), 
-                    orderBy("timestamp", "desc"), 
-                    limit(5)
-                );
-                
-                const querySnapshot = await getDocs(q);
-
-                if (querySnapshot.empty) {
-                    // Only show login event
-                    return;
-                }
-
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    
-                    // Format Date
-                    let dateStr = "Recently";
-                    if (data.timestamp) {
-                        const date = data.timestamp.toDate();
-                        const isToday = date.toDateString() === new Date().toDateString();
-                        dateStr = isToday 
-                            ? `Today, ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` 
-                            : date.toLocaleDateString();
-                    }
-
-                    // Determine Icon/Color based on type
-                    let iconColor = "bg-brand-500";
-                    let titleText = "Idea Submitted";
-                    
-                    if(data.submissionType === 'challenge') {
-                        iconColor = "bg-spark-500"; // Yellow for Challenges
-                        titleText = "Challenge Response";
-                    }
-
-                    const html = `
-                        <div class="relative group">
-                            <div class="absolute -left-[21px] top-1 w-3 h-3 ${iconColor} rounded-full ring-4 ring-white dark:ring-slate-800 transition group-hover:scale-125"></div>
-                            <p class="text-xs text-slate-400 mb-1">${dateStr}</p>
-                            <h4 class="text-sm font-bold text-slate-800 dark:text-white">${titleText}</h4>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 italic">"${data.title}"</p>
-                            <div class="mt-1">
-                                <span class="text-[10px] px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-slate-500 border border-slate-200 dark:border-slate-600">
-                                    Status: ${data.status || 'Pending'}
-                                </span>
-                            </div>
-                        </div>
-                    `;
-                    activityContainer.innerHTML += html;
-                });
-
-            } catch (error) {
-                console.error("Error loading activity:", error);
-                // We rely on the index creation. If index is missing, it logs here.
-                // Fallback for non-indexed queries (remove orderBy temporarily if needed)
-            }
-        }
-    </script>
-
-    <script>
-        // --- 1. THE ACTUAL CHALLENGES DATABASE ---
-        // (Copied from challenges.html for consistency)
-        const allChallenges = [
-            { id: 1, title: "The 10x Constraint Challenge", theme: "Innovation under artificial constraints", desc: "Improve an internal system by reducing cost by 70% OR increasing output by 3x without increasing headcount.", icon: "fa-rocket", color: "text-red-500" },
-            { id: 2, title: "Kill Our Process", theme: "Destroy to rebuild", desc: "Pick one internal process, argue why it should be eliminated, and propose a radical redesign.", icon: "fa-skull", color: "text-slate-600" },
-            { id: 3, title: "Research-to-Reality Sprint", theme: "Turn research into deployable asset", desc: "Pick 1 academic paper/insight and convert it into a learning module, workshop prototype, or research tool.", icon: "fa-microscope", color: "text-blue-500" },
-            { id: 4, title: "The Zero-Budget Innovation", theme: "Budget allowed: ₹0", desc: "Launch a micro initiative using only existing resources that creates measurable impact.", icon: "fa-wallet", color: "text-green-500" },
-            { id: 5, title: "Build an Asset in 30 Days", theme: "IP Repository Growth", desc: "Create a reusable framework, toolkit, training template, or data dashboard.", icon: "fa-cubes", color: "text-purple-500" },
-            { id: 6, title: "The Future 2030 Simulation", theme: "Long-term thinking", desc: "Answer: 'If Vigyanshaala becomes 100x bigger by 2030, what breaks?' Identify 5 system failures.", icon: "fa-globe", color: "text-indigo-500" },
-            { id: 7, title: "Reverse Challenge", theme: "Solve Leadership Problems", desc: "Solve a specific leadership problem (e.g., Improve engagement by 40%, Reduce dropouts) in 48 hours.", icon: "fa-chess-king", color: "text-yellow-500" },
-            { id: 8, title: "Cross-Department Swap", theme: "Break Silos", desc: "Pair with a different department (e.g., Research + Ops). Identify one friction point and solve it jointly.", icon: "fa-handshake", color: "text-pink-500" },
-            { id: 9, title: "Build in Public", theme: "Transparency & Learning", desc: "Share weekly innovation logs, document experiments, and publish an internal learning memo.", icon: "fa-bullhorn", color: "text-orange-500" },
-            { id: 10, title: "Impact Scoring Matrix Review", theme: "System Analysis", desc: "Review current projects against the Impact Scoring Matrix and propose an optimization.", icon: "fa-chart-bar", color: "text-teal-500" }
-        ];
-
-        // --- 2. RENDER FEATURED CHALLENGE ---
-        function loadFeaturedChallenge() {
-            const container = document.getElementById('activeChallengeContainer');
-            
-            // Try to find assigned challenges in localStorage
-            const date = new Date();
-            const currentMonthKey = `vs_challenges_${date.getFullYear()}_${date.getMonth()}`;
-            const stored = localStorage.getItem(currentMonthKey);
-            
-            let displayChallenge;
-
-            if (stored) {
-                // If user has visited challenges page, show their specific assignment
-                const assigned = JSON.parse(stored);
-                displayChallenge = assigned[0];
+            if (tab === 'dashboard') {
+                dashboardSection.classList.remove('hidden');
+                myideasSection.classList.add('hidden');
+                dashboardTab.classList.add('bg-brand-600', 'text-white');
+                dashboardTab.classList.remove('text-slate-500');
+                myideasTab.classList.remove('bg-brand-600', 'text-white');
+                myideasTab.classList.add('text-slate-500');
             } else {
-                // Default fallback: Challenge #1
-                displayChallenge = allChallenges[0];
+                dashboardSection.classList.add('hidden');
+                myideasSection.classList.remove('hidden');
+                myideasTab.classList.add('bg-brand-600', 'text-white');
+                myideasTab.classList.remove('text-slate-500');
+                dashboardTab.classList.remove('bg-brand-600', 'text-white');
+                dashboardTab.classList.add('text-slate-500');
             }
+        };
 
-            // Render HTML
-            container.innerHTML = `
-                <div class="w-full sm:w-32 h-32 bg-slate-100 dark:bg-slate-700 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center border border-slate-200 dark:border-slate-600">
-                     <i class="fas ${displayChallenge.icon} ${displayChallenge.color} text-4xl"></i>
-                </div>
-                <div class="flex-1">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <span class="text-xs font-bold text-brand-600 bg-brand-100 dark:bg-brand-900/30 dark:text-brand-400 px-2 py-0.5 rounded uppercase tracking-wide">
-                                Monthly Goal
-                            </span>
-                            <h3 class="font-bold text-lg mt-1 text-slate-800 dark:text-white">${displayChallenge.title}</h3>
-                        </div>
-                        <span class="text-xs font-bold text-slate-400"><i class="far fa-clock"></i> Active Now</span>
-                    </div>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 mb-4 line-clamp-2">
-                        ${displayChallenge.desc}
-                    </p>
-                    
-                    <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2 mb-2">
-                        <div class="bg-brand-500 h-2 rounded-full" style="width: 15%"></div>
-                    </div>
-                    <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400">
-                        <span>Status: In Progress</span>
-                        <span><a href="challenges.html" class="text-brand-600 hover:underline">View Details</a></span>
-                    </div>
-                </div>
-            `;
+        // Fetch Dashboard Stats
+        async function fetchDashboardStats(userId) {
+            try {
+                // Fetch user's ideas
+                const ideasQuery = query(collection(db, "ideas"), where("authorId", "==", userId));
+                const ideasSnapshot = await getDocs(ideasQuery);
+                
+                const totalIdeas = ideasSnapshot.size;
+                let approvedCount = 0;
+                
+                ideasSnapshot.forEach(doc => {
+                    if (doc.data().status === 'Approved') approvedCount++;
+                });
+
+                document.getElementById('statIdeas').textContent = totalIdeas;
+                document.getElementById('statApproved').textContent = approvedCount;
+
+                // Fetch user's points
+                const usersQuery = query(collection(db, "users"), where("email", "==", currentUser.email), limit(1));
+                const usersSnapshot = await getDocs(usersQuery);
+                
+                if (!usersSnapshot.empty) {
+                    const userData = usersSnapshot.docs[0].data();
+                    document.getElementById('statPoints').textContent = userData.points || 0;
+                }
+
+                // Calculate rank
+                const allUsersQuery = query(collection(db, "users"), orderBy("points", "desc"));
+                const allUsersSnapshot = await getDocs(allUsersQuery);
+                let rank = 1;
+                allUsersSnapshot.forEach((doc) => {
+                    if (doc.data().email === currentUser.email) {
+                        return;
+                    }
+                    rank++;
+                });
+                document.getElementById('statRank').textContent = `#${rank}`;
+
+                // Activity List
+                const activityList = document.getElementById('activityList');
+                if (ideasSnapshot.size > 0) {
+                    let html = '';
+                    ideasSnapshot.forEach((doc, idx) => {
+                        if (idx < 5) {
+                            const data = doc.data();
+                            const date = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleDateString() : 'Recent';
+                            html += `
+                                <div class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                                    <div class="w-2 h-2 rounded-full bg-brand-500"></div>
+                                    <div class="flex-grow">
+                                        <p class="text-sm font-medium text-slate-700 dark:text-slate-200">${data.title || 'Untitled'}</p>
+                                        <p class="text-xs text-slate-500">${date}</p>
+                                    </div>
+                                    <span class="text-xs px-2 py-1 rounded-full ${data.status === 'Approved' ? 'bg-fresh-100 text-fresh-700' : 'bg-slate-100 text-slate-600'}">${data.status || 'New'}</span>
+                                </div>
+                            `;
+                        }
+                    });
+                    activityList.innerHTML = html;
+                } else {
+                    activityList.innerHTML = '<p class="text-sm text-slate-500 text-center py-4">No recent activity</p>';
+                }
+
+            } catch (error) {
+                console.error("Error fetching stats:", error);
+            }
         }
 
-        loadFeaturedChallenge();
+        // Fetch User Ideas
+        async function fetchUserIdeas(userId) {
+            try {
+                const q = query(collection(db, "ideas"), where("authorId", "==", userId), orderBy("timestamp", "desc"));
+                const querySnapshot = await getDocs(q);
+                
+                allUserIdeas = [];
+                querySnapshot.forEach((doc) => {
+                    allUserIdeas.push({ id: doc.id, ...doc.data() });
+                });
+
+                renderIdeas(allUserIdeas);
+            } catch (error) {
+                console.error("Error fetching ideas:", error);
+                document.getElementById('ideasGrid').innerHTML = `
+                    <div class="col-span-full p-8 text-center text-red-500">
+                        <i class="fas fa-exclamation-circle text-3xl mb-3"></i>
+                        <p>Error loading ideas: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Filter Ideas
+        window.filterIdeas = (status) => {
+            // Update button styles
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-brand-600', 'text-white', 'border-brand-600');
+                btn.classList.add('bg-transparent', 'border-slate-200', 'dark:border-slate-700', 'text-slate-500');
+            });
+            const activeBtn = document.getElementById(`filter${status}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-brand-600', 'text-white', 'border-brand-600');
+                activeBtn.classList.remove('bg-transparent', 'border-slate-200', 'dark:border-slate-700', 'text-slate-500');
+            }
+
+            // Filter and render
+            const filtered = status === 'All' ? allUserIdeas : allUserIdeas.filter(idea => idea.status === status);
+            renderIdeas(filtered);
+        };
+
+        // Render Ideas
+        function renderIdeas(ideas) {
+            const grid = document.getElementById('ideasGrid');
+            
+            if (ideas.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full p-12 text-center">
+                        <div class="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-inbox text-3xl text-slate-400"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-2">No ideas yet</h3>
+                        <p class="text-slate-500 text-sm mb-6">Start sharing your innovative solutions!</p>
+                        <a href="index.html#submitSection" class="inline-block bg-brand-600 hover:bg-brand-700 text-white font-bold px-6 py-3 rounded-lg transition">
+                            <i class="fas fa-plus mr-2"></i>Submit Your First Idea
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = ideas.map(idea => {
+                const statusConfig = {
+                    'New': { color: 'bg-fresh-100 text-fresh-700 border-fresh-200', icon: 'fa-star' },
+                    'Approved': { color: 'bg-brand-100 text-brand-700 border-brand-200', icon: 'fa-check' },
+                    'Rejected': { color: 'bg-red-100 text-red-700 border-red-200', icon: 'fa-times' }
+                };
+                const config = statusConfig[idea.status] || statusConfig['New'];
+
+                return `
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="text-xs font-bold uppercase text-brand-600 dark:text-brand-400">${idea.category || 'General'}</span>
+                            <span class="px-2 py-1 rounded-full text-[10px] font-bold border ${config.color}">
+                                <i class="fas ${config.icon}"></i> ${idea.status || 'New'}
+                            </span>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2 line-clamp-1">${idea.title || 'Untitled'}</h3>
+                        <p class="text-slate-600 dark:text-slate-300 text-sm line-clamp-3 mb-4 leading-relaxed">${idea.problem || 'No description'}</p>
+                        <div class="flex items-center justify-between text-xs text-slate-400 border-t border-slate-100 dark:border-slate-700 pt-3">
+                            <div class="flex items-center gap-1">
+                                <i class="far fa-clock"></i>
+                                <span>${idea.timestamp ? new Date(idea.timestamp.toDate()).toLocaleDateString() : 'Just now'}</span>
+                            </div>
+                            ${idea.status === 'Approved' ? '<span class="text-fresh-600 font-bold">+10 pts</span>' : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
 
         // Theme Toggle
         const themeBtn = document.getElementById('themeToggle');
         const html = document.documentElement;
-
         if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             html.classList.add('dark');
         }
-
         themeBtn.onclick = () => {
             html.classList.toggle('dark');
             localStorage.theme = html.classList.contains('dark') ? 'dark' : 'light';
         };
-
-        // Countdown Timer Logic
-        function updateCountdown() {
-            const now = new Date();
-            const endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 12);
-            
-            const diff = endDate - now;
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            
-            document.getElementById('countdown').textContent = `${days}d ${hours}h`;
-        }
-        updateCountdown();
     </script>
 </body>
 </html>
