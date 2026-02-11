@@ -20,6 +20,15 @@
                         ocean: { 500: '#0ea5e9', 600: '#0284c7', 900: '#0c4a6e' },
                         fresh: { 400: '#a3e635', 500: '#84cc16', 600: '#65a30d' },
                         spark: { 400: '#facc15', 500: '#eab308' }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.3s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(-10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
                     }
                 }
             }
@@ -179,15 +188,15 @@
                 </div>
             </div>
 
-<div class="bg-gradient-to-r from-brand-900 to-slate-900 rounded-3xl p-10 text-center text-white">
-    <h3 class="text-2xl font-bold mb-4">Who Can Participate?</h3>
-    <p class="text-brand-100 mb-8 max-w-xl mx-auto leading-relaxed">
-        Innovation has no boundaries. Employees, Students, Teachers, Researchers, and
-        <span class="inline-flex items-center align-middle ml-2 bg-gradient-to-br from-brand-600 to-brand-700 px-4 py-2 rounded-lg border border-brand-500 text-sm font-bold shadow-lg">
-            <i class="fas fa-check mr-2"></i> Everyone!
-        </span>
-    </p>
-</div>
+            <div class="bg-gradient-to-r from-brand-900 to-slate-900 rounded-3xl p-10 text-center text-white">
+                <h3 class="text-2xl font-bold mb-4">Who Can Participate?</h3>
+                <p class="text-brand-100 mb-8 max-w-xl mx-auto leading-relaxed">
+                    Innovation has no boundaries. Employees, Students, Teachers, Researchers, and
+                    <span class="inline-flex items-center align-middle ml-2 bg-gradient-to-br from-brand-600 to-brand-700 px-4 py-2 rounded-lg border border-brand-500 text-sm font-bold shadow-lg">
+                        <i class="fas fa-check mr-2"></i> Everyone!
+                    </span>
+                </p>
+            </div>
         </section>
 
         <section class="mb-20" id="submitSection">
@@ -230,28 +239,29 @@
                                 <input type="text" id="title" required class="form-input" placeholder="e.g. Solar-Powered Water Purifier for Rural Areas">
                             </div>
 
-<div class="col-span-1 md:col-span-2">
-    <label class="block text-sm font-medium mb-2">Relevant Category <span class="text-red-500">*</span></label>
-    <div class="relative">
-        <select id="userCategory" required class="form-input appearance-none cursor-pointer">
-            <option value="" disabled selected>Select Category for this Idea</option>
-            <option value="Finance & Growth">Finance & Growth</option>
-            <option value="Internal Systems & Operations">Internal Systems & Operations</option>
-            <option value="Core Program & Research Innovation">Core Program & Research Innovation</option>
-            <option value="Education & EdTech">Education & EdTech</option>
-            <option value="Other">Other</option> </select>
-        <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500">
-            <i class="fas fa-chevron-down text-xs"></i>
-        </div>
-    </div>
-    
-    <div id="otherCategoryContainer" class="hidden mt-3 animate-fade-in">
-        <label class="block text-sm font-medium mb-2 text-brand-600">Please specify "Other" <span class="text-red-500">*</span></label>
-        <input type="text" id="otherCategoryInput" class="form-input border-brand-300 bg-brand-50" placeholder="e.g. Marketing, HR, Legal...">
-    </div>
+                            <div class="col-span-1 md:col-span-2">
+                                <label class="block text-sm font-medium mb-2">Relevant Category <span class="text-red-500">*</span></label>
+                                <div class="relative">
+                                    <select id="userCategory" required class="form-input appearance-none cursor-pointer">
+                                        <option value="" disabled selected>Select Category for this Idea</option>
+                                        <option value="Finance & Growth">Finance & Growth</option>
+                                        <option value="Internal Systems & Operations">Internal Systems & Operations</option>
+                                        <option value="Core Program & Research Innovation">Core Program & Research Innovation</option>
+                                        <option value="Education & EdTech">Education & EdTech</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                    <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500">
+                                        <i class="fas fa-chevron-down text-xs"></i>
+                                    </div>
+                                </div>
+                                
+                                <div id="otherCategoryContainer" class="hidden mt-3 animate-fade-in">
+                                    <label class="block text-sm font-medium mb-2 text-brand-600">Please specify "Other" <span class="text-red-500">*</span></label>
+                                    <input type="text" id="otherCategoryInput" class="form-input border-brand-300 bg-brand-50" placeholder="e.g. Marketing, HR, Legal...">
+                                </div>
 
-    <p class="text-xs text-slate-500 mt-1">Select the category this idea relates to.</p>
-</div>
+                                <p class="text-xs text-slate-500 mt-1">Select the category this idea relates to. Points will be awarded to this category.</p>
+                            </div>
                             
                             <div class="col-span-1 md:col-span-2">
                                 <label class="block text-sm font-medium mb-2">Team Members</label>
@@ -272,11 +282,11 @@
                                 <textarea id="problem" required rows="3" class="form-input" placeholder="Describe the pain point..."></textarea>
                             </div>
 
-<div>
-    <label class="block text-sm font-medium mb-2">Proposed Solution</label>
-    <p class="text-xs text-slate-500 mb-2">How does your idea solve this problem creatively?<br>Feel free to do it with any method.</p>
-    <textarea id="solution" rows="4" class="form-input" placeholder="Describe your innovation..."></textarea>
-</div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Proposed Solution</label>
+                                <p class="text-xs text-slate-500 mb-2">How does your idea solve this problem creatively?<br>Feel free to do it with any method.</p>
+                                <textarea id="solution" rows="4" class="form-input" placeholder="Describe your innovation..."></textarea>
+                            </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
@@ -441,21 +451,6 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const categorySelect = document.getElementById('userCategory');
-        const otherContainer = document.getElementById('otherCategoryContainer');
-        const otherInput = document.getElementById('otherCategoryInput');
-
-categorySelect.addEventListener('change', () => {
-    if (categorySelect.value === 'Other') {
-        otherContainer.classList.remove('hidden');
-        otherInput.required = true; // Make it mandatory if visible
-        otherInput.focus();
-    } else {
-        otherContainer.classList.add('hidden');
-        otherInput.required = false; // Not mandatory if hidden
-        otherInput.value = ''; // Clear value
-    }
-});
 
         // UI Elements
         const loginBtn = document.getElementById('loginBtn');
@@ -468,6 +463,23 @@ categorySelect.addEventListener('change', () => {
         const submitForm = document.getElementById('ideaForm');
         const mainNavLinks = document.getElementById('mainNavLinks');
 
+        // Toggle "Other" Input
+        const categorySelect = document.getElementById('userCategory');
+        const otherContainer = document.getElementById('otherCategoryContainer');
+        const otherInput = document.getElementById('otherCategoryInput');
+
+        categorySelect.addEventListener('change', () => {
+            if (categorySelect.value === 'Other') {
+                otherContainer.classList.remove('hidden');
+                otherInput.required = true;
+                otherInput.focus();
+            } else {
+                otherContainer.classList.add('hidden');
+                otherInput.required = false;
+                otherInput.value = '';
+            }
+        });
+
         let currentUser = null;
         let currentSubmissionMode = 'new';
         let currentChallengeId = null;
@@ -478,6 +490,7 @@ categorySelect.addEventListener('change', () => {
             "Internal Systems & Operations": "points_systems",
             "Core Program & Research Innovation": "points_research",
             "Education & EdTech": "points_education"
+            // "Other" maps to nothing specific, just total points
         };
 
         // Auth State Listener
@@ -596,34 +609,30 @@ categorySelect.addEventListener('change', () => {
                 const pointsEarned = currentSubmissionMode === 'challenge' ? 100 : 50;
 
                 const title = document.getElementById('title').value;
-                // Get dropdown value
-let selectedCategory = document.getElementById('userCategory').value;
-let finalCategory = selectedCategory;
+                
+                // Logic to handle "Other" category
+                let selectedCategory = document.getElementById('userCategory').value;
+                let finalCategory = selectedCategory;
+                if (selectedCategory === 'Other') {
+                    finalCategory = document.getElementById('otherCategoryInput').value;
+                }
 
-// If "Other" is selected, use the text input value instead
-if (selectedCategory === 'Other') {
-    finalCategory = document.getElementById('otherCategoryInput').value;
-}
-
-// ... later in your code, use 'finalCategory' instead of 'userCategory'
-// Example:
-// const specificPointsField = categoryFieldMap[selectedCategory]; // Keep using selectedCategory for mapping points
                 const problem = document.getElementById('problem').value;
-                const solution = document.getElementById('solution').value;
+                const solution = document.getElementById('solution').value; // Now optional
                 const impact = document.getElementById('impact').value;
                 const plan = document.getElementById('plan').value;
                 const team = document.getElementById('team').value;
                 const projectLink = document.getElementById('projectLink').value;
                 const support = Array.from(document.querySelectorAll('input[name="support"]:checked')).map(cb => cb.value);
 
-                // Determine the specific points field to increment
-                const specificPointsField = categoryFieldMap[userCategory];
+                // Determine the specific points field to increment (undefined if 'Other')
+                const specificPointsField = categoryFieldMap[selectedCategory];
                 
                 const ideaData = {
                     userId: currentUser.uid,
                     userName: currentUser.displayName || 'Anonymous',
                     userEmail: currentUser.email,
-                    category: userCategory,
+                    category: finalCategory,
                     title: title,
                     problem: problem,
                     solution: solution,
@@ -646,7 +655,7 @@ if (selectedCategory === 'Other') {
                 
                 // Prepare update object: always increment total points
                 const updateData = {
-                    category: userCategory, // Update last used category
+                    category: finalCategory, // Update last used category
                     points: increment(pointsEarned), // Total global points
                     ideasSubmitted: increment(1),
                     lastActive: serverTimestamp(),
@@ -654,7 +663,7 @@ if (selectedCategory === 'Other') {
                     email: currentUser.email
                 };
 
-                // If a valid category is selected, increment specific points too
+                // If a valid category (not Other) is selected, increment specific points too
                 if (specificPointsField) {
                     updateData[specificPointsField] = increment(pointsEarned);
                 }
