@@ -230,22 +230,28 @@
                                 <input type="text" id="title" required class="form-input" placeholder="e.g. Solar-Powered Water Purifier for Rural Areas">
                             </div>
 
-                            <div class="col-span-1 md:col-span-2">
-                                <label class="block text-sm font-medium mb-2">Relevant Category <span class="text-red-500">*</span></label>
-                                <div class="relative">
-                                    <select id="userCategory" required class="form-input appearance-none cursor-pointer">
-                                        <option value="" disabled selected>Select Category for this Idea</option>
-                                        <option value="Finance & Growth">Finance & Growth</option>
-                                        <option value="Internal Systems & Operations">Internal Systems & Operations</option>
-                                        <option value="Core Program & Research Innovation">Core Program & Research Innovation</option>
-                                        <option value="Education & EdTech">Education & EdTech</option>
-                                    </select>
-                                    <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500">
-                                        <i class="fas fa-chevron-down text-xs"></i>
-                                    </div>
-                                </div>
-                                <p class="text-xs text-slate-500 mt-1">Select the category this idea relates to. Points will be awarded to this category.</p>
-                            </div>
+<div class="col-span-1 md:col-span-2">
+    <label class="block text-sm font-medium mb-2">Relevant Category <span class="text-red-500">*</span></label>
+    <div class="relative">
+        <select id="userCategory" required class="form-input appearance-none cursor-pointer">
+            <option value="" disabled selected>Select Category for this Idea</option>
+            <option value="Finance & Growth">Finance & Growth</option>
+            <option value="Internal Systems & Operations">Internal Systems & Operations</option>
+            <option value="Core Program & Research Innovation">Core Program & Research Innovation</option>
+            <option value="Education & EdTech">Education & EdTech</option>
+            <option value="Other">Other</option> </select>
+        <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500">
+            <i class="fas fa-chevron-down text-xs"></i>
+        </div>
+    </div>
+    
+    <div id="otherCategoryContainer" class="hidden mt-3 animate-fade-in">
+        <label class="block text-sm font-medium mb-2 text-brand-600">Please specify "Other" <span class="text-red-500">*</span></label>
+        <input type="text" id="otherCategoryInput" class="form-input border-brand-300 bg-brand-50" placeholder="e.g. Marketing, HR, Legal...">
+    </div>
+
+    <p class="text-xs text-slate-500 mt-1">Select the category this idea relates to.</p>
+</div>
                             
                             <div class="col-span-1 md:col-span-2">
                                 <label class="block text-sm font-medium mb-2">Team Members</label>
@@ -435,6 +441,21 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const categorySelect = document.getElementById('userCategory');
+        const otherContainer = document.getElementById('otherCategoryContainer');
+        const otherInput = document.getElementById('otherCategoryInput');
+
+categorySelect.addEventListener('change', () => {
+    if (categorySelect.value === 'Other') {
+        otherContainer.classList.remove('hidden');
+        otherInput.required = true; // Make it mandatory if visible
+        otherInput.focus();
+    } else {
+        otherContainer.classList.add('hidden');
+        otherInput.required = false; // Not mandatory if hidden
+        otherInput.value = ''; // Clear value
+    }
+});
 
         // UI Elements
         const loginBtn = document.getElementById('loginBtn');
@@ -575,7 +596,18 @@
                 const pointsEarned = currentSubmissionMode === 'challenge' ? 100 : 50;
 
                 const title = document.getElementById('title').value;
-                const userCategory = document.getElementById('userCategory').value;
+                // Get dropdown value
+let selectedCategory = document.getElementById('userCategory').value;
+let finalCategory = selectedCategory;
+
+// If "Other" is selected, use the text input value instead
+if (selectedCategory === 'Other') {
+    finalCategory = document.getElementById('otherCategoryInput').value;
+}
+
+// ... later in your code, use 'finalCategory' instead of 'userCategory'
+// Example:
+// const specificPointsField = categoryFieldMap[selectedCategory]; // Keep using selectedCategory for mapping points
                 const problem = document.getElementById('problem').value;
                 const solution = document.getElementById('solution').value;
                 const impact = document.getElementById('impact').value;
