@@ -251,8 +251,8 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Department to DB Field Mapping
-        const departmentFieldMap = {
+        // Category to DB Field Mapping
+        const categoryFieldMap = {
             "All": "points",
             "Finance & Growth": "points_finance",
             "Internal Systems & Operations": "points_systems",
@@ -304,7 +304,7 @@
             { id: 5, title: "Build an Asset in 30 Days", desc: "Create a reusable framework, toolkit, training template, or data dashboard.", icon: "fa-cubes", color: "text-purple-500" },
             { id: 6, title: "The Future 2030 Simulation", desc: "Answer: 'If Vigyanshaala becomes 100x bigger by 2030, what breaks?' Identify 5 system failures.", icon: "fa-globe", color: "text-indigo-500" },
             { id: 7, title: "Reverse Challenge", desc: "Solve a specific leadership problem (e.g., Improve engagement by 40%, Reduce dropouts) in 48 hours.", icon: "fa-chess-king", color: "text-yellow-500" },
-            { id: 8, title: "Cross-Department Swap", desc: "Pair with a different department. Identify one friction point and solve it jointly.", icon: "fa-handshake", color: "text-pink-500" },
+            { id: 8, title: "Cross-Category Swap", desc: "Pair with a different category. Identify one friction point and solve it jointly.", icon: "fa-handshake", color: "text-pink-500" },
             { id: 9, title: "Build in Public", desc: "Share weekly innovation logs, document experiments, and publish an internal learning memo.", icon: "fa-bullhorn", color: "text-orange-500" },
             { id: 10, title: "Impact Scoring Matrix Review", desc: "Review current projects against the Impact Scoring Matrix and propose an optimization.", icon: "fa-chart-bar", color: "text-teal-500" }
         ];
@@ -384,11 +384,11 @@
             fetchLeaderboard(dept);
         };
 
-        async function fetchLeaderboard(department) {
+        async function fetchLeaderboard(category) {
             const tbody = document.getElementById('leaderboardBody');
             
-            // Map the selected department name to the Firestore field
-            currentSortField = departmentFieldMap[department] || "points";
+            // Map the selected category name to the Firestore field
+            currentSortField = categoryFieldMap[category] || "points";
 
             try {
                 const usersRef = collection(db, "users");
@@ -404,7 +404,7 @@
                     const userData = doc.data();
                     // Optional: Filter out users who have 0 points in this category client-side
                     // if the orderBy includes 0s.
-                    if (userData[currentSortField] > 0 || department === 'All') {
+                    if (userData[currentSortField] > 0 || category === 'All') {
                         users.push({ id: doc.id, ...userData });
                     }
                 });
@@ -478,7 +478,7 @@
                         </div>
                     </td>
                     <td class="px-6 py-4 text-center hidden sm:table-cell">
-                        <span class="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-slate-500">${user.department || 'N/A'}</span>
+                        <span class="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-slate-500">${user.category || 'N/A'}</span>
                     </td>
                     <td class="px-6 py-4 text-center text-xs hidden md:table-cell">${badgesHTML}</td>
                     <td class="px-6 py-4 text-right font-bold text-brand-600 dark:text-brand-400">${pts}</td>

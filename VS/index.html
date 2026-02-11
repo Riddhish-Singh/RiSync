@@ -179,26 +179,15 @@
                 </div>
             </div>
 
-            <div class="bg-gradient-to-r from-brand-900 to-slate-900 rounded-3xl p-10 text-center text-white">
-                <h3 class="text-2xl font-bold mb-4">Who Can Participate?</h3>
-                <p class="text-brand-100 mb-8 max-w-xl mx-auto">
-                    Innovation has no boundaries. Employees, Students, Teachers, Researchers, and Everyone!
-                </p>
-                <div class="flex flex-wrap justify-center gap-4">
-                    <span class="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/20 text-sm font-medium">
-                        <i class="fas fa-user-graduate mr-2 text-fresh-400"></i> Employees
-                    </span>
-                    <span class="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/20 text-sm font-medium">
-                        <i class="fas fa-chalkboard-teacher mr-2 text-spark-400"></i> Teachers
-                    </span>
-                    <span class="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/20 text-sm font-medium">
-                        <i class="fas fa-flask mr-2 text-ocean-400"></i> Researchers
-                    </span>
-                    <span class="bg-gradient-to-br from-brand-600 to-brand-700 px-4 py-2 rounded-lg border border-brand-500 text-sm font-bold">
-                        <i class="fas fa-check mr-2"></i> Everyone!
-                    </span>
-                </div>
-            </div>
+<div class="bg-gradient-to-r from-brand-900 to-slate-900 rounded-3xl p-10 text-center text-white">
+    <h3 class="text-2xl font-bold mb-4">Who Can Participate?</h3>
+    <p class="text-brand-100 mb-8 max-w-xl mx-auto leading-relaxed">
+        Innovation has no boundaries. Employees, Students, Teachers, Researchers, and
+        <span class="inline-flex items-center align-middle ml-2 bg-gradient-to-br from-brand-600 to-brand-700 px-4 py-2 rounded-lg border border-brand-500 text-sm font-bold shadow-lg">
+            <i class="fas fa-check mr-2"></i> Everyone!
+        </span>
+    </p>
+</div>
         </section>
 
         <section class="mb-20" id="submitSection">
@@ -242,10 +231,10 @@
                             </div>
 
                             <div class="col-span-1 md:col-span-2">
-                                <label class="block text-sm font-medium mb-2">Relevant Department <span class="text-red-500">*</span></label>
+                                <label class="block text-sm font-medium mb-2">Relevant Category <span class="text-red-500">*</span></label>
                                 <div class="relative">
-                                    <select id="userDepartment" required class="form-input appearance-none cursor-pointer">
-                                        <option value="" disabled selected>Select Department for this Idea</option>
+                                    <select id="userCategory" required class="form-input appearance-none cursor-pointer">
+                                        <option value="" disabled selected>Select Category for this Idea</option>
                                         <option value="Finance & Growth">Finance & Growth</option>
                                         <option value="Internal Systems & Operations">Internal Systems & Operations</option>
                                         <option value="Core Program & Research Innovation">Core Program & Research Innovation</option>
@@ -255,7 +244,7 @@
                                         <i class="fas fa-chevron-down text-xs"></i>
                                     </div>
                                 </div>
-                                <p class="text-xs text-slate-500 mt-1">Select the department this idea relates to. Points will be awarded to this category.</p>
+                                <p class="text-xs text-slate-500 mt-1">Select the category this idea relates to. Points will be awarded to this category.</p>
                             </div>
                             
                             <div class="col-span-1 md:col-span-2">
@@ -278,7 +267,7 @@
                             </div>
 
                             <div>
-                                <label class="block text-sm font-medium mb-2">Proposed Solution <span class="text-red-500">*</span></label>
+                                <label class="block text-sm font-medium mb-2">Proposed Solution </label>
                                 <p class="text-xs text-slate-500 mb-2">How does your idea solve this problem creatively?<br>Feel free to do it with any method.</p>
                                 <textarea id="solution" required rows="4" class="form-input" placeholder="Describe your innovation..."></textarea>
                             </div>
@@ -462,8 +451,8 @@
         let currentSubmissionMode = 'new';
         let currentChallengeId = null;
 
-        // Department to DB Field Mapping
-        const departmentFieldMap = {
+        // Category to DB Field Mapping
+        const categoryFieldMap = {
             "Finance & Growth": "points_finance",
             "Internal Systems & Operations": "points_systems",
             "Core Program & Research Innovation": "points_research",
@@ -586,7 +575,7 @@
                 const pointsEarned = currentSubmissionMode === 'challenge' ? 100 : 50;
 
                 const title = document.getElementById('title').value;
-                const userDepartment = document.getElementById('userDepartment').value;
+                const userCategory = document.getElementById('userCategory').value;
                 const problem = document.getElementById('problem').value;
                 const solution = document.getElementById('solution').value;
                 const impact = document.getElementById('impact').value;
@@ -596,13 +585,13 @@
                 const support = Array.from(document.querySelectorAll('input[name="support"]:checked')).map(cb => cb.value);
 
                 // Determine the specific points field to increment
-                const specificPointsField = departmentFieldMap[userDepartment];
+                const specificPointsField = categoryFieldMap[userCategory];
                 
                 const ideaData = {
                     userId: currentUser.uid,
                     userName: currentUser.displayName || 'Anonymous',
                     userEmail: currentUser.email,
-                    department: userDepartment,
+                    category: userCategory,
                     title: title,
                     problem: problem,
                     solution: solution,
@@ -625,7 +614,7 @@
                 
                 // Prepare update object: always increment total points
                 const updateData = {
-                    department: userDepartment, // Update last used department
+                    category: userCategory, // Update last used category
                     points: increment(pointsEarned), // Total global points
                     ideasSubmitted: increment(1),
                     lastActive: serverTimestamp(),
@@ -633,7 +622,7 @@
                     email: currentUser.email
                 };
 
-                // If a valid department is selected, increment specific points too
+                // If a valid category is selected, increment specific points too
                 if (specificPointsField) {
                     updateData[specificPointsField] = increment(pointsEarned);
                 }
@@ -691,7 +680,7 @@
                     const card = `
                         <div class="glass-panel p-6 rounded-xl card-hover border border-slate-200 dark:border-slate-700">
                             <div class="flex justify-between items-start mb-3">
-                                <span class="text-xs font-bold uppercase text-brand-600 dark:text-brand-400">${data.department || 'General'}</span>
+                                <span class="text-xs font-bold uppercase text-brand-600 dark:text-brand-400">${data.category || 'General'}</span>
                                 <span class="px-2 py-1 rounded-full text-[10px] font-bold ${config.color}">
                                     <i class="fas ${config.icon}"></i> ${data.status || 'New'}
                                 </span>
