@@ -3,292 +3,305 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gold Rush: High Stakes</title>
+    <title>Gold Rush: PRO EDITION</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Changa:wght@500;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Roboto+Mono:wght@700&display=swap');
 
         :root {
-            --sky: #87CEEB;
-            --ui-bg: #fff8e7; 
-            --ui-border: #5d4037;
-            --btn-color: #ffb74d;
+            --sky-gradient: linear-gradient(to bottom, #4facfe 0%, #00f2fe 100%);
+            --dirt-dark: #3e2723;
+            --dirt-light: #5d4037;
+            --ui-bg: #263238;
+            --accent: #ffca28;
+            --danger: #ff5252;
         }
 
         body {
             margin: 0;
-            background: #222;
-            color: #3e2723;
-            font-family: 'Changa', sans-serif;
+            background: #111;
+            color: white;
+            font-family: 'Fredoka One', cursive;
             overflow: hidden;
             user-select: none;
             touch-action: none;
-        }
-
-        /* --- UI OVERLAY --- */
-        #ui-layer {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
         }
 
-        .top-bar {
-            padding: 15px;
+        /* --- LAYOUT --- */
+        #game-container {
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            text-shadow: 2px 2px 0px rgba(255,255,255,0.5);
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            position: relative;
         }
 
-        .stats-box {
+        /* --- HUD (Heads Up Display) --- */
+        #hud-bar {
+            height: 70px;
             background: var(--ui-bg);
-            border: 3px solid var(--ui-border);
-            padding: 8px 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+            border-bottom: 4px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 10;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            flex-shrink: 0;
         }
 
-        .big-text { font-size: 1.8rem; font-weight: 800; display: block; line-height: 1; }
-        .label { font-size: 0.8rem; color: #8d6e63; text-transform: uppercase; font-weight: bold; }
-
-        .timer {
-            background: #ff5252;
-            color: white;
+        .stat-group { display: flex; align-items: center; gap: 15px; }
+        
+        .stat-pill {
+            background: rgba(0,0,0,0.3);
             padding: 5px 15px;
             border-radius: 20px;
-            font-size: 2rem;
-            font-weight: 800;
-            border: 3px solid white;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
-            text-shadow: none;
-        }
-
-        /* --- UPGRADE SHOP --- */
-        .upgrade-dock {
-            pointer-events: auto;
             display: flex;
-            justify-content: center;
-            gap: 15px;
-            padding: 20px;
-            background: rgba(0,0,0,0.1);
+            align-items: center;
+            gap: 8px;
+            border: 2px solid rgba(255,255,255,0.1);
         }
 
-        .shop-btn {
-            background: var(--btn-color);
-            border: 3px solid var(--ui-border);
-            color: #3e2723;
-            padding: 10px 15px;
-            border-radius: 12px;
-            cursor: pointer;
-            text-align: left;
-            transition: all 0.1s;
-            min-width: 130px;
+        .icon { font-size: 1.2rem; }
+        .val { font-family: 'Roboto Mono', monospace; font-size: 1.2rem; color: var(--accent); }
+
+        #timer-container {
+            position: absolute;
+            left: 50%;
+            top: 45px; /* Hangs slightly over game */
+            transform: translateX(-50%);
+            background: var(--danger);
+            padding: 5px 20px;
+            border-radius: 0 0 15px 15px;
+            border: 3px solid #fff;
+            border-top: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            z-index: 20;
+        }
+        #timer-val { font-size: 1.5rem; text-shadow: 1px 1px 0 #a70000; }
+
+        /* --- CANVAS --- */
+        #canvas-wrapper {
+            flex-grow: 1;
             position: relative;
-            box-shadow: 0 5px 0 #bf360c;
+            overflow: hidden;
+            cursor: crosshair;
+            background: #1a1a1a;
         }
+        canvas { display: block; width: 100%; height: 100%; }
 
-        .shop-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #bf360c; }
-        .shop-btn span { display: block; }
-        .cost { color: #fff; font-weight: 800; font-size: 1.1rem; text-shadow: 1px 1px 0 #000; }
-        
-        .key-hint { 
-            position: absolute; right: 5px; top: 5px; 
-            font-size: 0.8rem; background: rgba(0,0,0,0.2); color: white;
-            padding: 2px 6px; border-radius: 4px; font-weight: bold;
-        }
-
-        /* --- LOBBY --- */
-        #lobby {
+        /* --- SHOP / UPGRADES --- */
+        #shop-overlay {
             position: absolute;
-            z-index: 100;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #87CEEB;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            gap: 10px;
+            pointer-events: none; /* Let clicks pass through gaps */
+        }
+        
+        .shop-card {
             pointer-events: auto;
-            background-image: radial-gradient(white 20%, transparent 20%), radial-gradient(white 20%, transparent 20%);
-            background-position: 0 0, 50px 50px;
-            background-size: 100px 100px;
-        }
-
-        h1 {
-            font-size: 4rem; margin: 0; color: #ffb300;
-            text-shadow: 4px 4px 0 #3e2723, -2px -2px 0 #fff;
-            transform: rotate(-3deg);
-        }
-
-        .name-input {
-            margin-top: 20px;
-            padding: 15px;
-            font-size: 1.2rem;
-            border: 3px solid #5d4037;
-            border-radius: 8px;
-            background: #fff8e7;
-            color: #3e2723;
-            font-family: inherit;
-            font-weight: bold;
-            text-align: center;
-            outline: none;
-            width: 250px;
-        }
-
-        .play-btn {
-            background: #4CAF50;
-            color: white;
-            border: 4px solid #1b5e20;
-            padding: 15px 50px;
-            font-size: 1.5rem;
-            font-weight: 800;
-            font-family: inherit;
+            background: linear-gradient(to bottom, #fff, #e0e0e0);
+            color: #333;
+            border: 3px solid #333;
+            border-bottom-width: 6px;
             border-radius: 12px;
-            cursor: pointer;
-            box-shadow: 0 8px 0 #1b5e20;
-            transition: 0.1s;
-            margin-top: 20px;
-        }
-        .play-btn:hover { transform: scale(1.05); }
-        .play-btn:active { transform: translateY(4px) scale(1.05); box-shadow: 0 4px 0 #1b5e20; }
-        
-        /* --- BANNED SCREEN --- */
-        #banned-screen {
-            position: absolute;
-            z-index: 999;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #212121;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #e57373;
+            padding: 8px 12px;
             text-align: center;
+            cursor: pointer;
+            transition: transform 0.1s, filter 0.1s;
+            width: 80px;
+            position: relative;
+        }
+        .shop-card:active { transform: translateY(3px); border-bottom-width: 3px; }
+        .shop-card:hover { filter: brightness(1.1); }
+        .shop-card.disabled { opacity: 0.5; filter: grayscale(1); cursor: not-allowed; }
+        
+        .key-bind { 
+            position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+            background: #333; color: white; padding: 2px 6px; border-radius: 4px;
+            font-size: 0.7rem; font-family: sans-serif;
+        }
+        .item-name { font-size: 0.7rem; font-weight: bold; display: block; margin-bottom: 2px; }
+        .item-cost { font-size: 0.9rem; font-weight: 900; color: #d84315; }
+
+        /* --- MODALS --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         
-        /* --- GAME OVER SCREEN --- */
-        #game-over-screen {
-            position: absolute;
-            z-index: 200;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            pointer-events: auto;
-        }
-
-        .result-card {
-            background: var(--ui-bg);
-            border: 5px solid var(--ui-border);
+        .modal-box {
+            background: #fff;
+            color: #333;
+            width: 90%;
+            max-width: 500px;
             padding: 30px;
             border-radius: 20px;
+            box-shadow: 0 0 50px rgba(255, 202, 40, 0.4);
+            border: 5px solid #333;
             text-align: center;
-            color: #3e2723;
-            box-shadow: 0 0 50px rgba(255, 183, 77, 0.5);
-            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            max-width: 90%;
+            animation: zoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-
-        @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
-
-        .winner-title { font-size: 3rem; margin: 0; color: #d84315; }
-        .score-row { font-size: 1.5rem; margin: 10px 0; font-weight: bold; }
         
-        .strike-badge {
-            background: #d32f2f;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 1rem;
-            margin-top: 10px;
-            display: inline-block;
-            border: 2px solid white;
-        }
+        @keyframes zoomIn { from {transform: scale(0.8); opacity: 0;} to {transform: scale(1); opacity: 1;} }
 
-        #canvas-container {
+        h1, h2 { margin: 0 0 15px 0; color: #333; text-transform: uppercase; }
+        h1 { color: #f57f17; font-size: 2.5rem; text-shadow: 2px 2px 0 #333; }
+        
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-bottom: 5px solid #1b5e20;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-family: inherit;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: 0.1s;
+            margin-top: 15px;
+        }
+        .btn-primary:hover { transform: translateY(-2px); }
+        .btn-primary:active { transform: translateY(2px); border-bottom-width: 2px; }
+        
+        .tutorial-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            text-align: left;
+            margin: 20px 0;
+            font-family: sans-serif;
+            font-size: 0.9rem;
+        }
+        .tut-item i { color: #f57f17; width: 20px; display: inline-block; text-align: center; font-weight: bold; }
+
+        /* --- OXYGEN BAR --- */
+        #oxygen-container {
+            width: 200px;
+            height: 20px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #555;
+            position: relative;
+        }
+        #oxygen-fill {
             width: 100%;
             height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: #6d4c41;
+            background: linear-gradient(90deg, #42a5f5, #2196f3);
+            transition: width 0.2s;
+        }
+        #oxygen-label {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; text-shadow: 1px 1px 0 #000;
         }
 
-        canvas { 
-            background: #87CEEB; 
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        }
+        .hidden { display: none !important; }
 
     </style>
 </head>
 <body>
 
-    <div id="banned-screen">
-        <h1 style="color: #c62828; font-size: 5rem; transform: rotate(0deg);">BANKRUPT</h1>
-        <p style="font-size: 1.5rem; color: #fff;">You lost 2 times.</p>
-        <p style="font-size: 1.2rem; color: #9e9e9e;">Your mining license has been permanently revoked.</p>
-        <div style="font-size: 4rem; margin-top:20px;">🚫</div>
-    </div>
-
-    <div id="lobby">
-        <h1>GOLD RUSH</h1>
-        <div id="greeting-area"></div>
-        
-        <div id="lobby-strike-display" class="strike-badge">Strikes: 0 / 2</div>
-                        <a href="results.html" class="text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-300 transition">See Results</a>
-        
-        <input type="text" id="player-name" class="name-input" placeholder="Enter Your Name" maxlength="10">
-        <button class="play-btn" id="match-btn" onclick="findMatch()">START DIGGING</button>
-        <p id="status-log" style="color: #1b5e20; margin-top: 20px; font-weight: bold; background:rgba(255,255,255,0.5); padding: 5px 10px; border-radius:10px;">Waiting for player...</p>
-    </div>
-
-    <div id="ui-layer" style="display: none;">
-        <div class="top-bar">
-            <div class="stats-box">
-                <span class="label">NUGGETS</span>
-                <span id="score-val" class="big-text" style="color:#d84315">0</span>
+    <div id="game-container">
+        <div id="hud-bar">
+            <div class="stat-group">
+                <div class="stat-pill">
+                    <span class="icon">🏆</span>
+                    <span id="score-display" class="val">0</span>
+                </div>
+                <div id="oxygen-container">
+                    <div id="oxygen-fill"></div>
+                    <div id="oxygen-label">OXYGEN</div>
+                </div>
             </div>
-            <div class="timer" id="timer-val">60</div>
-            <div class="stats-box" style="text-align: right;">
-                <span class="label">DEPTH</span>
-                <span id="depth-val" class="big-text">0m</span>
+
+            <div id="timer-container">
+                <span id="timer-val">60</span>
+            </div>
+
+            <div class="stat-group">
+                <div class="stat-pill">
+                    <span class="icon">⬇️</span>
+                    <span id="depth-display" class="val">0m</span>
+                </div>
             </div>
         </div>
 
-        <div class="upgrade-dock">
-            <button class="shop-btn" onclick="buyUpgrade('speed')">
-                <span class="key-hint">1</span>
-                <span style="font-size:0.9rem; font-weight:bold;">Turbo Boots</span>
-                <span class="cost">15 Gold</span>
-            </button>
-            <button class="shop-btn" onclick="buyUpgrade('drill')">
-                <span class="key-hint">2</span>
-                <span style="font-size:0.9rem; font-weight:bold;">Super Pickaxe</span>
-                <span class="cost">15 Gold</span>
-            </button>
+        <div id="canvas-wrapper">
+            <canvas id="gameCanvas"></canvas>
+            
+            <div id="shop-overlay" style="display:none;">
+                <div class="shop-card" onclick="game.buy('speed')">
+                    <div class="key-bind">1</div>
+                    <span class="item-name">BOOTS</span>
+                    <span class="item-cost" id="cost-speed">15g</span>
+                </div>
+                <div class="shop-card" onclick="game.buy('drill')">
+                    <div class="key-bind">2</div>
+                    <span class="item-name">DRILL</span>
+                    <span class="item-cost" id="cost-drill">15g</span>
+                </div>
+                <div class="shop-card" onclick="game.buy('tnt')">
+                    <div class="key-bind">E</div>
+                    <span class="item-name">TNT</span>
+                    <span class="item-cost" id="cost-tnt">50g</span>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div id="game-over-screen">
-        <div class="result-card">
-            <h2 class="winner-title" id="winner-display">WINNER!</h2>
-            <div style="margin: 20px 0; border-top: 2px dashed #aaa; border-bottom: 2px dashed #aaa; padding: 10px 0;">
-                <div class="score-row" id="end-my-score">Me: 0</div>
-                <div class="score-row" id="end-opp-score">Opponent: 0</div>
+    <div id="start-screen" class="modal-overlay">
+        <div class="modal-box">
+            <h1>Gold Rush</h1>
+            <h3 style="color:#777; margin-top:-10px;">PRO EDITION</h3>
+            
+            <input type="text" id="player-name" placeholder="Enter Codename" maxlength="10" 
+                   style="padding:10px; font-size:1.2rem; border-radius:8px; border:2px solid #ccc; width:60%; text-align:center;">
+
+            <div class="tutorial-grid">
+                <div class="tut-item"><i>⌨️</i> <b>Arrows / WASD</b> to Move</div>
+                <div class="tut-item"><i>⛏️</i> Move into blocks to <b>Dig</b></div>
+                <div class="tut-item"><i>🫧</i> Return to surface for <b>Air</b></div>
+                <div class="tut-item"><i>🧨</i> Press <b>E</b> to use TNT</div>
+                <div class="tut-item"><i>💎</i> Collect Gems & Gold</div>
+                <div class="tut-item"><i>🛍️</i> Buy Upgrades below</div>
             </div>
             
-            <div id="end-message" style="color: #d32f2f; font-weight: bold; margin-bottom: 10px;"></div>
-            
-            <button id="replay-btn" class="play-btn" onclick="location.reload()">PLAY AGAIN</button>
+            <div id="ban-message" style="color:red; display:none; font-weight:bold;">ACCOUNT TERMINATED</div>
+            <button id="start-btn" class="btn-primary" onclick="initGame()">DEPLOY TO MINE</button>
+            <p id="conn-status" style="font-size:0.8rem; color:#666; margin-top:10px;"></p>
         </div>
     </div>
 
-    <div id="canvas-container">
-        <canvas id="gameCanvas"></canvas>
+    <div id="end-screen" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h1 id="end-title">GAME OVER</h1>
+            <div style="font-size: 4rem; margin: 10px 0;" id="end-icon">🏁</div>
+            <h2 id="end-winner" style="color:#4CAF50"></h2>
+            
+            <div style="background:#eee; padding:10px; border-radius:10px; margin:20px 0;">
+                <div style="display:flex; justify-content:space-between; padding:5px;">
+                    <span>You:</span> <span id="final-score-me" style="font-weight:bold">0</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; padding:5px;">
+                    <span>Rival:</span> <span id="final-score-opp" style="font-weight:bold">0</span>
+                </div>
+            </div>
+            
+            <p id="strike-msg" style="color:#d32f2f; font-weight:bold"></p>
+            <button class="btn-primary" onclick="location.reload()">PLAY AGAIN</button>
+        </div>
     </div>
 
     <script type="module">
@@ -296,6 +309,56 @@
         import { getDatabase, ref, set, onValue, update, runTransaction, onDisconnect, remove } 
                from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
 
+        // --- AUDIO ENGINE (Synthesized Sound) ---
+        class SoundEngine {
+            constructor() {
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                this.masterGain = this.ctx.createGain();
+                this.masterGain.gain.value = 0.3; // Volume
+                this.masterGain.connect(this.ctx.destination);
+            }
+
+            playTone(freq, type, duration, slide = 0) {
+                if(this.ctx.state === 'suspended') this.ctx.resume();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                if (slide) osc.frequency.linearRampToValueAtTime(freq + slide, this.ctx.currentTime + duration);
+                
+                gain.gain.setValueAtTime(1, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+
+                osc.connect(gain);
+                gain.connect(this.masterGain);
+                osc.start();
+                osc.stop(this.ctx.currentTime + duration);
+            }
+
+            playDig() { this.playTone(100, 'square', 0.1, -50); }
+            playCoin() { this.playTone(1200, 'sine', 0.1, 500); setTimeout(()=>this.playTone(1800, 'sine', 0.2), 50); }
+            playExplosion() { 
+                // Noise buffer for explosion
+                const duration = 0.5;
+                const bufferSize = this.ctx.sampleRate * duration;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(1, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+                noise.connect(gain);
+                gain.connect(this.masterGain);
+                noise.start();
+            }
+            playAlert() { this.playTone(300, 'sawtooth', 0.3, -100); }
+        }
+
+        // --- FIREBASE CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyC46INaqbxzQcsbCZ4V9sHCYd4YXr0-rIo",
             authDomain: "vs-game-22908.firebaseapp.com",
@@ -308,491 +371,601 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- CONSTANTS ---
-        const TILE_SIZE = 40;
-        const GRID_W = 15;
+        // --- GAME LOGIC ---
+        const TILE_SIZE = 48; // Bigger tiles
+        const GRID_W = 16;
+        const VIEW_H_TILES = 12;
         const MAX_LOSSES = 2;
         
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        
-        // --- STATE ---
-        let gameId = null;
-        let myRole = null; 
-        let myName = "Player";
-        let isGameActive = false;
-        let lastTime = 0;
-        let currentLosses = 0;
-        
-        let player = {
-            x: 7, y: 0, 
-            pixelX: 0, pixelY: 0, 
-            score: 0,
-            drillPower: 1, 
-            moveSpeed: 0.15,
-            dir: 0,
-            action: 'idle'
-        };
-
-        // Opponent Data
-        let opponent = { 
-            x: 7, y: 0, 
-            score: 0, 
-            name: "Waiting..." 
-        };
-        
-        let brokenTiles = {};
-        let particles = [];
-        let cameraY = 0;
-        let timeLeft = 60;
-        let upgradeCost = 15;
-
-        // --- CHECK BAN STATUS IMMEDIATELY ---
-        function checkBanStatus() {
-            currentLosses = parseInt(localStorage.getItem('gr_losses') || '0');
-            
-            // Update Lobby UI
-            const strikeDisplay = document.getElementById('lobby-strike-display');
-            strikeDisplay.innerText = `Strikes: ${currentLosses} / ${MAX_LOSSES}`;
-            
-            if (currentLosses >= MAX_LOSSES) {
-                document.getElementById('lobby').style.display = 'none';
-                document.getElementById('banned-screen').style.display = 'flex';
-                // Remove game inputs
-                document.getElementById('match-btn').disabled = true;
-                return true; // Is Banned
-            }
-            return false;
-        }
-
-        // Run check on load
-        if(checkBanStatus()) {
-            // Stop execution if banned
-            throw new Error("Player is banned.");
-        }
-
-        // --- INITIALIZATION (AUTO-FILL NAME) ---
-        const savedName = localStorage.getItem('gold_rush_username');
-        if (savedName) {
-            const input = document.getElementById('player-name');
-            input.value = savedName; 
-            input.style.display = 'none'; 
-
-            const greetArea = document.getElementById('greeting-area');
-            greetArea.innerHTML = `
-                <h2 style="color:#3e2723; margin: 10px 0;">
-                    Welcome, ${savedName}! 
-                </h2>
-                <div style="margin-bottom:5px; font-size: 0.9rem;">
-                    <a href="#" id="change-name-link" style="color: #d84315; text-decoration: underline; cursor: pointer;">(Not you? Change Name)</a>
-                </div>
-            `;
-            
-            document.getElementById('change-name-link').onclick = (e) => {
-                e.preventDefault();
-                localStorage.removeItem('gold_rush_username');
-                location.reload();
-            };
-        }
-
-        // --- MATCHMAKING ---
-        window.findMatch = function() {
-            if (currentLosses >= MAX_LOSSES) return;
-
-            const nameInput = document.getElementById('player-name').value.trim();
-            if(!nameInput) {
-                alert("Please sign the register with your name!");
-                return;
-            }
-            // Sanitize name for Firebase keys (remove . # $ [ ])
-            myName = nameInput.replace(/[.#$[\]]/g, "_");
-            
-            localStorage.setItem('gold_rush_username', myName);
-
-            const btn = document.getElementById('match-btn');
-            const log = document.getElementById('status-log');
-            btn.innerText = "CONNECTING...";
-            btn.disabled = true;
-            log.innerText = "Radioing HQ...";
-
-            const queueRef = ref(db, 'gold_rush_queue');
-            const newId = "rush_" + Date.now();
-
-            runTransaction(queueRef, (data) => {
-                if (data === null) return { gameId: newId, status: 'waiting' };
-                if (data.status === 'waiting') return { ...data, status: 'matched' };
-                return undefined;
-            }).then(({ committed, snapshot }) => {
-                if (!committed) return setTimeout(window.findMatch, 1000);
+        class Game {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.audio = new SoundEngine();
                 
-                const val = snapshot.val();
-                if (val.gameId === newId && val.status === 'waiting') {
-                    myRole = 'p1';
-                    gameId = newId;
-                    log.innerText = "Camp established. Waiting for partner...";
-                    onDisconnect(queueRef).remove();
+                this.state = 'LOBBY';
+                this.myName = "Miner";
+                this.myRole = null;
+                this.gameId = null;
+                this.losses = parseInt(localStorage.getItem('gr_losses') || '0');
+                
+                this.camera = { y: 0, shake: 0 };
+                this.particles = [];
+                this.floatTexts = [];
+                
+                this.tiles = {}; // Procedural cache
+                this.broken = {}; // Networked broken state
+                
+                this.timeLeft = 60;
+                
+                this.player = {
+                    x: 7, y: 0,
+                    pixelX: 7 * TILE_SIZE, pixelY: 0,
+                    vx: 0, vy: 0,
+                    score: 0,
+                    oxygen: 100,
+                    maxOxygen: 100,
+                    drillPower: 1,
+                    speed: 1,
+                    hasTNT: 0
+                };
+                
+                this.opponent = { x: 8, y: 0, score: 0, name: "Searching..." };
+                
+                this.input = { up: false, down: false, left: false, right: false };
+                this.costs = { speed: 15, drill: 15, tnt: 50 };
+
+                this.mining = { active: false, target: null, progress: 0 };
+                
+                this.setupInput();
+                this.checkBan();
+            }
+
+            checkBan() {
+                if (this.losses >= MAX_LOSSES) {
+                    document.getElementById('ban-message').style.display = 'block';
+                    document.getElementById('start-btn').disabled = true;
+                    document.getElementById('start-btn').innerText = "BANNED";
+                    document.getElementById('start-btn').style.background = "#555";
+                    document.getElementById('start-screen').querySelector('h1').innerText = "BANKRUPT";
+                    return true;
+                }
+                const saved = localStorage.getItem('gr_name');
+                if(saved) document.getElementById('player-name').value = saved;
+                return false;
+            }
+
+            setupInput() {
+                window.addEventListener('keydown', e => {
+                    if (e.key === 'ArrowUp' || e.key === 'w') this.input.up = true;
+                    if (e.key === 'ArrowDown' || e.key === 's') this.input.down = true;
+                    if (e.key === 'ArrowLeft' || e.key === 'a') this.input.left = true;
+                    if (e.key === 'ArrowRight' || e.key === 'd') this.input.right = true;
+                    if (e.key === '1') this.buy('speed');
+                    if (e.key === '2') this.buy('drill');
+                    if (e.key === 'e' || e.key === 'E') this.useTNT();
+                });
+                window.addEventListener('keyup', e => {
+                    if (e.key === 'ArrowUp' || e.key === 'w') this.input.up = false;
+                    if (e.key === 'ArrowDown' || e.key === 's') this.input.down = false;
+                    if (e.key === 'ArrowLeft' || e.key === 'a') this.input.left = false;
+                    if (e.key === 'ArrowRight' || e.key === 'd') this.input.right = false;
+                });
+                window.addEventListener('resize', () => this.resize());
+            }
+
+            resize() {
+                this.canvas.width = this.canvas.parentElement.offsetWidth;
+                this.canvas.height = this.canvas.parentElement.offsetHeight;
+                this.centerX = this.canvas.width / 2;
+            }
+
+            async connect() {
+                const nameInput = document.getElementById('player-name').value.trim();
+                if (!nameInput) { alert("Enter a name!"); return; }
+                
+                this.myName = nameInput.replace(/[.#$[\]]/g, "_");
+                localStorage.setItem('gr_name', this.myName);
+                
+                const btn = document.getElementById('start-btn');
+                const status = document.getElementById('conn-status');
+                
+                btn.disabled = true; 
+                btn.innerText = "SATELLITE UPLINK...";
+                
+                const queueRef = ref(db, 'gold_rush_queue');
+                const myId = "match_" + Date.now();
+
+                // Simple Matchmaking Logic
+                runTransaction(queueRef, (current) => {
+                    if (current === null) return { id: myId, status: 'waiting' };
+                    if (current.status === 'waiting') return { ...current, status: 'matched' };
+                    return undefined;
+                }).then(({ committed, snapshot }) => {
+                    if (!committed) {
+                        setTimeout(() => this.connect(), 500); // Retry
+                        return;
+                    }
                     
-                    const unsub = onValue(queueRef, (snap) => {
-                        if (snap.val()?.status === 'matched') {
-                            remove(queueRef);
-                            unsub();
-                            startGame();
-                        }
-                    });
-                } else {
-                    myRole = 'p2';
-                    gameId = val.gameId;
-                    log.innerText = "Partner found! Starting...";
-                    startGame();
-                }
-            });
-        };
-
-        function startGame() {
-            document.getElementById('lobby').style.display = 'none';
-            document.getElementById('ui-layer').style.display = 'flex';
-            
-            canvas.width = GRID_W * TILE_SIZE;
-            canvas.height = window.innerHeight;
-            
-            if (myRole === 'p1') {
-                set(ref(db, `games/${gameId}`), {
-                    startTime: Date.now(),
-                    broken: {}
-                });
-            }
-
-            onValue(ref(db, `games/${gameId}/broken`), (snap) => brokenTiles = snap.val() || {});
-
-            const oppRole = myRole === 'p1' ? 'p2' : 'p1';
-            onValue(ref(db, `games/${gameId}/${oppRole}`), (snap) => {
-                if(snap.val()) opponent = snap.val();
-            });
-
-            update(ref(db, `games/${gameId}/${myRole}`), {
-                name: myName,
-                score: 0,
-                x: 7, y: 0
-            });
-
-            const timerInt = setInterval(() => {
-                timeLeft--;
-                document.getElementById('timer-val').innerText = timeLeft;
-                if(timeLeft <= 0) {
-                    clearInterval(timerInt);
-                    isGameActive = false;
-                    showGameOver();
-                }
-            }, 1000);
-
-            isGameActive = true;
-            player.pixelX = player.x * TILE_SIZE;
-            player.pixelY = player.y * TILE_SIZE;
-            requestAnimationFrame(gameLoop);
-        }
-
-        function showGameOver() {
-            const screen = document.getElementById('game-over-screen');
-            const winnerText = document.getElementById('winner-display');
-            const myScoreText = document.getElementById('end-my-score');
-            const oppScoreText = document.getElementById('end-opp-score');
-            const endMsg = document.getElementById('end-message');
-            const replayBtn = document.getElementById('replay-btn');
-
-            screen.style.display = 'flex';
-
-            let winnerName = "";
-            let userLost = false;
-
-            if (player.score > opponent.score) {
-                winnerName = myName;
-                winnerText.style.color = "#4CAF50"; 
-                winnerText.innerText = "YOU WIN!";
-            } else if (opponent.score > player.score) {
-                winnerName = opponent.name || "Rival";
-                winnerText.style.color = "#d84315"; 
-                winnerText.innerText = `${winnerName.toUpperCase()} WINS!`;
-                userLost = true;
-            } else {
-                winnerText.style.color = "#ffb74d";
-                winnerText.innerText = "DRAW!";
-            }
-
-            myScoreText.innerText = `${myName}: ${player.score}`;
-            oppScoreText.innerText = `${opponent.name || 'Rival'}: ${opponent.score}`;
-
-            // --- LOSS LOGIC ---
-            if (userLost) {
-                currentLosses++;
-                localStorage.setItem('gr_losses', currentLosses);
-                
-                if (currentLosses >= MAX_LOSSES) {
-                    // *** CRITICAL UPDATE: Write to Firebase Banned List ***
-                    // This allows the Gazette page to see that this user is banned.
-                    const banRef = ref(db, 'banned_users/' + myName);
-                    set(banRef, {
-                        bannedAt: Date.now(),
-                        reason: "Bankruptcy (2 Losses)"
-                    });
-
-                    endMsg.innerText = "This was your 2nd Strike. You are BANKRUPT.";
-                    replayBtn.innerText = "LEAVE";
-                    replayBtn.style.background = "#d32f2f";
-                    replayBtn.style.borderColor = "#b71c1c";
-                    // When they click Leave (reload), checkBanStatus will run and lock them out
-                } else {
-                    endMsg.innerText = `Strike 1 / ${MAX_LOSSES}. Be careful!`;
-                }
-            }
-        }
-
-        // --- TILE LOGIC ---
-        function getTileType(x, y) {
-            if (y < 2) return 'empty';
-            if (brokenTiles[`${x}_${y}`]) return 'empty';
-            
-            const seed = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
-            const rand = seed - Math.floor(seed);
-
-            if (rand > 0.96) return 'diamond'; 
-            if (rand > 0.85) return 'gold';    
-            if (rand > 0.65) return 'iron';    
-            return 'dirt';                     
-        }
-
-        function getTileHP(type) {
-            if (type === 'diamond') return 40;
-            if (type === 'gold') return 25;
-            if (type === 'iron') return 15;
-            if (type === 'dirt') return 10;
-            return 0;
-        }
-
-        // --- GAME LOOP ---
-        function gameLoop(timestamp) {
-            if (!isGameActive) return;
-            lastTime = timestamp;
-            updatePhysics();
-            draw();
-            requestAnimationFrame(gameLoop);
-        }
-
-        // --- INPUT ---
-        const keys = {};
-        window.onkeydown = (e) => {
-            keys[e.key] = true;
-            if(e.key === '1') buyUpgrade('speed');
-            if(e.key === '2') buyUpgrade('drill');
-        };
-        window.onkeyup = (e) => keys[e.key] = false;
-
-        let miningTarget = null;
-        let miningProgress = 0;
-
-        function updatePhysics() {
-            let tx = player.x;
-            let ty = player.y;
-
-            if (keys['ArrowRight'] || keys['d']) tx++;
-            else if (keys['ArrowLeft'] || keys['a']) tx--;
-            else if (keys['ArrowDown'] || keys['s']) ty++;
-            else if (keys['ArrowUp'] || keys['w']) ty--;
-
-            if (tx < 0) tx = 0;
-            if (tx >= GRID_W) tx = GRID_W - 1;
-            if (ty < 0) ty = 0;
-
-            const tile = getTileType(tx, ty);
-
-            if (tile === 'empty') {
-                player.x = tx;
-                player.y = ty;
-                miningTarget = null;
-            } else {
-                miningTarget = {x: tx, y: ty};
-                miningProgress += player.drillPower;
-                
-                spawnParticles(tx * TILE_SIZE + 20, ty * TILE_SIZE + 20, '#8B4513', 1);
-
-                if (miningProgress >= getTileHP(tile)) {
-                    breakTile(tx, ty, tile);
-                    player.x = tx;
-                    player.y = ty;
-                    miningProgress = 0;
-                    miningTarget = null;
-                }
-            }
-
-            player.pixelX += (player.x * TILE_SIZE - player.pixelX) * 0.2;
-            player.pixelY += (player.y * TILE_SIZE - player.pixelY) * 0.2;
-            
-            cameraY = player.pixelY - (canvas.height / 2);
-            if (cameraY < 0) cameraY = 0;
-
-            if (Math.random() > 0.9) {
-                update(ref(db, `games/${gameId}/${myRole}`), {
-                    x: player.x, 
-                    y: player.y, 
-                    score: player.score,
-                    name: myName
-                });
-            }
-
-            document.getElementById('score-val').innerText = player.score;
-            document.getElementById('depth-val').innerText = player.y + "m";
-        }
-
-        function breakTile(x, y, type) {
-            brokenTiles[`${x}_${y}`] = true; 
-            
-            const updates = {};
-            updates[`games/${gameId}/broken/${x}_${y}`] = true;
-            update(ref(db), updates);
-
-            let pts = 0;
-            let color = '#5d4037';
-            if (type === 'iron') { pts = 2; color = '#aaa'; }
-            if (type === 'gold') { pts = 10; color = '#FFD700'; }
-            if (type === 'diamond') { pts = 50; color = '#9932CC'; }
-            
-            player.score += pts;
-            spawnParticles(x * TILE_SIZE + 20, y * TILE_SIZE + 20, color, 15);
-        }
-
-        window.buyUpgrade = function(type) {
-            if (player.score >= upgradeCost) {
-                player.score -= upgradeCost;
-                if (type === 'speed') player.moveSpeed *= 1.2;
-                if (type === 'drill') player.drillPower += 0.5;
-                upgradeCost = Math.floor(upgradeCost * 1.5);
-                document.querySelectorAll('.cost').forEach(b => b.innerText = upgradeCost + " Gold");
-            }
-        }
-
-        // --- DRAWING ---
-        function draw() {
-            ctx.fillStyle = '#87CEEB';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            ctx.save();
-            ctx.translate(0, -cameraY);
-
-            if (cameraY < 500) {
-                ctx.fillStyle = "rgba(255,255,255,0.6)";
-                ctx.beginPath();
-                ctx.arc(100, -100, 60, 0, Math.PI*2);
-                ctx.arc(200, -80, 70, 0, Math.PI*2);
-                ctx.fill();
-            }
-
-            const startRow = Math.floor(cameraY / TILE_SIZE);
-            const endRow = startRow + (canvas.height / TILE_SIZE) + 2;
-
-            for (let y = startRow; y < endRow; y++) {
-                for (let x = 0; x < GRID_W; x++) {
-                    const type = getTileType(x, y);
-                    const px = x * TILE_SIZE;
-                    const py = y * TILE_SIZE;
-
-                    if (type !== 'empty') {
-                        if (type === 'dirt') ctx.fillStyle = '#8B5A2B';
-                        else ctx.fillStyle = '#6d4c41'; 
+                    const val = snapshot.val();
+                    if (val.id === myId && val.status === 'waiting') {
+                        // We are host
+                        this.myRole = 'p1';
+                        this.gameId = myId;
+                        status.innerText = "Host established. Waiting for challenger...";
                         
-                        ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
-                        ctx.fillStyle = 'rgba(255,255,255,0.1)';
-                        ctx.fillRect(px, py, TILE_SIZE, 4);
-                        ctx.fillStyle = 'rgba(0,0,0,0.2)';
-                        ctx.fillRect(px, py + TILE_SIZE - 4, TILE_SIZE, 4);
-
-                        if (type === 'iron') {
-                            ctx.fillStyle = '#B0C4DE';
-                            ctx.beginPath(); ctx.arc(px+20, py+20, 10, 0, Math.PI*2); ctx.fill();
-                        }
-                        if (type === 'gold') {
-                            ctx.fillStyle = '#FFD700';
-                            ctx.fillRect(px+10, py+10, 15, 15);
-                            ctx.fillStyle = '#FFFACD';
-                            ctx.fillRect(px+12, py+12, 5, 5);
-                        }
-                        if (type === 'diamond') {
-                            ctx.fillStyle = '#E0FFFF';
-                            ctx.beginPath(); ctx.moveTo(px+20, py+5); ctx.lineTo(px+35, py+20); ctx.lineTo(px+20, py+35); ctx.lineTo(px+5, py+20); ctx.fill();
-                        }
-
-                        if (miningTarget && miningTarget.x === x && miningTarget.y === y) {
-                            ctx.strokeStyle = 'rgba(0,0,0,0.5)';
-                            ctx.lineWidth = 2;
-                            ctx.beginPath();
-                            ctx.moveTo(px+5, py+5); ctx.lineTo(px+35, py+35);
-                            ctx.moveTo(px+35, py+5); ctx.lineTo(px+5, py+35);
-                            ctx.stroke();
-                        }
+                        onDisconnect(queueRef).remove();
+                        const unsub = onValue(queueRef, (snap) => {
+                            if (snap.val()?.status === 'matched') {
+                                remove(queueRef); // Clear queue
+                                unsub();
+                                this.start();
+                            }
+                        });
                     } else {
-                        ctx.fillStyle = 'rgba(0,0,0,0.2)';
-                        ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+                        // We are guest
+                        this.myRole = 'p2';
+                        this.gameId = val.id;
+                        status.innerText = "Signal locked! Launching...";
+                        this.start();
+                    }
+                });
+            }
+
+            start() {
+                this.state = 'PLAYING';
+                document.getElementById('start-screen').style.display = 'none';
+                document.getElementById('shop-overlay').style.display = 'flex';
+                this.resize();
+
+                // Reset Player
+                this.player.x = 7; 
+                this.player.y = 0;
+                this.player.pixelX = 7 * TILE_SIZE;
+                this.player.pixelY = 0;
+
+                // Firebase Sync Setup
+                const gameRef = ref(db, `games/${this.gameId}`);
+                
+                if (this.myRole === 'p1') {
+                    set(gameRef, { startTime: Date.now(), broken: {} });
+                }
+
+                // Listen for Broken Tiles
+                onValue(ref(db, `games/${this.gameId}/broken`), (snap) => {
+                    this.broken = snap.val() || {};
+                });
+
+                // Listen for Opponent
+                const oppRole = this.myRole === 'p1' ? 'p2' : 'p1';
+                onValue(ref(db, `games/${this.gameId}/${oppRole}`), (snap) => {
+                    if (snap.val()) this.opponent = snap.val();
+                });
+
+                // Start Loop
+                this.lastTime = performance.now();
+                requestAnimationFrame(t => this.loop(t));
+
+                // Start Timer
+                const timerInt = setInterval(() => {
+                    this.timeLeft--;
+                    document.getElementById('timer-val').innerText = this.timeLeft;
+                    if(this.timeLeft <= 0 || this.player.oxygen <= 0) {
+                        clearInterval(timerInt);
+                        this.endGame();
+                    }
+                }, 1000);
+            }
+
+            loop(now) {
+                if (this.state !== 'PLAYING') return;
+                const dt = (now - this.lastTime) / 1000;
+                this.lastTime = now;
+
+                this.update(dt);
+                this.draw();
+                requestAnimationFrame(t => this.loop(t));
+            }
+
+            update(dt) {
+                // Movement Input
+                if (!this.mining.active) {
+                    if (this.input.right) this.moveRequest(1, 0);
+                    else if (this.input.left) this.moveRequest(-1, 0);
+                    else if (this.input.down) this.moveRequest(0, 1);
+                    else if (this.input.up) this.moveRequest(0, -1);
+                }
+
+                // Smooth Camera
+                const targetCamY = this.player.pixelY - (this.canvas.height / 2);
+                this.camera.y += (targetCamY - this.camera.y) * 0.1;
+                if(this.camera.y < 0) this.camera.y = 0;
+
+                // Screen Shake Decay
+                if(this.camera.shake > 0) this.camera.shake *= 0.9;
+                if(this.camera.shake < 0.5) this.camera.shake = 0;
+
+                // Smooth Player Lerp
+                this.player.pixelX += ((this.player.x * TILE_SIZE) - this.player.pixelX) * 0.2;
+                this.player.pixelY += ((this.player.y * TILE_SIZE) - this.player.pixelY) * 0.2;
+
+                // Mining Logic
+                if (this.mining.active) {
+                    this.mining.progress += this.player.drillPower * dt * 30; // Speed
+                    
+                    // Spawn little dust particles
+                    if(Math.random() > 0.8) {
+                        this.addParticle(
+                            (this.mining.target.x * TILE_SIZE) + TILE_SIZE/2,
+                            (this.mining.target.y * TILE_SIZE) + TILE_SIZE/2,
+                            '#8d6e63', 1
+                        );
+                    }
+
+                    if (this.mining.progress >= this.mining.target.hp) {
+                        this.breakBlock(this.mining.target.x, this.mining.target.y, this.mining.target.type);
+                        this.player.x = this.mining.target.x;
+                        this.player.y = this.mining.target.y;
+                        this.mining.active = false;
+                        this.audio.playDig();
+                    }
+                }
+
+                // Oxygen Logic
+                if (this.player.y < 1) {
+                    this.player.oxygen = Math.min(this.player.oxygen + 50 * dt, 100);
+                } else {
+                    this.player.oxygen -= 2 * dt; // Drain
+                }
+                
+                if (this.player.oxygen <= 0) {
+                    this.state = 'ENDED'; 
+                    // Oxygen death handled in timer for simplicity
+                }
+                
+                document.getElementById('oxygen-fill').style.width = this.player.oxygen + "%";
+
+                // Particles
+                this.particles.forEach((p, i) => {
+                    p.x += p.vx; p.y += p.vy; p.vy += 0.2; p.life -= 2 * dt;
+                    if(p.life <= 0) this.particles.splice(i, 1);
+                });
+
+                // Float Text
+                this.floatTexts.forEach((t, i) => {
+                    t.y -= 20 * dt; t.life -= dt;
+                    if(t.life <= 0) this.floatTexts.splice(i, 1);
+                });
+
+                // Network Sync (Throttle)
+                if (Math.random() > 0.9) {
+                    update(ref(db, `games/${this.gameId}/${this.myRole}`), {
+                        x: this.player.x, y: this.player.y, score: this.player.score, name: this.myName
+                    });
+                }
+
+                // Update HUD
+                document.getElementById('score-display').innerText = Math.floor(this.player.score);
+                document.getElementById('depth-display').innerText = this.player.y + "m";
+            }
+
+            moveRequest(dx, dy) {
+                const nx = this.player.x + dx;
+                const ny = this.player.y + dy;
+
+                if(nx < 0 || nx >= GRID_W || ny < 0) return;
+
+                const tile = this.getTile(nx, ny);
+
+                if (tile.type === 'empty') {
+                    this.player.x = nx;
+                    this.player.y = ny;
+                } else if (tile.type !== 'bedrock') {
+                    // Start Mining
+                    this.mining.active = true;
+                    this.mining.target = { x: nx, y: ny, type: tile.type, hp: tile.hp };
+                    this.mining.progress = 0;
+                }
+            }
+
+            getTile(x, y) {
+                const key = `${x}_${y}`;
+                if (y < 2) return { type: 'empty' };
+                if (this.broken[key]) return { type: 'empty' };
+                if (y > 100) return { type: 'bedrock' };
+
+                // Procedural Generation
+                if (!this.tiles[key]) {
+                    const noise = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
+                    const rand = noise - Math.floor(noise);
+                    
+                    let type = 'dirt';
+                    let hp = 10;
+                    
+                    if (rand > 0.97) { type = 'diamond'; hp = 40; }
+                    else if (rand > 0.88) { type = 'gold'; hp = 25; }
+                    else if (rand > 0.70) { type = 'iron'; hp = 15; }
+                    else if (rand > 0.60) { type = 'stone'; hp = 20; }
+                    
+                    this.tiles[key] = { type, hp };
+                }
+                return this.tiles[key];
+            }
+
+            breakBlock(x, y, type) {
+                const key = `${x}_${y}`;
+                this.broken[key] = true;
+                update(ref(db, `games/${this.gameId}/broken/${key}`), true);
+                
+                let val = 0;
+                let col = '#5d4037';
+                
+                if(type === 'dirt') { this.addParticle(x*TILE_SIZE+24, y*TILE_SIZE+24, '#5d4037', 5); }
+                if(type === 'stone') { this.addParticle(x*TILE_SIZE+24, y*TILE_SIZE+24, '#757575', 6); }
+                if(type === 'iron') { val = 5; col = '#aaa'; this.audio.playCoin(); }
+                if(type === 'gold') { val = 20; col = '#ffca28'; this.audio.playCoin(); }
+                if(type === 'diamond') { val = 100; col = '#00e5ff'; this.audio.playCoin(); }
+
+                if (val > 0) {
+                    this.player.score += val;
+                    this.addFloatText(x*TILE_SIZE, y*TILE_SIZE, `+${val}`, col);
+                    this.addParticle(x*TILE_SIZE+24, y*TILE_SIZE+24, col, 10);
+                }
+
+                // Small Shake
+                this.camera.shake = 3;
+            }
+
+            addParticle(x, y, color, count) {
+                for(let i=0; i<count; i++) {
+                    this.particles.push({
+                        x, y, 
+                        vx: (Math.random()-0.5)*8, vy: (Math.random()-0.5)*8,
+                        life: 1.0, color, size: Math.random()*5+2
+                    });
+                }
+            }
+
+            addFloatText(x, y, text, color) {
+                this.floatTexts.push({ x, y, text, color, life: 1.5 });
+            }
+
+            buy(item) {
+                const cost = this.costs[item];
+                if (this.player.score >= cost) {
+                    this.player.score -= cost;
+                    this.audio.playAlert();
+                    
+                    if (item === 'speed') {
+                        this.costs.speed = Math.floor(this.costs.speed * 1.5);
+                        document.getElementById('cost-speed').innerText = this.costs.speed + "g";
+                    }
+                    if (item === 'drill') {
+                        this.player.drillPower += 0.5;
+                        this.costs.drill = Math.floor(this.costs.drill * 1.5);
+                        document.getElementById('cost-drill').innerText = this.costs.drill + "g";
+                    }
+                    if (item === 'tnt') {
+                        this.player.hasTNT++;
+                        this.costs.tnt += 20;
+                        document.getElementById('cost-tnt').innerText = this.costs.tnt + "g";
                     }
                 }
             }
 
-            drawMiner(opponent.x * TILE_SIZE, opponent.y * TILE_SIZE, '#757575', false, opponent.name || "Rival");
-            drawMiner(player.pixelX, player.pixelY, '#FF5722', true, myName);
-
-            particles.forEach((p, i) => {
-                p.x += p.vx; p.y += p.vy; p.vy += 0.2;
-                p.life -= 0.05;
-                ctx.fillStyle = p.color;
-                ctx.globalAlpha = Math.max(0, p.life);
-                ctx.fillRect(p.x, p.y, p.size, p.size);
-                if(p.life <= 0) particles.splice(i, 1);
-            });
-            ctx.globalAlpha = 1;
-
-            ctx.restore();
-        }
-
-        function drawMiner(x, y, color, isSelf, nameText) {
-            ctx.fillStyle = color;
-            ctx.fillRect(x + 8, y + 10, 24, 20);
-            
-            ctx.fillStyle = isSelf ? '#FFC107' : '#BDBDBD';
-            ctx.beginPath();
-            ctx.arc(x + 20, y + 10, 14, Math.PI, 0); 
-            ctx.fill();
-
-            ctx.fillStyle = 'black';
-            ctx.fillRect(x + 14, y + 14, 4, 4);
-            ctx.fillRect(x + 22, y + 14, 4, 4);
-
-            if(isSelf && player.action === 'drill') {
-               const offset = Math.sin(Date.now() / 50) * 5;
-               ctx.fillStyle = '#795548';
-               ctx.fillRect(x+30, y+10 + offset, 4, 15);
-               ctx.fillStyle = '#9E9E9E';
-               ctx.fillRect(x+26, y+10 + offset, 12, 4);
+            useTNT() {
+                if (this.player.hasTNT > 0) {
+                    this.player.hasTNT--;
+                    this.audio.playExplosion();
+                    this.camera.shake = 20;
+                    
+                    for(let xx = -1; xx <= 1; xx++) {
+                        for(let yy = -1; yy <= 1; yy++) {
+                            const tx = this.player.x + xx;
+                            const ty = this.player.y + yy;
+                            if(ty >= 2 && tx >= 0 && tx < GRID_W) {
+                                const t = this.getTile(tx, ty);
+                                if(t.type !== 'empty') this.breakBlock(tx, ty, t.type);
+                            }
+                        }
+                    }
+                }
             }
-            
-            ctx.save();
-            ctx.fillStyle = 'white';
-            ctx.font = 'bold 12px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.shadowColor = 'black';
-            ctx.shadowBlur = 4;
-            ctx.fillText(nameText, x + 20, y - 5);
-            ctx.restore();
-        }
 
-        function spawnParticles(x, y, color, count) {
-            for(let i=0; i<count; i++) {
-                particles.push({
-                    x: x, y: y,
-                    vx: (Math.random() - 0.5) * 6,
-                    vy: (Math.random() - 0.5) * 6,
-                    life: 1.0,
-                    color: color,
-                    size: Math.random() * 5 + 3
+            draw() {
+                // Clear
+                this.ctx.fillStyle = "#87CEEB"; // Sky blue
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                this.ctx.save();
+                
+                // Camera Transform
+                let shakeX = (Math.random() - 0.5) * this.camera.shake;
+                let shakeY = (Math.random() - 0.5) * this.camera.shake;
+                
+                // Center camera horizontally based on GRID width
+                const gridPixelWidth = GRID_W * TILE_SIZE;
+                const offsetX = (this.canvas.width - gridPixelWidth) / 2;
+                
+                this.ctx.translate(offsetX + shakeX, -this.camera.y + 100 + shakeY); // +100 to push sky down
+
+                // Draw Clouds (Decoration)
+                this.ctx.fillStyle = "rgba(255,255,255,0.6)";
+                this.ctx.beginPath(); this.ctx.arc(100, -50, 60, 0, 6.28); this.ctx.fill();
+                this.ctx.beginPath(); this.ctx.arc(300, -20, 80, 0, 6.28); this.ctx.fill();
+
+                // Draw Blocks
+                const startRow = Math.floor((this.camera.y - 100) / TILE_SIZE);
+                const endRow = startRow + Math.ceil(this.canvas.height / TILE_SIZE) + 2;
+
+                for (let y = Math.max(0, startRow); y < endRow; y++) {
+                    for (let x = 0; x < GRID_W; x++) {
+                        const tile = this.getTile(x, y);
+                        const px = x * TILE_SIZE;
+                        const py = y * TILE_SIZE;
+
+                        if (tile.type !== 'empty') {
+                            // Base Block
+                            this.ctx.fillStyle = tile.type === 'stone' ? '#757575' : '#5d4037';
+                            this.ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+                            
+                            // Bevel
+                            this.ctx.fillStyle = "rgba(255,255,255,0.1)";
+                            this.ctx.fillRect(px, py, TILE_SIZE, 4);
+                            this.ctx.fillStyle = "rgba(0,0,0,0.2)";
+                            this.ctx.fillRect(px, py+TILE_SIZE-4, TILE_SIZE, 4);
+
+                            // Ores
+                            if (tile.type === 'gold') {
+                                this.ctx.fillStyle = "#ffca28";
+                                this.ctx.beginPath(); this.ctx.arc(px+24, py+24, 10, 0, 6.28); this.ctx.fill();
+                            } else if (tile.type === 'diamond') {
+                                this.ctx.fillStyle = "#00e5ff";
+                                this.ctx.beginPath(); this.ctx.moveTo(px+24, py+10); this.ctx.lineTo(px+38, py+24); this.ctx.lineTo(px+24, py+38); this.ctx.lineTo(px+10, py+24); this.ctx.fill();
+                            } else if (tile.type === 'iron') {
+                                this.ctx.fillStyle = "#bdbdbd";
+                                this.ctx.beginPath(); this.ctx.arc(px+14, py+14, 6, 0, 6.28); this.ctx.fill();
+                                this.ctx.beginPath(); this.ctx.arc(px+34, py+34, 6, 0, 6.28); this.ctx.fill();
+                            }
+
+                            // Mining Cracks
+                            if (this.mining.active && this.mining.target.x === x && this.mining.target.y === y) {
+                                const pct = this.mining.progress / this.mining.target.hp;
+                                this.ctx.fillStyle = "rgba(0,0,0,0.5)";
+                                this.ctx.fillRect(px + 10, py + 20, (TILE_SIZE-20) * (1-pct), 4);
+                            }
+                        } else {
+                            // Dark Background for empty tunnel
+                            this.ctx.fillStyle = "rgba(0,0,0,0.3)";
+                            this.ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+                        }
+                    }
+                }
+
+                // Draw Opponent
+                this.drawMiner(this.opponent.x * TILE_SIZE, this.opponent.y * TILE_SIZE, "#ef5350", this.opponent.name);
+
+                // Draw Self
+                this.drawMiner(this.player.pixelX, this.player.pixelY, "#66bb6a", this.myName, true);
+
+                // Particles
+                this.particles.forEach(p => {
+                    this.ctx.globalAlpha = p.life;
+                    this.ctx.fillStyle = p.color;
+                    this.ctx.fillRect(p.x, p.y, p.size, p.size);
                 });
+                this.ctx.globalAlpha = 1;
+
+                // Float Text
+                this.ctx.font = "bold 20px 'Fredoka One'";
+                this.ctx.textAlign = "center";
+                this.floatTexts.forEach(t => {
+                    this.ctx.fillStyle = "black";
+                    this.ctx.fillText(t.text, t.x + TILE_SIZE/2 + 2, t.y + 2);
+                    this.ctx.fillStyle = t.color;
+                    this.ctx.fillText(t.text, t.x + TILE_SIZE/2, t.y);
+                });
+
+                // --- LIGHTING SYSTEM ---
+                this.ctx.restore(); // Go back to screen coords for lighting overlay
+                
+                // Darken based on depth
+                const depthAlpha = Math.min(this.player.y / 20, 0.95);
+                if (depthAlpha > 0.1) {
+                    this.ctx.save();
+                    // Create darkness
+                    this.ctx.fillStyle = `rgba(0,0,0,${depthAlpha})`;
+                    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                    
+                    // Cut out light hole around player
+                    this.ctx.globalCompositeOperation = 'destination-out';
+                    
+                    const screenPlayerX = (offsetX + shakeX) + this.player.pixelX + TILE_SIZE/2;
+                    const screenPlayerY = (-this.camera.y + 100 + shakeY) + this.player.pixelY + TILE_SIZE/2;
+
+                    const grad = this.ctx.createRadialGradient(screenPlayerX, screenPlayerY, 50, screenPlayerX, screenPlayerY, 250);
+                    grad.addColorStop(0, "rgba(0,0,0,1)");
+                    grad.addColorStop(1, "rgba(0,0,0,0)");
+                    
+                    this.ctx.fillStyle = grad;
+                    this.ctx.beginPath();
+                    this.ctx.arc(screenPlayerX, screenPlayerY, 250, 0, 6.28);
+                    this.ctx.fill();
+                    
+                    this.ctx.restore();
+                }
+            }
+
+            drawMiner(x, y, color, name, isSelf) {
+                // Helmet
+                this.ctx.fillStyle = color;
+                this.ctx.beginPath(); 
+                this.ctx.arc(x + 24, y + 20, 16, Math.PI, 0); 
+                this.ctx.fill();
+                
+                // Light on Helmet
+                this.ctx.fillStyle = "#fff176";
+                this.ctx.fillRect(x+20, y+4, 8, 8);
+                
+                // Body
+                this.ctx.fillStyle = "#455a64";
+                this.ctx.fillRect(x + 12, y + 20, 24, 20);
+
+                // Eyes
+                this.ctx.fillStyle = "black";
+                this.ctx.fillRect(x + 18, y + 24, 4, 4);
+                this.ctx.fillRect(x + 26, y + 24, 4, 4);
+
+                // Name Tag
+                this.ctx.fillStyle = "white";
+                this.ctx.font = "12px sans-serif";
+                this.ctx.textAlign = "center";
+                this.ctx.shadowColor = "black";
+                this.ctx.shadowBlur = 4;
+                this.ctx.fillText(name || "Player", x + 24, y - 10);
+                this.ctx.shadowBlur = 0;
+            }
+
+            endGame() {
+                this.state = 'ENDED';
+                const screen = document.getElementById('end-screen');
+                screen.classList.remove('hidden');
+                
+                document.getElementById('final-score-me').innerText = Math.floor(this.player.score);
+                document.getElementById('final-score-opp').innerText = this.opponent.score;
+
+                if (this.player.score > this.opponent.score) {
+                    document.getElementById('end-winner').innerText = "YOU WIN!";
+                    document.getElementById('end-winner').style.color = "#4CAF50";
+                } else if (this.opponent.score > this.player.score) {
+                    document.getElementById('end-winner').innerText = "YOU LOSE!";
+                    document.getElementById('end-winner').style.color = "#f44336";
+                    this.losses++;
+                    localStorage.setItem('gr_losses', this.losses);
+                } else {
+                    document.getElementById('end-winner').innerText = "DRAW";
+                    document.getElementById('end-winner').style.color = "#FFC107";
+                }
+
+                if (this.losses >= MAX_LOSSES) {
+                    document.getElementById('strike-msg').innerText = "2nd Strike! Mining License Revoked.";
+                    // Ban logic
+                    const banRef = ref(db, 'banned_users/' + this.myName);
+                    set(banRef, { bannedAt: Date.now(), reason: "Bankrupt" });
+                } else {
+                    document.getElementById('strike-msg').innerText = `Strikes: ${this.losses} / ${MAX_LOSSES}`;
+                }
             }
         }
+
+        // Global Init
+        window.initGame = () => {
+            window.game = new Game();
+            window.game.connect();
+        };
+
+        // Initialize UI Logic
+        window.game = new Game(); // Just to run checkBan on load
 
     </script>
 </body>
