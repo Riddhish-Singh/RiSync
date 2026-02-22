@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -393,6 +394,10 @@ html.dark .brand-sub { color: var(--text-secondary); }
                     <span class="sync-dot"></span> Cloud synced
                   </div>
                 </div>
+                <div class="user-menu-item hidden" id="menuAdmin" style="color:var(--brand-primary);font-weight:700">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                  Admin Dashboard
+                </div>
                 <div class="user-menu-item" id="menuOrders">
                   <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                   My Orders
@@ -518,10 +523,15 @@ html.dark .brand-sub { color: var(--text-secondary); }
       <div class="flex gap-4 overflow-x-auto pb-4" id="recent"></div>
     </section>
     
-    <!-- RECENTLY PURCHASED -->
+    <!-- RECENTLY PURCHASED / MY ORDERS -->
     <section id="purchased-section" class="my-12 hidden">
-      <h3 class="text-2xl font-bold mb-4">Your Past Purchases</h3>
-      <div class="flex gap-4 overflow-x-auto pb-4" id="purchased"></div>
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-2xl font-bold" style="font-family:'Playfair Display',serif">My Orders</h3>
+        <button onclick="document.getElementById('ordersModalOverlay').style.display='flex';document.getElementById('ordersModalOverlay').style.alignItems='center';document.getElementById('ordersModalOverlay').style.justifyContent='center';document.body.style.overflow='hidden';loadOrders();" class="text-sm font-semibold px-4 py-2 rounded-lg" style="background:rgba(198,167,94,0.1);color:var(--brand-primary)">View All Orders</button>
+      </div>
+      <div id="purchased" class="space-y-4">
+        <div class="text-sm" style="color:var(--text-secondary)">Loading your orders…</div>
+      </div>
     </section>
 
     <!-- CHECKOUT -->
@@ -1426,8 +1436,45 @@ html.dark .brand-sub { color: var(--text-secondary); }
     }
 
     function renderPurchased() {
-        renderHorizontalScroller('purchased', state.purchased, 'No past purchases yet.');
+        const el = document.getElementById('purchased');
+        if (!el) return;
+        el.innerHTML = '<div class="text-sm py-4" style="color:var(--text-secondary)">Loading your orders…</div>';
+        if (window._GI_loadUserOrders) {
+            window._GI_loadUserOrders().then(orders => {
+                if (!orders || orders.length === 0) {
+                    el.innerHTML = '<div class="text-sm py-4" style="color:var(--text-secondary)">No orders yet. Start shopping! 🛍️</div>';
+                    return;
+                }
+                el.innerHTML = orders.slice(0, 5).map(o => {
+                    const date = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : 'Recently';
+                    const items = (o.items || []).map(i => `<div class="flex justify-between text-sm py-1"><span class="font-medium">${i.title} <span style="color:var(--text-secondary)">× ${i.qty}</span></span><span class="font-bold">₹${(i.price * i.qty).toLocaleString()}</span></div>`).join('');
+                    return `<div class="p-4 rounded-2xl" style="background:var(--surface-primary);border:1px solid rgba(0,0,0,0.07)">
+                        <div class="flex justify-between items-start mb-3">
+                          <div>
+                            <div class="font-bold text-sm">Order #${o.id ? o.id.slice(-6).toUpperCase() : '------'}</div>
+                            <div class="text-xs mt-0.5" style="color:var(--text-secondary)">${date}</div>
+                          </div>
+                          <span class="inline-block px-3 py-1 rounded-full text-xs font-bold" style="background:rgba(16,185,129,0.12);color:#10b981">✓ Placed</span>
+                        </div>
+                        <div style="border-top:1px solid rgba(0,0,0,0.06);padding-top:10px">${items}</div>
+                        <div class="flex justify-between font-bold text-sm mt-3 pt-3" style="border-top:1px solid rgba(0,0,0,0.06)">
+                          <span>Total</span><span style="color:var(--brand-primary)">₹${(o.total || 0).toLocaleString()}</span>
+                        </div>
+                    </div>`;
+                }).join('');
+            }).catch(err => {
+                console.error('renderPurchased error:', err);
+                el.innerHTML = '<div class="text-sm py-4" style="color:#ef4444">Could not load orders. Please try again.</div>';
+            });
+        } else {
+            // _GI_loadUserOrders not ready yet — retry after short delay
+            setTimeout(() => {
+                if (window._GI_loadUserOrders) renderPurchased();
+            }, 1500);
+        }
     }
+    // Expose globally so the Firebase module script can call it
+    window.renderPurchased = renderPurchased;
 
     // ===== CHECKOUT LOGIC =====
     function renderCheckout() {
@@ -1943,6 +1990,60 @@ window.PRODUCTS = [
 </div>
 
 <!-- ===== ORDERS MODAL ===== -->
+<!-- ===== ADMIN DASHBOARD ===== -->
+<div id="adminDashboard" class="fixed inset-0 z-[10000] hidden flex-col" style="background:var(--bg-primary)">
+  <style>
+    #adminDashboard { font-family: 'Inter', system-ui, sans-serif; }
+    .adm-tab { padding: 10px 20px; font-weight: 600; font-size: 0.875rem; border-radius: 10px; cursor: pointer; transition: all 0.2s; border: none; background: transparent; color: var(--text-secondary); }
+    .adm-tab.active { background: var(--brand-primary); color: #111; }
+    .adm-card { background: var(--surface-primary); border-radius: 16px; padding: 20px; }
+    .adm-stat { background: var(--surface-primary); border-radius: 14px; padding: 18px 22px; flex: 1; min-width: 140px; }
+    .adm-stat .val { font-size: 1.8rem; font-weight: 800; line-height: 1; }
+    .adm-stat .lbl { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); margin-top: 6px; }
+    .adm-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    .adm-table th { text-align: left; padding: 10px 12px; font-weight: 700; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); border-bottom: 2px solid rgba(0,0,0,0.08); }
+    html.dark .adm-table th { border-color: rgba(255,255,255,0.08); }
+    .adm-table td { padding: 10px 12px; border-bottom: 1px solid rgba(0,0,0,0.05); vertical-align: middle; }
+    html.dark .adm-table td { border-color: rgba(255,255,255,0.06); }
+    .adm-table tr:last-child td { border-bottom: none; }
+    .adm-table tr:hover td { background: rgba(198,167,94,0.04); }
+    .adm-input { padding: 7px 10px; border-radius: 8px; border: 1.5px solid rgba(0,0,0,0.12); background: var(--bg-primary); font-size: 0.8rem; width: 90px; outline: none; color: var(--text-primary); }
+    html.dark .adm-input { border-color: rgba(255,255,255,0.12); }
+    .adm-input:focus { border-color: var(--brand-primary); }
+    .adm-pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 700; }
+    .adm-filter-btn { padding: 6px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: 1.5px solid rgba(0,0,0,0.1); background: var(--bg-primary); color: var(--text-secondary); transition: all 0.15s; }
+    .adm-filter-btn.active { border-color: var(--brand-primary); color: var(--brand-primary); background: rgba(198,167,94,0.08); }
+    html.dark .adm-filter-btn { border-color: rgba(255,255,255,0.12); }
+  </style>
+  <!-- Header -->
+  <div class="flex items-center justify-between px-6 py-4 border-b" style="border-color:rgba(0,0,0,0.08);background:var(--surface-primary);flex-shrink:0">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg font-black" style="background:rgba(198,167,94,0.15);color:var(--brand-primary)">G</div>
+      <div>
+        <div class="font-bold text-base">Admin Dashboard</div>
+        <div class="text-xs" style="color:var(--text-secondary)">Pioneer I Xpress — Guru Nanak Garments</div>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <button id="admExcelBtn" class="flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-xl" style="background:rgba(34,197,94,0.12);color:#16a34a">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        Download Excel
+      </button>
+      <button onclick="document.getElementById('adminDashboard').classList.add('hidden')" class="w-9 h-9 rounded-xl flex items-center justify-center text-lg" style="background:rgba(0,0,0,0.06)">✕</button>
+    </div>
+  </div>
+  <!-- Tabs -->
+  <div class="flex gap-2 px-6 py-3 border-b" style="border-color:rgba(0,0,0,0.08);background:var(--surface-primary);flex-shrink:0">
+    <button class="adm-tab active" data-tab="sales">📊 Sales Analytics</button>
+    <button class="adm-tab" data-tab="inventory">📦 Inventory & Pricing</button>
+    <button class="adm-tab" data-tab="orders">🧾 All Orders</button>
+  </div>
+  <!-- Content area -->
+  <div class="flex-1 overflow-y-auto p-6" id="admContent">
+    <div class="text-sm" style="color:var(--text-secondary)">Loading dashboard…</div>
+  </div>
+</div>
+
 <div id="ordersModalOverlay" class="fixed inset-0 z-50 items-center justify-center" style="display:none; background:rgba(0,0,0,0.6);backdrop-filter:blur(4px)">
   <div class="relative p-6 rounded-2xl shadow-2xl w-full max-w-lg mx-4 modal-box" style="background:var(--surface-primary);max-height:80vh;overflow-y:auto;">
     <button onclick="document.getElementById('ordersModalOverlay').style.display='none'; document.body.style.overflow='';" style="position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;font-size:20px;color:var(--text-secondary)">✕</button>
@@ -2240,28 +2341,36 @@ window.PRODUCTS = [
     document.body.style.overflow = 'hidden';
   });
 
+  window.loadOrders = loadOrders;
   async function loadOrders() {
     const list = $('ordersList');
     list.innerHTML = '<div class="text-sm py-6 text-center" style="color:var(--text-secondary)">Loading orders…</div>';
-    if (!currentUser) { list.innerHTML = '<div class="text-sm py-6 text-center" style="color:var(--text-secondary)">Please log in to view orders.</div>'; return; }
+    const user = auth.currentUser;
+    if (!user) { list.innerHTML = '<div class="text-sm py-6 text-center" style="color:var(--text-secondary)">Please log in to view orders.</div>'; return; }
     try {
-      const q = query(collection(db, 'orders'), where('uid', '==', currentUser.uid), orderBy('createdAt', 'desc'));
+      const q = query(collection(db, 'orders'), where('uid', '==', user.uid));
       const snap = await getDocs(q);
       if (snap.empty) {
         list.innerHTML = '<div class="text-sm py-6 text-center" style="color:var(--text-secondary)">No orders yet. Start shopping! 🕯️</div>';
         return;
       }
-      list.innerHTML = snap.docs.map(d => {
-        const o = d.data();
+      const docs = snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => {
+          const ta = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
+          const tb = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
+          return tb - ta;
+        });
+      list.innerHTML = docs.map(o => {
         const date = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) : 'Recently';
         const items = (o.items || []).map(i => `<div class="flex justify-between text-sm"><span>${i.title} × ${i.qty}</span><span>₹${(i.price * i.qty).toLocaleString()}</span></div>`).join('');
         return `<div class="order-card">
           <div class="flex justify-between items-start mb-3">
             <div>
-              <div class="font-bold text-sm">Order #${d.id.slice(-6).toUpperCase()}</div>
+              <div class="font-bold text-sm">Order #${o.id.slice(-6).toUpperCase()}</div>
               <div class="text-xs mt-1" style="color:var(--text-secondary)">${date}</div>
             </div>
-            <span class="text-xs font-bold px-3 py-1 rounded-full" style="background:rgba(16,185,129,0.12);color:#10b981">Delivered</span>
+            <span class="text-xs font-bold px-3 py-1 rounded-full" style="background:rgba(16,185,129,0.12);color:#10b981">✓ Placed</span>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.06);padding-top:10px;display:flex;flex-direction:column;gap:6px">${items}</div>
           <div class="flex justify-between font-bold text-sm mt-3 pt-3" style="border-top:1px solid rgba(0,0,0,0.06)">
@@ -2271,13 +2380,14 @@ window.PRODUCTS = [
       }).join('');
     } catch (e) {
       list.innerHTML = '<div class="text-sm py-6 text-center" style="color:#ef4444">Error loading orders. Please try again.</div>';
-      console.error(e);
+      console.error('loadOrders error:', e);
     }
   }
 
   // ---- AUTH STATE ----
   onAuthStateChanged(auth, async user => {
     currentUser = user;
+    const ADMIN_EMAIL = 'gurunanak.garments2023@gmail.com';
     if (user) {
       // Show user avatar, hide login btn
       $('loginBtn').classList.add('hidden');
@@ -2290,13 +2400,26 @@ window.PRODUCTS = [
       }
       $('userMenuName').textContent = user.displayName || 'User';
       $('userMenuEmail').textContent = user.email || '';
+      // Show admin button only for admin email
+      const adminBtn = document.getElementById('menuAdmin');
+      if (adminBtn) adminBtn.classList.toggle('hidden', user.email !== ADMIN_EMAIL);
       // Load cloud data
       await loadCloudState(user.uid);
+      // Show purchased section and load orders
+      const ps = document.getElementById('purchased-section');
+      if (ps) ps.classList.remove('hidden');
+      // Small delay so window.renderPurchased is ready from the main script
+      setTimeout(() => { if (window.renderPurchased) window.renderPurchased(); }, 300);
       // Refresh cart reminder phone from saved addresses
       if (window._PIX_refreshReminderPhone) setTimeout(window._PIX_refreshReminderPhone, 500);
     } else {
       $('loginBtn').classList.remove('hidden');
       $('userDropdown').classList.add('hidden');
+      // Hide purchased section on logout
+      const ps = document.getElementById('purchased-section');
+      if (ps) ps.classList.add('hidden');
+      const adminBtn = document.getElementById('menuAdmin');
+      if (adminBtn) adminBtn.classList.add('hidden');
     }
   });
 
@@ -2750,16 +2873,15 @@ document.addEventListener('DOMContentLoaded', () => {
         state.wish = cloudData.wish;
         updateWishlist();
       }
-      if (cloudData.purchased) {
-        state.purchased = cloudData.purchased;
-        renderPurchased();
-      }
       if (cloudData.reviews) {
         state.reviews = cloudData.reviews;
       }
     },
     clearCloudState: function() {
       // On logout, keep local state but stop syncing
+    },
+    renderPurchased: function() {
+      if (typeof renderPurchased === 'function') renderPurchased();
     }
   };
 
@@ -2802,6 +2924,342 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window._GI_saveOrder) window._GI_saveOrder(orderData);
       }
     }, true); // capture = true so it runs before the existing handler clears cart
+  }
+  // ---- LOAD USER ORDERS (for purchased section) ----
+  window._GI_loadUserOrders = async function() {
+    const user = auth.currentUser;
+    if (!user) return [];
+    try {
+      const q = query(collection(db, 'orders'), where('uid', '==', user.uid));
+      const snap = await getDocs(q);
+      return snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => {
+          const ta = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
+          const tb = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
+          return tb - ta;
+        });
+    } catch (e) {
+      console.error('loadUserOrders error:', e);
+      return [];
+    }
+  };
+
+  // ======================================================
+  // ===== ADMIN DASHBOARD ================================
+  // ======================================================
+  const ADMIN_EMAIL = 'gurunanak.garments2023@gmail.com';
+
+  document.getElementById('menuAdmin')?.addEventListener('click', () => {
+    const dash = document.getElementById('adminDashboard');
+    dash.classList.remove('hidden');
+    dash.style.display = 'flex';
+    renderAdmTab('sales');
+    document.getElementById('userMenu')?.classList.remove('open');
+  });
+
+  document.querySelectorAll('.adm-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.adm-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderAdmTab(btn.dataset.tab);
+    });
+  });
+
+  document.getElementById('admExcelBtn')?.addEventListener('click', admDownloadExcel);
+
+  async function admGetAllOrders() {
+    try {
+      const snap = await getDocs(collection(db, 'orders'));
+      return snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => {
+          const ta = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
+          const tb = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
+          return tb - ta;
+        });
+    } catch (e) { console.error(e); return []; }
+  }
+
+  async function admGetInventory() {
+    try {
+      const snap = await getDocs(collection(db, 'inventory'));
+      const map = {};
+      snap.docs.forEach(d => { map[d.id] = d.data(); });
+      return map;
+    } catch (e) { console.error(e); return {}; }
+  }
+
+  async function admSaveInventory(productId, data) {
+    try {
+      await setDoc(doc(db, 'inventory', productId), data, { merge: true });
+      return true;
+    } catch (e) { console.error(e); return false; }
+  }
+
+  function admFilterOrders(orders, period) {
+    const now = new Date();
+    return orders.filter(o => {
+      const d = o.createdAt?.toDate ? o.createdAt.toDate() : null;
+      if (!d) return true;
+      if (period === 'daily') return d.toDateString() === now.toDateString();
+      if (period === 'weekly') { const w = new Date(now); w.setDate(now.getDate()-7); return d >= w; }
+      if (period === 'monthly') return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+      return true;
+    });
+  }
+
+  let _admOrders = null, _admInventory = null, _admPeriod = 'all', _admCharts = [];
+
+  async function renderAdmTab(tab) {
+    const content = document.getElementById('admContent');
+    content.innerHTML = '<div class="text-sm py-8 text-center" style="color:var(--text-secondary)">Loading…</div>';
+    if (!_admOrders) _admOrders = await admGetAllOrders();
+    if (!_admInventory) _admInventory = await admGetInventory();
+    if (tab === 'sales') await renderAdmSales(content);
+    else if (tab === 'inventory') await renderAdmInventory(content);
+    else if (tab === 'orders') await renderAdmOrders(content);
+  }
+
+  async function renderAdmSales(content) {
+    const filtered = admFilterOrders(_admOrders, _admPeriod);
+    const totalRevenue = filtered.reduce((a, o) => a + (o.total || 0), 0);
+    const totalOrders = filtered.length;
+    const totalItems = filtered.reduce((a, o) => a + (o.items||[]).reduce((b, i) => b + (i.qty||1), 0), 0);
+
+    const catMap = {}, prodMap = {};
+    filtered.forEach(o => {
+      (o.items||[]).forEach(i => {
+        const prod = (window.PRODUCTS||[]).find(p => p.id === i.id);
+        const cat = prod?.cat || i.cat || 'other';
+        const qty = i.qty||1, rev = (i.price||0)*qty;
+        catMap[cat] = catMap[cat]||{qty:0,rev:0};
+        catMap[cat].qty += qty; catMap[cat].rev += rev;
+        prodMap[i.id] = prodMap[i.id]||{title:i.title,qty:0,rev:0,price:i.price};
+        prodMap[i.id].qty += qty; prodMap[i.id].rev += rev;
+      });
+    });
+
+    let totalCost = 0, totalSell = 0, totalDiscount = 0;
+    filtered.forEach(o => {
+      (o.items||[]).forEach(i => {
+        const inv = (_admInventory||{})[i.id], qty = i.qty||1;
+        if (inv) {
+          totalCost += (inv.costPrice||0)*qty;
+          totalSell += (i.price||0)*qty;
+          if (inv.offerPrice && inv.offerPrice < i.price) totalDiscount += (i.price-inv.offerPrice)*qty;
+        } else { totalSell += (i.price||0)*qty; }
+      });
+    });
+    const profit = totalSell - totalCost;
+
+    const trendMap = {};
+    filtered.forEach(o => {
+      const d = o.createdAt?.toDate ? o.createdAt.toDate() : null;
+      if (!d) return;
+      const key = d.toLocaleDateString('en-IN', {day:'2-digit',month:'short'});
+      trendMap[key] = (trendMap[key]||0)+(o.total||0);
+    });
+    const trendLabels = Object.keys(trendMap).slice(-14);
+    const trendVals = trendLabels.map(k => trendMap[k]);
+
+    const niceCatLabel = c => ({candles:'🕯 Candles',clothing:'👕 Clothing',beauty:'💄 Beauty',spares:'⚙ Spares',other:'📦 Other'}[c]||c);
+
+    content.innerHTML = `
+      <div class="flex gap-2 mb-6 flex-wrap">
+        ${['all','daily','weekly','monthly'].map(p=>`<button class="adm-filter-btn${_admPeriod===p?' active':''}" onclick="window._admSetPeriod('${p}')">${{all:'All Time',daily:'Today',weekly:'This Week',monthly:'This Month'}[p]}</button>`).join('')}
+      </div>
+      <div class="flex gap-4 flex-wrap mb-6">
+        <div class="adm-stat"><div class="val" style="color:var(--brand-primary)">₹${totalRevenue.toLocaleString()}</div><div class="lbl">Total Revenue</div></div>
+        <div class="adm-stat"><div class="val" style="color:#6366f1">${totalOrders}</div><div class="lbl">Total Orders</div></div>
+        <div class="adm-stat"><div class="val" style="color:#10b981">${totalItems}</div><div class="lbl">Items Sold</div></div>
+        <div class="adm-stat"><div class="val" style="color:${profit>=0?'#10b981':'#ef4444'}">₹${Math.abs(profit).toLocaleString()}</div><div class="lbl">${profit>=0?'Gross Profit':'Gross Loss'}</div></div>
+      </div>
+      ${totalCost>0 ? `
+      <div class="adm-card mb-6">
+        <div class="font-bold mb-4">💰 Cost vs Revenue Analysis</div>
+        <div class="flex gap-6 flex-wrap">
+          <div><div class="text-xs font-semibold mb-1" style="color:var(--text-secondary)">TOTAL COST</div><div class="text-xl font-black" style="color:#ef4444">₹${totalCost.toLocaleString()}</div></div>
+          <div><div class="text-xs font-semibold mb-1" style="color:var(--text-secondary)">SELL REVENUE</div><div class="text-xl font-black" style="color:#10b981">₹${totalSell.toLocaleString()}</div></div>
+          <div><div class="text-xs font-semibold mb-1" style="color:var(--text-secondary)">DISCOUNT GIVEN</div><div class="text-xl font-black" style="color:#f59e0b">₹${totalDiscount.toLocaleString()}</div></div>
+          <div><div class="text-xs font-semibold mb-1" style="color:var(--text-secondary)">MARGIN</div><div class="text-xl font-black" style="color:${profit>=0?'#6366f1':'#ef4444'}">${totalCost>0?((profit/totalCost)*100).toFixed(1):0}%</div></div>
+        </div>
+      </div>` : '<div class="adm-card mb-6 text-sm" style="color:var(--text-secondary)">💡 Add cost prices in the <b>Inventory &amp; Pricing</b> tab to unlock profit analysis.</div>'}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="adm-card"><div class="font-bold mb-3">📈 Revenue Trend</div><canvas id="admTrendChart" height="180"></canvas></div>
+        <div class="adm-card"><div class="font-bold mb-3">🍰 Category Breakdown</div><canvas id="admCatChart" height="180"></canvas></div>
+      </div>
+      <div class="adm-card mb-6">
+        <div class="font-bold mb-4">📦 Product Sales</div>
+        <div class="overflow-x-auto">
+          <table class="adm-table"><thead><tr><th>Product</th><th>Units Sold</th><th>Revenue</th><th>Avg Price</th><th>Cost Price</th><th>Profit/Unit</th></tr></thead>
+          <tbody>${Object.entries(prodMap).sort((a,b)=>b[1].rev-a[1].rev).map(([id,p])=>{
+            const inv=(_admInventory||{})[id]||{};
+            const avg=p.qty?Math.round(p.rev/p.qty):p.price;
+            const cpu=inv.costPrice||0, ppu=avg-cpu;
+            return `<tr><td class="font-medium">${p.title}</td>
+              <td><span class="adm-pill" style="background:rgba(99,102,241,0.1);color:#6366f1">${p.qty}</span></td>
+              <td class="font-bold">₹${p.rev.toLocaleString()}</td>
+              <td>₹${avg.toLocaleString()}</td>
+              <td>${cpu?'₹'+cpu.toLocaleString():'<span style="color:var(--text-secondary)">—</span>'}</td>
+              <td class="font-bold" style="color:${ppu>0&&cpu>0?'#10b981':ppu<0?'#ef4444':'var(--text-secondary)'}">${cpu?'₹'+ppu.toLocaleString():'—'}</td></tr>`;
+          }).join('')}</tbody></table>
+        </div>
+      </div>
+      <div class="adm-card">
+        <div class="font-bold mb-4">🏷 Category Sales</div>
+        <table class="adm-table"><thead><tr><th>Category</th><th>Units</th><th>Revenue</th><th>Share</th></tr></thead>
+        <tbody>${Object.entries(catMap).sort((a,b)=>b[1].rev-a[1].rev).map(([cat,v])=>`<tr>
+          <td class="font-semibold">${niceCatLabel(cat)}</td><td>${v.qty}</td>
+          <td class="font-bold">₹${v.rev.toLocaleString()}</td>
+          <td><div style="background:rgba(198,167,94,0.2);border-radius:4px;overflow:hidden;width:100px;height:8px"><div style="width:${totalRevenue?Math.round(v.rev/totalRevenue*100):0}%;background:var(--brand-primary);height:100%"></div></div></td>
+        </tr>`).join('')}</tbody></table>
+      </div>`;
+
+    setTimeout(() => {
+      try { _admCharts.forEach(c=>c.destroy()); } catch(e){}
+      _admCharts = [];
+      const COLORS = ['#C6A75E','#6366f1','#10b981','#f59e0b','#ef4444','#8b5cf6'];
+      const tCtx = document.getElementById('admTrendChart')?.getContext('2d');
+      if (tCtx && window.Chart) _admCharts.push(new Chart(tCtx, {type:'bar',data:{labels:trendLabels,datasets:[{label:'Revenue (₹)',data:trendVals,backgroundColor:'rgba(198,167,94,0.5)',borderColor:'#C6A75E',borderWidth:2,borderRadius:6}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'₹'+v.toLocaleString()}}}}}));
+      const cCtx = document.getElementById('admCatChart')?.getContext('2d');
+      if (cCtx && window.Chart && Object.keys(catMap).length) _admCharts.push(new Chart(cCtx, {type:'doughnut',data:{labels:Object.keys(catMap).map(niceCatLabel),datasets:[{data:Object.values(catMap).map(v=>v.rev),backgroundColor:COLORS}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{size:11}}}}}}));
+    }, 100);
+  }
+
+  window._admSetPeriod = function(p) { _admPeriod = p; renderAdmTab('sales'); };
+
+  async function renderAdmInventory(content) {
+    const inv = _admInventory||{};
+    const soldMap = {};
+    (_admOrders||[]).forEach(o=>{(o.items||[]).forEach(i=>{soldMap[i.id]=(soldMap[i.id]||0)+(i.qty||1);});});
+
+    content.innerHTML = `
+      <div class="adm-card mb-4 text-sm" style="color:var(--text-secondary)">Set cost, selling and offer prices plus total stock for each product. Saves to Firebase instantly.</div>
+      <div class="adm-card">
+        <div class="font-bold mb-4">📦 Inventory & Pricing</div>
+        <div class="overflow-x-auto">
+          <table class="adm-table" id="invTable">
+            <thead><tr><th>Product</th><th>Cost ₹</th><th>Sell ₹</th><th>Offer ₹</th><th>Stock Added</th><th>Sold</th><th>Remaining</th><th></th></tr></thead>
+            <tbody>
+              ${(window.PRODUCTS||[]).map(p=>{
+                const i=inv[p.id]||{};
+                const sold=soldMap[p.id]||0, added=i.totalStock||p.stock||0, left=Math.max(0,added-sold);
+                return `<tr id="invRow_${p.id}">
+                  <td class="font-medium" style="max-width:200px;white-space:normal">${p.title}</td>
+                  <td><input class="adm-input" type="number" placeholder="Cost" value="${i.costPrice||''}" id="inv_cost_${p.id}"></td>
+                  <td><input class="adm-input" type="number" placeholder="Sell" value="${i.sellingPrice||p.price||''}" id="inv_sell_${p.id}"></td>
+                  <td><input class="adm-input" type="number" placeholder="Offer" value="${i.offerPrice||''}" id="inv_offer_${p.id}"></td>
+                  <td><input class="adm-input" type="number" placeholder="Stock" value="${added||''}" id="inv_stock_${p.id}"></td>
+                  <td><span class="adm-pill" style="background:rgba(239,68,68,0.1);color:#ef4444">${sold}</span></td>
+                  <td><span class="adm-pill" style="background:${left>10?'rgba(16,185,129,0.1)':left>0?'rgba(245,158,11,0.1)':'rgba(239,68,68,0.1)'};color:${left>10?'#10b981':left>0?'#d97706':'#ef4444'}">${left}</span></td>
+                  <td><button onclick="window._admSaveRow('${p.id}')" class="text-xs font-bold px-3 py-1.5 rounded-lg" style="background:rgba(198,167,94,0.15);color:var(--brand-primary)">Save</button></td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+  }
+
+  window._admSaveRow = async function(pid) {
+    const cost = parseFloat(document.getElementById(`inv_cost_${pid}`)?.value)||0;
+    const sell = parseFloat(document.getElementById(`inv_sell_${pid}`)?.value)||0;
+    const offer = parseFloat(document.getElementById(`inv_offer_${pid}`)?.value)||0;
+    const stock = parseInt(document.getElementById(`inv_stock_${pid}`)?.value)||0;
+    const data = {costPrice:cost,sellingPrice:sell,offerPrice:offer,totalStock:stock,updatedAt:new Date().toISOString()};
+    const ok = await admSaveInventory(pid, data);
+    if (ok) {
+      if (!_admInventory) _admInventory = {};
+      _admInventory[pid] = data;
+      const row = document.getElementById(`invRow_${pid}`);
+      if (row) { row.style.background='rgba(16,185,129,0.08)'; setTimeout(()=>row.style.background='',1200); }
+    }
+  };
+
+  async function renderAdmOrders(content) {
+    const orders = _admOrders||[];
+    if (!orders.length) { content.innerHTML='<div class="text-sm py-8 text-center" style="color:var(--text-secondary)">No orders found.</div>'; return; }
+    content.innerHTML = `
+      <div class="adm-card">
+        <div class="font-bold mb-4">🧾 All Orders (${orders.length})</div>
+        <div class="overflow-x-auto">
+          <table class="adm-table"><thead><tr><th>Order ID</th><th>Date</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th></tr></thead>
+          <tbody>${orders.map(o=>{
+            const d=o.createdAt?.toDate?o.createdAt.toDate():null;
+            const ds=d?d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}):'—';
+            const ts=d?d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):'';
+            const items=(o.items||[]).map(i=>`${i.title}×${i.qty}`).join(', ');
+            return `<tr>
+              <td class="font-mono font-bold text-xs">#${o.id.slice(-6).toUpperCase()}</td>
+              <td><div class="text-xs">${ds}</div><div class="text-xs" style="color:var(--text-secondary)">${ts}</div></td>
+              <td class="text-xs" style="max-width:120px">${o.address?.name||'—'}</td>
+              <td class="text-xs" style="max-width:220px;white-space:normal">${items}</td>
+              <td class="font-bold" style="color:var(--brand-primary)">₹${(o.total||0).toLocaleString()}</td>
+              <td><span class="adm-pill" style="background:rgba(16,185,129,0.12);color:#10b981">Placed</span></td>
+            </tr>`;
+          }).join('')}</tbody></table>
+        </div>
+      </div>`;
+  }
+
+  async function admDownloadExcel() {
+    const orders = _admOrders || await admGetAllOrders();
+    const inv = _admInventory || await admGetInventory();
+    if (!window.XLSX) {
+      await new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.onload=res;s.onerror=rej;document.head.appendChild(s);});
+    }
+    const wb = XLSX.utils.book_new();
+
+    // Sheet 1: Orders
+    const oRows=[['Order ID','Date','Customer','Address','Product','Qty','Unit Price','Line Total','Order Total']];
+    orders.forEach(o=>{
+      const d=o.createdAt?.toDate?o.createdAt.toDate().toLocaleDateString('en-IN'):'';
+      (o.items||[]).forEach((item,idx)=>{
+        oRows.push([o.id.slice(-6).toUpperCase(),d,o.address?.name||'',o.address?.address||'',item.title,item.qty,item.price,item.qty*item.price,idx===0?(o.total||0):'']);
+      });
+    });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(oRows), 'Orders');
+
+    // Sheet 2: Inventory
+    const soldMap={};
+    orders.forEach(o=>{(o.items||[]).forEach(i=>{soldMap[i.id]=(soldMap[i.id]||0)+(i.qty||1);});});
+    const iRows=[['Product ID','Product Name','Cost Price','Selling Price','Offer Price','Stock Added','Sold','Remaining','Margin %']];
+    (window.PRODUCTS||[]).forEach(p=>{
+      const i=inv[p.id]||{}, sold=soldMap[p.id]||0, added=i.totalStock||p.stock||0, left=Math.max(0,added-sold);
+      const margin=i.costPrice&&i.sellingPrice?(((i.sellingPrice-i.costPrice)/i.costPrice)*100).toFixed(1)+'%':'';
+      iRows.push([p.id,p.title,i.costPrice||'',i.sellingPrice||p.price||'',i.offerPrice||'',added,sold,left,margin]);
+    });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(iRows), 'Inventory');
+
+    // Sheet 3: Monthly Summary
+    const mMap={};
+    orders.forEach(o=>{
+      const d=o.createdAt?.toDate?o.createdAt.toDate():null; if(!d) return;
+      const key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+      mMap[key]=mMap[key]||{orders:0,items:0,revenue:0};
+      mMap[key].orders++; mMap[key].items+=(o.items||[]).reduce((a,i)=>a+(i.qty||1),0); mMap[key].revenue+=o.total||0;
+    });
+    const mRows=[['Month','Orders','Items Sold','Revenue (₹)']];
+    Object.entries(mMap).sort().forEach(([m,v])=>mRows.push([m,v.orders,v.items,v.revenue]));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(mRows), 'Monthly Summary');
+
+    // Sheet 4: Product-wise by month
+    const psMap={};
+    orders.forEach(o=>{
+      const d=o.createdAt?.toDate?o.createdAt.toDate():null;
+      const month=d?`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`:'—';
+      (o.items||[]).forEach(i=>{
+        if(!psMap[i.id]) psMap[i.id]={title:i.title,byMonth:{}};
+        psMap[i.id].byMonth[month]=psMap[i.id].byMonth[month]||{qty:0,rev:0};
+        psMap[i.id].byMonth[month].qty+=i.qty||1; psMap[i.id].byMonth[month].rev+=(i.price||0)*(i.qty||1);
+      });
+    });
+    const psRows=[['Product','Month','Units Sold','Revenue (₹)']];
+    Object.values(psMap).forEach(ps=>Object.entries(ps.byMonth).forEach(([m,v])=>psRows.push([ps.title,m,v.qty,v.rev])));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(psRows), 'Product Sales');
+
+    XLSX.writeFile(wb, `PioneerIXpress_Sales_${new Date().toISOString().slice(0,10)}.xlsx`);
   }
 });
 </script>
