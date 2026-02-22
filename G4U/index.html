@@ -326,6 +326,141 @@ html.dark .brand-sub { color: var(--text-secondary); }
   #addrBookList .addr-card { transition: border-color 0.2s, box-shadow 0.2s; }
   #addrBookList .addr-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
   </style>
+
+
+
+  <!-- ===== MULTILINGUAL STYLES ===== -->
+  <style>
+    /* Custom translation engine — no Google Translate */
+
+    /* ── Language Popup ───────────────────────────────────────── */
+    #pix-lang-overlay {
+      position: fixed; inset: 0; z-index: 999999;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(10px) saturate(1.2);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    #pix-lang-overlay.pix-open {
+      opacity: 1; pointer-events: all;
+    }
+    #pix-lang-box {
+      background: var(--surface-primary);
+      border-radius: 26px;
+      padding: 38px 34px 30px;
+      width: 400px; max-width: calc(100vw - 28px);
+      box-shadow: 0 30px 90px rgba(0,0,0,0.4);
+      border: 1px solid rgba(198,167,94,0.25);
+      transform: translateY(20px) scale(0.96);
+      opacity: 0;
+      transition: transform 0.38s cubic-bezier(.2,.9,.2,1), opacity 0.38s;
+    }
+    #pix-lang-overlay.pix-open #pix-lang-box {
+      transform: translateY(0) scale(1); opacity: 1;
+    }
+    #pix-lang-flag {
+      font-size: 2.8rem; line-height: 1; margin-bottom: 12px; display: block;
+    }
+    #pix-lang-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.55rem; font-weight: 800; line-height: 1.25;
+      margin-bottom: 6px; color: var(--text-primary);
+    }
+    #pix-lang-native {
+      font-size: 1rem; font-weight: 700;
+      color: var(--brand-primary); margin-bottom: 10px;
+    }
+    #pix-lang-sub {
+      font-size: 0.83rem; color: var(--text-secondary);
+      line-height: 1.55; margin-bottom: 26px;
+    }
+    #pix-lang-yes {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+      color: #111; font-weight: 800; font-size: 0.95rem;
+      border: none; border-radius: 14px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin-bottom: 10px;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    #pix-lang-yes:hover { opacity: 0.88; transform: translateY(-1px); }
+    #pix-lang-no {
+      width: 100%; padding: 12px;
+      background: transparent;
+      color: var(--text-secondary); font-weight: 600; font-size: 0.88rem;
+      border: 1.5px solid rgba(128,128,128,0.2);
+      border-radius: 14px; cursor: pointer;
+      transition: all 0.2s;
+    }
+    #pix-lang-no:hover {
+      border-color: rgba(128,128,128,0.45); color: var(--text-primary);
+    }
+
+    /* ── Globe Button ─────────────────────────────────────────── */
+    #pix-globe-btn {
+      width: 40px; height: 40px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 10px; border: none; cursor: pointer;
+      background-color: var(--bg-primary);
+      transition: background 0.2s;
+      position: relative;
+      flex-shrink: 0;
+    }
+    #pix-globe-btn:hover { background: rgba(198,167,94,0.14); }
+    #pix-globe-dot {
+      position: absolute; top: 7px; right: 7px;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--brand-primary);
+      display: none;
+      box-shadow: 0 0 0 2px var(--bg-primary);
+    }
+    #pix-globe-dot.on { display: block; }
+
+    /* ── Language Panel Dropdown ──────────────────────────────── */
+    #pix-lang-panel {
+      position: absolute; right: 0; top: calc(100% + 10px);
+      background: var(--surface-primary);
+      border-radius: 18px; min-width: 260px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.22);
+      padding: 8px; z-index: 9000;
+      border: 1px solid rgba(0,0,0,0.09);
+      opacity: 0; pointer-events: none;
+      transform: translateY(-6px);
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    html.dark #pix-lang-panel { border-color: rgba(255,255,255,0.09); }
+    #pix-lang-panel.pix-open { opacity: 1; pointer-events: all; transform: translateY(0); }
+    .pix-lp-head {
+      padding: 10px 12px 12px;
+      border-bottom: 1px solid rgba(0,0,0,0.07);
+      margin-bottom: 6px;
+    }
+    html.dark .pix-lp-head { border-color: rgba(255,255,255,0.08); }
+    .pix-lp-head-title { font-weight: 700; font-size: 0.82rem; }
+    .pix-lp-head-sub { font-size: 0.7rem; color: var(--text-secondary); margin-top: 2px; }
+    .pix-lang-opt {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 10px;
+      font-size: 0.84rem; font-weight: 500;
+      cursor: pointer; transition: background 0.13s;
+      color: var(--text-primary); border: none;
+      background: transparent; width: 100%; text-align: left;
+    }
+    .pix-lang-opt:hover { background: var(--bg-primary); }
+    .pix-lang-opt.pix-active {
+      background: rgba(198,167,94,0.1);
+      color: var(--brand-primary); font-weight: 700;
+    }
+    .pix-lang-flag { width: 24px; text-align: center; font-size: 1rem; flex-shrink: 0; }
+    .pix-lang-native-sm { margin-left: auto; font-size: 0.75rem; color: var(--text-secondary); }
+    .pix-lang-check { color: var(--brand-primary); font-size: 0.8rem; margin-left: 4px; }
+    .pix-panel-sep {
+      height: 1px; background: rgba(0,0,0,0.07);
+      margin: 6px 8px;
+    }
+    html.dark .pix-panel-sep { background: rgba(255,255,255,0.08); }
+  </style>
 </head>
 <body class="antialiased">
 
@@ -344,16 +479,30 @@ html.dark .brand-sub { color: var(--text-secondary); }
 
           <div class="brand-text">
             <span class="brand-name"><img src="PXT.png" alt="Pioneer I Xpress logo" class="brand-name"></span>
-            <small class="brand-sub hidden sm:inline-block">Candles • Clothing • Beauty & More</small>
+            <small class="brand-sub hidden sm:inline-block" data-i18n="tagline">Candles • Clothing • Beauty & More</small>
           </div>
         </a>
 
         <div class="hidden md:flex flex-1 max-w-lg items-center gap-2 rounded-lg p-2" style="background-color: var(--bg-primary);">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <input id="q" type="search" placeholder="Search candles, clothing, spare parts, beauty… ( / )" class="w-full bg-transparent outline-none border-none text-sm">
+          <input id="q" type="search" placeholder="Search candles, clothing, spare parts, beauty… ( / )" data-i18n-placeholder="search_placeholder" class="w-full bg-transparent outline-none border-none text-sm">
         </div>
 
         <div class="flex items-center gap-2">
+          <div class="relative hidden sm:block" id="pix-globe-wrap">
+            <button id="pix-globe-btn" title="Change Language / भाषा बदलें">
+              <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              <span id="pix-globe-dot"></span>
+            </button>
+            <!-- Language Panel -->
+            <div id="pix-lang-panel">
+              <div class="pix-lp-head">
+                <div class="pix-lp-head-title" data-i18n="language_panel_title">🌐 Language</div>
+                <div class="pix-lp-head-sub" data-i18n="select_lang">Select your preferred language</div>
+              </div>
+              <div id="pix-lang-opts"></div>
+            </div>
+          </div>
           <select id="currency" class="text-xs font-bold rounded-lg p-2 appearance-none outline-none cursor-pointer" style="background-color: var(--bg-primary);" title="Currency">
             <option value="INR">INR ₹</option>
             <option value="USD">USD $</option>
@@ -372,14 +521,14 @@ html.dark .brand-sub { color: var(--text-secondary); }
           </button>
           <button id="cartBtn" class="flex items-center gap-2 text-sm font-bold rounded-lg px-4 py-2 btn-primary" style="color:#111111">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-            <span class="hidden sm:block">Cart</span>
+            <span class="hidden sm:block" data-i18n="cart">Cart</span>
             <span class="w-5 h-5 text-xs rounded-full bg-white/30 flex items-center justify-center" id="cartBadge">0</span>
           </button>
           <!-- AUTH BUTTON -->
           <div id="authArea">
             <button id="loginBtn" class="flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg border transition-all" style="border-color: rgba(0,0,0,0.12); background: var(--bg-primary);">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.029 10 8 10c-2.03 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/></svg>
-              <span class="hidden sm:block">Login</span>
+              <span class="hidden sm:block" data-i18n="login">Login</span>
             </button>
             <!-- User avatar (shown when logged in) -->
             <div class="user-dropdown hidden" id="userDropdown">
@@ -391,24 +540,24 @@ html.dark .brand-sub { color: var(--text-secondary); }
                   <div class="user-menu-name" id="userMenuName">User</div>
                   <div class="user-menu-email" id="userMenuEmail"></div>
                   <div class="mt-2 flex items-center gap-1 text-xs" style="color:var(--text-secondary)">
-                    <span class="sync-dot"></span> Cloud synced
+                    <span class="sync-dot"></span> <span data-i18n="cloud_synced">Cloud synced</span>
                   </div>
                 </div>
                 <div class="user-menu-item hidden" id="menuAdmin" style="color:var(--brand-primary);font-weight:700">
                   <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                  Admin Dashboard
+                  <span data-i18n="admin_dashboard">Admin Dashboard</span>
                 </div>
                 <div class="user-menu-item" id="menuOrders">
                   <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                  My Orders
+                  <span data-i18n="my_orders">My Orders</span>
                 </div>
                 <div class="user-menu-item" id="menuAddresses">
                   <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                  My Addresses
+                  <span data-i18n="my_addresses">My Addresses</span>
                 </div>
                 <div class="user-menu-item danger" id="menuLogout">
                   <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                  Sign Out
+                  <span data-i18n="sign_out">Sign Out</span>
                 </div>
               </div>
             </div>
@@ -423,12 +572,12 @@ html.dark .brand-sub { color: var(--text-secondary); }
       <div class="grid lg:grid-cols-2 gap-6 items-center">
         <div class="p-8 rounded-2xl" style="background-color: var(--surface-primary);">
 		
-          <div class="text-sm font-bold uppercase" style="color: var(--text-secondary);">All‑in‑one marketplace</div>
-          <h1 class="text-4xl md:text-5xl font-extrabold my-3 leading-tight">Brighten Your World with <span style="color:var(--brand-primary)">Our Products</span></h1>
+          <div class="text-sm font-bold uppercase" style="color: var(--text-secondary);" data-i18n="marketplace">All‑in‑one marketplace</div>
+          <h1 class="text-4xl md:text-5xl font-extrabold my-3 leading-tight" id="heroTitle">Brighten Your World with <span style="color:var(--brand-primary)" data-i18n="our_products">Our Products</span></h1>
           <p class="text-base" style="color: var(--text-secondary);">Shop our curated collection of <b>Candles</b>, <b>Clothing</b>, <b>Spare Parts</b>, <b>Beauty Products</b> & more. Seamless shopping with smart cart, wishlist, comparison, and seller listings.</p>
           <div class="flex gap-3 mt-6">
-            <button class="btn-primary text-white font-bold py-2 px-5 rounded-lg" data-cat="candles">Shop Candles</button>
-            <button class="font-bold py-2 px-5 rounded-lg" style="background-color: var(--bg-primary);" data-cat="candlesaccessories">Accessories</button>
+            <button class="btn-primary text-white font-bold py-2 px-5 rounded-lg" data-cat="candles" data-i18n="shop_candles">Shop Candles</button>
+            <button class="font-bold py-2 px-5 rounded-lg" style="background-color: var(--bg-primary);" data-cat="candlesaccessories" data-i18n="accessories">Accessories</button>
           </div>
         </div>
         <div class="h-64 lg:h-full rounded-2xl overflow-hidden">
@@ -487,14 +636,14 @@ html.dark .brand-sub { color: var(--text-secondary); }
     <!-- CONTROLS -->
     <section class="flex flex-wrap items-center justify-between gap-4 my-6">
       <div class="flex gap-2 flex-wrap">
-        <button class="chip active" data-filter="all">All</button>
-        <button class="chip" data-filter="candles">Candles</button>
-        <button class="chip" data-filter="candlesaccessories">Candle Accessories</button>
-        <button class="chip" data-filter="candlesmoulds">Moulds</button>
-        <button class="chip" data-filter="spareparts">Spare Parts</button>
-        <button class="chip" data-filter="clothing">Clothing</button>
-        <button class="chip" data-filter="beauty">Beauty Products</button>
-        <button class="chip" data-filter="others">Others</button>
+        <button class="chip active" data-filter="all" data-i18n="filter_all">All</button>
+        <button class="chip" data-filter="candles" data-i18n="filter_candles">Candles</button>
+        <button class="chip" data-filter="candlesaccessories" data-i18n="filter_accessories">Candle Accessories</button>
+        <button class="chip" data-filter="candlesmoulds" data-i18n="filter_moulds">Moulds</button>
+        <button class="chip" data-filter="spareparts" data-i18n="filter_spareparts">Spare Parts</button>
+        <button class="chip" data-filter="clothing" data-i18n="filter_clothing">Clothing</button>
+        <button class="chip" data-filter="beauty" data-i18n="filter_beauty">Beauty Products</button>
+        <button class="chip" data-filter="others" data-i18n="filter_others">Others</button>
       </div>
       <div class="flex gap-4 items-center flex-wrap">
         <div class="flex items-center gap-2 text-sm">
@@ -502,12 +651,12 @@ html.dark .brand-sub { color: var(--text-secondary); }
           <input id="minRange" type="range" min="0" max="5000" step="100" value="0" class="w-24 accent-[#C6A75E]">
         </div>
         <select id="sort" class="text-sm font-semibold rounded-lg p-2 appearance-none outline-none cursor-pointer" style="background-color: var(--surface-primary);">
-          <option value="pop">Popularity</option>
-          <option value="plh">Price: Low → High</option>
-          <option value="phl">Price: High → Low</option>
-          <option value="rate">Rating</option>
+          <option value="pop" data-i18n="sort_pop">Popularity</option>
+          <option value="plh" data-i18n="sort_plh">Price: Low → High</option>
+          <option value="phl" data-i18n="sort_phl">Price: High → Low</option>
+          <option value="rate" data-i18n="sort_rate">Rating</option>
         </select>
-        <button class="text-sm font-semibold p-2 rounded-lg" id="reset" style="background-color: var(--surface-primary);">Reset</button>
+        <button class="text-sm font-semibold p-2 rounded-lg" id="reset" style="background-color: var(--surface-primary);" data-i18n="reset">Reset</button>
       </div>
     </section>
 
@@ -519,15 +668,15 @@ html.dark .brand-sub { color: var(--text-secondary); }
 
     <!-- RECENTLY VIEWED -->
     <section class="my-12">
-      <h3 class="text-2xl font-bold mb-4">Recently Viewed</h3>
+      <h3 class="text-2xl font-bold mb-4" data-i18n="recently_viewed">Recently Viewed</h3>
       <div class="flex gap-4 overflow-x-auto pb-4" id="recent"></div>
     </section>
     
     <!-- RECENTLY PURCHASED / MY ORDERS -->
     <section id="purchased-section" class="my-12 hidden">
       <div class="flex items-center justify-between mb-6">
-        <h3 class="text-2xl font-bold" style="font-family:'Playfair Display',serif">My Orders</h3>
-        <button onclick="document.getElementById('ordersModalOverlay').style.display='flex';document.getElementById('ordersModalOverlay').style.alignItems='center';document.getElementById('ordersModalOverlay').style.justifyContent='center';document.body.style.overflow='hidden';loadOrders();" class="text-sm font-semibold px-4 py-2 rounded-lg" style="background:rgba(198,167,94,0.1);color:var(--brand-primary)">View All Orders</button>
+        <h3 class="text-2xl font-bold" style="font-family:'Playfair Display',serif" data-i18n="my_orders">My Orders</h3>
+        <button onclick="document.getElementById('ordersModalOverlay').style.display='flex';document.getElementById('ordersModalOverlay').style.alignItems='center';document.getElementById('ordersModalOverlay').style.justifyContent='center';document.body.style.overflow='hidden';loadOrders();" class="text-sm font-semibold px-4 py-2 rounded-lg" style="background:rgba(198,167,94,0.1);color:var(--brand-primary)" data-i18n="view_all_orders">View All Orders</button>
       </div>
       <div id="purchased" class="space-y-4">
         <div class="text-sm" style="color:var(--text-secondary)">Loading your orders…</div>
@@ -541,14 +690,14 @@ html.dark .brand-sub { color: var(--text-secondary); }
             <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="var(--brand-primary)" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
           </div>
           <div>
-            <h2 class="text-2xl font-bold tracking-tight">Checkout</h2>
-            <p class="text-xs mt-0.5" style="color:var(--text-secondary)">Review and confirm your order</p>
+            <h2 class="text-2xl font-bold tracking-tight" data-i18n="checkout">Checkout</h2>
+            <p class="text-xs mt-0.5" style="color:var(--text-secondary)" data-i18n="checkout_sub">Review and confirm your order</p>
           </div>
         </div>
         <div class="grid lg:grid-cols-5 gap-6">
             <div class="lg:col-span-3 p-6 rounded-2xl" style="background-color: var(--surface-primary);">
                 <div class="flex items-center justify-between mb-5">
-                  <h3 class="text-lg font-bold">Shipping Details</h3>
+                  <h3 class="text-lg font-bold" data-i18n="shipping_details">Shipping Details</h3>
                   <button id="manageAddrBtn" class="text-sm font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5" style="background:rgba(198,167,94,0.1);color:var(--brand-primary)">
                     <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     Manage Addresses
@@ -557,9 +706,9 @@ html.dark .brand-sub { color: var(--text-secondary); }
 
                 <!-- Saved address picker — shown when user has saved addresses -->
                 <div id="savedAddrWrap" class="hidden mb-5">
-                  <p class="text-xs font-semibold uppercase tracking-wide mb-2" style="color:var(--text-secondary)">Choose a saved address</p>
+                  <p class="text-xs font-semibold uppercase tracking-wide mb-2" style="color:var(--text-secondary)" data-i18n="choose_saved">Choose a saved address</p>
                   <div id="savedAddrList" class="space-y-2"></div>
-                  <button id="useNewAddrBtn" class="mt-3 text-sm font-bold underline" style="color:var(--brand-primary)">+ Use a different address</button>
+                  <button id="useNewAddrBtn" class="mt-3 text-sm font-bold underline" style="color:var(--brand-primary)" data-i18n="use_different">+ Use a different address</button>
                 </div>
 
                 <!-- Manual form — always present but hidden when address selected -->
@@ -592,10 +741,10 @@ html.dark .brand-sub { color: var(--text-secondary); }
                 <h3 class="text-lg font-bold mb-4">Order Summary</h3>
                 <div id="coItems" class="space-y-2 text-sm border-b pb-4 mb-4" style="border-color: rgba(128,128,128,0.2);"></div>
                 <div class="space-y-2 text-sm mb-4">
-                    <div class="flex justify-between"><span>Subtotal</span><span id="coSub">₹0</span></div>
-                    <div class="flex justify-between"><span>Shipping</span><span id="coShip">₹0</span></div>
+                    <div class="flex justify-between"><span data-i18n="subtotal">Subtotal</span><span id="coSub">₹0</span></div>
+                    <div class="flex justify-between"><span data-i18n="shipping_lbl">Shipping</span><span id="coShip">₹0</span></div>
                     <div class="flex justify-between"><span>Discount</span><span id="coDisc">-₹0</span></div>
-                    <div class="flex justify-between font-bold text-base mt-2 pt-2 border-t" style="border-color: rgba(128,128,128,0.2);"><strong>Total</strong><strong id="coTot">₹0</strong></div>
+                    <div class="flex justify-between font-bold text-base mt-2 pt-2 border-t" style="border-color: rgba(128,128,128,0.2);"><strong data-i18n="total">Total</strong><strong id="coTot">₹0</strong></div>
                 </div>
                 <div class="field mb-4"><label class="text-sm font-medium">Coupon Code</label><input class="input" id="coupon" placeholder="PIX10"></div>
                 <div class="flex flex-col gap-3">
@@ -627,8 +776,8 @@ html.dark .brand-sub { color: var(--text-secondary); }
     <section id="cart-reminder-section" class="my-12 rounded-2xl hidden overflow-hidden" style="background-color: var(--surface-primary); border: 1px solid rgba(0,0,0,0.08);">
       <div class="px-6 py-4 flex items-center justify-between" style="border-bottom: 1px solid rgba(0,0,0,0.06);">
         <div>
-          <h3 class="text-base font-bold tracking-tight">Abandoned Cart Reminder</h3>
-          <p class="text-xs mt-0.5" style="color:var(--text-secondary)">Send an automated reminder to the customer's registered number</p>
+          <h3 class="text-base font-bold tracking-tight" data-i18n="cart_reminder">Abandoned Cart Reminder</h3>
+          <p class="text-xs mt-0.5" style="color:var(--text-secondary)" data-i18n="cart_reminder_sub">Send an automated reminder to the customer's registered number</p>
         </div>
         <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style="background:rgba(198,167,94,0.1)">
           <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="var(--brand-primary)" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
@@ -645,10 +794,10 @@ html.dark .brand-sub { color: var(--text-secondary); }
         </div>
         <div class="flex gap-3 flex-wrap">
           <button id="sendWhatsApp" class="flex items-center gap-2 font-semibold py-2.5 px-5 rounded-xl text-sm text-white transition-opacity hover:opacity-90" style="background:#25D366;">
-            <i class="fab fa-whatsapp"></i> Send via WhatsApp
+            <i class="fab fa-whatsapp"></i> <span data-i18n="send_whatsapp">Send via WhatsApp</span>
           </button>
           <button id="sendSMS" class="flex items-center gap-2 font-semibold py-2.5 px-5 rounded-xl text-sm text-white transition-opacity hover:opacity-90" style="background:#4f46e5;">
-            <i class="fas fa-comment-dots"></i> Send via SMS
+            <i class="fas fa-comment-dots"></i> <span data-i18n="send_sms">Send via SMS</span>
           </button>
         </div>
         <div id="reminderMsg" class="text-xs mt-3 font-semibold hidden py-2 px-3 rounded-lg" style="background:var(--bg-primary)"></div>
@@ -658,36 +807,36 @@ html.dark .brand-sub { color: var(--text-secondary); }
         <footer class="text-center py-12 mt-8 border-t" style="color: var(--text-secondary); border-color: rgba(128,128,128,0.2);">
         © <span id="year"></span> Pioneer I Xpress • All Rights Reserved.
         <br>
-        Shortcuts: <b>/</b> search, <b>c</b> cart, <b>w</b> wishlist, <b>?</b> help
+        <span data-i18n="shortcuts">Shortcuts: <b>/</b> search, <b>c</b> cart, <b>w</b> wishlist, <b>?</b> help</span>
     </footer>
   </main>
   
   <!-- DRAWERS -->
   <aside class="drawer fixed top-0 right-0 bottom-0 w-full max-w-md transform translate-x-full z-50 flex flex-col" id="cart">
     <header class="p-4 flex items-center justify-between border-b" style="border-color: rgba(128,128,128,0.2);">
-        <strong class="text-lg">Your Cart</strong>
-        <button class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700" id="cartClose">Close</button>
+        <strong class="text-lg" data-i18n="your_cart">Your Cart</strong>
+        <button class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700" id="cartClose" data-i18n="close">Close</button>
     </header>
     <div class="flex-1 overflow-auto p-4 space-y-3" id="cartItems"></div>
     <footer class="p-4 border-t" style="border-color: rgba(128,128,128,0.2);">
         <div class="space-y-1 text-sm mb-3">
-            <div class="flex justify-between"><span>Subtotal</span><span id="sub">₹0</span></div>
-            <div class="flex justify-between"><span>Shipping</span><span id="ship">₹0</span></div>
-            <div class="flex justify-between font-bold text-base"><strong>Total</strong><strong id="tot">₹0</strong></div>
+            <div class="flex justify-between"><span data-i18n="subtotal">Subtotal</span><span id="sub">₹0</span></div>
+            <div class="flex justify-between"><span data-i18n="shipping_lbl">Shipping</span><span id="ship">₹0</span></div>
+            <div class="flex justify-between font-bold text-base"><strong data-i18n="total">Total</strong><strong id="tot">₹0</strong></div>
         </div>
         <div class="text-xs text-center mb-2" id="freeMsg" style="color: var(--text-secondary);"></div>
         <div class="h-2 rounded-full progress-bar" style="background-color: var(--bg-primary);"><span id="shipProg" class="block h-full rounded-full w-0"></span></div>
         <div class="grid grid-cols-2 gap-3 mt-3">
-            <button class="font-bold py-2 px-4 rounded-lg" style="background-color: var(--bg-primary);" id="clear">Clear Cart</button>
-            <a class="btn-primary text-white text-center font-bold py-2 px-4 rounded-lg" href="#checkout" id="toCheckout">Checkout</a>
+            <button class="font-bold py-2 px-4 rounded-lg" style="background-color: var(--bg-primary);" id="clear" data-i18n="clear_cart">Clear Cart</button>
+            <a class="btn-primary text-white text-center font-bold py-2 px-4 rounded-lg" href="#checkout" id="toCheckout" data-i18n="checkout">Checkout</a>
         </div>
     </footer>
   </aside>
 
   <aside class="drawer fixed top-0 right-0 bottom-0 w-full max-w-md transform translate-x-full z-50 flex flex-col" id="wishlist">
     <header class="p-4 flex items-center justify-between border-b" style="border-color: rgba(128,128,128,0.2);">
-        <strong class="text-lg">Wishlist</strong>
-        <button class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700" id="wishClose">Close</button>
+        <strong class="text-lg" data-i18n="wishlist_title">Wishlist</strong>
+        <button class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700" id="wishClose" data-i18n="close">Close</button>
     </header>
     <div class="flex-1 overflow-auto p-4 space-y-3" id="wishItems"></div>
   </aside>
@@ -700,8 +849,8 @@ html.dark .brand-sub { color: var(--text-secondary); }
       <!-- Header -->
       <div class="flex items-center justify-between p-5 border-b" style="border-color:rgba(128,128,128,0.15)">
         <div>
-          <h3 class="text-xl font-bold">My Addresses</h3>
-          <p class="text-xs mt-0.5" style="color:var(--text-secondary)">Saved for faster checkout</p>
+          <h3 class="text-xl font-bold" data-i18n="my_addresses">My Addresses</h3>
+          <p class="text-xs mt-0.5" style="color:var(--text-secondary)" data-i18n="saved_checkout_sub">Saved for faster checkout</p>
         </div>
         <button id="addrModalClose" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -718,7 +867,7 @@ html.dark .brand-sub { color: var(--text-secondary); }
             <div class="w-6 h-6 rounded-lg flex items-center justify-center text-white text-sm font-bold" style="background:var(--brand-primary)">
               <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </div>
-            <span class="font-bold text-sm">Add New Address</span>
+            <span class="font-bold text-sm" data-i18n="add_new_address">Add New Address</span>
           </div>
           <div class="space-y-3">
             <div>
@@ -747,9 +896,9 @@ html.dark .brand-sub { color: var(--text-secondary); }
             </div>
             <label class="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" id="nb_isDefault" class="w-4 h-4 accent-[#C6A75E]">
-              <span class="text-sm font-medium">Set as default address</span>
+              <span class="text-sm font-medium" data-i18n="set_default">Set as default address</span>
             </label>
-            <button id="nb_saveBtn" class="w-full btn-primary text-white font-bold py-2.5 rounded-xl">Save Address</button>
+            <button id="nb_saveBtn" class="w-full btn-primary text-white font-bold py-2.5 rounded-xl" data-i18n="save_address">Save Address</button>
             <p id="nb_msg" class="text-xs text-center hidden"></p>
           </div>
         </div>
@@ -777,18 +926,18 @@ html.dark .brand-sub { color: var(--text-secondary); }
             <div id="mStock" class="text-sm font-semibold" style="color: var(--text-secondary);"></div>
             <p id="mDesc" class="text-sm" style="color: var(--text-secondary);"></p>
             <div id="variantWrap" class="hidden items-center gap-2">
-                <label class="text-sm font-medium">Scent</label>
+                <label class="text-sm font-medium" data-i18n="scent_lbl">Scent</label>
                 <select id="mScent" class="text-sm font-semibold rounded-lg p-2 appearance-none outline-none cursor-pointer" style="background-color: var(--bg-primary);"><option>Vanilla</option><option>Lavender</option><option>Sandalwood</option><option>Rose</option></select>
             </div>
             <div class="flex gap-2 items-center flex-wrap">
-                <button class="btn-primary text-white font-bold py-2 px-5 rounded-lg" id="mAdd">Add to Cart</button>
-                <button class="font-bold py-2 px-4 rounded-lg" style="background-color: var(--bg-primary);" id="mWish">♡ Wishlist</button>
-                <button class="font-bold py-2 px-4 rounded-lg" style="background-color: var(--bg-primary);" id="mCompare">⇄ Compare</button>
+                <button class="btn-primary text-white font-bold py-2 px-5 rounded-lg" id="mAdd" data-i18n="add_to_cart">Add to Cart</button>
+                <button class="font-bold py-2 px-4 rounded-lg" style="background-color: var(--bg-primary);" id="mWish">♡ <span data-i18n="wishlist_btn">Wishlist</span></button>
+                <button class="font-bold py-2 px-4 rounded-lg" style="background-color: var(--bg-primary);" id="mCompare">⇄ <span data-i18n="compare_btn">Compare</span></button>
             </div>
             <hr class="border-t my-2" style="border-color: rgba(128,128,128,0.2);">
             <div>
                 <div class="flex items-center justify-between mb-2">
-                  <strong class="text-base">Customer Reviews</strong>
+                  <strong class="text-base" data-i18n="customer_reviews">Customer Reviews</strong>
                   <span id="mRatingBadge" class="text-sm font-bold px-2 py-0.5 rounded-full" style="background:rgba(198,167,94,0.1);color:var(--brand-primary)">⭐ –</span>
                 </div>
                 <div id="reviews" class="text-sm mt-1 space-y-2 max-h-48 overflow-y-auto pr-1" style="color: var(--text-secondary);">
@@ -796,13 +945,13 @@ html.dark .brand-sub { color: var(--text-secondary); }
                 </div>
                 <!-- Star picker -->
                 <div class="mt-3 p-3 rounded-xl" style="background:var(--bg-primary);">
-                  <div class="text-xs font-semibold mb-1" style="color:var(--text-secondary)">Your rating</div>
+                  <div class="text-xs font-semibold mb-1" style="color:var(--text-secondary)" data-i18n="your_rating">Your rating</div>
                   <div id="starPicker" class="flex gap-1 mb-2 text-2xl cursor-pointer select-none">
                     <span data-star="1">☆</span><span data-star="2">☆</span><span data-star="3">☆</span><span data-star="4">☆</span><span data-star="5">☆</span>
                   </div>
                   <div class="flex gap-2">
                     <input id="revText" class="input flex-1 text-sm" placeholder="Write your review…"/>
-                    <button id="revAdd" class="btn-primary text-white font-bold py-2 px-4 rounded-lg text-sm">Post</button>
+                    <button id="revAdd" class="btn-primary text-white font-bold py-2 px-4 rounded-lg text-sm" data-i18n="post_review">Post</button>
                   </div>
                   <div id="revMsg" class="text-xs mt-1 hidden"></div>
                 </div>
@@ -817,11 +966,11 @@ html.dark .brand-sub { color: var(--text-secondary); }
   <div class="modal fixed inset-0 items-center justify-center p-4" id="compareModal" style="display:none; z-index:9000;">
     <div class="modal-backdrop fixed inset-0"></div>
     <div class="modal-box relative w-full max-w-4xl p-6">
-        <h3 class="text-2xl font-bold mb-4">Compare Products</h3>
+        <h3 class="text-2xl font-bold mb-4" data-i18n="compare_products">Compare Products</h3>
         <div id="compareTable" class="overflow-x-auto"></div>
         <div class="flex gap-3 mt-6">
-            <button class="font-bold py-2 px-4 rounded-lg" style="background-color: var(--bg-primary);" id="compareClear">Clear All</button>
-            <button class="font-bold py-2 px-4 rounded-lg" style="background-color: var(--bg-primary);" id="compareClose">Close</button>
+            <button class="font-bold py-2 px-4 rounded-lg" style="background-color: var(--bg-primary);" id="compareClear" data-i18n="clear_all">Clear All</button>
+            <button class="font-bold py-2 px-4 rounded-lg" style="background-color: var(--bg-primary);" id="compareClose" data-i18n="close">Close</button>
         </div>
     </div>
   </div>
@@ -970,6 +1119,7 @@ html.dark .brand-sub { color: var(--text-secondary); }
     // Community products are injected via window._PIX_injectCommunityProducts() once Firestore loads
     // Expose renderProducts so the Firebase listener can trigger re-renders
     window._PIX_rerenderProducts = () => renderProducts();
+    window._PIX_rerenderAll = () => rerenderAll();
 
     // ===== STATE MANAGEMENT =================================================
     const state = {
@@ -1015,15 +1165,20 @@ html.dark .brand-sub { color: var(--text-secondary); }
     // ===== RENDER FUNCTIONS =================================================
     function updateCurrencyUI() {
         const annBar = $('#announcement-bar');
-        if (state.currency === 'USD') {
+        if (annBar) {
+          if (window.PIX_applyTranslations) {
+            window.PIX_applyTranslations(); // handles currency-aware announcement
+          } else if (state.currency === 'USD') {
             annBar.innerHTML = `Free shipping over $${CX.FREE_SHIP_USD} • Use code <b>PIX10</b> for 10% off!`;
-        } else {
+          } else {
             annBar.innerHTML = `Free shipping over ₹${CX.FREE_SHIP_INR} • Use code <b>PIX10</b> for 10% off!`;
+          }
         }
         $('#minVal').textContent = fmt(state.min);
     }
     
     function rerenderAll() {
+        if (window.PIX_applyTranslations) window.PIX_applyTranslations();
         updateCurrencyUI();
         renderProducts();
         updateCart();
@@ -1054,16 +1209,16 @@ html.dark .brand-sub { color: var(--text-secondary); }
       const start = (state.page - 1) * state.per;
       const pageItems = items.slice(start, start + state.per);
       
-      $('#grid').innerHTML = pageItems.map(p => cardHTML(p)).join('') || '<div class="col-span-full text-center py-12" style="color: var(--text-secondary);"><h3>No products found.</h3><p>Try adjusting your filters.</p></div>';
+      $('#grid').innerHTML = pageItems.map(p => cardHTML(p)).join('') || '<div class="col-span-full text-center py-12" style="color: var(--text-secondary);"><h3>'+(window.PIX_t ? window.PIX_t('no_products') : 'no_products')+'</h3><p>'+(window.PIX_t ? window.PIX_t('adjust_filters') : 'adjust_filters')+'</p></div>';
       renderPager(items.length);
     }
 
     function cardHTML(p) {
         const cardImg = (p.imgs && p.imgs.length > 0) ? p.imgs[0] : p.img;
         const hasGallery = p.imgs && p.imgs.length > 1;
-        const low = p.stock > 0 && p.stock < 10 ? `<span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">Only ${p.stock} left</span>` : '';
-        const oos = p.stock === 0 ? `<span class="absolute top-2 left-2 bg-gray-700 text-white text-xs font-semibold px-2 py-1 rounded-full">Out of stock</span>` : '';
-        const communityBadge = p._community ? `<span class="absolute top-2 right-2 text-xs font-bold px-2 py-1 rounded-full" style="background:rgba(198,167,94,0.15);color:var(--brand-primary);border:1px solid rgba(198,167,94,0.3)">🌐 Community</span>` : '';
+        const low = p.stock > 0 && p.stock < 10 ? `<span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">${(window.PIX_t?window.PIX_t('only_left'):'Only {n} left').replace('{n}',p.stock)}</span>` : '';
+        const oos = p.stock === 0 ? `<span class="absolute top-2 left-2 bg-gray-700 text-white text-xs font-semibold px-2 py-1 rounded-full">${window.PIX_t?window.PIX_t('out_of_stock'):'Out of stock'}</span>` : '';
+        const communityBadge = p._community ? `<span class="absolute top-2 right-2 text-xs font-bold px-2 py-1 rounded-full" style="background:rgba(198,167,94,0.15);color:var(--brand-primary);border:1px solid rgba(198,167,94,0.3)">${window.PIX_t?window.PIX_t('community_badge'):'🌐 Community'}</span>` : '';
         const galleryDots = hasGallery ? `<span class="absolute bottom-2 right-2 text-xs font-bold px-2 py-0.5 rounded-full" style="background:rgba(0,0,0,0.5);color:white">📷 ${p.imgs.length}</span>` : '';
         const listedBy = p._community && p.addedByName ? `<div class="text-xs mt-0.5 italic" style="color:var(--text-secondary)">by ${p.addedByName}</div>` : '';
         return `
@@ -1087,8 +1242,8 @@ html.dark .brand-sub { color: var(--text-secondary); }
                 <div class="flex items-center justify-between mt-2">
                     <div class="font-black text-lg">${fmt(p.price)}</div>
                     <div class="flex gap-2">
-                      <button class="quick btn-primary font-bold text-xs py-1.5 px-3 rounded-lg" ${p.stock === 0 ? 'disabled' : ''}>View</button>
-                      <button class="add font-bold text-xs py-1.5 px-3 rounded-lg border" style="border-color:var(--brand-primary);color:var(--brand-primary);" ${p.stock === 0 ? 'disabled' : ''}>Add</button>
+                      <button class="quick btn-primary font-bold text-xs py-1.5 px-3 rounded-lg" ${p.stock === 0 ? 'disabled' : ''}>${window.PIX_t?window.PIX_t('view'):'View'}</button>
+                      <button class="add font-bold text-xs py-1.5 px-3 rounded-lg border" style="border-color:var(--brand-primary);color:var(--brand-primary);" ${p.stock === 0 ? 'disabled' : ''}>${window.PIX_t?window.PIX_t('add'):'Add'}</button>
                     </div>
                 </div>
             </div>
@@ -1099,11 +1254,11 @@ html.dark .brand-sub { color: var(--text-secondary); }
       const pages = Math.max(1, Math.ceil(total / state.per));
       state.page = Math.min(state.page, pages);
       let b = [];
-      b.push(`<button class="pager-btn" data-pg="prev" ${state.page === 1 ? 'disabled' : ''}>Prev</button>`);
+      b.push(`<button class="pager-btn" data-pg="prev" ${state.page === 1 ? 'disabled' : ''}>${window.PIX_t?window.PIX_t('prev'):'Prev'}</button>`);
       for (let i = 1; i <= pages; i++) {
         b.push(`<button class="pager-btn ${i === state.page ? 'active' : ''}" data-pg="${i}">${i}</button>`);
       }
-      b.push(`<button class="pager-btn" data-pg="next" ${state.page === pages ? 'disabled' : ''}>Next</button>`);
+      b.push(`<button class="pager-btn" data-pg="next" ${state.page === pages ? 'disabled' : ''}>${window.PIX_t?window.PIX_t('next'):'Next'}</button>`);
       $('#pager').innerHTML = b.join('');
     }
     
@@ -1124,7 +1279,7 @@ html.dark .brand-sub { color: var(--text-secondary); }
 
         const list = $('#cartItems');
         if (state.cart.length === 0) {
-            list.innerHTML = `<div class="text-center py-10" style="color: var(--text-secondary);">Your cart is empty</div>`;
+            list.innerHTML = `<div class="text-center py-10" style="color: var(--text-secondary);">${window.PIX_t?window.PIX_t('cart_empty'):'Your cart is empty'}</div>`;
         } else {
             list.innerHTML = state.cart.map(i => `
             <div class="cart-item flex gap-4 items-center" data-id="${i.id}">
@@ -1149,7 +1304,7 @@ html.dark .brand-sub { color: var(--text-secondary); }
         $('#ship').textContent = fmt(ship);
         $('#tot').innerHTML = `<strong>${fmt(total)}</strong>`;
         const remain = Math.max(0, freeShipThreshold - sub);
-        $('#freeMsg').textContent = remain === 0 ? 'You unlocked FREE shipping 🎉' : `Add ${fmt(remain)} more for free shipping`;
+        $('#freeMsg').innerHTML = remain === 0 ? (window.PIX_t?window.PIX_t('free_ship_unlock'):'You unlocked FREE shipping 🎉') : (window.PIX_t?window.PIX_t('add_more_ship'):'Add {amt} more for free shipping').replace('{amt}',fmt(remain));
         $('#shipProg').style.width = `${Math.min(100, (sub / freeShipThreshold) * 100)}%`;
     }
 
@@ -1165,7 +1320,7 @@ html.dark .brand-sub { color: var(--text-secondary); }
         }
         save();
         updateCart();
-        toast('Added to cart');
+        toast(window.PIX_t?window.PIX_t('added_to_cart'):'Added to cart');
     }
 
     // ===== WISHLIST LOGIC =====
@@ -1173,7 +1328,7 @@ html.dark .brand-sub { color: var(--text-secondary); }
         $('#wishBadge').textContent = state.wish.length;
         const list = $('#wishItems');
         if(state.wish.length === 0) {
-            list.innerHTML = `<div class="text-center py-10" style="color: var(--text-secondary);">Your wishlist is empty</div>`;
+            list.innerHTML = `<div class="text-center py-10" style="color: var(--text-secondary);">${window.PIX_t?window.PIX_t('wish_empty'):'Your wishlist is empty'}</div>`;
         } else {
             list.innerHTML = state.wish.map(id => PRODUCTS.find(p => p.id === id)).filter(Boolean).map(p => `
             <div class="cart-item flex gap-4 items-center" data-id="${p.id}">
@@ -1183,8 +1338,8 @@ html.dark .brand-sub { color: var(--text-secondary); }
                     <div class="text-xs" style="color: var(--text-secondary);">${fmt(p.price)}</div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button class="add btn-primary text-white text-xs font-bold py-1 px-2 rounded" ${p.stock === 0 ? 'disabled' : ''}>Add</button>
-                    <button class="rm text-red-500 font-bold">Remove</button>
+                    <button class="add btn-primary text-white text-xs font-bold py-1 px-2 rounded" ${p.stock === 0 ? 'disabled' : ''}>${window.PIX_t?window.PIX_t('add'):'Add'}</button>
+                    <button class="rm text-red-500 font-bold">${window.PIX_t?window.PIX_t('remove'):'Remove'}</button>
                 </div>
             </div>`).join('');
         }
@@ -1196,7 +1351,7 @@ html.dark .brand-sub { color: var(--text-secondary); }
         else state.wish.push(id);
         save();
         updateWishlist();
-        toast(inWish ? 'Removed from wishlist' : 'Added to wishlist');
+        toast(inWish ? (window.PIX_t?window.PIX_t('removed_from_wish'):'Removed from wishlist') : (window.PIX_t?window.PIX_t('added_to_wish'):'Added to wishlist'));
     }
 
     // ===== COMPARE LOGIC =====
@@ -1209,17 +1364,17 @@ html.dark .brand-sub { color: var(--text-secondary); }
         if (inCompare) {
             state.compare = state.compare.filter(x => x !== id);
         } else {
-            if (state.compare.length >= 4) return toast('Max 4 items to compare', false);
+            if (state.compare.length >= 4) return toast(window.PIX_t?window.PIX_t('max_compare'):'Max 4 items to compare', false);
             state.compare.push(id);
         }
         save();
         updateCompareBadge();
-        toast('Compare list updated');
+        toast(window.PIX_t?window.PIX_t('compare_updated'):'Compare list updated');
     }
     
     function openCompare() {
         const items = state.compare.map(id => PRODUCTS.find(p => p.id === id)).filter(Boolean);
-        if (items.length === 0) return toast('Add items to compare first', false);
+        if (items.length === 0) return toast(window.PIX_t?window.PIX_t('add_to_compare'):'Add items to compare first', false);
         
         const cols = items.map(p => `<th class="p-2 border">${p.title}</th>`).join('');
         const row = (k, fn) => `<tr><td class="font-semibold p-2 border">${k}</td>${items.map(fn).join('')}</tr>`;
@@ -1227,10 +1382,10 @@ html.dark .brand-sub { color: var(--text-secondary); }
         const html = `<table class="w-full text-center border-collapse text-sm">
             <thead><tr><th class="p-2 border"></th>${cols}</tr></thead>
             <tbody>
-                ${row('Price', p => `<td class="p-2 border">${fmt(p.price)}</td>`)}
-                ${row('Rating', p => `<td class="p-2 border">⭐ ${p.rating}</td>`)}
-                ${row('Category', p => `<td class="p-2 border">${niceCat(p.cat)}</td>`)}
-                ${row('Stock', p => `<td class="p-2 border">${p.stock > 0 ? p.stock : 'Out of Stock'}</td>`)}
+                ${row(window.PIX_t?window.PIX_t('price_lbl'):'Price', p => `<td class="p-2 border">${fmt(p.price)}</td>`)}
+                ${row(window.PIX_t?window.PIX_t('rating_lbl'):'Rating', p => `<td class="p-2 border">⭐ ${p.rating}</td>`)}
+                ${row(window.PIX_t?window.PIX_t('category_lbl'):'Category', p => `<td class="p-2 border">${niceCat(p.cat)}</td>`)}
+                ${row(window.PIX_t?window.PIX_t('stock_lbl'):'Stock', p => `<td class="p-2 border">${p.stock > 0 ? p.stock : (window.PIX_t?window.PIX_t('oos_compare'):'Out of Stock')}</td>`)}
             </tbody>
         </table>`;
         
@@ -1264,7 +1419,7 @@ html.dark .brand-sub { color: var(--text-secondary); }
     function renderReviewsList(reviews) {
       const el = document.getElementById('reviews');
       if (!reviews || reviews.length === 0) {
-        el.innerHTML = '<div class="text-xs italic">No reviews yet – be the first!</div>';
+        el.innerHTML = `<div class="text-xs italic">${window.PIX_t?window.PIX_t('no_reviews'):'No reviews yet – be the first!'}</div>`;
         return;
       }
       el.innerHTML = reviews.map(r => {
@@ -1312,7 +1467,7 @@ html.dark .brand-sub { color: var(--text-secondary); }
         document.getElementById('mCat').textContent = niceCat(p.cat);
         document.getElementById('mPrice').textContent = fmt(p.price);
         document.getElementById('mDesc').textContent = p.desc;
-        document.getElementById('mStock').textContent = p.stock === 0 ? 'Out of stock' : (p.stock < 10 ? `Hurry! Only ${p.stock} left` : `In stock: ${p.stock}`);
+        document.getElementById('mStock').textContent = p.stock === 0 ? (window.PIX_t?window.PIX_t('out_of_stock'):'Out of stock') : (p.stock < 10 ? (window.PIX_t?window.PIX_t('hurry_only'):'Hurry! Only {n} left').replace('{n}',p.stock) : (window.PIX_t?window.PIX_t('in_stock'):'In stock: {n}').replace('{n}',p.stock));
         document.getElementById('variantWrap').style.display = p.cat === 'candles' ? 'flex' : 'none';
         document.getElementById('mRatingBadge').textContent = `⭐ ${p.rating ? p.rating.toFixed(1) : '–'}`;
 
@@ -1327,7 +1482,7 @@ html.dark .brand-sub { color: var(--text-secondary); }
         if (revMsg) { revMsg.classList.add('hidden'); revMsg.textContent = ''; }
 
         // Load reviews from Firebase (or fallback to local)
-        document.getElementById('reviews').innerHTML = '<div class="text-xs italic">Loading reviews…</div>';
+        document.getElementById('reviews').innerHTML = `<div class="text-xs italic">${window.PIX_t?window.PIX_t('loading_reviews'):'Loading reviews…'}</div>`;
         if (window._PIX_reviews) {
           window._PIX_reviews.load(p.id).then(reviews => {
             renderReviewsList(reviews);
@@ -1633,7 +1788,7 @@ html.dark .brand-sub { color: var(--text-secondary); }
         $('#toCheckout').addEventListener('click', e => {
             if (state.cart.length === 0) {
                 e.preventDefault();
-                return toast('Your cart is empty', false);
+                return toast(window.PIX_t?window.PIX_t('cart_empty'):'Your cart is empty', false);
             }
             $('#cart').classList.add('translate-x-full');
             $('#checkout').classList.remove('hidden');
@@ -2215,8 +2370,6 @@ window.PRODUCTS = [
   const auth = getAuth(app);
   const db = getFirestore(app);
   const googleProvider = new GoogleAuthProvider();
-
-  // Expose globally so non-module bridge scripts can access them
   window._auth = auth;
   window._db = db;
 
@@ -2302,7 +2455,6 @@ window.PRODUCTS = [
   });
 
   // ---- GOOGLE LOGIN ----
-  // Handle redirect result on page load (for browsers that blocked popup)
   getRedirectResult(auth).then(async result => {
     if (result && result.user) {
       const user = result.user;
@@ -2314,6 +2466,7 @@ window.PRODUCTS = [
   }).catch(e => console.error('getRedirectResult error:', e));
 
   async function googleSignIn() {
+    const errEl = document.getElementById('loginError');
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
@@ -2322,21 +2475,13 @@ window.PRODUCTS = [
       }, { merge: true });
       closeAuthModal();
     } catch (e) {
-      // If popup was blocked or unavailable, fall back to redirect flow
-      if (e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') {
-        try {
-          await signInWithRedirect(auth, googleProvider);
-        } catch (redirectErr) {
-          console.error('Google redirect error:', redirectErr);
-          const errEl = document.getElementById('loginError') || document.getElementById('registerError');
-          if (errEl) { errEl.textContent = 'Google sign-in failed. Please try email/password login.'; errEl.classList.add('show'); }
-        }
+      if (['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request'].includes(e.code)) {
+        try { await signInWithRedirect(auth, googleProvider); }
+        catch (re) { if (errEl) { errEl.textContent = 'Google sign-in failed. Try email/password.'; errEl.classList.add('show'); } }
       } else if (e.code === 'auth/unauthorized-domain') {
-        const errEl = document.getElementById('loginError');
-        if (errEl) { errEl.textContent = 'This domain is not authorized for Google sign-in. Please use email/password.'; errEl.classList.add('show'); }
+        if (errEl) { errEl.textContent = 'Domain not authorised for Google sign-in. Use email/password.'; errEl.classList.add('show'); }
       } else {
         console.error('Google sign-in error:', e);
-        const errEl = document.getElementById('loginError');
         if (errEl) { errEl.textContent = 'Google sign-in failed: ' + (e.message || e.code); errEl.classList.add('show'); }
       }
     }
@@ -2372,8 +2517,7 @@ window.PRODUCTS = [
     document.body.style.overflow = 'hidden';
   });
 
-  // ---- LOAD USER ORDERS (for the "My Orders" purchased section) ----
-  // Defined here in the module where auth, db, query, collection, where, getDocs are in scope.
+  // _GI_loadUserOrders — lives here so auth/db/query are in scope
   window._GI_loadUserOrders = async function() {
     const user = auth.currentUser;
     if (!user) return [];
@@ -2387,10 +2531,7 @@ window.PRODUCTS = [
           const tb = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
           return tb - ta;
         });
-    } catch (e) {
-      console.error('loadUserOrders error:', e);
-      return [];
-    }
+    } catch (e) { console.error('loadUserOrders error:', e); return []; }
   };
 
   window.loadOrders = loadOrders;
@@ -3295,5 +3436,1290 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 </script>
+
+
+
+
+
+
+<!-- ===== PIX LANGUAGE POPUP ===== -->
+<div id="pix-lang-overlay" aria-modal="true" role="dialog">
+  <div id="pix-lang-box">
+    <span id="pix-lang-flag" aria-hidden="true">🌍</span>
+    <div id="pix-lang-title">Detected your location</div>
+    <div id="pix-lang-native"></div>
+    <div id="pix-lang-sub"></div>
+    <button id="pix-lang-yes">
+      <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+      <span id="pix-lang-yes-txt">Yes, switch language</span>
+    </button>
+    <button id="pix-lang-no">No thanks, keep English</button>
+  </div>
+</div>
+
+
+<!-- ===== PIX MULTILINGUAL ENGINE (v3 — built-in translations, no Google Translate) ===== -->
+<script>
+(function(){
+'use strict';
+
+/* ── Constants ──────────────────────────────────────────────────────── */
+var LS_LANG  = 'PIX_lang2';
+var LS_ASKED = 'PIX_lang_asked2';
+
+/* ── Language catalogue ─────────────────────────────────────────────── */
+var LANGS = [
+  { code:'en', name:'English',   native:'English',  flag:'🇬🇧' },
+  { code:'pa', name:'Punjabi',   native:'ਪੰਜਾਬੀ',   flag:'🟠'  },
+  { code:'hi', name:'Hindi',     native:'हिन्दी',   flag:'🇮🇳'  },
+  { code:'mr', name:'Marathi',   native:'मराठी',    flag:'🟣'  },
+  { code:'ta', name:'Tamil',     native:'தமிழ்',    flag:'🔵'  },
+  { code:'kn', name:'Kannada',   native:'ಕನ್ನಡ',    flag:'🟡'  },
+  { code:'gu', name:'Gujarati',  native:'ગુજરાતી',  flag:'⚪'  },
+  { code:'bn', name:'Bengali',   native:'বাংলা',    flag:'🟢'  },
+  { code:'te', name:'Telugu',    native:'తెలుగు',   flag:'🔴'  },
+  { code:'ml', name:'Malayalam', native:'മലയാളം',   flag:'🟤'  },
+  { code:'ur', name:'Urdu',      native:'اردو',     flag:'🌙'  },
+  { code:'or', name:'Odia',      native:'ଓଡ଼ିଆ',   flag:'🔶'  },
+];
+
+/* ── Indian state → language code ───────────────────────────────────── */
+var REGION_LANG = {
+  'Punjab':'pa','Chandigarh':'pa',
+  'Haryana':'hi','Delhi':'hi','Himachal Pradesh':'hi',
+  'Uttarakhand':'hi','Uttar Pradesh':'hi','Rajasthan':'hi',
+  'Madhya Pradesh':'hi','Bihar':'hi','Jharkhand':'hi',
+  'Chhattisgarh':'hi','Uttaranchal':'hi',
+  'Maharashtra':'mr','Goa':'mr',
+  'Tamil Nadu':'ta','Puducherry':'ta',
+  'Karnataka':'kn',
+  'Gujarat':'gu','Daman and Diu':'gu','Dadra and Nagar Haveli':'gu',
+  'West Bengal':'bn',
+  'Andhra Pradesh':'te','Telangana':'te',
+  'Kerala':'ml','Lakshadweep':'ml',
+  'Odisha':'or',
+  'Jammu and Kashmir':'ur','Ladakh':'ur',
+};
+
+/* ══════════════════════════════════════════════════════════════════════
+   BUILT-IN TRANSLATIONS
+   ══════════════════════════════════════════════════════════════════════ */
+var T = {
+
+/* ── English (base) ─────────────────────────────────────────────────── */
+en: {
+  tagline:          'Candles • Clothing • Beauty & More',
+  language_panel_title: '🌐 Language',
+  select_lang:      'Select your preferred language',
+  cart:             'Cart',
+  login:            'Login',
+  cloud_synced:     'Cloud synced',
+  admin_dashboard:  'Admin Dashboard',
+  my_orders:        'My Orders',
+  my_addresses:     'My Addresses',
+  sign_out:         'Sign Out',
+  marketplace:      'All‑in‑one marketplace',
+  our_products:     'Our Products',
+  hero_desc:        'Shop our curated collection of <b>Candles</b>, <b>Clothing</b>, <b>Spare Parts</b>, <b>Beauty Products</b> & more. Seamless shopping with smart cart, wishlist, comparison, and seller listings.',
+  shop_candles:     'Shop Candles',
+  accessories:      'Accessories',
+  filter_all:       'All',
+  filter_candles:   'Candles',
+  filter_accessories:'Candle Accessories',
+  filter_moulds:    'Moulds',
+  filter_spareparts:'Spare Parts',
+  filter_clothing:  'Clothing',
+  filter_beauty:    'Beauty Products',
+  filter_others:    'Others',
+  reset:            'Reset',
+  sort_pop:         'Popularity',
+  sort_plh:         'Price: Low → High',
+  sort_phl:         'Price: High → Low',
+  sort_rate:        'Rating',
+  recently_viewed:  'Recently Viewed',
+  view_all_orders:  'View All Orders',
+  checkout:         'Checkout',
+  checkout_sub:     'Review and confirm your order',
+  shipping_details: 'Shipping Details',
+  manage_addresses: 'Manage Addresses',
+  customer_reviews: 'Customer Reviews',
+  add_to_cart:      'Add to Cart',
+  wishlist_btn:     'Wishlist',
+  compare_btn:      'Compare',
+  subtotal:         'Subtotal',
+  shipping_lbl:     'Shipping',
+  total:            'Total',
+  clear_cart:       'Clear Cart',
+  your_cart:        'Your Cart',
+  wishlist_title:   'Wishlist',
+  close:            'Close',
+  saved_checkout_sub:'Saved for faster checkout',
+  add_new_address:  'Add New Address',
+  set_default:      'Set as default address',
+  save_address:     'Save Address',
+  compare_products: 'Compare Products',
+  clear_all:        'Clear All',
+  cart_reminder:    'Abandoned Cart Reminder',
+  cart_reminder_sub:'Send an automated reminder to the customer\'s registered number',
+  send_whatsapp:    'Send via WhatsApp',
+  send_sms:         'Send via SMS',
+  your_rating:      'Your rating',
+  post_review:      'Post',
+  scent_lbl:        'Scent',
+  search_placeholder:'Search candles, clothing, spare parts, beauty… ( / )',
+  shortcuts:        'Shortcuts: <b>/</b> search, <b>c</b> cart, <b>w</b> wishlist, <b>?</b> help',
+  announcement:     'Free shipping over ₹1,999 • Use code <b>PIX10</b> for 10% off!',
+  announcement_usd: 'Free shipping over $25 • Use code <b>PIX10</b> for 10% off!',
+  /* Dynamic strings */
+  cart_empty:       'Your cart is empty',
+  wish_empty:       'Your wishlist is empty',
+  free_ship_unlock: 'You unlocked FREE shipping 🎉',
+  add_more_ship:    'Add {amt} more for free shipping',
+  added_to_cart:    'Added to cart',
+  added_to_wish:    'Added to wishlist',
+  removed_from_wish:'Removed from wishlist',
+  no_products:      'No products found.',
+  adjust_filters:   'Try adjusting your filters.',
+  out_of_stock:     'Out of stock',
+  only_left:        'Only {n} left',
+  hurry_only:       'Hurry! Only {n} left',
+  in_stock:         'In stock: {n}',
+  loading_reviews:  'Loading reviews…',
+  no_reviews:       'No reviews yet – be the first!',
+  loading_orders:   'Loading your orders…',
+  max_compare:      'Max 4 items to compare',
+  compare_updated:  'Compare list updated',
+  add_to_compare:   'Add items to compare first',
+  prev:             'Prev',
+  next:             'Next',
+  view:             'View',
+  add:              'Add',
+  remove:           'Remove',
+  community_badge:  '🌐 Community',
+  price_lbl:        'Price',
+  rating_lbl:       'Rating',
+  category_lbl:     'Category',
+  stock_lbl:        'Stock',
+  oos_compare:      'Out of Stock',
+  choose_saved:     'Choose a saved address',
+  use_different:    '+ Use a different address',
+},
+
+/* ── Punjabi ────────────────────────────────────────────────────────── */
+pa: {
+  tagline:          'ਮੋਮਬੱਤੀਆਂ • ਕੱਪੜੇ • ਸੁੰਦਰਤਾ ਅਤੇ ਹੋਰ',
+  language_panel_title: '🌐 ਭਾਸ਼ਾ',
+  select_lang:      'ਆਪਣੀ ਪਸੰਦੀਦਾ ਭਾਸ਼ਾ ਚੁਣੋ',
+  cart:             'ਕਾਰਟ',
+  login:            'ਲੌਗਇਨ',
+  cloud_synced:     'ਕਲਾਊਡ ਸਿੰਕਡ',
+  admin_dashboard:  'ਐਡਮਿਨ ਡੈਸ਼ਬੋਰਡ',
+  my_orders:        'ਮੇਰੇ ਆਰਡਰ',
+  my_addresses:     'ਮੇਰੇ ਪਤੇ',
+  sign_out:         'ਸਾਈਨ ਆਊਟ',
+  marketplace:      'ਸਭ-ਕੁਝ-ਇੱਕ ਬਾਜ਼ਾਰ',
+  our_products:     'ਸਾਡੇ ਉਤਪਾਦ',
+  hero_desc:        'ਸਾਡੇ ਚੁਣੇ ਹੋਏ ਸੰਗ੍ਰਹਿ ਵਿੱਚੋਂ <b>ਮੋਮਬੱਤੀਆਂ</b>, <b>ਕੱਪੜੇ</b>, <b>ਸਪੇਅਰ ਪਾਰਟਸ</b>, <b>ਸੁੰਦਰਤਾ ਉਤਪਾਦ</b> ਅਤੇ ਹੋਰ ਖਰੀਦੋ। ਸਮਾਰਟ ਕਾਰਟ, ਵਿਸ਼ ਲਿਸਟ ਅਤੇ ਤੁਲਨਾ ਨਾਲ ਆਸਾਨ ਖਰੀਦਦਾਰੀ।',
+  shop_candles:     'ਮੋਮਬੱਤੀਆਂ ਖਰੀਦੋ',
+  accessories:      'ਅਸੈਸਰੀਜ਼',
+  filter_all:       'ਸਭ',
+  filter_candles:   'ਮੋਮਬੱਤੀਆਂ',
+  filter_accessories:'ਮੋਮਬੱਤੀ ਸਮੱਗਰੀ',
+  filter_moulds:    'ਮੋਲਡ',
+  filter_spareparts:'ਸਪੇਅਰ ਪਾਰਟਸ',
+  filter_clothing:  'ਕੱਪੜੇ',
+  filter_beauty:    'ਸੁੰਦਰਤਾ ਉਤਪਾਦ',
+  filter_others:    'ਹੋਰ',
+  reset:            'ਰੀਸੈੱਟ',
+  sort_pop:         'ਪ੍ਰਸਿੱਧਤਾ',
+  sort_plh:         'ਕੀਮਤ: ਘੱਟ → ਵੱਧ',
+  sort_phl:         'ਕੀਮਤ: ਵੱਧ → ਘੱਟ',
+  sort_rate:        'ਰੇਟਿੰਗ',
+  recently_viewed:  'ਹਾਲ ਵਿੱਚ ਦੇਖੇ',
+  view_all_orders:  'ਸਾਰੇ ਆਰਡਰ ਦੇਖੋ',
+  checkout:         'ਚੈੱਕਆਊਟ',
+  checkout_sub:     'ਆਪਣਾ ਆਰਡਰ ਦੇਖੋ ਅਤੇ ਪੱਕਾ ਕਰੋ',
+  shipping_details: 'ਸ਼ਿਪਿੰਗ ਵੇਰਵੇ',
+  manage_addresses: 'ਪਤੇ ਪ੍ਰਬੰਧਿਤ ਕਰੋ',
+  customer_reviews: 'ਗਾਹਕਾਂ ਦੀਆਂ ਸਮੀਖਿਆਵਾਂ',
+  add_to_cart:      'ਕਾਰਟ ਵਿੱਚ ਪਾਓ',
+  wishlist_btn:     'ਵਿਸ਼ ਲਿਸਟ',
+  compare_btn:      'ਤੁਲਨਾ ਕਰੋ',
+  subtotal:         'ਉਪ-ਕੁੱਲ',
+  shipping_lbl:     'ਡਿਲਿਵਰੀ',
+  total:            'ਕੁੱਲ',
+  clear_cart:       'ਕਾਰਟ ਖਾਲੀ ਕਰੋ',
+  your_cart:        'ਤੁਹਾਡਾ ਕਾਰਟ',
+  wishlist_title:   'ਵਿਸ਼ ਲਿਸਟ',
+  close:            'ਬੰਦ ਕਰੋ',
+  saved_checkout_sub:'ਤੇਜ਼ ਚੈੱਕਆਊਟ ਲਈ ਸੁਰੱਖਿਅਤ',
+  add_new_address:  'ਨਵਾਂ ਪਤਾ ਜੋੜੋ',
+  set_default:      'ਡਿਫੌਲਟ ਪਤੇ ਵਜੋਂ ਸੈੱਟ ਕਰੋ',
+  save_address:     'ਪਤਾ ਸੁਰੱਖਿਅਤ ਕਰੋ',
+  compare_products: 'ਉਤਪਾਦਾਂ ਦੀ ਤੁਲਨਾ ਕਰੋ',
+  clear_all:        'ਸਭ ਮਿਟਾਓ',
+  cart_reminder:    'ਛੱਡੀ ਗਈ ਕਾਰਟ ਯਾਦਦਿਹਾਨੀ',
+  cart_reminder_sub:'ਗਾਹਕ ਦੇ ਨੰਬਰ ਤੇ ਆਟੋਮੈਟਿਕ ਯਾਦਦਿਹਾਨੀ ਭੇਜੋ',
+  send_whatsapp:    'WhatsApp ਰਾਹੀਂ ਭੇਜੋ',
+  send_sms:         'SMS ਰਾਹੀਂ ਭੇਜੋ',
+  your_rating:      'ਤੁਹਾਡੀ ਰੇਟਿੰਗ',
+  post_review:      'ਪੋਸਟ ਕਰੋ',
+  scent_lbl:        'ਖੁਸ਼ਬੂ',
+  search_placeholder:'ਮੋਮਬੱਤੀਆਂ, ਕੱਪੜੇ, ਸਪੇਅਰ ਪਾਰਟਸ ਖੋਜੋ…',
+  shortcuts:        'ਸ਼ਾਰਟਕੱਟ: <b>/</b> ਖੋਜ, <b>c</b> ਕਾਰਟ, <b>w</b> ਵਿਸ਼ਲਿਸਟ',
+  announcement:     '₹1,999 ਤੋਂ ਉੱਪਰ ਮੁਫ਼ਤ ਡਿਲਿਵਰੀ • ਕੋਡ <b>PIX10</b> ਨਾਲ 10% ਛੋਟ!',
+  announcement_usd: '$25 ਤੋਂ ਉੱਪਰ ਮੁਫ਼ਤ ਡਿਲਿਵਰੀ • ਕੋਡ <b>PIX10</b> ਨਾਲ 10% ਛੋਟ!',
+  cart_empty:       'ਤੁਹਾਡਾ ਕਾਰਟ ਖਾਲੀ ਹੈ',
+  wish_empty:       'ਤੁਹਾਡੀ ਵਿਸ਼ ਲਿਸਟ ਖਾਲੀ ਹੈ',
+  free_ship_unlock: 'ਮੁਫ਼ਤ ਡਿਲਿਵਰੀ ਮਿਲ ਗਈ 🎉',
+  add_more_ship:    'ਮੁਫ਼ਤ ਡਿਲਿਵਰੀ ਲਈ {amt} ਹੋਰ ਜੋੜੋ',
+  added_to_cart:    'ਕਾਰਟ ਵਿੱਚ ਜੋੜਿਆ',
+  added_to_wish:    'ਵਿਸ਼ਲਿਸਟ ਵਿੱਚ ਜੋੜਿਆ',
+  removed_from_wish:'ਵਿਸ਼ਲਿਸਟ ਤੋਂ ਹਟਾਇਆ',
+  no_products:      'ਕੋਈ ਉਤਪਾਦ ਨਹੀਂ ਮਿਲਿਆ।',
+  adjust_filters:   'ਫਿਲਟਰ ਬਦਲਣ ਦੀ ਕੋਸ਼ਿਸ਼ ਕਰੋ।',
+  out_of_stock:     'ਸਟਾਕ ਖਤਮ',
+  only_left:        'ਸਿਰਫ਼ {n} ਬਚੇ',
+  hurry_only:       'ਜਲਦੀ ਕਰੋ! ਸਿਰਫ਼ {n} ਬਚੇ',
+  in_stock:         'ਸਟਾਕ ਵਿੱਚ: {n}',
+  loading_reviews:  'ਸਮੀਖਿਆਵਾਂ ਲੋਡ ਹੋ ਰਹੀਆਂ ਹਨ…',
+  no_reviews:       'ਅਜੇ ਕੋਈ ਸਮੀਖਿਆ ਨਹੀਂ – ਪਹਿਲੇ ਬਣੋ!',
+  loading_orders:   'ਤੁਹਾਡੇ ਆਰਡਰ ਲੋਡ ਹੋ ਰਹੇ ਹਨ…',
+  max_compare:      'ਵੱਧ ਤੋਂ ਵੱਧ 4 ਆਈਟਮ ਤੁਲਨਾ ਕਰੋ',
+  compare_updated:  'ਤੁਲਨਾ ਸੂਚੀ ਅੱਪਡੇਟ ਕੀਤੀ',
+  add_to_compare:   'ਪਹਿਲਾਂ ਆਈਟਮ ਜੋੜੋ',
+  prev:             'ਪਿੱਛੇ',
+  next:             'ਅੱਗੇ',
+  view:             'ਦੇਖੋ',
+  add:              'ਜੋੜੋ',
+  remove:           'ਹਟਾਓ',
+  community_badge:  '🌐 ਭਾਈਚਾਰਾ',
+  price_lbl:        'ਕੀਮਤ',
+  rating_lbl:       'ਰੇਟਿੰਗ',
+  category_lbl:     'ਸ਼੍ਰੇਣੀ',
+  stock_lbl:        'ਸਟਾਕ',
+  oos_compare:      'ਸਟਾਕ ਖਤਮ',
+  choose_saved:     'ਸੁਰੱਖਿਅਤ ਪਤਾ ਚੁਣੋ',
+  use_different:    '+ ਵੱਖਰਾ ਪਤਾ ਵਰਤੋ',
+},
+
+/* ── Hindi ──────────────────────────────────────────────────────────── */
+hi: {
+  tagline:          'मोमबत्तियाँ • कपड़े • सौंदर्य और अधिक',
+  language_panel_title: '🌐 भाषा',
+  select_lang:      'अपनी पसंदीदा भाषा चुनें',
+  cart:             'कार्ट',
+  login:            'लॉगिन',
+  cloud_synced:     'क्लाउड सिंक्ड',
+  admin_dashboard:  'एडमिन डैशबोर्ड',
+  my_orders:        'मेरे ऑर्डर',
+  my_addresses:     'मेरे पते',
+  sign_out:         'साइन आउट',
+  marketplace:      'सब-कुछ-एक बाज़ार',
+  our_products:     'हमारे उत्पाद',
+  hero_desc:        'हमारे चुने हुए संग्रह से <b>मोमबत्तियाँ</b>, <b>कपड़े</b>, <b>स्पेयर पार्ट्स</b>, <b>सौंदर्य उत्पाद</b> और अधिक खरीदें। स्मार्ट कार्ट, विशलिस्ट और तुलना के साथ आसान शॉपिंग।',
+  shop_candles:     'मोमबत्तियाँ खरीदें',
+  accessories:      'सहायक सामग्री',
+  filter_all:       'सभी',
+  filter_candles:   'मोमबत्तियाँ',
+  filter_accessories:'मोमबत्ती सामग्री',
+  filter_moulds:    'साँचे',
+  filter_spareparts:'स्पेयर पार्ट्स',
+  filter_clothing:  'कपड़े',
+  filter_beauty:    'सौंदर्य उत्पाद',
+  filter_others:    'अन्य',
+  reset:            'रीसेट',
+  sort_pop:         'लोकप्रियता',
+  sort_plh:         'कीमत: कम → ज़्यादा',
+  sort_phl:         'कीमत: ज़्यादा → कम',
+  sort_rate:        'रेटिंग',
+  recently_viewed:  'हाल में देखे',
+  view_all_orders:  'सभी ऑर्डर देखें',
+  checkout:         'चेकआउट',
+  checkout_sub:     'अपना ऑर्डर देखें और पुष्टि करें',
+  shipping_details: 'शिपिंग विवरण',
+  manage_addresses: 'पते प्रबंधित करें',
+  customer_reviews: 'ग्राहकों की समीक्षाएं',
+  add_to_cart:      'कार्ट में डालें',
+  wishlist_btn:     'विशलिस्ट',
+  compare_btn:      'तुलना करें',
+  subtotal:         'उप-कुल',
+  shipping_lbl:     'डिलीवरी',
+  total:            'कुल',
+  clear_cart:       'कार्ट खाली करें',
+  your_cart:        'आपका कार्ट',
+  wishlist_title:   'विशलिस्ट',
+  close:            'बंद करें',
+  saved_checkout_sub:'तेज़ चेकआउट के लिए सहेजे गए',
+  add_new_address:  'नया पता जोड़ें',
+  set_default:      'डिफ़ॉल्ट पते के रूप में सेट करें',
+  save_address:     'पता सहेजें',
+  compare_products: 'उत्पादों की तुलना करें',
+  clear_all:        'सभी हटाएं',
+  cart_reminder:    'छोड़ी गई कार्ट अनुस्मारक',
+  cart_reminder_sub:'ग्राहक के नंबर पर स्वचालित अनुस्मारक भेजें',
+  send_whatsapp:    'WhatsApp से भेजें',
+  send_sms:         'SMS से भेजें',
+  your_rating:      'आपकी रेटिंग',
+  post_review:      'पोस्ट करें',
+  scent_lbl:        'सुगंध',
+  search_placeholder:'मोमबत्तियाँ, कपड़े, स्पेयर पार्ट्स खोजें…',
+  shortcuts:        'शॉर्टकट: <b>/</b> खोज, <b>c</b> कार्ट, <b>w</b> विशलिस्ट',
+  announcement:     '₹1,999 से ऊपर मुफ़्त डिलीवरी • कोड <b>PIX10</b> से 10% छूट!',
+  announcement_usd: '$25 से ऊपर मुफ़्त डिलीवरी • कोड <b>PIX10</b> से 10% छूट!',
+  cart_empty:       'आपका कार्ट खाली है',
+  wish_empty:       'आपकी विशलिस्ट खाली है',
+  free_ship_unlock: 'मुफ़्त डिलीवरी मिल गई 🎉',
+  add_more_ship:    'मुफ़्त डिलीवरी के लिए {amt} और जोड़ें',
+  added_to_cart:    'कार्ट में जोड़ा गया',
+  added_to_wish:    'विशलिस्ट में जोड़ा गया',
+  removed_from_wish:'विशलिस्ट से हटाया गया',
+  no_products:      'कोई उत्पाद नहीं मिला।',
+  adjust_filters:   'फ़िल्टर बदलने का प्रयास करें।',
+  out_of_stock:     'स्टॉक खत्म',
+  only_left:        'सिर्फ {n} बचे',
+  hurry_only:       'जल्दी करें! सिर्फ {n} बचे',
+  in_stock:         'स्टॉक में: {n}',
+  loading_reviews:  'समीक्षाएं लोड हो रही हैं…',
+  no_reviews:       'अभी कोई समीक्षा नहीं – पहले बनें!',
+  loading_orders:   'आपके ऑर्डर लोड हो रहे हैं…',
+  max_compare:      'अधिकतम 4 आइटम तुलना करें',
+  compare_updated:  'तुलना सूची अपडेट हुई',
+  add_to_compare:   'पहले आइटम जोड़ें',
+  prev:             'पिछला',
+  next:             'अगला',
+  view:             'देखें',
+  add:              'जोड़ें',
+  remove:           'हटाएं',
+  community_badge:  '🌐 समुदाय',
+  price_lbl:        'कीमत',
+  rating_lbl:       'रेटिंग',
+  category_lbl:     'श्रेणी',
+  stock_lbl:        'स्टॉक',
+  oos_compare:      'स्टॉक खत्म',
+  choose_saved:     'सहेजा गया पता चुनें',
+  use_different:    '+ अलग पता उपयोग करें',
+},
+
+/* ── Marathi ────────────────────────────────────────────────────────── */
+mr: {
+  tagline:          'मेणबत्त्या • कपडे • सौंदर्य आणि अधिक',
+  language_panel_title: '🌐 भाषा',
+  select_lang:      'आपली पसंतीची भाषा निवडा',
+  cart:             'कार्ट',
+  login:            'लॉगिन',
+  cloud_synced:     'क्लाउड सिंक',
+  admin_dashboard:  'अॅडमिन डॅशबोर्ड',
+  my_orders:        'माझे ऑर्डर',
+  my_addresses:     'माझे पत्ते',
+  sign_out:         'साइन आउट',
+  marketplace:      'सर्व-एक-ठिकाणी बाजार',
+  our_products:     'आमची उत्पादने',
+  hero_desc:        'आमच्या संग्रहातून <b>मेणबत्त्या</b>, <b>कपडे</b>, <b>स्पेअर पार्ट्स</b>, <b>सौंदर्य उत्पादने</b> आणि अधिक खरेदी करा।',
+  shop_candles:     'मेणबत्त्या खरेदी करा',
+  accessories:      'अॅक्सेसरीज',
+  filter_all:       'सर्व',
+  filter_candles:   'मेणबत्त्या',
+  filter_accessories:'मेणबत्ती साहित्य',
+  filter_moulds:    'साचे',
+  filter_spareparts:'स्पेअर पार्ट्स',
+  filter_clothing:  'कपडे',
+  filter_beauty:    'सौंदर्य उत्पादने',
+  filter_others:    'इतर',
+  reset:            'रीसेट',
+  sort_pop:         'लोकप्रियता',
+  sort_plh:         'किंमत: कमी → जास्त',
+  sort_phl:         'किंमत: जास्त → कमी',
+  sort_rate:        'रेटिंग',
+  recently_viewed:  'अलीकडे पाहिलेले',
+  view_all_orders:  'सर्व ऑर्डर पहा',
+  checkout:         'चेकआउट',
+  checkout_sub:     'आपला ऑर्डर पहा आणि पुष्टी करा',
+  shipping_details: 'शिपिंग तपशील',
+  manage_addresses: 'पत्ते व्यवस्थापित करा',
+  customer_reviews: 'ग्राहकांचे अभिप्राय',
+  add_to_cart:      'कार्टमध्ये टाका',
+  wishlist_btn:     'विशलिस्ट',
+  compare_btn:      'तुलना करा',
+  subtotal:         'उप-एकूण',
+  shipping_lbl:     'डिलिव्हरी',
+  total:            'एकूण',
+  clear_cart:       'कार्ट रिकामी करा',
+  your_cart:        'तुमची कार्ट',
+  wishlist_title:   'विशलिस्ट',
+  close:            'बंद करा',
+  saved_checkout_sub:'जलद चेकआउटसाठी जतन केलेले',
+  add_new_address:  'नवीन पत्ता जोडा',
+  set_default:      'डिफॉल्ट पत्ता म्हणून सेट करा',
+  save_address:     'पत्ता जतन करा',
+  compare_products: 'उत्पादने तुलना करा',
+  clear_all:        'सर्व हटवा',
+  cart_reminder:    'सोडलेल्या कार्टची आठवण',
+  cart_reminder_sub:'ग्राहकाच्या नंबरवर स्वयंचलित आठवण पाठवा',
+  send_whatsapp:    'WhatsApp द्वारे पाठवा',
+  send_sms:         'SMS द्वारे पाठवा',
+  your_rating:      'तुमची रेटिंग',
+  post_review:      'पोस्ट करा',
+  scent_lbl:        'सुगंध',
+  search_placeholder:'मेणबत्त्या, कपडे, स्पेअर पार्ट्स शोधा…',
+  shortcuts:        'शॉर्टकट: <b>/</b> शोध, <b>c</b> कार्ट, <b>w</b> विशलिस्ट',
+  announcement:     '₹1,999 पेक्षा जास्त मोफत डिलिव्हरी • कोड <b>PIX10</b> ने 10% सूट!',
+  announcement_usd: '$25 पेक्षा जास्त मोफत डिलिव्हरी • कोड <b>PIX10</b> ने 10% सूट!',
+  cart_empty:       'तुमची कार्ट रिकामी आहे',
+  wish_empty:       'तुमची विशलिस्ट रिकामी आहे',
+  free_ship_unlock: 'मोफत डिलिव्हरी मिळाली 🎉',
+  add_more_ship:    'मोफत डिलिव्हरीसाठी {amt} अधिक जोडा',
+  added_to_cart:    'कार्टमध्ये जोडले',
+  added_to_wish:    'विशलिस्टमध्ये जोडले',
+  removed_from_wish:'विशलिस्टमधून काढले',
+  no_products:      'कोणतेही उत्पादन सापडले नाही।',
+  adjust_filters:   'फिल्टर बदलण्याचा प्रयत्न करा।',
+  out_of_stock:     'स्टॉक संपला',
+  only_left:        'फक्त {n} शिल्लक',
+  hurry_only:       'घाई करा! फक्त {n} शिल्लक',
+  in_stock:         'स्टॉकमध्ये: {n}',
+  loading_reviews:  'अभिप्राय लोड होत आहेत…',
+  no_reviews:       'अद्याप कोणताही अभिप्राय नाही – पहिले व्हा!',
+  loading_orders:   'तुमचे ऑर्डर लोड होत आहेत…',
+  max_compare:      'जास्तीत जास्त 4 वस्तू तुलना करा',
+  compare_updated:  'तुलना यादी अपडेट झाली',
+  add_to_compare:   'आधी वस्तू जोडा',
+  prev:             'मागील',
+  next:             'पुढील',
+  view:             'पहा',
+  add:              'जोडा',
+  remove:           'काढा',
+  community_badge:  '🌐 समुदाय',
+  price_lbl:        'किंमत',
+  rating_lbl:       'रेटिंग',
+  category_lbl:     'श्रेणी',
+  stock_lbl:        'स्टॉक',
+  oos_compare:      'स्टॉक संपला',
+  choose_saved:     'जतन केलेला पत्ता निवडा',
+  use_different:    '+ वेगळा पत्ता वापरा',
+},
+
+/* ── Tamil ──────────────────────────────────────────────────────────── */
+ta: {
+  tagline:          'மெழுகுவர்த்திகள் • ஆடைகள் • அழகு மற்றும் மேலும்',
+  language_panel_title: '🌐 மொழி',
+  select_lang:      'உங்கள் விருப்பமான மொழியைத் தேர்ந்தெடுக்கவும்',
+  cart:             'கார்ட்',
+  login:            'உள்நுழை',
+  cloud_synced:     'கிளவுட் ஒத்திசைக்கப்பட்டது',
+  admin_dashboard:  'நிர்வாக டாஷ்போர்டு',
+  my_orders:        'என் ஆர்டர்கள்',
+  my_addresses:     'என் முகவரிகள்',
+  sign_out:         'வெளியேறு',
+  marketplace:      'அனைத்தும்-ஒரே-இடத்தில் சந்தை',
+  our_products:     'எங்கள் பொருட்கள்',
+  hero_desc:        'எங்கள் தொகுப்பில் இருந்து <b>மெழுகுவர்த்திகள்</b>, <b>ஆடைகள்</b>, <b>உதிரி பாகங்கள்</b>, <b>அழகு பொருட்கள்</b> மற்றும் பலவற்றை வாங்குங்கள்।',
+  shop_candles:     'மெழுகுவர்த்திகள் வாங்கு',
+  accessories:      'துணைக்கருவிகள்',
+  filter_all:       'அனைத்தும்',
+  filter_candles:   'மெழுகுவர்த்திகள்',
+  filter_accessories:'மெழுகுவர்த்தி பொருட்கள்',
+  filter_moulds:    'அச்சுகள்',
+  filter_spareparts:'உதிரி பாகங்கள்',
+  filter_clothing:  'ஆடைகள்',
+  filter_beauty:    'அழகு பொருட்கள்',
+  filter_others:    'மற்றவை',
+  reset:            'மீட்டமை',
+  sort_pop:         'பிரபலம்',
+  sort_plh:         'விலை: குறைந்தது → அதிகம்',
+  sort_phl:         'விலை: அதிகம் → குறைந்தது',
+  sort_rate:        'மதிப்பீடு',
+  recently_viewed:  'சமீபத்தில் பார்த்தவை',
+  view_all_orders:  'அனைத்து ஆர்டர்களையும் பார்',
+  checkout:         'செக்அவுட்',
+  checkout_sub:     'உங்கள் ஆர்டரை சரிபார்த்து உறுதிப்படுத்தவும்',
+  shipping_details: 'ஷிப்பிங் விவரங்கள்',
+  manage_addresses: 'முகவரிகளை நிர்வகி',
+  customer_reviews: 'வாடிக்கையாளர் மதிப்புரைகள்',
+  add_to_cart:      'கார்ட்டில் சேர்',
+  wishlist_btn:     'விஷ்லிஸ்ட்',
+  compare_btn:      'ஒப்பிடு',
+  subtotal:         'துணை மொத்தம்',
+  shipping_lbl:     'டெலிவரி',
+  total:            'மொத்தம்',
+  clear_cart:       'கார்ட்டை அழி',
+  your_cart:        'உங்கள் கார்ட்',
+  wishlist_title:   'விஷ்லிஸ்ட்',
+  close:            'மூடு',
+  saved_checkout_sub:'விரைவான செக்அவுட்டிற்காக சேமிக்கப்பட்டது',
+  add_new_address:  'புதிய முகவரி சேர்',
+  set_default:      'இயல்புநிலை முகவரியாக அமை',
+  save_address:     'முகவரியை சேமி',
+  compare_products: 'பொருட்களை ஒப்பிடு',
+  clear_all:        'அனைத்தையும் அழி',
+  cart_reminder:    'கைவிடப்பட்ட கார்ட் நினைவூட்டல்',
+  cart_reminder_sub:'வாடிக்கையாளரின் எண்ணுக்கு தானியங்கி நினைவூட்டல் அனுப்பு',
+  send_whatsapp:    'WhatsApp மூலம் அனுப்பு',
+  send_sms:         'SMS மூலம் அனுப்பு',
+  your_rating:      'உங்கள் மதிப்பீடு',
+  post_review:      'பதிவிடு',
+  scent_lbl:        'வாசனை',
+  search_placeholder:'மெழுகுவர்த்திகள், ஆடைகள், உதிரி பாகங்கள் தேடு…',
+  shortcuts:        'குறுக்குவழிகள்: <b>/</b> தேடல், <b>c</b> கார்ட்',
+  announcement:     '₹1,999-க்கு மேல் இலவச டெலிவரி • குறியீடு <b>PIX10</b> மூலம் 10% தள்ளுபடி!',
+  announcement_usd: '$25-க்கு மேல் இலவச டெலிவரி • குறியீடு <b>PIX10</b> மூலம் 10% தள்ளுபடி!',
+  cart_empty:       'உங்கள் கார்ட் காலியாக உள்ளது',
+  wish_empty:       'உங்கள் விஷ்லிஸ்ட் காலியாக உள்ளது',
+  free_ship_unlock: 'இலவச டெலிவரி கிடைத்தது 🎉',
+  add_more_ship:    'இலவச டெலிவரிக்கு {amt} மேலும் சேர்',
+  added_to_cart:    'கார்ட்டில் சேர்க்கப்பட்டது',
+  added_to_wish:    'விஷ்லிஸ்ட்டில் சேர்க்கப்பட்டது',
+  removed_from_wish:'விஷ்லிஸ்ட்டிலிருந்து அகற்றப்பட்டது',
+  no_products:      'பொருட்கள் எதுவும் இல்லை।',
+  adjust_filters:   'வடிப்பான்களை மாற்ற முயற்சி செய்யுங்கள்।',
+  out_of_stock:     'இல்லை',
+  only_left:        'வெறும் {n} மட்டுமே உள்ளது',
+  hurry_only:       'விரைவு! வெறும் {n} மட்டுமே',
+  in_stock:         'இருப்பு: {n}',
+  loading_reviews:  'மதிப்புரைகள் ஏற்றப்படுகின்றன…',
+  no_reviews:       'இன்னும் மதிப்புரை இல்லை – முதலில் இருங்கள்!',
+  loading_orders:   'உங்கள் ஆர்டர்கள் ஏற்றப்படுகின்றன…',
+  max_compare:      'அதிகபட்சம் 4 பொருட்களை ஒப்பிடலாம்',
+  compare_updated:  'ஒப்பீட்டு பட்டியல் புதுப்பிக்கப்பட்டது',
+  add_to_compare:   'முதலில் பொருட்களை சேர்க்கவும்',
+  prev:             'முந்தைய',
+  next:             'அடுத்த',
+  view:             'பார்',
+  add:              'சேர்',
+  remove:           'அகற்று',
+  community_badge:  '🌐 சமுதாயம்',
+  price_lbl:        'விலை',
+  rating_lbl:       'மதிப்பீடு',
+  category_lbl:     'வகை',
+  stock_lbl:        'இருப்பு',
+  oos_compare:      'இல்லை',
+  choose_saved:     'சேமிக்கப்பட்ட முகவரியைத் தேர்ந்தெடுக்கவும்',
+  use_different:    '+ வேறு முகவரியைப் பயன்படுத்து',
+},
+
+/* ── Kannada ────────────────────────────────────────────────────────── */
+kn: {
+  tagline:          'ಮೇಣದಬತ್ತಿಗಳು • ಬಟ್ಟೆ • ಸೌಂದರ್ಯ ಮತ್ತು ಹೆಚ್ಚು',
+  language_panel_title: '🌐 ಭಾಷೆ',
+  select_lang:      'ನಿಮ್ಮ ಆದ್ಯತೆಯ ಭಾಷೆ ಆಯ್ಕೆ ಮಾಡಿ',
+  cart:             'ಕಾರ್ಟ್',
+  login:            'ಲಾಗಿನ್',
+  cloud_synced:     'ಕ್ಲೌಡ್ ಸಿಂಕ್',
+  admin_dashboard:  'ಅಡ್ಮಿನ್ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
+  my_orders:        'ನನ್ನ ಆರ್ಡರ್‌ಗಳು',
+  my_addresses:     'ನನ್ನ ವಿಳಾಸಗಳು',
+  sign_out:         'ಸೈನ್ ಔಟ್',
+  marketplace:      'ಎಲ್ಲ-ಒಂದೇ-ಕಡೆ ಮಾರುಕಟ್ಟೆ',
+  our_products:     'ನಮ್ಮ ಉತ್ಪನ್ನಗಳು',
+  hero_desc:        'ನಮ್ಮ ಸಂಗ್ರಹದಿಂದ <b>ಮೇಣದಬತ್ತಿಗಳು</b>, <b>ಬಟ್ಟೆ</b>, <b>ಸ್ಪೇರ್ ಪಾರ್ಟ್ಸ್</b>, <b>ಸೌಂದರ್ಯ ಉತ್ಪನ್ನಗಳು</b> ಮತ್ತು ಹೆಚ್ಚನ್ನು ಖರೀದಿಸಿ।',
+  shop_candles:     'ಮೇಣದಬತ್ತಿ ಖರೀದಿಸಿ',
+  accessories:      'ಪರಿಕರಗಳು',
+  filter_all:       'ಎಲ್ಲ',
+  filter_candles:   'ಮೇಣದಬತ್ತಿಗಳು',
+  filter_accessories:'ಮೇಣದಬತ್ತಿ ಸಾಮಗ್ರಿ',
+  filter_moulds:    'ಅಚ್ಚುಗಳು',
+  filter_spareparts:'ಸ್ಪೇರ್ ಪಾರ್ಟ್ಸ್',
+  filter_clothing:  'ಬಟ್ಟೆ',
+  filter_beauty:    'ಸೌಂದರ್ಯ ಉತ್ಪನ್ನಗಳು',
+  filter_others:    'ಇತರೆ',
+  reset:            'ಮರುಹೊಂದಿಸಿ',
+  sort_pop:         'ಜನಪ್ರಿಯತೆ',
+  sort_plh:         'ಬೆಲೆ: ಕಡಿಮೆ → ಹೆಚ್ಚು',
+  sort_phl:         'ಬೆಲೆ: ಹೆಚ್ಚು → ಕಡಿಮೆ',
+  sort_rate:        'ರೇಟಿಂಗ್',
+  recently_viewed:  'ಇತ್ತೀಚೆಗೆ ನೋಡಿದ್ದು',
+  view_all_orders:  'ಎಲ್ಲ ಆರ್ಡರ್ ನೋಡಿ',
+  checkout:         'ಚೆಕ್‌ಔಟ್',
+  checkout_sub:     'ನಿಮ್ಮ ಆರ್ಡರ್ ಪರಿಶೀಲಿಸಿ ಮತ್ತು ದೃಢೀಕರಿಸಿ',
+  shipping_details: 'ಶಿಪ್ಪಿಂಗ್ ವಿವರಗಳು',
+  manage_addresses: 'ವಿಳಾಸಗಳು ನಿರ್ವಹಿಸಿ',
+  customer_reviews: 'ಗ್ರಾಹಕರ ವಿಮರ್ಶೆಗಳು',
+  add_to_cart:      'ಕಾರ್ಟ್‌ಗೆ ಸೇರಿಸಿ',
+  wishlist_btn:     'ವಿಶ್‌ಲಿಸ್ಟ್',
+  compare_btn:      'ಹೋಲಿಸಿ',
+  subtotal:         'ಉಪ-ಒಟ್ಟು',
+  shipping_lbl:     'ಡೆಲಿವರಿ',
+  total:            'ಒಟ್ಟು',
+  clear_cart:       'ಕಾರ್ಟ್ ಖಾಲಿ ಮಾಡಿ',
+  your_cart:        'ನಿಮ್ಮ ಕಾರ್ಟ್',
+  wishlist_title:   'ವಿಶ್‌ಲಿಸ್ಟ್',
+  close:            'ಮುಚ್ಚಿ',
+  saved_checkout_sub:'ತ್ವರಿತ ಚೆಕ್‌ಔಟ್‌ಗಾಗಿ ಉಳಿಸಲಾಗಿದೆ',
+  add_new_address:  'ಹೊಸ ವಿಳಾಸ ಸೇರಿಸಿ',
+  set_default:      'ಡಿಫಾಲ್ಟ್ ವಿಳಾಸವಾಗಿ ಹೊಂದಿಸಿ',
+  save_address:     'ವಿಳಾಸ ಉಳಿಸಿ',
+  compare_products: 'ಉತ್ಪನ್ನಗಳನ್ನು ಹೋಲಿಸಿ',
+  clear_all:        'ಎಲ್ಲ ತೆಗೆ',
+  cart_reminder:    'ಬಿಟ್ಟ ಕಾರ್ಟ್ ಜ್ಞಾಪನ',
+  cart_reminder_sub:'ಗ್ರಾಹಕರ ನಂಬರ್‌ಗೆ ಸ್ವಯಂ ಜ್ಞಾಪನ ಕಳುಹಿಸಿ',
+  send_whatsapp:    'WhatsApp ಮೂಲಕ ಕಳುಹಿಸಿ',
+  send_sms:         'SMS ಮೂಲಕ ಕಳುಹಿಸಿ',
+  your_rating:      'ನಿಮ್ಮ ರೇಟಿಂಗ್',
+  post_review:      'ಪೋಸ್ಟ್ ಮಾಡಿ',
+  scent_lbl:        'ಸುಗಂಧ',
+  search_placeholder:'ಮೇಣದಬತ್ತಿ, ಬಟ್ಟೆ, ಸ್ಪೇರ್ ಪಾರ್ಟ್ಸ್ ಹುಡುಕಿ…',
+  shortcuts:        'ಶಾರ್ಟ್‌ಕಟ್: <b>/</b> ಹುಡುಕಾಟ, <b>c</b> ಕಾರ್ಟ್',
+  announcement:     '₹1,999 ಮೇಲ್ಪಟ್ಟ ಉಚಿತ ಡೆಲಿವರಿ • ಕೋಡ್ <b>PIX10</b> ಮೂಲಕ 10% ರಿಯಾಯಿತಿ!',
+  announcement_usd: '$25 ಮೇಲ್ಪಟ್ಟ ಉಚಿತ ಡೆಲಿವರಿ • ಕೋಡ್ <b>PIX10</b> ಮೂಲಕ 10% ರಿಯಾಯಿತಿ!',
+  cart_empty: 'ನಿಮ್ಮ ಕಾರ್ಟ್ ಖಾಲಿಯಾಗಿದೆ', wish_empty: 'ನಿಮ್ಮ ವಿಶ್‌ಲಿಸ್ಟ್ ಖಾಲಿಯಾಗಿದೆ',
+  free_ship_unlock: 'ಉಚಿತ ಡೆಲಿವರಿ ಸಿಕ್ಕಿತು 🎉', add_more_ship: 'ಉಚಿತ ಡೆಲಿವರಿಗೆ {amt} ಹೆಚ್ಚು ಸೇರಿಸಿ',
+  added_to_cart: 'ಕಾರ್ಟ್‌ಗೆ ಸೇರಿಸಲಾಗಿದೆ', added_to_wish: 'ವಿಶ್‌ಲಿಸ್ಟ್‌ಗೆ ಸೇರಿಸಲಾಗಿದೆ', removed_from_wish: 'ವಿಶ್‌ಲಿಸ್ಟ್‌ನಿಂದ ತೆಗೆಯಲಾಗಿದೆ',
+  no_products: 'ಯಾವುದೇ ಉತ್ಪನ್ನ ಕಂಡುಬಂದಿಲ್ಲ।', adjust_filters: 'ಫಿಲ್ಟರ್ ಬದಲಿಸಲು ಪ್ರಯತ್ನಿಸಿ।',
+  out_of_stock: 'ಸ್ಟಾಕ್ ಖಾಲಿ', only_left: 'ಕೇವಲ {n} ಉಳಿದಿದೆ', hurry_only: 'ಬೇಗ! ಕೇವಲ {n} ಉಳಿದಿದೆ', in_stock: 'ಸ್ಟಾಕ್‌ನಲ್ಲಿ: {n}',
+  loading_reviews: 'ವಿಮರ್ಶೆಗಳು ಲೋಡ್ ಆಗುತ್ತಿದೆ…', no_reviews: 'ಇನ್ನೂ ವಿಮರ್ಶೆ ಇಲ್ಲ – ಮೊದಲ ಆಗಿ!',
+  loading_orders: 'ನಿಮ್ಮ ಆರ್ಡರ್‌ಗಳು ಲೋಡ್ ಆಗುತ್ತಿದೆ…',
+  max_compare: 'ಗರಿಷ್ಠ 4 ಉತ್ಪನ್ನ ಹೋಲಿಸಿ', compare_updated: 'ಹೋಲಿಕೆ ಪಟ್ಟಿ ಅಪ್‌ಡೇಟ್', add_to_compare: 'ಮೊದಲು ಉತ್ಪನ್ನ ಸೇರಿಸಿ',
+  prev: 'ಹಿಂದೆ', next: 'ಮುಂದೆ', view: 'ನೋಡಿ', add: 'ಸೇರಿಸಿ', remove: 'ತೆಗೆ',
+  community_badge: '🌐 ಸಮುದಾಯ', price_lbl: 'ಬೆಲೆ', rating_lbl: 'ರೇಟಿಂಗ್', category_lbl: 'ವರ್ಗ', stock_lbl: 'ಸ್ಟಾಕ್', oos_compare: 'ಸ್ಟಾಕ್ ಖಾಲಿ',
+  choose_saved: 'ಉಳಿಸಿದ ವಿಳಾಸ ಆಯ್ಕೆ ಮಾಡಿ', use_different: '+ ಬೇರೆ ವಿಳಾಸ ಬಳಸಿ',
+},
+
+/* ── Gujarati ────────────────────────────────────────────────────────── */
+gu: {
+  tagline:          'મીણબત્તીઓ • કપડાં • સૌંદર્ય અને વધુ',
+  language_panel_title: '🌐 ભાષા',
+  select_lang:      'તમારી પ્રિય ભાષા પસંદ કરો',
+  cart:             'કાર્ટ',
+  login:            'લૉગિન',
+  cloud_synced:     'ક્લાઉડ સિંક',
+  admin_dashboard:  'એડમિન ડેશબોર્ડ',
+  my_orders:        'મારા ઓર્ડર',
+  my_addresses:     'મારા સરનામા',
+  sign_out:         'સાઇન આઉટ',
+  marketplace:      'બધું-એક-જ-જગ્યાએ બજાર',
+  our_products:     'અમારી પ્રોડક્ટ',
+  hero_desc:        'અમારા સંગ્રહ માંથી <b>મીણબત્તીઓ</b>, <b>કપડાં</b>, <b>સ્પેર પાર્ટ્સ</b>, <b>સૌંદર્ય ઉત્પાદનો</b> અને વધુ ખરીદો।',
+  shop_candles:     'મીણબત્તી ખરીદો',
+  accessories:      'એક્સેસરીઝ',
+  filter_all:       'બધા',
+  filter_candles:   'મીણબત્તીઓ',
+  filter_accessories:'મીણબત્તી સાહિત્ય',
+  filter_moulds:    'ઘાટ',
+  filter_spareparts:'સ્પેર પાર્ટ્સ',
+  filter_clothing:  'કપડાં',
+  filter_beauty:    'સૌંદર્ય ઉત્પાદનો',
+  filter_others:    'અન્ય',
+  reset:            'રીસેટ',
+  sort_pop:         'લોકપ્રિય',
+  sort_plh:         'ભાવ: ઓછો → વધુ',
+  sort_phl:         'ભાવ: વધુ → ઓછો',
+  sort_rate:        'રેટિંગ',
+  recently_viewed:  'તાજેતરમાં જોયેલ',
+  view_all_orders:  'બધા ઓર્ડર જુઓ',
+  checkout:         'ચેકઆઉટ',
+  checkout_sub:     'તમારો ઓર્ડર તપાસો અને પક્કો કરો',
+  shipping_details: 'શિપિંગ વિગતો',
+  manage_addresses: 'સરનામા સંભાળો',
+  customer_reviews: 'ગ્રાહકોની સમીક્ષા',
+  add_to_cart:      'કાર્ટમાં ઉમેરો',
+  wishlist_btn:     'વિઝલિસ્ટ',
+  compare_btn:      'સરખામણી',
+  subtotal:         'પેટા-કુલ',
+  shipping_lbl:     'ડિલિવરી',
+  total:            'કુલ',
+  clear_cart:       'કાર્ટ સાફ કરો',
+  your_cart:        'તમારી કાર્ટ',
+  wishlist_title:   'વિઝલિસ્ટ',
+  close:            'બંધ',
+  saved_checkout_sub:'ઝડપી ચેકઆઉટ માટે સાચવેલ',
+  add_new_address:  'નવું સરનામું ઉમેરો',
+  set_default:      'ડિફૉલ્ટ સરનામા તરીકે સેટ કરો',
+  save_address:     'સરનામું સાચવો',
+  compare_products: 'ઉત્પાદનો સરખાવો',
+  clear_all:        'બધું હટાવો',
+  cart_reminder:    'છોડેલ કાર્ટ રિમાઇન્ડર',
+  cart_reminder_sub:'ગ્રાહકના નંબર પર ઓટોમેટિક રિમાઇન્ડર મોકલો',
+  send_whatsapp:    'WhatsApp દ્વારા મોકલો',
+  send_sms:         'SMS દ્વારા મોકલો',
+  your_rating:      'તમારી રેટિંગ',
+  post_review:      'પોસ્ટ',
+  scent_lbl:        'સુગંધ',
+  search_placeholder:'મીણબત્તી, કપડાં, સ્પેર પાર્ટ્સ શોધો…',
+  shortcuts:        'શૉર્ટકટ: <b>/</b> શોધ, <b>c</b> કાર્ટ',
+  announcement:     '₹1,999 ઉપર મફત ડિલિવરી • કોડ <b>PIX10</b> સાથે 10% છૂટ!',
+  announcement_usd: '$25 ઉપર મફત ડિલિવરી • કોડ <b>PIX10</b> સાથે 10% છૂટ!',
+  cart_empty: 'તમારી કાર્ટ ખાલી છે', wish_empty: 'તમારી વિઝલિસ્ટ ખાલી છે',
+  free_ship_unlock: 'મફત ડિલિવરી મળ્યું 🎉', add_more_ship: 'મફત ડિલિવરી માટે {amt} વધુ ઉમેરો',
+  added_to_cart: 'કાર્ટમાં ઉમેર્યું', added_to_wish: 'વિઝલિસ્ટમાં ઉમેર્યું', removed_from_wish: 'વિઝલિસ્ટ માંથી કાઢ્યું',
+  no_products: 'કોઈ ઉત્પાદ મળ્યું નહીં।', adjust_filters: 'ફિલ્ટર બદલવાનો પ્રયાસ કરો।',
+  out_of_stock: 'સ્ટૉક ખત્મ', only_left: 'ફક્ત {n} બચ્યા', hurry_only: 'ઝડપ! ફક્ત {n} બચ્યા', in_stock: 'સ્ટૉકમાં: {n}',
+  loading_reviews: 'સમીક્ષા લૉડ…', no_reviews: 'હજુ સમીક્ષા નથી – પ્રથમ બનો!',
+  loading_orders: 'ઓર્ડર લૉડ…', max_compare: 'મહત્તમ 4 ઉત્પાદ સરખાવો', compare_updated: 'સરખામણી સૂચી અપડેટ', add_to_compare: 'પ્રથમ ઉત્પાદ ઉમેરો',
+  prev: 'પાછળ', next: 'આગળ', view: 'જુઓ', add: 'ઉમેરો', remove: 'હટાવો',
+  community_badge: '🌐 સમુદાય', price_lbl: 'ભાવ', rating_lbl: 'રેટિંગ', category_lbl: 'શ્રેણી', stock_lbl: 'સ્ટૉક', oos_compare: 'સ્ટૉક ખત્મ',
+  choose_saved: 'સાચવેલ સરનામું પસંદ કરો', use_different: '+ અલગ સરનામું વાપરો',
+},
+
+/* ── Bengali ────────────────────────────────────────────────────────── */
+bn: {
+  tagline:          'মোমবাতি • পোশাক • সৌন্দর্য ও আরও',
+  language_panel_title: '🌐 ভাষা',
+  select_lang:      'আপনার পছন্দের ভাষা বেছে নিন',
+  cart:             'কার্ট',
+  login:            'লগইন',
+  cloud_synced:     'ক্লাউড সিঙ্ক',
+  admin_dashboard:  'অ্যাডমিন ড্যাশবোর্ড',
+  my_orders:        'আমার অর্ডার',
+  my_addresses:     'আমার ঠিকানা',
+  sign_out:         'সাইন আউট',
+  marketplace:      'সব-এক-জায়গায় বাজার',
+  our_products:     'আমাদের পণ্য',
+  hero_desc:        'আমাদের সংগ্রহ থেকে <b>মোমবাতি</b>, <b>পোশাক</b>, <b>যন্ত্রাংশ</b>, <b>সৌন্দর্য পণ্য</b> ও আরও কিনুন।',
+  shop_candles:     'মোমবাতি কিনুন',
+  accessories:      'আনুষঙ্গিক',
+  filter_all:       'সব',
+  filter_candles:   'মোমবাতি',
+  filter_accessories:'মোমবাতি সামগ্রী',
+  filter_moulds:    'ছাঁচ',
+  filter_spareparts:'যন্ত্রাংশ',
+  filter_clothing:  'পোশাক',
+  filter_beauty:    'সৌন্দর্য পণ্য',
+  filter_others:    'অন্যান্য',
+  reset:            'রিসেট',
+  sort_pop:         'জনপ্রিয়তা',
+  sort_plh:         'দাম: কম → বেশি',
+  sort_phl:         'দাম: বেশি → কম',
+  sort_rate:        'রেটিং',
+  recently_viewed:  'সম্প্রতি দেখা',
+  view_all_orders:  'সব অর্ডার দেখুন',
+  checkout:         'চেকআউট',
+  checkout_sub:     'অর্ডার পর্যালোচনা করুন এবং নিশ্চিত করুন',
+  shipping_details: 'শিপিং বিবরণ',
+  manage_addresses: 'ঠিকানা পরিচালনা',
+  customer_reviews: 'গ্রাহকদের পর্যালোচনা',
+  add_to_cart:      'কার্টে যোগ করুন',
+  wishlist_btn:     'উইশলিস্ট',
+  compare_btn:      'তুলনা করুন',
+  subtotal:         'উপ-মোট',
+  shipping_lbl:     'ডেলিভারি',
+  total:            'মোট',
+  clear_cart:       'কার্ট খালি করুন',
+  your_cart:        'আপনার কার্ট',
+  wishlist_title:   'উইশলিস্ট',
+  close:            'বন্ধ করুন',
+  saved_checkout_sub:'দ্রুত চেকআউটের জন্য সংরক্ষিত',
+  add_new_address:  'নতুন ঠিকানা যোগ করুন',
+  set_default:      'ডিফল্ট ঠিকানা হিসেবে সেট করুন',
+  save_address:     'ঠিকানা সংরক্ষণ করুন',
+  compare_products: 'পণ্য তুলনা করুন',
+  clear_all:        'সব মুছুন',
+  cart_reminder:    'পরিত্যক্ত কার্ট অনুস্মারক',
+  cart_reminder_sub:'গ্রাহকের নম্বরে স্বয়ংক্রিয় অনুস্মারক পাঠান',
+  send_whatsapp:    'WhatsApp-এ পাঠান',
+  send_sms:         'SMS-এ পাঠান',
+  your_rating:      'আপনার রেটিং',
+  post_review:      'পোস্ট',
+  scent_lbl:        'সুগন্ধ',
+  search_placeholder:'মোমবাতি, পোশাক, যন্ত্রাংশ খুঁজুন…',
+  shortcuts:        'শর্টকাট: <b>/</b> অনুসন্ধান, <b>c</b> কার্ট',
+  announcement:     '₹1,999-এর বেশি বিনামূল্যে ডেলিভারি • কোড <b>PIX10</b>-এ ১০% ছাড়!',
+  announcement_usd: '$25-এর বেশি বিনামূল্যে ডেলিভারি • কোড <b>PIX10</b>-এ ১০% ছাড়!',
+  cart_empty: 'আপনার কার্ট খালি', wish_empty: 'আপনার উইশলিস্ট খালি',
+  free_ship_unlock: 'বিনামূল্যে ডেলিভারি পেয়েছেন 🎉', add_more_ship: 'বিনামূল্যে ডেলিভারির জন্য {amt} আরও যোগ করুন',
+  added_to_cart: 'কার্টে যোগ হয়েছে', added_to_wish: 'উইশলিস্টে যোগ হয়েছে', removed_from_wish: 'উইশলিস্ট থেকে সরানো হয়েছে',
+  no_products: 'কোনো পণ্য পাওয়া যায়নি।', adjust_filters: 'ফিল্টার পরিবর্তন করুন।',
+  out_of_stock: 'স্টক শেষ', only_left: 'মাত্র {n} বাকি', hurry_only: 'দ্রুত! মাত্র {n} বাকি', in_stock: 'স্টকে: {n}',
+  loading_reviews: 'পর্যালোচনা লোড হচ্ছে…', no_reviews: 'এখনও পর্যালোচনা নেই – প্রথম হন!',
+  loading_orders: 'অর্ডার লোড হচ্ছে…', max_compare: 'সর্বোচ্চ ৪টি পণ্য তুলনা করুন',
+  compare_updated: 'তুলনা তালিকা আপডেট', add_to_compare: 'প্রথমে পণ্য যোগ করুন',
+  prev: 'পূর্ববর্তী', next: 'পরবর্তী', view: 'দেখুন', add: 'যোগ করুন', remove: 'সরান',
+  community_badge: '🌐 সম্প্রদায়', price_lbl: 'দাম', rating_lbl: 'রেটিং', category_lbl: 'বিভাগ', stock_lbl: 'স্টক', oos_compare: 'স্টক শেষ',
+  choose_saved: 'সংরক্ষিত ঠিকানা বেছে নিন', use_different: '+ অন্য ঠিকানা ব্যবহার করুন',
+},
+
+/* ── Telugu ─────────────────────────────────────────────────────────── */
+te: {
+  tagline:          'కొవ్వొత్తులు • దుస్తులు • అందం మరియు మరిన్ని',
+  language_panel_title: '🌐 భాష',
+  select_lang:      'మీకు ఇష్టమైన భాషను ఎంచుకోండి',
+  cart:             'కార్ట్',
+  login:            'లాగిన్',
+  cloud_synced:     'క్లౌడ్ సింక్',
+  admin_dashboard:  'అడ్మిన్ డాష్‌బోర్డ్',
+  my_orders:        'నా ఆర్డర్‌లు',
+  my_addresses:     'నా చిరునామాలు',
+  sign_out:         'సైన్ అవుట్',
+  marketplace:      'అన్నీ-ఒకే-చోట మార్కెట్',
+  our_products:     'మా ఉత్పత్తులు',
+  hero_desc:        'మా సేకరణ నుండి <b>కొవ్వొత్తులు</b>, <b>దుస్తులు</b>, <b>స్పేర్ పార్ట్స్</b>, <b>అందం ఉత్పత్తులు</b> మరియు మరిన్ని కొనుగోలు చేయండి।',
+  shop_candles:     'కొవ్వొత్తులు కొనండి',
+  accessories:      'యాక్సెసరీలు',
+  filter_all:       'అన్నీ',
+  filter_candles:   'కొవ్వొత్తులు',
+  filter_accessories:'కొవ్వొత్తి సామగ్రి',
+  filter_moulds:    'అచ్చులు',
+  filter_spareparts:'స్పేర్ పార్ట్స్',
+  filter_clothing:  'దుస్తులు',
+  filter_beauty:    'అందం ఉత్పత్తులు',
+  filter_others:    'ఇతరులు',
+  reset:            'రీసెట్',
+  sort_pop:         'ప్రాచుర్యం',
+  sort_plh:         'ధర: తక్కువ → ఎక్కువ',
+  sort_phl:         'ధర: ఎక్కువ → తక్కువ',
+  sort_rate:        'రేటింగ్',
+  recently_viewed:  'ఇటీవల చూసినవి',
+  view_all_orders:  'అన్ని ఆర్డర్‌లు చూడండి',
+  checkout:         'చెక్అవుట్',
+  checkout_sub:     'మీ ఆర్డర్‌ని సమీక్షించి నిర్ధారించండి',
+  shipping_details: 'షిప్పింగ్ వివరాలు',
+  manage_addresses: 'చిరునామాలు నిర్వహించండి',
+  customer_reviews: 'కస్టమర్ సమీక్షలు',
+  add_to_cart:      'కార్ట్‌కు జోడించండి',
+  wishlist_btn:     'విష్‌లిస్ట్',
+  compare_btn:      'పోల్చండి',
+  subtotal:         'ఉప-మొత్తం',
+  shipping_lbl:     'డెలివరీ',
+  total:            'మొత్తం',
+  clear_cart:       'కార్ట్ క్లియర్ చేయండి',
+  your_cart:        'మీ కార్ట్',
+  wishlist_title:   'విష్‌లిస్ట్',
+  close:            'మూసివేయి',
+  saved_checkout_sub:'వేగవంతమైన చెక్అవుట్ కోసం సేవ్ చేయబడింది',
+  add_new_address:  'కొత్త చిరునామా జోడించండి',
+  set_default:      'డిఫాల్ట్ చిరునామాగా సెట్ చేయండి',
+  save_address:     'చిరునామా సేవ్ చేయండి',
+  compare_products: 'ఉత్పత్తులను పోల్చండి',
+  clear_all:        'అన్నీ తొలగించు',
+  cart_reminder:    'వదిలిన కార్ట్ రిమైండర్',
+  cart_reminder_sub:'కస్టమర్ నంబర్‌కు స్వయంచాలక రిమైండర్ పంపండి',
+  send_whatsapp:    'WhatsApp ద్వారా పంపండి',
+  send_sms:         'SMS ద్వారా పంపండి',
+  your_rating:      'మీ రేటింగ్',
+  post_review:      'పోస్ట్',
+  scent_lbl:        'సువాసన',
+  search_placeholder:'కొవ్వొత్తులు, దుస్తులు, స్పేర్ పార్ట్స్ వెతకండి…',
+  shortcuts:        'షార్ట్‌కట్: <b>/</b> శోధన, <b>c</b> కార్ట్',
+  announcement:     '₹1,999 పైన ఉచిత డెలివరీ • కోడ్ <b>PIX10</b>తో 10% తగ్గింపు!',
+  announcement_usd: '$25 పైన ఉచిత డెలివరీ • కోడ్ <b>PIX10</b>తో 10% తగ్గింపు!',
+  cart_empty: 'మీ కార్ట్ ఖాళీగా ఉంది', wish_empty: 'మీ విష్‌లిస్ట్ ఖాళీగా ఉంది',
+  free_ship_unlock: 'ఉచిత డెలివరీ వచ్చింది 🎉', add_more_ship: 'ఉచిత డెలివరీకి {amt} మరింత జోడించండి',
+  added_to_cart: 'కార్ట్‌లో చేర్చబడింది', added_to_wish: 'విష్‌లిస్ట్‌లో చేర్చబడింది', removed_from_wish: 'విష్‌లిస్ట్ నుండి తీసివేయబడింది',
+  no_products: 'ఉత్పత్తులు కనుగొనబడలేదు।', adjust_filters: 'ఫిల్టర్లను మార్చడానికి ప్రయత్నించండి।',
+  out_of_stock: 'స్టాక్ లేదు', only_left: 'కేవలం {n} మిగిలింది', hurry_only: 'త్వరపడండి! కేవలం {n}', in_stock: 'స్టాక్‌లో: {n}',
+  loading_reviews: 'సమీక్షలు లోడ్ అవుతున్నాయి…', no_reviews: 'ఇంకా సమీక్ష లేదు – మొదటి అవండి!',
+  loading_orders: 'మీ ఆర్డర్‌లు లోడ్ అవుతున్నాయి…', max_compare: 'గరిష్ఠ 4 ఉత్పత్తులు పోల్చండి',
+  compare_updated: 'పోలిక జాబితా నవీకరించబడింది', add_to_compare: 'ముందు ఉత్పత్తులు జోడించండి',
+  prev: 'వెనుక', next: 'తదుపరి', view: 'చూడండి', add: 'జోడించు', remove: 'తీసివేయి',
+  community_badge: '🌐 సమాజం', price_lbl: 'ధర', rating_lbl: 'రేటింగ్', category_lbl: 'వర్గం', stock_lbl: 'స్టాక్', oos_compare: 'స్టాక్ లేదు',
+  choose_saved: 'సేవ్ చేసిన చిరునామా ఎంచుకోండి', use_different: '+ వేరే చిరునామా వాడండి',
+},
+
+/* ── Malayalam ──────────────────────────────────────────────────────── */
+ml: {
+  tagline:          'മെഴുകുതിരികൾ • വസ്ത്രം • സൗന്ദര്യം കൂടാതെ',
+  language_panel_title: '🌐 ഭാഷ',
+  select_lang:      'നിങ്ങൾക്ക് ഇഷ്ടമായ ഭാഷ തിരഞ്ഞെടുക്കുക',
+  cart:             'കാർട്ട്',
+  login:            'ലോഗിൻ',
+  cloud_synced:     'ക്ലൗഡ് സിങ്ക്',
+  admin_dashboard:  'അഡ്മിൻ ഡാഷ്‌ബോർഡ്',
+  my_orders:        'എന്റെ ഓർഡറുകൾ',
+  my_addresses:     'എന്റെ വിലാസങ്ങൾ',
+  sign_out:         'സൈൻ ഔട്ട്',
+  marketplace:      'എല്ലാം-ഒരേ-ഇടത്ത് മാർക്കറ്റ്',
+  our_products:     'ഞങ്ങളുടെ ഉൽപ്പന്നങ്ങൾ',
+  hero_desc:        'ഞങ്ങളുടെ ശേഖരത്തിൽ നിന്ന് <b>മെഴുകുതിരികൾ</b>, <b>വസ്ത്രം</b>, <b>സ്‌പെയർ പാർട്‌സ്</b>, <b>സൗന്ദര്യ ഉൽപ്പന്നങ്ങൾ</b> കൂടാതെ കൂടുതൽ വാങ്ങൂ।',
+  shop_candles:     'മെഴുകുതിരി വാങ്ങൂ',
+  accessories:      'ആക്‌സസറികൾ',
+  filter_all:       'എല്ലാം',
+  filter_candles:   'മെഴുകുതിരികൾ',
+  filter_accessories:'മെഴുകുതിരി സാമഗ്രികൾ',
+  filter_moulds:    'അച്ചുകൾ',
+  filter_spareparts:'സ്‌പെയർ പാർട്‌സ്',
+  filter_clothing:  'വസ്ത്രം',
+  filter_beauty:    'സൗന്ദര്യ ഉൽപ്പന്നങ്ങൾ',
+  filter_others:    'മറ്റുള്ളവ',
+  reset:            'റീസെറ്റ്',
+  sort_pop:         'ജനപ്രിയത',
+  sort_plh:         'വില: കുറവ് → കൂടുതൽ',
+  sort_phl:         'വില: കൂടുതൽ → കുറവ്',
+  sort_rate:        'റേറ്റിംഗ്',
+  recently_viewed:  'അടുത്തിടെ കണ്ടവ',
+  view_all_orders:  'എല്ലാ ഓർഡറും കാണൂ',
+  checkout:         'ചെക്കൗട്ട്',
+  checkout_sub:     'ഓർഡർ പരിശോധിച്ച് സ്ഥിരീകരിക്കുക',
+  shipping_details: 'ഷിപ്പിംഗ് വിവരങ്ങൾ',
+  manage_addresses: 'വിലാസങ്ങൾ നിയന്ത്രിക്കുക',
+  customer_reviews: 'ഉപഭോക്തൃ അവലോകനങ്ങൾ',
+  add_to_cart:      'കാർട്ടിൽ ചേർക്കുക',
+  wishlist_btn:     'വിഷ്‌ലിസ്റ്റ്',
+  compare_btn:      'താരതമ്യം',
+  subtotal:         'ഉപ-ആകെ',
+  shipping_lbl:     'ഡെലിവറി',
+  total:            'ആകെ',
+  clear_cart:       'കാർട്ട് ഒഴിക്കുക',
+  your_cart:        'നിങ്ങളുടെ കാർട്ട്',
+  wishlist_title:   'വിഷ്‌ലിസ്റ്റ്',
+  close:            'അടയ്ക്കുക',
+  saved_checkout_sub:'വേഗത്തിലുള്ള ചെക്കൗട്ടിനായി സേവ് ചെയ്തത്',
+  add_new_address:  'പുതിയ വിലാസം ചേർക്കുക',
+  set_default:      'ഡിഫോൾട്ട് വിലാസമായി സജ്ജമാക്കുക',
+  save_address:     'വിലാസം സേവ് ചെയ്യുക',
+  compare_products: 'ഉൽപ്പന്നങ്ങൾ താരതമ്യം ചെയ്യുക',
+  clear_all:        'എല്ലാം മായ്ക്കുക',
+  cart_reminder:    'ഉപേക്ഷിച്ച കാർട്ട് ഓർമ്മപ്പെടുത്തൽ',
+  cart_reminder_sub:'ഉപഭോക്താവിന്റെ നമ്പറിലേക്ക് ഓട്ടോ ഓർമ്മപ്പെടുത്തൽ അയക്കുക',
+  send_whatsapp:    'WhatsApp വഴി അയക്കുക',
+  send_sms:         'SMS വഴി അയക്കുക',
+  your_rating:      'നിങ്ങളുടെ റേറ്റിംഗ്',
+  post_review:      'പോസ്റ്റ്',
+  scent_lbl:        'സുഗന്ധം',
+  search_placeholder:'മെഴുകുതിരി, വസ്ത്രം, സ്‌പെയർ പാർട്‌സ് തിരയുക…',
+  shortcuts:        'ഷോർട്ട്‌കട്ട്: <b>/</b> തിരയൽ, <b>c</b> കാർട്ട്',
+  announcement:     '₹1,999-നു മുകളിൽ സൗജന്യ ഡെലിവറി • കോഡ് <b>PIX10</b> ഉപയോഗിച്ച് 10% കിഴിവ്!',
+  announcement_usd: '$25-നു മുകളിൽ സൗജന്യ ഡെലിവറി • കോഡ് <b>PIX10</b> ഉപയോഗിച്ച് 10% കിഴിവ്!',
+  cart_empty: 'നിങ്ങളുടെ കാർട്ട് ഒഴിഞ്ഞിരിക്കുന്നു', wish_empty: 'നിങ്ങളുടെ വിഷ്‌ലിസ്റ്റ് ഒഴിഞ്ഞിരിക്കുന്നു',
+  free_ship_unlock: 'സൗജന്യ ഡെലിവറി ലഭിച്ചു 🎉', add_more_ship: 'സൗജന്യ ഡെലിവറിക്ക് {amt} കൂടി ചേർക്കൂ',
+  added_to_cart: 'കാർട്ടിൽ ചേർത്തു', added_to_wish: 'വിഷ്‌ലിസ്റ്റിൽ ചേർത്തു', removed_from_wish: 'വിഷ്‌ലിസ്റ്റിൽ നിന്ന് നീക്കി',
+  no_products: 'ഉൽപ്പന്നങ്ങൾ കണ്ടെത്തിയില്ല।', adjust_filters: 'ഫിൽട്ടറുകൾ മാറ്റി നോക്കൂ।',
+  out_of_stock: 'സ്റ്റോക്ക് ഇല്ല', only_left: 'കേവലം {n} ശേഷിക്കുന്നു', hurry_only: 'വേഗം! {n} മാത്രം', in_stock: 'സ്റ്റോക്ക്: {n}',
+  loading_reviews: 'അവലോകനങ്ങൾ ലോഡ്…', no_reviews: 'ഇനിയും അവലോകനമില്ല – ആദ്യം ആകൂ!',
+  loading_orders: 'ഓർഡറുകൾ ലോഡ്…', max_compare: 'പരമാവധി 4 ഉൽപ്പന്നം', compare_updated: 'താരതമ്യ ലിസ്റ്റ് അപ്‌ഡേറ്റ്', add_to_compare: 'ആദ്യം ഉൽപ്പന്നം ചേർക്കൂ',
+  prev: 'മുൻ', next: 'അടുത്ത', view: 'കാണൂ', add: 'ചേർക്കൂ', remove: 'നീക്കൂ',
+  community_badge: '🌐 സമൂഹം', price_lbl: 'വില', rating_lbl: 'റേറ്റിംഗ്', category_lbl: 'വിഭാഗം', stock_lbl: 'സ്റ്റോക്ക്', oos_compare: 'സ്റ്റോക്ക് ഇല്ല',
+  choose_saved: 'സേവ് ചെയ്ത വിലാസം തിരഞ്ഞെടുക്കൂ', use_different: '+ മറ്റൊരു വിലാസം ഉപയോഗിക്കൂ',
+},
+
+/* ── Urdu ───────────────────────────────────────────────────────────── */
+ur: {
+  tagline:          'موم بتیاں • کپڑے • خوبصورتی اور مزید',
+  language_panel_title: '🌐 زبان',
+  select_lang:      'اپنی پسندیدہ زبان منتخب کریں',
+  cart:             'کارٹ',
+  login:            'لاگ ان',
+  cloud_synced:     'کلاؤڈ سنک',
+  admin_dashboard:  'ایڈمن ڈیش بورڈ',
+  my_orders:        'میرے آرڈر',
+  my_addresses:     'میرے پتے',
+  sign_out:         'سائن آؤٹ',
+  marketplace:      'سب کچھ ایک جگہ بازار',
+  our_products:     'ہماری مصنوعات',
+  hero_desc:        'ہمارے مجموعے سے <b>موم بتیاں</b>، <b>کپڑے</b>، <b>اسپیئر پارٹس</b>، <b>خوبصورتی کی مصنوعات</b> اور مزید خریدیں۔',
+  shop_candles:     'موم بتیاں خریدیں',
+  accessories:      'لوازمات',
+  filter_all:       'سب',
+  filter_candles:   'موم بتیاں',
+  filter_accessories:'موم بتی کا سامان',
+  filter_moulds:    'سانچے',
+  filter_spareparts:'اسپیئر پارٹس',
+  filter_clothing:  'کپڑے',
+  filter_beauty:    'خوبصورتی کی مصنوعات',
+  filter_others:    'دیگر',
+  reset:            'ری سیٹ',
+  sort_pop:         'مقبولیت',
+  sort_plh:         'قیمت: کم → زیادہ',
+  sort_phl:         'قیمت: زیادہ → کم',
+  sort_rate:        'ریٹنگ',
+  recently_viewed:  'حال ہی میں دیکھے',
+  view_all_orders:  'تمام آرڈر دیکھیں',
+  checkout:         'چیک آؤٹ',
+  checkout_sub:     'اپنا آرڈر دیکھیں اور تصدیق کریں',
+  shipping_details: 'شپنگ تفصیلات',
+  manage_addresses: 'پتے سنبھالیں',
+  customer_reviews: 'گاہکوں کے جائزے',
+  add_to_cart:      'کارٹ میں ڈالیں',
+  wishlist_btn:     'وش لسٹ',
+  compare_btn:      'موازنہ کریں',
+  subtotal:         'ذیلی کل',
+  shipping_lbl:     'ڈیلیوری',
+  total:            'کل',
+  clear_cart:       'کارٹ صاف کریں',
+  your_cart:        'آپ کا کارٹ',
+  wishlist_title:   'وش لسٹ',
+  close:            'بند کریں',
+  saved_checkout_sub:'تیز چیک آؤٹ کے لیے محفوظ',
+  add_new_address:  'نیا پتہ شامل کریں',
+  set_default:      'ڈیفالٹ پتہ سیٹ کریں',
+  save_address:     'پتہ محفوظ کریں',
+  compare_products: 'مصنوعات کا موازنہ کریں',
+  clear_all:        'سب ہٹائیں',
+  cart_reminder:    'چھوڑی ہوئی کارٹ یاددہانی',
+  cart_reminder_sub:'گاہک کے نمبر پر خودکار یاددہانی بھیجیں',
+  send_whatsapp:    'WhatsApp کے ذریعے بھیجیں',
+  send_sms:         'SMS کے ذریعے بھیجیں',
+  your_rating:      'آپ کی ریٹنگ',
+  post_review:      'پوسٹ کریں',
+  scent_lbl:        'خوشبو',
+  search_placeholder:'موم بتیاں، کپڑے، اسپیئر پارٹس تلاش کریں…',
+  shortcuts:        'شارٹ کٹ: <b>/</b> تلاش، <b>c</b> کارٹ',
+  announcement:     '₹1,999 سے زیادہ مفت ڈیلیوری • کوڈ <b>PIX10</b> سے 10% چھوٹ!',
+  announcement_usd: '$25 سے زیادہ مفت ڈیلیوری • کوڈ <b>PIX10</b> سے 10% چھوٹ!',
+  cart_empty: 'آپ کا کارٹ خالی ہے', wish_empty: 'آپ کی وش لسٹ خالی ہے',
+  free_ship_unlock: 'مفت ڈیلیوری مل گئی 🎉', add_more_ship: 'مفت ڈیلیوری کے لیے {amt} اور شامل کریں',
+  added_to_cart: 'کارٹ میں شامل', added_to_wish: 'وش لسٹ میں شامل', removed_from_wish: 'وش لسٹ سے ہٹایا',
+  no_products: 'کوئی مصنوع نہیں ملا۔', adjust_filters: 'فلٹر تبدیل کریں۔',
+  out_of_stock: 'اسٹاک ختم', only_left: 'صرف {n} باقی', hurry_only: 'جلدی! صرف {n}', in_stock: 'اسٹاک میں: {n}',
+  loading_reviews: 'جائزے لوڈ…', no_reviews: 'ابھی کوئی جائزہ نہیں – پہلے بنیں!',
+  loading_orders: 'آرڈر لوڈ…', max_compare: 'زیادہ سے زیادہ 4 مصنوعات', compare_updated: 'موازنہ فہرست اپ ڈیٹ', add_to_compare: 'پہلے مصنوعات شامل کریں',
+  prev: 'پچھلا', next: 'اگلا', view: 'دیکھیں', add: 'شامل', remove: 'ہٹائیں',
+  community_badge: '🌐 کمیونٹی', price_lbl: 'قیمت', rating_lbl: 'ریٹنگ', category_lbl: 'زمرہ', stock_lbl: 'اسٹاک', oos_compare: 'اسٹاک ختم',
+  choose_saved: 'محفوظ پتہ چنیں', use_different: '+ مختلف پتہ استعمال کریں',
+},
+
+/* ── Odia ───────────────────────────────────────────────────────────── */
+or: {
+  tagline:          'ମହମ ବତୀ • ପୋଷାକ • ସୌନ୍ଦର୍ଯ୍ୟ ଓ ଆହୁରି',
+  language_panel_title: '🌐 ଭାଷା',
+  select_lang:      'ଆପଣଙ୍କ ପସନ୍ଦର ଭାଷା ବାଛନ୍ତୁ',
+  cart:             'କାର୍ଟ',
+  login:            'ଲଗ ଇନ',
+  cloud_synced:     'କ୍ଲାଉଡ ସିଙ୍କ',
+  admin_dashboard:  'ଆଡ୍‌ମିନ ଡ୍ୟାସବୋର୍ଡ',
+  my_orders:        'ମୋ ଅର୍ଡର',
+  my_addresses:     'ମୋ ଠିକଣା',
+  sign_out:         'ସାଇନ ଆଉଟ',
+  marketplace:      'ସବୁ ଏକ ଜାଗାରେ ବଜାର',
+  our_products:     'ଆମ ଉତ୍ପାଦ',
+  hero_desc:        'ଆମ ସଂଗ୍ରହରୁ <b>ମହମ ବତୀ</b>, <b>ପୋଷାକ</b>, <b>ସ୍ପ୍ୟାର ପାର୍ଟ</b>, <b>ସୌନ୍ଦର୍ଯ୍ୟ ଉତ୍ପାଦ</b> ଓ ଆହୁରି କିଣନ୍ତୁ।',
+  shop_candles:     'ମହମ ବତୀ କିଣନ୍ତୁ',
+  accessories:      'ଉପକରଣ',
+  filter_all:       'ସବୁ',
+  filter_candles:   'ମହମ ବତୀ',
+  filter_accessories:'ମହମ ବତୀ ସାମଗ୍ରୀ',
+  filter_moulds:    'ଛାଞ୍ଚ',
+  filter_spareparts:'ସ୍ପ୍ୟାର ପାର୍ଟ',
+  filter_clothing:  'ପୋଷାକ',
+  filter_beauty:    'ସୌନ୍ଦର୍ଯ୍ୟ ଉତ୍ପାଦ',
+  filter_others:    'ଅନ୍ୟ',
+  reset:            'ରିସେଟ',
+  sort_pop:         'ଲୋକପ୍ରିୟ',
+  sort_plh:         'ମୂଲ୍ୟ: କମ → ବଡ',
+  sort_phl:         'ମୂଲ୍ୟ: ବଡ → କମ',
+  sort_rate:        'ରେଟିଂ',
+  recently_viewed:  'ଇ ନ ତୁ ଦେଖ ସ ୍ ଥ ିଲ ି',
+  view_all_orders:  'ସବୁ ଅର୍ଡର ଦେଖନ୍ତୁ',
+  checkout:         'ଚେକ ଆଉଟ',
+  checkout_sub:     'ଆପଣଙ୍କ ଅର୍ଡର ଦେଖନ୍ତୁ ଓ ନିଶ୍ଚିତ କରନ୍ତୁ',
+  shipping_details: 'ଶିପିଂ ବିବରଣ',
+  manage_addresses: 'ଠିକଣା ପରିଚାଳନା',
+  customer_reviews: 'ଗ୍ରାହକ ମତାମତ',
+  add_to_cart:      'କାର୍ଟ ରେ ଯୋଗ',
+  wishlist_btn:     'ଇଚ୍ଛା ତାଲିକା',
+  compare_btn:      'ତୁଳନା',
+  subtotal:         'ଉପ-ମୋଟ',
+  shipping_lbl:     'ଡେଲିଭରି',
+  total:            'ମୋଟ',
+  clear_cart:       'କାର୍ଟ ଖାଲି',
+  your_cart:        'ଆପଣଙ୍କ କାର୍ଟ',
+  wishlist_title:   'ଇଚ୍ଛା ତାଲିକା',
+  close:            'ବନ୍ଦ',
+  saved_checkout_sub:'ଶୀଘ୍ର ଚେକ ଆଉଟ ପାଇଁ ସଞ୍ଚୟ',
+  add_new_address:  'ନୂଆ ଠିକଣା ଯୋଗ',
+  set_default:      'ଡିଫଲ୍ଟ ଠିକଣା ଭାବେ ରଖନ୍ତୁ',
+  save_address:     'ଠିକଣା ସଞ୍ଚୟ',
+  compare_products: 'ଉତ୍ପାଦ ତୁଳନା',
+  clear_all:        'ସବୁ ହଟାନ୍ତୁ',
+  cart_reminder:    'ଛାଡ଼ିଦିଆ କାର୍ଟ ସ୍ମରଣ',
+  cart_reminder_sub:'ଗ୍ରାହକଙ୍କ ନମ୍ବରରେ ସ୍ୱୟଂ ସ୍ମରଣ ପଠାନ୍ତୁ',
+  send_whatsapp:    'WhatsApp ଦ୍ୱାରା ପଠାନ୍ତୁ',
+  send_sms:         'SMS ଦ୍ୱାରା ପଠାନ୍ତୁ',
+  your_rating:      'ଆପଣଙ୍କ ରେଟିଂ',
+  post_review:      'ପ୍ରକାଶ',
+  scent_lbl:        'ସୁଗନ୍ଧ',
+  search_placeholder:'ମହମ ବତୀ, ପୋଷାକ, ସ୍ପ୍ୟାର ପାର୍ଟ ଖୋଜନ୍ତୁ…',
+  shortcuts:        'ସଂକ୍ଷିପ୍ତ: <b>/</b> ଖୋଜ, <b>c</b> କାର୍ଟ',
+  announcement:     '₹1,999 ଉପରେ ମାଗଣା ଡେଲିଭରି • କୋଡ <b>PIX10</b> ରେ 10% ଛାଡ!',
+  announcement_usd: '$25 ଉପରେ ମାଗଣା ଡେଲିଭରି • କୋଡ <b>PIX10</b> ରେ 10% ଛାଡ!',
+  cart_empty: 'ଆପଣଙ୍କ କାର୍ଟ ଖାଲି', wish_empty: 'ଆପଣଙ୍କ ଇଚ୍ଛା ତାଲିକା ଖାଲି',
+  free_ship_unlock: 'ମାଗଣା ଡେଲିଭରି ମିଳିଲା 🎉', add_more_ship: 'ମାଗଣା ଡେଲିଭରି ପାଇଁ {amt} ଆହୁରି ଯୋଗ',
+  added_to_cart: 'କାର୍ଟ ରେ ଯୋଗ ହଲା', added_to_wish: 'ଇଚ୍ଛା ତାଲିକାରେ ଯୋଗ', removed_from_wish: 'ଇଚ୍ଛା ତାଲିକାରୁ ବଢ଼ାଯାଇ',
+  no_products: 'କୌଣସି ଉତ୍ପାଦ ମିଳୁ ନାହିଁ।', adjust_filters: 'ଫିଲ୍ଟର ବଦଳାନ୍ତୁ।',
+  out_of_stock: 'ଷ୍ଟକ ଶେଷ', only_left: 'ମାତ୍ର {n} ଅଛି', hurry_only: 'ଶୀଘ୍ର! ମାତ୍ର {n}', in_stock: 'ଷ୍ଟକ: {n}',
+  loading_reviews: 'ମତାମତ ଲୋଡ…', no_reviews: 'ଏ ପର୍ଯ୍ୟନ୍ତ ମତାମତ ନାହିଁ!',
+  loading_orders: 'ଅର୍ଡର ଲୋଡ…', max_compare: 'ସର୍ବୋଚ୍ଚ 4 ଉତ୍ପାଦ', compare_updated: 'ତୁଳନା ତାଲିକା ଅଦ୍ୟତନ', add_to_compare: 'ଆଗେ ଉତ୍ପାଦ ଯୋଗ',
+  prev: 'ପୂର୍ବ', next: 'ପରବର୍ତ୍ତୀ', view: 'ଦେଖନ୍ତୁ', add: 'ଯୋଗ', remove: 'ହଟାନ୍ତୁ',
+  community_badge: '🌐 ସମ୍ପ୍ରଦାୟ', price_lbl: 'ମୂଲ୍ୟ', rating_lbl: 'ରେଟିଂ', category_lbl: 'ଶ୍ରେଣୀ', stock_lbl: 'ଷ୍ଟକ', oos_compare: 'ଷ୍ଟକ ଶେଷ',
+  choose_saved: 'ସଞ୍ଚୟ ଠିକଣା ବାଛନ୍ତୁ', use_different: '+ ଅଲଗା ଠିକଣା ବ୍ୟବ‌ହ‌ାର',
+},
+
+}; // end T
+
+/* ── Fallback helper ────────────────────────────────────────────────── */
+function t(key, lang) {
+  var l = lang || _cur;
+  return (T[l] && T[l][key]) || (T['en'] && T['en'][key]) || key;
+}
+/* Expose globally so main JS can use it for dynamic strings */
+window.PIX_t = function(key){ return t(key); };
+
+/* ── Apply translations to DOM ──────────────────────────────────────── */
+function applyTranslations(lang) {
+  /* 1. Static [data-i18n] text elements */
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n');
+    var val = t(key, lang);
+    if (val) el.innerHTML = val;
+  });
+  /* 2. Placeholder attributes */
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n-placeholder');
+    var val = t(key, lang);
+    if (val) el.setAttribute('placeholder', val);
+  });
+  /* 3. Announcement bar (currency-aware) */
+  var annBar = document.getElementById('announcement-bar');
+  if (annBar) {
+    var ccy = (typeof state !== 'undefined' ? state.currency : null) ||
+              localStorage.getItem('PIX_ccy') || 'INR';
+    annBar.innerHTML = ccy === 'USD' ? t('announcement_usd', lang) : t('announcement', lang);
+  }
+  /* 4. RTL for Urdu */
+  document.body.setAttribute('dir', lang === 'ur' ? 'rtl' : 'ltr');
+}
+
+/* Expose so main JS updateCurrencyUI can refresh announcement */
+window.PIX_applyTranslations = function(lang){ applyTranslations(lang || _cur); };
+
+/* ── Current language ───────────────────────────────────────────────── */
+var _cur = localStorage.getItem(LS_LANG) || 'en';
+
+/* ── Core: switch language ───────────────────────────────────────────── */
+function applyLang(code) {
+  _cur = code;
+  localStorage.setItem(LS_LANG, code);
+  applyTranslations(code);
+  updateGlobeDot();
+  buildOptions();
+  // If a dynamic re-render function exists, call it to update dynamic strings
+  if (typeof window._PIX_rerenderAll === 'function') window._PIX_rerenderAll();
+}
+window.PIX_setLang = applyLang;
+window.PIX_getLang = function(){ return _cur; };
+
+/* ── Globe dot ──────────────────────────────────────────────────────── */
+function updateGlobeDot(){
+  var dot = document.getElementById('pix-globe-dot');
+  if (dot) dot.classList.toggle('on', _cur !== 'en');
+}
+
+/* ── Build language options list ────────────────────────────────────── */
+function buildOptions(){
+  var el = document.getElementById('pix-lang-opts');
+  if (!el) return;
+  var html = '';
+  LANGS.forEach(function(l, i){
+    if (i > 0 && l.code === 'en') html += '<div class="pix-panel-sep"></div>';
+    var active = (l.code === _cur);
+    html += '<button class="pix-lang-opt' + (active ? ' pix-active' : '') + '"'
+          + ' onclick="PIX_setLang(\'' + l.code + '\')">'
+          + '<span class="pix-lang-flag">' + l.flag + '</span>'
+          + '<span>' + l.name + '</span>'
+          + '<span class="pix-lang-native-sm">' + l.native + '</span>'
+          + (active ? '<span class="pix-lang-check">✓</span>' : '')
+          + '</button>';
+  });
+  el.innerHTML = html;
+}
+
+/* ── Show popup ─────────────────────────────────────────────────────── */
+function showPopup(langCode, regionName){
+  var lang = LANGS.find(function(l){ return l.code === langCode; });
+  if (!lang) return;
+  var ov = document.getElementById('pix-lang-overlay');
+  if (!ov) return;
+
+  document.getElementById('pix-lang-flag').textContent   = lang.flag;
+  document.getElementById('pix-lang-title').textContent  = 'You\'re in ' + (regionName || 'India');
+  document.getElementById('pix-lang-native').textContent = lang.name + ' (' + lang.native + ')';
+  document.getElementById('pix-lang-sub').textContent
+    = 'We detected your region and can show this site in ' + lang.name + ' ('
+      + lang.native + '). Would you like to switch?';
+  document.getElementById('pix-lang-yes-txt').textContent = 'Yes — show in ' + lang.name + ' ' + lang.flag;
+
+  ov.classList.add('pix-open');
+
+  document.getElementById('pix-lang-yes').onclick = function(){
+    ov.classList.remove('pix-open');
+    localStorage.setItem(LS_ASKED, '1');
+    applyLang(langCode);
+  };
+  document.getElementById('pix-lang-no').onclick = function(){
+    ov.classList.remove('pix-open');
+    localStorage.setItem(LS_ASKED, '1');
+    localStorage.setItem(LS_LANG, 'en');
+    _cur = 'en';
+    updateGlobeDot();
+  };
+  ov.addEventListener('click', function(e){
+    if (e.target === ov){ ov.classList.remove('pix-open'); localStorage.setItem(LS_ASKED,'1'); }
+  }, { once: false });
+}
+
+/* ── IP-based region detection ──────────────────────────────────────── */
+async function detectRegion(){
+  if (localStorage.getItem(LS_ASKED)) return;
+  if (localStorage.getItem(LS_LANG) && localStorage.getItem(LS_LANG) !== 'en') return;
+
+  var region = null, country = null;
+  var apis = [
+    { url:'https://ipapi.co/json/',            parse:function(d){ return {country:d.country_code,region:d.region}; } },
+    { url:'https://ipwho.is/',                  parse:function(d){ return {country:d.country_code,region:d.region}; } },
+    { url:'https://freeipapi.com/api/json',     parse:function(d){ return {country:d.countryCode,region:d.regionName}; } },
+    { url:'https://get.geojs.io/v1/ip/geo.json',parse:function(d){ return {country:d.country_code,region:d.region}; } },
+  ];
+  for (var i = 0; i < apis.length; i++){
+    try {
+      var resp = await fetch(apis[i].url, {signal:AbortSignal.timeout(4000)});
+      if (!resp.ok) continue;
+      var data = await resp.json();
+      var parsed = apis[i].parse(data);
+      if (parsed.country){ country=parsed.country; region=parsed.region||''; break; }
+    } catch(e){}
+  }
+  if (!country || country !== 'IN') return;
+  var langCode = REGION_LANG[region];
+  if (!langCode) return;
+  setTimeout(function(){ showPopup(langCode, region); }, 1800);
+}
+
+/* ── URL param override ─────────────────────────────────────────────── */
+(function checkUrlParam(){
+  var params = new URLSearchParams(location.search);
+  if (params.has('lang')) {
+    var c = params.get('lang');
+    if (LANGS.find(function(l){ return l.code === c; })) {
+      localStorage.setItem(LS_LANG, c);
+      localStorage.setItem(LS_ASKED, '1');
+      _cur = c;
+    }
+  }
+  if (params.get('resetLang') === '1') {
+    localStorage.removeItem(LS_LANG);
+    localStorage.removeItem(LS_ASKED);
+    _cur = 'en';
+    var url = new URL(location.href);
+    url.searchParams.delete('resetLang');
+    location.replace(url.toString());
+  }
+})();
+
+/* ── Wire up on DOM ready ───────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', function(){
+  updateGlobeDot();
+  applyTranslations(_cur);
+
+  /* Globe button toggle */
+  var globeBtn = document.getElementById('pix-globe-btn');
+  var panel    = document.getElementById('pix-lang-panel');
+  if (globeBtn && panel) {
+    globeBtn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var isOpen = panel.classList.contains('pix-open');
+      document.querySelectorAll('.user-menu').forEach(function(m){ m.classList.remove('open'); });
+      if (isOpen) { panel.classList.remove('pix-open'); }
+      else { buildOptions(); panel.classList.add('pix-open'); }
+    });
+  }
+  document.addEventListener('click', function(){
+    if (panel) panel.classList.remove('pix-open');
+  });
+
+  detectRegion();
+});
+
+})();
+</script>
+<!-- ===== END PIX MULTILINGUAL ENGINE ===== -->
+
 </body>
 </html>
