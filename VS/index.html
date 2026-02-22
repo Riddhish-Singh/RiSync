@@ -19,7 +19,10 @@
                         brand: { 50: '#f0fdfa', 100: '#ccfbf1', 200: '#99f6e4', 300: '#5eead4', 400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e', 800: '#115e59', 900: '#134e4a' },
                         ocean: { 500: '#0ea5e9', 600: '#0284c7', 900: '#0c4a6e' },
                         fresh: { 400: '#a3e635', 500: '#84cc16', 600: '#65a30d' },
-                        spark: { 400: '#facc15', 500: '#eab308' }
+                        spark: { 400: '#facc15', 500: '#eab308' },
+                        gold: { 400: '#facc15', 500: '#eab308', 300: '#fde047' },
+                        silver: { 400: '#94a3b8', 500: '#64748b', 300: '#cbd5e1' },
+                        bronze: { 400: '#fbbf24', 500: '#b45309', 300: '#fcd34d' }
                     },
                     animation: {
                         'fade-in': 'fadeIn 0.3s ease-out',
@@ -84,6 +87,67 @@
         .mode-toggle-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .mode-selected { background-color: white; color: #0d9488; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
         .dark .mode-selected { background-color: #1e293b; color: #2dd4bf; }
+        
+        /* Marquee Animation */
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .marquee-container {
+            overflow: hidden;
+            position: relative;
+        }
+        .marquee-content {
+            display: flex;
+            animation: marquee 30s linear infinite;
+            will-change: transform;
+        }
+        .marquee-container:hover .marquee-content {
+            animation-play-state: paused;
+        }
+        
+        /* Podium Animations */
+        @keyframes slideUp { 
+            from { transform: translateY(100%); opacity: 0; } 
+            to { transform: translateY(0); opacity: 1; } 
+        }
+        .podium-1 { animation: slideUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .podium-2 { animation: slideUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s forwards; }
+        .podium-3 { animation: slideUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.3s forwards; }
+        
+        /* Gradient Animation */
+        @keyframes gradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .animate-gradient {
+            background-size: 200% auto;
+            animation: gradient 3s ease infinite;
+        }
+        
+        /* Enhanced Card Shadows */
+        .challenge-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .challenge-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+        .challenge-card:hover::before {
+            left: 100%;
+        }
+        .challenge-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px -10px rgba(13, 148, 136, 0.3);
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
@@ -103,8 +167,7 @@
                     
                     <div id="mainNavLinks" class="hidden md:ml-10 md:flex md:space-x-8 text-sm font-medium items-center">
                         <a href="index.html" class="text-brand-700 dark:text-brand-300 border-b-2 border-brand-500">Home</a>
-                        <a href="challenges-leaderboard.html" class="text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-300 transition">Challenges & Leaderboard</a>
-                        <a href="dashboard.html" class="text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-300 transition">Dashboard & My Ideas</a>
+                        <a href="dashboard.html" class="text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-300 transition">My Dashboard</a>
                     </div>
                 </div>
 
@@ -136,101 +199,183 @@
         <div class="absolute top-0 left-1/4 w-96 h-96 bg-brand-200/50 dark:bg-brand-900/20 rounded-full blur-3xl -z-10 mix-blend-multiply dark:mix-blend-screen animate-pulse"></div>
         <div class="absolute bottom-10 right-1/4 w-72 h-72 bg-fresh-400/30 dark:bg-fresh-900/10 rounded-full blur-3xl -z-10 mix-blend-multiply dark:mix-blend-screen"></div>
 
-        <section class="text-center py-12 lg:py-16 max-w-4xl mx-auto mb-16">
-            <div class="inline-block bg-brand-100 dark:bg-brand-900/30 rounded-full px-4 py-1 text-sm font-semibold text-brand-700 dark:text-brand-300 mb-4">
-                <i class="fas fa-rocket mr-2"></i> Innovation Platform
+        <section class="text-center py-6 lg:py-8 max-w-4xl mx-auto mb-10 relative">
+            <div class="inline-block bg-gradient-to-r from-brand-100 to-ocean-100 dark:from-brand-900/30 dark:to-ocean-900/30 rounded-full px-5 py-2 text-sm font-bold text-brand-700 dark:text-brand-300 mb-4 shadow-lg border border-brand-200 dark:border-brand-800 animate-pulse">
+                <i class="fas fa-rocket mr-2 animate-bounce"></i> Innovation Platform
             </div>
-            <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight mb-6 text-slate-900 dark:text-white">
-                Where Ideas Meet <br />
-                <span class="bg-clip-text text-transparent bg-gradient-to-r from-brand-500 via-fresh-500 to-spark-500">Opportunity.</span>
+            <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight mb-5 text-slate-900 dark:text-white">
+                <span class="bg-clip-text text-transparent bg-gradient-to-r from-brand-600 via-ocean-600 to-fresh-500 animate-gradient">
+                    Where Ideas Meet Opportunity.
+                </span>
             </h1>
-            <p class="text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto">
-                A platform where employees, students, teachers, and researchers turn creative ideas into real-world solutions. 
-                Every innovation starts with a single thought.
+            <p class="text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto font-medium">
+                A collaborative platform where everyone can <span class="text-brand-600 dark:text-brand-400 font-bold">propose challenges</span> and 
+                <span class="text-ocean-600 dark:text-ocean-400 font-bold">solve problems</span> together.
             </p>
         </section>
 
-        <section class="mb-20">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-4">Our Core Objectives</h2>
-                <p class="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">We aren't just collecting ideas; we are building a culture of problem solvers.</p>
+        <section class="mb-12">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">Our Core Objectives</h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400">We aren't just collecting ideas; we are building a culture of problem solvers.</p>
             </div>
 
-            <div class="grid md:grid-cols-3 gap-8 mb-12">
-                <div class="card-hover bg-white dark:bg-slate-800 p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                    <div class="w-14 h-14 bg-brand-100 dark:bg-brand-900/50 rounded-xl flex items-center justify-center text-brand-600 text-2xl mb-6">
-                        <i class="fas fa-seedling"></i>
+            <div class="marquee-container py-4">
+                <div class="marquee-content gap-6">
+                    <div class="card-hover bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm min-w-[300px] flex-shrink-0">
+                        <div class="w-12 h-12 bg-brand-100 dark:bg-brand-900/50 rounded-xl flex items-center justify-center text-brand-600 text-xl mb-4">
+                            <i class="fas fa-seedling"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Promote Innovation</h3>
+                        <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                            Encourage looking beyond textbooks to identify novel ways to solve everyday problems using scientific principles.
+                        </p>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3">Promote Innovation</h3>
-                    <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-                        Encourage looking beyond textbooks to identify novel ways to solve everyday problems using scientific principles.
-                    </p>
-                </div>
 
-                <div class="card-hover bg-white dark:bg-slate-800 p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                    <div class="w-14 h-14 bg-spark-100 dark:bg-spark-900/50 rounded-xl flex items-center justify-center text-spark-600 text-2xl mb-6">
-                        <i class="fas fa-bolt"></i>
+                    <div class="card-hover bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm min-w-[300px] flex-shrink-0">
+                        <div class="w-12 h-12 bg-spark-100 dark:bg-spark-900/50 rounded-xl flex items-center justify-center text-spark-600 text-xl mb-4">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">New Ideas</h3>
+                        <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                            A safe platform where no idea is "too small" or "too crazy." Every breakthrough starts with a single thought.
+                        </p>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3">New Ideas</h3>
-                    <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-                        A safe platform where no idea is "too small" or "too crazy." Every breakthrough starts with a single thought.
-                    </p>
-                </div>
 
-                <div class="card-hover bg-white dark:bg-slate-800 p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                    <div class="w-14 h-14 bg-ocean-100 dark:bg-ocean-900/50 rounded-xl flex items-center justify-center text-ocean-600 text-2xl mb-6">
-                        <i class="fas fa-globe-asia"></i>
+                    <div class="card-hover bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm min-w-[300px] flex-shrink-0">
+                        <div class="w-12 h-12 bg-ocean-100 dark:bg-ocean-900/50 rounded-xl flex items-center justify-center text-ocean-600 text-xl mb-4">
+                            <i class="fas fa-globe-asia"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Real-World Impact</h3>
+                        <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                            Focus on challenges that matter—sustainability, energy, health, and community development.
+                        </p>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3">Real-World Impact</h3>
-                    <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-                        Focus on challenges that matter—sustainability, energy, health, and community development.
-                    </p>
+
+                    <!-- Duplicate for seamless loop -->
+                    <div class="card-hover bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm min-w-[300px] flex-shrink-0">
+                        <div class="w-12 h-12 bg-brand-100 dark:bg-brand-900/50 rounded-xl flex items-center justify-center text-brand-600 text-xl mb-4">
+                            <i class="fas fa-seedling"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Promote Innovation</h3>
+                        <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                            Encourage looking beyond textbooks to identify novel ways to solve everyday problems using scientific principles.
+                        </p>
+                    </div>
+
+                    <div class="card-hover bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm min-w-[300px] flex-shrink-0">
+                        <div class="w-12 h-12 bg-spark-100 dark:bg-spark-900/50 rounded-xl flex items-center justify-center text-spark-600 text-xl mb-4">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">New Ideas</h3>
+                        <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                            A safe platform where no idea is "too small" or "too crazy." Every breakthrough starts with a single thought.
+                        </p>
+                    </div>
+
+                    <div class="card-hover bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm min-w-[300px] flex-shrink-0">
+                        <div class="w-12 h-12 bg-ocean-100 dark:bg-ocean-900/50 rounded-xl flex items-center justify-center text-ocean-600 text-xl mb-4">
+                            <i class="fas fa-globe-asia"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Real-World Impact</h3>
+                        <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                            Focus on challenges that matter—sustainability, energy, health, and community development.
+                        </p>
+                    </div>
                 </div>
             </div>
 
-            <div class="bg-gradient-to-r from-brand-900 to-slate-900 rounded-3xl p-10 text-center text-white">
-                <h3 class="text-2xl font-bold mb-4">Who Can Participate?</h3>
-                <p class="text-brand-100 mb-8 max-w-xl mx-auto leading-relaxed">
+            <div class="bg-gradient-to-r from-brand-900 to-slate-900 rounded-2xl p-6 text-center text-white mt-8">
+                <h3 class="text-xl font-bold mb-2">Who Can Participate?</h3>
+                <p class="text-brand-100 text-sm leading-relaxed">
                     Innovation has no boundaries. Employees, Students, Teachers, Researchers, and
-                    <span class="inline-flex items-center align-middle ml-2 bg-gradient-to-br from-brand-600 to-brand-700 px-4 py-2 rounded-lg border border-brand-500 text-sm font-bold shadow-lg">
-                        <i class="fas fa-check mr-2"></i> Everyone!
+                    <span class="inline-flex items-center align-middle ml-2 bg-gradient-to-br from-brand-600 to-brand-700 px-3 py-1.5 rounded-lg border border-brand-500 text-xs font-bold shadow-lg">
+                        <i class="fas fa-check mr-1.5"></i> Everyone!
                     </span>
                 </p>
             </div>
         </section>
 
-        <section class="mb-20" id="submitSection">
+        <section class="mb-20 hidden" id="submitSection">
             <div class="max-w-4xl mx-auto">
                 
-                <div class="mb-8 flex justify-center">
-                    <div class="bg-slate-200 dark:bg-slate-800 p-1 rounded-xl inline-flex relative w-full sm:w-auto">
-                        <button type="button" id="btnChallenge" onclick="setSubmissionMode('challenge')" class="mode-toggle-btn px-6 py-2.5 rounded-lg text-sm font-bold text-slate-500 dark:text-slate-400 flex items-center gap-2 flex-1 sm:flex-initial justify-center">
-                            <i class="fas fa-trophy"></i> Challenge Accepted
-                        </button>
-                        <button type="button" id="btnNew" onclick="setSubmissionMode('new')" class="mode-toggle-btn px-6 py-2.5 rounded-lg text-sm font-bold text-slate-500 dark:text-slate-400 flex items-center gap-2 flex-1 sm:flex-initial justify-center">
-                            <i class="fas fa-lightbulb"></i> New Idea
-                        </button>
+                <div class="mb-8">
+                    <div class="bg-gradient-to-br from-slate-50 to-brand-50 dark:from-slate-800 dark:to-brand-900/20 p-6 rounded-2xl border border-brand-200 dark:border-brand-800 shadow-lg mb-6">
+                        <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2 text-center">Choose Your Action</h3>
+                        <p class="text-sm text-slate-600 dark:text-slate-400 text-center mb-4">Select whether you're proposing a new problem or solving an existing challenge</p>
+                        
+                        <div class="flex gap-4 flex-col sm:flex-row">
+                            <button type="button" id="btnNew" onclick="setSubmissionMode('new')" class="mode-toggle-btn flex-1 px-6 py-4 rounded-xl text-sm font-bold bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:border-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/30 transition-all duration-300">
+                                <div class="flex flex-col items-center gap-2">
+                                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white mb-1">
+                                        <i class="fas fa-lightbulb text-xl"></i>
+                                    </div>
+                                    <span class="text-base">Propose Challenge</span>
+                                    <span class="text-xs opacity-70">Share a problem for others to solve</span>
+                                </div>
+                            </button>
+                            <button type="button" id="btnChallenge" onclick="setSubmissionMode('challenge')" class="mode-toggle-btn flex-1 px-6 py-4 rounded-xl text-sm font-bold bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:border-ocean-500 hover:bg-ocean-50 dark:hover:bg-ocean-900/30 transition-all duration-300">
+                                <div class="flex flex-col items-center gap-2">
+                                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-ocean-400 to-ocean-600 flex items-center justify-center text-white mb-1">
+                                        <i class="fas fa-trophy text-xl"></i>
+                                    </div>
+                                    <span class="text-base">Solve Challenge</span>
+                                    <span class="text-xs opacity-70">Provide solution to existing challenge</span>
+                                </div>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <div id="challengeBanner" class="hidden mb-8 bg-gradient-to-r from-brand-600 to-ocean-600 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
-                    <div class="absolute top-0 right-0 p-4 opacity-20">
-                        <i class="fas fa-trophy text-8xl transform translate-x-4 -translate-y-4"></i>
-                    </div>
+                <div id="challengeBanner" class="hidden mb-8 bg-gradient-to-r from-ocean-600 via-ocean-500 to-brand-600 rounded-2xl p-8 text-white shadow-2xl relative overflow-hidden border-2 border-ocean-400">
+                    <div class="absolute top-0 right-0 w-72 h-72 bg-white/10 rounded-full blur-3xl"></div>
+                    <div class="absolute bottom-0 left-0 w-64 h-64 bg-brand-500/20 rounded-full blur-3xl"></div>
                     <div class="relative z-10">
-                        <div class="flex items-center gap-2 mb-1 text-brand-100 text-xs font-bold uppercase">
-                            <i class="fas fa-check-circle"></i> Replying to Challenge
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                                <i class="fas fa-trophy text-2xl"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2 text-ocean-100 text-xs font-bold uppercase tracking-wide">
+                                    <i class="fas fa-check-circle"></i> Solving Challenge
+                                </div>
+                                <h2 class="text-2xl font-extrabold" id="selectedChallengeTitle">Loading Challenge...</h2>
+                            </div>
                         </div>
-                        <h2 class="text-2xl font-bold mb-1" id="selectedChallengeTitle">Loading Challenge...</h2>
-                        <p class="text-sm opacity-90" id="selectedChallengeTheme">...</p>
+                        <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 mt-4 border border-white/20">
+                            <p class="text-sm opacity-95 font-medium" id="selectedChallengeTheme">...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="newChallengeBanner" class="hidden mb-8 bg-gradient-to-r from-brand-600 via-brand-500 to-fresh-600 rounded-2xl p-8 text-white shadow-2xl relative overflow-hidden border-2 border-brand-400">
+                    <div class="absolute top-0 right-0 w-72 h-72 bg-white/10 rounded-full blur-3xl"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                                <i class="fas fa-lightbulb text-2xl"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2 text-brand-100 text-xs font-bold uppercase tracking-wide mb-1">
+                                    <i class="fas fa-plus-circle"></i> Proposing New Challenge
+                                </div>
+                                <h2 class="text-2xl font-extrabold">Share Your Problem</h2>
+                            </div>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 mt-4 border border-white/20">
+                            <p class="text-sm opacity-95 font-medium">Describe a challenge or problem that needs solving. Others in the community will be able to propose solutions!</p>
+                        </div>
                     </div>
                 </div>
 
                 <form id="ideaForm" class="space-y-8">
                     
-                    <div class="glass-panel p-6 sm:p-8 rounded-2xl shadow-sm">
-                        <h2 class="text-lg font-bold mb-6 text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-700 pb-2">
-                            1. The Big Idea
+                    <div class="glass-panel p-6 sm:p-8 rounded-2xl shadow-lg border-2 border-brand-100 dark:border-brand-900/50">
+                        <h2 class="text-lg font-bold mb-6 text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-700 pb-3 flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-lg bg-brand-100 dark:bg-brand-900 flex items-center justify-center">
+                                <span class="text-brand-600 dark:text-brand-400 font-bold">1</span>
+                            </div>
+                            <span id="section1Title">The Big Idea</span>
                         </h2>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -264,15 +409,36 @@
                             </div>
                             
                             <div class="col-span-1 md:col-span-2">
-                                <label class="block text-sm font-medium mb-2">Team Members</label>
-                                <input type="text" id="team" class="form-input" placeholder="Names/Emails separated by comma">
+                                <label class="block text-sm font-medium mb-3">Team Members</label>
+                                <div id="teamMembersContainer" class="space-y-3">
+                                    <div class="team-member-row flex gap-3 items-start">
+                                        <div class="flex-1">
+                                            <input type="text" class="form-input team-member-name" placeholder="Full Name">
+                                        </div>
+                                        <div class="flex-1">
+                                            <input type="email" class="form-input team-member-email" placeholder="Email Address">
+                                        </div>
+                                        <button type="button" onclick="removeTeamMember(this)" class="mt-0 w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-lg bg-red-50 dark:bg-red-900/20 text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 hover:text-red-600 transition opacity-0 pointer-events-none">
+                                            <i class="fas fa-times text-sm"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <button type="button" onclick="addTeamMember()" class="mt-3 flex items-center gap-2 text-sm font-medium text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 transition">
+                                    <div class="w-6 h-6 rounded-full border-2 border-brand-400 flex items-center justify-center">
+                                        <i class="fas fa-plus text-xs"></i>
+                                    </div>
+                                    Add another member
+                                </button>
                             </div>
                         </div>
                     </div>
 
-                    <div class="glass-panel p-6 sm:p-8 rounded-2xl shadow-sm">
-                        <h2 class="text-lg font-bold mb-6 text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-700 pb-2">
-                            2. Problem & Solution
+                    <div class="glass-panel p-6 sm:p-8 rounded-2xl shadow-lg border-2 border-ocean-100 dark:border-ocean-900/50">
+                        <h2 class="text-lg font-bold mb-6 text-ocean-700 dark:text-ocean-400 border-b border-slate-100 dark:border-slate-700 pb-3 flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-lg bg-ocean-100 dark:bg-ocean-900 flex items-center justify-center">
+                                <span class="text-ocean-600 dark:text-ocean-400 font-bold">2</span>
+                            </div>
+                            <span id="section2Title">Problem & Solution</span>
                         </h2>
 
                         <div class="space-y-6">
@@ -284,7 +450,7 @@
 
                             <div>
                                 <label class="block text-sm font-medium mb-2">Proposed Solution</label>
-                                <p class="text-xs text-slate-500 mb-2">How does your idea solve this problem creatively?<br>Feel free to do it with any method.</p>
+                                <p class="text-xs text-slate-500 mb-2">What have you tried? How do you think this could be solved?</p>
                                 <textarea id="solution" rows="4" class="form-input" placeholder="Describe your innovation..."></textarea>
                             </div>
 
@@ -301,50 +467,65 @@
                         </div>
                     </div>
 
-                    <div class="glass-panel p-6 sm:p-8 rounded-2xl shadow-sm">
-                        <h2 class="text-lg font-bold mb-6 text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-700 pb-2">
-                            3. Logistics & Support
+                    <div class="glass-panel p-6 sm:p-8 rounded-2xl shadow-lg border-2 border-fresh-100 dark:border-fresh-900/50">
+                        <h2 class="text-lg font-bold mb-6 text-fresh-700 dark:text-fresh-400 border-b border-slate-100 dark:border-slate-700 pb-3 flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-lg bg-fresh-100 dark:bg-fresh-900 flex items-center justify-center">
+                                <span class="text-fresh-600 dark:text-fresh-400 font-bold">3</span>
+                            </div>
+                            <span>Logistics & Support</span>
                         </h2>
 
                         <div class="mb-6">
-                            <label class="block text-sm font-medium mb-3">Support Needed (Select all that apply)</label>
-                            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                <label class="cursor-pointer">
-                                    <input type="checkbox" name="support" value="Mentorship" class="hidden peer">
-                                    <div class="checkbox-card p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-center text-sm font-medium text-slate-600 dark:text-slate-400 peer-checked:ring-1 peer-checked:ring-brand-500">
+                            <label class="block text-sm font-medium mb-3">Support Needed <span class="text-xs text-slate-400 font-normal">(Select all that apply)</span></label>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-3" id="supportCheckboxGrid">
+                                <label class="cursor-pointer support-option">
+                                    <input type="checkbox" name="support" value="Mentorship" id="sup_mentorship" class="hidden peer" onchange="handleSupportChange(this)">
+                                    <div class="checkbox-card p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-center text-sm font-medium text-slate-600 dark:text-slate-400 peer-checked:ring-2 peer-checked:ring-brand-500 peer-checked:bg-brand-50 dark:peer-checked:bg-brand-900/30 peer-checked:text-brand-700 dark:peer-checked:text-brand-300 peer-checked:border-brand-400">
                                         <i class="fas fa-user-graduate mb-1 block text-lg"></i> Mentorship
                                     </div>
                                 </label>
-                                <label class="cursor-pointer">
-                                    <input type="checkbox" name="support" value="Funding" class="hidden peer">
-                                    <div class="checkbox-card p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-center text-sm font-medium text-slate-600 dark:text-slate-400 peer-checked:ring-1 peer-checked:ring-brand-500">
+                                <label class="cursor-pointer support-option">
+                                    <input type="checkbox" name="support" value="Funding" id="sup_funding" class="hidden peer" onchange="handleSupportChange(this)">
+                                    <div class="checkbox-card p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-center text-sm font-medium text-slate-600 dark:text-slate-400 peer-checked:ring-2 peer-checked:ring-brand-500 peer-checked:bg-brand-50 dark:peer-checked:bg-brand-900/30 peer-checked:text-brand-700 dark:peer-checked:text-brand-300 peer-checked:border-brand-400">
                                         <i class="fas fa-coins mb-1 block text-lg"></i> Funding
                                     </div>
                                 </label>
-                                <label class="cursor-pointer">
-                                    <input type="checkbox" name="support" value="Lab Access" class="hidden peer">
-                                    <div class="checkbox-card p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-center text-sm font-medium text-slate-600 dark:text-slate-400 peer-checked:ring-1 peer-checked:ring-brand-500">
+                                <label class="cursor-pointer support-option">
+                                    <input type="checkbox" name="support" value="Lab Access" id="sup_lab" class="hidden peer" onchange="handleSupportChange(this)">
+                                    <div class="checkbox-card p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-center text-sm font-medium text-slate-600 dark:text-slate-400 peer-checked:ring-2 peer-checked:ring-brand-500 peer-checked:bg-brand-50 dark:peer-checked:bg-brand-900/30 peer-checked:text-brand-700 dark:peer-checked:text-brand-300 peer-checked:border-brand-400">
                                         <i class="fas fa-microscope mb-1 block text-lg"></i> Lab Access
                                     </div>
                                 </label>
-                                <label class="cursor-pointer">
-                                    <input type="checkbox" name="support" value="Networking" class="hidden peer">
-                                    <div class="checkbox-card p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-center text-sm font-medium text-slate-600 dark:text-slate-400 peer-checked:ring-1 peer-checked:ring-brand-500">
+                                <label class="cursor-pointer support-option">
+                                    <input type="checkbox" name="support" value="Networking" id="sup_networking" class="hidden peer" onchange="handleSupportChange(this)">
+                                    <div class="checkbox-card p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-center text-sm font-medium text-slate-600 dark:text-slate-400 peer-checked:ring-2 peer-checked:ring-brand-500 peer-checked:bg-brand-50 dark:peer-checked:bg-brand-900/30 peer-checked:text-brand-700 dark:peer-checked:text-brand-300 peer-checked:border-brand-400">
                                         <i class="fas fa-network-wired mb-1 block text-lg"></i> Networking
                                     </div>
                                 </label>
-                                
-                                <label class="cursor-pointer">
-                                    <input type="checkbox" name="support" value="N/A" class="hidden peer">
-                                    <div class="checkbox-card p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-center text-sm font-medium text-slate-600 dark:text-slate-400 peer-checked:ring-1 peer-checked:ring-brand-500">
-                                        <i class="fas fa-ban mb-1 block text-lg"></i> N/A
+                                <label class="cursor-pointer support-option">
+                                    <input type="checkbox" name="support" value="Not Clear" id="sup_notclear" class="hidden peer" onchange="handleSupportChange(this)">
+                                    <div class="checkbox-card p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-center text-sm font-medium text-slate-600 dark:text-slate-400 peer-checked:ring-2 peer-checked:ring-brand-500 peer-checked:bg-brand-50 dark:peer-checked:bg-brand-900/30 peer-checked:text-brand-700 dark:peer-checked:text-brand-300 peer-checked:border-brand-400">
+                                        <i class="fas fa-question-circle mb-1 block text-lg"></i> Not Clear
                                     </div>
                                 </label>
-
-                                <label class="cursor-pointer">
-                                    <input type="checkbox" name="support" value="Other" id="supportOtherCheckbox" class="hidden peer">
-                                    <div class="checkbox-card p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-center text-sm font-medium text-slate-600 dark:text-slate-400 peer-checked:ring-1 peer-checked:ring-brand-500">
+                                <label class="cursor-pointer support-option">
+                                    <input type="checkbox" name="support" value="Other" id="supportOtherCheckbox" class="hidden peer" onchange="handleSupportChange(this)">
+                                    <div class="checkbox-card p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-center text-sm font-medium text-slate-600 dark:text-slate-400 peer-checked:ring-2 peer-checked:ring-brand-500 peer-checked:bg-brand-50 dark:peer-checked:bg-brand-900/30 peer-checked:text-brand-700 dark:peer-checked:text-brand-300 peer-checked:border-brand-400">
                                         <i class="fas fa-plus mb-1 block text-lg"></i> Other
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- N/A as a separate exclusive option -->
+                            <div class="mt-3">
+                                <label class="cursor-pointer support-option block">
+                                    <input type="checkbox" name="support" value="N/A" id="sup_na" class="hidden peer" onchange="handleSupportChange(this)">
+                                    <div class="checkbox-card flex items-center gap-3 px-5 py-3 rounded-lg border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium text-slate-600 dark:text-slate-400 peer-checked:ring-2 peer-checked:ring-slate-400 peer-checked:bg-slate-50 dark:peer-checked:bg-slate-700 peer-checked:border-slate-400 peer-checked:text-slate-700 dark:peer-checked:text-slate-300 transition-all">
+                                        <i class="fas fa-ban text-slate-400 peer-checked:text-slate-600 text-lg"></i>
+                                        <div>
+                                            <span class="text-sm font-bold block">N/A — No Support Needed</span>
+                                            <span class="text-xs opacity-60">Selecting this will clear all other options</span>
+                                        </div>
                                     </div>
                                 </label>
                             </div>
@@ -362,7 +543,7 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i class="fas fa-link text-slate-400"></i>
                                 </div>
-                                <input type="url" id="projectLink" required 
+                                <input type="url" id="projectLink" 
                                     class="form-input pl-10 text-brand-600" 
                                     placeholder="https://docs.google.com/presentation/d/...">
                             </div>
@@ -371,7 +552,7 @@
                         <div class="flex items-start gap-3 p-4 bg-brand-50 dark:bg-brand-900/20 rounded-lg border border-brand-100 dark:border-brand-900/50">
                             <input type="checkbox" id="agreement" required class="mt-1 accent-brand-600">
                             <label for="agreement" class="text-xs text-slate-600 dark:text-slate-300">
-                                I verify that this idea is my original work. I agree to the Terms of Service and understand that Vigyanshaala may review this submission for safety and feasibility.
+                                I verify that this proposed solution is my original work. I agree to the Terms of Service and understand that Vigyanshaala may review this submission for safety and feasibility.
                             </label>
                         </div>
                     </div>
@@ -391,51 +572,211 @@
         </section>
 
         <section class="mb-16">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold text-slate-900 dark:text-white">
-                    <i class="fas fa-fire text-orange-500 mr-2"></i>
-                    Recent Ideas
-                </h2>
-                <a href="dashboard.html" class="text-sm text-brand-600 dark:text-brand-400 hover:underline font-medium">
-                    View All →
-                </a>
-            </div>
-            <div id="ideasContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Tab Navigation -->
+            <div class="flex justify-center mb-8">
+                <div class="bg-white dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 inline-flex shadow-sm">
+                    <button onclick="showHomeTab('overview')" id="overviewTab" class="home-tab-btn px-6 py-3 rounded-lg text-sm font-bold text-white bg-brand-600 transition">
+                        <i class="fas fa-home mr-2"></i>Overview
+                    </button>
+                    <button onclick="showHomeTab('challenges')" id="challengesTab" class="home-tab-btn px-6 py-3 rounded-lg text-sm font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition">
+                        <i class="fas fa-fire mr-2"></i>All Challenges
+                    </button>
+                    <button onclick="showHomeTab('leaderboard')" id="leaderboardTab" class="home-tab-btn px-6 py-3 rounded-lg text-sm font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition">
+                        <i class="fas fa-trophy mr-2"></i>Top Innovators
+                    </button>
                 </div>
-        </section>
-
-        <section>
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold text-slate-900 dark:text-white">
-                    <i class="fas fa-trophy text-spark-500 mr-2"></i>
-                    Top Innovators
-                </h2>
-                <a href="challenges-leaderboard.html" class="text-sm text-brand-600 dark:text-brand-400 hover:underline font-medium">
-                    Full Leaderboard →
-                </a>
             </div>
-            <div class="glass-panel rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
-                <div id="leaderboardContainer">
+
+            <!-- Overview Tab Content -->
+            <div id="overviewContent" class="tab-content">
+                <div class="mb-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                <i class="fas fa-fire text-orange-500"></i>
+                                Featured Challenges
+                            </h2>
+                            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Top problems that need your solution</p>
+                        </div>
+                        <button onclick="showHomeTab('challenges')" class="text-sm text-brand-600 dark:text-brand-400 hover:underline font-medium flex items-center gap-1">
+                            View All <i class="fas fa-arrow-right text-xs"></i>
+                        </button>
                     </div>
+                    <div id="ideasContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    </div>
+                </div>
+            </div>
+
+            <!-- All Challenges Tab Content -->
+            <div id="challengesContent" class="tab-content hidden">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-2">
+                        <i class="fas fa-fire text-orange-500"></i>
+                        All Community Challenges
+                    </h2>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Browse all open challenges and find problems to solve</p>
+                </div>
+
+                <!-- Filter Buttons -->
+                <div class="flex flex-wrap gap-2 mb-6">
+                    <button onclick="filterChallenges('all')" class="challenge-filter-btn active px-4 py-2 rounded-lg text-sm font-bold text-brand-600 bg-brand-50 dark:bg-brand-900/30 dark:text-brand-300 transition">
+                        All
+                    </button>
+                    <button onclick="filterChallenges('open')" class="challenge-filter-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition">
+                        <i class="fas fa-unlock mr-1"></i>Open
+                    </button>
+                    <button onclick="filterChallenges('Finance & Growth')" class="challenge-filter-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition">
+                        Finance & Growth
+                    </button>
+                    <button onclick="filterChallenges('Internal Systems & Operations')" class="challenge-filter-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition">
+                        Internal Systems
+                    </button>
+                    <button onclick="filterChallenges('Core Program & Research Innovation')" class="challenge-filter-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition">
+                        Research & Innovation
+                    </button>
+                    <button onclick="filterChallenges('Education & EdTech')" class="challenge-filter-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition">
+                        Education & EdTech
+                    </button>
+                </div>
+
+                <!-- Challenges Grid -->
+                <div id="allChallengesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                </div>
+            </div>
+
+            <!-- Leaderboard Tab Content -->
+            <div id="leaderboardContent" class="tab-content hidden">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-2">
+                        <i class="fas fa-trophy text-spark-500"></i>
+                        Top Innovators
+                    </h2>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">See who's leading the innovation race</p>
+                </div>
+
+                <div class="flex justify-center mb-6">
+                    <div class="bg-white dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-wrap justify-center shadow-sm">
+                        <button onclick="filterLeaderboard('All')" class="filter-btn active px-4 py-2 rounded-lg text-sm font-bold text-brand-600 bg-brand-50 dark:bg-brand-900/30 dark:text-brand-300 transition m-0.5">All</button>
+                        <button onclick="filterLeaderboard('Finance & Growth')" class="filter-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition m-0.5">Finance & Growth</button>
+                        <button onclick="filterLeaderboard('Internal Systems & Operations')" class="filter-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition m-0.5">Internal Systems & Operations</button>
+                        <button onclick="filterLeaderboard('Core Program & Research Innovation')" class="filter-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition m-0.5">Core Program & Research Innovation</button>
+                        <button onclick="filterLeaderboard('Education & EdTech')" class="filter-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition m-0.5">Education & EdTech</button>
+                    </div>
+                </div>
+
+                <div id="podium" class="flex items-end justify-center gap-4 sm:gap-8 mb-12 min-h-[280px]">
+                    
+                    <div class="podium-2 flex flex-col items-center opacity-0 transform translate-y-10">
+                        <div class="relative mb-2">
+                            <div class="w-16 h-16 rounded-full border-4 border-silver-400 overflow-hidden shadow-lg">
+                                <img id="p2-img" src="https://ui-avatars.com/api/?name=?" class="w-full h-full object-cover">
+                            </div>
+                            <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-silver-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full border border-white dark:border-slate-800">2nd</div>
+                        </div>
+                        <div class="text-center mb-2">
+                            <h3 id="p2-name" class="font-bold text-sm text-slate-700 dark:text-slate-200 max-w-[100px] truncate">...</h3>
+                            <p id="p2-pts" class="text-xs font-bold text-silver-500">0 pts</p>
+                        </div>
+                        <div class="w-20 sm:w-24 h-24 bg-gradient-to-b from-silver-300 to-silver-500 rounded-t-lg shadow-lg flex items-end justify-center pb-2">
+                            <i class="fas fa-medal text-white text-3xl opacity-50"></i>
+                        </div>
+                    </div>
+
+                    <div class="podium-1 flex flex-col items-center z-10 opacity-0 transform translate-y-10">
+                        <div class="relative mb-3">
+                            <i class="fas fa-crown text-gold-500 text-3xl absolute -top-6 left-1/2 transform -translate-x-1/2 drop-shadow-md animate-bounce"></i>
+                            <div class="w-24 h-24 rounded-full border-4 border-gold-400 overflow-hidden shadow-xl ring-4 ring-gold-400/20">
+                                <img id="p1-img" src="https://ui-avatars.com/api/?name=?" class="w-full h-full object-cover">
+                            </div>
+                            <div class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-gold-500 text-white text-xs font-bold px-3 py-1 rounded-full border-2 border-white dark:border-slate-800">1st</div>
+                        </div>
+                        <div class="text-center mb-3">
+                            <h3 id="p1-name" class="font-bold text-base text-slate-800 dark:text-white max-w-[120px] truncate">...</h3>
+                            <p id="p1-pts" class="text-sm font-bold text-gold-500">0 pts</p>
+                        </div>
+                        <div class="w-24 sm:w-28 h-32 bg-gradient-to-b from-gold-300 to-gold-500 rounded-t-lg shadow-xl flex items-end justify-center pb-3">
+                            <i class="fas fa-trophy text-white text-4xl opacity-80"></i>
+                        </div>
+                    </div>
+
+                    <div class="podium-3 flex flex-col items-center opacity-0 transform translate-y-10">
+                        <div class="relative mb-2">
+                            <div class="w-14 h-14 rounded-full border-4 border-bronze-400 overflow-hidden shadow-lg">
+                                <img id="p3-img" src="https://ui-avatars.com/api/?name=?" class="w-full h-full object-cover">
+                            </div>
+                            <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-bronze-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full border border-white dark:border-slate-800">3rd</div>
+                        </div>
+                        <div class="text-center mb-2">
+                            <h3 id="p3-name" class="font-bold text-xs text-slate-700 dark:text-slate-200 max-w-[90px] truncate">...</h3>
+                            <p id="p3-pts" class="text-xs font-bold text-bronze-500">0 pts</p>
+                        </div>
+                        <div class="w-18 sm:w-20 h-20 bg-gradient-to-b from-bronze-300 to-bronze-500 rounded-t-lg shadow-lg flex items-end justify-center pb-2">
+                            <i class="fas fa-medal text-white text-2xl opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                    <table class="w-full">
+                        <thead class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
+                            <tr>
+                                <th class="px-6 py-4 text-center text-xs font-bold uppercase text-slate-500 tracking-wider">Rank</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold uppercase text-slate-500 tracking-wider">Name</th>
+                                <th class="px-6 py-4 text-center text-xs font-bold uppercase text-slate-500 tracking-wider hidden sm:table-cell">Most Active Dept</th>
+                                <th class="px-6 py-4 text-center text-xs font-bold uppercase text-slate-500 tracking-wider hidden md:table-cell">Badges</th>
+                                <th class="px-6 py-4 text-right text-xs font-bold uppercase text-slate-500 tracking-wider">Points</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboardBody">
+                            </tbody>
+                    </table>
+                </div>
             </div>
         </section>
     </main>
 
+    <!-- Floating Submit Challenge Button (like chat widget) -->
+    <button id="floatingSubmitBtn" class="fixed right-6 bottom-24 z-40 bg-gradient-to-r from-brand-600 to-ocean-600 hover:from-brand-700 hover:to-ocean-700 text-white rounded-full shadow-2xl shadow-brand-500/30 p-4 transition-all duration-300 hover:scale-110 group flex items-center gap-3 pr-5">
+        <i class="fas fa-lightbulb text-xl animate-pulse"></i>
+        <span class="font-bold text-sm whitespace-nowrap">Propose or Solve</span>
+    </button>
+
+    <!-- Submit Challenge Modal -->
+    <div id="submitModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-4xl w-full my-8 max-h-[90vh] overflow-y-auto transform scale-95 opacity-0 transition-all duration-300" id="modalFormContent">
+            <div class="sticky top-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 px-6 py-4 flex items-center justify-between z-10">
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-ocean-500 flex items-center justify-center">
+                        <i class="fas fa-rocket text-white"></i>
+                    </div>
+                    Contribute to Innovation
+                </h2>
+                <button onclick="closeSubmitModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 sm:p-8" id="formContentArea">
+                <!-- Form will be moved here -->
+            </div>
+        </div>
+    </div>
+
     <div id="successModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/50 backdrop-blur-sm">
         <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-2xl text-center max-w-sm mx-4 transform scale-90 opacity-0 transition-all duration-300" id="modalContent">
-            <div class="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-check text-3xl text-green-500"></i>
+            <div class="w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <i class="fas fa-check text-4xl text-white"></i>
             </div>
-            <h3 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">Idea Submitted!</h3>
+            <h3 class="text-2xl font-bold text-slate-800 dark:text-white mb-2" id="successTitle">Success!</h3>
             
-            <div class="my-4 py-2 px-4 bg-brand-50 dark:bg-brand-900/20 rounded-lg border border-brand-100 dark:border-brand-900/50">
-                <p class="text-sm text-slate-600 dark:text-slate-300">Points Earned</p>
-                <p class="text-xl font-extrabold text-brand-600 dark:text-brand-400" id="pointsEarnedDisplay">+0 Pts</p>
+            <div class="my-4 py-3 px-4 bg-gradient-to-r from-brand-50 to-ocean-50 dark:from-brand-900/20 dark:to-ocean-900/20 rounded-xl border border-brand-200 dark:border-brand-900/50 shadow-sm">
+                <p class="text-xs text-slate-600 dark:text-slate-400 mb-1">Points Earned</p>
+                <p class="text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-brand-600 to-ocean-600" id="pointsEarnedDisplay">+0 Pts</p>
             </div>
 
-            <p class="text-slate-500 text-sm mb-6">Your concept has been securely recorded. Good luck on your innovation journey!</p>
-            <button onclick="window.location.reload()" class="w-full bg-brand-600 text-white py-2.5 rounded-lg font-bold hover:bg-brand-700 transition">
-                Continue
+            <p class="text-slate-600 dark:text-slate-400 text-sm mb-6" id="successMessage">Your contribution has been recorded!</p>
+            <button onclick="window.location.reload()" class="w-full bg-gradient-to-r from-brand-600 to-ocean-600 hover:from-brand-700 hover:to-ocean-700 text-white py-3 rounded-xl font-bold transition-all shadow-lg">
+                Continue Exploring
             </button>
         </div>
     </div>
@@ -471,6 +812,20 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // Pre-defined System Challenges
+        const systemChallenges = [
+            { id: 'sys1', title: "The 10x Constraint Challenge", description: "Improve an internal system by reducing cost by 70% OR increasing output by 3x without increasing headcount.", icon: "fa-rocket", color: "text-red-500", category: "Internal Systems & Operations", pointsReward: 150, status: "open", creatorName: "Vigyanshaala Team", isSystem: true },
+            { id: 'sys2', title: "Kill Our Process", description: "Pick one internal process, argue why it should be eliminated, and propose a radical redesign.", icon: "fa-skull", color: "text-slate-600", category: "Internal Systems & Operations", pointsReward: 150, status: "open", creatorName: "Vigyanshaala Team", isSystem: true },
+            { id: 'sys3', title: "Research-to-Reality Sprint", description: "Pick 1 academic paper/insight and convert it into a learning module, workshop prototype, or research tool.", icon: "fa-microscope", color: "text-blue-500", category: "Core Program & Research Innovation", pointsReward: 150, status: "open", creatorName: "Vigyanshaala Team", isSystem: true },
+            { id: 'sys4', title: "The Zero-Budget Innovation", description: "Launch a micro initiative using only existing resources that creates measurable impact.", icon: "fa-wallet", color: "text-green-500", category: "Finance & Growth", pointsReward: 150, status: "open", creatorName: "Vigyanshaala Team", isSystem: true },
+            { id: 'sys5', title: "Build an Asset in 30 Days", description: "Create a reusable framework, toolkit, training template, or data dashboard.", icon: "fa-cubes", color: "text-purple-500", category: "Education & EdTech", pointsReward: 150, status: "open", creatorName: "Vigyanshaala Team", isSystem: true },
+            { id: 'sys6', title: "The Future 2030 Simulation", description: "Answer: 'If Vigyanshaala becomes 100x bigger by 2030, what breaks?' Identify 5 system failures and propose solutions.", icon: "fa-globe", color: "text-indigo-500", category: "Core Program & Research Innovation", pointsReward: 150, status: "open", creatorName: "Vigyanshaala Team", isSystem: true },
+            { id: 'sys7', title: "Reverse Challenge", description: "Solve a specific leadership problem (e.g., Improve engagement by 40%, Reduce dropouts) in 48 hours with actionable steps.", icon: "fa-chess-king", color: "text-yellow-500", category: "Internal Systems & Operations", pointsReward: 150, status: "open", creatorName: "Vigyanshaala Team", isSystem: true },
+            { id: 'sys8', title: "Cross-Category Swap", description: "Pair with someone from a different category. Identify one friction point between departments and solve it jointly.", icon: "fa-handshake", color: "text-pink-500", category: "Internal Systems & Operations", pointsReward: 150, status: "open", creatorName: "Vigyanshaala Team", isSystem: true },
+            { id: 'sys9', title: "Build in Public", description: "Share weekly innovation logs, document your experiments, and publish an internal learning memo accessible to all.", icon: "fa-bullhorn", color: "text-orange-500", category: "Education & EdTech", pointsReward: 150, status: "open", creatorName: "Vigyanshaala Team", isSystem: true },
+            { id: 'sys10', title: "Impact Scoring Matrix Review", description: "Review current projects against the Impact Scoring Matrix and propose optimization strategies backed by data.", icon: "fa-chart-bar", color: "text-teal-500", category: "Core Program & Research Innovation", pointsReward: 150, status: "open", creatorName: "Vigyanshaala Team", isSystem: true }
+        ];
+
         // UI Elements
         const loginBtn = document.getElementById('loginBtn');
         const logoutBtn = document.getElementById('logoutBtn');
@@ -478,7 +833,6 @@
         const userName = document.getElementById('userName');
         const userAvatar = document.getElementById('userAvatar');
         const ideasContainer = document.getElementById('ideasContainer');
-        const leaderboardContainer = document.getElementById('leaderboardContainer');
         const submitForm = document.getElementById('ideaForm');
         const mainNavLinks = document.getElementById('mainNavLinks');
 
@@ -499,20 +853,78 @@
             }
         });
 
-        // Toggle "Other" Support Input
-        const supportOtherCheckbox = document.getElementById('supportOtherCheckbox');
+        // ── Support Checkboxes: N/A exclusive logic ──────────────────────
         const supportOtherContainer = document.getElementById('supportOtherContainer');
-        const supportOtherInput = document.getElementById('supportOtherInput');
+        const supportOtherInput     = document.getElementById('supportOtherInput');
+        const naCheckbox            = document.getElementById('sup_na');
 
-        supportOtherCheckbox.addEventListener('change', () => {
-            if (supportOtherCheckbox.checked) {
-                supportOtherContainer.classList.remove('hidden');
-                supportOtherInput.focus();
-            } else {
+        window.handleSupportChange = (changed) => {
+            if (changed.value === 'N/A' && changed.checked) {
+                // N/A selected: uncheck and visually disable every other support option
+                document.querySelectorAll('input[name="support"]').forEach(cb => {
+                    if (cb.value !== 'N/A') {
+                        cb.checked = false;
+                        cb.disabled = true;
+                        const lbl = cb.closest('label');
+                        lbl.classList.add('opacity-40', 'cursor-not-allowed');
+                        lbl.classList.remove('cursor-pointer');
+                    }
+                });
                 supportOtherContainer.classList.add('hidden');
-                supportOtherInput.value = ''; // Clear value if unchecked
+                supportOtherInput.value = '';
+            } else if (changed.value === 'N/A' && !changed.checked) {
+                // N/A deselected: re-enable all
+                document.querySelectorAll('input[name="support"]').forEach(cb => {
+                    cb.disabled = false;
+                    const lbl = cb.closest('label');
+                    lbl.classList.remove('opacity-40', 'cursor-not-allowed');
+                    lbl.classList.add('cursor-pointer');
+                });
+            } else {
+                // A regular option was toggled: auto-uncheck N/A if it was on
+                if (naCheckbox && naCheckbox.checked) {
+                    naCheckbox.checked = false;
+                    document.querySelectorAll('input[name="support"]').forEach(cb => {
+                        cb.disabled = false;
+                        const lbl = cb.closest('label');
+                        lbl.classList.remove('opacity-40', 'cursor-not-allowed');
+                        lbl.classList.add('cursor-pointer');
+                    });
+                }
+                // Show/hide the "Other" free-text box
+                const otherCb = document.getElementById('supportOtherCheckbox');
+                if (otherCb && otherCb.checked) {
+                    supportOtherContainer.classList.remove('hidden');
+                    supportOtherInput.focus();
+                } else {
+                    supportOtherContainer.classList.add('hidden');
+                    supportOtherInput.value = '';
+                }
             }
-        });
+        };
+
+        // ── Team Members: dynamic add/remove rows ─────────────────────────
+        window.addTeamMember = () => {
+            const container = document.getElementById('teamMembersContainer');
+            const row = document.createElement('div');
+            row.className = 'team-member-row flex gap-3 items-center animate-fade-in';
+            row.innerHTML = `
+                <div class="flex-1">
+                    <input type="text" class="form-input team-member-name" placeholder="Full Name">
+                </div>
+                <div class="flex-1">
+                    <input type="email" class="form-input team-member-email" placeholder="Email Address">
+                </div>
+                <button type="button" onclick="removeTeamMember(this)" class="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-lg bg-red-50 dark:bg-red-900/20 text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 hover:text-red-600 transition">
+                    <i class="fas fa-times text-sm"></i>
+                </button>
+            `;
+            container.appendChild(row);
+        };
+
+        window.removeTeamMember = (btn) => {
+            btn.closest('.team-member-row').remove();
+        };
 
         let currentUser = null;
         let currentSubmissionMode = 'new';
@@ -520,11 +932,14 @@
 
         // Category to DB Field Mapping
         const categoryFieldMap = {
+            "All": "points",
             "Finance & Growth": "points_finance",
             "Internal Systems & Operations": "points_systems",
             "Core Program & Research Innovation": "points_research",
             "Education & EdTech": "points_education"
         };
+        
+        let currentSortField = "points";
 
         // Auth State Listener
         onAuthStateChanged(auth, async (user) => {
@@ -585,17 +1000,28 @@
             currentSubmissionMode = mode;
             const btnChallenge = document.getElementById('btnChallenge');
             const btnNew = document.getElementById('btnNew');
-            const banner = document.getElementById('challengeBanner');
+            const challengeBanner = document.getElementById('challengeBanner');
+            const newChallengeBanner = document.getElementById('newChallengeBanner');
+            const section1Title = document.getElementById('section1Title');
+            const section2Title = document.getElementById('section2Title');
 
-            btnChallenge.classList.remove('mode-selected');
-            btnNew.classList.remove('mode-selected');
+            // Reset button styles
+            btnChallenge.classList.remove('border-ocean-500', 'bg-ocean-50', 'dark:bg-ocean-900/30', 'text-ocean-700', 'dark:text-ocean-300', 'shadow-lg');
+            btnNew.classList.remove('border-brand-500', 'bg-brand-50', 'dark:bg-brand-900/30', 'text-brand-700', 'dark:text-brand-300', 'shadow-lg');
+            
+            challengeBanner.classList.add('hidden');
+            newChallengeBanner.classList.add('hidden');
 
             if(mode === 'challenge') {
-                btnChallenge.classList.add('mode-selected');
-                if(currentChallengeId) banner.classList.remove('hidden');
+                btnChallenge.classList.add('border-ocean-500', 'bg-ocean-50', 'dark:bg-ocean-900/30', 'text-ocean-700', 'dark:text-ocean-300', 'shadow-lg');
+                if(currentChallengeId) challengeBanner.classList.remove('hidden');
+                section1Title.textContent = 'Your Solution Details';
+                section2Title.textContent = 'Your Proposed Solution';
             } else {
-                btnNew.classList.add('mode-selected');
-                banner.classList.add('hidden');
+                btnNew.classList.add('border-brand-500', 'bg-brand-50', 'dark:bg-brand-900/30', 'text-brand-700', 'dark:text-brand-300', 'shadow-lg');
+                newChallengeBanner.classList.remove('hidden');
+                section1Title.textContent = 'Challenge Overview';
+                section2Title.textContent = 'Problem Description';
             }
         };
 
@@ -654,7 +1080,15 @@
                 const solution = document.getElementById('solution').value; 
                 const impact = document.getElementById('impact').value;
                 const plan = document.getElementById('plan').value;
-                const team = document.getElementById('team').value;
+                // Collect team members (name + email pairs)
+                const teamRows = document.querySelectorAll('.team-member-row');
+                const teamMembers = [];
+                teamRows.forEach(row => {
+                    const name  = row.querySelector('.team-member-name')?.value?.trim();
+                    const email = row.querySelector('.team-member-email')?.value?.trim();
+                    if (name || email) teamMembers.push({ name: name || '', email: email || '' });
+                });
+                const team = teamMembers.map(m => `${m.name} <${m.email}>`).join(', ');
                 const projectLink = document.getElementById('projectLink').value;
                 
                 // Logic to handle Support needed (with "Other" text replacement)
@@ -671,6 +1105,26 @@
                 // Determine the specific points field to increment (undefined if 'Other')
                 const specificPointsField = categoryFieldMap[selectedCategory];
                 
+                // If submitting a NEW CHALLENGE, create it in userChallenges collection
+                if (currentSubmissionMode === 'new') {
+                    const challengeData = {
+                        creatorId: currentUser.uid,
+                        creatorName: currentUser.displayName || 'Anonymous',
+                        creatorEmail: currentUser.email,
+                        category: finalCategory,
+                        title: title,
+                        description: problem,
+                        impact: impact,
+                        status: 'open',
+                        solutionCount: 0,
+                        timestamp: serverTimestamp(),
+                        pointsReward: 100
+                    };
+                    
+                    const challengeRef = await addDoc(collection(db, "userChallenges"), challengeData);
+                    console.log("User challenge created with ID:", challengeRef.id);
+                }
+                
                 const ideaData = {
                     userId: currentUser.uid,
                     userName: currentUser.displayName || 'Anonymous',
@@ -682,6 +1136,7 @@
                     impact: impact,
                     plan: plan,
                     team: team,
+                    teamMembers: teamMembers,
                     supportNeeded: support,
                     fileUrl: projectLink,
                     status: "New",
@@ -726,8 +1181,19 @@
             const modal = document.getElementById('successModal');
             const content = document.getElementById('modalContent');
             const ptsDisplay = document.getElementById('pointsEarnedDisplay');
+            const successTitle = document.getElementById('successTitle');
+            const successMessage = document.getElementById('successMessage');
             
             ptsDisplay.textContent = `+${points} Pts`;
+            
+            if (currentSubmissionMode === 'new') {
+                successTitle.textContent = 'Challenge Proposed!';
+                successMessage.textContent = 'Your challenge is now available for the community to solve. Watch as innovators tackle your problem!';
+            } else {
+                successTitle.textContent = 'Solution Submitted!';
+                successMessage.textContent = 'Your solution has been recorded. The challenge creator will review your innovative approach!';
+            }
+            
             modal.classList.remove('hidden');
             setTimeout(() => {
                 content.classList.remove('scale-90', 'opacity-0');
@@ -735,92 +1201,399 @@
             }, 10);
         }
 
-        // Fetch Ideas
+        // Helper function to create challenge card HTML
+        function createChallengeCard(challengeData, docId) {
+            const data = challengeData;
+            const id = docId || data.id;
+            const isSystem = data.isSystem || false;
+            
+            const statusConfig = {
+                'open': { color: 'bg-fresh-100 text-fresh-700 dark:bg-fresh-900/30 dark:text-fresh-400', icon: 'fa-unlock', text: 'Open' },
+                'in_progress': { color: 'bg-ocean-100 text-ocean-700 dark:bg-ocean-900/30 dark:text-ocean-400', icon: 'fa-spinner', text: 'In Progress' },
+                'closed': { color: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400', icon: 'fa-lock', text: 'Closed' }
+            };
+            const config = statusConfig[data.status] || statusConfig['open'];
+
+            // Add special styling for system challenges
+            const systemBadge = isSystem ? `<span class="px-2 py-1 rounded-full text-[9px] font-bold bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 dark:from-purple-900/30 dark:to-pink-900/30 dark:text-purple-400 border border-purple-200 dark:border-purple-800">
+                <i class="fas fa-star mr-1"></i>Official
+            </span>` : '';
+
+            const iconHTML = data.icon ? `<i class="fas ${data.icon} ${data.color || 'text-brand-600'}"></i>` : `<i class="fas fa-lightbulb"></i>`;
+
+            return `
+                <div class="challenge-card glass-panel p-6 rounded-2xl border-2 ${isSystem ? 'border-purple-200 dark:border-purple-800' : 'border-slate-200 dark:border-slate-700'} hover:border-brand-400 dark:hover:border-brand-600 cursor-pointer group" onclick="acceptChallenge('${id}', '${data.title.replace(/'/g, "\\'")}', '${(data.description || '').replace(/'/g, "\\'")}')">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="text-xs font-bold uppercase text-brand-600 dark:text-brand-400 flex items-center gap-2">
+                            ${iconHTML}
+                            ${data.category || 'General'}
+                        </span>
+                        <div class="flex items-center gap-2">
+                            ${systemBadge}
+                            <span class="px-3 py-1 rounded-full text-[10px] font-bold ${config.color} flex items-center gap-1">
+                                <i class="fas ${config.icon}"></i> ${config.text}
+                            </span>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition">${data.title || 'Untitled Challenge'}</h3>
+                    <p class="text-slate-600 dark:text-slate-300 text-sm line-clamp-2 mb-4">${data.description || 'No description'}</p>
+                    <div class="flex items-center justify-between text-xs text-slate-400">
+                        <div class="flex items-center gap-2">
+                            <i class="far fa-user"></i>
+                            <span>${data.creatorName || 'Anonymous'}</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="flex items-center gap-1">
+                                <i class="fas fa-trophy text-spark-400"></i>
+                                <span class="font-bold text-spark-600 dark:text-spark-400">${data.pointsReward || 100} pts</span>
+                            </span>
+                            ${data.timestamp ? `<span class="flex items-center gap-1">
+                                <i class="far fa-clock"></i>
+                                ${new Date(data.timestamp.toDate()).toLocaleDateString()}
+                            </span>` : ''}
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                        <button class="w-full bg-gradient-to-r from-brand-600 to-ocean-600 hover:from-brand-700 hover:to-ocean-700 text-white py-2 px-4 rounded-lg font-bold text-sm transition-all transform group-hover:scale-105 flex items-center justify-center gap-2">
+                            <i class="fas fa-rocket"></i>
+                            <span>Accept Challenge</span>
+                        </button>
+                    </div>
+                </div>`;
+        }
+
+        // Fetch User-Submitted Challenges (for Overview Tab)
         async function fetchIdeas() {
             try {
-                const q = query(collection(db, "ideas"), orderBy("timestamp", "desc"), limit(6));
+                const container = document.getElementById('ideasContainer');
+                container.innerHTML = "";
+
+                // System Challenges Header
+                container.innerHTML += `
+                    <div class="col-span-full mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                                <i class="fas fa-star text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Official Challenges</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Curated by Vigyanshaala Team</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Add system challenges (show 3)
+                systemChallenges.slice(0, 3).forEach(challenge => {
+                    container.innerHTML += createChallengeCard(challenge, challenge.id);
+                });
+
+                // Fetch user challenges
+                const q = query(collection(db, "userChallenges"), orderBy("timestamp", "desc"), limit(3));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    // Community Challenges Header
+                    container.innerHTML += `
+                        <div class="col-span-full mt-8 mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-brand-500 to-ocean-500 flex items-center justify-center">
+                                    <i class="fas fa-users text-white"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-slate-800 dark:text-white">Community Challenges</h3>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400">Proposed by the community</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    querySnapshot.forEach((doc) => {
+                        container.innerHTML += createChallengeCard(doc.data(), doc.id);
+                    });
+                }
+
+                if (container.innerHTML === "") {
+                    container.innerHTML = `<div class="col-span-full p-8 text-center text-slate-500 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
+                        <i class="fas fa-inbox text-4xl mb-3 text-slate-300"></i>
+                        <p>No challenges available yet. Be the first to propose a challenge!</p>
+                    </div>`;
+                }
+            } catch (error) {
+                console.error("Error fetching challenges:", error);
+            }
+        }
+        
+        // Handle accepting a challenge
+        window.acceptChallenge = (challengeId, title, description) => {
+            window.location.href = `index.html?mode=challenge&id=${challengeId}&title=${encodeURIComponent(title)}&theme=${encodeURIComponent(description)}#submitSection`;
+        };
+
+        // LEADERBOARD with Filtering
+        window.filterLeaderboard = (dept) => {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.innerText === dept) {
+                    btn.classList.add('active', 'bg-brand-50', 'text-brand-600', 'dark:bg-brand-900/30', 'dark:text-brand-300');
+                    btn.classList.remove('text-slate-500');
+                } else {
+                    btn.classList.remove('active', 'bg-brand-50', 'text-brand-600', 'dark:bg-brand-900/30', 'dark:text-brand-300');
+                    btn.classList.add('text-slate-500');
+                }
+            });
+            fetchLeaderboard(dept);
+        };
+
+        async function fetchLeaderboard(category = 'All') {
+            const tbody = document.getElementById('leaderboardBody');
+            
+            // Map the selected category name to the Firestore field
+            currentSortField = categoryFieldMap[category] || "points";
+
+            try {
+                const usersRef = collection(db, "users");
+                const q = query(usersRef, orderBy(currentSortField, "desc"), limit(50));
+
+                const snapshot = await getDocs(q);
+                const users = [];
+                snapshot.forEach(doc => {
+                    const userData = doc.data();
+                    if (userData[currentSortField] > 0 || category === 'All') {
+                        users.push({ id: doc.id, ...userData });
+                    }
+                });
+
+                tbody.innerHTML = "";
+                resetPodium();
+
+                if (users.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500">No data found for this category.</td></tr>`;
+                    return;
+                }
+
+                // Update Podium
+                if (users[0]) updatePodiumItem('1', users[0]);
+                if (users[1]) updatePodiumItem('2', users[1]);
+                if (users[2]) updatePodiumItem('3', users[2]);
+
+                // Render Rows
+                users.forEach((user, index) => {
+                    renderRow(user, index + 1);
+                });
+
+            } catch (error) {
+                console.error("Error:", error);
+                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500">Error: ${error.message} <br><span class="text-xs text-slate-400">Make sure Firestore indexes are created for '${currentSortField}'</span></td></tr>`;
+            }
+        }
+
+        function updatePodiumItem(rank, user) {
+            document.getElementById(`p${rank}-name`).textContent = user.name || 'Anonymous';
+            
+            // Display specific points based on filter
+            const pts = user[currentSortField] || 0;
+            document.getElementById(`p${rank}-pts`).textContent = `${pts} pts`;
+            
+            const img = user.photoURL || `https://ui-avatars.com/api/?name=${user.name}&background=random`;
+            document.getElementById(`p${rank}-img`).src = img;
+        }
+
+        function resetPodium() {
+            ['1','2','3'].forEach(r => {
+                document.getElementById(`p${r}-name`).textContent = '...';
+                document.getElementById(`p${r}-pts`).textContent = '0 pts';
+                document.getElementById(`p${r}-img`).src = 'https://ui-avatars.com/api/?name=?';
+            });
+        }
+
+        function renderRow(user, rank) {
+            const tbody = document.getElementById('leaderboardBody');
+            
+            // Display specific points based on filter
+            const pts = user[currentSortField] || 0;
+
+            let rankIcon = `<span class="font-bold text-slate-500">#${rank}</span>`;
+            if (rank === 1) rankIcon = `<i class="fas fa-medal text-gold-500 text-lg"></i>`;
+            if (rank === 2) rankIcon = `<i class="fas fa-medal text-silver-500 text-lg"></i>`;
+            if (rank === 3) rankIcon = `<i class="fas fa-medal text-bronze-500 text-lg"></i>`;
+
+            let badgesHTML = '';
+            if (user.badges && Array.isArray(user.badges)) {
+                badgesHTML = user.badges.slice(0,3).map(b => `<i class="fas fa-certificate text-brand-400" title="${b}"></i>`).join(' ');
+            }
+
+            const tr = `
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition border-b border-slate-50 dark:border-slate-800/50">
+                    <td class="px-6 py-4 text-center">${rankIcon}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <img src="${user.photoURL || `https://ui-avatars.com/api/?name=${user.name}`}" class="w-8 h-8 rounded-full">
+                            <span class="font-bold text-slate-700 dark:text-slate-200">${user.name || 'Anonymous'}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-center hidden sm:table-cell">
+                        <span class="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-slate-500">${user.category || 'N/A'}</span>
+                    </td>
+                    <td class="px-6 py-4 text-center text-xs hidden md:table-cell">${badgesHTML}</td>
+                    <td class="px-6 py-4 text-right font-bold text-brand-600 dark:text-brand-400">${pts}</td>
+                </tr>
+            `;
+            tbody.innerHTML += tr;
+        }
+
+        // Tab Switching Function
+        window.showHomeTab = (tab) => {
+            const tabs = ['overview', 'challenges', 'leaderboard'];
+            const tabButtons = {
+                'overview': document.getElementById('overviewTab'),
+                'challenges': document.getElementById('challengesTab'),
+                'leaderboard': document.getElementById('leaderboardTab')
+            };
+            const tabContents = {
+                'overview': document.getElementById('overviewContent'),
+                'challenges': document.getElementById('challengesContent'),
+                'leaderboard': document.getElementById('leaderboardContent')
+            };
+
+            // Hide all contents and deactivate all buttons
+            tabs.forEach(t => {
+                tabContents[t].classList.add('hidden');
+                tabButtons[t].classList.remove('bg-brand-600', 'text-white');
+                tabButtons[t].classList.add('text-slate-500');
+            });
+
+            // Show selected content and activate button
+            tabContents[tab].classList.remove('hidden');
+            tabButtons[tab].classList.add('bg-brand-600', 'text-white');
+            tabButtons[tab].classList.remove('text-slate-500');
+
+            // Load data if needed
+            if (tab === 'challenges') {
+                fetchAllChallenges();
+            } else if (tab === 'leaderboard') {
+                fetchLeaderboard('All');
+            }
+        };
+
+        // Fetch All Challenges Function
+        let currentChallengeFilter = 'all';
+        
+        async function fetchAllChallenges(filter = 'all') {
+            try {
+                const container = document.getElementById('allChallengesContainer');
+                container.innerHTML = "";
+
+                let systemChallengesFiltered = [];
+                let userChallengesArray = [];
+
+                // Filter system challenges
+                if (filter === 'all' || filter === 'open') {
+                    systemChallengesFiltered = systemChallenges;
+                } else {
+                    // Category filter
+                    systemChallengesFiltered = systemChallenges.filter(c => c.category === filter);
+                }
+
+                // Fetch user challenges from Firestore
+                let q;
+                const challengesRef = collection(db, "userChallenges");
+                
+                if (filter === 'all') {
+                    q = query(challengesRef, orderBy("timestamp", "desc"), limit(50));
+                } else if (filter === 'open') {
+                    q = query(challengesRef, where("status", "==", "open"), orderBy("timestamp", "desc"), limit(50));
+                } else {
+                    // Category filter
+                    q = query(challengesRef, where("category", "==", filter), orderBy("timestamp", "desc"), limit(50));
+                }
+                
                 const querySnapshot = await getDocs(q);
                 
-                ideasContainer.innerHTML = "";
+                // Add user challenges to array
+                querySnapshot.forEach((doc) => {
+                    userChallengesArray.push({
+                        ...doc.data(),
+                        id: doc.id,
+                        isSystem: false
+                    });
+                });
 
-                if (querySnapshot.empty) {
-                    ideasContainer.innerHTML = `<div class="col-span-full p-8 text-center text-slate-500 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
+                // Check if both are empty
+                if (systemChallengesFiltered.length === 0 && userChallengesArray.length === 0) {
+                    container.innerHTML = `<div class="col-span-full p-8 text-center text-slate-500 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
                         <i class="fas fa-inbox text-4xl mb-3 text-slate-300"></i>
-                        <p>No ideas submitted yet. Be the first!</p>
+                        <p>No challenges found for this filter.</p>
                     </div>`;
                     return;
                 }
 
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    const statusConfig = {
-                        'New': { color: 'bg-fresh-100 text-fresh-700', icon: 'fa-star' },
-                        'Approved': { color: 'bg-brand-100 text-brand-700', icon: 'fa-check' },
-                        'Rejected': { color: 'bg-red-100 text-red-700', icon: 'fa-times' }
-                    };
-                    const config = statusConfig[data.status] || statusConfig['New'];
-
-                    const card = `
-                        <div class="glass-panel p-6 rounded-xl card-hover border border-slate-200 dark:border-slate-700">
-                            <div class="flex justify-between items-start mb-3">
-                                <span class="text-xs font-bold uppercase text-brand-600 dark:text-brand-400">${data.category || 'General'}</span>
-                                <span class="px-2 py-1 rounded-full text-[10px] font-bold ${config.color}">
-                                    <i class="fas ${config.icon}"></i> ${data.status || 'New'}
-                                </span>
+                // Render System Challenges Section
+                if (systemChallengesFiltered.length > 0) {
+                    container.innerHTML += `
+                        <div class="col-span-full mb-4">
+                            <div class="flex items-center gap-3 p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border border-purple-200 dark:border-purple-800">
+                                <div class="flex-shrink-0 w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
+                                    <i class="fas fa-star text-white text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-slate-800 dark:text-white">Official Challenges</h3>
+                                    <p class="text-xs text-slate-600 dark:text-slate-400">Curated by Vigyanshaala Team • ${systemChallengesFiltered.length} challenge${systemChallengesFiltered.length !== 1 ? 's' : ''}</p>
+                                </div>
                             </div>
-                            <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2">${data.title || 'Untitled'}</h3>
-                            <p class="text-slate-600 dark:text-slate-300 text-sm line-clamp-2 mb-4">${data.problem || 'No description'}</p>
-                            <div class="text-xs text-slate-400 flex items-center gap-2">
-                                <i class="far fa-clock"></i>
-                                <span>${data.timestamp ? new Date(data.timestamp.toDate()).toLocaleDateString() : 'Just now'}</span>
-                            </div>
-                        </div>`;
-                    ideasContainer.innerHTML += card;
-                });
-            } catch (error) {
-                console.error("Error fetching ideas:", error);
-            }
-        }
+                        </div>
+                    `;
 
-        // Fetch Leaderboard
-        async function fetchLeaderboard() {
-            try {
-                const q = query(collection(db, "users"), orderBy("points", "desc"), limit(5));
-                const querySnapshot = await getDocs(q);
-
-                let html = "";
-                let rank = 1;
-
-                if (querySnapshot.empty) {
-                    leaderboardContainer.innerHTML = '<div class="p-4 text-center text-sm text-slate-500">No rankings yet.</div>';
-                    return;
+                    systemChallengesFiltered.forEach((challengeData) => {
+                        container.innerHTML += createChallengeCard(challengeData, challengeData.id);
+                    });
                 }
 
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    let rankIcon = `<span class="text-slate-400 font-bold text-sm w-6">#${rank}</span>`;
-                    if (rank === 1) rankIcon = `<i class="fas fa-trophy text-spark-400 text-lg w-6"></i>`;
-                    if (rank === 2) rankIcon = `<i class="fas fa-medal text-slate-400 text-lg w-6"></i>`;
-                    if (rank === 3) rankIcon = `<i class="fas fa-medal text-orange-400 text-lg w-6"></i>`;
-                    
-                    html += `
-                        <div class="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
-                            <div class="flex items-center gap-3">
-                                ${rankIcon}
-                                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-brand-400 to-ocean-500 flex items-center justify-center text-xs font-bold text-white">
-                                    ${data.name ? data.name.charAt(0) : 'U'}
+                // Render Community Challenges Section
+                if (userChallengesArray.length > 0) {
+                    container.innerHTML += `
+                        <div class="col-span-full ${systemChallengesFiltered.length > 0 ? 'mt-8' : ''} mb-4">
+                            <div class="flex items-center gap-3 p-4 bg-gradient-to-r from-brand-50 to-ocean-50 dark:from-brand-900/20 dark:to-ocean-900/20 rounded-xl border border-brand-200 dark:border-brand-800">
+                                <div class="flex-shrink-0 w-12 h-12 rounded-lg bg-gradient-to-br from-brand-500 to-ocean-500 flex items-center justify-center shadow-lg">
+                                    <i class="fas fa-users text-white text-xl"></i>
                                 </div>
-                                <span class="font-medium text-sm text-slate-700 dark:text-slate-200">${data.name || 'Anonymous'}</span>
+                                <div>
+                                    <h3 class="text-lg font-bold text-slate-800 dark:text-white">Community Challenges</h3>
+                                    <p class="text-xs text-slate-600 dark:text-slate-400">Proposed by the community • ${userChallengesArray.length} challenge${userChallengesArray.length !== 1 ? 's' : ''}</p>
+                                </div>
                             </div>
-                            <span class="font-bold text-brand-600 dark:text-brand-400 text-sm">${data.points || 0} pts</span>
-                        </div>`;
-                    rank++;
-                });
-                leaderboardContainer.innerHTML = html;
+                        </div>
+                    `;
+
+                    userChallengesArray.forEach((challengeData) => {
+                        container.innerHTML += createChallengeCard(challengeData, challengeData.id);
+                    });
+                }
+
             } catch (error) {
-                console.error("Error fetching leaderboard:", error);
+                console.error("Error fetching all challenges:", error);
+                document.getElementById('allChallengesContainer').innerHTML = `<div class="col-span-full p-8 text-center text-red-500">
+                    <i class="fas fa-exclamation-triangle text-4xl mb-3"></i>
+                    <p>Error loading challenges. Please try again.</p>
+                </div>`;
             }
         }
+
+        // Challenge Filter Function
+        window.filterChallenges = (filter) => {
+            currentChallengeFilter = filter;
+            
+            document.querySelectorAll('.challenge-filter-btn').forEach(btn => {
+                if (btn.innerText.includes(filter) || (filter === 'all' && btn.innerText === 'All') || (filter === 'open' && btn.innerText.includes('Open'))) {
+                    btn.classList.add('active', 'bg-brand-50', 'text-brand-600', 'dark:bg-brand-900/30', 'dark:text-brand-300', 'font-bold');
+                    btn.classList.remove('text-slate-500', 'font-medium');
+                } else {
+                    btn.classList.remove('active', 'bg-brand-50', 'text-brand-600', 'dark:bg-brand-900/30', 'dark:text-brand-300', 'font-bold');
+                    btn.classList.add('text-slate-500', 'font-medium');
+                }
+            });
+            
+            fetchAllChallenges(filter);
+        };
+
 
         function renderLockedState() {
             ideasContainer.innerHTML = `
@@ -829,13 +1602,24 @@
                         <i class="fas fa-lock text-2xl text-slate-400"></i>
                     </div>
                     <h3 class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-2">Login Required</h3>
-                    <p class="text-slate-500 text-sm">Login to view ideas and collaborate with peers.</p>
+                    <p class="text-slate-500 text-sm">Login to view challenges and collaborate with peers.</p>
                 </div>`;
-            leaderboardContainer.innerHTML = `
-                <div class="p-8 text-center text-slate-500 text-sm">
+            
+            document.getElementById('allChallengesContainer').innerHTML = `
+                <div class="col-span-full glass-panel p-10 rounded-2xl text-center border-dashed border-2 border-slate-300 dark:border-slate-700">
+                    <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-lock text-2xl text-slate-400"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-2">Login Required</h3>
+                    <p class="text-slate-500 text-sm">Login to view all challenges.</p>
+                </div>`;
+            
+            document.getElementById('leaderboardBody').innerHTML = `
+                <tr><td colspan="5" class="p-8 text-center text-slate-500 text-sm">
                     <i class="fas fa-lock mb-3 block text-2xl text-slate-300"></i>
                     <p>Login to see rankings</p>
-                </div>`;
+                </td></tr>`;
+            resetPodium();
         }
 
         // Theme Toggle
@@ -847,6 +1631,44 @@
         themeToggle.addEventListener('click', () => {
             html.classList.toggle('dark');
             localStorage.theme = html.classList.contains('dark') ? 'dark' : 'light';
+        });
+
+        // Floating Submit Button & Modal Handling
+        const floatingBtn = document.getElementById('floatingSubmitBtn');
+        const submitModal = document.getElementById('submitModal');
+        const modalFormContent = document.getElementById('modalFormContent');
+        const formContentArea = document.getElementById('formContentArea');
+        const submitSection = document.getElementById('submitSection');
+        
+        // Move form content to modal on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            const formContent = submitSection.innerHTML;
+            formContentArea.innerHTML = formContent;
+        });
+
+        // Open modal when floating button clicked
+        floatingBtn.addEventListener('click', () => {
+            submitModal.classList.remove('hidden');
+            setTimeout(() => {
+                modalFormContent.classList.remove('scale-95', 'opacity-0');
+                modalFormContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        });
+
+        // Close modal function
+        window.closeSubmitModal = () => {
+            modalFormContent.classList.add('scale-95', 'opacity-0');
+            modalFormContent.classList.remove('scale-100', 'opacity-100');
+            setTimeout(() => {
+                submitModal.classList.add('hidden');
+            }, 300);
+        };
+
+        // Close modal when clicking outside
+        submitModal.addEventListener('click', (e) => {
+            if (e.target === submitModal) {
+                closeSubmitModal();
+            }
         });
     </script>
 </body>

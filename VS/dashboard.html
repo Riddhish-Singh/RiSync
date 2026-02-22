@@ -68,8 +68,7 @@
                     
                     <div id="mainNavLinks" class="hidden md:ml-10 md:flex md:space-x-8 text-sm font-medium items-center">
                         <a href="index.html" class="text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-300 transition">Home</a>
-                        <a href="challenges-leaderboard.html" class="text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-300 transition">Challenges & Leaderboard</a>
-                        <a href="dashboard.html" class="text-brand-700 dark:text-brand-300 border-b-2 border-brand-500">Dashboard & My Ideas</a>
+                        <a href="dashboard.html" class="text-brand-700 dark:text-brand-300 border-b-2 border-brand-500">My Dashboard</a>
                     </div>
                 </div>
 
@@ -96,20 +95,20 @@
         <!-- TAB SWITCHER -->
         <div class="flex justify-center mb-8">
             <div class="bg-white dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 inline-flex shadow-sm">
-                <button onclick="showTab('dashboard')" id="dashboardTab" class="tab-btn px-6 py-3 rounded-lg text-sm font-bold text-white bg-brand-600 transition">
-                    <i class="fas fa-chart-pie mr-2"></i>Dashboard
+                <button onclick="showTab('challenges')" id="challengesTab" class="tab-btn px-6 py-3 rounded-lg text-sm font-bold text-white bg-brand-600 transition">
+                    <i class="fas fa-trophy mr-2"></i>My Challenges
                 </button>
-                <button onclick="showTab('myideas')" id="myideasTab" class="tab-btn px-6 py-3 rounded-lg text-sm font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition">
-                    <i class="fas fa-folder-open mr-2"></i>My Ideas
+                <button onclick="showTab('solutions')" id="solutionsTab" class="tab-btn px-6 py-3 rounded-lg text-sm font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition">
+                    <i class="fas fa-lightbulb mr-2"></i>My Solutions
                 </button>
             </div>
         </div>
 
-        <!-- DASHBOARD SECTION -->
-        <div id="dashboardSection">
+        <!-- MY CHALLENGES SECTION -->
+        <div id="challengesSection">
             <div class="mb-6">
-                <h1 class="text-2xl font-bold text-slate-800 dark:text-white mb-2" id="welcomeMsg">Welcome back!</h1>
-                <p class="text-slate-500 dark:text-slate-400">Track your innovation journey and achievements</p>
+                <h1 class="text-2xl font-bold text-slate-800 dark:text-white mb-2" id="welcomeMsg">My Challenges</h1>
+                <p class="text-slate-500 dark:text-slate-400">Track challenges you've submitted and their progress</p>
             </div>
 
             <!-- Stats Cards -->
@@ -118,7 +117,7 @@
                     <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition">
                         <i class="fas fa-lightbulb text-6xl text-brand-600"></i>
                     </div>
-                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Ideas Submitted</p>
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Challenges Submitted</p>
                     <h3 id="statIdeas" class="text-3xl font-extrabold text-slate-800 dark:text-white">...</h3>
                     <p class="text-xs text-slate-400 mt-2">Total contributions</p>
                 </div>
@@ -127,9 +126,9 @@
                     <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition">
                         <i class="fas fa-check-circle text-6xl text-fresh-500"></i>
                     </div>
-                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Approved Ideas</p>
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Solutions Provided</p>
                     <h3 id="statApproved" class="text-3xl font-extrabold text-fresh-600 dark:text-fresh-400">...</h3>
-                    <p class="text-xs text-slate-400 mt-2">Success rate</p>
+                    <p class="text-xs text-slate-400 mt-2">Approved solutions</p>
                 </div>
 
                 <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 relative overflow-hidden group">
@@ -175,7 +174,7 @@
                             </div>
                             <div>
                                 <p class="text-sm font-bold text-slate-800 dark:text-white">First Submission</p>
-                                <p class="text-xs text-slate-500">Submitted your first idea</p>
+                                <p class="text-xs text-slate-500">Submitted your first challenge</p>
                             </div>
                         </div>
                     </div>
@@ -184,48 +183,48 @@
 
             <!-- Quick Actions -->
             <div class="bg-gradient-to-r from-brand-600 to-ocean-600 rounded-2xl p-8 text-white text-center">
-                <h3 class="text-2xl font-bold mb-4">Ready to Innovate?</h3>
+                <h3 class="text-2xl font-bold mb-4">Ready to Make an Impact?</h3>
                 <p class="text-brand-100 mb-6 max-w-xl mx-auto">
-                    Share your next breakthrough idea and contribute to the innovation pool.
+                    Submit a challenge or provide solutions to existing challenges in the community.
                 </p>
                 <div class="flex flex-wrap justify-center gap-4">
-                    <a href="index.html#submitSection" class="bg-white text-brand-700 font-bold px-6 py-3 rounded-lg hover:bg-brand-50 transition shadow-lg">
-                        <i class="fas fa-lightbulb mr-2"></i>Submit New Idea
+                    <a href="index.html" class="bg-white text-brand-700 font-bold px-6 py-3 rounded-lg hover:bg-brand-50 transition shadow-lg">
+                        <i class="fas fa-trophy mr-2"></i>Submit Challenge
                     </a>
-                    <a href="challenges-leaderboard.html" class="bg-white/10 backdrop-blur-sm border border-white/20 text-white font-bold px-6 py-3 rounded-lg hover:bg-white/20 transition">
-                        <i class="fas fa-trophy mr-2"></i>View Challenges
+                    <a href="index.html" class="bg-white/10 backdrop-blur-sm border border-white/20 text-white font-bold px-6 py-3 rounded-lg hover:bg-white/20 transition">
+                        <i class="fas fa-lightbulb mr-2"></i>Browse Challenges
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- MY IDEAS SECTION -->
-        <div id="myideasSection" class="hidden">
+        <!-- MY SOLUTIONS SECTION -->
+        <div id="solutionsSection" class="hidden">
             <div class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
                 <div>
-                    <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">My Innovation Portfolio</h2>
-                    <p class="text-slate-500 dark:text-slate-400">View and manage all your submitted ideas</p>
+                    <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">My Solutions</h2>
+                    <p class="text-slate-500 dark:text-slate-400">View and manage all solutions you've submitted with proof</p>
                 </div>
-                <a href="index.html#submitSection" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-6 py-3 rounded-lg transition shadow-lg">
-                    <i class="fas fa-plus mr-2"></i>New Idea
+                <a href="index.html" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-6 py-3 rounded-lg transition shadow-lg">
+                    <i class="fas fa-plus mr-2"></i>Submit Solution
                 </a>
             </div>
 
             <!-- Filter Buttons -->
             <div class="flex gap-2 mb-6 flex-wrap">
                 <button onclick="filterIdeas('All')" id="filterAll" class="filter-btn px-4 py-2 bg-brand-600 text-white border border-brand-600 rounded-lg text-xs font-bold shadow-sm">All</button>
-                <button onclick="filterIdeas('New')" id="filterNew" class="filter-btn px-4 py-2 bg-transparent border border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800 rounded-lg text-xs font-medium text-slate-500">New</button>
+                <button onclick="filterIdeas('New')" id="filterNew" class="filter-btn px-4 py-2 bg-transparent border border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800 rounded-lg text-xs font-medium text-slate-500">Pending Review</button>
                 <button onclick="filterIdeas('Approved')" id="filterApproved" class="filter-btn px-4 py-2 bg-transparent border border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800 rounded-lg text-xs font-medium text-slate-500">Approved</button>
-                <button onclick="filterIdeas('Rejected')" id="filterRejected" class="filter-btn px-4 py-2 bg-transparent border border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800 rounded-lg text-xs font-medium text-slate-500">Rejected</button>
+                <button onclick="filterIdeas('Rejected')" id="filterRejected" class="filter-btn px-4 py-2 bg-transparent border border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800 rounded-lg text-xs font-medium text-slate-500">Needs Revision</button>
             </div>
 
-            <!-- Ideas Grid -->
+            <!-- Solutions Grid -->
             <div id="ideasGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div class="col-span-full flex flex-col items-center justify-center py-20">
                     <div class="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
                         <i class="fas fa-spinner fa-spin text-2xl text-brand-600"></i>
                     </div>
-                    <p class="text-slate-500 text-sm">Loading your ideas...</p>
+                    <p class="text-slate-500 text-sm">Loading your solutions...</p>
                 </div>
             </div>
         </div>
@@ -243,6 +242,12 @@
             <p class="text-slate-500 text-sm">© 2026 Idea Lab. Empowering the next generation of innovators.</p>
         </div>
     </footer>
+
+    <!-- Floating Submit Challenge Button (like chat widget) -->
+    <a href="index.html" id="floatingSubmitBtn" class="fixed right-6 bottom-6 z-40 bg-gradient-to-r from-brand-600 to-ocean-600 hover:from-brand-700 hover:to-ocean-700 text-white rounded-full shadow-2xl shadow-brand-500/30 p-4 transition-all duration-300 hover:scale-110 group flex items-center gap-3 pr-5">
+        <i class="fas fa-plus text-xl"></i>
+        <span class="font-bold text-sm whitespace-nowrap">Submit Challenge</span>
+    </a>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
@@ -291,25 +296,25 @@
 
         // Tab Switching
         window.showTab = (tab) => {
-            const dashboardSection = document.getElementById('dashboardSection');
-            const myideasSection = document.getElementById('myideasSection');
-            const dashboardTab = document.getElementById('dashboardTab');
-            const myideasTab = document.getElementById('myideasTab');
+            const challengesSection = document.getElementById('challengesSection');
+            const solutionsSection = document.getElementById('solutionsSection');
+            const challengesTab = document.getElementById('challengesTab');
+            const solutionsTab = document.getElementById('solutionsTab');
 
-            if (tab === 'dashboard') {
-                dashboardSection.classList.remove('hidden');
-                myideasSection.classList.add('hidden');
-                dashboardTab.classList.add('bg-brand-600', 'text-white');
-                dashboardTab.classList.remove('text-slate-500');
-                myideasTab.classList.remove('bg-brand-600', 'text-white');
-                myideasTab.classList.add('text-slate-500');
+            if (tab === 'challenges') {
+                challengesSection.classList.remove('hidden');
+                solutionsSection.classList.add('hidden');
+                challengesTab.classList.add('bg-brand-600', 'text-white');
+                challengesTab.classList.remove('text-slate-500');
+                solutionsTab.classList.remove('bg-brand-600', 'text-white');
+                solutionsTab.classList.add('text-slate-500');
             } else {
-                dashboardSection.classList.add('hidden');
-                myideasSection.classList.remove('hidden');
-                myideasTab.classList.add('bg-brand-600', 'text-white');
-                myideasTab.classList.remove('text-slate-500');
-                dashboardTab.classList.remove('bg-brand-600', 'text-white');
-                dashboardTab.classList.add('text-slate-500');
+                challengesSection.classList.add('hidden');
+                solutionsSection.classList.remove('hidden');
+                solutionsTab.classList.add('bg-brand-600', 'text-white');
+                solutionsTab.classList.remove('text-slate-500');
+                challengesTab.classList.remove('bg-brand-600', 'text-white');
+                challengesTab.classList.add('text-slate-500');
             }
         };
 
@@ -432,10 +437,10 @@
                         <div class="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
                             <i class="fas fa-inbox text-3xl text-slate-400"></i>
                         </div>
-                        <h3 class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-2">No ideas yet</h3>
+                        <h3 class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-2">No solutions yet</h3>
                         <p class="text-slate-500 text-sm mb-6">Start sharing your innovative solutions!</p>
-                        <a href="index.html#submitSection" class="inline-block bg-brand-600 hover:bg-brand-700 text-white font-bold px-6 py-3 rounded-lg transition">
-                            <i class="fas fa-plus mr-2"></i>Submit Your First Idea
+                        <a href="index.html" class="inline-block bg-brand-600 hover:bg-brand-700 text-white font-bold px-6 py-3 rounded-lg transition">
+                            <i class="fas fa-plus mr-2"></i>Submit Your First Solution
                         </a>
                     </div>
                 `;
@@ -449,6 +454,19 @@
                     'Rejected': { color: 'bg-red-100 text-red-700 border-red-200', icon: 'fa-times' }
                 };
                 const config = statusConfig[idea.status] || statusConfig['New'];
+                
+                // Add proof of solution section if it exists
+                const proofSection = idea.proof ? `
+                    <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-900/50">
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-file-alt text-blue-600 mt-1"></i>
+                            <div class="flex-1">
+                                <p class="text-xs font-bold text-blue-700 dark:text-blue-400 mb-1">Proof of Solution</p>
+                                <p class="text-xs text-slate-600 dark:text-slate-300">${idea.proof}</p>
+                            </div>
+                        </div>
+                    </div>
+                ` : '';
 
                 return `
                     <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition">
@@ -460,7 +478,8 @@
                         </div>
                         <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2 line-clamp-1">${idea.title || 'Untitled'}</h3>
                         <p class="text-slate-600 dark:text-slate-300 text-sm line-clamp-3 mb-4 leading-relaxed">${idea.problem || 'No description'}</p>
-                        <div class="flex items-center justify-between text-xs text-slate-400 border-t border-slate-100 dark:border-slate-700 pt-3">
+                        ${proofSection}
+                        <div class="flex items-center justify-between text-xs text-slate-400 border-t border-slate-100 dark:border-slate-700 pt-3 mt-4">
                             <div class="flex items-center gap-1">
                                 <i class="far fa-clock"></i>
                                 <span>${idea.timestamp ? new Date(idea.timestamp.toDate()).toLocaleDateString() : 'Just now'}</span>
