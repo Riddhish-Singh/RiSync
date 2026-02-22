@@ -2193,7 +2193,7 @@ window.PRODUCTS = [
   import {
     getAuth, onAuthStateChanged, signInWithEmailAndPassword,
     createUserWithEmailAndPassword, signOut, updateProfile,
-    GoogleAuthProvider, signInWithPopup
+    GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import {
     getFirestore, doc, setDoc, getDoc, onSnapshot, collection,
@@ -2215,6 +2215,10 @@ window.PRODUCTS = [
   const auth = getAuth(app);
   const db = getFirestore(app);
   const googleProvider = new GoogleAuthProvider();
+
+  // Expose globally so non-module bridge scripts can access them
+  window._auth = auth;
+  window._db = db;
 
   // ---- DOM helpers ----
   const $ = id => document.getElementById(id);
@@ -2298,6 +2302,17 @@ window.PRODUCTS = [
   });
 
   // ---- GOOGLE LOGIN ----
+  // Handle redirect result on page load (for browsers that blocked popup)
+  getRedirectResult(auth).then(async result => {
+    if (result && result.user) {
+      const user = result.user;
+      await setDoc(doc(db, 'users', user.uid), {
+        name: user.displayName, email: user.email, photo: user.photoURL
+      }, { merge: true });
+      closeAuthModal();
+    }
+  }).catch(e => console.error('getRedirectResult error:', e));
+
   async function googleSignIn() {
     try {
       const result = await signInWithPopup(auth, googleProvider);
@@ -2307,7 +2322,23 @@ window.PRODUCTS = [
       }, { merge: true });
       closeAuthModal();
     } catch (e) {
-      console.error('Google sign-in error:', e);
+      // If popup was blocked or unavailable, fall back to redirect flow
+      if (e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') {
+        try {
+          await signInWithRedirect(auth, googleProvider);
+        } catch (redirectErr) {
+          console.error('Google redirect error:', redirectErr);
+          const errEl = document.getElementById('loginError') || document.getElementById('registerError');
+          if (errEl) { errEl.textContent = 'Google sign-in failed. Please try email/password login.'; errEl.classList.add('show'); }
+        }
+      } else if (e.code === 'auth/unauthorized-domain') {
+        const errEl = document.getElementById('loginError');
+        if (errEl) { errEl.textContent = 'This domain is not authorized for Google sign-in. Please use email/password.'; errEl.classList.add('show'); }
+      } else {
+        console.error('Google sign-in error:', e);
+        const errEl = document.getElementById('loginError');
+        if (errEl) { errEl.textContent = 'Google sign-in failed: ' + (e.message || e.code); errEl.classList.add('show'); }
+      }
     }
   }
   $('googleLoginBtn').addEventListener('click', googleSignIn);
@@ -2340,6 +2371,27 @@ window.PRODUCTS = [
     overlay.style.justifyContent = 'center';
     document.body.style.overflow = 'hidden';
   });
+
+  // ---- LOAD USER ORDERS (for the "My Orders" purchased section) ----
+  // Defined here in the module where auth, db, query, collection, where, getDocs are in scope.
+  window._GI_loadUserOrders = async function() {
+    const user = auth.currentUser;
+    if (!user) return [];
+    try {
+      const q = query(collection(db, 'orders'), where('uid', '==', user.uid));
+      const snap = await getDocs(q);
+      return snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => {
+          const ta = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
+          const tb = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
+          return tb - ta;
+        });
+    } catch (e) {
+      console.error('loadUserOrders error:', e);
+      return [];
+    }
+  };
 
   window.loadOrders = loadOrders;
   async function loadOrders() {
@@ -2925,26 +2977,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }, true); // capture = true so it runs before the existing handler clears cart
   }
-  // ---- LOAD USER ORDERS (for purchased section) ----
-  window._GI_loadUserOrders = async function() {
-    const user = auth.currentUser;
-    if (!user) return [];
-    try {
-      const q = query(collection(db, 'orders'), where('uid', '==', user.uid));
-      const snap = await getDocs(q);
-      return snap.docs
-        .map(d => ({ id: d.id, ...d.data() }))
-        .sort((a, b) => {
-          const ta = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
-          const tb = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
-          return tb - ta;
-        });
-    } catch (e) {
-      console.error('loadUserOrders error:', e);
-      return [];
-    }
-  };
-
   // ======================================================
   // ===== ADMIN DASHBOARD ================================
   // ======================================================
