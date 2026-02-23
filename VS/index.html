@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en" class="light">
 <head>
@@ -1022,32 +1021,42 @@
         });
 
         // Submission Mode Toggle
+        // Helper: always query inside the modal copy (#formContentArea) since the form
+        // HTML is cloned there, creating duplicate IDs. getElementById() would find the
+        // hidden original in #submitSection — which is never visible.
+        function getModalEl(id) {
+            const area = document.getElementById('formContentArea');
+            return (area && area.querySelector('#' + id)) || document.getElementById(id);
+        }
+
         window.setSubmissionMode = (mode) => {
             currentSubmissionMode = mode;
-            const btnChallenge = document.getElementById('btnChallenge');
-            const btnNew = document.getElementById('btnNew');
-            const challengeBanner = document.getElementById('challengeBanner');
-            const newChallengeBanner = document.getElementById('newChallengeBanner');
-            const section1Title = document.getElementById('section1Title');
-            const section2Title = document.getElementById('section2Title');
+            const btnChallenge = getModalEl('btnChallenge');
+            const btnNew = getModalEl('btnNew');
+            const challengeBanner = getModalEl('challengeBanner');
+            const newChallengeBanner = getModalEl('newChallengeBanner');
+            const section1Title = getModalEl('section1Title');
+            const section2Title = getModalEl('section2Title');
+
+            if (!btnChallenge || !btnNew) return; // modal not ready yet
 
             // Reset button styles
             btnChallenge.classList.remove('border-ocean-500', 'bg-ocean-50', 'dark:bg-ocean-900/30', 'text-ocean-700', 'dark:text-ocean-300', 'shadow-lg');
             btnNew.classList.remove('border-brand-500', 'bg-brand-50', 'dark:bg-brand-900/30', 'text-brand-700', 'dark:text-brand-300', 'shadow-lg');
             
-            challengeBanner.classList.add('hidden');
-            newChallengeBanner.classList.add('hidden');
+            if (challengeBanner) challengeBanner.classList.add('hidden');
+            if (newChallengeBanner) newChallengeBanner.classList.add('hidden');
 
             if(mode === 'challenge') {
                 btnChallenge.classList.add('border-ocean-500', 'bg-ocean-50', 'dark:bg-ocean-900/30', 'text-ocean-700', 'dark:text-ocean-300', 'shadow-lg');
-                if(currentChallengeId) challengeBanner.classList.remove('hidden');
-                section1Title.textContent = 'Your Solution Details';
-                section2Title.textContent = 'Your Proposed Solution';
+                if(currentChallengeId && challengeBanner) challengeBanner.classList.remove('hidden');
+                if (section1Title) section1Title.textContent = 'Your Solution Details';
+                if (section2Title) section2Title.textContent = 'Your Proposed Solution';
             } else {
                 btnNew.classList.add('border-brand-500', 'bg-brand-50', 'dark:bg-brand-900/30', 'text-brand-700', 'dark:text-brand-300', 'shadow-lg');
-                newChallengeBanner.classList.remove('hidden');
-                section1Title.textContent = 'Challenge Overview';
-                section2Title.textContent = 'Problem Description';
+                if (newChallengeBanner) newChallengeBanner.classList.remove('hidden');
+                if (section1Title) section1Title.textContent = 'Challenge Overview';
+                if (section2Title) section2Title.textContent = 'Problem Description';
             }
         };
 
@@ -1063,9 +1072,9 @@
 
                 if(id && title) {
                     currentChallengeId = id;
-                    document.getElementById('selectedChallengeTitle').textContent = title;
-                    document.getElementById('selectedChallengeTheme').textContent = theme || 'Innovation Challenge';
-                    document.getElementById('title').value = `[Solution] ${title}`;
+                    getModalEl('selectedChallengeTitle').textContent = title;
+                    getModalEl('selectedChallengeTheme').textContent = theme || 'Innovation Challenge';
+                    getModalEl('title').value = `[Solution] ${title}`;
                     setSubmissionMode('challenge');
                 } else {
                     setSubmissionMode('new');
@@ -1315,7 +1324,7 @@
             const iconHTML = data.icon ? `<i class="fas ${data.icon} ${data.color || 'text-brand-600'}"></i>` : `<i class="fas fa-lightbulb"></i>`;
 
             return `
-                <div class="challenge-card glass-panel p-6 rounded-2xl border-2 ${isSystem ? 'border-purple-200 dark:border-purple-800' : 'border-slate-200 dark:border-slate-700'} hover:border-brand-400 dark:hover:border-brand-600 cursor-pointer group" onclick="acceptChallenge('${id}', '${data.title.replace(/'/g, "\\'")}', '${(data.description || '').replace(/'/g, "\\'")}')">
+                <div class="challenge-card glass-panel p-6 rounded-2xl border-2 ${isSystem ? 'border-purple-200 dark:border-purple-800' : 'border-slate-200 dark:border-slate-700'} hover:border-brand-400 dark:hover:border-brand-600 cursor-pointer group" onclick="acceptChallenge('${id}', '${data.title.replace(/'/g, "\\'")}', '${(data.description || '').replace(/'/g, "\\'")}', '${(data.category || '').replace(/'/g, "\\'")}')">
                     <div class="flex justify-between items-start mb-3">
                         <span class="text-xs font-bold uppercase text-brand-600 dark:text-brand-400 flex items-center gap-2">
                             ${iconHTML}
@@ -1437,24 +1446,14 @@
         }
         
         // Handle accepting a challenge
-        window.acceptChallenge = (challengeId, title, description) => {
+        window.acceptChallenge = (challengeId, title, description, category) => {
             if (!currentUser) {
                 alert('Please login to accept a challenge.');
                 return;
             }
             currentChallengeId = challengeId;
 
-            // Pre-fill challenge info into the form
-            const selectedChallengeTitle = document.getElementById('selectedChallengeTitle');
-            const selectedChallengeTheme = document.getElementById('selectedChallengeTheme');
-            const titleInput = document.getElementById('title');
-            if (selectedChallengeTitle) selectedChallengeTitle.textContent = title;
-            if (selectedChallengeTheme) selectedChallengeTheme.textContent = description || 'Innovation Challenge';
-            if (titleInput) titleInput.value = `[Solution] ${title}`;
-
-            setSubmissionMode('challenge');
-
-            // Open the submission modal directly
+            // Open the modal first so the DOM inside is live
             const submitModal = document.getElementById('submitModal');
             const modalFormContent = document.getElementById('modalFormContent');
             submitModal.classList.remove('hidden');
@@ -1462,6 +1461,28 @@
                 modalFormContent.classList.remove('scale-95', 'opacity-0');
                 modalFormContent.classList.add('scale-100', 'opacity-100');
             }, 10);
+
+            // Slight delay to ensure modal content is rendered before querying
+            setTimeout(() => {
+                // Use getModalEl to target the modal copy (not the hidden original)
+                const titleInput        = getModalEl('title');
+                const catSelect         = getModalEl('userCategory');
+                const selChallengeTitle = getModalEl('selectedChallengeTitle');
+                const selChallengeTheme = getModalEl('selectedChallengeTheme');
+
+                if (titleInput)        titleInput.value = `[Solution] ${title}`;
+                if (selChallengeTitle) selChallengeTitle.textContent = title;
+                if (selChallengeTheme) selChallengeTheme.textContent = description || 'Innovation Challenge';
+
+                // Set category dropdown to match challenge category
+                if (catSelect && category) {
+                    const option = Array.from(catSelect.options).find(o => o.value === category);
+                    if (option) catSelect.value = category;
+                }
+
+                // Switch mode to "solving a challenge"
+                setSubmissionMode('challenge');
+            }, 50);
         };
 
         // LEADERBOARD with Filtering
