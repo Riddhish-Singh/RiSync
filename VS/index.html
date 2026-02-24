@@ -1021,42 +1021,32 @@
         });
 
         // Submission Mode Toggle
-        // Helper: always query inside the modal copy (#formContentArea) since the form
-        // HTML is cloned there, creating duplicate IDs. getElementById() would find the
-        // hidden original in #submitSection — which is never visible.
-        function getModalEl(id) {
-            const area = document.getElementById('formContentArea');
-            return (area && area.querySelector('#' + id)) || document.getElementById(id);
-        }
-
         window.setSubmissionMode = (mode) => {
             currentSubmissionMode = mode;
-            const btnChallenge = getModalEl('btnChallenge');
-            const btnNew = getModalEl('btnNew');
-            const challengeBanner = getModalEl('challengeBanner');
-            const newChallengeBanner = getModalEl('newChallengeBanner');
-            const section1Title = getModalEl('section1Title');
-            const section2Title = getModalEl('section2Title');
-
-            if (!btnChallenge || !btnNew) return; // modal not ready yet
+            const btnChallenge = document.getElementById('btnChallenge');
+            const btnNew = document.getElementById('btnNew');
+            const challengeBanner = document.getElementById('challengeBanner');
+            const newChallengeBanner = document.getElementById('newChallengeBanner');
+            const section1Title = document.getElementById('section1Title');
+            const section2Title = document.getElementById('section2Title');
 
             // Reset button styles
             btnChallenge.classList.remove('border-ocean-500', 'bg-ocean-50', 'dark:bg-ocean-900/30', 'text-ocean-700', 'dark:text-ocean-300', 'shadow-lg');
             btnNew.classList.remove('border-brand-500', 'bg-brand-50', 'dark:bg-brand-900/30', 'text-brand-700', 'dark:text-brand-300', 'shadow-lg');
             
-            if (challengeBanner) challengeBanner.classList.add('hidden');
-            if (newChallengeBanner) newChallengeBanner.classList.add('hidden');
+            challengeBanner.classList.add('hidden');
+            newChallengeBanner.classList.add('hidden');
 
             if(mode === 'challenge') {
                 btnChallenge.classList.add('border-ocean-500', 'bg-ocean-50', 'dark:bg-ocean-900/30', 'text-ocean-700', 'dark:text-ocean-300', 'shadow-lg');
-                if(currentChallengeId && challengeBanner) challengeBanner.classList.remove('hidden');
-                if (section1Title) section1Title.textContent = 'Your Solution Details';
-                if (section2Title) section2Title.textContent = 'Your Proposed Solution';
+                if(currentChallengeId) challengeBanner.classList.remove('hidden');
+                section1Title.textContent = 'Your Solution Details';
+                section2Title.textContent = 'Your Proposed Solution';
             } else {
                 btnNew.classList.add('border-brand-500', 'bg-brand-50', 'dark:bg-brand-900/30', 'text-brand-700', 'dark:text-brand-300', 'shadow-lg');
-                if (newChallengeBanner) newChallengeBanner.classList.remove('hidden');
-                if (section1Title) section1Title.textContent = 'Challenge Overview';
-                if (section2Title) section2Title.textContent = 'Problem Description';
+                newChallengeBanner.classList.remove('hidden');
+                section1Title.textContent = 'Challenge Overview';
+                section2Title.textContent = 'Problem Description';
             }
         };
 
@@ -1072,9 +1062,9 @@
 
                 if(id && title) {
                     currentChallengeId = id;
-                    getModalEl('selectedChallengeTitle').textContent = title;
-                    getModalEl('selectedChallengeTheme').textContent = theme || 'Innovation Challenge';
-                    getModalEl('title').value = `[Solution] ${title}`;
+                    document.getElementById('selectedChallengeTitle').textContent = title;
+                    document.getElementById('selectedChallengeTheme').textContent = theme || 'Innovation Challenge';
+                    document.getElementById('title').value = `[Solution] ${title}`;
                     setSubmissionMode('challenge');
                 } else {
                     setSubmissionMode('new');
@@ -1324,7 +1314,7 @@
             const iconHTML = data.icon ? `<i class="fas ${data.icon} ${data.color || 'text-brand-600'}"></i>` : `<i class="fas fa-lightbulb"></i>`;
 
             return `
-                <div class="challenge-card glass-panel p-6 rounded-2xl border-2 ${isSystem ? 'border-purple-200 dark:border-purple-800' : 'border-slate-200 dark:border-slate-700'} hover:border-brand-400 dark:hover:border-brand-600 cursor-pointer group" onclick="acceptChallenge('${id}', '${data.title.replace(/'/g, "\\'")}', '${(data.description || '').replace(/'/g, "\\'")}', '${(data.category || '').replace(/'/g, "\\'")}')">
+                <div class="challenge-card glass-panel p-6 rounded-2xl border-2 ${isSystem ? 'border-purple-200 dark:border-purple-800' : 'border-slate-200 dark:border-slate-700'} hover:border-brand-400 dark:hover:border-brand-600 cursor-pointer group" onclick="acceptChallenge('${id}', '${data.title.replace(/'/g, "\\'")}', '${(data.description || '').replace(/'/g, "\\'")}')">
                     <div class="flex justify-between items-start mb-3">
                         <span class="text-xs font-bold uppercase text-brand-600 dark:text-brand-400 flex items-center gap-2">
                             ${iconHTML}
@@ -1446,14 +1436,24 @@
         }
         
         // Handle accepting a challenge
-        window.acceptChallenge = (challengeId, title, description, category) => {
+        window.acceptChallenge = (challengeId, title, description) => {
             if (!currentUser) {
                 alert('Please login to accept a challenge.');
                 return;
             }
             currentChallengeId = challengeId;
 
-            // Open the modal first so the DOM inside is live
+            // Pre-fill challenge info into the form
+            const selectedChallengeTitle = document.getElementById('selectedChallengeTitle');
+            const selectedChallengeTheme = document.getElementById('selectedChallengeTheme');
+            const titleInput = document.getElementById('title');
+            if (selectedChallengeTitle) selectedChallengeTitle.textContent = title;
+            if (selectedChallengeTheme) selectedChallengeTheme.textContent = description || 'Innovation Challenge';
+            if (titleInput) titleInput.value = `[Solution] ${title}`;
+
+            setSubmissionMode('challenge');
+
+            // Open the submission modal directly
             const submitModal = document.getElementById('submitModal');
             const modalFormContent = document.getElementById('modalFormContent');
             submitModal.classList.remove('hidden');
@@ -1461,28 +1461,6 @@
                 modalFormContent.classList.remove('scale-95', 'opacity-0');
                 modalFormContent.classList.add('scale-100', 'opacity-100');
             }, 10);
-
-            // Slight delay to ensure modal content is rendered before querying
-            setTimeout(() => {
-                // Use getModalEl to target the modal copy (not the hidden original)
-                const titleInput        = getModalEl('title');
-                const catSelect         = getModalEl('userCategory');
-                const selChallengeTitle = getModalEl('selectedChallengeTitle');
-                const selChallengeTheme = getModalEl('selectedChallengeTheme');
-
-                if (titleInput)        titleInput.value = `[Solution] ${title}`;
-                if (selChallengeTitle) selChallengeTitle.textContent = title;
-                if (selChallengeTheme) selChallengeTheme.textContent = description || 'Innovation Challenge';
-
-                // Set category dropdown to match challenge category
-                if (catSelect && category) {
-                    const option = Array.from(catSelect.options).find(o => o.value === category);
-                    if (option) catSelect.value = category;
-                }
-
-                // Switch mode to "solving a challenge"
-                setSubmissionMode('challenge');
-            }, 50);
         };
 
         // LEADERBOARD with Filtering
@@ -1634,76 +1612,80 @@
         let currentChallengeFilter = 'all';
         
         async function fetchAllChallenges(filter = 'all') {
-            try {
-                const container = document.getElementById('allChallengesContainer');
-                container.innerHTML = "";
+            const container = document.getElementById('allChallengesContainer');
+            container.innerHTML = "";
 
-                let systemChallengesFiltered = [];
-                let userChallengesArray = [];
+            // --- Step 1: Filter & render system challenges immediately (no Firestore needed) ---
+            let systemChallengesFiltered = [];
+            if (filter === 'all' || filter === 'open') {
+                systemChallengesFiltered = systemChallenges;
+            } else {
+                systemChallengesFiltered = systemChallenges.filter(c => c.category === filter);
+            }
 
-                // Filter system challenges
-                if (filter === 'all' || filter === 'open') {
-                    systemChallengesFiltered = systemChallenges;
-                } else {
-                    // Category filter
-                    systemChallengesFiltered = systemChallenges.filter(c => c.category === filter);
+            if (systemChallengesFiltered.length > 0) {
+                container.innerHTML += `
+                    <div class="col-span-full mb-4">
+                        <div class="flex items-center gap-3 p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border border-purple-200 dark:border-purple-800">
+                            <div class="flex-shrink-0 w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
+                                <i class="fas fa-star text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Official Challenges</h3>
+                                <p class="text-xs text-slate-600 dark:text-slate-400">Curated by Vigyanshaala Team • ${systemChallengesFiltered.length} challenge${systemChallengesFiltered.length !== 1 ? 's' : ''}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                systemChallengesFiltered.forEach((challengeData) => {
+                    container.innerHTML += createChallengeCard(challengeData, challengeData.id);
+                });
+            }
+
+            // --- Step 2: Fetch community challenges from Firestore (only if logged in) ---
+            if (!currentUser) {
+                // Not logged in — show a gentle login prompt for community section only
+                container.innerHTML += `
+                    <div class="col-span-full mt-8 mb-4">
+                        <div class="flex items-center gap-3 p-4 bg-gradient-to-r from-brand-50 to-ocean-50 dark:from-brand-900/20 dark:to-ocean-900/20 rounded-xl border border-brand-200 dark:border-brand-800">
+                            <div class="flex-shrink-0 w-12 h-12 rounded-lg bg-gradient-to-br from-brand-500 to-ocean-500 flex items-center justify-center shadow-lg">
+                                <i class="fas fa-users text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Community Challenges</h3>
+                                <p class="text-xs text-slate-600 dark:text-slate-400">
+                                    <i class="fas fa-lock mr-1"></i>Login to view community-proposed challenges
+                                </p>
+                            </div>
+                        </div>
+                    </div>`;
+                if (systemChallengesFiltered.length === 0) {
+                    container.innerHTML = `<div class="col-span-full p-8 text-center text-slate-500 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
+                        <i class="fas fa-inbox text-4xl mb-3 text-slate-300"></i>
+                        <p>No challenges found for this filter.</p>
+                    </div>`;
                 }
+                return;
+            }
 
-                // Fetch user challenges from Firestore
-                let q;
+            try {
+                let userChallengesArray = [];
                 const challengesRef = collection(db, "userChallenges");
-                
+                let q;
+
                 if (filter === 'all') {
                     q = query(challengesRef, orderBy("timestamp", "desc"), limit(50));
                 } else if (filter === 'open') {
                     q = query(challengesRef, where("status", "==", "open"), orderBy("timestamp", "desc"), limit(50));
                 } else {
-                    // Category filter
                     q = query(challengesRef, where("category", "==", filter), orderBy("timestamp", "desc"), limit(50));
                 }
-                
+
                 const querySnapshot = await getDocs(q);
-                
-                // Add user challenges to array
                 querySnapshot.forEach((doc) => {
-                    userChallengesArray.push({
-                        ...doc.data(),
-                        id: doc.id,
-                        isSystem: false
-                    });
+                    userChallengesArray.push({ ...doc.data(), id: doc.id, isSystem: false });
                 });
 
-                // Check if both are empty
-                if (systemChallengesFiltered.length === 0 && userChallengesArray.length === 0) {
-                    container.innerHTML = `<div class="col-span-full p-8 text-center text-slate-500 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
-                        <i class="fas fa-inbox text-4xl mb-3 text-slate-300"></i>
-                        <p>No challenges found for this filter.</p>
-                    </div>`;
-                    return;
-                }
-
-                // Render System Challenges Section
-                if (systemChallengesFiltered.length > 0) {
-                    container.innerHTML += `
-                        <div class="col-span-full mb-4">
-                            <div class="flex items-center gap-3 p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border border-purple-200 dark:border-purple-800">
-                                <div class="flex-shrink-0 w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
-                                    <i class="fas fa-star text-white text-xl"></i>
-                                </div>
-                                <div>
-                                    <h3 class="text-lg font-bold text-slate-800 dark:text-white">Official Challenges</h3>
-                                    <p class="text-xs text-slate-600 dark:text-slate-400">Curated by Vigyanshaala Team • ${systemChallengesFiltered.length} challenge${systemChallengesFiltered.length !== 1 ? 's' : ''}</p>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-
-                    systemChallengesFiltered.forEach((challengeData) => {
-                        container.innerHTML += createChallengeCard(challengeData, challengeData.id);
-                    });
-                }
-
-                // Render Community Challenges Section
                 if (userChallengesArray.length > 0) {
                     container.innerHTML += `
                         <div class="col-span-full ${systemChallengesFiltered.length > 0 ? 'mt-8' : ''} mb-4">
@@ -1718,17 +1700,25 @@
                             </div>
                         </div>
                     `;
-
                     userChallengesArray.forEach((challengeData) => {
                         container.innerHTML += createChallengeCard(challengeData, challengeData.id);
                     });
                 }
 
+                // If truly nothing to show
+                if (systemChallengesFiltered.length === 0 && userChallengesArray.length === 0) {
+                    container.innerHTML = `<div class="col-span-full p-8 text-center text-slate-500 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
+                        <i class="fas fa-inbox text-4xl mb-3 text-slate-300"></i>
+                        <p>No challenges found for this filter.</p>
+                    </div>`;
+                }
+
             } catch (error) {
-                console.error("Error fetching all challenges:", error);
-                document.getElementById('allChallengesContainer').innerHTML = `<div class="col-span-full p-8 text-center text-red-500">
-                    <i class="fas fa-exclamation-triangle text-4xl mb-3"></i>
-                    <p>Error loading challenges. Please try again.</p>
+                console.error("Error fetching community challenges:", error);
+                // System challenges are already rendered above — only show community error inline
+                container.innerHTML += `<div class="col-span-full mt-4 p-4 text-center text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    Could not load community challenges. ${error.code === 'failed-precondition' ? 'A Firestore index may be required.' : 'Please try again later.'}
                 </div>`;
             }
         }
