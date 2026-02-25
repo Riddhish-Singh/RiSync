@@ -22,7 +22,7 @@
       --ring-color: rgba(255, 60, 120, 0.25);
       --text-primary: #111111;
       --text-secondary: #888888;
-      --bg-primary: #FFF5F8;
+      --bg-primary: #FFFFFF;
       --surface-primary: #FFFFFF;
       --success: #2ecc71;
       --error: #e74c3c;
@@ -36,6 +36,27 @@
       --bg-primary: #111111;
       --surface-primary: #1a1a1a;
       --header-bg: #000000;
+    }
+
+    /* ===== CUSTOM SCROLLBAR ===== */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-primary);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--brand-primary);
+      border-radius: 99px;
+      border: 2px solid var(--bg-primary);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--brand-dark);
+    }
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--brand-primary) var(--bg-primary);
     }
 
     /* =============================================
@@ -1579,20 +1600,534 @@
         </div>
     </section>
 
-    <!-- ADD YOUR PRODUCT (Others Category) -->
-    <section id="add-product-section" class="my-12 p-6 rounded-2xl" style="background-color: var(--surface-primary);">
-      <h3 class="text-2xl font-bold mb-2">📦 List Your Product for Everyone</h3>
-      <p class="text-sm mb-6" style="color: var(--text-secondary);">Add your product to the <strong>Others</strong> category — it gets saved to our community catalogue and is <strong>visible to all shoppers instantly</strong>.</p>
-      <div class="grid sm:grid-cols-2 gap-4">
-        <div class="field"><label class="text-sm font-medium">Product Name *</label><input class="input mt-1" id="newProdName" placeholder="e.g. Handmade Soap" required></div>
-        <div class="field"><label class="text-sm font-medium">Price (₹) *</label><input class="input mt-1" id="newProdPrice" type="number" min="1" placeholder="e.g. 299" required></div>
-        <div class="field"><label class="text-sm font-medium">Stock Quantity *</label><input class="input mt-1" id="newProdStock" type="number" min="1" placeholder="e.g. 50" required></div>
-        <div class="field"><label class="text-sm font-medium">Image URL</label><input class="input mt-1" id="newProdImg" placeholder="https://... or leave blank for default"></div>
-        <div class="sm:col-span-2 field"><label class="text-sm font-medium">Description</label><textarea class="input mt-1" id="newProdDesc" rows="2" placeholder="Describe your product..."></textarea></div>
+    <!-- BECOME A SELLER CTA SECTION -->
+    <section id="seller-cta-section" class="my-12 rounded-2xl overflow-hidden" style="background: linear-gradient(135deg, #111111 0%, #1a0a12 50%, #2d0e1e 100%); border: 1px solid rgba(255,60,120,0.2);">
+      <div class="flex flex-col md:flex-row items-center gap-8 p-8 md:p-10">
+        <div class="flex-1">
+          <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,60,120,0.15);border:1px solid rgba(255,60,120,0.3);border-radius:999px;padding:5px 14px;margin-bottom:16px;">
+            <span style="color:var(--brand-primary);font-size:0.72rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;">🚀 Seller Program</span>
+          </div>
+          <h3 style="font-family:'Montserrat',sans-serif;font-size:clamp(1.4rem,2.5vw,2rem);font-weight:900;color:white;letter-spacing:-0.02em;margin-bottom:10px;line-height:1.1;">
+            Sell on <span style="color:var(--brand-primary);">Pioneer I Xpress</span><br>Reach Millions of Shoppers
+          </h3>
+          <p style="color:rgba(255,255,255,0.65);font-size:0.88rem;font-weight:500;line-height:1.6;max-width:420px;margin-bottom:24px;">
+            Join our growing seller community. List your products, manage inventory, track orders, and grow your business — all from one powerful dashboard.
+          </p>
+          <div style="display:flex;flex-wrap:wrap;gap:16px;margin-bottom:28px;">
+            <div style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.7);font-size:0.8rem;font-weight:600;">
+              <span style="color:#10b981;font-size:1rem;">✓</span> Free to Register
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.7);font-size:0.8rem;font-weight:600;">
+              <span style="color:#10b981;font-size:1rem;">✓</span> Instant Listings
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.7);font-size:0.8rem;font-weight:600;">
+              <span style="color:#10b981;font-size:1rem;">✓</span> Seller Dashboard
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.7);font-size:0.8rem;font-weight:600;">
+              <span style="color:#10b981;font-size:1rem;">✓</span> Fast Payments
+            </div>
+          </div>
+          <button id="openSellerRegistration" onclick="openSellerModal()" style="display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--brand-primary),var(--brand-dark));color:white;font-weight:800;font-size:0.88rem;padding:13px 28px;border-radius:999px;border:none;cursor:pointer;letter-spacing:0.04em;box-shadow:0 8px 28px rgba(255,60,120,0.4);transition:all 0.2s;">
+            <i class="fas fa-store"></i> Start Selling Today
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+          </button>
+        </div>
+        <div class="hidden md:flex flex-col items-center gap-4" style="flex-shrink:0;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;width:240px;">
+            <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:16px;text-align:center;">
+              <div style="font-family:'Montserrat',sans-serif;font-size:1.5rem;font-weight:900;color:var(--brand-primary);">10K+</div>
+              <div style="font-size:0.7rem;font-weight:600;color:rgba(255,255,255,0.5);margin-top:2px;text-transform:uppercase;letter-spacing:0.08em;">Sellers</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:16px;text-align:center;">
+              <div style="font-family:'Montserrat',sans-serif;font-size:1.5rem;font-weight:900;color:#10b981;">98%</div>
+              <div style="font-size:0.7rem;font-weight:600;color:rgba(255,255,255,0.5);margin-top:2px;text-transform:uppercase;letter-spacing:0.08em;">Satisfaction</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:16px;text-align:center;">
+              <div style="font-family:'Montserrat',sans-serif;font-size:1.5rem;font-weight:900;color:#f59e0b;">₹0</div>
+              <div style="font-size:0.7rem;font-weight:600;color:rgba(255,255,255,0.5);margin-top:2px;text-transform:uppercase;letter-spacing:0.08em;">Setup Fee</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:16px;text-align:center;">
+              <div style="font-family:'Montserrat',sans-serif;font-size:1.5rem;font-weight:900;color:#818cf8;">24h</div>
+              <div style="font-size:0.7rem;font-weight:600;color:rgba(255,255,255,0.5);margin-top:2px;text-transform:uppercase;letter-spacing:0.08em;">Go Live</div>
+            </div>
+          </div>
+        </div>
       </div>
-      <button id="submitProduct" class="btn-primary text-white font-semibold py-2.5 px-6 rounded-xl mt-4">Add to Others</button>
+    </section>
+
+    <!-- SELLER REGISTRATION MODAL -->
+    <div id="sellerModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);overflow-y:auto;padding:24px 16px;">
+      <div style="max-width:680px;margin:0 auto;background:var(--surface-primary);border-radius:24px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,0.5);border:1px solid rgba(255,60,120,0.15);animation:modalIn 0.25s ease forwards;">
+        
+        <!-- Modal Header -->
+        <div style="background:linear-gradient(135deg,#111111,#1a0a12);padding:28px 32px;position:relative;">
+          <button onclick="closeSellerModal()" style="position:absolute;top:16px;right:20px;background:rgba(255,255,255,0.1);border:none;color:white;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;">✕</button>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+            <div style="width:40px;height:40px;background:var(--brand-primary);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;">🏪</div>
+            <div>
+              <div style="font-family:'Montserrat',sans-serif;font-weight:900;font-size:1.1rem;color:white;">Seller Account Registration</div>
+              <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);font-weight:500;">Pioneer I Xpress Partner Program</div>
+            </div>
+          </div>
+          <!-- Step Indicator -->
+          <div id="sellerStepBar" style="display:flex;align-items:center;gap:0;margin-top:20px;">
+            <div class="seller-step-item active" data-step="1">
+              <div class="seller-step-dot">1</div>
+              <div class="seller-step-label">Personal</div>
+            </div>
+            <div class="seller-step-line"></div>
+            <div class="seller-step-item" data-step="2">
+              <div class="seller-step-dot">2</div>
+              <div class="seller-step-label">Business</div>
+            </div>
+            <div class="seller-step-line"></div>
+            <div class="seller-step-item" data-step="3">
+              <div class="seller-step-dot">3</div>
+              <div class="seller-step-label">Bank & Tax</div>
+            </div>
+            <div class="seller-step-line"></div>
+            <div class="seller-step-item" data-step="4">
+              <div class="seller-step-dot">4</div>
+              <div class="seller-step-label">Products</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal Body -->
+        <div style="padding:28px 32px;">
+
+          <!-- STEP 1: Personal Details -->
+          <div id="sellerStep1" class="seller-form-step">
+            <h4 style="font-family:'Montserrat',sans-serif;font-weight:800;font-size:1rem;margin-bottom:4px;color:var(--text-primary);">Personal Information</h4>
+            <p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:20px;">Tell us about yourself — the account owner / primary contact.</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+              <div class="field"><label class="text-sm font-medium">First Name *</label><input class="input mt-1" id="sel_fname" placeholder="Ravi"></div>
+              <div class="field"><label class="text-sm font-medium">Last Name *</label><input class="input mt-1" id="sel_lname" placeholder="Kumar"></div>
+              <div class="field"><label class="text-sm font-medium">Email Address *</label><input class="input mt-1" id="sel_email" type="email" placeholder="ravi@example.com"></div>
+              <div class="field"><label class="text-sm font-medium">Mobile Number *</label><input class="input mt-1" id="sel_phone" type="tel" placeholder="9XXXXXXXXX"></div>
+              <div class="field" style="grid-column:1/-1;"><label class="text-sm font-medium">Password *</label><input class="input mt-1" id="sel_pass" type="password" placeholder="Min. 8 characters"></div>
+              <div class="field" style="grid-column:1/-1;"><label class="text-sm font-medium">Confirm Password *</label><input class="input mt-1" id="sel_pass2" type="password" placeholder="Re-enter password"></div>
+              <div class="field" style="grid-column:1/-1;"><label class="text-sm font-medium">Residential Address *</label><textarea class="input mt-1" id="sel_address" rows="2" placeholder="House No., Street, City, State, PIN"></textarea></div>
+            </div>
+          </div>
+
+          <!-- STEP 2: Business Details -->
+          <div id="sellerStep2" class="seller-form-step" style="display:none;">
+            <h4 style="font-family:'Montserrat',sans-serif;font-weight:800;font-size:1rem;margin-bottom:4px;color:var(--text-primary);">Business Details</h4>
+            <p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:20px;">Provide your business or shop information for verification.</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+              <div class="field" style="grid-column:1/-1;"><label class="text-sm font-medium">Business / Shop Name *</label><input class="input mt-1" id="sel_bizname" placeholder="e.g. Ravi's Candle Store"></div>
+              <div class="field"><label class="text-sm font-medium">Business Type *</label>
+                <select class="input mt-1" id="sel_biztype" style="appearance:auto;">
+                  <option value="">— Select —</option>
+                  <option>Sole Proprietor</option>
+                  <option>Partnership</option>
+                  <option>Private Limited Company</option>
+                  <option>LLP</option>
+                  <option>Individual / Freelancer</option>
+                </select>
+              </div>
+              <div class="field"><label class="text-sm font-medium">Product Category *</label>
+                <select class="input mt-1" id="sel_category" style="appearance:auto;">
+                  <option value="">— Select —</option>
+                  <option>Candles & Accessories</option>
+                  <option>Beauty & Skincare</option>
+                  <option>Clothing & Fashion</option>
+                  <option>Spare Parts</option>
+                  <option>Home & Decor</option>
+                  <option>Electronics</option>
+                  <option>Food & Grocery</option>
+                  <option>Others</option>
+                </select>
+              </div>
+              <div class="field" style="grid-column:1/-1;"><label class="text-sm font-medium">Business Address *</label><textarea class="input mt-1" id="sel_bizaddr" rows="2" placeholder="Shop/Office address with PIN code"></textarea></div>
+              <div class="field"><label class="text-sm font-medium">City *</label><input class="input mt-1" id="sel_city" placeholder="e.g. Mumbai"></div>
+              <div class="field"><label class="text-sm font-medium">State *</label>
+                <select class="input mt-1" id="sel_state" style="appearance:auto;">
+                  <option value="">— Select State —</option>
+                  <option>Andhra Pradesh</option><option>Assam</option><option>Bihar</option><option>Delhi</option>
+                  <option>Gujarat</option><option>Haryana</option><option>Karnataka</option><option>Kerala</option>
+                  <option>Madhya Pradesh</option><option>Maharashtra</option><option>Punjab</option><option>Rajasthan</option>
+                  <option>Tamil Nadu</option><option>Telangana</option><option>Uttar Pradesh</option><option>West Bengal</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="field"><label class="text-sm font-medium">PIN Code *</label><input class="input mt-1" id="sel_pin" placeholder="e.g. 400001" maxlength="6"></div>
+              <div class="field"><label class="text-sm font-medium">Expected Monthly Listings</label>
+                <select class="input mt-1" id="sel_listings" style="appearance:auto;">
+                  <option>1–10 products</option>
+                  <option>11–50 products</option>
+                  <option>51–200 products</option>
+                  <option>200+ products</option>
+                </select>
+              </div>
+              <div class="field" style="grid-column:1/-1;"><label class="text-sm font-medium">Business Website / Social Handle (optional)</label><input class="input mt-1" id="sel_web" placeholder="https://your-store.com or @instagram_handle"></div>
+            </div>
+          </div>
+
+          <!-- STEP 3: Bank & Tax Details -->
+          <div id="sellerStep3" class="seller-form-step" style="display:none;">
+            <h4 style="font-family:'Montserrat',sans-serif;font-weight:800;font-size:1rem;margin-bottom:4px;color:var(--text-primary);">Bank & Tax Information</h4>
+            <p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:20px;">Required for payments and GST compliance. Your data is encrypted and secure.</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+              <div class="field" style="grid-column:1/-1;"><label class="text-sm font-medium">Bank Account Holder Name *</label><input class="input mt-1" id="sel_acname" placeholder="Name as on bank account"></div>
+              <div class="field"><label class="text-sm font-medium">Account Number *</label><input class="input mt-1" id="sel_acno" placeholder="Enter account number"></div>
+              <div class="field"><label class="text-sm font-medium">Confirm Account Number *</label><input class="input mt-1" id="sel_acno2" placeholder="Re-enter account number"></div>
+              <div class="field"><label class="text-sm font-medium">IFSC Code *</label><input class="input mt-1" id="sel_ifsc" placeholder="e.g. SBIN0001234" style="text-transform:uppercase;"></div>
+              <div class="field"><label class="text-sm font-medium">Bank Name *</label><input class="input mt-1" id="sel_bank" placeholder="e.g. State Bank of India"></div>
+              <div class="field" style="grid-column:1/-1;">
+                <div style="height:1px;background:rgba(128,128,128,0.15);margin:8px 0 18px;"></div>
+                <label class="text-sm font-medium">GST Number (if applicable)</label>
+                <input class="input mt-1" id="sel_gst" placeholder="e.g. 29ABCDE1234F1Z5" style="text-transform:uppercase;">
+              </div>
+              <div class="field"><label class="text-sm font-medium">PAN Number *</label><input class="input mt-1" id="sel_pan" placeholder="e.g. ABCDE1234F" style="text-transform:uppercase;"></div>
+              <div class="field"><label class="text-sm font-medium">Aadhaar (last 4 digits) *</label><input class="input mt-1" id="sel_aadhaar" placeholder="XXXX" maxlength="4" type="number"></div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px;margin-top:16px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:12px;padding:12px 14px;">
+              <span style="font-size:1.1rem;flex-shrink:0;">🔒</span>
+              <p style="font-size:0.77rem;color:var(--text-secondary);line-height:1.5;margin:0;">Your financial details are encrypted with 256-bit AES encryption. We comply with RBI guidelines for payment data security. Details are never shared with third parties.</p>
+            </div>
+          </div>
+
+          <!-- STEP 4: First Product Listing -->
+          <div id="sellerStep4" class="seller-form-step" style="display:none;">
+            <h4 style="font-family:'Montserrat',sans-serif;font-weight:800;font-size:1rem;margin-bottom:4px;color:var(--text-primary);">List Your First Product</h4>
+            <p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:20px;">Add at least one product to activate your seller storefront. You can add more later from your dashboard.</p>
+            
+            <!-- Tab bar like Amazon image -->
+            <div style="display:flex;gap:0;border-bottom:2px solid rgba(128,128,128,0.15);margin-bottom:20px;overflow-x:auto;">
+              <button class="seller-prod-tab active-tab" data-tab="details" onclick="switchProdTab('details')" style="padding:9px 18px;border:none;background:none;font-size:0.8rem;font-weight:700;cursor:pointer;border-bottom:2px solid var(--brand-primary);color:var(--brand-primary);margin-bottom:-2px;white-space:nowrap;">Product Details</button>
+              <button class="seller-prod-tab" data-tab="images" onclick="switchProdTab('images')" style="padding:9px 18px;border:none;background:none;font-size:0.8rem;font-weight:600;cursor:pointer;color:var(--text-secondary);white-space:nowrap;">Images</button>
+              <button class="seller-prod-tab" data-tab="pricing" onclick="switchProdTab('pricing')" style="padding:9px 18px;border:none;background:none;font-size:0.8rem;font-weight:600;cursor:pointer;color:var(--text-secondary);white-space:nowrap;">Pricing & Stock</button>
+            </div>
+
+            <!-- Tab: Product Details -->
+            <div id="prodTab_details">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div class="field" style="grid-column:1/-1;"><label class="text-sm font-medium">Product Name *</label><input class="input mt-1" id="newProdName" placeholder="e.g. Handmade Soy Candle"></div>
+                <div class="field" style="grid-column:1/-1;"><label class="text-sm font-medium">Description *</label><textarea class="input mt-1" id="newProdDesc" rows="3" placeholder="Describe your product — materials, uses, size, scent, etc."></textarea></div>
+                <div class="field"><label class="text-sm font-medium">Category *</label>
+                  <select class="input mt-1" id="newProdCategory" style="appearance:auto;">
+                    <option>Candles</option><option>Beauty</option><option>Clothing</option><option>Spare Parts</option><option>Others</option>
+                  </select>
+                </div>
+                <div class="field"><label class="text-sm font-medium">Brand (optional)</label><input class="input mt-1" id="newProdBrand" placeholder="Your brand name"></div>
+              </div>
+            </div>
+
+            <!-- Tab: Images -->
+            <div id="prodTab_images" style="display:none;">
+              <p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:14px;">Upload up to 9 images. First image will be the <strong>main</strong> product photo. Click any slot or drag &amp; drop.</p>
+
+              <!-- Hidden file input -->
+              <input type="file" id="imgFileInput" accept="image/*" multiple style="display:none;" onchange="handleImgFiles(this.files)">
+
+              <!-- Drop zone -->
+              <div id="imgDropZone"
+                ondragover="event.preventDefault();this.style.borderColor='var(--brand-primary)'"
+                ondragleave="this.style.borderColor='rgba(128,128,128,0.2)'"
+                ondrop="event.preventDefault();this.style.borderColor='rgba(128,128,128,0.2)';handleImgFiles(event.dataTransfer.files)"
+                style="border:2px dashed rgba(128,128,128,0.2);border-radius:14px;padding:14px;margin-bottom:14px;text-align:center;cursor:pointer;transition:border-color 0.2s;"
+                onclick="document.getElementById('imgFileInput').click()">
+                <i class="fas fa-cloud-upload-alt" style="font-size:1.6rem;color:var(--brand-primary);margin-bottom:6px;display:block;"></i>
+                <span style="font-size:0.8rem;font-weight:600;color:var(--text-secondary);">Click to upload or drag &amp; drop images here</span><br>
+                <span style="font-size:0.72rem;color:var(--text-secondary);opacity:0.7;">JPG, PNG, WEBP — max 5 MB each</span>
+              </div>
+
+              <!-- 9-slot image grid -->
+              <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;" id="imgSlotGrid"></div>
+
+              <!-- Count label -->
+              <p id="imgCountLabel" style="font-size:0.75rem;color:var(--text-secondary);margin-top:10px;font-weight:600;"></p>
+
+              <!-- Stores base64 of main image for product listing -->
+              <input type="hidden" id="newProdImg">
+            </div>
+
+            <!-- Tab: Pricing & Stock -->
+            <div id="prodTab_pricing" style="display:none;">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div class="field"><label class="text-sm font-medium">Selling Price (₹) *</label><input class="input mt-1" id="newProdPrice" type="number" min="1" placeholder="e.g. 499"></div>
+                <div class="field"><label class="text-sm font-medium">MRP (₹)</label><input class="input mt-1" id="newProdMRP" type="number" min="1" placeholder="e.g. 599"></div>
+                <div class="field"><label class="text-sm font-medium">Stock Quantity *</label><input class="input mt-1" id="newProdStock" type="number" min="1" placeholder="e.g. 50"></div>
+                <div class="field"><label class="text-sm font-medium">SKU / Product Code</label><input class="input mt-1" id="newProdSKU" placeholder="e.g. SKU-001"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Error message -->
+          <div id="sellerFormError" style="display:none;margin-top:14px;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);color:#e74c3c;font-size:0.8rem;font-weight:600;padding:10px 14px;border-radius:10px;"></div>
+
+        </div>
+
+        <!-- Modal Footer -->
+        <div style="padding:16px 32px 24px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(128,128,128,0.12);">
+          <button id="sellerBackBtn" onclick="sellerStepNav(-1)" style="display:none;background:var(--bg-primary);border:1.5px solid rgba(128,128,128,0.2);color:var(--text-primary);font-weight:700;font-size:0.85rem;padding:10px 22px;border-radius:999px;cursor:pointer;">
+            ← Back
+          </button>
+          <div style="flex:1;"></div>
+          <button id="sellerNextBtn" onclick="sellerStepNav(1)" style="background:linear-gradient(135deg,var(--brand-primary),var(--brand-dark));color:white;font-weight:800;font-size:0.85rem;padding:12px 28px;border-radius:999px;border:none;cursor:pointer;box-shadow:0 6px 20px rgba(255,60,120,0.35);">
+            Next Step →
+          </button>
+          <button id="sellerSubmitBtn" onclick="submitSellerForm()" style="display:none;background:linear-gradient(135deg,#10b981,#059669);color:white;font-weight:800;font-size:0.85rem;padding:12px 28px;border-radius:999px;border:none;cursor:pointer;box-shadow:0 6px 20px rgba(16,185,129,0.35);">
+            ✓ Create Seller Account & List Product
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADD PRODUCT SECTION (hidden, shown after registration) -->
+    <section id="add-product-section" class="my-12 p-6 rounded-2xl" style="background-color: var(--surface-primary);display:none;">
       <div id="submitProductMsg" class="text-sm mt-2 hidden"></div>
     </section>
+
+    <style>
+      .seller-step-item { display:flex;flex-direction:column;align-items:center;gap:4px;flex:1; }
+      .seller-step-dot { width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.12);border:2px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.8rem;color:rgba(255,255,255,0.4);transition:all 0.3s; }
+      .seller-step-label { font-size:0.65rem;font-weight:700;color:rgba(255,255,255,0.35);letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap; }
+      .seller-step-item.active .seller-step-dot { background:var(--brand-primary);border-color:var(--brand-primary);color:white;box-shadow:0 0 0 4px rgba(255,60,120,0.3); }
+      .seller-step-item.active .seller-step-label { color:rgba(255,255,255,0.85); }
+      .seller-step-item.done .seller-step-dot { background:#10b981;border-color:#10b981;color:white; }
+      .seller-step-item.done .seller-step-label { color:rgba(255,255,255,0.6); }
+      .seller-step-line { flex:1;height:2px;background:rgba(255,255,255,0.1);margin-bottom:20px;transition:background 0.3s; }
+      .seller-step-line.done { background:#10b981; }
+      .seller-prod-tab { transition:all 0.2s;color:var(--text-secondary); }
+      .seller-prod-tab:hover { color:var(--brand-primary); }
+    </style>
+
+    <script>
+    var _sellerStep = 1;
+    var _totalSellerSteps = 4;
+
+    function openSellerModal() {
+      document.getElementById('sellerModal').style.display = 'block';
+      document.body.style.overflow = 'hidden';
+      _sellerStep = 1;
+      _uploadedImages = [];
+      updateSellerStepUI();
+    }
+    function closeSellerModal() {
+      document.getElementById('sellerModal').style.display = 'none';
+      document.body.style.overflow = '';
+    }
+    document.getElementById('sellerModal').addEventListener('click', function(e){
+      if (e.target === this) closeSellerModal();
+    });
+
+    function updateSellerStepUI() {
+      for (var i = 1; i <= _totalSellerSteps; i++) {
+        var step = document.querySelector('[data-step="' + i + '"]');
+        var formDiv = document.getElementById('sellerStep' + i);
+        if (!step || !formDiv) continue;
+        formDiv.style.display = (i === _sellerStep) ? '' : 'none';
+        step.classList.remove('active','done');
+        if (i < _sellerStep) step.classList.add('done');
+        else if (i === _sellerStep) step.classList.add('active');
+
+        // Update connector lines
+        var lines = document.querySelectorAll('.seller-step-line');
+        lines.forEach(function(line, idx){
+          line.classList.toggle('done', idx < _sellerStep - 1);
+        });
+      }
+      // Step dots — show done check
+      document.querySelectorAll('.seller-step-item.done .seller-step-dot').forEach(function(dot){
+        if (!dot.innerHTML.includes('✓')) dot.innerHTML = '✓';
+      });
+
+      var backBtn = document.getElementById('sellerBackBtn');
+      var nextBtn = document.getElementById('sellerNextBtn');
+      var submitBtn = document.getElementById('sellerSubmitBtn');
+      backBtn.style.display = _sellerStep > 1 ? 'inline-block' : 'none';
+      nextBtn.style.display = _sellerStep < _totalSellerSteps ? 'inline-block' : 'none';
+      submitBtn.style.display = _sellerStep === _totalSellerSteps ? 'inline-block' : 'none';
+      document.getElementById('sellerFormError').style.display = 'none';
+    }
+
+    function sellerStepNav(dir) {
+      if (dir === 1 && !validateSellerStep(_sellerStep)) return;
+      _sellerStep = Math.max(1, Math.min(_totalSellerSteps, _sellerStep + dir));
+      updateSellerStepUI();
+      document.getElementById('sellerModal').scrollTop = 0;
+    }
+
+    function validateSellerStep(step) {
+      var err = document.getElementById('sellerFormError');
+      err.style.display = 'none';
+      function showErr(msg) { err.textContent = msg; err.style.display = 'block'; return false; }
+
+      if (step === 1) {
+        if (!document.getElementById('sel_fname').value.trim()) return showErr('First name is required.');
+        if (!document.getElementById('sel_lname').value.trim()) return showErr('Last name is required.');
+        var email = document.getElementById('sel_email').value.trim();
+        if (!email || !email.includes('@')) return showErr('Please enter a valid email address.');
+        var phone = document.getElementById('sel_phone').value.trim();
+        if (!phone || phone.length < 10) return showErr('Please enter a valid 10-digit mobile number.');
+        var pass = document.getElementById('sel_pass').value;
+        if (pass.length < 8) return showErr('Password must be at least 8 characters.');
+        if (pass !== document.getElementById('sel_pass2').value) return showErr('Passwords do not match.');
+        if (!document.getElementById('sel_address').value.trim()) return showErr('Residential address is required.');
+      }
+      if (step === 2) {
+        if (!document.getElementById('sel_bizname').value.trim()) return showErr('Business name is required.');
+        if (!document.getElementById('sel_biztype').value) return showErr('Please select a business type.');
+        if (!document.getElementById('sel_category').value) return showErr('Please select a product category.');
+        if (!document.getElementById('sel_bizaddr').value.trim()) return showErr('Business address is required.');
+        if (!document.getElementById('sel_city').value.trim()) return showErr('City is required.');
+        if (!document.getElementById('sel_state').value) return showErr('Please select a state.');
+        var pin = document.getElementById('sel_pin').value.trim();
+        if (!pin || pin.length !== 6) return showErr('Please enter a valid 6-digit PIN code.');
+      }
+      if (step === 3) {
+        if (!document.getElementById('sel_acname').value.trim()) return showErr('Account holder name is required.');
+        var ac = document.getElementById('sel_acno').value.trim();
+        var ac2 = document.getElementById('sel_acno2').value.trim();
+        if (!ac) return showErr('Account number is required.');
+        if (ac !== ac2) return showErr('Account numbers do not match.');
+        if (!document.getElementById('sel_ifsc').value.trim()) return showErr('IFSC code is required.');
+        if (!document.getElementById('sel_bank').value.trim()) return showErr('Bank name is required.');
+        if (!document.getElementById('sel_pan').value.trim()) return showErr('PAN number is required.');
+        var aadh = document.getElementById('sel_aadhaar').value.trim();
+        if (!aadh || aadh.length !== 4) return showErr('Please enter last 4 digits of Aadhaar.');
+      }
+      return true;
+    }
+
+    // ===== IMAGE UPLOAD HANDLING =====
+    var _uploadedImages = []; // array of {dataUrl, name}
+
+    function buildImgSlots() {
+      var grid = document.getElementById('imgSlotGrid');
+      if (!grid) return;
+      var html = '';
+      for (var i = 0; i < 9; i++) {
+        var img = _uploadedImages[i];
+        var isMain = (i === 0);
+        if (img) {
+          html += '<div style="position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;border:2px solid ' + (isMain ? 'var(--brand-primary)' : 'rgba(128,128,128,0.2)') + ';" onclick="triggerImgSlot(' + i + ')">'
+                + '<img src="' + img.dataUrl + '" style="width:100%;height:100%;object-fit:cover;display:block;">'
+                + (isMain ? '<span style="position:absolute;bottom:4px;left:50%;transform:translateX(-50%);background:var(--brand-primary);color:white;font-size:0.6rem;font-weight:800;padding:2px 8px;border-radius:999px;letter-spacing:0.08em;">MAIN</span>' : '')
+                + '<button onclick="event.stopPropagation();removeImg(' + i + ')" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);color:white;border:none;width:20px;height:20px;border-radius:50%;font-size:0.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>'
+                + '</div>';
+        } else {
+          html += '<div style="aspect-ratio:1;border:2px dashed rgba(128,128,128,0.22);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;color:rgba(128,128,128,0.35);font-size:1.3rem;transition:border-color 0.2s;" onclick="triggerImgSlot(' + i + ')" onmouseover="this.style.borderColor='var(--brand-primary)'" onmouseout="this.style.borderColor='rgba(128,128,128,0.22)'">'
+                + '<i class="fas fa-camera"></i>'
+                + (isMain ? '<span style="font-size:0.6rem;font-weight:700;color:var(--text-secondary);">MAIN</span>' : '<span style="font-size:0.6rem;font-weight:600;color:var(--text-secondary);">Add</span>')
+                + '</div>';
+        }
+      }
+      grid.innerHTML = html;
+      var lbl = document.getElementById('imgCountLabel');
+      if (lbl) lbl.textContent = _uploadedImages.length > 0 ? 'Uploaded: ' + _uploadedImages.length + ' of 9 images' : '';
+      // Update hidden field with main image base64
+      var hiddenImg = document.getElementById('newProdImg');
+      if (hiddenImg) hiddenImg.value = _uploadedImages[0] ? _uploadedImages[0].dataUrl : '';
+    }
+
+    function triggerImgSlot(idx) {
+      var input = document.getElementById('imgFileInput');
+      input._targetSlot = idx;
+      input.removeAttribute('multiple');
+      if (idx === -1) input.setAttribute('multiple', '');
+      input.value = '';
+      input.click();
+    }
+
+    function handleImgFiles(files) {
+      if (!files || files.length === 0) return;
+      var input = document.getElementById('imgFileInput');
+      var startIdx = (input._targetSlot !== undefined && input._targetSlot >= 0) ? input._targetSlot : _uploadedImages.length;
+      input._targetSlot = undefined;
+      var arr = Array.from(files).slice(0, 9 - startIdx);
+      var processed = 0;
+      arr.forEach(function(file, fi) {
+        if (!file.type.startsWith('image/')) return;
+        if (file.size > 5 * 1024 * 1024) { alert(file.name + ' exceeds 5 MB. Please choose a smaller image.'); return; }
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var slot = startIdx + fi;
+          if (slot < 9) {
+            _uploadedImages[slot] = { dataUrl: e.target.result, name: file.name };
+          } else {
+            _uploadedImages.push({ dataUrl: e.target.result, name: file.name });
+          }
+          processed++;
+          if (processed === arr.length) buildImgSlots();
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function removeImg(idx) {
+      _uploadedImages.splice(idx, 1);
+      buildImgSlots();
+    }
+
+    // Rebuild slots whenever Images tab is opened
+    var _origSwitchProdTab = null;
+    // We'll patch this after switchProdTab is defined
+
+    function switchProdTab(tab) {
+      ['details','images','pricing'].forEach(function(t){
+        document.getElementById('prodTab_' + t).style.display = (t === tab) ? '' : 'none';
+        var btn = document.querySelector('[data-tab="' + t + '"]');
+        if (btn) {
+          btn.style.color = (t === tab) ? 'var(--brand-primary)' : 'var(--text-secondary)';
+          btn.style.borderBottom = (t === tab) ? '2px solid var(--brand-primary)' : '2px solid transparent';
+          btn.style.fontWeight = (t === tab) ? '700' : '600';
+        }
+      });
+      if (tab === 'images') buildImgSlots();
+    }
+
+    function submitSellerForm() {
+      if (!validateSellerStep(4)) return;
+      var name = document.getElementById('newProdName').value.trim();
+      var price = parseFloat(document.getElementById('newProdPrice').value);
+      var stock = parseInt(document.getElementById('newProdStock').value);
+      if (!name) { var err=document.getElementById('sellerFormError'); err.textContent='Product name is required.'; err.style.display='block'; return; }
+      if (!price || price < 1) { var err=document.getElementById('sellerFormError'); err.textContent='Please enter a valid selling price.'; err.style.display='block'; return; }
+      if (!stock || stock < 1) { var err=document.getElementById('sellerFormError'); err.textContent='Please enter a valid stock quantity.'; err.style.display='block'; return; }
+
+      // Build product object and call existing submitProduct logic
+      var newProd = {
+        id: 'seller_' + Date.now(),
+        name: name,
+        price: price,
+        stock: stock,
+        img: document.getElementById('newProdImg') ? document.getElementById('newProdImg').value.trim() || 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400' : 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400',
+        desc: document.getElementById('newProdDesc').value.trim() || 'Community listed product.',
+        category: 'others',
+        badge: 'New',
+        rating: 0,
+        reviews: 0,
+        seller: document.getElementById('sel_bizname').value.trim() || (document.getElementById('sel_fname').value + ' ' + document.getElementById('sel_lname').value),
+      };
+
+      // Try to save via Firebase if available
+      if (typeof db !== 'undefined') {
+        db.ref('community_products').push(newProd).then(function(){
+          onSellerSuccess(newProd);
+        }).catch(function(){ onSellerSuccess(newProd); });
+      } else {
+        if (typeof state !== 'undefined' && state.products) {
+          state.products.push(newProd);
+          if (typeof window._PIX_rerenderProducts === 'function') window._PIX_rerenderProducts();
+        }
+        onSellerSuccess(newProd);
+      }
+    }
+
+    function onSellerSuccess(prod) {
+      closeSellerModal();
+      // Show success toast
+      var toast = document.createElement('div');
+      toast.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#10b981,#059669);color:white;font-weight:700;font-size:0.88rem;padding:14px 28px;border-radius:999px;z-index:99999;box-shadow:0 8px 32px rgba(16,185,129,0.4);white-space:nowrap;animation:modalIn 0.3s ease;';
+      toast.innerHTML = '🎉 Seller account created! "' + prod.name + '" is now live.';
+      document.body.appendChild(toast);
+      setTimeout(function(){ toast.remove(); }, 5000);
+    }
+    </script>
 
     <!-- CART REMINDER PANEL (WhatsApp / SMS) -->
     <section id="cart-reminder-section" class="my-12 rounded-2xl hidden overflow-hidden" style="background-color: var(--surface-primary); border: 1px solid rgba(0,0,0,0.08);">
@@ -1752,61 +2287,142 @@
     </div>
   </div>
 
-  <!-- MODALS -->
-  <div class="modal fixed inset-0 items-center justify-center p-4" id="modal" style="display:none; z-index:9000;">
+  <!-- PRODUCT DETAIL MODAL -->
+  <style>
+    #modal { align-items: flex-start; }
+    #modal { overflow-y: hidden !important; }
+    #modalBox {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-radius: 20px;
+      overflow: hidden;
+      width: 100%;
+      max-width: 900px;
+      height: 92vh;
+      max-height: 92vh;
+      position: relative;
+      background: var(--surface-primary);
+      box-shadow: 0 32px 80px rgba(0,0,0,0.45);
+    }
+    @media (max-width: 700px) {
+      #modalBox { grid-template-columns: 1fr; height: 96vh; max-height: 96vh; }
+      #modalImgCol { max-height: 280px; flex-shrink: 0; }
+    }
+    #modalImgCol {
+      display: flex;
+      flex-direction: column;
+      background: #f1f1f1;
+      overflow: hidden;
+      min-height: 0;
+    }
+    html.dark #modalImgCol { background: #1e1e1e; }
+    #modalInfoCol {
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 28px 24px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 0;
+      scrollbar-width: thin;
+      scrollbar-color: var(--brand-primary) rgba(128,128,128,0.1);
+    }
+    #modalInfoCol::-webkit-scrollbar { width: 6px; }
+    #modalInfoCol::-webkit-scrollbar-track { background: rgba(128,128,128,0.06); border-radius: 10px; }
+    #modalInfoCol::-webkit-scrollbar-thumb { background: var(--brand-primary); border-radius: 10px; }
+    #modalInfoCol::-webkit-scrollbar-thumb:hover { background: var(--brand-dark); }
+
+    /* Reviews section — scrollable with max height */
+    #reviews {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      max-height: 260px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding-right: 6px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--brand-primary) rgba(128,128,128,0.08);
+    }
+    #reviews::-webkit-scrollbar { width: 5px; }
+    #reviews::-webkit-scrollbar-track { background: rgba(128,128,128,0.06); border-radius: 10px; }
+    #reviews::-webkit-scrollbar-thumb { background: var(--brand-primary); border-radius: 10px; }
+    #reviews::-webkit-scrollbar-thumb:hover { background: var(--brand-dark); }
+    #reviews .rev-item {
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: var(--bg-primary);
+      border: 1.5px solid rgba(128,128,128,0.1);
+      margin-bottom: 10px;
+      transition: border-color 0.2s;
+    }
+    #reviews .rev-item:hover { border-color: rgba(255,60,120,0.2); }
+    #reviews .rev-item:last-child { margin-bottom: 0; }
+  </style>
+
+  <div class="modal fixed inset-0 items-center justify-center p-4" id="modal" style="display:none; z-index:9000; overflow:hidden;">
     <div class="modal-backdrop fixed inset-0"></div>
-    <div class="modal-box relative w-full max-w-4xl max-h-[90vh] grid md:grid-cols-2 rounded-2xl overflow-hidden" style="background-color:var(--surface-primary);">
-        <div class="flex flex-col bg-gray-100 dark:bg-gray-800" style="min-height:340px">
-          <!-- Main image -->
-          <div class="flex-1 overflow-hidden relative" style="min-height:280px">
-            <img id="mImg" alt="Product" class="w-full h-full object-cover transition-all duration-300">
+    <div id="modalBox">
+      <!-- LEFT: sticky image column -->
+      <div id="modalImgCol">
+        <div class="flex-1 overflow-hidden relative" style="min-height:260px">
+          <img id="mImg" alt="Product" class="w-full h-full object-cover transition-all duration-300">
+        </div>
+        <div id="mThumbStrip" class="hidden flex-shrink-0 flex gap-2 p-2 overflow-x-auto" style="background:rgba(0,0,0,0.04)"></div>
+      </div>
+
+      <!-- RIGHT: scrollable info + reviews column -->
+      <div id="modalInfoCol">
+        <!-- Close btn -->
+        <button class="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700" id="mClose" style="z-index:2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+
+        <div class="text-xs font-bold tracking-widest uppercase" id="mCat" style="color:var(--brand-primary);">Category</div>
+        <h3 id="mTitle" class="text-xl font-bold leading-tight" style="color:var(--text-primary)">Product</h3>
+        <div class="text-2xl font-extrabold" id="mPrice" style="color:var(--text-primary)">₹0</div>
+        <div id="mStock" class="text-sm font-semibold" style="color:var(--text-secondary);"></div>
+        <p id="mDesc" class="text-sm leading-relaxed" style="color:var(--text-secondary);"></p>
+
+        <div id="variantWrap" class="hidden items-center gap-2">
+          <label class="text-sm font-medium" data-i18n="scent_lbl">Scent</label>
+          <select id="mScent" class="text-sm font-semibold rounded-lg p-2 appearance-none outline-none cursor-pointer" style="background-color:var(--bg-primary);"><option>Vanilla</option><option>Lavender</option><option>Sandalwood</option><option>Rose</option></select>
+        </div>
+
+        <div class="flex gap-2 items-center flex-wrap">
+          <button class="btn-primary text-white font-bold py-2 px-5 rounded-lg" id="mAdd" data-i18n="add_to_cart">Add to Cart</button>
+          <button class="font-bold py-2 px-4 rounded-lg" style="background-color:var(--bg-primary);" id="mWish">♡ <span data-i18n="wishlist_btn">Wishlist</span></button>
+          <button class="font-bold py-2 px-4 rounded-lg" style="background-color:var(--bg-primary);" id="mCompare">⇄ <span data-i18n="compare_btn">Compare</span></button>
+        </div>
+
+        <hr style="border:none;border-top:1.5px solid rgba(128,128,128,0.15);margin:4px 0;">
+
+        <!-- REVIEWS SECTION -->
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <strong class="text-base" data-i18n="customer_reviews" style="color:var(--text-primary);">Customer Reviews</strong>
+            <span id="mRatingBadge" class="text-sm font-bold px-2 py-0.5 rounded-full" style="background:rgba(255,60,120,0.08);color:var(--brand-primary)">⭐ –</span>
           </div>
-          <!-- Thumbnail strip — hidden when only 1 image -->
-          <div id="mThumbStrip" class="hidden flex-shrink-0 flex gap-2 p-2 overflow-x-auto" style="background:rgba(0,0,0,0.04)">
+
+          <!-- All reviews — no height cap, fully visible, scrolls with the panel -->
+          <div id="reviews" style="margin-bottom:14px;">
+            <div class="text-xs italic" style="color:var(--text-secondary);padding:10px 0;">Loading reviews…</div>
+          </div>
+
+          <!-- Write a review -->
+          <div style="border:1.5px solid rgba(128,128,128,0.12);border-radius:14px;padding:16px;background:var(--bg-primary);">
+            <div style="font-size:0.78rem;font-weight:700;color:var(--text-secondary);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.08em;" data-i18n="your_rating">Your Rating</div>
+            <div id="starPicker" class="flex gap-1 mb-3 text-2xl cursor-pointer select-none" style="color:var(--brand-primary);">
+              <span data-star="1">☆</span><span data-star="2">☆</span><span data-star="3">☆</span><span data-star="4">☆</span><span data-star="5">☆</span>
+            </div>
+            <div class="flex gap-2">
+              <input id="revText" class="input flex-1 text-sm" placeholder="Write your review…"/>
+              <button id="revAdd" class="btn-primary text-white font-bold py-2 px-4 rounded-lg text-sm" data-i18n="post_review">Post</button>
+            </div>
+            <div id="revMsg" class="text-xs mt-2 hidden"></div>
           </div>
         </div>
-        <div class="p-6 flex flex-col gap-3 overflow-y-auto">
-            <div class="text-sm font-semibold" id="mCat" style="color: var(--text-secondary);">Category</div>
-            <h3 id="mTitle" class="text-2xl font-bold">Product</h3>
-            <div class="text-3xl font-extrabold" id="mPrice">₹0</div>
-            <div id="mStock" class="text-sm font-semibold" style="color: var(--text-secondary);"></div>
-            <p id="mDesc" class="text-sm" style="color: var(--text-secondary);"></p>
-            <div id="variantWrap" class="hidden items-center gap-2">
-                <label class="text-sm font-medium" data-i18n="scent_lbl">Scent</label>
-                <select id="mScent" class="text-sm font-semibold rounded-lg p-2 appearance-none outline-none cursor-pointer" style="background-color: var(--bg-primary);"><option>Vanilla</option><option>Lavender</option><option>Sandalwood</option><option>Rose</option></select>
-            </div>
-            <div class="flex gap-2 items-center flex-wrap">
-                <button class="btn-primary text-white font-bold py-2 px-5 rounded-lg" id="mAdd" data-i18n="add_to_cart">Add to Cart</button>
-                <button class="font-bold py-2 px-4 rounded-lg" style="background-color: var(--bg-primary);" id="mWish">♡ <span data-i18n="wishlist_btn">Wishlist</span></button>
-                <button class="font-bold py-2 px-4 rounded-lg" style="background-color: var(--bg-primary);" id="mCompare">⇄ <span data-i18n="compare_btn">Compare</span></button>
-            </div>
-            <hr class="border-t my-2" style="border-color: rgba(128,128,128,0.2);">
-            <div>
-                <div class="flex items-center justify-between mb-2">
-                  <strong class="text-base" data-i18n="customer_reviews">Customer Reviews</strong>
-                  <span id="mRatingBadge" class="text-sm font-bold px-2 py-0.5 rounded-full" style="background:rgba(198,167,94,0.1);color:var(--brand-primary)">⭐ –</span>
-                </div>
-                <div id="reviews" class="text-sm mt-1 space-y-2 max-h-48 overflow-y-auto pr-1" style="color: var(--text-secondary);">
-                  <div class="text-xs italic">Loading reviews…</div>
-                </div>
-                <!-- Star picker -->
-                <div class="mt-3 p-3 rounded-xl" style="background:var(--bg-primary);">
-                  <div class="text-xs font-semibold mb-1" style="color:var(--text-secondary)" data-i18n="your_rating">Your rating</div>
-                  <div id="starPicker" class="flex gap-1 mb-2 text-2xl cursor-pointer select-none">
-                    <span data-star="1">☆</span><span data-star="2">☆</span><span data-star="3">☆</span><span data-star="4">☆</span><span data-star="5">☆</span>
-                  </div>
-                  <div class="flex gap-2">
-                    <input id="revText" class="input flex-1 text-sm" placeholder="Write your review…"/>
-                    <button id="revAdd" class="btn-primary text-white font-bold py-2 px-4 rounded-lg text-sm" data-i18n="post_review">Post</button>
-                  </div>
-                  <div id="revMsg" class="text-xs mt-1 hidden"></div>
-                </div>
-            </div>
-            <button class="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700" id="mClose">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            </button>
-        </div>
-    </div>
+      </div><!-- end modalInfoCol -->
+    </div><!-- end modalBox -->
   </div>
 
   <div class="modal fixed inset-0 items-center justify-center p-4" id="compareModal" style="display:none; z-index:9000;">
@@ -2267,22 +2883,40 @@
 
     function renderReviewsList(reviews) {
       const el = document.getElementById('reviews');
+      const wasAtBottom = el ? (el.scrollHeight - el.scrollTop - el.clientHeight < 40) : false;
       if (!reviews || reviews.length === 0) {
-        el.innerHTML = `<div class="text-xs italic">${window.PIX_t?window.PIX_t('no_reviews'):'No reviews yet – be the first!'}</div>`;
+        el.innerHTML = `<div style="padding:16px;text-align:center;color:var(--text-secondary);font-size:0.82rem;border:1.5px dashed rgba(128,128,128,0.18);border-radius:12px;">
+          <div style="font-size:1.4rem;margin-bottom:6px;">💬</div>
+          ${window.PIX_t?window.PIX_t('no_reviews'):'No reviews yet — be the first to share your thoughts!'}
+        </div>`;
         return;
       }
-      el.innerHTML = reviews.map(r => {
-        const stars = '★'.repeat(r.rating || 0) + '☆'.repeat(5 - (r.rating || 0));
-        const date  = r.createdAt?.toDate ? r.createdAt.toDate().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '';
-        return `<div class="p-2 rounded-lg mb-1" style="background:var(--bg-primary);">
-          <div class="flex items-center justify-between mb-0.5">
-            <span class="font-semibold text-xs">${r.userName || 'Anonymous'}</span>
-            <span class="text-xs" style="color:#f59e0b">${stars}</span>
+      el.innerHTML = reviews.map((r, i) => {
+        const rating  = r.rating || 0;
+        const filled  = '★'.repeat(rating);
+        const empty   = '☆'.repeat(5 - rating);
+        const date    = r.createdAt?.toDate
+          ? r.createdAt.toDate().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})
+          : '';
+        const initials = (r.userName || 'A').charAt(0).toUpperCase();
+        const colors   = ['#FF3C78','#f59e0b','#10b981','#818cf8','#06b6d4'];
+        const avatarBg = colors[i % colors.length];
+        return `<div class="rev-item">
+          <div style="display:flex;align-items:flex-start;gap:10px;">
+            <div style="width:34px;height:34px;border-radius:50%;background:${avatarBg};color:white;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.85rem;flex-shrink:0;">${initials}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;gap:8px;">
+                <span style="font-weight:700;font-size:0.82rem;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.userName || 'Anonymous'}</span>
+                <span style="color:#f59e0b;font-size:0.85rem;flex-shrink:0;letter-spacing:1px;">${filled}<span style="opacity:0.3;">${empty}</span></span>
+              </div>
+              <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.5;margin:0;">${r.text}</p>
+              ${date ? `<div style="font-size:0.7rem;color:var(--text-secondary);opacity:0.6;margin-top:4px;">${date}</div>` : ''}
+            </div>
           </div>
-          <div class="text-xs">${r.text}</div>
-          ${date ? `<div class="text-xs mt-0.5" style="color:var(--text-secondary)">${date}</div>` : ''}
         </div>`;
       }).join('');
+      // Scroll to bottom only if user was near bottom (e.g. just posted a review)
+      if (wasAtBottom) { requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; }); }
     }
 
     function openModal(p) {
@@ -2502,7 +3136,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         $('#year').textContent = new Date().getFullYear();
         
-        const applyTheme = () => {
+        const applyTheme = (reapplyCat = false) => {
             if (state.theme === 'dark') {
                 document.documentElement.classList.add('dark');
                 $('#theme-icon-sun').classList.add('hidden');
@@ -2512,8 +3146,12 @@
                 $('#theme-icon-sun').classList.remove('hidden');
                 $('#theme-icon-moon').classList.add('hidden');
             }
+            if (reapplyCat) {
+                const currentCat = document.documentElement.getAttribute('data-cat-theme') || 'all';
+                if (typeof applyCategoryTheme === 'function') applyCategoryTheme(currentCat);
+            }
         };
-        applyTheme();
+        applyTheme(true);
         
         $('#currency').value = state.currency;
         rerenderAll();
@@ -2522,6 +3160,9 @@
             state.theme = state.theme === 'dark' ? 'light' : 'dark';
             localStorage.setItem('PIX_theme', state.theme);
             applyTheme();
+            // Re-apply category theme so CSS vars update correctly for new dark/light state
+            const currentCat = document.documentElement.getAttribute('data-cat-theme') || 'all';
+            if (typeof applyCategoryTheme === 'function') applyCategoryTheme(currentCat);
         });
 
         $('#currency').addEventListener('change', e => {
@@ -2909,91 +3550,91 @@
         secondary: '#555555',
         dark:      '#000000',
         ring:      'rgba(31,31,31,0.18)',
-        bg:        '#F7F7F7',
+        bg:        '#FFFFFF',
         surface:   '#FFFFFF',
-        headerBg:  '#1F1F1F',
-        subnavBg:  '#C07A5A',
+        headerBg:  '#0A0A0A',
+        subnavBg:  '#0A0A0A',
         textPri:   '#111111',
         textSec:   '#666666',
       },
       candles: {
-        primary:   '#C56E4A',
-        secondary: '#D98A6E',
-        dark:      '#8B3E22',
-        ring:      'rgba(197,110,74,0.22)',
-        bg:        '#FFF4E8',
-        surface:   '#FFFAF4',
-        headerBg:  '#4A2C2A',
-        subnavBg:  '#C56E4A',
-        textPri:   '#2D1810',
-        textSec:   '#7A5040',
+        primary:   '#DC143C',
+        secondary: '#FF4D6A',
+        dark:      '#8B0000',
+        ring:      'rgba(220,20,60,0.22)',
+        bg:        '#FFFFFF',
+        surface:   '#FFFFFF',
+        headerBg:  '#0A0A0A',
+        subnavBg:  '#DC143C',
+        textPri:   '#1A0008',
+        textSec:   '#8B002A',
       },
       candlesaccessories: {
-        primary:   '#111111',
-        secondary: '#444444',
-        dark:      '#000000',
-        ring:      'rgba(17,17,17,0.15)',
-        bg:        '#E8E8E8',
-        surface:   '#F5F5F5',
-        headerBg:  '#111111',
-        subnavBg:  '#B8734C',
-        textPri:   '#111111',
-        textSec:   '#555555',
+        primary:   '#1565C0',
+        secondary: '#4A90D9',
+        dark:      '#0D47A1',
+        ring:      'rgba(21,101,192,0.20)',
+        bg:        '#FFFFFF',
+        surface:   '#FFFFFF',
+        headerBg:  '#0A0A0A',
+        subnavBg:  '#1A237E',
+        textPri:   '#0D1A3A',
+        textSec:   '#3A5A80',
       },
       candlesmoulds: {
-        primary:   '#2A9D8F',
-        secondary: '#3BBFAF',
-        dark:      '#1A6B60',
-        ring:      'rgba(42,157,143,0.22)',
-        bg:        '#E6F4F1',
-        surface:   '#F0FAF8',
-        headerBg:  '#1A4A44',
-        subnavBg:  '#2A9D8F',
-        textPri:   '#0D2E2A',
-        textSec:   '#3A7A72',
+        primary:   '#F5C400',
+        secondary: '#FFD740',
+        dark:      '#B8920A',
+        ring:      'rgba(245,196,0,0.28)',
+        bg:        '#FFFFFF',
+        surface:   '#FFFFFF',
+        headerBg:  '#0A0A0A',
+        subnavBg:  '#F5C400',
+        textPri:   '#111111',
+        textSec:   '#666666',
       },
       spareparts: {
-        primary:   '#3A506B',
-        secondary: '#5B7A9E',
-        dark:      '#1E2D3D',
-        ring:      'rgba(58,80,107,0.20)',
-        bg:        '#EDF2F4',
-        surface:   '#F5F8FA',
-        headerBg:  '#1E2D3D',
-        subnavBg:  '#FF6B35',
-        textPri:   '#0D1A26',
-        textSec:   '#4A6680',
+        primary:   '#E8500A',
+        secondary: '#FF7A3D',
+        dark:      '#A33300',
+        ring:      'rgba(232,80,10,0.22)',
+        bg:        '#FFFFFF',
+        surface:   '#FFFFFF',
+        headerBg:  '#0A0A0A',
+        subnavBg:  '#E8500A',
+        textPri:   '#111111',
+        textSec:   '#666666',
       },
       clothing: {
-        primary:   '#8C7B6B',
-        secondary: '#AFA09A',
-        dark:      '#5A4A3A',
-        ring:      'rgba(140,123,107,0.20)',
-        bg:        '#F8F5F2',
-        surface:   '#FDFBF9',
-        headerBg:  '#3A3028',
-        subnavBg:  '#8C7B6B',
-        textPri:   '#2B1F14',
-        textSec:   '#7A6A5A',
+        primary:   '#0066FF',
+        secondary: '#4D99FF',
+        dark:      '#0040CC',
+        ring:      'rgba(0,102,255,0.22)',
+        bg:        '#FFFFFF',
+        surface:   '#FFFFFF',
+        headerBg:  '#0A0A0A',
+        subnavBg:  '#0066FF',
+        textPri:   '#00103A',
+        textSec:   '#2A4A80',
       },
       beauty: {
-        primary:   '#FF4D8D',
-        secondary: '#FF80B0',
-        dark:      '#B30059',
-        ring:      'rgba(255,77,141,0.25)',
-        bg:        '#FFE6EF',
-        surface:   '#FFF5F8',
-        headerBg:  '#8C0040',
-        subnavBg:  '#FF4D8D',
+        primary:   '#C6106E',
+        secondary: '#E8449A',
+        dark:      '#8A0050',
+        ring:      'rgba(198,16,110,0.25)',
+        bg:        '#FFFFFF',
+        surface:   '#FFFFFF',
+        headerBg:  '#0A0A0A',
+        subnavBg:  '#0A0A0A',
         textPri:   '#1A0010',
-        textSec:   '#AA4070',
+        textSec:   '#8A0050',
       },
       others: {
         primary:   '#6C757D',
         secondary: '#9DA5AC',
         dark:      '#3D444A',
         ring:      'rgba(108,117,125,0.18)',
-        bg:        '#F8F9FA',
+        bg:        '#FFFFFF',
         surface:   '#FFFFFF',
         headerBg:  '#3D444A',
         subnavBg:  '#4C6EF5',
@@ -3019,6 +3660,12 @@
         root.style.setProperty('--surface-primary', t.surface);
         root.style.setProperty('--text-primary',    t.textPri);
         root.style.setProperty('--text-secondary',  t.textSec);
+      } else {
+        // Remove inline overrides so html.dark {} stylesheet rules take over
+        root.style.removeProperty('--bg-primary');
+        root.style.removeProperty('--surface-primary');
+        root.style.removeProperty('--text-primary');
+        root.style.removeProperty('--text-secondary');
       }
 
       // Force-update elements that have hardcoded inline styles
