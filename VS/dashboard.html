@@ -260,7 +260,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-        import { getFirestore, collection, query, where, orderBy, limit, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+        import { getFirestore, collection, query, where, orderBy, limit, getDocs, doc, getDoc, setDoc, increment, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAGpwRwsJfD8QlCHOnXPxxLyGb34ezokgQ",
@@ -285,7 +285,37 @@
                 document.getElementById('userName').textContent = user.displayName || 'User';
                 document.getElementById('welcomeMsg').textContent = `Welcome back, ${user.displayName || 'Innovator'}!`;
                 document.getElementById('userAvatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}`;
-                
+
+                // ✅ Always sync user profile so team email lookups work
+                try {
+                    const userRef = doc(db, "users", user.uid);
+                    await setDoc(userRef, {
+                        name: user.displayName || 'Anonymous',
+                        email: user.email.toLowerCase(),
+                        photoURL: user.photoURL || null,
+                        lastActive: serverTimestamp()
+                    }, { merge: true });
+
+                    // ✅ Claim any pending points awarded before user signed up
+                    const emailKey = user.email.toLowerCase().replace(/[^a-z0-9]/g, '_');
+                    const pendingRef = doc(db, "pendingPoints", emailKey);
+                    const pendingSnap = await getDoc(pendingRef);
+                    if (pendingSnap.exists()) {
+                        const pending = pendingSnap.data();
+                        const claimData = { lastActive: serverTimestamp() };
+                        if (pending.points)           claimData.points           = increment(pending.points);
+                        if (pending.points_finance)   claimData.points_finance   = increment(pending.points_finance);
+                        if (pending.points_systems)   claimData.points_systems   = increment(pending.points_systems);
+                        if (pending.points_research)  claimData.points_research  = increment(pending.points_research);
+                        if (pending.points_education) claimData.points_education = increment(pending.points_education);
+                        await setDoc(userRef, claimData, { merge: true });
+                        await deleteDoc(pendingRef);
+                        console.log("✅ Pending points claimed on dashboard load");
+                    }
+                } catch (e) {
+                    console.warn("Could not sync profile:", e.message);
+                }
+
                 await fetchDashboardStats(user.uid);
                 await fetchUserIdeas(user.uid);
             } else {
