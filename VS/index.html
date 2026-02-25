@@ -1222,19 +1222,16 @@
                                 }
                                 await setDoc(memberRef, memberUpdate, { merge: true });
                             } else {
-                                // User doesn't exist yet - create placeholder
-                                const newMemberRef = doc(collection(db, "users"));
-                                await setDoc(newMemberRef, {
+                                // User hasn't signed up yet — store pending points by email
+                                // so they're credited when they first log in
+                                const pendingRef = doc(db, "pendingPoints", member.email.toLowerCase().replace(/[^a-z0-9]/g, '_'));
+                                await setDoc(pendingRef, {
                                     name: member.name || 'Pending User',
                                     email: member.email.toLowerCase(),
-                                    points: pointsEarned,
-                                    ideasSubmitted: 1,
-                                    teamProjects: 1,
-                                    [specificPointsField || 'points']: pointsEarned,
-                                    createdViaTeam: true,
-                                    joinedDate: serverTimestamp(),
-                                    lastActive: serverTimestamp()
-                                });
+                                    points: increment(pointsEarned),
+                                    [specificPointsField || 'points']: increment(pointsEarned),
+                                    lastUpdated: serverTimestamp()
+                                }, { merge: true });
                             }
                         }
                     }
@@ -1260,8 +1257,12 @@
                 showSuccessModal(pointsEarned);
 
             } catch (error) {
-                console.error('Submit error:', error);
-                alert('Submission failed: ' + error.message);
+                console.error('Submit error:', error.code, error.message);
+                let userMsg = error.message;
+                if (error.code === 'permission-denied' || error.code === 'firestore/permission-denied') {
+                    userMsg = 'Permission denied. Please make sure your Firestore rules allow authenticated writes to the ideas and users collections. Check the setup guide.';
+                }
+                alert('Submission failed: ' + userMsg);
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalBtnText;
             }
