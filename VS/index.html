@@ -1674,14 +1674,23 @@
                 if (filter === 'all') {
                     q = query(challengesRef, orderBy("timestamp", "desc"), limit(50));
                 } else if (filter === 'open') {
-                    q = query(challengesRef, where("status", "==", "open"), orderBy("timestamp", "desc"), limit(50));
+                    // Use simple where() without orderBy to avoid needing a composite index
+                    q = query(challengesRef, where("status", "==", "open"), limit(50));
                 } else {
-                    q = query(challengesRef, where("category", "==", filter), orderBy("timestamp", "desc"), limit(50));
+                    // Use simple where() without orderBy to avoid needing a composite index
+                    q = query(challengesRef, where("category", "==", filter), limit(50));
                 }
 
                 const querySnapshot = await getDocs(q);
                 querySnapshot.forEach((doc) => {
                     userChallengesArray.push({ ...doc.data(), id: doc.id, isSystem: false });
+                });
+
+                // Sort client-side by timestamp descending (avoids composite index requirement)
+                userChallengesArray.sort((a, b) => {
+                    const ta = a.timestamp?.toMillis ? a.timestamp.toMillis() : (a.timestamp?.seconds || 0) * 1000;
+                    const tb = b.timestamp?.toMillis ? b.timestamp.toMillis() : (b.timestamp?.seconds || 0) * 1000;
+                    return tb - ta;
                 });
 
                 if (userChallengesArray.length > 0) {
@@ -1712,11 +1721,12 @@
                 }
 
             } catch (error) {
-                console.error("Error fetching community challenges:", error);
-                // System challenges are already rendered above — only show community error inline
+                console.error("Error fetching community challenges:", error.code, error.message);
+                const isPermissionError = error.code === 'permission-denied' || error.code === 'firestore/permission-denied';
+                const errDetail = isPermissionError ? 'Permission denied. Please ensure you are logged in.' : (error.message || 'Please try again later.');
                 container.innerHTML += `<div class="col-span-full mt-4 p-4 text-center text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
                     <i class="fas fa-exclamation-circle mr-2"></i>
-                    Could not load community challenges. ${error.code === 'failed-precondition' ? 'A Firestore index may be required.' : 'Please try again later.'}
+                    Could not load community challenges. ${errDetail}
                 </div>`;
             }
         }
