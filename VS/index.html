@@ -1190,7 +1190,7 @@
                         teamProjects: increment(1),
                         lastActive: serverTimestamp(),
                         name: currentUser.displayName || 'Anonymous',
-                        email: currentUser.email,
+                        email: currentUser.email.toLowerCase(),
                         photoURL: currentUser.photoURL || null
                     };
                     if (specificPointsField) {
@@ -1245,7 +1245,7 @@
                         individualProjects: increment(1),
                         lastActive: serverTimestamp(),
                         name: currentUser.displayName || 'Anonymous',
-                        email: currentUser.email,
+                        email: currentUser.email.toLowerCase(),
                         photoURL: currentUser.photoURL || null
                     };
                     if (specificPointsField) {
