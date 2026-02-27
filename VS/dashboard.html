@@ -260,7 +260,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-        import { getFirestore, collection, query, where, orderBy, limit, getDocs, doc, getDoc, setDoc, increment, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+        import { getFirestore, collection, query, where, orderBy, limit, getDocs, doc, getDoc, setDoc, increment, deleteDoc, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAGpwRwsJfD8QlCHOnXPxxLyGb34ezokgQ",
@@ -318,6 +318,34 @@
 
                 await fetchDashboardStats(user.uid);
                 await fetchUserIdeas(user.uid);
+
+                // ✅ Real-time points listener — updates instantly when points are awarded
+                const userRef2 = doc(db, "users", user.uid);
+                onSnapshot(userRef2, (snap) => {
+                    if (snap.exists()) {
+                        const pts = snap.data().points || 0;
+                        document.getElementById('statPoints').textContent = pts;
+                    }
+                });
+
+                // ✅ Real-time pending points listener — auto-claims when a team lead awards points while user is logged in
+                const emailKey2 = user.email.toLowerCase().replace(/[^a-z0-9]/g, '_');
+                const pendingRef2 = doc(db, "pendingPoints", emailKey2);
+                onSnapshot(pendingRef2, async (snap) => {
+                    if (snap.exists()) {
+                        const pending = snap.data();
+                        const userRef3 = doc(db, "users", user.uid);
+                        const claimData = { lastActive: serverTimestamp() };
+                        if (pending.points)           claimData.points           = increment(pending.points);
+                        if (pending.points_finance)   claimData.points_finance   = increment(pending.points_finance);
+                        if (pending.points_systems)   claimData.points_systems   = increment(pending.points_systems);
+                        if (pending.points_research)  claimData.points_research  = increment(pending.points_research);
+                        if (pending.points_education) claimData.points_education = increment(pending.points_education);
+                        await setDoc(userRef3, claimData, { merge: true });
+                        await deleteDoc(pendingRef2);
+                        console.log("✅ Live pending points claimed automatically");
+                    }
+                });
             } else {
                 window.location.href = "index.html";
             }
