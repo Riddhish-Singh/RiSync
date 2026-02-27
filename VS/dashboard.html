@@ -359,12 +359,15 @@
         // Fetch Dashboard Stats
         async function fetchDashboardStats(userId) {
             try {
-                // ✅ Fix 1: correct field is "userId" not "authorId"
-                // Fetch user's submitted ideas/solutions
+                // Fetch ideas submitted by user directly
                 const ideasQuery = query(collection(db, "ideas"), where("userId", "==", userId));
                 const ideasSnapshot = await getDocs(ideasQuery);
 
-                // ✅ Fix 2: fetch user's proposed challenges from userChallenges collection
+                // Fetch ideas where user is a team member (by email)
+                const teamIdeasQuery = query(collection(db, "ideas"), where("teamEmails", "array-contains", currentUser.email.toLowerCase()));
+                const teamIdeasSnapshot = await getDocs(teamIdeasQuery);
+
+                // Fetch user's proposed challenges
                 const challengesQuery = query(collection(db, "userChallenges"), where("creatorId", "==", userId));
                 const challengesSnapshot = await getDocs(challengesQuery);
 
@@ -373,11 +376,25 @@
                 let teamCount = 0;
                 let individualCount = 0;
 
+                // Track processed idea IDs to avoid double-counting
+                const processedIds = new Set();
+
                 ideasSnapshot.forEach(doc => {
+                    processedIds.add(doc.id);
                     const data = doc.data();
                     if (data.submissionType === 'challenge') solutionsCount++;
                     if (data.isTeamProject) teamCount++;
                     else individualCount++;
+                });
+
+                // Add team member submissions not already counted
+                teamIdeasSnapshot.forEach(doc => {
+                    if (!processedIds.has(doc.id)) {
+                        const data = doc.data();
+                        if (data.submissionType === 'challenge') solutionsCount++;
+                        if (data.isTeamProject) teamCount++;
+                        else individualCount++;
+                    }
                 });
 
                 document.getElementById('statIdeas').textContent = totalChallengesProposed;
@@ -404,12 +421,20 @@
                 // Activity List — combine challenges + solutions, sort by timestamp
                 const activityList = document.getElementById('activityList');
                 let allActivity = [];
+                const activityIds = new Set();
 
                 challengesSnapshot.forEach(d => {
                     allActivity.push({ ...d.data(), _type: 'challenge' });
                 });
                 ideasSnapshot.forEach(d => {
+                    activityIds.add(d.id);
                     allActivity.push({ ...d.data(), _type: 'solution' });
+                });
+                // Add team-member activities not already counted
+                teamIdeasSnapshot.forEach(d => {
+                    if (!activityIds.has(d.id)) {
+                        allActivity.push({ ...d.data(), _type: 'solution' });
+                    }
                 });
 
                 // Sort newest first client-side
@@ -449,14 +474,27 @@
         // Fetch User Ideas/Solutions
         async function fetchUserIdeas(userId) {
             try {
-                // ✅ Fix 1: correct field is "userId" not "authorId"
-                // ✅ Fix 3: no orderBy to avoid composite index — sort client-side
+                // Ideas submitted directly by the user
                 const q = query(collection(db, "ideas"), where("userId", "==", userId));
                 const querySnapshot = await getDocs(q);
 
+                // Ideas where the user is a team member
+                const teamQ = query(collection(db, "ideas"), where("teamEmails", "array-contains", currentUser.email.toLowerCase()));
+                const teamSnapshot = await getDocs(teamQ);
+
+                const seen = new Set();
                 allUserIdeas = [];
+
                 querySnapshot.forEach((doc) => {
+                    seen.add(doc.id);
                     allUserIdeas.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Add team-member submissions not already in the list
+                teamSnapshot.forEach((doc) => {
+                    if (!seen.has(doc.id)) {
+                        allUserIdeas.push({ id: doc.id, ...doc.data() });
+                    }
                 });
 
                 // Sort newest first client-side
@@ -587,7 +625,7 @@
                             </div>
                             <div class="flex items-center gap-2">
                                 ${idea.isTeamProject ? '<span class="text-purple-600 dark:text-purple-400 font-bold"><i class="fas fa-user-friends text-[10px]"></i> Shared pts</span>' : ''}
-                                ${idea.status === 'Approved' ? '<span class="text-fresh-600 font-bold">+10 pts</span>' : ''}
+                                ${idea.status === 'Approved' ? `<span class="text-fresh-600 font-bold">+${idea.pointsValue || 50} pts</span>` : ''}
                             </div>
                         </div>
                     </div>
