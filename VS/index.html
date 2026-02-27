@@ -1150,7 +1150,7 @@
                 
                 // Determine if team project
                 const isTeamProject = teamMembers.length > 0;
-                const allTeamEmails = isTeamProject ? teamMembers.map(m => m.email).filter(e => e) : [];
+                const allTeamEmails = isTeamProject ? teamMembers.map(m => m.email.trim().toLowerCase()).filter(e => e) : [];
                 
                 const ideaData = {
                     userId: currentUser.uid,
@@ -1225,13 +1225,16 @@
                                 // User hasn't signed up yet — store pending points by email
                                 // so they're credited when they first log in
                                 const pendingRef = doc(db, "pendingPoints", member.email.toLowerCase().replace(/[^a-z0-9]/g, '_'));
-                                await setDoc(pendingRef, {
+                                const pendingUpdate = {
                                     name: member.name || 'Pending User',
                                     email: member.email.toLowerCase(),
                                     points: increment(pointsEarned),
-                                    [specificPointsField || 'points']: increment(pointsEarned),
                                     lastUpdated: serverTimestamp()
-                                }, { merge: true });
+                                };
+                                if (specificPointsField) {
+                                    pendingUpdate[specificPointsField] = increment(pointsEarned);
+                                }
+                                await setDoc(pendingRef, pendingUpdate, { merge: true });
                             }
                         }
                     }
