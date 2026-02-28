@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en" class="light">
 <head>
@@ -57,7 +58,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
-                    <a href="index.html" class="flex-shrink-0 flex items-center gap-3">
+                    <a href="/VS/" class="flex-shrink-0 flex items-center gap-3">
                         <img src="https://vigyanshaala.com/wp-content/uploads/2021/06/VS-logo.png" 
                              alt="Vigyanshaala Logo" 
                              class="h-10 w-auto rounded-md object-contain">
@@ -67,7 +68,7 @@
                     </a>
                     
                     <div id="mainNavLinks" class="hidden md:ml-10 md:flex md:space-x-8 text-sm font-medium items-center">
-                        <a href="index.html" class="text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-300 transition">Home</a>
+                        <a href="/VS/" class="text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-300 transition">Home</a>
                         <a href="dashboard.html" class="text-brand-700 dark:text-brand-300 border-b-2 border-brand-500">My Dashboard</a>
                     </div>
                 </div>
@@ -196,10 +197,10 @@
                     Submit a challenge or provide solutions to existing challenges in the community.
                 </p>
                 <div class="flex flex-wrap justify-center gap-4">
-                    <a href="index.html" class="bg-white text-brand-700 font-bold px-6 py-3 rounded-lg hover:bg-brand-50 transition shadow-lg">
+                    <a href="/VS/" class="bg-white text-brand-700 font-bold px-6 py-3 rounded-lg hover:bg-brand-50 transition shadow-lg">
                         <i class="fas fa-trophy mr-2"></i>Submit Challenge
                     </a>
-                    <a href="index.html" class="bg-white/10 backdrop-blur-sm border border-white/20 text-white font-bold px-6 py-3 rounded-lg hover:bg-white/20 transition">
+                    <a href="/VS/" class="bg-white/10 backdrop-blur-sm border border-white/20 text-white font-bold px-6 py-3 rounded-lg hover:bg-white/20 transition">
                         <i class="fas fa-lightbulb mr-2"></i>Browse Challenges
                     </a>
                 </div>
@@ -213,7 +214,7 @@
                     <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">My Solutions</h2>
                     <p class="text-slate-500 dark:text-slate-400">View and manage all solutions you've submitted with proof</p>
                 </div>
-                <a href="index.html" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-6 py-3 rounded-lg transition shadow-lg">
+                <a href="/VS/" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-6 py-3 rounded-lg transition shadow-lg">
                     <i class="fas fa-plus mr-2"></i>Submit Solution
                 </a>
             </div>
@@ -252,7 +253,7 @@
     </footer>
 
     <!-- Floating Submit Challenge Button (like chat widget) -->
-    <a href="index.html" id="floatingSubmitBtn" class="fixed right-6 bottom-6 z-40 bg-gradient-to-r from-brand-600 to-ocean-600 hover:from-brand-700 hover:to-ocean-700 text-white rounded-full shadow-2xl shadow-brand-500/30 p-4 transition-all duration-300 hover:scale-110 group flex items-center gap-3 pr-5">
+    <a href="/VS/" id="floatingSubmitBtn" class="fixed right-6 bottom-6 z-40 bg-gradient-to-r from-brand-600 to-ocean-600 hover:from-brand-700 hover:to-ocean-700 text-white rounded-full shadow-2xl shadow-brand-500/30 p-4 transition-all duration-300 hover:scale-110 group flex items-center gap-3 pr-5">
         <i class="fas fa-plus text-xl"></i>
         <span class="font-bold text-sm whitespace-nowrap">Submit Challenge</span>
     </a>
@@ -260,7 +261,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-        import { getFirestore, collection, query, where, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+        import { getFirestore, collection, query, where, orderBy, limit, getDocs, doc, getDoc, setDoc, increment, deleteDoc, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAGpwRwsJfD8QlCHOnXPxxLyGb34ezokgQ",
@@ -285,11 +286,69 @@
                 document.getElementById('userName').textContent = user.displayName || 'User';
                 document.getElementById('welcomeMsg').textContent = `Welcome back, ${user.displayName || 'Innovator'}!`;
                 document.getElementById('userAvatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}`;
-                
+
+                // ✅ Always sync user profile so team email lookups work
+                try {
+                    const userRef = doc(db, "users", user.uid);
+                    await setDoc(userRef, {
+                        name: user.displayName || 'Anonymous',
+                        email: user.email.toLowerCase(),
+                        photoURL: user.photoURL || null,
+                        lastActive: serverTimestamp()
+                    }, { merge: true });
+
+                    // ✅ Claim any pending points awarded before user signed up
+                    const emailKey = user.email.toLowerCase().replace(/[^a-z0-9]/g, '_');
+                    const pendingRef = doc(db, "pendingPoints", emailKey);
+                    const pendingSnap = await getDoc(pendingRef);
+                    if (pendingSnap.exists()) {
+                        const pending = pendingSnap.data();
+                        const claimData = { lastActive: serverTimestamp() };
+                        if (pending.points)           claimData.points           = increment(pending.points);
+                        if (pending.points_finance)   claimData.points_finance   = increment(pending.points_finance);
+                        if (pending.points_systems)   claimData.points_systems   = increment(pending.points_systems);
+                        if (pending.points_research)  claimData.points_research  = increment(pending.points_research);
+                        if (pending.points_education) claimData.points_education = increment(pending.points_education);
+                        await setDoc(userRef, claimData, { merge: true });
+                        await deleteDoc(pendingRef);
+                        console.log("✅ Pending points claimed on dashboard load");
+                    }
+                } catch (e) {
+                    console.warn("Could not sync profile:", e.message);
+                }
+
                 await fetchDashboardStats(user.uid);
                 await fetchUserIdeas(user.uid);
+
+                // ✅ Real-time points listener — updates instantly when points are awarded
+                const userRef2 = doc(db, "users", user.uid);
+                onSnapshot(userRef2, (snap) => {
+                    if (snap.exists()) {
+                        const pts = snap.data().points || 0;
+                        document.getElementById('statPoints').textContent = pts;
+                    }
+                });
+
+                // ✅ Real-time pending points listener — auto-claims when a team lead awards points while user is logged in
+                const emailKey2 = user.email.toLowerCase().replace(/[^a-z0-9]/g, '_');
+                const pendingRef2 = doc(db, "pendingPoints", emailKey2);
+                onSnapshot(pendingRef2, async (snap) => {
+                    if (snap.exists()) {
+                        const pending = snap.data();
+                        const userRef3 = doc(db, "users", user.uid);
+                        const claimData = { lastActive: serverTimestamp() };
+                        if (pending.points)           claimData.points           = increment(pending.points);
+                        if (pending.points_finance)   claimData.points_finance   = increment(pending.points_finance);
+                        if (pending.points_systems)   claimData.points_systems   = increment(pending.points_systems);
+                        if (pending.points_research)  claimData.points_research  = increment(pending.points_research);
+                        if (pending.points_education) claimData.points_education = increment(pending.points_education);
+                        await setDoc(userRef3, claimData, { merge: true });
+                        await deleteDoc(pendingRef2);
+                        console.log("✅ Live pending points claimed automatically");
+                    }
+                });
             } else {
-                window.location.href = "index.html";
+                window.location.href = "/VS/";
             }
         });
 
@@ -329,54 +388,107 @@
         // Fetch Dashboard Stats
         async function fetchDashboardStats(userId) {
             try {
-                // Fetch user's ideas
-                const ideasQuery = query(collection(db, "ideas"), where("authorId", "==", userId));
+                // Fetch ideas submitted by user directly
+                const ideasQuery = query(collection(db, "ideas"), where("userId", "==", userId));
                 const ideasSnapshot = await getDocs(ideasQuery);
-                
-                const totalIdeas = ideasSnapshot.size;
-                let approvedCount = 0;
+
+                // Fetch ideas where user is a team member (by email)
+                const teamIdeasQuery = query(collection(db, "ideas"), where("teamEmails", "array-contains", currentUser.email.toLowerCase()));
+                const teamIdeasSnapshot = await getDocs(teamIdeasQuery);
+
+                // Fetch user's proposed challenges
+                const challengesQuery = query(collection(db, "userChallenges"), where("creatorId", "==", userId));
+                const challengesSnapshot = await getDocs(challengesQuery);
+
+                const totalChallengesProposed = challengesSnapshot.size;
+                let solutionsCount = 0;
                 let teamCount = 0;
                 let individualCount = 0;
-                
+
+                // Track processed idea IDs to avoid double-counting
+                const processedIds = new Set();
+
                 ideasSnapshot.forEach(doc => {
-                    if (doc.data().status === 'Approved') approvedCount++;
-                    if (doc.data().isTeamProject) teamCount++;
+                    processedIds.add(doc.id);
+                    const data = doc.data();
+                    if (data.submissionType === 'challenge') solutionsCount++;
+                    if (data.isTeamProject) teamCount++;
                     else individualCount++;
                 });
 
-                document.getElementById('statIdeas').textContent = totalIdeas;
-                document.getElementById('statApproved').textContent = approvedCount;
+                // Add team member submissions not already counted
+                teamIdeasSnapshot.forEach(doc => {
+                    if (!processedIds.has(doc.id)) {
+                        const data = doc.data();
+                        if (data.submissionType === 'challenge') solutionsCount++;
+                        if (data.isTeamProject) teamCount++;
+                        else individualCount++;
+                    }
+                });
+
+                document.getElementById('statIdeas').textContent = totalChallengesProposed;
+                document.getElementById('statApproved').textContent = solutionsCount;
                 document.getElementById('statTeam').textContent = teamCount;
                 document.getElementById('statIndividual').textContent = individualCount;
 
-                // Fetch user's points
-                const usersQuery = query(collection(db, "users"), where("email", "==", currentUser.email), limit(1));
-                const usersSnapshot = await getDocs(usersQuery);
-                
-                if (!usersSnapshot.empty) {
-                    const userData = usersSnapshot.docs[0].data();
-                    document.getElementById('statPoints').textContent = userData.points || 0;
+                // Fetch user's points from users collection by UID (doc/getDoc imported at top)
+                const userDocRef = doc(db, "users", userId);
+                const userDocSnap = await getDoc(userDocRef);
+                if (userDocSnap.exists()) {
+                    document.getElementById('statPoints').textContent = userDocSnap.data().points || 0;
+                } else {
+                    // Fallback: query by email
+                    const usersQuery = query(collection(db, "users"), where("email", "==", currentUser.email), limit(1));
+                    const usersSnapshot = await getDocs(usersQuery);
+                    if (!usersSnapshot.empty) {
+                        document.getElementById('statPoints').textContent = usersSnapshot.docs[0].data().points || 0;
+                    } else {
+                        document.getElementById('statPoints').textContent = 0;
+                    }
                 }
 
-                // Activity List
+                // Activity List — combine challenges + solutions, sort by timestamp
                 const activityList = document.getElementById('activityList');
-                if (ideasSnapshot.size > 0) {
+                let allActivity = [];
+                const activityIds = new Set();
+
+                challengesSnapshot.forEach(d => {
+                    allActivity.push({ ...d.data(), _type: 'challenge' });
+                });
+                ideasSnapshot.forEach(d => {
+                    activityIds.add(d.id);
+                    allActivity.push({ ...d.data(), _type: 'solution' });
+                });
+                // Add team-member activities not already counted
+                teamIdeasSnapshot.forEach(d => {
+                    if (!activityIds.has(d.id)) {
+                        allActivity.push({ ...d.data(), _type: 'solution' });
+                    }
+                });
+
+                // Sort newest first client-side
+                allActivity.sort((a, b) => {
+                    const ta = a.timestamp?.toMillis ? a.timestamp.toMillis() : (a.timestamp?.seconds || 0) * 1000;
+                    const tb = b.timestamp?.toMillis ? b.timestamp.toMillis() : (b.timestamp?.seconds || 0) * 1000;
+                    return tb - ta;
+                });
+
+                if (allActivity.length > 0) {
                     let html = '';
-                    ideasSnapshot.forEach((doc, idx) => {
-                        if (idx < 5) {
-                            const data = doc.data();
-                            const date = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleDateString() : 'Recent';
-                            html += `
-                                <div class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
-                                    <div class="w-2 h-2 rounded-full bg-brand-500"></div>
-                                    <div class="flex-grow">
-                                        <p class="text-sm font-medium text-slate-700 dark:text-slate-200">${data.title || 'Untitled'}</p>
-                                        <p class="text-xs text-slate-500">${date}</p>
-                                    </div>
-                                    <span class="text-xs px-2 py-1 rounded-full ${data.status === 'Approved' ? 'bg-fresh-100 text-fresh-700' : 'bg-slate-100 text-slate-600'}">${data.status || 'New'}</span>
+                    allActivity.slice(0, 5).forEach(data => {
+                        const date = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleDateString() : 'Recent';
+                        const typeLabel = data._type === 'challenge' ? 'Challenge' : 'Solution';
+                        const typeBg = data._type === 'challenge' ? 'bg-brand-100 text-brand-700' : 'bg-ocean-100 text-ocean-700';
+                        html += `
+                            <div class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                                <div class="w-2 h-2 rounded-full bg-brand-500 flex-shrink-0"></div>
+                                <div class="flex-grow min-w-0">
+                                    <p class="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">${data.title || 'Untitled'}</p>
+                                    <p class="text-xs text-slate-500">${date}</p>
                                 </div>
-                            `;
-                        }
+                                <span class="text-xs px-2 py-1 rounded-full flex-shrink-0 ${typeBg}">${typeLabel}</span>
+                            </div>
+                        `;
                     });
                     activityList.innerHTML = html;
                 } else {
@@ -388,15 +500,37 @@
             }
         }
 
-        // Fetch User Ideas
+        // Fetch User Ideas/Solutions
         async function fetchUserIdeas(userId) {
             try {
-                const q = query(collection(db, "ideas"), where("authorId", "==", userId), orderBy("timestamp", "desc"));
+                // Ideas submitted directly by the user
+                const q = query(collection(db, "ideas"), where("userId", "==", userId));
                 const querySnapshot = await getDocs(q);
-                
+
+                // Ideas where the user is a team member
+                const teamQ = query(collection(db, "ideas"), where("teamEmails", "array-contains", currentUser.email.toLowerCase()));
+                const teamSnapshot = await getDocs(teamQ);
+
+                const seen = new Set();
                 allUserIdeas = [];
+
                 querySnapshot.forEach((doc) => {
+                    seen.add(doc.id);
                     allUserIdeas.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Add team-member submissions not already in the list
+                teamSnapshot.forEach((doc) => {
+                    if (!seen.has(doc.id)) {
+                        allUserIdeas.push({ id: doc.id, ...doc.data() });
+                    }
+                });
+
+                // Sort newest first client-side
+                allUserIdeas.sort((a, b) => {
+                    const ta = a.timestamp?.toMillis ? a.timestamp.toMillis() : (a.timestamp?.seconds || 0) * 1000;
+                    const tb = b.timestamp?.toMillis ? b.timestamp.toMillis() : (b.timestamp?.seconds || 0) * 1000;
+                    return tb - ta;
                 });
 
                 renderIdeas(allUserIdeas);
@@ -405,7 +539,7 @@
                 document.getElementById('ideasGrid').innerHTML = `
                     <div class="col-span-full p-8 text-center text-red-500">
                         <i class="fas fa-exclamation-circle text-3xl mb-3"></i>
-                        <p>Error loading ideas: ${error.message}</p>
+                        <p>Error loading your submissions: ${error.message}</p>
                     </div>
                 `;
             }
@@ -441,7 +575,7 @@
                         </div>
                         <h3 class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-2">No solutions yet</h3>
                         <p class="text-slate-500 text-sm mb-6">Start sharing your innovative solutions!</p>
-                        <a href="index.html" class="inline-block bg-brand-600 hover:bg-brand-700 text-white font-bold px-6 py-3 rounded-lg transition">
+                        <a href="/VS/" class="inline-block bg-brand-600 hover:bg-brand-700 text-white font-bold px-6 py-3 rounded-lg transition">
                             <i class="fas fa-plus mr-2"></i>Submit Your First Solution
                         </a>
                     </div>
@@ -520,7 +654,7 @@
                             </div>
                             <div class="flex items-center gap-2">
                                 ${idea.isTeamProject ? '<span class="text-purple-600 dark:text-purple-400 font-bold"><i class="fas fa-user-friends text-[10px]"></i> Shared pts</span>' : ''}
-                                ${idea.status === 'Approved' ? '<span class="text-fresh-600 font-bold">+10 pts</span>' : ''}
+                                ${idea.status === 'Approved' ? `<span class="text-fresh-600 font-bold">+${idea.pointsValue || 50} pts</span>` : ''}
                             </div>
                         </div>
                     </div>
