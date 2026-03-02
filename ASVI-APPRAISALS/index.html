@@ -2,53 +2,59 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>HRMS | Asvi Thoughtworks</title>
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
-    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app-check.js";
+    <title>HRMS | Loading...</title>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+        import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app-check.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyDdZjWSU5UnCnywbA1ycyF7jqEVjG9HMnk",
-        authDomain: "hrms-vtion.firebaseapp.com",
-        projectId: "hrms-vtion",
-        storageBucket: "hrms-vtion.firebasestorage.app",
-        messagingSenderId: "14588537659",
-        appId: "1:14588537659:web:a622416c87986064703a48"
-    };
+        const firebaseConfig = {
+            apiKey: "AIzaSyDdZjWSU5UnCnywbA1ycyF7jqEVjG9HMnk",
+            authDomain: "hrms-vtion.firebaseapp.com",
+            projectId: "hrms-vtion",
+            storageBucket: "hrms-vtion.firebasestorage.app",
+            messagingSenderId: "14588537659",
+            appId: "1:14588537659:web:a622416c87986064703a48"
+        };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-    // Initialize App Check immediately
-    const appCheck = initializeAppCheck(app, {
-        provider: new ReCaptchaV3Provider('6LfkK30sAAAAAGWDluWMTC8O4El1ZO8UihORPu0C'),
-        isTokenAutoRefreshEnabled: true
-    });
-
-    async function loadApp() {
+        // App Check - Make sure this SITE KEY matches the one in your reCAPTCHA console
         try {
-            // Reference the document where you pasted the code
-            const docRef = doc(db, "app_config", "main_page"); 
-            const docSnap = await getDoc(docRef);
+            initializeAppCheck(app, {
+                provider: new ReCaptchaV3Provider('YOUR_SITE_KEY_HERE'),
+                isTokenAutoRefreshEnabled: true
+            });
+        } catch (e) { console.error("App Check Init Error", e); }
 
-            if (docSnap.exists()) {
-                const code = docSnap.data().html_content;
-                
-                // This replaces the loading screen with your real code
-                document.open();
-                document.write(code);
-                document.close();
-            } else {
-                document.body.innerHTML = "<h2>Configuration not found in Database.</h2>";
+        async function loadApp() {
+            const statusDiv = document.getElementById('status');
+            try {
+                // IMPORTANT: collection: app_config, document: main_page
+                const docRef = doc(db, "app_config", "main_page");
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const content = docSnap.data().html_content;
+                    document.open();
+                    document.write(content);
+                    document.close();
+                } else {
+                    statusDiv.innerHTML = "❌ Error: Document 'app_config/main_page' not found in Firestore.";
+                }
+            } catch (error) {
+                console.error(error);
+                statusDiv.innerHTML = `❌ Access Denied: ${error.message}<br><br>Check your Firestore Rules and App Check enforcement.`;
             }
-        } catch (error) {
-            console.error("Load failed:", error);
-            document.body.innerHTML = "<h2>Security Block: Access Denied.</h2>";
         }
-    }
 
-    loadApp();
-</script>
+        loadApp();
+    </script>
 </head>
+<body style="background:#f4f4f5; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;">
+    <div id="status" style="padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        ⏳ Loading HRMS from Secure Cloud...
+    </div>
+</body>
 </html>
