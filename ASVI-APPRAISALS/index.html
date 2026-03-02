@@ -2,55 +2,53 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>HRMS | Loading...</title>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
-        import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app-check.js";
+    <title>HRMS | Asvi Thoughtworks</title>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app-check.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDdZjWSU5UnCnywbA1ycyF7jqEVjG9HMnk", //
-            authDomain: "hrms-vtion.firebaseapp.com",
-            projectId: "hrms-vtion",
-            storageBucket: "hrms-vtion.firebasestorage.app",
-            messagingSenderId: "14588537659",
-            appId: "1:14588537659:web:a622416c87986064703a48"
-        };
+    const firebaseConfig = {
+        apiKey: "AIzaSyDdZjWSU5UnCnywbA1ycyF7jqEVjG9HMnk",
+        authDomain: "hrms-vtion.firebaseapp.com",
+        projectId: "hrms-vtion",
+        storageBucket: "hrms-vtion.firebasestorage.app",
+        messagingSenderId: "14588537659",
+        appId: "1:14588537659:web:a622416c87986064703a48"
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-        // Essential: App Check ensures only risync.in can fetch this code
-        const appCheck = initializeAppCheck(app, {
-            provider: new ReCaptchaV3Provider('YOUR_RECAPTCHA_SITE_KEY'),
-            isTokenAutoRefreshEnabled: true
-        });
+    // Initialize App Check immediately
+    const appCheck = initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider('6LfkK30sAAAAAGWDluWMTC8O4El1ZO8UihORPu0C'),
+        isTokenAutoRefreshEnabled: true
+    });
 
-        async function loadApp() {
-            try {
-                const docRef = doc(db, "app_config", "main_page");
-                const docSnap = await getDoc(docRef);
+    async function loadApp() {
+        try {
+            // Reference the document where you pasted the code
+            const docRef = doc(db, "app_config", "main_page"); 
+            const docSnap = await getDoc(docRef);
 
-                if (docSnap.exists()) {
-                    const fullHtml = docSnap.data().html_content;
-                    // Replace the current page with the code from the database
-                    document.open();
-                    document.write(fullHtml);
-                    document.close();
-                } else {
-                    console.error("No app code found in Firestore!");
-                }
-            } catch (error) {
-                console.error("Error fetching app code:", error);
+            if (docSnap.exists()) {
+                const code = docSnap.data().html_content;
+                
+                // This replaces the loading screen with your real code
+                document.open();
+                document.write(code);
+                document.close();
+            } else {
+                document.body.innerHTML = "<h2>Configuration not found in Database.</h2>";
             }
+        } catch (error) {
+            console.error("Load failed:", error);
+            document.body.innerHTML = "<h2>Security Block: Access Denied.</h2>";
         }
+    }
 
-        loadApp();
-    </script>
+    loadApp();
+</script>
 </head>
-<body>
-    <div style="text-align:center; padding: 50px; font-family: sans-serif;">
-        <h2>Loading Asvi HRMS...</h2>
-    </div>
-</body>
 </html>
