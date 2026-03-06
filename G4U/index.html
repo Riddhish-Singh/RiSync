@@ -51,6 +51,542 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
+  <!-- ══════════════════════════════════════════════════════════
+       🚀 ENHANCED ANIMATION SYSTEM — Pioneer I Xpress v2
+       ══════════════════════════════════════════════════════════ -->
+  <style>
+    /* ── PAGE LOAD CURTAIN ── */
+    #pix-loader {
+      position: fixed; inset: 0; z-index: 99999;
+      background: #0a0005;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 24px;
+      transition: opacity 0.7s ease, visibility 0.7s ease;
+    }
+    #pix-loader.fade-out { opacity: 0; visibility: hidden; pointer-events: none; }
+    .pix-loader-logo {
+      width: 80px; height: 80px; border-radius: 20px;
+      background: linear-gradient(135deg, #FF3C78, #c41755);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 900; font-size: 2rem; color: white;
+      animation: loaderPulse 1.2s ease-in-out infinite;
+      box-shadow: 0 0 60px rgba(255,60,120,0.5);
+    }
+    @keyframes loaderPulse {
+      0%,100% { transform: scale(1); box-shadow: 0 0 40px rgba(255,60,120,0.4); }
+      50%      { transform: scale(1.08); box-shadow: 0 0 80px rgba(255,60,120,0.7); }
+    }
+    .pix-loader-bar-wrap {
+      width: 200px; height: 3px; border-radius: 99px;
+      background: rgba(255,255,255,0.1); overflow: hidden;
+    }
+    .pix-loader-bar {
+      height: 100%; border-radius: 99px;
+      background: linear-gradient(90deg, #FF3C78, #FF7EAC);
+      animation: loaderFill 1.6s ease forwards;
+    }
+    @keyframes loaderFill { from { width: 0%; } to { width: 100%; } }
+    .pix-loader-text {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.75rem; font-weight: 800;
+      letter-spacing: 0.25em; text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      animation: loaderTextBlink 1.2s ease-in-out infinite;
+    }
+    @keyframes loaderTextBlink {
+      0%,100%{ opacity: 0.5; } 50%{ opacity: 1; }
+    }
+
+
+
+    /* ── SCROLL REVEAL — safe defaults, JS animates ── */
+    .pix-reveal {
+      opacity: 1;
+      transform: none;
+      transition: opacity 0.75s cubic-bezier(.2,.9,.2,1), transform 0.75s cubic-bezier(.2,.9,.2,1);
+    }
+    .pix-reveal-left  { opacity: 1; transform: none; transition: opacity 0.75s cubic-bezier(.2,.9,.2,1), transform 0.75s cubic-bezier(.2,.9,.2,1); }
+    .pix-reveal-right { opacity: 1; transform: none;  transition: opacity 0.75s cubic-bezier(.2,.9,.2,1), transform 0.75s cubic-bezier(.2,.9,.2,1); }
+    .pix-reveal-scale { opacity: 1; transform: none; transition: opacity 0.65s cubic-bezier(.2,.9,.2,1), transform 0.65s cubic-bezier(.2,.9,.2,1); }
+
+    /* stagger children */
+    .pix-stagger-children > * {
+      opacity: 1; transform: none; /* safe default */
+      transition: opacity 0.6s cubic-bezier(.2,.9,.2,1), transform 0.6s cubic-bezier(.2,.9,.2,1);
+    }
+    .pix-stagger-children.pix-visible > *:nth-child(1) { opacity:1; transform:none; transition-delay: 0.05s; }
+    .pix-stagger-children.pix-visible > *:nth-child(2) { opacity:1; transform:none; transition-delay: 0.12s; }
+    .pix-stagger-children.pix-visible > *:nth-child(3) { opacity:1; transform:none; transition-delay: 0.19s; }
+    .pix-stagger-children.pix-visible > *:nth-child(4) { opacity:1; transform:none; transition-delay: 0.26s; }
+    .pix-stagger-children.pix-visible > *:nth-child(5) { opacity:1; transform:none; transition-delay: 0.33s; }
+    .pix-stagger-children.pix-visible > *:nth-child(n+6) { opacity:1; transform:none; transition-delay: 0.4s; }
+
+    /* ── HERO TEXT ANIMATION ── */
+    .hero-tag {
+      animation: heroTagIn 0.7s cubic-bezier(.2,.9,.2,1) both;
+    }
+    @keyframes heroTagIn {
+      from { opacity:0; transform: translateY(-16px) scale(0.9); }
+      to   { opacity:1; transform: translateY(0) scale(1); }
+    }
+    .hero-title {
+      animation: heroTitleIn 0.85s cubic-bezier(.2,.9,.2,1) 0.1s both;
+    }
+    @keyframes heroTitleIn {
+      from { opacity:0; transform: translateX(-30px); }
+      to   { opacity:1; transform: translateX(0); }
+    }
+    .hero-sub {
+      animation: heroSubIn 0.75s ease 0.3s both;
+    }
+    @keyframes heroSubIn {
+      from { opacity:0; transform: translateY(12px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+    .hero-slide-content > div > div:last-child {
+      animation: heroBtnsIn 0.65s ease 0.45s both;
+    }
+    @keyframes heroBtnsIn {
+      from { opacity:0; transform: translateY(16px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+
+    /* ── HERO PARALLAX OVERLAY ── */
+    .hero-main-slide::after {
+      content: '';
+      position: absolute; inset: 0; z-index: 0;
+      background: radial-gradient(ellipse at 80% 50%, rgba(255,60,120,0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    /* ── PRODUCT CARD 3D TILT ── */
+    .card {
+      transform-style: preserve-3d;
+      will-change: transform;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease !important;
+    }
+    .card:hover {
+      box-shadow: 0 28px 60px rgba(255,60,120,0.2) !important;
+    }
+
+    /* Card shimmer on hover */
+    .card .card-img-wrap::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%);
+      transform: translateX(-100%);
+      transition: transform 0.55s ease;
+      z-index: 5; pointer-events: none;
+    }
+    .card:hover .card-img-wrap::after { transform: translateX(100%); }
+
+    /* ── GLOWING BADGE on NEW items ── */
+    .new-glow-badge {
+      animation: newBadgePulse 2s ease-in-out infinite;
+    }
+    @keyframes newBadgePulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(255,60,120,0.5); }
+      50%      { box-shadow: 0 0 0 8px rgba(255,60,120,0); }
+    }
+
+    /* ── TRUST STRIP ── */
+    .trust-item {
+      animation: trustItemIn 0.6s cubic-bezier(.2,.9,.2,1) both;
+    }
+    .trust-item:nth-child(1) { animation-delay: 0.1s; }
+    .trust-item:nth-child(2) { animation-delay: 0.2s; }
+    .trust-item:nth-child(3) { animation-delay: 0.3s; }
+    .trust-item:nth-child(4) { animation-delay: 0.4s; }
+    .trust-item:nth-child(5) { animation-delay: 0.5s; }
+    @keyframes trustItemIn {
+      from { opacity:0; transform:translateY(20px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .trust-icon {
+      transition: transform 0.3s cubic-bezier(.2,.9,.2,1), background 0.3s;
+    }
+    .trust-item:hover .trust-icon {
+      transform: scale(1.2) rotate(-8deg);
+      background: rgba(255,60,120,0.2) !important;
+    }
+
+    /* ── BUTTON RIPPLE ── */
+    .pix-ripple-wrap { position: relative; overflow: hidden; }
+    .pix-ripple {
+      position: absolute; border-radius: 50%;
+      background: rgba(255,255,255,0.35);
+      transform: scale(0); animation: rippleAnim 0.55s ease-out forwards;
+      pointer-events: none;
+    }
+    @keyframes rippleAnim {
+      to { transform: scale(4); opacity: 0; }
+    }
+
+    /* ── FLOATING BACKGROUND ORBS (global) ── */
+    #pix-orbs {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      overflow: hidden;
+    }
+    .pix-orb {
+      position: absolute; border-radius: 50%;
+      filter: blur(80px); opacity: 0.06;
+      animation: orbFloat linear infinite;
+    }
+    @keyframes orbFloat {
+      0%   { transform: translateY(0px) translateX(0px) scale(1); }
+      33%  { transform: translateY(-40px) translateX(20px) scale(1.05); }
+      66%  { transform: translateY(20px) translateX(-15px) scale(0.95); }
+      100% { transform: translateY(0px) translateX(0px) scale(1); }
+    }
+
+    /* ── HEADER GLASS MORPH ON SCROLL ── */
+    #siteHeader.pix-scrolled {
+      box-shadow: 0 4px 40px rgba(0,0,0,0.5) !important;
+      backdrop-filter: blur(20px) saturate(1.5);
+    }
+
+    /* ── CATEGORY TILES ENHANCED ── */
+    .cat-tile::before {
+      content: '';
+      position: absolute; inset: 0; z-index: 2;
+      background: linear-gradient(to top, rgba(255,60,120,0.0) 0%, transparent 100%);
+      transition: background 0.4s ease;
+    }
+    .cat-tile:hover::before {
+      background: linear-gradient(to top, rgba(255,60,120,0.3) 0%, transparent 70%);
+    }
+    .cat-tile-badge {
+      animation: badgePop 0.5s cubic-bezier(.2,1.4,.4,1) both;
+    }
+    @keyframes badgePop {
+      from { transform: scale(0) rotate(-10deg); opacity: 0; }
+      to   { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    /* ── FLIP-DIGIT TIMER ── */
+    .hero-flash-digit, .flash-digit {
+      position: relative; overflow: hidden;
+    }
+    .hero-flash-digit.pix-flip {
+      animation: digitFlip 0.4s cubic-bezier(.3,.7,.4,1) both;
+    }
+    @keyframes digitFlip {
+      0%   { transform: translateY(-100%) rotateX(-90deg); opacity: 0; }
+      60%  { transform: translateY(8%) rotateX(10deg); opacity: 1; }
+      100% { transform: translateY(0%) rotateX(0deg); opacity: 1; }
+    }
+
+    /* ── ANNOUNCEMENT BAR ENHANCED ── */
+    #announcement-bar {
+      background: linear-gradient(90deg, #FF3C78 0%, #c41755 50%, #FF3C78 100%) !important;
+      background-size: 200% 100% !important;
+      animation: announcementGrad 4s linear infinite !important;
+    }
+    @keyframes announcementGrad {
+      0%   { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+
+    /* ── SUB NAV STRIP RAINBOW SHIMMER ── */
+    #subNavStrip {
+      position: relative; overflow: hidden;
+    }
+    #subNavStrip::after {
+      content: '';
+      position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+      animation: subNavShimmer 3s linear infinite;
+    }
+    @keyframes subNavShimmer {
+      to { left: 200%; }
+    }
+
+
+
+    /* ── SECTION HEADER ANIMATED UNDERLINE ── */
+    .section-title {
+      position: relative; display: inline-block;
+    }
+    .section-title::after {
+      content: '';
+      position: absolute; bottom: -4px; left: 0;
+      height: 3px; width: 0%;
+      background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary));
+      border-radius: 2px;
+      transition: width 0.6s cubic-bezier(.2,.9,.2,1);
+    }
+    .pix-visible .section-title::after,
+    .section-header:hover .section-title::after { width: 100%; }
+
+    /* ── WISHLIST HEART POP ── */
+    @keyframes heartPop {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.4); }
+      70%  { transform: scale(0.9); }
+      100% { transform: scale(1); }
+    }
+    .heart-pop { animation: heartPop 0.4s cubic-bezier(.2,.9,.2,1) both; }
+
+    /* ── ADD TO CART BOUNCE ── */
+    @keyframes cartBounce {
+      0%   { transform: scale(1); }
+      30%  { transform: scale(0.9); }
+      60%  { transform: scale(1.12); }
+      80%  { transform: scale(0.97); }
+      100% { transform: scale(1); }
+    }
+    .cart-bounce { animation: cartBounce 0.45s cubic-bezier(.2,.9,.2,1) both; }
+
+    /* ── FLOATING PARTICLES (hero) ── */
+    .hero-particle {
+      position: absolute; pointer-events: none;
+      border-radius: 50%; opacity: 0;
+      animation: heroParticle linear infinite;
+    }
+    @keyframes heroParticle {
+      0%   { opacity: 0; transform: translateY(0) scale(0); }
+      10%  { opacity: 0.7; transform: translateY(-10px) scale(1); }
+      90%  { opacity: 0.3; }
+      100% { opacity: 0; transform: translateY(-120px) scale(0.3); }
+    }
+
+    /* ── BRAND SECTION ORBIT ── */
+    .pix-brand-section {
+      position: relative;
+    }
+    .pix-brand-section::before {
+      content: '';
+      position: absolute; top: -80px; right: -80px;
+      width: 400px; height: 400px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,60,120,0.12) 0%, transparent 70%);
+      animation: orbFloat 8s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    /* ── PROMO BANNER ENHANCED ── */
+    .promo-grid-item {
+      transition: transform 0.4s cubic-bezier(.2,.9,.2,1), box-shadow 0.4s ease !important;
+    }
+    .promo-grid-item:hover {
+      transform: translateY(-8px) scale(1.02) !important;
+      box-shadow: 0 24px 60px rgba(255,60,120,0.25) !important;
+    }
+
+
+
+    /* ── CART DRAWER SLIDE ── */
+    .drawer { transition: transform 0.4s cubic-bezier(.2,.9,.2,1) !important; }
+
+    /* ── PRODUCT GRID ENTRANCE ── */
+    @keyframes cardEntrance {
+      from { opacity: 0; transform: translateY(30px) scale(0.95); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .card-animated {
+      animation: cardEntrance 0.5s cubic-bezier(.2,.9,.2,1) both;
+    }
+
+    /* ── MAGNETIC HOVER EFFECT (CTAs) ── */
+    .pix-magnetic {
+      transition: transform 0.3s cubic-bezier(.2,.9,.2,1) !important;
+    }
+
+    /* ── GLOWING STAR RATING ── */
+    .star-glow {
+      filter: drop-shadow(0 0 4px rgba(255,213,0,0.6));
+    }
+
+    /* ── TOAST NOTIFICATION ENHANCED ── */
+    #toast, .pix-toast {
+      animation: toastSlideIn 0.4s cubic-bezier(.2,.9,.2,1) both !important;
+    }
+    @keyframes toastSlideIn {
+      from { opacity:0; transform: translateX(100%) scale(0.9); }
+      to   { opacity:1; transform: translateX(0) scale(1); }
+    }
+
+    /* ── CATEGORY TILE STAGGER ── */
+    .cat-tile { opacity: 1; transform: none; /* safe default; JS will animate */ }
+    .cat-tile.pix-cat-visible {
+      opacity: 1; transform: none;
+      transition: opacity 0.6s cubic-bezier(.2,.9,.2,1), transform 0.6s cubic-bezier(.2,.9,.2,1), box-shadow 0.3s ease !important;
+    }
+
+    /* ── COUNTER ANIMATION ── */
+    .pix-count-num {
+      display: inline-block;
+      transition: transform 0.3s ease;
+    }
+
+    /* ── SELLER CTA ANIMATED GRADIENT BORDER ── */
+    #seller-cta-section {
+      position: relative;
+    }
+    #seller-cta-section::before {
+      content: '';
+      position: absolute; inset: -2px;
+      border-radius: 18px; z-index: -1;
+      background: linear-gradient(135deg, #FF3C78, #c41755, #FF7EAC, #FF3C78);
+      background-size: 300% 300%;
+      animation: borderGradient 4s ease infinite;
+      opacity: 0.5;
+    }
+    @keyframes borderGradient {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* ── FOOTER LINK HOVER ── */
+    footer a {
+      position: relative; display: inline-block;
+      transition: color 0.2s !important;
+    }
+    footer a::after {
+      content: '';
+      position: absolute; left: 0; bottom: -1px;
+      width: 0; height: 1px;
+      background: var(--brand-primary);
+      transition: width 0.3s ease;
+    }
+    footer a:hover::after { width: 100%; }
+
+    /* ── INPUT FOCUS GLOW ── */
+    .input:focus, .auth-input:focus {
+      box-shadow: 0 0 0 3px rgba(255,60,120,0.18) !important;
+      border-color: var(--brand-primary) !important;
+    }
+
+    /* ── HOVER TILT CARDS ── */
+    .pix-tilt { transform-style: preserve-3d; will-change: transform; }
+
+    /* ── MOBILE SEARCH REVEAL ── */
+    #mobileSearchBar {
+      transition: height 0.35s cubic-bezier(.2,.9,.2,1), opacity 0.35s ease !important;
+      overflow: hidden;
+    }
+
+    /* ── STATS COUNTER ROW ── */
+    .pix-stats-bar {
+      display: flex; flex-wrap: wrap; justify-content: center;
+      gap: 0; background: var(--surface-primary);
+      border-top: 1.5px solid rgba(0,0,0,0.05);
+      border-bottom: 1.5px solid rgba(0,0,0,0.05);
+    }
+    html.dark .pix-stats-bar { border-color: rgba(255,255,255,0.06); }
+    .pix-stat-item {
+      flex: 1; min-width: 140px;
+      padding: 28px 20px; text-align: center;
+      border-right: 1.5px solid rgba(0,0,0,0.05);
+      position: relative; overflow: hidden;
+      cursor: default;
+      transition: background 0.3s;
+    }
+    html.dark .pix-stat-item { border-right-color: rgba(255,255,255,0.06); }
+    .pix-stat-item:last-child { border-right: none; }
+    .pix-stat-item:hover { background: rgba(255,60,120,0.04); }
+    .pix-stat-item::after {
+      content: '';
+      position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 0; height: 2px;
+      background: var(--brand-primary);
+      transition: width 0.4s ease;
+      border-radius: 2px;
+    }
+    .pix-stat-item:hover::after { width: 60%; }
+    .pix-stat-num {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 900; font-size: clamp(1.6rem, 3vw, 2.4rem);
+      color: var(--brand-primary); line-height: 1;
+      letter-spacing: -0.02em; margin-bottom: 4px;
+    }
+    .pix-stat-label {
+      font-size: 0.75rem; font-weight: 600;
+      color: var(--text-secondary); text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* ── ANIMATED GRADIENT TEXT ── */
+    .pix-grad-text {
+      background: linear-gradient(135deg, #FF3C78, #FF7EAC, #FFD600, #FF3C78);
+      background-size: 300% 300%;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradTextAnim 4s ease infinite;
+    }
+    @keyframes gradTextAnim {
+      0%,100% { background-position: 0% 50%; }
+      50%      { background-position: 100% 50%; }
+    }
+
+    /* ── SEARCH BAR TYPING ANIMATION ── */
+    #q::placeholder { transition: opacity 0.3s; }
+    #q:focus::placeholder { opacity: 0.4; }
+
+    /* ── CATEGORY SECTION FLOATING LABEL ── */
+    .cat-tile:hover .cat-tile-name {
+      transform: translateY(-4px);
+      transition: transform 0.3s ease;
+      text-shadow: 0 4px 16px rgba(255,60,120,0.4);
+    }
+
+    /* ── HERO SLIDE TRANSITION ENHANCEMENT ── */
+    #heroMainTrack {
+      transition: transform 0.9s cubic-bezier(.4,0,.2,1) !important;
+    }
+
+    /* ── WISHLIST BUTTON PULSE ── */
+    #wishBtn {
+      transition: background 0.2s, transform 0.15s !important;
+    }
+    #wishBtn:hover { transform: scale(1.1) !important; }
+
+    /* ── COMPARE BUTTON ── */
+    #compareBtn:hover { transform: scale(1.1) !important; }
+
+    /* ── CART BUTTON WIGGLE ON ADD ── */
+    @keyframes cartWiggle {
+      0%,100% { transform: rotate(0deg); }
+      20% { transform: rotate(-8deg); }
+      40% { transform: rotate(8deg); }
+      60% { transform: rotate(-5deg); }
+      80% { transform: rotate(5deg); }
+    }
+    .cart-wiggle { animation: cartWiggle 0.5s ease both !important; }
+
+    /* ── FILTER CHIP ENHANCED ── */
+    .chip { transition: all 0.25s cubic-bezier(.2,.9,.2,1) !important; }
+    .chip:hover:not(.active) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255,60,120,0.15) !important;
+    }
+    .chip.active {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255,60,120,0.3) !important;
+    }
+
+    /* ── HERO NAV ARROW PULSE ── */
+    .hero-nav-arrow {
+      transition: all 0.3s cubic-bezier(.2,.9,.2,1) !important;
+    }
+
+    /* ── ANNOUNCEMENT BAR EMOJI ── */
+    .ann-marquee-item { gap: 12px !important; }
+
+    /* ── DARK MODE TRANSITION ENHANCED ── */
+    html.dark body {
+      background: radial-gradient(ellipse at top, #150010 0%, #0a0005 40%, #111111 100%) !important;
+    }
+
+    /* responsive: hide stats on very small screens */
+    @media (max-width: 480px) {
+      .pix-stat-item { min-width: 50%; border-bottom: 1.5px solid rgba(0,0,0,0.05); }
+      html.dark .pix-stat-item { border-bottom-color: rgba(255,255,255,0.06); }
+    }
+  </style>
+
   <style>
     :root {
       --brand-primary: #FF3C78;
@@ -1100,6 +1636,20 @@
     </div>
   </div>
 
+  <!-- ── PAGE LOADER ── -->
+  <div id="pix-loader">
+    <div class="pix-loader-logo">P</div>
+    <div class="pix-loader-text">Pioneer I Xpress</div>
+    <div class="pix-loader-bar-wrap"><div class="pix-loader-bar"></div></div>
+  </div>
+
+  <!-- ── FLOATING BACKGROUND ORBS ── -->
+  <div id="pix-orbs" aria-hidden="true">
+    <div class="pix-orb" style="width:500px;height:500px;background:#FF3C78;top:5%;left:-10%;animation-duration:18s;"></div>
+    <div class="pix-orb" style="width:350px;height:350px;background:#FF7EAC;top:40%;right:-5%;animation-duration:22s;animation-delay:-7s;"></div>
+    <div class="pix-orb" style="width:280px;height:280px;background:#c41755;bottom:10%;left:20%;animation-duration:15s;animation-delay:-3s;"></div>
+  </div>
+
   <!-- Skip to main content for keyboard/screen reader users -->
   <a href="#main-content" style="position:absolute;top:-40px;left:0;background:var(--brand-primary);color:white;padding:8px 16px;border-radius:0 0 8px 0;font-weight:700;font-size:0.875rem;z-index:9999;transition:top 0.2s;" onfocus="this.style.top='0'" onblur="this.style.top='-40px'">Skip to main content</a>
 
@@ -1140,6 +1690,7 @@
         </div>
 
         <div class="flex items-center gap-2">
+          <button id="pix-hamburger" onclick="openMobileNav()" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
           <div class="relative hidden sm:block" id="pix-globe-wrap">
             <button id="pix-globe-btn" title="Change Language" style="width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:10px;border:none;cursor:pointer;background:rgba(255,255,255,0.1);color:white;transition:background 0.2s;" onmouseover="this.style.background='rgba('+hexToRgbStr(getComputedStyle(document.documentElement).getPropertyValue('--brand-primary').trim())+',0.35)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
               <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
@@ -1433,6 +1984,571 @@
       <div class="trust-item"><div class="trust-icon">🏆</div><div><div style="font-weight:700;color:var(--text-primary)">Top Rated</div><div>4.8★ Customer Score</div></div></div>
     </div>
 
+    <!-- ===== ANIMATED STATS BAR ===== -->
+    <div class="pix-stats-bar pix-reveal">
+      <div class="pix-stat-item"><div class="pix-stat-num" data-target="12500">0</div><div class="pix-stat-label">Happy Customers</div></div>
+      <div class="pix-stat-item"><div class="pix-stat-num" data-target="850">0</div><div class="pix-stat-label">Products</div></div>
+      <div class="pix-stat-item"><div class="pix-stat-num" data-target="48">0</div><div class="pix-stat-label">Cities Delivered</div></div>
+      <div class="pix-stat-item"><div class="pix-stat-num" data-target="99">0</div><div class="pix-stat-label">% Satisfaction</div></div>
+    </div>
+    <!-- ===== BRAND ANIMATED SHOWCASE ===== -->
+    <style>
+      /* ── Section wrapper ── */
+      .pix-brand-section {
+        background: #080508;
+        padding: 72px 0 80px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* ── Section header ── */
+      .pix-brand-eyebrow {
+        text-align: center;
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--brand-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      .pix-brand-eyebrow::before,
+      .pix-brand-eyebrow::after {
+        content: '';
+        width: 36px; height: 2px;
+        background: var(--brand-primary);
+        opacity: 0.45;
+        border-radius: 2px;
+      }
+      .pix-brand-headline {
+        font-family: 'Montserrat', sans-serif;
+        font-size: clamp(1.6rem, 3vw, 2.4rem);
+        font-weight: 900;
+        color: white;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+        text-align: center;
+        margin-bottom: 40px;
+      }
+      .pix-brand-headline span { color: var(--brand-primary); }
+
+      /* ── Canvas stage ── */
+      .pix-stage-wrap {
+        position: relative;
+        max-width: 900px;
+        margin: 0 auto;
+        border-radius: 28px;
+        overflow: hidden;
+        box-shadow:
+          0 0 0 1.5px rgba(255,60,120,0.3),
+          0 40px 100px rgba(0,0,0,0.8),
+          0 0 80px rgba(255,60,120,0.12);
+        background: #0a0005;
+        min-height: 420px;
+        height: clamp(380px, 50vw, 560px);
+      }
+
+      #pixBrandCanvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+
+    </style>
+
+    <div class="pix-brand-section">
+      <div class="container mx-auto px-4">
+        <div class="pix-brand-eyebrow">✦ Our Story</div>
+        <h2 class="pix-brand-headline">Meet <span>Pioneer I Xpress</span></h2>
+
+        <div class="pix-stage-wrap" id="pixStage">
+          <canvas id="pixBrandCanvas"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <script>
+    (function(){
+      var canvas  = document.getElementById('pixBrandCanvas');
+      var ctx     = canvas.getContext('2d');
+      var stage   = document.getElementById('pixStage');
+
+      /* ── Resize canvas to match display size ── */
+      function resizeCanvas() {
+        canvas.width  = stage.offsetWidth;
+        canvas.height = stage.offsetHeight;
+      }
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+
+      /* ── Scene config ── */
+      var TOTAL_DURATION = 24000; // 24s loop
+      var elapsed = 0;
+      var playing = true;
+      var lastTs  = null;
+      var raf     = null;
+
+      /* ── Colour palette ── */
+      var PINK  = '#FF3C78';
+      var DPINK = '#C41755';
+      var LPINK = '#FF7EAC';
+
+      /* ── Particles pool ── */
+      var particles = [];
+      for (var i = 0; i < 55; i++) {
+        particles.push({
+          x: Math.random(),
+          y: Math.random(),
+          r: 0.8 + Math.random() * 2.2,
+          speed: 0.00004 + Math.random() * 0.00008,
+          phase: Math.random() * Math.PI * 2,
+          alpha: 0.15 + Math.random() * 0.5,
+          pink: Math.random() > 0.55
+        });
+      }
+
+      /* ── Floating product cards data ── */
+      var cards = [
+        { emoji:'🕯️', label:'Soy Candle',     price:'₹499',  col:'#ff9a3c', x:0.12, y:0.28, delay:0     },
+        { emoji:'💄', label:'Lip Gloss',       price:'₹349',  col:PINK,      x:0.72, y:0.20, delay:3000  },
+        { emoji:'👗', label:'Kids T-Shirt',    price:'₹799',  col:'#a78bfa', x:0.82, y:0.55, delay:6000  },
+        { emoji:'✨', label:'Glow Serum',      price:'₹999',  col:LPINK,     x:0.08, y:0.62, delay:9000  },
+        { emoji:'🧴', label:'Body Lotion',     price:'₹599',  col:'#34d399', x:0.68, y:0.72, delay:12000 },
+        { emoji:'🕯️', label:'Dough Bowl',     price:'₹1299', col:'#fbbf24', x:0.20, y:0.75, delay:15000 },
+      ];
+
+      /* ── Scene phases (ms) ── */
+      // 0–4s   : intro / logo reveal
+      // 4–10s  : product cards float in
+      // 10–16s : tagline + stat counters
+      // 16–22s : category strip scroll
+      // 22–24s : outro fade → loop
+
+      function easeOut(t) { return 1 - Math.pow(1-t,3); }
+      function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+      function lerp(a,b,t){ return a+(b-a)*t; }
+
+      /* ── Draw background ── */
+      function drawBg(t) {
+        var W = canvas.width, H = canvas.height;
+        // Deep dark base
+        var bg = ctx.createRadialGradient(W*0.5,H*0.5,0, W*0.5,H*0.5,W*0.7);
+        bg.addColorStop(0,   '#160010');
+        bg.addColorStop(0.5, '#0a0008');
+        bg.addColorStop(1,   '#050005');
+        ctx.fillStyle = bg;
+        ctx.fillRect(0,0,W,H);
+
+        // Animated pink glow orbs
+        var glow1x = W*(0.25 + 0.08*Math.sin(t*0.0006));
+        var glow1y = H*(0.4  + 0.05*Math.cos(t*0.0005));
+        var g1 = ctx.createRadialGradient(glow1x,glow1y,0, glow1x,glow1y,W*0.38);
+        g1.addColorStop(0, 'rgba(255,60,120,0.18)');
+        g1.addColorStop(1, 'rgba(255,60,120,0)');
+        ctx.fillStyle = g1;
+        ctx.fillRect(0,0,W,H);
+
+        var glow2x = W*(0.78 + 0.07*Math.cos(t*0.0007));
+        var glow2y = H*(0.55 + 0.06*Math.sin(t*0.0006));
+        var g2 = ctx.createRadialGradient(glow2x,glow2y,0, glow2x,glow2y,W*0.32);
+        g2.addColorStop(0, 'rgba(196,23,85,0.13)');
+        g2.addColorStop(1, 'rgba(196,23,85,0)');
+        ctx.fillStyle = g2;
+        ctx.fillRect(0,0,W,H);
+      }
+
+      /* ── Draw particles ── */
+      function drawParticles(t) {
+        var W = canvas.width, H = canvas.height;
+        particles.forEach(function(p){
+          var px = (p.x + p.speed * t * 0.3) % 1;
+          var py = (p.y + Math.sin(t * p.speed * 120 + p.phase) * 0.04);
+          ctx.beginPath();
+          ctx.arc(px*W, py*H, p.r, 0, Math.PI*2);
+          ctx.fillStyle = p.pink
+            ? 'rgba(255,60,120,' + p.alpha + ')'
+            : 'rgba(255,255,255,' + (p.alpha*0.5) + ')';
+          ctx.fill();
+        });
+      }
+
+      /* ── Draw grid lines (subtle) ── */
+      function drawGrid() {
+        var W = canvas.width, H = canvas.height;
+        ctx.strokeStyle = 'rgba(255,60,120,0.04)';
+        ctx.lineWidth = 1;
+        for (var x=0; x<W; x+=W/8) {
+          ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke();
+        }
+        for (var y=0; y<H; y+=H/5) {
+          ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
+        }
+      }
+
+      /* ── Rounded rect helper ── */
+      function roundRect(x,y,w,h,r) {
+        ctx.beginPath();
+        ctx.moveTo(x+r,y);
+        ctx.lineTo(x+w-r,y);
+        ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+        ctx.lineTo(x+w,y+h-r);
+        ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+        ctx.lineTo(x+r,y+h);
+        ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+        ctx.lineTo(x,y+r);
+        ctx.quadraticCurveTo(x,y,x+r,y);
+        ctx.closePath();
+      }
+
+      /* ── Scene 0 – Intro logo reveal (0–4s) ── */
+      function drawSceneIntro(p) {
+        var W = canvas.width, H = canvas.height;
+        var cx = W*0.5, cy = H*0.5;
+        var ap = easeOut(clamp(p*2.5, 0, 1));
+
+        // Expanding ring
+        var ringR = lerp(W*0.04, W*0.22, easeOut(p));
+        var ringA = (1-p)*0.6;
+        ctx.beginPath();
+        ctx.arc(cx, cy, ringR, 0, Math.PI*2);
+        ctx.strokeStyle = 'rgba(255,60,120,' + ringA + ')';
+        ctx.lineWidth   = lerp(3,0.5,p);
+        ctx.stroke();
+
+        // Second ring delayed
+        if (p > 0.15) {
+          var r2p = clamp((p-0.15)/0.85, 0, 1);
+          ctx.beginPath();
+          ctx.arc(cx, cy, lerp(W*0.02, W*0.30, easeOut(r2p)), 0, Math.PI*2);
+          ctx.strokeStyle = 'rgba(255,126,172,' + (1-r2p)*0.35 + ')';
+          ctx.lineWidth   = lerp(2,0.3,r2p);
+          ctx.stroke();
+        }
+
+        // Brand name
+        var fs = Math.round(W * 0.072);
+        ctx.save();
+        ctx.globalAlpha = ap;
+        ctx.translate(cx, cy);
+
+        // "PIONEER I" — white
+        ctx.font = 'bold ' + fs + 'px Montserrat, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = PINK;
+        ctx.shadowBlur  = 28;
+        ctx.fillText('PIONEER I', 0, -fs*0.6);
+
+        // "XPRESS" — pink
+        ctx.font = 'bold ' + Math.round(fs*1.22) + 'px Montserrat, sans-serif';
+        ctx.fillStyle = PINK;
+        ctx.shadowBlur = 40;
+        ctx.fillText('XPRESS', 0, fs*0.65);
+
+        // tagline
+        if (p > 0.5) {
+          var tp = easeOut(clamp((p-0.5)*2, 0, 1));
+          ctx.globalAlpha = ap * tp;
+          ctx.font = 'bold ' + Math.round(fs*0.28) + 'px Poppins, sans-serif';
+          ctx.fillStyle = 'rgba(255,255,255,0.6)';
+          ctx.shadowBlur = 0;
+          ctx.letterSpacing = '0.18em';
+          ctx.fillText('BEAUTY • CANDLES • CLOTHING', 0, fs*1.6);
+        }
+        ctx.restore();
+      }
+
+      /* ── Scene 1 – floating product cards (4–10s) ── */
+      function drawSceneCards(globalT, p) {
+        var W = canvas.width, H = canvas.height;
+        var cw = W * 0.175;
+        var ch = cw * 1.18;
+
+        cards.forEach(function(card, i) {
+          var appear = clamp((globalT - card.delay - 4000) / 700, 0, 1);
+          if (appear <= 0) return;
+          var ap = easeOut(appear);
+
+          var bx = card.x * W;
+          var by = card.y * H + Math.sin(globalT * 0.0012 + i*1.2) * (H*0.018);
+          var x = bx - cw/2;
+          var y = by - ch/2;
+
+          ctx.save();
+          ctx.globalAlpha = ap * 0.92;
+          ctx.translate(x + cw/2, y + ch/2);
+          ctx.scale(ap, ap);
+
+          // Card shadow
+          ctx.shadowColor = 'rgba(0,0,0,0.6)';
+          ctx.shadowBlur  = 20;
+          ctx.shadowOffsetY = 8;
+
+          // Card bg
+          roundRect(-cw/2, -ch/2, cw, ch, cw*0.14);
+          ctx.fillStyle = 'rgba(20,5,15,0.85)';
+          ctx.fill();
+
+          // Coloured top stripe
+          roundRect(-cw/2, -ch/2, cw, ch*0.38, cw*0.14);
+          var cgrad = ctx.createLinearGradient(-cw/2,-ch/2,cw/2,-ch/2+ch*0.38);
+          cgrad.addColorStop(0, card.col + 'cc');
+          cgrad.addColorStop(1, card.col + '55');
+          ctx.fillStyle = cgrad;
+          ctx.fill();
+          // Fix bottom of stripe overlap
+          ctx.fillStyle = 'rgba(20,5,15,0)';
+
+          // Border
+          ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+          roundRect(-cw/2, -ch/2, cw, ch, cw*0.14);
+          ctx.strokeStyle = 'rgba(255,60,120,0.3)';
+          ctx.lineWidth   = 1.2;
+          ctx.stroke();
+
+          // Emoji
+          ctx.font = Math.round(cw*0.38) + 'px serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = '#fff';
+          ctx.fillText(card.emoji, 0, -ch*0.18);
+
+          // Label
+          ctx.font = 'bold ' + Math.round(cw*0.135) + 'px Poppins, sans-serif';
+          ctx.fillStyle = 'rgba(255,255,255,0.9)';
+          ctx.shadowBlur = 0;
+          ctx.fillText(card.label, 0, ch*0.14);
+
+          // Price
+          ctx.font = 'bold ' + Math.round(cw*0.155) + 'px Montserrat, sans-serif';
+          ctx.fillStyle = LPINK;
+          ctx.fillText(card.price, 0, ch*0.32);
+
+          ctx.restore();
+        });
+      }
+
+      /* ── Scene 2 – Tagline + counters (10–16s) ── */
+      function drawSceneStats(globalT, p) {
+        var W = canvas.width, H = canvas.height;
+        var ap = easeOut(clamp(p*3,0,1));
+        var cx = W*0.5;
+
+        var stats = [
+          { val:'500+',  lbl:'Products'   },
+          { val:'4.8★',  lbl:'Avg Rating' },
+          { val:'10K+',  lbl:'Customers'  },
+        ];
+
+        // Big headline
+        ctx.save();
+        ctx.globalAlpha = ap;
+        var fs = Math.round(W * 0.055);
+        ctx.font = 'bold ' + fs + 'px Montserrat, sans-serif';
+        ctx.textAlign   = 'center';
+        ctx.textBaseline= 'middle';
+
+        ctx.shadowColor = PINK;
+        ctx.shadowBlur  = 24;
+        ctx.fillStyle   = '#ffffff';
+        ctx.fillText('Beauty &', cx, H*0.28);
+
+        ctx.fillStyle  = PINK;
+        ctx.shadowBlur = 40;
+        ctx.fillText('Beyond', cx, H*0.28 + fs*1.25);
+
+        // Divider line
+        if (p > 0.15) {
+          var lp = easeOut(clamp((p-0.15)/0.4,0,1));
+          ctx.globalAlpha = ap * lp;
+          ctx.shadowBlur  = 0;
+          var lw = W * 0.28 * lp;
+          var grad = ctx.createLinearGradient(cx-lw,0,cx+lw,0);
+          grad.addColorStop(0,   'transparent');
+          grad.addColorStop(0.5, PINK);
+          grad.addColorStop(1,   'transparent');
+          ctx.strokeStyle  = grad;
+          ctx.lineWidth    = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(cx-lw, H*0.44);
+          ctx.lineTo(cx+lw, H*0.44);
+          ctx.stroke();
+        }
+
+        // Stat blocks
+        if (p > 0.35) {
+          var sp = easeOut(clamp((p-0.35)/0.5,0,1));
+          var bw = W * 0.22;
+          var bh = H * 0.16;
+          var gap = W * 0.04;
+          var totalW = stats.length * bw + (stats.length-1)*gap;
+          var sx = cx - totalW/2;
+          var sy = H * 0.55;
+
+          stats.forEach(function(st, i){
+            var ip = easeOut(clamp((p-0.35-i*0.07)/0.4,0,1));
+            if (ip <= 0) return;
+            ctx.save();
+            ctx.globalAlpha = ap * ip;
+
+            var bx = sx + i*(bw+gap);
+            // block bg
+            roundRect(bx, sy, bw, bh, bw*0.13);
+            ctx.fillStyle = 'rgba(255,60,120,0.1)';
+            ctx.fill();
+            roundRect(bx, sy, bw, bh, bw*0.13);
+            ctx.strokeStyle = 'rgba(255,60,120,0.35)';
+            ctx.lineWidth   = 1.2;
+            ctx.stroke();
+
+            // value
+            ctx.font = 'bold ' + Math.round(bw*0.26) + 'px Montserrat, sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = PINK;
+            ctx.shadowColor = PINK; ctx.shadowBlur = 14;
+            ctx.fillText(st.val, bx+bw/2, sy+bh*0.38);
+
+            // label
+            ctx.font = 'bold ' + Math.round(bw*0.13) + 'px Poppins, sans-serif';
+            ctx.fillStyle = 'rgba(255,255,255,0.6)';
+            ctx.shadowBlur = 0;
+            ctx.fillText(st.lbl, bx+bw/2, sy+bh*0.72);
+            ctx.restore();
+          });
+        }
+        ctx.restore();
+      }
+
+      /* ── Scene 3 – category scroll strip (16–22s) ── */
+      function drawSceneCategories(globalT, p) {
+        var W = canvas.width, H = canvas.height;
+        var ap = easeOut(clamp(p*3,0,1));
+        var cx = W*0.5;
+
+        var cats = [
+          { icon:'🕯️', name:'Candles'  },
+          { icon:'💄', name:'Beauty'   },
+          { icon:'👗', name:'Clothing' },
+          { icon:'🌸', name:'Wellness' },
+          { icon:'✨', name:'New In'   },
+          { icon:'🔥', name:'Deals'    },
+        ];
+
+        ctx.save();
+        ctx.globalAlpha = ap;
+
+        // Headline
+        var fs = Math.round(W*0.052);
+        ctx.font = 'bold ' + fs + 'px Montserrat, sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#fff';
+        ctx.shadowColor = PINK; ctx.shadowBlur = 20;
+        ctx.fillText('Explore', cx, H*0.22);
+        ctx.fillStyle = PINK; ctx.shadowBlur = 38;
+        ctx.fillText('Every Category', cx, H*0.22 + fs*1.2);
+
+        // Scrolling pill strip
+        var pillW = W * 0.135, pillH = H * 0.17;
+        var pillGap = W * 0.025;
+        var totalW = cats.length * (pillW+pillGap);
+        // Scroll offset
+        var offset = ((globalT - 16000) * 0.03) % totalW;
+
+        ctx.save();
+        // Clip to horizontal band
+        ctx.beginPath();
+        ctx.rect(0, H*0.49, W, pillH+20);
+        ctx.clip();
+
+        for (var rep = -1; rep <= 2; rep++) {
+          cats.forEach(function(cat, i){
+            var px = (i*(pillW+pillGap) - offset + rep*totalW);
+            var py = H*0.5;
+            if (px + pillW < -10 || px > W+10) return;
+
+            // pill bg
+            roundRect(px, py, pillW, pillH, pillW*0.18);
+            var cg = ctx.createLinearGradient(px,py,px+pillW,py+pillH);
+            cg.addColorStop(0, 'rgba(255,60,120,0.18)');
+            cg.addColorStop(1, 'rgba(100,0,40,0.35)');
+            ctx.fillStyle = cg;
+            ctx.fill();
+            roundRect(px, py, pillW, pillH, pillW*0.18);
+            ctx.strokeStyle = 'rgba(255,60,120,0.3)';
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+
+            // icon
+            ctx.font = Math.round(pillW*0.32)+'px serif';
+            ctx.textAlign='center'; ctx.textBaseline='middle';
+            ctx.shadowBlur=0;
+            ctx.fillText(cat.icon, px+pillW/2, py+pillH*0.36);
+
+            // label
+            ctx.font = 'bold '+Math.round(pillW*0.13)+'px Poppins,sans-serif';
+            ctx.fillStyle='rgba(255,255,255,0.85)';
+            ctx.fillText(cat.name, px+pillW/2, py+pillH*0.73);
+          });
+        }
+        ctx.restore();
+        ctx.restore();
+      }
+
+      /* ── Scene 4 – Outro fade (22–24s) ── */
+      function drawSceneOutro(p) {
+        var W = canvas.width, H = canvas.height;
+        ctx.save();
+        ctx.globalAlpha = easeOut(p) * 0.85;
+        ctx.fillStyle = '#080508';
+        ctx.fillRect(0,0,W,H);
+        ctx.restore();
+      }
+
+      /* ── Master draw ── */
+      function draw(t) {
+        var W = canvas.width, H = canvas.height;
+        ctx.clearRect(0,0,W,H);
+
+        drawBg(t);
+        drawGrid();
+        drawParticles(t);
+
+        var phase = t % TOTAL_DURATION;
+
+        if (phase < 4000) {
+          drawSceneIntro(phase / 4000);
+        } else if (phase < 10000) {
+          drawSceneCards(phase, (phase-4000)/6000);
+        } else if (phase < 16000) {
+          drawSceneStats(phase, (phase-10000)/6000);
+        } else if (phase < 22000) {
+          drawSceneCategories(phase, (phase-16000)/6000);
+        } else {
+          drawSceneOutro((phase-22000)/2000);
+        }
+
+      }
+
+      /* ── Animation loop ── */
+      function loop(ts) {
+        if (lastTs !== null && playing) {
+          elapsed += ts - lastTs;
+        }
+        lastTs = ts;
+        draw(elapsed);
+        raf = requestAnimationFrame(loop);
+      }
+
+      /* ── Kick off ── */
+      raf = requestAnimationFrame(loop);
+    })();
+    </script>
+
     <!-- ===== CATEGORY TILES ===== -->
     <div class="container mx-auto px-4">
       <div style="padding:48px 0 8px;">
@@ -1535,6 +2651,75 @@
       <div class="flex justify-center gap-2 my-8" id="pager"></div>
     </section>
 
+
+    <!-- ===== TRENDING NOW MARQUEE ===== -->
+    <section class="my-10" id="trending-section">
+      <div class="section-header pix-title-drawn mb-6">
+        <h2 class="section-title">Trending Now</h2>
+        <span class="section-tag">🔥 HOT</span>
+        <div class="section-line"></div>
+      </div>
+      <div style="position:relative;overflow:hidden;margin:0 -16px;">
+        <div class="pix-trending-track" id="pix-trending-track">
+          <!-- JS will populate these product chips -->
+        </div>
+      </div>
+    </section>
+    <style>
+    .pix-trending-track {
+      display: flex; gap: 12px; padding: 4px 16px 12px;
+      overflow-x: auto; scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .pix-trending-track::-webkit-scrollbar { display: none; }
+    .pix-trending-chip {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 16px; border-radius: 14px;
+      background: var(--surface-primary);
+      border: 1.5px solid rgba(0,0,0,0.07);
+      cursor: pointer; white-space: nowrap; flex-shrink: 0;
+      transition: all 0.25s cubic-bezier(.2,.9,.2,1);
+      font-family: 'Poppins', sans-serif;
+    }
+    html.dark .pix-trending-chip { border-color: rgba(255,255,255,0.08); }
+    .pix-trending-chip:hover {
+      border-color: rgba(255,60,120,0.35);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(255,60,120,0.12);
+    }
+    .pix-trending-img {
+      width: 48px; height: 48px; border-radius: 10px; object-fit: cover; flex-shrink: 0;
+    }
+    .pix-trending-name { font-size: 0.8rem; font-weight: 700; color: var(--text-primary); max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
+    .pix-trending-price { font-size: 0.75rem; font-weight: 800; color: var(--brand-primary); margin-top: 1px; }
+    .pix-trending-fire { font-size: 0.7rem; color: #f59e0b; margin-top: 1px; }
+    </style>
+    <script>
+    (function() {
+      function buildTrending() {
+        var track = document.getElementById('pix-trending-track');
+        var prods = window.PRODUCTS;
+        if (!track || !prods || !prods.length) return;
+        // Pick 8 random/shuffled products
+        var picks = prods.slice().sort(function(a,b){ return b.rating - a.rating; }).slice(0, Math.min(8, prods.length));
+        track.innerHTML = picks.map(function(p) {
+          var img = p.img || p.image || 'https://risync.in/G4U/candle.png';
+          return '<div class="pix-trending-chip" onclick="openProductModal && openProductModal(''+p.id+'')">'
+            + '<img class="pix-trending-img" src="'+img+'" alt="'+p.title+'" loading="lazy">'
+            + '<div><div class="pix-trending-name">'+p.title+'</div>'
+            + '<div class="pix-trending-price">₹'+p.price.toLocaleString()+'</div>'
+            + '<div class="pix-trending-fire">🔥 ' + Math.floor(50 + Math.random()*200) + ' sold</div></div>'
+            + '</div>';
+        }).join('');
+      }
+      // Try immediately, and also wait for products to load
+      if (window.PRODUCTS && window.PRODUCTS.length) { buildTrending(); }
+      else { setTimeout(buildTrending, 800); }
+    })();
+    </script>
+    <!-- END TRENDING NOW -->
+
     <!-- RECENTLY VIEWED -->
     <section class="my-12">
       <div class="section-header">
@@ -1605,7 +2790,7 @@
                         <div class="field"><label class="text-sm font-medium">Email *</label><input class="input" id="email" type="email" placeholder="you@example.com" required></div>
                     </div>
                     <label id="saveAddrRow" class="hidden items-center gap-2 cursor-pointer select-none">
-                      <input type="checkbox" id="saveAddrCheck" class="w-4 h-4 accent-[#C6A75E]">
+                      <input type="checkbox" id="saveAddrCheck" class="w-4 h-4" style="accent-color:#C6A75E">
                       <span class="text-sm font-medium">Save this address to my profile for future orders</span>
                     </label>
                 </form>
@@ -1629,6 +2814,253 @@
             </div>
         </div>
     </section>
+
+
+    <!-- ===== TESTIMONIALS SECTION ===== -->
+    <section class="my-14" id="testimonials-section">
+      <div class="section-header pix-title-drawn mb-8">
+        <h2 class="section-title">What Our Customers Say</h2>
+        <span class="section-tag">REVIEWS</span>
+        <div class="section-line"></div>
+      </div>
+
+      <div id="testimonials-track-wrap" style="position:relative;overflow:hidden;">
+        <div id="testimonials-track" style="display:flex;gap:20px;transition:transform 0.6s cubic-bezier(.2,.9,.2,1);">
+
+          <!-- Review 1 -->
+          <div class="pix-review-card">
+            <div class="pix-review-stars">★★★★★</div>
+            <p class="pix-review-text">"The lavender candle is absolutely divine — it fills my entire room with the most calming scent. I've ordered 4 times already. Fast delivery every time!"</p>
+            <div class="pix-review-author">
+              <div class="pix-review-avatar" style="background:linear-gradient(135deg,#FF3C78,#c41755);">P</div>
+              <div><div class="pix-review-name">Priya Sharma</div><div class="pix-review-loc">Mumbai · Candles</div></div>
+            </div>
+          </div>
+
+          <!-- Review 2 -->
+          <div class="pix-review-card">
+            <div class="pix-review-stars">★★★★★</div>
+            <p class="pix-review-text">"Bought the kids' clothing set and my daughter LOVES it. The quality is way better than what I expected at this price. Will definitely be back!"</p>
+            <div class="pix-review-author">
+              <div class="pix-review-avatar" style="background:linear-gradient(135deg,#6C63FF,#4338CA);">R</div>
+              <div><div class="pix-review-name">Rohan Mehta</div><div class="pix-review-loc">Delhi · Clothing</div></div>
+            </div>
+          </div>
+
+          <!-- Review 3 -->
+          <div class="pix-review-card">
+            <div class="pix-review-stars">★★★★☆</div>
+            <p class="pix-review-text">"The beauty products are 100% authentic — I was skeptical at first but everything arrived in perfect condition with original seals. Customer support was very helpful too."</p>
+            <div class="pix-review-author">
+              <div class="pix-review-avatar" style="background:linear-gradient(135deg,#10b981,#059669);">A</div>
+              <div><div class="pix-review-name">Anjali Verma</div><div class="pix-review-loc">Bangalore · Beauty</div></div>
+            </div>
+          </div>
+
+          <!-- Review 4 -->
+          <div class="pix-review-card">
+            <div class="pix-review-stars">★★★★★</div>
+            <p class="pix-review-text">"Ordered the sandalwood candle as a gift — it came wrapped so beautifully! The recipient was blown away. The scent lasts for hours. A luxury experience at a great price."</p>
+            <div class="pix-review-author">
+              <div class="pix-review-avatar" style="background:linear-gradient(135deg,#f59e0b,#d97706);">S</div>
+              <div><div class="pix-review-name">Siddharth Rao</div><div class="pix-review-loc">Hyderabad · Candles</div></div>
+            </div>
+          </div>
+
+          <!-- Review 5 -->
+          <div class="pix-review-card">
+            <div class="pix-review-stars">★★★★★</div>
+            <p class="pix-review-text">"As someone who shops online all the time, Pioneer I Xpress stands out for quality. The packaging is minimal and eco-friendly. Love the brand story too!"</p>
+            <div class="pix-review-author">
+              <div class="pix-review-avatar" style="background:linear-gradient(135deg,#ec4899,#be185d);">N</div>
+              <div><div class="pix-review-name">Neha Joshi</div><div class="pix-review-loc">Pune · Multi</div></div>
+            </div>
+          </div>
+
+          <!-- Review 6 -->
+          <div class="pix-review-card">
+            <div class="pix-review-stars">★★★★★</div>
+            <p class="pix-review-text">"Got 3 candles as part of a bundle deal — the eucalyptus one in particular is my new obsession. Free delivery arrived in just 2 days. Very impressive!"</p>
+            <div class="pix-review-author">
+              <div class="pix-review-avatar" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);">V</div>
+              <div><div class="pix-review-name">Vikram Singh</div><div class="pix-review-loc">Chandigarh · Candles</div></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Dots navigation -->
+      <div id="testimonials-dots" style="display:flex;justify-content:center;gap:8px;margin-top:24px;"></div>
+
+      <!-- Summary row -->
+      <div class="pix-review-summary">
+        <div class="pix-review-summary-score">
+          <span class="pix-big-score">4.8</span>
+          <span class="pix-review-stars-big">★★★★★</span>
+          <span class="pix-review-count">Based on 1,240+ reviews</span>
+        </div>
+        <div class="pix-review-bars">
+          <div class="pix-rb-row"><span>5★</span><div class="pix-rb-track"><div class="pix-rb-fill" style="width:82%"></div></div><span>82%</span></div>
+          <div class="pix-rb-row"><span>4★</span><div class="pix-rb-track"><div class="pix-rb-fill" style="width:12%"></div></div><span>12%</span></div>
+          <div class="pix-rb-row"><span>3★</span><div class="pix-rb-track"><div class="pix-rb-fill" style="width:4%"></div></div><span>4%</span></div>
+          <div class="pix-rb-row"><span>2★</span><div class="pix-rb-track"><div class="pix-rb-fill" style="width:1%"></div></div><span>1%</span></div>
+          <div class="pix-rb-row"><span>1★</span><div class="pix-rb-track"><div class="pix-rb-fill" style="width:1%"></div></div><span>1%</span></div>
+        </div>
+      </div>
+    </section>
+
+    <style>
+    .pix-review-card {
+      background: var(--surface-primary);
+      border: 1.5px solid rgba(0,0,0,0.07);
+      border-radius: 20px;
+      padding: 24px;
+      min-width: 300px;
+      max-width: 360px;
+      flex-shrink: 0;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+      cursor: default;
+      position: relative;
+    }
+    html.dark .pix-review-card { border-color: rgba(255,255,255,0.08); }
+    .pix-review-card::before {
+      content: '"';
+      position: absolute; top: 14px; right: 20px;
+      font-family: 'Playfair Display', serif;
+      font-size: 4rem; line-height: 1; color: rgba(255,60,120,0.12);
+      font-weight: 900;
+    }
+    .pix-review-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 50px rgba(255,60,120,0.12);
+      border-color: rgba(255,60,120,0.2);
+    }
+    .pix-review-stars { color: #FFD600; font-size: 1rem; letter-spacing: 1px; margin-bottom: 12px; }
+    .pix-review-text {
+      font-size: 0.875rem; line-height: 1.65;
+      color: var(--text-secondary); margin-bottom: 18px;
+      font-style: italic;
+    }
+    .pix-review-author { display: flex; align-items: center; gap: 12px; }
+    .pix-review-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 1rem; color: white; flex-shrink: 0;
+    }
+    .pix-review-name { font-weight: 700; font-size: 0.875rem; color: var(--text-primary); }
+    .pix-review-loc { font-size: 0.72rem; color: var(--text-secondary); margin-top: 1px; }
+    .pix-review-summary {
+      display: flex; flex-wrap: wrap; gap: 32px; align-items: center;
+      justify-content: center; margin-top: 36px;
+      padding: 28px 32px; border-radius: 20px;
+      background: var(--surface-primary);
+      border: 1.5px solid rgba(0,0,0,0.06);
+    }
+    html.dark .pix-review-summary { border-color: rgba(255,255,255,0.07); }
+    .pix-review-summary-score { text-align: center; }
+    .pix-big-score { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 3.5rem; color: var(--brand-primary); line-height: 1; display: block; }
+    .pix-review-stars-big { color: #FFD600; font-size: 1.2rem; display: block; margin: 4px 0; }
+    .pix-review-count { font-size: 0.75rem; color: var(--text-secondary); font-weight: 600; }
+    .pix-review-bars { flex: 1; min-width: 200px; max-width: 320px; display: flex; flex-direction: column; gap: 6px; }
+    .pix-rb-row { display: flex; align-items: center; gap: 10px; font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); }
+    .pix-rb-track { flex: 1; height: 8px; background: rgba(0,0,0,0.06); border-radius: 4px; overflow: hidden; }
+    html.dark .pix-rb-track { background: rgba(255,255,255,0.08); }
+    .pix-rb-fill { height: 100%; background: linear-gradient(90deg, #FF3C78, #FF7EAC); border-radius: 4px; transition: width 1.2s cubic-bezier(.2,.9,.2,1); }
+    </style>
+
+    <script>
+    (function() {
+      var track = document.getElementById('testimonials-track');
+      var wrap  = document.getElementById('testimonials-track-wrap');
+      var dots  = document.getElementById('testimonials-dots');
+      if (!track || !wrap) return;
+
+      var cards    = track.querySelectorAll('.pix-review-card');
+      var total    = cards.length;
+      var current  = 0;
+      var cardW    = 0;
+      var visible  = 1;
+      var autoTimer;
+
+      function measure() {
+        if (!cards[0]) return;
+        var ww = wrap.offsetWidth;
+        cardW   = cards[0].offsetWidth + 20; // + gap
+        visible = Math.max(1, Math.floor(ww / cardW));
+      }
+
+      function buildDots() {
+        dots.innerHTML = '';
+        var pages = Math.ceil(total / visible);
+        for (var i = 0; i < pages; i++) {
+          var d = document.createElement('span');
+          d.style.cssText = 'display:inline-block;width:8px;height:8px;border-radius:50%;background:rgba(255,60,120,0.3);cursor:pointer;transition:all 0.3s;';
+          d.setAttribute('data-pg', i);
+          d.addEventListener('click', function() { goTo(parseInt(this.dataset.pg) * visible); resetAuto(); });
+          dots.appendChild(d);
+        }
+        updateDots();
+      }
+
+      function updateDots() {
+        dots.querySelectorAll('span').forEach(function(d, i) {
+          var active = i === Math.floor(current / visible);
+          d.style.background    = active ? '#FF3C78' : 'rgba(255,60,120,0.25)';
+          d.style.width         = active ? '24px' : '8px';
+          d.style.borderRadius  = active ? '4px' : '50%';
+        });
+      }
+
+      function goTo(idx) {
+        measure();
+        var maxIdx = Math.max(0, total - visible);
+        current = Math.max(0, Math.min(idx, maxIdx));
+        track.style.transform = 'translateX(-' + (current * cardW) + 'px)';
+        updateDots();
+      }
+
+      function next() {
+        var maxIdx = Math.max(0, total - visible);
+        goTo(current + visible >= maxIdx ? 0 : current + visible);
+      }
+
+      function resetAuto() { clearInterval(autoTimer); autoTimer = setInterval(next, 3800); }
+
+      measure();
+      buildDots();
+      resetAuto();
+      window.addEventListener('resize', function() { measure(); buildDots(); goTo(0); });
+
+      // Swipe support
+      var startX = 0;
+      wrap.addEventListener('touchstart', function(e) { startX = e.touches[0].clientX; }, {passive:true});
+      wrap.addEventListener('touchend', function(e) {
+        var dx = e.changedTouches[0].clientX - startX;
+        if (Math.abs(dx) > 50) { dx < 0 ? next() : goTo(Math.max(0, current - visible)); resetAuto(); }
+      }, {passive:true});
+
+      // Pause on hover
+      wrap.addEventListener('mouseenter', function() { clearInterval(autoTimer); });
+      wrap.addEventListener('mouseleave', resetAuto);
+
+      // Animate bars on view
+      var barIO = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) {
+            e.target.querySelectorAll('.pix-rb-fill').forEach(function(b) {
+              var w = b.style.width; b.style.width = '0'; setTimeout(function() { b.style.width = w; }, 100);
+            });
+            barIO.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.3 });
+      var sumEl = document.querySelector('.pix-review-summary');
+      if (sumEl) barIO.observe(sumEl);
+    })();
+    </script>
+
+    <!-- END TESTIMONIALS -->
 
     <!-- BECOME A SELLER CTA SECTION -->
     <section id="seller-cta-section" class="my-12 rounded-2xl overflow-hidden" style="background: linear-gradient(135deg, #111111 0%, #1a0a12 50%, #2d0e1e 100%); border: 1px solid rgba(255,60,120,0.2);">
@@ -2342,9 +3774,9 @@
             <div>
               <div style="font-size:0.68rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:#fff;margin-bottom:18px;">Contact Us</div>
               <div style="display:flex;flex-direction:column;gap:14px;">
-                <a href="mailto:hello@pioneeri.in" style="display:flex;align-items:flex-start;gap:11px;text-decoration:none;" onmouseover="this.querySelector('.ftlbl').style.color='#FF3C78'" onmouseout="this.querySelector('.ftlbl').style.color='rgba(255,255,255,0.45)'">
+                <a href="/cdn-cgi/l/email-protection#b2dad7dededdf2c2dbdddcd7d7c0db9cdbdc" style="display:flex;align-items:flex-start;gap:11px;text-decoration:none;" onmouseover="this.querySelector('.ftlbl').style.color='#FF3C78'" onmouseout="this.querySelector('.ftlbl').style.color='rgba(255,255,255,0.45)'">
                   <div style="width:34px;height:34px;border-radius:9px;background:rgba(255,60,120,0.12);border:1px solid rgba(255,60,120,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-envelope" style="color:#FF3C78;font-size:0.8rem;"></i></div>
-                  <div><div style="font-size:0.62rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin-bottom:2px;">Email</div><span class="ftlbl" style="font-size:0.8rem;color:rgba(255,255,255,0.45);transition:color 0.2s;">hello@pioneeri.in</span></div>
+                  <div><div style="font-size:0.62rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin-bottom:2px;">Email</div><span class="ftlbl" style="font-size:0.8rem;color:rgba(255,255,255,0.45);transition:color 0.2s;"><span class="__cf_email__" data-cfemail="84ece1e8e8ebc4f4edebeae1e1f6edaaedea">[email&#160;protected]</span></span></div>
                 </a>
                 <a href="tel:+916280096796" style="display:flex;align-items:flex-start;gap:11px;text-decoration:none;" onmouseover="this.querySelector('.ftlbl').style.color='#FF3C78'" onmouseout="this.querySelector('.ftlbl').style.color='rgba(255,255,255,0.45)'">
                   <div style="width:34px;height:34px;border-radius:9px;background:rgba(255,60,120,0.12);border:1px solid rgba(255,60,120,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-phone-alt" style="color:#FF3C78;font-size:0.8rem;"></i></div>
@@ -2491,7 +3923,7 @@
               </div>
             </div>
             <label class="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" id="nb_isDefault" class="w-4 h-4 accent-[#C6A75E]">
+              <input type="checkbox" id="nb_isDefault" class="w-4 h-4" style="accent-color:#C6A75E">
               <span class="text-sm font-medium" data-i18n="set_default">Set as default address</span>
             </label>
             <button id="nb_saveBtn" class="w-full btn-primary text-white font-bold py-2.5 rounded-xl" data-i18n="save_address">Save Address</button>
@@ -2660,7 +4092,7 @@
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
   </button>
 
-  <script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     // ===== TAILWIND CONFIG (for dynamic classes) ============================
     tailwind.config = {
       darkMode: 'class',
@@ -3979,22 +5411,6 @@
   </script>
 
 
-<script>
-// PRODUCTS data (candles only) - added by assistant
-window.PRODUCTS = [
-  { id: 'c001', title: 'Scented Floating Flower Candle', price: 699, stock: 25, desc: 'A decorative floating candle shaped like a flower with a soothing floral scent. Perfect for centerpieces and baths.', rating: 4.7 },
-  { id: 'c002', title: 'Lavender Fields Jar Candle', price: 549, stock: 40, desc: 'Classic lavender-scented jar candle for relaxation and sleep.', rating: 4.6 },
-  { id: 'c003', title: 'Sandalwood & Musk Large Jar', price: 1099, stock: 18, desc: 'Warm sandalwood blended with musk in a premium large jar.', rating: 4.8 },
-  { id: 'c004', title: 'Citrus Zest Votive Set (3 pcs)', price: 799, stock: 60, desc: 'Bright citrus-scented votive candles sold as a set of 3.', rating: 4.5 },
-  { id: 'c005', title: 'Vanilla Bean Pillar Candle', price: 649, stock: 30, desc: 'Creamy vanilla aroma in a long-burning pillar candle.', rating: 4.4 },
-  { id: 'c006', title: 'Rose Petal Floating Candle', price: 749, stock: 20, desc: 'Romantic rose-shaped floating candle, hand-poured with delicate fragrance.', rating: 4.6 },
-  { id: 'c007', title: 'Eucalyptus Mint Tea Light Pack (6)', price: 399, stock: 120, desc: 'Refreshing eucalyptus and mint tea lights — great for relaxation and spa nights.', rating: 4.3 },
-  { id: 'c008', title: 'Autumn Spice Pumpkin Candle', price: 599, stock: 35, desc: 'Cozy autumn spice blend with pumpkin notes—limited seasonal favorite.', rating: 4.5 },
-  { id: 'c009', title: 'Ocean Breeze Cylinder Candle', price: 899, stock: 22, desc: 'Fresh sea-spray scent in an elegant cylinder shape.', rating: 4.6 },
-  { id: 'c010', title: 'Coffee Roast Espresso Candle', price: 699, stock: 27, desc: 'Rich coffee aroma for coffee lovers—notes of espresso and roasted beans.', rating: 4.7 }
-];
-</script>
-
 
 <script id="rs-products">
 // PRODUCTS data (candles only) - added by assistant
@@ -4838,7 +6254,7 @@ window.PRODUCTS = [
     list.innerHTML = addrs.map(a => `
       <label class="flex items-start gap-3 p-3 rounded-xl cursor-pointer border-2 transition-all" data-adid="${a.id}"
              style="border-color:${a.id === def.id ? 'var(--brand-primary)' : 'rgba(128,128,128,0.15)'};background:var(--bg-primary)">
-        <input type="radio" name="selAddr" value="${a.id}" ${a.id === def.id ? 'checked' : ''} class="mt-0.5 accent-[#C6A75E] flex-shrink-0">
+        <input type="radio" name="selAddr" value="${a.id}" ${a.id === def.id ? 'checked' : ''} class="mt-0.5 flex-shrink-0" style="accent-color:#C6A75E">
         <div>
           <div class="font-bold text-sm">${a.name}${a.isDefault ? ' <span style="color:var(--brand-primary);font-size:11px">(Default)</span>' : ''}</div>
           <div class="text-xs" style="color:var(--text-secondary)">${a.address}</div>
@@ -7194,16 +8610,7 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 
 /* ── 5. Social Proof Toasts ── */
-var SP_DATA = [
-  { name:'Priya S.', city:'Delhi', product:'Lavender Fields Candle', time:'2 min ago' },
-  { name:'Rahul M.', city:'Mumbai', product:'Rose Hip Face Serum', time:'5 min ago' },
-  { name:'Anjali K.', city:'Bangalore', product:'Argan Hair Oil 100ml', time:'Just now' },
-  { name:'Sneha R.', city:'Hyderabad', product:'Scented Floating Candle', time:'8 min ago' },
-  { name:'Vikram P.', city:'Chennai', product:'Black Bunny Kids T-Shirt', time:'3 min ago' },
-  { name:'Meera G.', city:'Pune', product:'Vitamin C Day Cream', time:'1 min ago' },
-  { name:'Arjun T.', city:'Kolkata', product:'Sandalwood & Musk Jar', time:'Just now' },
-  { name:'Divya N.', city:'Jaipur', product:'Lip Balm Set', time:'4 min ago' },
-];
+
 var spIdx = 0;
 var spToast = document.getElementById('socialProofToast');
 function showSP(){
@@ -7295,95 +8702,494 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 
 
-<!-- ===== SPEED-DIAL FAB (bottom-right) ===== -->
+<!-- ===================================================================
+     ✦  PIONEER I XPRESS — ANIMATION LAYER
+     =================================================================== -->
 <style>
-/* Container */
+/* ─── RULE 1: Nothing ever stays invisible ─── */
+/* All reveal classes start VISIBLE; transitions only fire when JS is ready */
+.pix-reveal, .pix-reveal-up, .pix-reveal-scale {
+  opacity: 1;
+  transform: none;
+}
+
+/* ─── Page scroll progress bar ─── */
+#pix-page-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px; width: 0%;
+  background: linear-gradient(90deg, #FF3C78, #FF7EAC, #FFD600);
+  z-index: 99999;
+  pointer-events: none;
+  box-shadow: 0 0 10px rgba(255,60,120,0.6);
+  transition: width 0.1s linear;
+}
+
+/* ─── Custom cursor ─── */
+#pix-cur, #pix-cur-ring {
+  position: fixed;
+  pointer-events: none;
+  border-radius: 50%;
+  z-index: 99998;
+  transform: translate(-50%,-50%);
+}
+#pix-cur {
+  width: 10px; height: 10px;
+  background: #FF3C78;
+  box-shadow: 0 0 10px rgba(255,60,120,0.8);
+  transition: width .15s, height .15s, background .15s;
+}
+#pix-cur-ring {
+  width: 34px; height: 34px;
+  border: 1.5px solid rgba(255,60,120,0.5);
+  transition: width .22s, height .22s, border-color .22s;
+}
+body.pix-over #pix-cur        { width: 6px; height: 6px; background: #fff; }
+body.pix-over #pix-cur-ring   { width: 48px; height: 48px; border-color: #FF3C78; }
+body.pix-down #pix-cur        { width: 6px; height: 6px; }
+@media (pointer: coarse) {
+  #pix-cur, #pix-cur-ring { display: none !important; }
+}
+/* Only hide default cursor on non-touch */
+@media (pointer: fine) {
+  *, *::before, *::after { cursor: none !important; }
+}
+
+/* ─── Scroll-up ring button ─── */
+#pix-up-btn {
+  position: fixed;
+  bottom: 100px; right: 26px;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: #0a0005;
+  border: 1.5px solid rgba(255,60,120,0.4);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9490;
+  opacity: 0; pointer-events: none;
+  transition: opacity .3s, transform .3s, box-shadow .3s;
+  box-shadow: 0 4px 20px rgba(255,60,120,0.25);
+}
+#pix-up-btn.show { opacity: 1; pointer-events: auto; }
+#pix-up-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(255,60,120,0.5); }
+#pix-up-btn svg { display: block; }
+
+/* ─── Ripple ─── */
+.pix-rip-host { position: relative; overflow: hidden; }
+.pix-rip {
+  position: absolute; border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  transform: scale(0);
+  animation: pixRip .5s linear;
+  pointer-events: none;
+}
+@keyframes pixRip { to { transform: scale(4); opacity: 0; } }
+
+/* ─── Sparkles ─── */
+#pix-sparks { position: fixed; inset: 0; pointer-events: none; z-index: 99990; overflow: hidden; }
+.pix-sp {
+  position: absolute; border-radius: 50%;
+  pointer-events: none;
+  animation: pixSp .55s ease forwards;
+}
+@keyframes pixSp {
+  0%   { transform: scale(0) translate(0,0); opacity: 1; }
+  100% { transform: scale(1.5) translate(var(--tx),var(--ty)); opacity: 0; }
+}
+
+/* ─── Card hover lift ─── */
+.card {
+  transition: transform .3s cubic-bezier(.2,.9,.2,1),
+              box-shadow .3s cubic-bezier(.2,.9,.2,1),
+              border-color .3s ease !important;
+  will-change: transform;
+}
+.card:hover {
+  transform: translateY(-8px) !important;
+  box-shadow: 0 24px 50px rgba(255,60,120,0.18), 0 0 0 1.5px rgba(255,60,120,0.25) !important;
+}
+
+/* ─── Hero title shimmer ─── */
+.hero-title span {
+  background: linear-gradient(90deg, #FF7EAC 0%, #FFD6E7 40%, #FF3C78 60%, #FF7EAC 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: hShimmer 3.5s linear infinite;
+}
+@keyframes hShimmer {
+  from { background-position: 0% center; }
+  to   { background-position: 200% center; }
+}
+
+/* ─── Category tile extra hover glow ─── */
+.cat-tile::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(255,60,120,0.4) 0%, transparent 55%);
+  opacity: 0;
+  transition: opacity .35s ease;
+  z-index: 1;
+  border-radius: 16px;
+  pointer-events: none;
+}
+.cat-tile:hover::after { opacity: 1; }
+.cat-tile-label, .cat-tile-badge { z-index: 2; position: relative; }
+
+/* ─── Glimmer pass on promo banners ─── */
+.promo-grid-item { position: relative; overflow: hidden; }
+.promo-grid-item::before {
+  content: '';
+  position: absolute; top: 0; left: -110%;
+  width: 55%; height: 100%;
+  background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.14) 50%, transparent 65%);
+  transform: skewX(-18deg);
+  pointer-events: none;
+  z-index: 5;
+}
+.promo-grid-item:hover::before {
+  animation: glimmer .6s ease forwards;
+}
+@keyframes glimmer { to { left: 160%; } }
+
+/* ─── Announcement bar code pulse ─── */
+#announcement-bar b {
+  display: inline-block;
+  animation: codePulse 2.2s ease-in-out infinite;
+}
+@keyframes codePulse {
+  0%,100% { color: #FFD600; }
+  50%      { color: #fff; }
+}
+
+/* ─── Trust icon hover bounce ─── */
+.trust-icon {
+  display: inline-block;
+  transition: transform .3s cubic-bezier(.2,1.4,.3,1);
+}
+.trust-item:hover .trust-icon { transform: scale(1.35) rotate(-8deg); }
+
+/* ─── Flash digit flip ─── */
+@keyframes digitFlip {
+  0%   { transform: rotateX(0); }
+  50%  { transform: rotateX(-90deg); opacity: .3; }
+  100% { transform: rotateX(0); }
+}
+.pix-flip { animation: digitFlip .28s ease; }
+
+/* ─── Section title underline draw (safe: starts 0 width, becomes 100 on hover/scroll) ─── */
+.section-title { position: relative; display: inline-block; }
+.section-title::after {
+  content: '';
+  position: absolute; bottom: -4px; left: 0;
+  width: 0; height: 2.5px;
+  background: linear-gradient(90deg, #FF3C78, #FF7EAC);
+  border-radius: 2px;
+  transition: width .6s cubic-bezier(.2,.9,.2,1);
+}
+.section-header:hover .section-title::after,
+.pix-title-drawn .section-title::after { width: 100%; }
+
+/* ─── Footer link underline ─── */
+footer a { position: relative; }
+footer a::after {
+  content: '';
+  position: absolute; bottom: -2px; left: 0;
+  width: 0; height: 1.5px;
+  background: #FF3C78;
+  transition: width .25s ease;
+  border-radius: 1px;
+}
+footer a:hover::after { width: 100%; }
+
+/* ─── Hero parallax layer ─── */
+.hero-slide-inner {
+  transition: transform .4s ease;
+  will-change: transform;
+}
+
+/* ─── Brand canvas fade-in ─── */
+.pix-stage-wrap {
+  animation: canvasFadeIn 1s ease .3s both;
+}
+@keyframes canvasFadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ─── Chip bounce on active ─── */
+.chip.active { animation: chipBounce .3s cubic-bezier(.2,1.4,.3,1); }
+@keyframes chipBounce {
+  0%   { transform: scale(.9); }
+  60%  { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* ─── Input focus ring ─── */
+input:focus, select:focus {
+  box-shadow: 0 0 0 3px rgba(255,60,120,0.2) !important;
+}
+
+/* ─── Scroll-triggered fade-up (JS adds inline style, NOT opacity:0 in CSS) ─── */
+.pix-up {
+  transition: opacity .65s cubic-bezier(.2,.9,.2,1), transform .65s cubic-bezier(.2,.9,.2,1);
+}
+</style>
+
+<div id="pix-page-bar"></div>
+<div id="pix-cur"></div>
+<div id="pix-cur-ring"></div>
+<div id="pix-sparks"></div>
+<button id="pix-up-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF3C78" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+
+<script>
+(function(){
+'use strict';
+
+/* ─── 1. PAGE PROGRESS BAR ─── */
+var bar = document.getElementById('pix-page-bar');
+var upBtn = document.getElementById('pix-up-btn');
+function onScroll(){
+  var st = document.documentElement.scrollTop || document.body.scrollTop;
+  var tot = document.documentElement.scrollHeight - window.innerHeight;
+  var pct = tot > 0 ? (st/tot)*100 : 0;
+  if (bar) bar.style.width = pct + '%';
+  if (upBtn) { pct > 8 ? upBtn.classList.add('show') : upBtn.classList.remove('show'); }
+  // header shadow on scroll
+  var hdr = document.getElementById('siteHeader');
+  if (hdr) { st > 60 ? hdr.style.boxShadow = '0 4px 32px rgba(0,0,0,0.55)' : hdr.style.boxShadow = ''; }
+}
+window.addEventListener('scroll', onScroll, {passive:true});
+
+/* ─── 2. CUSTOM CURSOR (fine pointer only) ─── */
+if (window.matchMedia('(pointer:fine)').matches) {
+  var cur  = document.getElementById('pix-cur');
+  var ring = document.getElementById('pix-cur-ring');
+  var mx = innerWidth/2, my = innerHeight/2, rx = mx, ry = my;
+  document.addEventListener('mousemove', function(e){
+    mx = e.clientX; my = e.clientY;
+    if (cur) { cur.style.left = mx+'px'; cur.style.top = my+'px'; }
+  });
+  (function lag(){
+    rx += (mx-rx)*0.13; ry += (my-ry)*0.13;
+    if (ring) { ring.style.left = rx+'px'; ring.style.top = ry+'px'; }
+    requestAnimationFrame(lag);
+  })();
+  document.addEventListener('mousedown', function(){ document.body.classList.add('pix-down'); });
+  document.addEventListener('mouseup',   function(){ document.body.classList.remove('pix-down'); });
+  document.querySelectorAll('a,button,.card,.cat-tile,.chip').forEach(function(el){
+    el.addEventListener('mouseenter', function(){ document.body.classList.add('pix-over'); });
+    el.addEventListener('mouseleave', function(){ document.body.classList.remove('pix-over'); });
+  });
+}
+
+/* ─── 3. RIPPLE on buttons ─── */
+function ripple(e) {
+  var btn = e.currentTarget;
+  var r = btn.getBoundingClientRect();
+  var x = e.clientX - r.left, y = e.clientY - r.top;
+  var w = document.createElement('span');
+  w.className = 'pix-rip';
+  var sz = Math.max(r.width, r.height) * 1.6;
+  w.style.cssText = 'width:'+sz+'px;height:'+sz+'px;left:'+(x-sz/2)+'px;top:'+(y-sz/2)+'px;';
+  btn.classList.add('pix-rip-host');
+  btn.appendChild(w);
+  setTimeout(function(){ w.remove(); }, 550);
+}
+document.querySelectorAll('button,.btn-primary,.hero-cta,.chip').forEach(function(b){ b.addEventListener('click', ripple); });
+// also catch dynamically added buttons
+document.addEventListener('click', function(e){
+  var b = e.target.closest('.btn-primary,.hero-cta');
+  if (b && !b._ripSet) { b._ripSet=true; }
+});
+
+/* ─── 4. SPARKLES on CTA clicks ─── */
+var sparks = document.getElementById('pix-sparks');
+function burst(x, y) {
+  for (var i=0; i<10; i++) {
+    var s = document.createElement('div');
+    var a = (Math.PI*2*i)/10;
+    var d = 24+Math.random()*28;
+    s.className = 'pix-sp';
+    s.style.cssText = 'left:'+x+'px;top:'+y+'px;width:'+(4+Math.random()*4)+'px;height:'+(4+Math.random()*4)+'px;background:'+(Math.random()>.5?'#FF3C78':'#FFD600')+';--tx:'+(Math.cos(a)*d)+'px;--ty:'+(Math.sin(a)*d)+'px;animation-delay:'+(Math.random()*.1)+'s;';
+    sparks.appendChild(s);
+    setTimeout(function(){ s.remove(); }, 650);
+  }
+}
+document.addEventListener('click', function(e){
+  var b = e.target.closest('.btn-primary,.hero-cta,#cartBtn');
+  if (b) burst(e.clientX, e.clientY);
+});
+
+/* ─── 5. SCROLL FADE-UP — set opacity only via JS so CSS never hides anything ─── */
+var fadeItems = [];
+function initFadeUp() {
+  // Only elements well below the fold get the fade effect
+  var selectors = ['.section-header','.trust-item','.promo-grid-item'];
+  selectors.forEach(function(sel){
+    document.querySelectorAll(sel).forEach(function(el, i){
+      var rect = el.getBoundingClientRect();
+      // Skip anything already in viewport on page load
+      if (rect.top < window.innerHeight * 1.1) return;
+      el.classList.add('pix-up');
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(28px)';
+      fadeItems.push(el);
+    });
+  });
+}
+
+function checkFadeItems() {
+  fadeItems = fadeItems.filter(function(el){
+    var rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight * 0.92) {
+      el.style.opacity = '1';
+      el.style.transform = 'none';
+      return false; // remove from list
+    }
+    return true;
+  });
+}
+
+// Section title underlines
+function initTitleLines() {
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if (e.isIntersecting) { e.target.classList.add('pix-title-drawn'); obs.unobserve(e.target); }
+    });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('.section-header').forEach(function(el){ obs.observe(el); });
+}
+
+window.addEventListener('scroll', checkFadeItems, {passive:true});
+
+// Delay init so page renders fully first
+setTimeout(function(){
+  initFadeUp();
+  initTitleLines();
+  checkFadeItems();
+}, 400);
+
+// Absolute safety net: after 2.5s reveal everything still hidden
+setTimeout(function(){
+  document.querySelectorAll('.pix-up').forEach(function(el){
+    el.style.opacity = '1';
+    el.style.transform = 'none';
+  });
+}, 2500);
+
+/* ─── 6. CARD 3D TILT ─── */
+document.querySelectorAll('.card').forEach(function(c){
+  c.addEventListener('mousemove', function(e){
+    var r = c.getBoundingClientRect();
+    var px = (e.clientX-r.left)/r.width - 0.5;
+    var py = (e.clientY-r.top)/r.height - 0.5;
+    c.style.transform = 'translateY(-8px) rotateY('+(px*7)+'deg) rotateX('+(-py*5)+'deg)';
+  });
+  c.addEventListener('mouseleave', function(){ c.style.transform = ''; });
+});
+// Watch for new cards added dynamically
+if (window.MutationObserver) {
+  var grid = document.getElementById('grid');
+  if (grid) new MutationObserver(function(muts){
+    muts.forEach(function(m){
+      m.addedNodes.forEach(function(n){
+        if (n.nodeType===1 && n.classList && n.classList.contains('card')) {
+          n.addEventListener('mousemove', function(e){
+            var r=n.getBoundingClientRect();
+            var px=(e.clientX-r.left)/r.width-.5, py=(e.clientY-r.top)/r.height-.5;
+            n.style.transform='translateY(-8px) rotateY('+(px*7)+'deg) rotateX('+(-py*5)+'deg)';
+          });
+          n.addEventListener('mouseleave', function(){ n.style.transform=''; });
+          n.querySelectorAll('button').forEach(function(b){ b.addEventListener('click', ripple); });
+        }
+      });
+    });
+  }).observe(grid, {childList:true});
+}
+
+/* ─── 7. HERO PARALLAX ─── */
+var hero = document.getElementById('heroMainCarousel');
+if (hero) {
+  hero.addEventListener('mousemove', function(e){
+    var r = hero.getBoundingClientRect();
+    var px = (e.clientX-r.left)/r.width-.5;
+    var py = (e.clientY-r.top)/r.height-.5;
+    hero.querySelectorAll('.hero-slide-inner').forEach(function(s){
+      s.style.transform = 'translate('+(px*9)+'px,'+(py*5)+'px)';
+    });
+  });
+  hero.addEventListener('mouseleave', function(){
+    hero.querySelectorAll('.hero-slide-inner').forEach(function(s){ s.style.transform=''; });
+  });
+}
+
+/* ─── 8. FLASH DIGIT FLIP ─── */
+var prevDigits = {};
+setInterval(function(){
+  ['timerH','timerM','timerS'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (!el) return;
+    if (el.textContent !== prevDigits[id]) {
+      el.classList.remove('pix-flip');
+      void el.offsetWidth;
+      el.classList.add('pix-flip');
+      prevDigits[id] = el.textContent;
+    }
+  });
+}, 700);
+
+/* ─── 9. MAGNETIC BUTTONS ─── */
+document.querySelectorAll('.hero-cta, #cartBtn').forEach(function(b){
+  b.addEventListener('mousemove', function(e){
+    var r=b.getBoundingClientRect();
+    var dx=(e.clientX-r.left-r.width/2)*.2, dy=(e.clientY-r.top-r.height/2)*.2;
+    b.style.transform='translate('+dx+'px,'+dy+'px)';
+  });
+  b.addEventListener('mouseleave', function(){ b.style.transform=''; });
+});
+
+/* ─── 10. LOGO SPIN ─── */
+var logo = document.querySelector('.logo-badge');
+if (logo) logo.addEventListener('click', function(){
+  logo.style.transition='transform .5s cubic-bezier(.2,1.4,.3,1)';
+  logo.style.transform='rotate(360deg) scale(1.08)';
+  setTimeout(function(){ logo.style.transition=''; logo.style.transform=''; }, 520);
+});
+
+})();
+</script>
+
+<!-- ===== FLOATING ACTION BUTTONS (bottom-right) ===== -->
+<style>
 #fab-root {
   position: fixed;
   bottom: 28px;
   right: 24px;
   z-index: 9500;
   display: flex;
-  flex-direction: column-reverse;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-end;
   gap: 12px;
+  animation: fabEntrance 0.5s cubic-bezier(0.2,1.4,0.4,1) 0.6s both;
 }
-
-/* Main trigger button */
-#fab-main {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #FF3C78, #c41755);
-  color: #fff;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  box-shadow: 0 6px 24px rgba(255,60,120,0.55);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-  position: relative;
-  flex-shrink: 0;
+@keyframes fabEntrance {
+  from { transform: translateY(60px) scale(0.7); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
 }
-#fab-main:hover { transform: scale(1.1); box-shadow: 0 10px 32px rgba(255,60,120,0.7); }
-
-/* Pulse ring */
-#fab-main::before {
-  content: '';
-  position: absolute;
-  inset: -7px;
-  border-radius: 50%;
-  background: rgba(255,60,120,0.22);
-  animation: fabPulse 1.7s ease-out infinite;
-}
-@keyframes fabPulse {
-  0%  { transform: scale(0.85); opacity: 0.8; }
-  70% { transform: scale(1.4);  opacity: 0; }
-  100%{ transform: scale(1.4);  opacity: 0; }
-}
-
-/* Badge on main button */
-#fab-badge {
-  position: absolute;
-  top: -2px; right: -2px;
-  background: #FFD600;
-  color: #111;
-  font-size: 0.58rem;
-  font-weight: 900;
-  min-width: 19px; height: 19px;
-  border-radius: 999px;
-  display: flex; align-items: center; justify-content: center;
-  padding: 0 4px;
-  border: 2px solid #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-}
-
-/* Rotate icon when open */
-#fab-root.open #fab-main { transform: rotate(45deg); }
-#fab-root.open #fab-main::before { display: none; }
-
-/* Child buttons */
 .fab-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  opacity: 0;
-  transform: translateY(16px) scale(0.85);
-  pointer-events: none;
-  transition: opacity 0.22s ease, transform 0.22s ease;
-}
-#fab-root.open .fab-item {
   opacity: 1;
-  transform: translateY(0) scale(1);
+  transform: none;
   pointer-events: auto;
 }
-#fab-root.open .fab-item:nth-child(1) { transition-delay: 0.04s; }
-#fab-root.open .fab-item:nth-child(2) { transition-delay: 0.08s; }
-#fab-root.open .fab-item:nth-child(3) { transition-delay: 0.12s; }
-
-/* Label tooltip */
+#fab-item-top { display: none; }
+#fab-item-top.show { display: flex; }
 .fab-label {
   background: rgba(0,0,0,0.82);
   color: #fff;
@@ -7395,9 +9201,11 @@ document.addEventListener('DOMContentLoaded', function(){
   white-space: nowrap;
   pointer-events: none;
   box-shadow: 0 3px 10px rgba(0,0,0,0.28);
+  opacity: 0;
+  transform: translateX(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
-
-/* Individual icon buttons */
+.fab-item:hover .fab-label { opacity: 1; transform: translateX(0); }
 .fab-icon-btn {
   width: 50px; height: 50px;
   border-radius: 50%;
@@ -7407,16 +9215,13 @@ document.addEventListener('DOMContentLoaded', function(){
   color: #fff;
   flex-shrink: 0;
   box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-  transition: transform 0.18s, box-shadow 0.18s;
+  transition: transform 0.2s cubic-bezier(.2,.9,.2,1), box-shadow 0.2s ease;
   text-decoration: none;
 }
-.fab-icon-btn:hover { transform: scale(1.12); }
-
-#fab-deals  { background: linear-gradient(135deg, #FF3C78, #c41755); }
-#fab-wa     { background: #25d366; }
-#fab-top    { background: #1a1a2e; border: 2px solid rgba(255,255,255,0.15); }
-
-/* Deals shake */
+.fab-icon-btn:hover { transform: scale(1.12); box-shadow: 0 8px 24px rgba(0,0,0,0.35); }
+#fab-deals { background: linear-gradient(135deg, #FF3C78, #c41755); position: relative; }
+#fab-wa    { background: #25d366; }
+#fab-top   { background: #1a1a2e; border: 2px solid rgba(255,255,255,0.15); }
 @keyframes fabShake {
   0%,100% { transform: translateX(0) rotate(0); }
   12%  { transform: translateX(-5px) rotate(-5deg); }
@@ -7427,84 +9232,801 @@ document.addEventListener('DOMContentLoaded', function(){
   80%  { transform: translateX(2px) rotate(1deg); }
 }
 #fab-deals.shaking { animation: fabShake 0.7s ease-in-out infinite; }
-
-/* Back-to-top: hide when at top */
-#fab-item-top { display: none; }
-#fab-item-top.show { display: flex; }
-
-/* Entrance */
-@keyframes fabEntrance {
-  from { transform: translateY(60px) scale(0.7); opacity: 0; }
-  to   { transform: translateY(0) scale(1); opacity: 1; }
+#fab-deals::before {
+  content: '';
+  position: absolute; inset: -6px;
+  border-radius: 50%;
+  background: rgba(255,60,120,0.22);
+  animation: fabPulse 1.8s ease-out infinite;
+  pointer-events: none;
 }
-#fab-root {
-  animation: fabEntrance 0.5s cubic-bezier(0.2,1.4,0.4,1) 0.6s both;
+@keyframes fabPulse {
+  0%  { transform: scale(0.85); opacity: 0.8; }
+  70% { transform: scale(1.45); opacity: 0; }
+  100%{ transform: scale(1.45); opacity: 0; }
 }
+#fab-deals.shaking::before { display: none; }
 </style>
 
 <div id="fab-root">
-  <!-- Child items (render first = appear at top of column) -->
   <div class="fab-item" id="fab-item-top">
     <span class="fab-label">Back to top</span>
     <button id="fab-top" class="fab-icon-btn" aria-label="Back to top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
     </button>
   </div>
-
   <div class="fab-item">
     <span class="fab-label">Chat on WhatsApp</span>
     <a id="fab-wa" class="fab-icon-btn" href="https://wa.me/916280096796?text=Hi%20Pioneer%20I%20Xpress%2C%20I%20need%20help%21" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
       <i class="fab fa-whatsapp"></i>
     </a>
   </div>
-
   <div class="fab-item">
-    <span class="fab-label">🔥 Hot Deals</span>
-    <button id="fab-deals" class="fab-icon-btn shaking" aria-label="View Deals">
-      🏷️
-    </button>
+    <span class="fab-label">&#x1F525; Hot Deals</span>
+    <button id="fab-deals" class="fab-icon-btn shaking" aria-label="View Deals">&#x1F3F7;&#xFE0F;</button>
   </div>
-
-  <!-- Main toggle -->
-  <button id="fab-main" aria-label="Open actions" aria-expanded="false">
-    ✦
-    <span id="fab-badge">13</span>
-  </button>
 </div>
 
 <script>
 (function(){
-  var root     = document.getElementById('fab-root');
-  var mainBtn  = document.getElementById('fab-main');
   var dealsBtn = document.getElementById('fab-deals');
   var topItem  = document.getElementById('fab-item-top');
-
-  /* ── Toggle open/close ── */
-  mainBtn.addEventListener('click', function(){
-    var isOpen = root.classList.toggle('open');
-    mainBtn.setAttribute('aria-expanded', isOpen);
-  });
-  /* Close on outside click */
-  document.addEventListener('click', function(e){
-    if (!root.contains(e.target)) root.classList.remove('open');
-  });
-
-  /* ── Deals ── */
   dealsBtn.addEventListener('click', function(){
     dealsBtn.classList.remove('shaking');
     sessionStorage.setItem('PIX_deals_shake_stopped','1');
-    root.classList.remove('open');
     if (typeof window._PIX_openDealsModal === 'function') window._PIX_openDealsModal('all');
   });
   if (sessionStorage.getItem('PIX_deals_shake_stopped')) dealsBtn.classList.remove('shaking');
-
-  /* ── Back to top visibility ── */
   window.addEventListener('scroll', function(){
-    topItem.classList.toggle('show', window.scrollY > 400);
+    topItem.classList.toggle('show', window.scrollY > 300);
   }, { passive: true });
 })();
 </script>
-<!-- ===== END SPEED-DIAL FAB ===== -->
+
+<!-- ══════════════════════════════════════════════════════════
+     🚀 PIONEER I XPRESS — ANIMATION ENGINE v2
+     ══════════════════════════════════════════════════════════ -->
+<script>
+(function() {
+  'use strict';
+
+  /* ── 1. PAGE LOADER ── */
+  var loader = document.getElementById('pix-loader');
+  if (loader) {
+    window.addEventListener('load', function() {
+      setTimeout(function() { loader.classList.add('fade-out'); }, 1600);
+    });
+    setTimeout(function() { loader.classList.add('fade-out'); }, 2500);
+  }
+
+
+
+  /* ── 3. HEADER SCROLL GLASS ── */
+  var header = document.getElementById('siteHeader');
+  if (header) {
+    window.addEventListener('scroll', function() {
+      header.classList.toggle('pix-scrolled', window.scrollY > 40);
+    }, { passive: true });
+  }
+
+  /* ── 4. INTERSECTION OBSERVER — scroll reveal ── */
+  var ioOptions = { threshold: 0.12, rootMargin: '0px 0px -50px 0px' };
+  var revealIO  = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) {
+        e.target.classList.add('pix-visible');
+        revealIO.unobserve(e.target);
+      }
+    });
+  }, ioOptions);
+
+  document.querySelectorAll('.pix-reveal, .pix-reveal-left, .pix-reveal-right, .pix-reveal-scale, .pix-stagger-children').forEach(function(el) {
+    revealIO.observe(el);
+  });
+
+  /* category tiles */
+  var catIO = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) {
+        e.target.classList.add('pix-cat-visible');
+        catIO.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+
+  document.querySelectorAll('.cat-tile').forEach(function(el, i) {
+    el.style.transitionDelay = (i * 0.08) + 's';
+    catIO.observe(el);
+  });
+
+  /* ── 5. ANIMATED COUNTER ── */
+  function animateCounter(el, target, duration) {
+    var startTime = null;
+    var suffix = '';
+    if (target >= 10000) suffix = '+';
+    var labelEl = el.closest('.pix-stat-item') && el.closest('.pix-stat-item').querySelector('.pix-stat-label');
+    if (labelEl && labelEl.textContent.includes('%')) suffix = '%';
+    function step(ts) {
+      if (!startTime) startTime = ts;
+      var pct  = Math.min((ts - startTime) / duration, 1);
+      var ease = 1 - Math.pow(1 - pct, 3);
+      el.textContent = Math.round(target * ease).toLocaleString() + suffix;
+      if (pct < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  var counterIO = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) {
+        var target = parseInt(e.target.getAttribute('data-target'), 10);
+        if (!isNaN(target)) animateCounter(e.target, target, 1800);
+        counterIO.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  document.querySelectorAll('[data-target]').forEach(function(el) { counterIO.observe(el); });
+
+  /* ── 6. CURSOR SPARKLE ── */
+  var sparkleColors = ['#FF3C78','#FF7EAC','#FFD600','#ffffff','#c41755'];
+  var lastSparkle = 0;
+  document.addEventListener('mousemove', function(e) {
+    var now = Date.now();
+    if (now - lastSparkle < 40) return;
+    lastSparkle = now;
+    var s    = document.createElement('div');
+    var size = 5 + Math.random() * 7;
+    s.className = 'pix-sparkle';
+    s.style.cssText = 'left:' + (e.clientX - size/2) + 'px;top:' + (e.clientY - size/2) + 'px;width:' + size + 'px;height:' + size + 'px;background:' + sparkleColors[Math.floor(Math.random() * sparkleColors.length)] + ';animation-duration:' + (0.5 + Math.random() * 0.4) + 's;';
+    document.body.appendChild(s);
+    setTimeout(function() { if (s.parentNode) s.parentNode.removeChild(s); }, 900);
+  });
+
+  /* ── 7. BUTTON RIPPLE ── */
+  function addRipple(el) {
+    if (el._ripple) return;
+    el._ripple = true;
+    el.style.position = 'relative';
+    el.style.overflow = 'hidden';
+    el.addEventListener('click', function(e) {
+      var r   = el.getBoundingClientRect();
+      var rip = document.createElement('span');
+      rip.className = 'pix-ripple';
+      var size = Math.max(r.width, r.height) * 2;
+      rip.style.cssText = 'width:' + size + 'px;height:' + size + 'px;left:' + (e.clientX - r.left - size/2) + 'px;top:' + (e.clientY - r.top - size/2) + 'px;';
+      el.appendChild(rip);
+      setTimeout(function() { if (rip.parentNode) rip.parentNode.removeChild(rip); }, 700);
+    });
+  }
+  document.querySelectorAll('.btn-primary, .hero-cta, #cartBtn, .auth-btn-primary').forEach(addRipple);
+
+  /* ── 8. PRODUCT CARD 3D TILT ── */
+  function addTilt(card) {
+    if (card._tilt) return;
+    card._tilt = true;
+    card.addEventListener('mousemove', function(e) {
+      var r  = card.getBoundingClientRect();
+      var dx = (e.clientX - r.left - r.width/2) / (r.width/2);
+      var dy = (e.clientY - r.top - r.height/2) / (r.height/2);
+      card.style.transform = 'translateY(-6px) rotateX(' + (-dy * 4) + 'deg) rotateY(' + (dx * 4) + 'deg)';
+    });
+    card.addEventListener('mouseleave', function() { card.style.transform = ''; });
+  }
+
+  var grid = document.getElementById('grid');
+  if (grid) {
+    new MutationObserver(function() {
+      grid.querySelectorAll('.card').forEach(function(c, i) {
+        addTilt(c);
+        if (!c._revealed) {
+          c._revealed = true;
+          c.style.opacity   = '0';
+          c.style.transform = 'translateY(28px) scale(0.96)';
+          setTimeout(function() {
+            c.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            c.style.opacity    = '1';
+            c.style.transform  = '';
+          }, i * 65);
+        }
+      });
+    }).observe(grid, { childList: true, subtree: true });
+  }
+
+  /* ── 9. FLIP DIGIT TIMER ANIMATION ── */
+  ['timerH','timerM','timerS'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    new MutationObserver(function() {
+      el.classList.remove('pix-flip');
+      void el.offsetWidth;
+      el.classList.add('pix-flip');
+    }).observe(el, { characterData: true, subtree: true, childList: true });
+  });
+
+  /* ── 10. MAGNETIC BUTTON ── */
+  document.querySelectorAll('.hero-cta').forEach(function(btn) {
+    btn.addEventListener('mousemove', function(e) {
+      var r = btn.getBoundingClientRect();
+      var x = (e.clientX - r.left - r.width/2) * 0.22;
+      var y = (e.clientY - r.top - r.height/2) * 0.22;
+      btn.style.transform = 'translate(' + x + 'px, ' + y + 'px) translateY(-2px)';
+    });
+    btn.addEventListener('mouseleave', function() { btn.style.transform = ''; });
+  });
+
+  /* ── 11. CART BADGE WIGGLE ── */
+  var cartBtn2 = document.getElementById('cartBtn');
+  if (cartBtn2) {
+    window.addEventListener('PIX_cart_updated', function() {
+      var svg = cartBtn2.querySelector('svg');
+      if (!svg) return;
+      svg.style.animation = 'none';
+      void svg.offsetWidth;
+      svg.style.animation = 'cartWiggle 0.5s ease both';
+      setTimeout(function() { svg.style.animation = ''; }, 600);
+    });
+  }
+
+
+
+
+
+
+
+  /* ── 15. DARK MODE ORB COLORING ── */
+  var themeBtnAnim = document.getElementById('themeBtn');
+  if (themeBtnAnim) {
+    themeBtnAnim.addEventListener('click', function() {
+      var isDark = document.documentElement.classList.contains('dark');
+      document.querySelectorAll('.pix-orb').forEach(function(o) {
+        o.style.opacity = isDark ? '0.04' : '0.07';
+      });
+    });
+  }
+
+  console.log('🎨 Pioneer I Xpress Animation Engine v2 loaded');
+})();
+</script>
+
+<!-- ===== MOBILE NAV MENU ===== -->
+<style>
+#pix-mobile-nav {
+  position: fixed; inset: 0; z-index: 9800;
+  display: flex; pointer-events: none;
+}
+#pix-mobile-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(6px);
+  opacity: 0; transition: opacity 0.35s ease;
+}
+#pix-mobile-drawer {
+  position: relative; z-index: 1;
+  width: 300px; max-width: 88vw;
+  background: #0a0005;
+  border-right: 1px solid rgba(255,60,120,0.2);
+  padding: 0;
+  transform: translateX(-100%);
+  transition: transform 0.38s cubic-bezier(.2,.9,.2,1);
+  display: flex; flex-direction: column;
+  overflow-y: auto;
+}
+#pix-mobile-nav.open { pointer-events: all; }
+#pix-mobile-nav.open #pix-mobile-backdrop { opacity: 1; }
+#pix-mobile-nav.open #pix-mobile-drawer { transform: translateX(0); }
+
+.pmn-header {
+  padding: 20px 20px 16px;
+  background: linear-gradient(135deg, #FF3C78 0%, #c41755 100%);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.pmn-brand {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 900; font-size: 1.05rem; color: white;
+  letter-spacing: -0.01em;
+}
+.pmn-close {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: rgba(255,255,255,0.18); border: none;
+  color: white; font-size: 1.1rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
+.pmn-close:hover { background: rgba(255,255,255,0.32); }
+
+.pmn-search {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.pmn-search input {
+  width: 100%; padding: 10px 14px;
+  background: rgba(255,255,255,0.08);
+  border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 10px; color: white; font-size: 0.85rem;
+  font-family: 'Poppins', sans-serif; outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+.pmn-search input:focus { border-color: #FF3C78; }
+.pmn-search input::placeholder { color: rgba(255,255,255,0.4); }
+
+.pmn-cats {
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.pmn-cats-label {
+  font-size: 0.62rem; font-weight: 800;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: rgba(255,255,255,0.4); margin-bottom: 10px;
+}
+.pmn-cat-row {
+  display: flex; flex-wrap: wrap; gap: 7px;
+}
+.pmn-cat-chip {
+  padding: 6px 13px; border-radius: 999px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.75); font-size: 0.76rem;
+  font-weight: 700; cursor: pointer;
+  transition: all 0.2s; font-family: 'Poppins', sans-serif;
+}
+.pmn-cat-chip:hover, .pmn-cat-chip.active {
+  background: #FF3C78; border-color: #FF3C78; color: white;
+}
+
+.pmn-links { padding: 10px 0; flex: 1; }
+.pmn-link {
+  display: flex; align-items: center; gap: 13px;
+  padding: 13px 20px; color: rgba(255,255,255,0.8);
+  font-size: 0.9rem; font-weight: 600; cursor: pointer;
+  transition: all 0.18s; border: none; background: none;
+  width: 100%; text-align: left; font-family: 'Poppins', sans-serif;
+}
+.pmn-link:hover {
+  background: rgba(255,60,120,0.1);
+  color: white; padding-left: 26px;
+}
+.pmn-link .pmn-icon { font-size: 1.1rem; width: 24px; text-align: center; flex-shrink: 0; }
+.pmn-link .pmn-arrow { margin-left: auto; font-size: 0.7rem; opacity: 0.4; }
+
+.pmn-footer {
+  padding: 14px 16px 20px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+.pmn-social { display: flex; gap: 10px; justify-content: center; }
+.pmn-soc-btn {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.7); font-size: 0.95rem;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s;
+}
+.pmn-soc-btn:hover { background: #FF3C78; border-color: #FF3C78; color: white; }
+
+/* Hamburger button */
+#pix-hamburger {
+  display: none;
+  flex-direction: column; gap: 5px;
+  width: 38px; height: 38px;
+  background: rgba(255,255,255,0.1); border: none;
+  border-radius: 10px; cursor: pointer; padding: 9px 8px;
+  transition: background 0.2s;
+}
+#pix-hamburger:hover { background: rgba(255,60,120,0.3); }
+#pix-hamburger span {
+  display: block; height: 2px; border-radius: 2px;
+  background: white; transition: all 0.3s ease;
+}
+#pix-hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+#pix-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+#pix-hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+@media (max-width: 768px) {
+  #pix-hamburger { display: flex; }
+}
+</style>
+
+<!-- Mobile Nav Overlay -->
+<div id="pix-mobile-nav" role="dialog" aria-modal="true" aria-label="Navigation menu">
+  <div id="pix-mobile-backdrop"></div>
+  <div id="pix-mobile-drawer">
+    <div class="pmn-header">
+      <div class="pmn-brand">Pioneer I Xpress</div>
+      <button class="pmn-close" id="pix-mob-close" aria-label="Close menu">✕</button>
+    </div>
+    <div class="pmn-search">
+      <input type="search" placeholder="Search candles, beauty, clothing…" id="pmn-search-input" autocomplete="off">
+    </div>
+    <div class="pmn-cats">
+      <div class="pmn-cats-label">Shop by Category</div>
+      <div class="pmn-cat-row">
+        <button class="pmn-cat-chip active" onclick="closeMobileNav();setFilter('all')">All</button>
+        <button class="pmn-cat-chip" onclick="closeMobileNav();setFilter('candles')">🕯️ Candles</button>
+        <button class="pmn-cat-chip" onclick="closeMobileNav();setFilter('clothing')">👗 Clothing</button>
+        <button class="pmn-cat-chip" onclick="closeMobileNav();setFilter('beauty')">💄 Beauty</button>
+        <button class="pmn-cat-chip" onclick="closeMobileNav();setFilter('others')">📦 Others</button>
+      </div>
+    </div>
+    <nav class="pmn-links">
+      <button class="pmn-link" onclick="closeMobileNav();document.getElementById('grid').scrollIntoView({behavior:'smooth'})">
+        <span class="pmn-icon">🛍️</span> All Products <span class="pmn-arrow">›</span>
+      </button>
+      <button class="pmn-link" onclick="closeMobileNav();if(typeof window._PIX_openDealsModal==='function')window._PIX_openDealsModal('all')">
+        <span class="pmn-icon">🔥</span> Hot Deals <span class="pmn-arrow">›</span>
+      </button>
+      <button class="pmn-link" onclick="closeMobileNav();document.getElementById('wishBtn')&&document.getElementById('wishBtn').click()">
+        <span class="pmn-icon">❤️</span> Wishlist <span class="pmn-arrow">›</span>
+      </button>
+      <button class="pmn-link" onclick="closeMobileNav();document.getElementById('cartBtn')&&document.getElementById('cartBtn').click()">
+        <span class="pmn-icon">🛒</span> Cart <span class="pmn-arrow">›</span>
+      </button>
+      <button class="pmn-link" onclick="closeMobileNav();document.getElementById('loginBtn')&&document.getElementById('loginBtn').click()">
+        <span class="pmn-icon">👤</span> Account <span class="pmn-arrow">›</span>
+      </button>
+      <button class="pmn-link" onclick="closeMobileNav();openSellerModal()">
+        <span class="pmn-icon">🏪</span> Sell on PIX <span class="pmn-arrow">›</span>
+      </button>
+    </nav>
+    <div class="pmn-footer">
+      <div class="pmn-social">
+        <button class="pmn-soc-btn" title="Instagram"><i class="fab fa-instagram"></i></button>
+        <button class="pmn-soc-btn" title="Facebook"><i class="fab fa-facebook-f"></i></button>
+        <button class="pmn-soc-btn" title="YouTube"><i class="fab fa-youtube"></i></button>
+        <a class="pmn-soc-btn" href="https://wa.me/916280096796" target="_blank" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function openMobileNav() {
+  document.getElementById('pix-mobile-nav').classList.add('open');
+  document.getElementById('pix-hamburger').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeMobileNav() {
+  document.getElementById('pix-mobile-nav').classList.remove('open');
+  document.getElementById('pix-hamburger').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('pix-mob-close').addEventListener('click', closeMobileNav);
+document.getElementById('pix-mobile-backdrop').addEventListener('click', closeMobileNav);
+// Mobile search mirrors main search
+var pmns = document.getElementById('pmn-search-input');
+if (pmns) {
+  pmns.addEventListener('input', function() {
+    var q = document.getElementById('q');
+    if (q) { q.value = this.value; q.dispatchEvent(new Event('input')); }
+  });
+}
+</script>
+
+
+<!-- ===== ENHANCED PRODUCT CARD STYLES ===== -->
+<style>
+/* Card image shimmer on hover */
+.card .card-img-wrap {
+  position: relative; overflow: hidden;
+}
+.card .card-img-wrap::before {
+  content: '';
+  position: absolute; inset: 0; z-index: 4;
+  background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,0.18) 50%, transparent 65%);
+  transform: translateX(-110%) skewX(-8deg);
+  transition: transform 0.55s ease;
+  pointer-events: none;
+}
+.card:hover .card-img-wrap::before { transform: translateX(140%) skewX(-8deg); }
+
+/* Wishlist heart animation */
+@keyframes heartBeat {
+  0%   { transform: scale(1); }
+  15%  { transform: scale(1.35); }
+  30%  { transform: scale(1); }
+  45%  { transform: scale(1.2); }
+  60%  { transform: scale(1); }
+}
+.pix-heart-pop { animation: heartBeat 0.6s ease; }
+
+/* Add to cart button effect */
+.pix-atc-btn {
+  position: relative; overflow: hidden;
+  transition: background 0.25s, transform 0.15s, box-shadow 0.25s !important;
+}
+.pix-atc-btn:hover { transform: translateY(-2px) !important; }
+.pix-atc-btn:active { transform: scale(0.97) !important; }
+
+/* Stock bar */
+.pix-stock-bar {
+  height: 3px; border-radius: 2px;
+  background: rgba(0,0,0,0.07); overflow: hidden; margin-top: 8px;
+}
+html.dark .pix-stock-bar { background: rgba(255,255,255,0.08); }
+.pix-stock-fill {
+  height: 100%; border-radius: 2px;
+  transition: width 1s cubic-bezier(.2,.9,.2,1);
+}
+
+/* Card badge pulse */
+.pix-badge-pulse {
+  animation: badgePulse 2s ease-in-out infinite;
+}
+@keyframes badgePulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(255,60,120,0.4); }
+  50%      { box-shadow: 0 0 0 6px rgba(255,60,120,0); }
+}
+
+/* Quick-add overlay on card hover */
+.pix-card-quick {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%);
+  padding: 40px 12px 12px;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(.2,.9,.2,1);
+  z-index: 8;
+}
+.card:hover .pix-card-quick { transform: translateY(0); }
+.pix-quick-btn {
+  width: 100%; padding: 9px;
+  background: white; color: #111;
+  font-weight: 800; font-size: 0.78rem;
+  border: none; border-radius: 10px; cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  transition: background 0.2s, transform 0.15s;
+  letter-spacing: 0.04em;
+}
+.pix-quick-btn:hover { background: #FF3C78; color: white; }
+</style>
+
+
+<!-- ===== STICKY FILTER BAR ===== -->
+<style>
+#pix-filter-sticky {
+  position: sticky;
+  top: 64px; /* header height */
+  z-index: 40;
+  background: var(--bg-primary);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  padding: 8px 0;
+  margin: 0 -16px;
+  padding: 8px 16px;
+  transition: box-shadow 0.3s;
+}
+html.dark #pix-filter-sticky { border-color: rgba(255,255,255,0.06); }
+#pix-filter-sticky.pix-stuck {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+</style>
+<script>
+(function() {
+  var filterSec = document.querySelector('section.flex.flex-wrap.items-center.justify-between.gap-4.mb-6');
+  if (!filterSec) return;
+  filterSec.id = 'pix-filter-sticky';
+  var filterIO = new IntersectionObserver(function(entries) {
+    filterSec.classList.toggle('pix-stuck', !entries[0].isIntersecting);
+  }, { rootMargin: '-65px 0px 0px 0px', threshold: 0 });
+  var sentinel = document.createElement('div');
+  filterSec.parentNode.insertBefore(sentinel, filterSec);
+  filterIO.observe(sentinel);
+})();
+</script>
+
+
+<!-- ===== DESIGN POLISH LAYER ===== -->
+<style>
+/* ── Improved hero slide text animations ── */
+.hero-slide-inner .hero-tag {
+  display: inline-block;
+}
+
+/* ── Better section header spacing ── */
+.section-header {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 24px; flex-wrap: wrap;
+}
+
+/* ── Improved chip hover ── */
+.chip {
+  box-shadow: none !important;
+  transition: all 0.22s cubic-bezier(.2,.9,.2,1) !important;
+}
+.chip:hover:not(.active) {
+  transform: translateY(-2px) !important;
+}
+
+/* ── Better promo banner overlay ── */
+.promo-grid-item-overlay {
+  background: linear-gradient(160deg, rgba(255,60,120,0.75) 0%, rgba(0,0,0,0.15) 100%) !important;
+}
+
+/* ── Improved announcement bar typography ── */
+.ann-marquee-item {
+  font-size: 0.73rem !important;
+}
+
+/* ── Improved trust item ── */
+.trust-item {
+  transition: transform 0.3s cubic-bezier(.2,.9,.2,1) !important;
+  border-radius: 14px; padding: 10px 14px;
+}
+.trust-item:hover {
+  background: rgba(255,60,120,0.04);
+  transform: translateY(-3px) !important;
+}
+
+/* ── Stats bar cell improved ── */
+.pix-stat-num {
+  background: linear-gradient(135deg, #FF3C78, #FF7EAC);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Better hero dots bar ── */
+.hero-dot {
+  transition: all 0.4s cubic-bezier(.2,.9,.2,1) !important;
+  cursor: pointer;
+}
+
+/* ── Better search autocomplete ── */
+#searchAutoList { border-radius: 16px !important; }
+
+/* ── Hero counter pill ── */
+.hero-slide-counter {
+  font-size: 0.7rem !important;
+  padding: 5px 12px !important;
+}
+
+/* ── Improved input styling ── */
+.input, .auth-input {
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s !important;
+}
+
+/* ── Glassmorphism cart drawer ── */
+.drawer {
+  box-shadow: -8px 0 40px rgba(0,0,0,0.25) !important;
+}
+
+/* ── Better modal animation ── */
+@keyframes modalIn {
+  from { transform: scale(0.93) translateY(16px); opacity: 0; }
+  to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* ── Loading skeleton improved ── */
+@keyframes shimmer {
+  0%   { background-position: -800px 0; }
+  100% { background-position: 800px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, rgba(128,128,128,0.08) 25%, rgba(128,128,128,0.15) 50%, rgba(128,128,128,0.08) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.6s infinite linear;
+}
+
+/* ── Footer newsletter input focus ── */
+#footerEmailInput:focus {
+  outline: 3px solid rgba(255,255,255,0.4) !important;
+}
+
+/* ── Mobile: better chip scroll ── */
+@media (max-width: 640px) {
+  .flex.gap-2.flex-wrap {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+  .flex.gap-2.flex-wrap::-webkit-scrollbar { display: none; }
+  .chip { white-space: nowrap; flex-shrink: 0; }
+}
+
+/* ── Improved pager buttons ── */
+.pager-btn:hover:not(.active):not(:disabled) {
+  border-color: var(--brand-primary) !important;
+  color: var(--brand-primary) !important;
+  transform: translateY(-1px);
+}
+
+/* ── Card image aspect ratio ── */
+.card .card-img-wrap img {
+  aspect-ratio: 3/4;
+  object-fit: cover;
+}
+
+/* ── Improved hero flash bar ── */
+.hero-flash-bar {
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+
+/* ── Social proof toast improved ── */
+#socialProofToast {
+  border-radius: 16px !important;
+  border: 1.5px solid rgba(255,60,120,0.12) !important;
+}
+
+/* ── Announcement bar height ── */
+#announcement-bar .ann-marquee-item {
+  padding: 9px 28px !important;
+}
+
+/* ── Improved deals badge ── */
+#dealsChipBtn {
+  box-shadow: 0 4px 14px rgba(255,60,120,0.3) !important;
+  animation: dealChipPulse 2.5s ease-in-out infinite;
+}
+@keyframes dealChipPulse {
+  0%,100% { box-shadow: 0 4px 14px rgba(255,60,120,0.3); }
+  50%      { box-shadow: 0 6px 20px rgba(255,60,120,0.55); }
+}
+
+/* ── Improved dark mode card border ── */
+html.dark .card {
+  background: #1a1a1a;
+  border-color: rgba(255,255,255,0.05) !important;
+}
+
+/* ── Better back-to-top fab ── */
+#fab-top {
+  transition: transform 0.25s cubic-bezier(.2,.9,.2,1), box-shadow 0.25s !important;
+}
+#fab-top:hover {
+  box-shadow: 0 8px 28px rgba(0,0,0,0.5) !important;
+}
+
+/* ── Mobile: improve product grid ── */
+@media (max-width: 480px) {
+  .grid.grid-cols-2 {
+    gap: 12px !important;
+  }
+}
+
+/* ── Improved brand canvas section ── */
+.pix-brand-section {
+  overflow: hidden;
+}
+
+/* ── Seller CTA button improved ── */
+#openSellerRegistration:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 12px 36px rgba(255,60,120,0.5) !important;
+}
+
+/* ── User menu improved ── */
+.user-menu {
+  border-radius: 18px !important;
+}
+
+/* ── Better exit intent animation ── */
+#exitIntentOverlay {
+  animation: fadeInOverlay 0.3s ease forwards;
+}
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Category badge improved ── */
+.cat-tile-badge {
+  font-size: 0.65rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.06em !important;
+}
+
+/* ── Trending section scroll indicator ── */
+#pix-trending-track::after {
+  content: '';
+  position: absolute; right: 0; top: 0; bottom: 0;
+  width: 60px;
+  background: linear-gradient(to left, var(--bg-primary), transparent);
+  pointer-events: none;
+  z-index: 2;
+}
+</style>
 
 </body>
 </html>
