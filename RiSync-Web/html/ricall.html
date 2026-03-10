@@ -1957,14 +1957,14 @@
                 roleDisplay.className = "role-badge role-guest";
                 hostNotesControls.style.display = "none";
                 hostPollControls.style.display = "none";
-                usernameInput.value = "Guest";
+                // Keep Firebase display name - don't overwrite with "Guest"
             } else {
                 isHost = true;
                 roleDisplay.innerText = "Host";
                 roleDisplay.className = "role-badge role-host";
                 hostNotesControls.style.display = "block";
                 hostPollControls.style.display = "block";
-                usernameInput.value = "Host";
+                // Keep Firebase display name - don't overwrite with "Host"
             }
         }
 
