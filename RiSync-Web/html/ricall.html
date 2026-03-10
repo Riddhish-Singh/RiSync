@@ -1029,23 +1029,25 @@
             if (user) {
                 // User is logged in
                 const userEmail = user.email;
-                const userName = user.displayName || user.email.split('@')[0];
+                const displayName = user.displayName || user.email.split('@')[0];
                 
                 // Auto-populate the organizer email field when it's loaded
                 setTimeout(() => {
                     const organizerEmailField = document.getElementById('organizer-email');
                     if (organizerEmailField) {
                         organizerEmailField.value = userEmail;
-                        organizerEmailField.readOnly = true; // Make it read-only since it's from Firebase
+                        organizerEmailField.readOnly = true;
                         organizerEmailField.style.backgroundColor = '#2d2d2d';
                         organizerEmailField.style.cursor = 'not-allowed';
                         organizerEmailField.title = 'Email from Firebase account';
                     }
 
-                    // Auto-populate username if available
+                    // Auto-populate username from Firebase display name
                     const usernameInput = document.getElementById('username-input');
-                    if (usernameInput && !usernameInput.value) {
-                        usernameInput.value = userName;
+                    if (usernameInput) {
+                        usernameInput.value = displayName;
+                        usernameInput.style.borderColor = 'var(--primary)';
+                        usernameInput.title = 'Name from Firebase account';
                     }
                 }, 100);
 
@@ -1053,13 +1055,17 @@
                 window.currentUser = {
                     uid: user.uid,
                     email: userEmail,
-                    displayName: userName
+                    displayName: displayName
                 };
 
-                console.log('✓ Firebase user authenticated:', userEmail);
+                console.log('✓ Firebase user authenticated:', {
+                    email: userEmail,
+                    displayName: displayName,
+                    uid: user.uid
+                });
             } else {
                 // User is not logged in
-                console.log('⚠ User not authenticated with Firebase - email invitations disabled');
+                console.log('⚠ User not authenticated with Firebase');
                 window.currentUser = null;
                 
                 // Notify the schedule form
@@ -3409,7 +3415,7 @@ This is an automated invitation from RiSync 2.0
 
         function generateMeetingLink() {
             const linkId = Math.random().toString(36).substr(2, 9);
-            return `https://risync.call/${linkId}`;
+            return `https://risync.in/RiSync-Web/html/ricall.html?meeting=${linkId}`;
         }
 
         function saveScheduledCalls() {
