@@ -368,21 +368,44 @@
 </head>
 <body>
 
-<div class="dashboard">
+    <div class="card" style="background: rgba(251, 146, 60, 0.1); border: 1px solid var(--orange);">
+        <h3 style="margin-top: 0; color: var(--orange);">⚙️ Database Configuration Required</h3>
+        <p style="margin: 10px 0; color: var(--text);">The Realtime Database URL is incorrect. Here's how to fix it:</p>
+        <ol style="margin: 10px 0; color: var(--mute); font-size: 0.9rem; padding-left: 20px;">
+            <li><strong>Go to Firebase Console:</strong> <code>https://console.firebase.google.com</code></li>
+            <li><strong>Select your project:</strong> "risync-risync"</li>
+            <li><strong>Go to Realtime Database</strong> (left sidebar)</li>
+            <li><strong>Copy the Database URL</strong> from the top (format: <code>https://your-db-name.firebaseio.com</code>)</li>
+            <li><strong>Update the script below</strong> with the correct URL</li>
+        </ol>
+        <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin-top: 12px; border-left: 3px solid var(--accent);">
+            <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: var(--mute);">📋 Your Database URLs:</p>
+            <p style="margin: 4px 0; font-family: monospace; font-size: 0.8rem;">
+                <strong>RiSync:</strong> <span id="db1Url" style="color: var(--accent);">https://risync-risync-default-rtdb.firebaseio.com</span>
+            </p>
+            <p style="margin: 4px 0; font-family: monospace; font-size: 0.8rem;">
+                <strong>RiChat:</strong> <span id="db2Url" style="color: var(--accent);">https://richat-risync-default-rtdb.firebaseio.com</span>
+            </p>
+            <p style="margin: 8px 0 0 0; font-size: 0.8rem; color: var(--green);">ℹ️ Paste your actual URLs in the script config at the bottom of this page</p>
+        </div>
+    </div>
+
     <div class="card">
         <div class="error-banner" id="errorBanner"></div>
+
+        <!-- Debug Panel -->
+        <div style="background: rgba(0,0,0,0.5); padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #334155; display: none;" id="debugPanel">
+            <div style="font-size: 0.8rem; color: var(--mute); margin-bottom: 8px; font-weight: 600;">🐛 Debug Info:</div>
+            <div id="debugInfo" style="font-size: 0.75rem; color: #10b981; font-family: monospace; line-height: 1.6; max-height: 200px; overflow-y: auto;">
+                Initializing...
+            </div>
+            <button onclick="toggleDebug()" style="margin-top: 8px; padding: 6px 12px; background: rgba(59, 130, 246, 0.2); color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Hide Debug</button>
+        </div>
 
         <div class="header">
             <div class="header-info">
                 <h1>Unified Activity Monitor</h1>
                 <p>Real-time monitoring from RiSync + RiChat</p>
-            </div>
-            <div>
-                <div id="statusBadge" class="status-badge status-loading">Loading...</div>
-                <div id="connectionStatus" class="connection-indicator disconnected" style="margin-top: 10px;">
-                    <span class="dot"></span>
-                    <span>Connecting...</span>
-                </div>
             </div>
         </div>
 
@@ -439,7 +462,23 @@
     import { getDatabase, ref, onValue, query, limitToLast } 
         from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
+    // Debug logging
+    const debugLogs = [];
+    function addDebug(msg) {
+        const timestamp = new Date().toLocaleTimeString();
+        const logMsg = `[${timestamp}] ${msg}`;
+        debugLogs.push(logMsg);
+        console.log(logMsg);
+        
+        const debugEl = document.getElementById('debugInfo');
+        if (debugEl) {
+            debugEl.textContent = debugLogs.slice(-15).join('\n');
+            debugEl.parentElement.parentElement.style.display = 'block';
+        }
+    }
+
     // Firebase Configuration - Database 1 (RiSync)
+    // ⚠️ IMPORTANT: Add your actual databaseURL here from Firebase Console
     const firebaseConfig1 = {
         apiKey: "AIzaSyBWAwm_TDtD1qXDtjxJu0jrDP45c3p1Bxg",
         authDomain: "risync-risync.firebaseapp.com",
@@ -447,36 +486,49 @@
         storageBucket: "risync-risync.firebasestorage.app",
         messagingSenderId: "195106250121",
         appId: "1:195106250121:web:57b23c5b94d5771995d558",
-        measurementId: "G-D5WSLQ706Z",
-        databaseURL: "https://risync-risync-default-rtdb.firebaseio.com"
+        measurementId: "G-D5WSLQ706Z"
+        // PASTE YOUR RISYNC DATABASE URL HERE:
+        // databaseURL: "https://YOUR-RISYNC-DB-NAME.firebaseio.com"
     };
 
     // Firebase Configuration - Database 2 (RiChat)
+    // ⚠️ IMPORTANT: Add your actual databaseURL here from Firebase Console
     const firebaseConfig2 = {
         apiKey: "AIzaSyC667ajtfBEfsqOk5PZQVJOLOQaBbf8VKM",
         authDomain: "richat-risync.firebaseapp.com",
         projectId: "richat-risync",
-        databaseURL: "https://richat-risync-default-rtdb.firebaseio.com",
         storageBucket: "richat-risync.firebasestorage.app",
         messagingSenderId: "152864251884",
         appId: "1:152864251884:web:587948dcadf65ed2596ac9",
         measurementId: "G-R9DS3XR122"
+        // PASTE YOUR RICHAT DATABASE URL HERE:
+        // databaseURL: "https://YOUR-RICHAT-DB-NAME.firebaseio.com"
     };
 
     try {
+        addDebug("Starting Firebase initialization...");
+        
         // Initialize both Firebase apps
         const app1 = initializeApp(firebaseConfig1, "risync");
         const app2 = initializeApp(firebaseConfig2, "richat");
         
+        addDebug("✓ Firebase apps initialized");
+        
         const db1 = getDatabase(app1);
         const db2 = getDatabase(app2);
         
+        addDebug("✓ Databases connected");
+        addDebug(`DB1 URL: ${firebaseConfig1.databaseURL}`);
+        addDebug(`DB2 URL: ${firebaseConfig2.databaseURL}`);
+        
         const USER_ID = "child_001";
+        addDebug(`Monitoring USER_ID: ${USER_ID}`);
 
         let autoScroll = true;
         let sessionStartTime = Date.now();
         let allLogs = [];
         let connectionStatus = { db1: false, db2: false };
+        let dataReceived = { db1: false, db2: false };
         
         let currentData = {
             state: 'offline',
@@ -499,9 +551,9 @@
         // Show error message
         function showError(message) {
             const banner = document.getElementById('errorBanner');
-            banner.textContent = message;
+            banner.textContent = "⚠️ " + message;
             banner.classList.add('show');
-            setTimeout(() => banner.classList.remove('show'), 5000);
+            addDebug("ERROR: " + message);
         }
 
         // Update connection status UI
@@ -515,9 +567,11 @@
                 if (connectionStatus.db1) sources.push("RiSync");
                 if (connectionStatus.db2) sources.push("RiChat");
                 el.innerHTML = `<span class="dot"></span><span>Connected (${sources.join(" + ")})</span>`;
+                addDebug(`✓ Connected: ${sources.join(" + ")}`);
             } else {
                 el.classList.add('disconnected');
-                el.innerHTML = '<span class="dot"></span><span>Disconnected</span>';
+                el.innerHTML = '<span class="dot"></span><span>Waiting for data...</span>';
+                addDebug("✗ No connection yet");
             }
         }
 
@@ -578,7 +632,6 @@
                     second: '2-digit'
                 });
 
-                const sourceLabel = log.source === 'richat' ? '(RiChat)' : '(RiSync)';
                 const sourceBadge = log.source === 'richat' 
                     ? '<span style="font-size: 0.7rem; background: rgba(139, 92, 246, 0.3); color: #a78bfa; padding: 2px 6px; border-radius: 3px; margin-left: 8px;">RiChat</span>'
                     : '<span style="font-size: 0.7rem; background: rgba(59, 130, 246, 0.3); color: #93c5fd; padding: 2px 6px; border-radius: 3px; margin-left: 8px;">RiSync</span>';
@@ -603,10 +656,15 @@
 
         // ==================== DATABASE 1 (RiSync) ====================
         
+        addDebug("Setting up RiSync listeners...");
+        
         // Listen for Status Updates - Database 1
         onValue(ref(db1, `monitoring/${USER_ID}/status`), (snap) => {
             const data = snap.val();
+            addDebug(`RiSync status received: ${data ? JSON.stringify(data).substring(0, 50) : 'null'}`);
+            
             connectionStatus.db1 = !!data;
+            dataReceived.db1 = true;
             updateConnectionStatus();
 
             if (data && currentData.source !== 'db1') {
@@ -615,32 +673,50 @@
             }
         }, (error) => {
             connectionStatus.db1 = false;
+            dataReceived.db1 = true;
+            const errorMsg = `RiSync Database Error: ${error.code} - ${error.message}`;
+            addDebug(`✗ ${errorMsg}`);
+            
+            if (error.code === 'PERMISSION_DENIED') {
+                showError("🔒 Permission Denied: Check Firebase Realtime Database Rules");
+            } else if (error.code === 'FAILED_TO_RESOLVE_URL' || error.message.includes('URL')) {
+                showError("❌ Invalid Database URL: Please add databaseURL to firebaseConfig1");
+            } else {
+                showError(errorMsg);
+            }
             updateConnectionStatus();
-            console.log("RiSync database not available:", error.code);
         });
 
         // Listen for Logs - Database 1
         const logQuery1 = query(ref(db1, `monitoring/${USER_ID}/logs`), limitToLast(25));
         onValue(logQuery1, (snap) => {
             const db1Logs = [];
+            let count = 0;
             snap.forEach(child => {
                 db1Logs.push({ ...child.val(), source: 'risync' });
+                count++;
             });
+            addDebug(`RiSync logs: ${count} entries received`);
             
             // Merge with existing logs, remove duplicates
             allLogs = allLogs.filter(log => log.source !== 'risync');
             allLogs = allLogs.concat(db1Logs);
             renderLogs();
         }, (error) => {
-            console.log("RiSync logs not available:", error.code);
+            addDebug(`✗ RiSync logs error: ${error.code} - ${error.message}`);
         });
 
         // ==================== DATABASE 2 (RiChat) ====================
         
+        addDebug("Setting up RiChat listeners...");
+        
         // Listen for Status Updates - Database 2
         onValue(ref(db2, `monitoring/${USER_ID}/status`), (snap) => {
             const data = snap.val();
+            addDebug(`RiChat status received: ${data ? JSON.stringify(data).substring(0, 50) : 'null'}`);
+            
             connectionStatus.db2 = !!data;
+            dataReceived.db2 = true;
             updateConnectionStatus();
 
             if (data && currentData.source !== 'db2') {
@@ -649,24 +725,37 @@
             }
         }, (error) => {
             connectionStatus.db2 = false;
+            dataReceived.db2 = true;
+            const errorMsg = `RiChat Database Error: ${error.code} - ${error.message}`;
+            addDebug(`✗ ${errorMsg}`);
+            
+            if (error.code === 'PERMISSION_DENIED') {
+                showError("🔒 Permission Denied: Check Firebase Realtime Database Rules");
+            } else if (error.code === 'FAILED_TO_RESOLVE_URL' || error.message.includes('URL')) {
+                showError("❌ Invalid Database URL: Please add databaseURL to firebaseConfig2");
+            } else {
+                showError(errorMsg);
+            }
             updateConnectionStatus();
-            console.log("RiChat database not available:", error.code);
         });
 
         // Listen for Logs - Database 2
         const logQuery2 = query(ref(db2, `monitoring/${USER_ID}/logs`), limitToLast(25));
         onValue(logQuery2, (snap) => {
             const db2Logs = [];
+            let count = 0;
             snap.forEach(child => {
                 db2Logs.push({ ...child.val(), source: 'richat' });
+                count++;
             });
+            addDebug(`RiChat logs: ${count} entries received`);
             
             // Merge with existing logs, remove duplicates
             allLogs = allLogs.filter(log => log.source !== 'richat');
             allLogs = allLogs.concat(db2Logs);
             renderLogs();
         }, (error) => {
-            console.log("RiChat logs not available:", error.code);
+            addDebug(`✗ RiChat logs error: ${error.code} - ${error.message}`);
         });
 
         // ==================== UI UPDATE FUNCTION ====================
@@ -740,11 +829,18 @@
             btn.style.opacity = autoScroll ? "1" : "0.6";
         };
 
-        // Initial connection message
+        window.toggleDebug = function() {
+            const panel = document.getElementById('debugPanel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        };
+
+        // Show debug panel initially
+        addDebug("Monitor initialized - waiting for Firebase data...");
         updateConnectionStatus();
 
     } catch (error) {
         console.error("Firebase initialization error:", error);
+        addDebug("FATAL ERROR: " + error.message);
         document.body.innerHTML += `
             <div style="color: var(--red); padding: 20px; text-align: center;">
                 <p>Failed to initialize monitoring:</p>
