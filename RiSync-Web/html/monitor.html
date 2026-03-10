@@ -540,17 +540,22 @@
 
         // Update session timer
         setInterval(() => {
+            const sessionTimeEl = document.getElementById('sessionTime');
+            if (!sessionTimeEl) return; // Skip if element doesn't exist yet
+            
             const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
             const hours = Math.floor(elapsed / 3600);
             const minutes = Math.floor((elapsed % 3600) / 60);
             const seconds = elapsed % 60;
-            document.getElementById('sessionTime').textContent = 
+            sessionTimeEl.textContent = 
                 `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }, 1000);
 
         // Show error message
         function showError(message) {
             const banner = document.getElementById('errorBanner');
+            if (!banner) return; // Exit if element doesn't exist yet
+            
             banner.textContent = "⚠️ " + message;
             banner.classList.add('show');
             addDebug("ERROR: " + message);
@@ -559,6 +564,8 @@
         // Update connection status UI
         function updateConnectionStatus() {
             const el = document.getElementById('connectionStatus');
+            if (!el) return; // Exit if element doesn't exist yet
+            
             const connected = connectionStatus.db1 || connectionStatus.db2;
             
             if (connected) {
@@ -578,6 +585,7 @@
         // Update and render logs
         function renderLogs() {
             const feed = document.getElementById('feed');
+            if (!feed) return; // Exit if element doesn't exist yet
             
             if (allLogs.length === 0) {
                 feed.innerHTML = `
@@ -763,30 +771,43 @@
         function updateStatusDisplay(data) {
             // Update Status Badge
             const badge = document.getElementById('statusBadge');
+            if (!badge) return; // Exit if elements don't exist yet
+            
             if (data.state === 'online') {
                 badge.textContent = "🟢 ACTIVE NOW";
                 badge.className = "status-badge status-online";
-                document.getElementById('currStatus').textContent = "Active";
-                document.getElementById('currStatus').className = "stat-value active";
+                const currStatus = document.getElementById('currStatus');
+                if (currStatus) {
+                    currStatus.textContent = "Active";
+                    currStatus.className = "stat-value active";
+                }
             } else {
                 badge.textContent = "🔴 OFFLINE";
                 badge.className = "status-badge status-offline";
-                document.getElementById('currStatus').textContent = "Offline";
-                document.getElementById('currStatus').className = "stat-value";
+                const currStatus = document.getElementById('currStatus');
+                if (currStatus) {
+                    currStatus.textContent = "Offline";
+                    currStatus.className = "stat-value";
+                }
             }
 
             // Update Stats
-            document.getElementById('currPage').textContent = data.current_page || "Unknown";
-            document.getElementById('scrollDepth').textContent = (data.scroll_depth || 0) + "%";
+            const currPage = document.getElementById('currPage');
+            if (currPage) currPage.textContent = data.current_page || "Unknown";
+            
+            const scrollDepth = document.getElementById('scrollDepth');
+            if (scrollDepth) scrollDepth.textContent = (data.scroll_depth || 0) + "%";
 
             // Tab Status
             const tabEl = document.getElementById('tabStatus');
-            if (data.tab_visible) {
-                tabEl.textContent = "👁️ Focused";
-                tabEl.className = "stat-value active";
-            } else {
-                tabEl.textContent = "⏸️ Hidden";
-                tabEl.className = "stat-value inactive";
+            if (tabEl) {
+                if (data.tab_visible) {
+                    tabEl.textContent = "👁️ Focused";
+                    tabEl.className = "stat-value active";
+                } else {
+                    tabEl.textContent = "⏸️ Hidden";
+                    tabEl.className = "stat-value inactive";
+                }
             }
 
             // Last Activity
@@ -803,7 +824,8 @@
                 } else {
                     timeStr = Math.floor(diff / 3600) + "h ago";
                 }
-                document.getElementById('lastActivity').textContent = timeStr;
+                const lastActivity = document.getElementById('lastActivity');
+                if (lastActivity) lastActivity.textContent = timeStr;
             }
         }
 
