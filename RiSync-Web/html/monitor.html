@@ -374,8 +374,8 @@
 
         <div class="header">
             <div class="header-info">
-                <h1>RiSync Monitor</h1>
-                <p>Real-time child activity tracking</p>
+                <h1>Unified Activity Monitor</h1>
+                <p>Real-time monitoring from RiSync + RiChat</p>
             </div>
             <div>
                 <div id="statusBadge" class="status-badge status-loading">Loading...</div>
@@ -436,33 +436,54 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, onValue, query, limitToLast, onDisconnect } 
+    import { getDatabase, ref, onValue, query, limitToLast } 
         from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    // Firebase Configuration
-    const firebaseConfig = {
+    // Firebase Configuration - Database 1 (RiSync)
+    const firebaseConfig1 = {
         apiKey: "AIzaSyBWAwm_TDtD1qXDtjxJu0jrDP45c3p1Bxg",
         authDomain: "risync-risync.firebaseapp.com",
         projectId: "risync-risync",
         storageBucket: "risync-risync.firebasestorage.app",
         messagingSenderId: "195106250121",
         appId: "1:195106250121:web:57b23c5b94d5771995d558",
-        measurementId: "G-D5WSLQ706Z"
+        measurementId: "G-D5WSLQ706Z",
+        databaseURL: "https://risync-risync-default-rtdb.firebaseio.com"
     };
 
-    // Initialize Firebase
+    // Firebase Configuration - Database 2 (RiChat)
+    const firebaseConfig2 = {
+        apiKey: "AIzaSyC667ajtfBEfsqOk5PZQVJOLOQaBbf8VKM",
+        authDomain: "richat-risync.firebaseapp.com",
+        projectId: "richat-risync",
+        databaseURL: "https://richat-risync-default-rtdb.firebaseio.com",
+        storageBucket: "richat-risync.firebasestorage.app",
+        messagingSenderId: "152864251884",
+        appId: "1:152864251884:web:587948dcadf65ed2596ac9",
+        measurementId: "G-R9DS3XR122"
+    };
+
     try {
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+        // Initialize both Firebase apps
+        const app1 = initializeApp(firebaseConfig1, "risync");
+        const app2 = initializeApp(firebaseConfig2, "richat");
+        
+        const db1 = getDatabase(app1);
+        const db2 = getDatabase(app2);
+        
         const USER_ID = "child_001";
 
         let autoScroll = true;
         let sessionStartTime = Date.now();
+        let allLogs = [];
+        let connectionStatus = { db1: false, db2: false };
+        
         let currentData = {
             state: 'offline',
             current_page: 'Unknown',
             scroll_depth: 0,
-            tab_visible: false
+            tab_visible: false,
+            source: 'none'
         };
 
         // Update session timer
@@ -484,32 +505,173 @@
         }
 
         // Update connection status UI
-        function updateConnectionStatus(connected) {
+        function updateConnectionStatus() {
             const el = document.getElementById('connectionStatus');
+            const connected = connectionStatus.db1 || connectionStatus.db2;
+            
             if (connected) {
                 el.classList.remove('disconnected');
-                el.innerHTML = '<span class="dot"></span><span>Connected</span>';
+                const sources = [];
+                if (connectionStatus.db1) sources.push("RiSync");
+                if (connectionStatus.db2) sources.push("RiChat");
+                el.innerHTML = `<span class="dot"></span><span>Connected (${sources.join(" + ")})</span>`;
             } else {
                 el.classList.add('disconnected');
                 el.innerHTML = '<span class="dot"></span><span>Disconnected</span>';
             }
         }
 
-        // 1. Listen for Status Updates
-        onValue(ref(db, `monitoring/${USER_ID}/status`), (snap) => {
-            const data = snap.val();
-            updateConnectionStatus(true);
-
-            if (!data) {
-                updateConnectionStatus(false);
-                document.getElementById('statusBadge').textContent = "OFFLINE";
-                document.getElementById('statusBadge').className = "status-badge status-offline";
-                document.getElementById('currStatus').textContent = "Offline";
+        // Update and render logs
+        function renderLogs() {
+            const feed = document.getElementById('feed');
+            
+            if (allLogs.length === 0) {
+                feed.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <p>No activity logged yet</p>
+                    </div>
+                `;
                 return;
             }
 
-            currentData = data;
+            feed.innerHTML = "";
+            
+            // Sort by timestamp descending (newest first)
+            const sortedLogs = [...allLogs].sort((a, b) => 
+                new Date(b.timestamp) - new Date(a.timestamp)
+            );
 
+            sortedLogs.forEach(log => {
+                const div = document.createElement('div');
+                let typeClass = "";
+                let icon = "";
+
+                if (log.action.includes("FOCUS")) {
+                    typeClass = "focus";
+                    icon = "👁️";
+                } else if (log.action.includes("HIDDEN")) {
+                    typeClass = "blur";
+                    icon = "⏸️";
+                } else if (log.action.includes("NAV") || log.action.includes("NAVIGATION")) {
+                    typeClass = "navigation";
+                    icon = "🔗";
+                } else if (log.action.includes("SCROLL")) {
+                    icon = "📜";
+                } else if (log.action.includes("CLICK")) {
+                    icon = "🖱️";
+                } else if (log.action.includes("MESSAGE")) {
+                    icon = "💬";
+                } else if (log.action.includes("CHAT")) {
+                    icon = "💭";
+                } else {
+                    icon = "📝";
+                }
+
+                const timestamp = new Date(log.timestamp);
+                const timeStr = timestamp.toLocaleTimeString([], { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+
+                const sourceLabel = log.source === 'richat' ? '(RiChat)' : '(RiSync)';
+                const sourceBadge = log.source === 'richat' 
+                    ? '<span style="font-size: 0.7rem; background: rgba(139, 92, 246, 0.3); color: #a78bfa; padding: 2px 6px; border-radius: 3px; margin-left: 8px;">RiChat</span>'
+                    : '<span style="font-size: 0.7rem; background: rgba(59, 130, 246, 0.3); color: #93c5fd; padding: 2px 6px; border-radius: 3px; margin-left: 8px;">RiSync</span>';
+
+                div.className = `log ${typeClass}`;
+                div.innerHTML = `
+                    <div class="log-time">${timeStr}</div>
+                    <div class="log-detail">
+                        <strong>${icon} ${log.action}</strong>${sourceBadge}
+                        <br/>
+                        <span style="opacity: 0.8; font-size: 0.85rem;">${log.details || 'No details'}</span>
+                    </div>
+                `;
+                feed.appendChild(div);
+            });
+
+            // Auto-scroll to bottom
+            if (autoScroll) {
+                feed.scrollTop = feed.scrollHeight;
+            }
+        }
+
+        // ==================== DATABASE 1 (RiSync) ====================
+        
+        // Listen for Status Updates - Database 1
+        onValue(ref(db1, `monitoring/${USER_ID}/status`), (snap) => {
+            const data = snap.val();
+            connectionStatus.db1 = !!data;
+            updateConnectionStatus();
+
+            if (data && currentData.source !== 'db1') {
+                currentData = { ...data, source: 'db1' };
+                updateStatusDisplay(data);
+            }
+        }, (error) => {
+            connectionStatus.db1 = false;
+            updateConnectionStatus();
+            console.log("RiSync database not available:", error.code);
+        });
+
+        // Listen for Logs - Database 1
+        const logQuery1 = query(ref(db1, `monitoring/${USER_ID}/logs`), limitToLast(25));
+        onValue(logQuery1, (snap) => {
+            const db1Logs = [];
+            snap.forEach(child => {
+                db1Logs.push({ ...child.val(), source: 'risync' });
+            });
+            
+            // Merge with existing logs, remove duplicates
+            allLogs = allLogs.filter(log => log.source !== 'risync');
+            allLogs = allLogs.concat(db1Logs);
+            renderLogs();
+        }, (error) => {
+            console.log("RiSync logs not available:", error.code);
+        });
+
+        // ==================== DATABASE 2 (RiChat) ====================
+        
+        // Listen for Status Updates - Database 2
+        onValue(ref(db2, `monitoring/${USER_ID}/status`), (snap) => {
+            const data = snap.val();
+            connectionStatus.db2 = !!data;
+            updateConnectionStatus();
+
+            if (data && currentData.source !== 'db2') {
+                currentData = { ...data, source: 'db2' };
+                updateStatusDisplay(data);
+            }
+        }, (error) => {
+            connectionStatus.db2 = false;
+            updateConnectionStatus();
+            console.log("RiChat database not available:", error.code);
+        });
+
+        // Listen for Logs - Database 2
+        const logQuery2 = query(ref(db2, `monitoring/${USER_ID}/logs`), limitToLast(25));
+        onValue(logQuery2, (snap) => {
+            const db2Logs = [];
+            snap.forEach(child => {
+                db2Logs.push({ ...child.val(), source: 'richat' });
+            });
+            
+            // Merge with existing logs, remove duplicates
+            allLogs = allLogs.filter(log => log.source !== 'richat');
+            allLogs = allLogs.concat(db2Logs);
+            renderLogs();
+        }, (error) => {
+            console.log("RiChat logs not available:", error.code);
+        });
+
+        // ==================== UI UPDATE FUNCTION ====================
+        
+        function updateStatusDisplay(data) {
             // Update Status Badge
             const badge = document.getElementById('statusBadge');
             if (data.state === 'online') {
@@ -554,88 +716,11 @@
                 }
                 document.getElementById('lastActivity').textContent = timeStr;
             }
-
-        }, (error) => {
-            updateConnectionStatus(false);
-            showError("Failed to connect to monitoring service: " + error.message);
-        });
-
-        // 2. Listen for Activity Logs
-        const logQuery = query(ref(db, `monitoring/${USER_ID}/logs`), limitToLast(30));
-        onValue(logQuery, (snap) => {
-            const feed = document.getElementById('feed');
-            const logs = [];
-
-            snap.forEach(child => {
-                logs.push(child.val());
-            });
-
-            // Check if empty
-            if (logs.length === 0) {
-                feed.innerHTML = `
-                    <div class="empty-state">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <polyline points="12 6 12 12 16 14"></polyline>
-                        </svg>
-                        <p>No activity logged yet</p>
-                    </div>
-                `;
-                return;
-            }
-
-            feed.innerHTML = "";
-            logs.reverse().forEach(log => {
-                const div = document.createElement('div');
-                let typeClass = "";
-                let icon = "";
-
-                if (log.action.includes("FOCUS")) {
-                    typeClass = "focus";
-                    icon = "👁️";
-                } else if (log.action.includes("HIDDEN")) {
-                    typeClass = "blur";
-                    icon = "⏸️";
-                } else if (log.action.includes("NAV") || log.action.includes("NAVIGATION")) {
-                    typeClass = "navigation";
-                    icon = "🔗";
-                } else if (log.action.includes("SCROLL")) {
-                    icon = "📜";
-                } else if (log.action.includes("CLICK")) {
-                    icon = "🖱️";
-                } else {
-                    icon = "📝";
-                }
-
-                const timestamp = new Date(log.timestamp);
-                const timeStr = timestamp.toLocaleTimeString([], { 
-                    hour: '2-digit', 
-                    minute: '2-digit',
-                    second: '2-digit'
-                });
-
-                div.className = `log ${typeClass}`;
-                div.innerHTML = `
-                    <div class="log-time">${timeStr}</div>
-                    <div class="log-detail">
-                        <strong>${icon} ${log.action}</strong>
-                        <br/>
-                        <span style="opacity: 0.8; font-size: 0.85rem;">${log.details || 'No details'}</span>
-                    </div>
-                `;
-                feed.appendChild(div);
-
-                // Auto-scroll to bottom
-                if (autoScroll) {
-                    feed.scrollTop = feed.scrollHeight;
-                }
-            });
-        }, (error) => {
-            showError("Failed to fetch logs: " + error.message);
-        });
+        }
 
         // Global Functions
         window.clearLogs = function() {
+            allLogs = [];
             const feed = document.getElementById('feed');
             feed.innerHTML = `
                 <div class="empty-state">
@@ -656,7 +741,7 @@
         };
 
         // Initial connection message
-        updateConnectionStatus(false);
+        updateConnectionStatus();
 
     } catch (error) {
         console.error("Firebase initialization error:", error);
