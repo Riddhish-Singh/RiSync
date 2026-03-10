@@ -32,8 +32,8 @@
     .muted{ color:var(--muted); font-size:13px; }
     @media (max-width:600px){ .header{ flex-direction:column; align-items:flex-start } }
 
-    /* --- Meet options popup --- */
-    .meet-options-popup {
+    /* --- RiCall options popup --- */
+    .ricall-options-popup {
       position: absolute;
       background: white;
       border: 1px solid #e6e9ef;
@@ -44,7 +44,7 @@
       z-index: 200;
       min-width: 180px;
     }
-    .meet-options-popup button {
+    .ricall-options-popup button {
       display: block;
       width: 100%;
       padding: 8px 10px;
@@ -56,8 +56,8 @@
       cursor: pointer;
       border-radius: 6px;
     }
-    .meet-options-popup button:hover { background: #f8fafc; }
-    .meet-btn-wrap { position: relative; display: inline-block; }
+    .ricall-options-popup button:hover { background: #f8fafc; }
+    .ricall-btn-wrap { position: relative; display: inline-block; }
     .info-small { font-size: 12px; color: var(--muted); margin-top: 6px; }
   </style>
 </head>
@@ -93,18 +93,18 @@
       <div style="padding-top:10px;">
         <input id="eventName" placeholder="Event title" style="width:100%;margin-bottom:8px;">
         <input id="eventDate" type="date" style="width:100%;margin-bottom:8px;">
-        <input id="googleMeetLink" placeholder="Google Meet link (optional)" style="width:100%;margin-bottom:8px;" readonly>
+        <input id="ricallLink" placeholder="RiCall link (optional)" style="width:100%;margin-bottom:8px;" readonly>
 
-        <!-- Create Meet Link button with options popup -->
-        <div class="meet-btn-wrap" style="margin-bottom:8px;">
-          <button id="createMeetLinkBtn" style="background:#0ea5e9;">Create Meet Link</button>
+        <!-- Create RiCall Link button with options popup -->
+        <div class="ricall-btn-wrap" style="margin-bottom:8px;">
+          <button id="createRiCallLinkBtn" style="background:#0ea5e9;">Create RiCall Link</button>
 
-          <div id="meetOptionsPopup" class="meet-options-popup" role="menu" aria-hidden="true">
-            <button id="meetNowBtn" type="button">For now — start meeting now</button>
-            <button id="meetLaterBtn" type="button">For later — create/copy link & paste</button>
+          <div id="ricallOptionsPopup" class="ricall-options-popup" role="menu" aria-hidden="true">
+            <button id="ricallNowBtn" type="button">For now — start meeting now</button>
+            <button id="ricallLaterBtn" type="button">For later — create/copy link & paste</button>
           </div>
         </div>
-        <div class="info-small">Tip: choose "For now" to immediately start a meet (opens meet.google.com/new). Choose "For later" to open the Meet homepage and paste the copied link here.</div>
+        <div class="info-small">Tip: choose "For now" to immediately start RiCall. Choose "For later" to open the RiCall page and copy the link.</div>
 
         <div style="text-align:right; margin-top:12px;">
           <button id="saveEventBtn">Save</button>
@@ -270,13 +270,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   const saveEventBtn = document.getElementById('saveEventBtn');
   const eventNameInput = document.getElementById('eventName');
   const eventDateInput = document.getElementById('eventDate');
-  const googleMeetLinkInput = document.getElementById('googleMeetLink');
+  const ricallLinkInput = document.getElementById('ricallLink');
 
-  // Meet UI elements
-  const createMeetLinkBtn = document.getElementById('createMeetLinkBtn');
-  const meetOptionsPopup = document.getElementById('meetOptionsPopup');
-  const meetNowBtn = document.getElementById('meetNowBtn');
-  const meetLaterBtn = document.getElementById('meetLaterBtn');
+  // RiCall UI elements
+  const createRiCallLinkBtn = document.getElementById('createRiCallLinkBtn');
+  const ricallOptionsPopup = document.getElementById('ricallOptionsPopup');
+  const ricallNowBtn = document.getElementById('ricallNowBtn');
+  const ricallLaterBtn = document.getElementById('ricallLaterBtn');
 
   // Build button interactions
   addEventBtn.addEventListener('click', ()=> {
@@ -285,89 +285,89 @@ document.addEventListener('DOMContentLoaded', async () => {
     // reset inputs
     eventNameInput.value = '';
     eventDateInput.value = '';
-    googleMeetLinkInput.value = '';
-    googleMeetLinkInput.readOnly = true;
+    ricallLinkInput.value = '';
+    ricallLinkInput.readOnly = true;
   });
   closeModalBtn.addEventListener('click', closeAddModal);
   window.addEventListener('click', (e)=> { if (e.target == addEventModal) closeAddModal(); });
 
-  function closeAddModal(){ addEventModal.style.display='none'; addEventModal.setAttribute('aria-hidden','true'); eventNameInput.value=''; eventDateInput.value=''; googleMeetLinkInput.value=''; meetOptionsPopup.style.display='none'; }
+  function closeAddModal(){ addEventModal.style.display='none'; addEventModal.setAttribute('aria-hidden','true'); eventNameInput.value=''; eventDateInput.value=''; ricallLinkInput.value=''; ricallOptionsPopup.style.display='none'; }
 
   saveEventBtn.addEventListener('click', ()=> {
     const name = eventNameInput.value.trim();
     const date = eventDateInput.value;
-    const meet = googleMeetLinkInput.value.trim();
+    const ricall = ricallLinkInput.value.trim();
     if (!name || !date) return alert('Fill title + date');
-    const newEvent = { title: name, start: date, color:'purple', description:'Custom event', googleMeetLink: meet, isFestival:false };
+    const newEvent = { title: name, start: date, color:'purple', description:'Custom event', ricallLink: ricall, isFestival:false };
     calendar.addEvent(newEvent);
     savedEvents.push(newEvent);
     localStorage.setItem('calendarEvents', JSON.stringify(savedEvents));
     closeAddModal();
   });
 
-  /* ---------- MEET BUTTON LOGIC ---------- */
+  /* ---------- RICALL BUTTON LOGIC ---------- */
 
-  // Position popup under createMeetLinkBtn and toggle display
-  createMeetLinkBtn.addEventListener('click', (e) => {
+  // Position popup under createRiCallLinkBtn and toggle display
+  createRiCallLinkBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     // toggle visibility
-    if (meetOptionsPopup.style.display === 'block') {
-      meetOptionsPopup.style.display = 'none';
-      meetOptionsPopup.setAttribute('aria-hidden','true');
+    if (ricallOptionsPopup.style.display === 'block') {
+      ricallOptionsPopup.style.display = 'none';
+      ricallOptionsPopup.setAttribute('aria-hidden','true');
       return;
     }
     // compute position relative to wrapper
-    const rect = createMeetLinkBtn.getBoundingClientRect();
-    meetOptionsPopup.style.display = 'block';
-    meetOptionsPopup.style.left = (createMeetLinkBtn.offsetLeft) + 'px';
-    meetOptionsPopup.style.top = (createMeetLinkBtn.offsetTop + createMeetLinkBtn.offsetHeight + 6) + 'px';
-    meetOptionsPopup.setAttribute('aria-hidden','false');
+    const rect = createRiCallLinkBtn.getBoundingClientRect();
+    ricallOptionsPopup.style.display = 'block';
+    ricallOptionsPopup.style.left = (createRiCallLinkBtn.offsetLeft) + 'px';
+    ricallOptionsPopup.style.top = (createRiCallLinkBtn.offsetTop + createRiCallLinkBtn.offsetHeight + 6) + 'px';
+    ricallOptionsPopup.setAttribute('aria-hidden','false');
   });
 
   // hide popup on outside click
   document.addEventListener('click', (ev) => {
-    if (!meetOptionsPopup.contains(ev.target) && ev.target !== createMeetLinkBtn) {
-      meetOptionsPopup.style.display = 'none';
-      meetOptionsPopup.setAttribute('aria-hidden','true');
+    if (!ricallOptionsPopup.contains(ev.target) && ev.target !== createRiCallLinkBtn) {
+      ricallOptionsPopup.style.display = 'none';
+      ricallOptionsPopup.setAttribute('aria-hidden','true');
     }
   });
 
-  // For now: set date to today, set meet link to meet.new, open new tab
-  meetNowBtn.addEventListener('click', () => {
+  // For now: set date to today, set ricall link, open RiCall
+  ricallNowBtn.addEventListener('click', () => {
     try {
       const now = new Date();
       const yyyy = now.getFullYear();
       const mm = String(now.getMonth() + 1).padStart(2, '0');
       const dd = String(now.getDate()).padStart(2, '0');
       eventDateInput.value = `${yyyy}-${mm}-${dd}`;
-      googleMeetLinkInput.value = 'https://meet.google.com/new';
-      googleMeetLinkInput.readOnly = true;
+      ricallLinkInput.value = 'https://risync.in/RiSync-Web/html/ricall.html?schedule=true';
+      ricallLinkInput.readOnly = true;
       // close popup
-      meetOptionsPopup.style.display = 'none';
-      meetOptionsPopup.setAttribute('aria-hidden','true');
-      // open meet.new to start meeting immediately
-      window.open('https://meet.google.com/new', '_blank');
+      ricallOptionsPopup.style.display = 'none';
+      ricallOptionsPopup.setAttribute('aria-hidden','true');
+      // open RiCall to start meeting immediately
+      window.open('https://risync.in/RiSync-Web/html/ricall.html?schedule=true', '_blank');
     } catch (err) {
-      console.error('meetNow err', err);
-      alert('Could not open Meet. Please try again.');
+      console.error('ricallNow err', err);
+      alert('Could not open RiCall. Please try again.');
     }
   });
 
-  // For later: open meet home, allow pasting the link
-  meetLaterBtn.addEventListener('click', () => {
+  // For later: allow manual link entry
+  ricallLaterBtn.addEventListener('click', () => {
     try {
-      googleMeetLinkInput.value = '';
-      googleMeetLinkInput.readOnly = false; // allow paste
-      googleMeetLinkInput.focus();
+      ricallLinkInput.value = '';
+      ricallLinkInput.readOnly = false; // allow paste
+      ricallLinkInput.focus();
       // close popup
-      meetOptionsPopup.style.display = 'none';
-      meetOptionsPopup.setAttribute('aria-hidden','true');
-      // open meet homepage in new tab — user can create or copy a link
-      window.open('https://meet.google.com/', '_blank');
-      alert('Meet homepage opened in new tab. Copy the meeting link and paste it into the "Google Meet link" field.');
+      ricallOptionsPopup.style.display = 'none';
+      ricallOptionsPopup.setAttribute('aria-hidden','true');
+      // open RiCall homepage in new tab — user can create or copy a link
+      window.open('https://risync.in/RiSync-Web/html/ricall.html', '_blank');
+      alert('RiCall opened in new tab. Copy the meeting link and paste it into the "RiCall link" field.');
     } catch (err) {
-      console.error('meetLater err', err);
-      alert('Could not open Meet. Please try again.');
+      console.error('ricallLater err', err);
+      alert('Could not open RiCall. Please try again.');
     }
   });
 
@@ -401,8 +401,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const right = document.createElement('div');
         right.style.textAlign = 'right';
         const typeBadge = ev.isFestival || isEventFestival(ev) ? '<span class="badge">Festival</span>' : '';
-        const meetLink = ev.googleMeetLink ? `<div style="margin-top:6px"><a href="${ev.googleMeetLink}" target="_blank">Join Meet</a></div>` : '';
-        right.innerHTML = `${typeBadge}${meetLink}`;
+        const ricallLink = ev.ricallLink ? `<div style="margin-top:6px"><a href="${ev.ricallLink}" target="_blank">Join RiCall</a></div>` : '';
+        right.innerHTML = `${typeBadge}${ricallLink}`;
         row.appendChild(left);
         row.appendChild(right);
         eventsListEl.appendChild(row);
