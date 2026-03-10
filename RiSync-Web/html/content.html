@@ -6,72 +6,48 @@
   <title>RiSync Dashboard</title>
   
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
-  /* Search box styles */
-    .search-box {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background-color: var(--primary-light);
-      border-radius: 8px;
-      padding: 10px 15px;
-      margin-bottom: 15px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    .search-box i {
-      color: rgba(255, 255, 255, 0.6);
-      font-size: 18px;
-    }
-    .search-box input {
-      background-color: transparent;
-      border: none;
-      color: var(--white);
-      font-size: 16px;
-      width: 100%;
-      outline: none;
-    }
-    .search-box input::placeholder {
-      color: rgba(255, 255, 255, 0.4);
-    }
-    /* --- THEME & CORE VARIABLES --- */
+    /* --- THEME & CORE VARIABLES (Khan Academy Inspired) --- */
     :root {
-      --primary-dark: #0c0c2d;
-      --primary-light: #1a1a4a;
-      --accent-orange: #f58220;
-      --accent-orange-dark: #d96d1a;
-      --accent-blue: #0056d6;
-      --light-gray: #f0f2f5;
-      --medium-gray: #e4e6eb;
-      --dark-text: #333;
-      --light-text: #6c757d;
+      --primary-color: #1f8acb;
+      --primary-dark: #0d47a1;
+      --primary-light: #e3f2fd;
+      --accent-orange: #fd7e14;
+      --success-green: #4caf50;
+      --danger-red: #f44336;
+      --light-gray: #f5f5f5;
+      --medium-gray: #e0e0e0;
+      --dark-gray: #424242;
+      --text-primary: #212121;
+      --text-secondary: #757575;
       --white: #ffffff;
-      --glass-bg: rgba(255, 255, 255, 0.5);
-      --box-shadow-light: 0 4px 15px rgba(0, 0, 0, 0.06);
-      --box-shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.1);
-      --border-radius: 12px;
-      --glow-color: rgba(245, 130, 32, 0.7);
-      --text-glow-light: 0 0 5px var(--accent-orange), 0 0 10px var(--accent-orange), 0 0 15px var(--accent-orange);
-      --box-glow-orange: 0 0 10px rgba(245, 130, 32, 0.6), 0 0 20px rgba(245, 130, 32, 0.4);
-      --box-glow-blue: 0 0 10px rgba(0, 86, 214, 0.6), 0 0 20px rgba(0, 86, 214, 0.4);
+      --border-color: #e0e0e0;
+      --shadow-light: 0 1px 3px rgba(0, 0, 0, 0.08);
+      --shadow-medium: 0 2px 8px rgba(0, 0, 0, 0.1);
+      --shadow-heavy: 0 4px 16px rgba(0, 0, 0, 0.12);
+      --border-radius: 8px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* --- BASE & LAYOUT --- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     html {
       scroll-behavior: smooth;
     }
 
     body {
-      font-family: 'Poppins', sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
       margin: 0;
       padding: 0;
-      background: linear-gradient(270deg, var(--light-gray), var(--medium-gray), var(--light-gray));
-      background-size: 600% 600%;
-      animation: backgroundAnimate 20s ease infinite;
-      height: 100vh;
-      overflow: hidden; /* Prevent body scroll */
-      color: var(--dark-text);
+      background-color: var(--white);
+      min-height: 100vh;
+      overflow: hidden;
+      color: var(--text-primary);
       line-height: 1.6;
     }
 
@@ -88,21 +64,19 @@
 
     /* --- HEADER / TOP BAR --- */
     header.top-bar {
-      background-color: var(--glass-bg);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      color: var(--primary-dark);
+      background-color: var(--white);
+      color: var(--text-primary);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 25px;
+      padding: 16px 32px;
       position: fixed;
       top: 0;
       left: 280px;
       right: 0;
       height: 70px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-      box-shadow: var(--box-shadow-medium), var(--box-glow-orange);
+      border-bottom: 1px solid var(--border-color);
+      box-shadow: var(--shadow-light);
       z-index: 99;
       transition: left 0.3s ease;
     }
@@ -110,55 +84,62 @@
     .header-left {
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 24px;
     }
 
     .menu-toggle {
       display: none;
       font-size: 24px;
       cursor: pointer;
-      color: var(--primary-dark);
-      text-shadow: var(--text-glow-light);
+      color: var(--text-primary);
     }
 
     .header-title h3 {
       margin: 0;
-      font-size: 24px;
+      font-size: 20px;
       font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .header-title small {
+      color: var(--primary-color);
+      font-size: 12px;
+      display: block;
+      margin-top: 4px;
+      font-weight: 500;
     }
 
     .settings-container {
       position: relative;
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 24px;
     }
 
     .settings-icon {
       font-size: 24px;
       cursor: pointer;
-      color: var(--accent-blue);
-      transition: all 0.2s ease;
+      color: var(--text-secondary);
+      transition: var(--transition);
     }
     .settings-icon:hover {
-      color: var(--accent-orange);
-      transform: rotate(20deg);
+      color: var(--primary-color);
     }
 
     .settings-menu {
       visibility: hidden;
       opacity: 0;
       position: absolute;
-      top: 55px;
+      top: 60px;
       right: 0;
       background: var(--white);
       border-radius: var(--border-radius);
-      padding: 10px;
-      box-shadow: var(--box-shadow-medium);
+      padding: 8px;
+      box-shadow: var(--shadow-heavy);
       z-index: 100;
-      min-width: 180px;
+      min-width: 200px;
       transform: translateY(-10px) scale(0.95);
-      transition: all 0.25s ease;
+      transition: var(--transition);
     }
     .settings-menu.active {
       visibility: visible;
@@ -167,43 +148,43 @@
     }
     .settings-menu button {
       background-color: transparent;
-      color: var(--dark-text);
+      color: var(--text-primary);
       border: none;
-      padding: 12px 15px;
+      padding: 12px 16px;
       cursor: pointer;
-      border-radius: 8px;
+      border-radius: 6px;
       width: 100%;
       text-align: left;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 500;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
+      transition: var(--transition);
     }
     .settings-menu button:hover {
-      background-color: var(--light-gray);
-      color: var(--accent-orange);
+      background-color: var(--primary-light);
+      color: var(--primary-color);
     }
 
     .profile-icon {
-      width: 45px;
-      height: 45px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       object-fit: cover;
       cursor: pointer;
-      border: 2px solid var(--accent-orange);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      border: 2px solid var(--primary-color);
+      transition: var(--transition);
     }
     .profile-icon:hover {
-      transform: scale(1.08);
-      box-shadow: var(--box-glow-orange);
+      box-shadow: 0 0 8px rgba(31, 138, 203, 0.3);
     }
 
     /* --- SIDEBAR / NAVIGATION --- */
     nav.sidebar {
-      background-color: var(--primary-dark);
-      color: var(--white);
-      padding: 0 15px 25px 15px;
+      background-color: var(--white);
+      color: var(--text-primary);
+      padding: 20px 0;
       width: 280px;
       height: 100vh;
       display: flex;
@@ -211,7 +192,8 @@
       flex-shrink: 0;
       z-index: 100;
       transition: transform 0.3s ease;
-      box-shadow: 5px 0px 20px rgba(0,0,0,0.1), var(--box-glow-blue);
+      border-right: 1px solid var(--border-color);
+      overflow-y: auto;
     }
     .sidebar.open {
       transform: translateX(0);
@@ -220,25 +202,22 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 25px 15px 25px 15px;
+      padding: 20px 16px;
       text-align: center;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 16px;
       flex-shrink: 0;
-    }
-    .logo-container img {
-      width: 70px;
-      margin-bottom: 10px;
     }
     .logo-container h2 {
       margin: 0;
-      font-size: 26px;
-      text-shadow: var(--text-glow-light);
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary-color);
     }
     .logo-container p {
-      font-size: 14px;
-      opacity: 0.7;
-      margin: 0;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin: 8px 0 0 0;
     }
 
     .nav-menu {
@@ -246,109 +225,128 @@
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      padding-right: 5px;
+      gap: 4px;
+      padding: 0 8px;
     }
 
-    /* Custom Scrollbar for Sidebar */
     .nav-menu::-webkit-scrollbar {
-        width: 8px;
+        width: 6px;
     }
     .nav-menu::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 10px;
+        background: transparent;
     }
     .nav-menu::-webkit-scrollbar-thumb {
-        background-color: var(--accent-orange);
-        border-radius: 10px;
-        border: 2px solid var(--primary-dark);
+        background-color: var(--medium-gray);
+        border-radius: 3px;
     }
     .nav-menu::-webkit-scrollbar-thumb:hover {
-        background-color: var(--accent-orange-dark);
+        background-color: var(--dark-gray);
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background-color: var(--light-gray);
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin: 0 8px 16px;
+      border: 1px solid var(--border-color);
+    }
+    .search-box i {
+      color: var(--text-secondary);
+      font-size: 16px;
+    }
+    .search-box input {
+      background-color: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-size: 14px;
+      width: 100%;
+      outline: none;
+    }
+    .search-box input::placeholder {
+      color: var(--text-secondary);
     }
 
     .nav-button {
       background-color: transparent;
-      color: rgba(255, 255, 255, 0.8);
+      color: var(--text-secondary);
       border: none;
-      padding: 15px 20px;
-      border-radius: 8px;
-      font-size: 16px;
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-size: 14px;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 12px;
       text-align: left;
-      transition: all 0.2s ease;
+      transition: var(--transition);
       flex-shrink: 0;
+      text-decoration: none;
     }
     .nav-button:hover {
       background-color: var(--primary-light);
-      color: var(--white);
-      box-shadow: var(--box-glow-orange);
+      color: var(--primary-color);
     }
     .nav-button.active {
-      background-color: var(--accent-orange);
-      color: var(--white);
+      background-color: var(--primary-light);
+      color: var(--primary-color);
       font-weight: 600;
-      box-shadow: var(--box-glow-orange);
-      animation: buttonPulse 1.5s infinite;
     }
     .nav-button i {
       width: 20px;
       text-align: center;
+      font-size: 18px;
     }
 
     /* --- MAIN CONTENT AREA --- */
     main.content-area {
       flex-grow: 1;
-      padding: 30px;
+      padding: 40px 48px;
       overflow-y: auto;
       margin-top: 70px;
       animation: fadeIn 0.5s ease-out;
+      background-color: var(--light-gray);
     }
 
     .dashboard-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 25px;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 24px;
     }
     .card {
-        background-color: var(--glass-bg);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
+        background-color: var(--white);
+        border: 1px solid var(--border-color);
         border-radius: var(--border-radius);
-        padding: 25px;
-        box-shadow: var(--box-shadow-light);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        padding: 28px;
+        box-shadow: var(--shadow-light);
+        transition: var(--transition);
         animation: popIn 0.5s ease-out backwards;
     }
     .card:hover {
-        transform: translateY(-5px) scale(1.02);
-        box-shadow: var(--box-shadow-medium), var(--box-glow-orange);
+        box-shadow: var(--shadow-medium);
     }
     .card-header {
         display: flex;
         align-items: center;
-        gap: 15px;
-        margin-bottom: 15px;
+        gap: 12px;
+        margin-bottom: 16px;
     }
     .card-header i {
         font-size: 24px;
-        color: var(--accent-orange);
-        text-shadow: var(--text-glow-light);
-        animation: iconFlash 2s infinite;
+        color: var(--primary-color);
     }
     .card-header h4 {
         margin: 0;
-        font-size: 20px;
+        font-size: 18px;
         font-weight: 600;
-        color: var(--primary-dark);
+        color: var(--text-primary);
     }
-    .card p, .card ul {
-        color: var(--light-text);
-        font-size: 15px;
+    .card p {
+        color: var(--text-secondary);
+        font-size: 14px;
+        margin: 0;
     }
     .card ul {
         list-style: none;
@@ -356,64 +354,73 @@
         margin: 0;
     }
     .card li {
-        padding: 8px 0;
-        border-bottom: 1px solid var(--medium-gray);
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 14px;
     }
     .card li:last-child {
         border-bottom: none;
     }
 
-    /* New Progress Card Styles */
     .progress-bar-container {
         width: 100%;
-        background-color: var(--medium-gray);
-        border-radius: 10px;
+        background-color: var(--light-gray);
+        border-radius: 4px;
         overflow: hidden;
-        margin-top: 15px;
+        margin: 16px 0 8px 0;
+        height: 8px;
     }
     .progress-bar {
-        height: 15px;
+        height: 100%;
         width: 0%;
-        background-color: var(--accent-orange);
+        background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
         transition: width 0.5s ease-in-out;
-        border-radius: 10px;
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        border-radius: 4px;
     }
     .progress-text {
-        text-align: center;
-        margin-top: 10px;
-        font-weight: 500;
-        color: var(--dark-text);
+        text-align: right;
+        margin-top: 8px;
+        font-weight: 600;
+        color: var(--primary-color);
+        font-size: 14px;
     }
 
-    /* New To-Do List Card Styles */
     .todo-list-container {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 12px;
     }
     .todo-input-group {
         display: flex;
-        gap: 10px;
+        gap: 8px;
     }
     .todo-input-group input {
         flex-grow: 1;
-        padding: 10px;
-        border: 1px solid var(--medium-gray);
-        border-radius: 8px;
-        font-size: 15px;
+        padding: 10px 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        font-size: 14px;
+        font-family: inherit;
+        transition: var(--transition);
+    }
+    .todo-input-group input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(31, 138, 203, 0.1);
     }
     .todo-input-group button {
-        background-color: var(--accent-blue);
+        background-color: var(--primary-color);
         color: var(--white);
         border: none;
-        border-radius: 8px;
-        padding: 0 15px;
+        border-radius: 6px;
+        padding: 10px 16px;
         cursor: pointer;
-        transition: background-color 0.2s ease;
+        transition: var(--transition);
+        font-weight: 600;
+        font-size: 14px;
     }
     .todo-input-group button:hover {
-        background-color: var(--accent-orange);
+        background-color: var(--primary-dark);
     }
     .todo-list {
         list-style: none;
@@ -425,191 +432,96 @@
         align-items: center;
         justify-content: space-between;
         padding: 12px 0;
-        border-bottom: 1px solid var(--medium-gray);
-        font-size: 15px;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 14px;
     }
     .todo-list li:last-child {
         border-bottom: none;
     }
     .todo-list li.completed {
         text-decoration: line-through;
-        color: var(--light-text);
+        color: var(--text-secondary);
     }
     .todo-list .remove-btn {
         background: none;
         border: none;
-        color: var(--light-text);
+        color: var(--danger-red);
         cursor: pointer;
         font-size: 18px;
-        transition: color 0.2s ease;
+        transition: var(--transition);
+        padding: 4px 8px;
     }
     .todo-list .remove-btn:hover {
-        color: var(--accent-orange);
+        color: #d32f2f;
     }
 
-    /* Loading state */
-    .loading-spinner {
-        border: 4px solid #f3f3f3;
-        border-radius: 50%;
-        border-top: 4px solid var(--accent-orange);
-        width: 20px;
-        height: 20px;
-        -webkit-animation: spin 1s linear infinite;
-        animation: spin 1s linear infinite;
-        margin-left: 10px;
-    }
-    @-webkit-keyframes spin {
-        0% { -webkit-transform: rotate(0deg); }
-        100% { -webkit-transform: rotate(360deg); }
-    }
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    /* --- FLOATING & UTILITY BUTTONS --- */
     .floating-buttons {
       position: fixed;
-      bottom: 30px;
-      right: 30px;
+      bottom: 32px;
+      right: 32px;
       display: flex;
       flex-direction: column;
-      gap: 15px;
+      gap: 12px;
       z-index: 999;
     }
     .floating-button {
-      background-color: var(--accent-blue);
+      background-color: var(--primary-color);
       color: var(--white);
       border: none;
       border-radius: 50%;
-      width: 55px;
-      height: 55px;
+      width: 56px;
+      height: 56px;
       font-size: 24px;
       cursor: pointer;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      box-shadow: var(--shadow-heavy);
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s ease;
+      transition: var(--transition);
     }
     .floating-button:hover {
-      background-color: var(--accent-orange);
-      transform: scale(1.1);
-      box-shadow: var(--box-shadow-medium), var(--box-glow-orange);
-    }
-    .floating-button i {
-      transition: transform 0.2s ease;
-    }
-    #music-btn:hover {
-        background-color: var(--accent-orange);
-        transform: scale(1.1);
-    }
-    #music-btn .icon-pulse {
-        animation: pulse 1s infinite;
+      background-color: var(--primary-dark);
+      transform: scale(1.08);
+      box-shadow: 0 6px 20px rgba(31, 138, 203, 0.3);
     }
 
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.2); }
-      100% { transform: scale(1); }
-    }
-
-    /* Mic button animation */
     #mic-btn.active {
       background-color: var(--accent-orange);
-      box-shadow: var(--box-shadow-medium), var(--box-glow-orange);
-    }
-    #mic-btn.active i {
-      animation: mic-pulse 1.5s infinite;
-    }
-    @keyframes mic-pulse {
-        0% { transform: scale(1); opacity: 1; }
-        50% { transform: scale(1.2); opacity: 0.7; }
-        100% { transform: scale(1); opacity: 1; }
+      animation: micPulse 1s infinite;
     }
 
-    /* --- CUSTOM LANGUAGE DROPDOWN STYLES --- */
-    .language-dropdown-container {
-        position: relative;
-        cursor: pointer;
-        user-select: none;
-        font-size: 15px;
-        font-weight: 500;
-        width: 160px;
-        z-index: 10;
-        color: var(--dark-text);
-    }
-    .selected-language {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 8px 12px;
-        background: var(--light-gray);
-        border-radius: 8px;
-        box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-        transition: all 0.2s ease;
-    }
-    .selected-language:hover {
-        background-color: var(--medium-gray);
-        box-shadow: inset 0 1px 5px rgba(0,0,0,0.2);
-    }
-    .selected-language .dropdown-arrow {
-        transition: transform 0.2s ease;
-    }
-    .language-dropdown-container.active .selected-language .dropdown-arrow {
-        transform: rotate(180deg);
+    @keyframes micPulse {
+      0% {
+        transform: scale(1);
+        box-shadow: var(--shadow-heavy);
+      }
+      50% {
+        transform: scale(1.08);
+        box-shadow: 0 6px 20px rgba(253, 126, 20, 0.4);
+      }
+      100% {
+        transform: scale(1);
+        box-shadow: var(--shadow-heavy);
+      }
     }
 
-    .language-dropdown-list {
-        position: absolute;
-        top: 110%;
-        left: 0;
-        width: 100%;
-        background: var(--white);
-        border-radius: 8px;
-        box-shadow: var(--box-shadow-medium);
-        padding: 5px;
-        max-height: 200px;
-        overflow-y: auto;
-        opacity: 0;
-        visibility: hidden;
-        transform: translateY(-10px);
-        transition: all 0.25s ease;
-    }
-    .language-dropdown-list.active {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
-    }
-    .language-dropdown-list li {
-        list-style: none;
-        padding: 10px 12px;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: background-color 0.2s ease;
-    }
-    .language-dropdown-list li:hover {
-        background-color: var(--light-gray);
-        color: var(--accent-orange);
-    }
-
-    /* New Chatbot Pop-up Styles */
     #chatbot-popup {
       position: fixed;
-      bottom: 100px;
-      right: 30px;
-      width: 300px;
+      bottom: 120px;
+      right: 32px;
+      width: 340px;
       background-color: var(--white);
       border-radius: var(--border-radius);
-      box-shadow: var(--box-shadow-medium);
-      padding: 20px;
+      box-shadow: var(--shadow-heavy);
+      padding: 24px;
       z-index: 1000;
       display: none;
       flex-direction: column;
-      gap: 15px;
+      gap: 16px;
       transform: scale(0.8);
       opacity: 0;
-      transition: all 0.3s ease-out;
+      transition: var(--transition);
+      border: 1px solid var(--border-color);
     }
 
     #chatbot-popup.active {
@@ -620,58 +532,57 @@
 
     #chatbot-popup h5 {
       margin: 0;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 600;
-      color: var(--primary-dark);
-      border-bottom: 1px solid var(--medium-gray);
-      padding-bottom: 10px;
+      color: var(--text-primary);
     }
 
     #chatbot-popup p {
       margin: 0;
-      color: var(--light-text);
-      font-size: 15px;
+      color: var(--text-secondary);
+      font-size: 14px;
     }
 
     #chatbot-popup .chatbot-buttons {
       display: flex;
-      gap: 10px;
+      gap: 8px;
     }
 
     #chatbot-popup button {
-      background-color: var(--accent-blue);
+      background-color: var(--primary-color);
       color: var(--white);
       border: none;
-      border-radius: 8px;
-      padding: 10px 15px;
-      font-size: 14px;
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-size: 13px;
       cursor: pointer;
       flex-grow: 1;
-      transition: background-color 0.2s ease;
+      transition: var(--transition);
+      font-weight: 600;
     }
 
     #chatbot-popup button:hover {
-      background-color: var(--accent-orange);
+      background-color: var(--primary-dark);
     }
 
-    /* New RiBot Settings Pop-up Styles */
     #ribot-settings-popup {
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%) scale(0.8);
-      width: 350px;
+      width: 420px;
       max-width: 90vw;
       background-color: var(--white);
       border-radius: var(--border-radius);
-      box-shadow: var(--box-shadow-medium);
-      padding: 25px;
+      box-shadow: var(--shadow-heavy);
+      padding: 32px;
       z-index: 1001;
       display: none;
       flex-direction: column;
-      gap: 20px;
+      gap: 24px;
       opacity: 0;
-      transition: all 0.3s ease-out;
+      transition: var(--transition);
+      border: 1px solid var(--border-color);
     }
 
     #ribot-settings-popup.active {
@@ -684,77 +595,137 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-bottom: 1px solid var(--medium-gray);
-        padding-bottom: 10px;
-        margin-bottom: 10px;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 16px;
+        margin-bottom: 0;
     }
 
     #ribot-settings-popup h4 {
         margin: 0;
         font-size: 20px;
         font-weight: 600;
-        color: var(--primary-dark);
+        color: var(--text-primary);
     }
 
     #ribot-settings-popup .close-btn {
         background: none;
         border: none;
         font-size: 24px;
-        color: var(--light-text);
+        color: var(--text-secondary);
         cursor: pointer;
-        transition: color 0.2s ease;
+        transition: var(--transition);
+        padding: 0;
     }
     #ribot-settings-popup .close-btn:hover {
-        color: var(--accent-orange);
+        color: var(--text-primary);
     }
 
     .ribot-options {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
     }
     .ribot-options button {
         background-color: var(--light-gray);
-        color: var(--dark-text);
-        border: 1px solid var(--medium-gray);
-        border-radius: 8px;
-        padding: 12px 15px;
-        font-size: 15px;
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 12px 16px;
+        font-size: 14px;
         cursor: pointer;
         text-align: left;
-        transition: all 0.2s ease;
+        transition: var(--transition);
+        font-weight: 500;
     }
     .ribot-options button:hover {
-        background-color: var(--medium-gray);
-        color: var(--accent-orange);
+        background-color: var(--primary-light);
+        border-color: var(--primary-color);
+        color: var(--primary-color);
     }
 
     .ribot-response {
-        padding: 15px;
-        background-color: var(--light-gray);
-        border-left: 4px solid var(--accent-orange);
-        border-radius: 8px;
-        font-style: italic;
-        color: var(--light-text);
+        padding: 16px;
+        background-color: var(--primary-light);
+        border-left: 4px solid var(--primary-color);
+        border-radius: 6px;
+        color: var(--text-primary);
+        font-size: 14px;
     }
 
-    /* --- ANIMATIONS --- */
+    .language-dropdown-container {
+        position: relative;
+        cursor: pointer;
+        user-select: none;
+        font-size: 14px;
+        font-weight: 500;
+        width: 140px;
+        z-index: 10;
+        color: var(--text-primary);
+    }
+    .selected-language {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 12px;
+        background: var(--light-gray);
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+        transition: var(--transition);
+    }
+    .selected-language:hover {
+        background-color: var(--primary-light);
+        border-color: var(--primary-color);
+    }
+    .selected-language .dropdown-arrow {
+        transition: transform 0.3s ease;
+        font-size: 12px;
+    }
+    .language-dropdown-container.active .selected-language .dropdown-arrow {
+        transform: rotate(180deg);
+    }
+
+    .language-dropdown-list {
+        position: absolute;
+        top: 110%;
+        left: 0;
+        width: 100%;
+        background: var(--white);
+        border-radius: 6px;
+        box-shadow: var(--shadow-heavy);
+        padding: 4px;
+        max-height: 200px;
+        overflow-y: auto;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: var(--transition);
+        border: 1px solid var(--border-color);
+    }
+    .language-dropdown-list.active {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+    .language-dropdown-list li {
+        list-style: none;
+        padding: 10px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: var(--transition);
+        font-size: 14px;
+    }
+    .language-dropdown-list li:hover {
+        background-color: var(--primary-light);
+        color: var(--primary-color);
+    }
+
     @keyframes fadeIn {
       from { opacity: 0; }
       to { opacity: 1; }
     }
     @keyframes popIn {
-      from { opacity: 0; transform: scale(0.9); }
+      from { opacity: 0; transform: scale(0.95); }
       to { opacity: 1; transform: scale(1); }
-    }
-    @keyframes buttonPulse {
-      0% { transform: scale(1); box-shadow: var(--box-glow-orange); }
-      50% { transform: scale(1.02); box-shadow: 0 0 15px var(--glow-color), 0 0 30px var(--glow-color); }
-      100% { transform: scale(1); box-shadow: var(--box-glow-orange); }
-    }
-    @keyframes iconFlash {
-      0%, 100% { color: var(--accent-orange); text-shadow: none; }
-      50% { color: var(--white); text-shadow: var(--text-glow-light); }
     }
     @keyframes backgroundAnimate {
       0% { background-position: 0% 50%; }
@@ -762,23 +733,22 @@
       100% { background-position: 0% 50%; }
     }
 
-    /* Staggered animation for cards */
     .card:nth-child(1) { animation-delay: 0.1s; }
     .card:nth-child(2) { animation-delay: 0.2s; }
     .card:nth-child(3) { animation-delay: 0.3s; }
     .card:nth-child(4) { animation-delay: 0.4s; }
 
-    /* --- RESPONSIVE ADJUSTMENTS --- */
     @media (max-width: 992px) {
-      .sidebar {
+      nav.sidebar {
         position: fixed;
         left: 0;
         top: 0;
         bottom: 0;
         transform: translateX(-100%);
-        box-shadow: 5px 0px 20px rgba(0,0,0,0.1);
+        z-index: 100;
+        border-right: 1px solid var(--border-color);
       }
-      .sidebar.open {
+      nav.sidebar.open {
         transform: translateX(0);
       }
       header.top-bar {
@@ -787,41 +757,40 @@
       .menu-toggle {
         display: block;
       }
-      .main-wrapper.sidebar-open .overlay {
-        display: block;
-      }
       .overlay {
         position: fixed;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: rgba(0,0,0,0.5);
+        background-color: rgba(0, 0, 0, 0.5);
         z-index: 99;
         display: none;
       }
     }
 
     @media (max-width: 768px) {
+      header.top-bar {
+        padding: 12px 20px;
+      }
       .header-title h3 {
-        font-size: 20px;
+        font-size: 18px;
       }
       .settings-container {
-        gap: 15px;
+        gap: 16px;
       }
       .profile-icon {
-        width: 40px;
-        height: 40px;
+        width: 36px;
+        height: 36px;
       }
-      .language-dropdown-container {
-        width: 120px;
-        font-size: 14px;
+      main.content-area {
+        padding: 32px 24px;
       }
     }
 
     @media (max-width: 480px) {
       header.top-bar {
-        padding: 10px 15px;
+        padding: 10px 16px;
       }
       .header-title {
         display: none;
@@ -835,13 +804,15 @@
         gap: 10px;
       }
       .floating-button {
-        width: 45px;
-        height: 45px;
+        width: 48px;
+        height: 48px;
         font-size: 20px;
+      }
+      .dashboard-grid {
+        grid-template-columns: 1fr;
       }
     }
 
-    /* Utility */
     .profile-upload { display: none; }
   </style>
 </head>
@@ -851,105 +822,102 @@
     
     <nav class="sidebar" id="sidebar">
       <div class="logo-container">
-       <a href="../index.html" class="logo">
-    <img src="../assets/logo.png" alt="RiSync Logo" style="width:80px; height:auto;">
-</a>
-		<h2>RiSync</h2>
-        <p>Let's Re Sync With RiSync</p>
+        <h2>RiSync</h2>
+        <p>Learning Platform</p>
       </div>
-<div class="nav-menu">
-    <div class="search-box">
-        <i class="fas fa-search"></i>
-        <input type="text" id="searchInput" placeholder="Search menu...">
-    </div>
-    <a href="RiSync-CHAT.html" class="nav-button" role="link" aria-label="Go to RiSync Chat"><i class="fas fa-comments"></i> RiSync Peer Chat</a>
-    <a href="monitor.html" class="nav-button" role="link" aria-label="Go to RiSync Chat"><i class="fas fa-comments"></i> Parent Monitor</a>
-    <a href="books.html" class="nav-button" role="link" aria-label="Go to RiSync Books"><i class="fas fa-comments"></i> Explore The Books</a>
-    <a id="scheduleLink" href="https://calendar.google.com/calendar/u/0/r/eventedit?text=RiSync%20-%20&vcon=meet&dates=now&hl=en" class="nav-button" role="link" aria-label="Schedule a new meeting"><i class="fas fa-video"></i> Schedule Meeting</a>
-    <a href="calendar.html" class="nav-button" role="link" aria-label="Open Calendar"><i class="fas fa-calendar-alt"></i> Calendar</a>
-    <a href="Data Base.html" class="nav-button" role="link" aria-label="Open Database"><i class="fas fa-database"></i> Database</a>
-    <a href="subjects.html" class="nav-button" role="link" aria-label="Open Subjects"><i class="fas fa-book-open"></i> Subjects</a>
-    <a href="NCERT.html" class="nav-button" role="link" aria-label="Open NCERT books"><i class="fas fa-book"></i> NCERT</a>
-    <a href="Whiteboard.html" class="nav-button" role="link" aria-label="Open White Board"><i class="fas fa-chalkboard"></i> White Board</a>
-    <a href="Calculator.html" class="nav-button" role="link" aria-label="Open Calculator"><i class="fas fa-calculator"></i> Calculator</a>
-    <a href="gpt.html" class="nav-button" role="link" aria-label="Open Chat Bot"><i class="fas fa-robot"></i> Chat Bot</a>
-    <a href="https://cse.google.com/cse?cx=21639bebac7284493#gsc.tab=0&gsc.sort=" class="nav-button" role="link" aria-label="Open Search Engine"><i class="fas fa-search"></i> Search Engine</a>
-    <a href="leaderboard.html" class="nav-button" role="link" aria-label="Open Leaderboard"><i class="fas fa-trophy"></i>Leaderboard</a>
-    <a href="PPT.html" class="nav-button" role="link" aria-label="Open PPT"><i class="fas fa-file-powerpoint"></i>PPT</a>
-    <a href="RiDesign.html" class="nav-button" role="link" aria-label="Open No-Code"><i class="fas fa-laptop-code"></i>Create Website</a>
-</div>
+      <div class="nav-menu">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" id="searchInput" placeholder="Search...">
+        </div>
+        <a href="RiSync-CHAT.html" class="nav-button"><i class="fas fa-comments"></i> Chat</a>
+        <a href="monitor.html" class="nav-button"><i class="fas fa-monitor"></i> Monitor</a>
+        <a href="books.html" class="nav-button"><i class="fas fa-book"></i> Books</a>
+        <a href="https://calendar.google.com/calendar/u/0/r/eventedit?text=RiSync%20-%20&vcon=meet&dates=now&hl=en" class="nav-button"><i class="fas fa-calendar"></i> Schedule</a>
+        <a href="calendar.html" class="nav-button"><i class="fas fa-calendar-alt"></i> Calendar</a>
+        <a href="database.html" class="nav-button"><i class="fas fa-database"></i> Database</a>
+        <a href="subjects.html" class="nav-button"><i class="fas fa-book-open"></i> Subjects</a>
+        <a href="ncert.html" class="nav-button"><i class="fas fa-book"></i> NCERT</a>
+        <a href="whiteboard.html" class="nav-button"><i class="fas fa-chalkboard"></i> Whiteboard</a>
+        <a href="calculator.html" class="nav-button"><i class="fas fa-calculator"></i> Calculator</a>
+        <a href="gpt.html" class="nav-button"><i class="fas fa-robot"></i> AI Assistant</a>
+        <a href="https://cse.google.com/cse?cx=21639bebac7284493" class="nav-button"><i class="fas fa-search"></i> Search</a>
+        <a href="leaderboard.html" class="nav-button"><i class="fas fa-trophy"></i> Leaderboard</a>
+        <a href="ppt.html" class="nav-button"><i class="fas fa-file-powerpoint"></i> Presentations</a>
+        <a href="design.html" class="nav-button"><i class="fas fa-laptop-code"></i> Design</a>
+      </div>
     </nav>
     
     <div class="content-container">
       <header class="top-bar">
         <div class="header-left">
-          <div class="menu-toggle" aria-controls="sidebar" aria-expanded="false" role="button" tabindex="0">
+          <div class="menu-toggle" id="menuToggle">
             <i class="fas fa-bars"></i>
           </div>
           <div class="header-title">
-            <h3 id="welcome-message" data-i18n="welcome">Welcome to RiSync</h3>
-            <small id="displayBranch" style="color:var(--accent-orange); font-size:12px; display:block;"></small>
+            <h3 id="welcome-message" data-i18n="welcome">Welcome back</h3>
+            <small id="displayBranch"></small>
           </div>
         </div>
         <div class="settings-container">
           <div class="language-dropdown-container" id="language-dropdown-container">
             <div class="selected-language" id="selected-language">
-              <span data-i18n-name="en">English</span>
+              <span>English</span>
               <i class="fas fa-chevron-down dropdown-arrow"></i>
             </div>
             <ul class="language-dropdown-list" id="language-dropdown-list"></ul>
           </div>
           <input type="file" id="profileUpload" class="profile-upload" accept=".png, .jpg" />
-          <img src="https://placehold.co/45x45/f58220/ffffff?text=U" alt="Profile" class="profile-icon" id="profileIcon" />
-          <i class="fas fa-cog settings-icon"></i>
+          <img src="https://placehold.co/40x40/1f8acb/ffffff?text=U" alt="Profile" class="profile-icon" id="profileIcon" />
+          <i class="fas fa-cog settings-icon" id="settingsIcon"></i>
           <div class="settings-menu" id="settingsMenu">
-            <button id="profileBtn"><i class="fas fa-user-circle"></i>Profile</button>
-            <button id="ribotSettingsBtn"><i class="fas fa-robot"></i>RiBot Settings</button>
-            <button id="logoutButton"><i class="fas fa-sign-out-alt"></i>Log Out</button>
+            <button id="profileBtn"><i class="fas fa-user"></i> Profile</button>
+            <button id="ribotSettingsBtn"><i class="fas fa-question-circle"></i> Help & Support</button>
+            <button id="logoutButton"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
           </div>
         </div>
       </header>
   
       <main class="content-area">
         <div class="dashboard-grid">
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-rocket"></i>
-                    <h4 data-i18n="quick-actions-h4">Quick Actions</h4>
-                </div>
-                <p data-i18n="quick-actions-p">Jump right back into your learning journey.</p>
+          <div class="card">
+            <div class="card-header">
+              <i class="fas fa-lightning-bolt"></i>
+              <h4>Quick Access</h4>
             </div>
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-tasks"></i>
-                    <h4 data-i18n="todo-h4">Your To-Do List</h4>
-                </div>
-                <div class="todo-list-container">
-                    <div class="todo-input-group">
-                        <input type="text" id="todo-input" data-i18n-placeholder="add-task-placeholder" placeholder="Add a new task...">
-                        <button id="add-todo-btn"><i class="fas fa-plus"></i></button>
-                    </div>
-                    <ul class="todo-list" id="todo-list"></ul>
-                </div>
+            <p>Jump back into your learning journey with quick links to your favorite resources.</p>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <i class="fas fa-check-circle"></i>
+              <h4>Tasks & Goals</h4>
             </div>
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-chart-line"></i>
-                    <h4 data-i18n="progress-h4">My Progress</h4>
-                </div>
-                <p data-i18n="progress-p">Overall Course Completion</p>
-                <div class="progress-bar-container">
-                    <div class="progress-bar" id="progress-bar" style="width: 0%;"></div>
-                </div>
-                <div class="progress-text" id="progress-text">Loading...</div>
+            <div class="todo-list-container">
+              <div class="todo-input-group">
+                <input type="text" id="todo-input" data-i18n-placeholder="add-task-placeholder" placeholder="Add a new task...">
+                <button id="add-todo-btn"><i class="fas fa-plus"></i></button>
+              </div>
+              <ul class="todo-list" id="todo-list"></ul>
             </div>
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-lightbulb"></i>
-                    <h4 data-i18n="did-you-know-h4">Did You Know?</h4>
-                </div>
-                <p data-i18n="did-you-know-p">You can use the White Board feature to collaborate on complex problems in real-time with your peers!</p>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <i class="fas fa-trending-up"></i>
+              <h4>Learning Progress</h4>
             </div>
+            <p>Track your course completion</p>
+            <div class="progress-bar-container">
+              <div class="progress-bar" id="progress-bar" style="width: 0%;"></div>
+            </div>
+            <div class="progress-text" id="progress-text">0% Complete</div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <i class="fas fa-lightbulb"></i>
+              <h4>Pro Tip</h4>
+            </div>
+            <p>Collaborate with peers using the Whiteboard feature to solve complex problems together in real-time!</p>
+          </div>
         </div>
       </main>
     </div>
@@ -970,75 +938,125 @@
   </div>
 
   <div id="chatbot-popup">
-    <h5 id="chatbot-welcome-message" data-i18n="chatbot-welcome">Hello, User! Welcome to the wonderful journey with RiSync.</h5>
-    <p data-i18n="chatbot-assistance">Do you want me to assist you to find what you are looking for?</p>
+    <h5>Hello! 👋</h5>
+    <p>Would you like some guidance to get started?</p>
     <div class="chatbot-buttons">
-      <button id="startAssistanceBtn" data-i18n="yes-please">Yes, please</button>
-      <button id="hideChatbotBtn" data-i18n="no-thanks">No, thanks</button>
+      <button id="startAssistanceBtn">Yes, help me</button>
+      <button id="hideChatbotBtn">Not now</button>
     </div>
   </div>
   
   <div id="ribot-settings-popup">
-      <div class="popup-header">
-        <h4 data-i18n="ribot-title">RiBot Settings</h4>
-        <button class="close-btn" id="closeRibotSettingsBtn">&times;</button>
+    <div class="popup-header">
+      <h4>Help & Support</h4>
+      <button class="close-btn" id="closeRibotSettingsBtn">&times;</button>
+    </div>
+    <div class="ribot-intro">
+      <p>Choose a topic to learn more:</p>
+      <div class="ribot-options">
+        <button class="ribot-option-btn" data-option="help">What is RiSync?</button>
+        <button class="ribot-option-btn" data-option="features">Key Features</button>
+        <button class="ribot-option-btn" data-option="contact">Contact Support</button>
+        <button class="ribot-option-btn" data-option="voice">Voice Commands</button>
       </div>
-      <div class="ribot-intro">
-        <p data-i18n="ribot-intro-text">Hi, I am RiBot. How can I help you today? Please select an option below.</p>
-        <div class="ribot-options">
-          <button class="ribot-option-btn" data-option="help" data-i18n="ribot-help">What is RiSync?</button>
-          <button class="ribot-option-btn" data-option="features" data-i18n="ribot-features">What are the main features?</button>
-          <button class="ribot-option-btn" data-option="contact" data-i18n="ribot-contact">How can I contact support?</button>
-          <button class="ribot-option-btn" data-option="voice" data-i18n="ribot-voice">What voice commands are available?</button>
-        </div>
-      </div>
-      <div id="ribot-response-area" class="ribot-response" style="display: none;">
-        <p id="ribot-response-text"></p>
-      </div>
+    </div>
+    <div id="ribot-response-area" class="ribot-response" style="display: none;">
+      <p id="ribot-response-text"></p>
+    </div>
   </div>
 
   <script type="module">
-    // --- FIREBASE IMPORTS ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+    import { getDatabase, ref, set, push, onDisconnect, serverTimestamp } 
+    from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
 
-    // --- FIREBASE CONFIGURATION ---
-const firebaseConfig = {
-    apiKey: "AIzaSyBWAwm_TDtD1qXDtjxJu0jrDP45c3p1Bxg",
-    authDomain: "risync-risync.firebaseapp.com",
-    // ADD THIS LINE BELOW (This is your database address)
-    databaseURL: "https://risync-risync-default-rtdb.firebaseio.com/", 
-    projectId: "risync-risync",
-    storageBucket: "risync-risync.firebasestorage.app",
-    messagingSenderId: "195106250121",
-    appId: "1:195106250121:web:57b23c5b94d5771995d558",
-    measurementId: "G-D5WSLQ706Z"
-};
+    const firebaseConfig = {
+        apiKey: "AIzaSyBWAwm_TDtD1qXDtjxJu0jrDP45c3p1Bxg",
+        authDomain: "risync-risync.firebaseapp.com",
+        databaseURL: "https://risync-risync-default-rtdb.firebaseio.com/", 
+        projectId: "risync-risync",
+        storageBucket: "risync-risync.firebasestorage.app",
+        messagingSenderId: "195106250121",
+        appId: "1:195106250121:web:57b23c5b94d5771995d558",
+        measurementId: "G-D5WSLQ706Z"
+    };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    const rtdb = getDatabase(app);
 
     let currentUser = null;
 
-    // --- AUTH & DATA LOADING ---
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         console.log("User Logged In:", user.email);
         currentUser = user;
 
-        // 1. Fetch user Profile from Firestore
+        const USER_ID = user.uid;
+        const statusRef = ref(rtdb, `monitoring/${USER_ID}/status`);
+        const logsRef = ref(rtdb, `monitoring/${USER_ID}/logs`);
+
+        set(statusRef, {
+            state: 'online',
+            current_page: 'content.html',
+            tab_visible: true,
+            last_seen: serverTimestamp()
+        });
+        onDisconnect(statusRef).update({ state: 'offline', last_seen: serverTimestamp() });
+
+        function log(action, details) {
+            push(logsRef, {
+                action: action,
+                details: details,
+                timestamp: serverTimestamp()
+            });
+            const lsData = JSON.parse(localStorage.getItem('risync_logs') || "[]");
+            lsData.push({ action, details, time: Date.now() });
+            localStorage.setItem('risync_logs', JSON.stringify(lsData.slice(-50)));
+        }
+
+        log("PAGE_VIEW", "Opened Content Page");
+
+        document.addEventListener("visibilitychange", () => {
+            const isVisible = !document.hidden;
+            statusRef.update({ tab_visible: isVisible });
+            if (document.hidden) {
+                log("TAB_HIDDEN", "User switched tabs");
+            } else {
+                log("TAB_FOCUS", "User returned to content");
+            }
+        });
+
+        let maxScroll = 0;
+        window.addEventListener("scroll", () => {
+            const scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
+            if (scrollPercent > maxScroll + 10) {
+                maxScroll = scrollPercent;
+                statusRef.update({ scroll_depth: maxScroll });
+                if(maxScroll % 25 === 0) {
+                   log("READING_PROGRESS", `Scrolled to ${maxScroll}%`);
+                }
+            }
+        });
+
+        document.addEventListener("click", (e) => {
+            const target = e.target.closest('button, a, video, input');
+            if (target) {
+                const id = target.id || target.className || target.innerText.substring(0, 20);
+                log("INTERACTION", `Clicked: ${id}`);
+            }
+        });
+
         const docRef = doc(db, "users", user.uid);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
           const userData = docSnap.data();
-          
-          // Update UI with real database data
           const welcomeMsg = document.getElementById('welcome-message');
           welcomeMsg.textContent = `Welcome to RiSync, ${userData.fullname || "User"}`;
           
@@ -1046,7 +1064,6 @@ const firebaseConfig = {
             document.getElementById('displayBranch').innerText = userData.branch;
           }
           
-          // Load specific user data (Todo's & Progress)
           if(userData.todos) {
              renderTodos(userData.todos);
           }
@@ -1055,19 +1072,13 @@ const firebaseConfig = {
           } else {
              updateProgressUI(0);
           }
-
-        } else {
-            console.log("No user profile found in DB, using default.");
-            document.getElementById('welcome-message').textContent = `Welcome to RiSync`;
         }
       } else {
-        // Redirect if not logged in
         console.log("No user logged in, redirecting...");
         window.location.href = "signin.html";
       }
     });
 
-    // --- LOGOUT LOGIC ---
     const logoutBtn = document.getElementById('logoutButton');
     if(logoutBtn) {
         logoutBtn.addEventListener('click', () => {
@@ -1079,14 +1090,12 @@ const firebaseConfig = {
         });
     }
 
-    // --- TO-DO LIST & PROGRESS LOGIC (FIRESTORE) ---
     const todoInput = document.getElementById('todo-input');
     const addTodoBtn = document.getElementById('add-todo-btn');
     const todoList = document.getElementById('todo-list');
     const progressBar = document.getElementById('progress-bar');
     const progressText = document.getElementById('progress-text');
 
-    // Helper: Get current todos from DOM to save them
     function getCurrentTodos() {
       const todos = [];
       todoList.querySelectorAll('li').forEach(li => {
@@ -1098,12 +1107,10 @@ const firebaseConfig = {
       return todos;
     }
 
-    // Helper: Save to Firestore
     async function saveTodosToFirestore() {
         if (!currentUser) return;
         const todos = getCurrentTodos();
         
-        // Calculate progress
         const totalTasks = todos.length;
         const completedTasks = todos.filter(t => t.completed).length;
         const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
@@ -1125,8 +1132,8 @@ const firebaseConfig = {
     }
 
     function renderTodos(todos) {
-        todoList.innerHTML = ''; // Clear current
-        todos.forEach(todo => addTodoToDOM(todo.text, todo.completed, false)); // false = don't save again while loading
+        todoList.innerHTML = '';
+        todos.forEach(todo => addTodoToDOM(todo.text, todo.completed, false));
     }
     
     function addTodoToDOM(task, isCompleted = false, shouldSave = true) {
@@ -1156,13 +1163,11 @@ const firebaseConfig = {
       });
 
       todoList.appendChild(li);
-      
       if(shouldSave) {
           saveTodosToFirestore();
       }
     }
 
-    // Event Listeners for To-Do
     addTodoBtn.addEventListener('click', () => {
         const task = todoInput.value.trim();
         if (task) {
@@ -1177,13 +1182,11 @@ const firebaseConfig = {
         }
     });
 
-    // --- MODULE EXPORTS (for debugging) ---
     window.risyncAuth = auth;
     window.risyncDb = db;
   </script>
 
   <script>
-    // --- SIDEBAR MENU LOGIC ---
     const menuToggle = document.querySelector('.menu-toggle');
     const sidebar = document.getElementById('sidebar');
     const mainWrapper = document.querySelector('.main-wrapper');
@@ -1197,8 +1200,7 @@ const firebaseConfig = {
     menuToggle.addEventListener('click', toggleMenu);
     if(overlay) overlay.addEventListener('click', toggleMenu);
 
-    // --- SETTINGS MENU LOGIC ---
-    const settingsIcon = document.querySelector('.settings-icon');
+    const settingsIcon = document.getElementById('settingsIcon');
     const settingsMenu = document.getElementById('settingsMenu');
 
     settingsIcon.addEventListener('click', (e) => {
@@ -1212,11 +1214,9 @@ const firebaseConfig = {
       }
     });
 
-    // --- PROFILE IMAGE LOGIC ---
     const profileIcon = document.getElementById('profileIcon');
     const profileUpload = document.getElementById('profileUpload');
 
-    // Basic LocalStorage for Image (keeping for performance/simplicity as prompt didn't ask for Storage)
     function loadProfileImage() {
       const storedImage = localStorage.getItem('profileImage');
       if (storedImage) {
@@ -1240,7 +1240,6 @@ const firebaseConfig = {
       }
     });
 
-    // --- SEARCH LOGIC ---
     const searchInput = document.getElementById('searchInput');
     const navButtons = document.querySelectorAll('.nav-menu .nav-button');
 
@@ -1258,7 +1257,6 @@ const firebaseConfig = {
         });
     }
 
-    // --- AUDIO LOGIC ---
     const musicBtn = document.getElementById('music-btn');
     const musicIcon = document.getElementById('music-icon');
     const bgMusic = document.getElementById('bg-music');
@@ -1269,24 +1267,261 @@ const firebaseConfig = {
         bgMusic.pause();
         musicIcon.classList.remove('fa-volume-mute');
         musicIcon.classList.add('fa-volume-up');
-        musicIcon.classList.remove('icon-pulse');
       } else {
         bgMusic.play().catch(error => {
           console.log("Autoplay prevented.");
         });
         musicIcon.classList.remove('fa-volume-up');
         musicIcon.classList.add('fa-volume-mute');
-        musicIcon.classList.add('icon-pulse');
       }
       isPlaying = !isPlaying;
     });
 
-    // --- CHATBOT & RIBOT POPUPS ---
+    // ===== VOICE COMMAND HANDLER =====
+    let isListening = false;
     const micBtn = document.getElementById('mic-btn');
+
+    micBtn.addEventListener('click', () => {
+      if (!isListening) {
+        startVoiceRecognition();
+      } else {
+        stopVoiceRecognition();
+      }
+    });
+
+    function startVoiceRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      
+      if (!SpeechRecognition) {
+        alert('❌ Speech Recognition not supported in your browser.\n\nTry Chrome, Firefox, or Edge.');
+        return;
+      }
+
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      micBtn.classList.add('active');
+      isListening = true;
+      micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+
+      recognition.onstart = () => {
+        console.log('🎤 Listening...');
+        micBtn.style.boxShadow = 'var(--box-shadow-medium), var(--box-glow-orange)';
+      };
+
+      recognition.onresult = (event) => {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        
+        if (event.isFinal) {
+          console.log('📝 You said:', transcript);
+          processVoiceCommand(transcript.toLowerCase());
+        }
+      };
+
+      recognition.onerror = (event) => {
+        console.error('🔴 Voice error:', event.error);
+        if (event.error === 'network') {
+          showVoiceAlert('❌ Network Error', 'Please check your internet connection');
+        } else if (event.error === 'no-speech') {
+          showVoiceAlert('🔇 No Speech Detected', 'Please speak again');
+        } else {
+          showVoiceAlert('❌ Error', event.error);
+        }
+      };
+
+      recognition.onend = () => {
+        micBtn.classList.remove('active');
+        isListening = false;
+        micBtn.style.boxShadow = '';
+      };
+
+      try {
+        recognition.start();
+      } catch (e) {
+        console.log('Recognition already started');
+      }
+    }
+
+    function stopVoiceRecognition() {
+      isListening = false;
+      micBtn.classList.remove('active');
+    }
+
+    function showVoiceAlert(title, message) {
+      const popup = document.createElement('div');
+      popup.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        z-index: 10000;
+        max-width: 300px;
+      `;
+      popup.innerHTML = `<strong>${title}</strong><br>${message}`;
+      document.body.appendChild(popup);
+      setTimeout(() => popup.remove(), 3000);
+    }
+
+    function processVoiceCommand(command) {
+      console.log('🎙️ Processing command:', command);
+
+      // Navigation commands
+      const navCommands = {
+        'chat': 'RiSync-CHAT.html',
+        'peer chat': 'RiSync-CHAT.html',
+        'monitor': 'monitor.html',
+        'parent monitor': 'monitor.html',
+        'books': 'books.html',
+        'calendar': 'calendar.html',
+        'database': 'database.html',
+        'subjects': 'subjects.html',
+        'ncert': 'ncert.html',
+        'whiteboard': 'whiteboard.html',
+        'white board': 'whiteboard.html',
+        'calculator': 'calculator.html',
+        'bot': 'gpt.html',
+        'chat bot': 'gpt.html',
+        'leaderboard': 'leaderboard.html',
+        'ppt': 'ppt.html',
+        'design': 'design.html',
+        'website': 'design.html'
+      };
+
+      // Check for navigation commands
+      for (let [key, url] of Object.entries(navCommands)) {
+        if (command.includes(key)) {
+          console.log('🚀 Navigating to:', url);
+          showVoiceAlert('🎯 Navigating', `Opening ${key}...`);
+          window.location.href = url;
+          return;
+        }
+      }
+
+      // Action commands
+      if (command.includes('ribot') || command.includes('help')) {
+        showVoiceAlert('🤖 RiBot Settings', 'Opening RiBot assistance...');
+        document.getElementById('ribotSettingsBtn').click();
+        return;
+      }
+
+      if (command.includes('profile')) {
+        showVoiceAlert('👤 Profile', 'Opening profile settings...');
+        document.getElementById('profileBtn').click();
+        return;
+      }
+
+      if (command.includes('music') || command.includes('audio')) {
+        if (isPlaying) {
+          showVoiceAlert('🔇 Music Off', 'Turning off music...');
+          bgMusic.pause();
+          musicIcon.classList.remove('fa-volume-mute');
+          musicIcon.classList.add('fa-volume-up');
+          isPlaying = false;
+        } else {
+          showVoiceAlert('🎵 Music On', 'Playing music...');
+          bgMusic.play().catch(e => console.log('Play failed:', e));
+          musicIcon.classList.remove('fa-volume-up');
+          musicIcon.classList.add('fa-volume-mute');
+          isPlaying = true;
+        }
+        return;
+      }
+
+      if (command.includes('logout') || command.includes('sign out')) {
+        if (confirm('🚪 Are you sure you want to logout?')) {
+          document.getElementById('logoutButton').click();
+        }
+        return;
+      }
+
+      if (command.includes('progress') || command.includes('how') || command.includes('complete')) {
+        const progressText = document.getElementById('progress-text').textContent;
+        showVoiceAlert('📊 Your Progress', progressText);
+        const synth = window.speechSynthesis;
+        const utterance = new SpeechSynthesisUtterance(`Your current ${progressText}`);
+        synth.speak(utterance);
+        return;
+      }
+
+      if (command.includes('add task') || command.includes('new task')) {
+        showVoiceAlert('✏️ Add Task', 'Please type your task in the input box');
+        document.getElementById('todo-input').focus();
+        return;
+      }
+
+      if (command.includes('language') || command.includes('english') || command.includes('hindi')) {
+        if (command.includes('hindi')) {
+          document.getElementById('selected-language').click();
+          setTimeout(() => {
+            const hiBtn = Array.from(document.querySelectorAll('.language-dropdown-list li')).find(li => li.textContent.includes('हिन्दी'));
+            if (hiBtn) hiBtn.click();
+          }, 200);
+          showVoiceAlert('🌐 Language', 'Changed to हिन्दी');
+        } else {
+          document.getElementById('selected-language').click();
+          setTimeout(() => {
+            const enBtn = Array.from(document.querySelectorAll('.language-dropdown-list li')).find(li => li.textContent.includes('English'));
+            if (enBtn) enBtn.click();
+          }, 200);
+          showVoiceAlert('🌐 Language', 'Changed to English');
+        }
+        return;
+      }
+
+      // Help command
+      if (command.includes('what') || command.includes('commands') || command.includes('help')) {
+        const helpText = `
+        🎙️ Available Voice Commands:
+
+        Navigation:
+        • "Go to Chat" / "Chat"
+        • "Open Calendar" / "Calendar"
+        • "Database" / "Subjects"
+        • "NCERT" / "Whiteboard"
+        • "Calculator" / "Chat Bot"
+        • "Leaderboard" / "PPT"
+        • "Design" / "Monitor"
+
+        Actions:
+        • "RiBot Help" / "Help"
+        • "Profile" / "Edit Profile"
+        • "Music On/Off"
+        • "Progress" / "How am I doing"
+        • "Add Task"
+        • "Language Hindi/English"
+        • "Logout" / "Sign out"
+        `;
+        
+        showVoiceAlert('🎤 Voice Commands Help', 'See console for full list');
+        console.log(helpText);
+        
+        const synth = window.speechSynthesis;
+        const utterance = new SpeechSynthesisUtterance("Available commands: Navigate to Chat, Calendar, Database, Subjects, NCERT, Whiteboard, Calculator, Chat Bot, Leaderboard, PPT or Design. You can also ask for help, open RiBot, check your progress, toggle music, change language, or logout.");
+        synth.speak(utterance);
+        return;
+      }
+
+      // No command matched
+      showVoiceAlert('❓ Command Not Recognized', `"${command}"\n\nSay "help" for available commands`);
+      const synth = window.speechSynthesis;
+      const utterance = new SpeechSynthesisUtterance("Command not recognized. Say help for available commands.");
+      synth.speak(utterance);
+    }
+
+    // ===== CHATBOT & RIBOT POPUPS =====
     const chatbotPopup = document.getElementById('chatbot-popup');
     const startAssistanceBtn = document.getElementById('startAssistanceBtn');
     const hideChatbotBtn = document.getElementById('hideChatbotBtn');
     
+    const profileBtn = document.getElementById('profileBtn');
     const ribotSettingsBtn = document.getElementById('ribotSettingsBtn');
     const ribotSettingsPopup = document.getElementById('ribot-settings-popup');
     const closeRibotSettingsBtn = document.getElementById('closeRibotSettingsBtn');
@@ -1298,7 +1533,6 @@ const firebaseConfig = {
     function showRibotSettings() { ribotSettingsPopup.classList.add('active'); }
     function hideRibotSettings() { ribotSettingsPopup.classList.remove('active'); }
 
-    micBtn.addEventListener('click', showChatbotPopup);
     hideChatbotBtn.addEventListener('click', hideChatbotPopup);
     closeRibotSettingsBtn.addEventListener('click', hideRibotSettings);
     
@@ -1307,12 +1541,20 @@ const firebaseConfig = {
         showRibotSettings();
     });
 
-    // Simple translations for Ribot responses (kept short for brevity)
+    profileBtn.addEventListener('click', () => {
+        settingsMenu.classList.remove('active');
+        const username = prompt('Enter your username:');
+        if (username && window.risyncAuth && window.risyncAuth.currentUser) {
+            const userRef = doc(window.risyncDb, "users", window.risyncAuth.currentUser.uid);
+            updateDoc(userRef, { fullname: username });
+        }
+    });
+
     const ribotAnswers = {
-        "help": "RiSync is an all-in-one educational platform designed to help you organize your studies.",
-        "features": "Key features include Chat, Calendar, Whiteboard, and Search Engine.",
-        "contact": "Contact us at support@risync.com.",
-        "voice": "Say 'Go to NCERT' or 'Open Search Engine'."
+        "help": "RiSync is an all-in-one educational platform designed to help you organize your studies, collaborate with peers, and access learning resources all in one place.",
+        "features": "Key features include Peer Chat for collaboration, Calendar for scheduling, Whiteboard for real-time problem solving, Database for resources, NCERT textbooks, Calculator, Chat Bot AI assistant, and more!",
+        "contact": "Contact support at support@risync.com or visit the help section. You can also use the Chat feature to reach out to other students and mentors.",
+        "voice": "Say 'Go to Chat', 'Open Calendar', 'Show Progress', 'RiBot Help', 'Toggle Music', 'Change Language', or any feature name to navigate instantly!"
     };
 
     document.querySelectorAll('.ribot-option-btn').forEach(btn => {
@@ -1327,104 +1569,117 @@ const firebaseConfig = {
         showRibotSettings();
         hideChatbotPopup();
         const synth = window.speechSynthesis;
-        const utterance = new SpeechSynthesisUtterance("Welcome, I am RiBot, I am happy to assist you.");
+        const utterance = new SpeechSynthesisUtterance("Welcome! I am RiBot. I am happy to assist you. Please choose an option from the menu, or say help for voice commands.");
         synth.speak(utterance);
     });
 
-    // Initialize on Load
     document.addEventListener('DOMContentLoaded', () => {
       loadProfileImage();
+      // Show chatbot after 3 seconds
+      setTimeout(() => {
+        showChatbotPopup();
+      }, 3000);
     });
+
+    const translations = {
+        en: {
+            "welcome": "Welcome to RiSync",
+            "quick-actions-h4": "Quick Actions",
+            "quick-actions-p": "Jump right back into your learning journey.",
+            "todo-h4": "Your To-Do List",
+            "add-task-placeholder": "Add a new task...",
+            "progress-h4": "My Progress",
+            "progress-p": "Overall Course Completion",
+            "did-you-know-h4": "Did You Know?",
+            "did-you-know-p": "You can use the White Board feature to collaborate!",
+            "chatbot-welcome": "Hello, User! Welcome to RiSync.",
+            "chatbot-assistance": "Do you want me to assist you?",
+            "yes-please": "Yes, please",
+            "no-thanks": "No, thanks",
+            "ribot-title": "RiBot Settings",
+            "ribot-intro-text": "Hi, I am RiBot. How can I help you today?",
+            "ribot-help": "What is RiSync?",
+            "ribot-features": "What are the main features?",
+            "ribot-contact": "How can I contact support?",
+            "ribot-voice": "What voice commands are available?"
+        },
+        hi: {
+            "welcome": "RiSync में आपका स्वागत है",
+            "quick-actions-h4": "त्वरित कार्य",
+            "quick-actions-p": "अपनी सीखने की यात्रा में तुरंत वापस जाएं।",
+            "todo-h4": "आपकी करने की सूची",
+            "add-task-placeholder": "एक नया कार्य जोड़ें...",
+            "progress-h4": "मेरी प्रगति",
+            "progress-p": "कुल कोर्स पूरा होना",
+            "did-you-know-h4": "क्या आप जानते हैं?",
+            "did-you-know-p": "आप सहयोग के लिए व्हाइटबोर्ड का उपयोग कर सकते हैं!",
+            "chatbot-welcome": "नमस्ते! RiSync में आपका स्वागत है।",
+            "chatbot-assistance": "क्या आप मेरी सहायता चाहते हैं?",
+            "yes-please": "हाँ, कृपया",
+            "no-thanks": "नहीं, धन्यवाद",
+            "ribot-title": "RiBot सेटिंग्स",
+            "ribot-intro-text": "नमस्ते, मैं RiBot हूँ। मैं आपकी क्या सहायता कर सकता हूँ?",
+            "ribot-help": "RiSync क्या है?",
+            "ribot-features": "मुख्य विशेषताएं क्या हैं?",
+            "ribot-contact": "मैं सहायता से कैसे संपर्क कर सकता हूँ?",
+            "ribot-voice": "कौन से वॉयस कमांड उपलब्ध हैं?"
+        }
+    };
+
+    const langKeys = Object.keys(translations);
+    const languageListEl = document.getElementById('language-dropdown-list');
+    const selectedLangEl = document.getElementById('selected-language');
+    const languageContainer = document.getElementById('language-dropdown-container');
+
+    function populateLanguages() {
+        languageListEl.innerHTML = '';
+        langKeys.forEach(code => {
+            const li = document.createElement('li');
+            const mapping = {en: 'English', hi: 'हिन्दी'};
+            li.textContent = mapping[code] || code;
+            li.dataset.lang = code;
+            li.addEventListener('click', () => {
+                setLanguage(code);
+                languageContainer.classList.remove('active');
+            });
+            languageListEl.appendChild(li);
+        });
+    }
+
+    function setLanguage(code) {
+        const mapping = {en: 'English', hi: 'हिन्दी'};
+        const span = selectedLangEl.querySelector('span');
+        if (span) span.textContent = mapping[code] || code;
+
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (translations[code] && translations[code][key]) {
+                el.textContent = translations[code][key];
+            }
+        });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            const key = el.getAttribute('data-i18n-placeholder');
+            if (translations[code] && translations[code][key]) {
+                el.placeholder = translations[code][key];
+            }
+        });
+
+        localStorage.setItem('risync_lang', code);
+    }
+
+    selectedLangEl.addEventListener('click', () => {
+        languageContainer.classList.toggle('active');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!languageContainer.contains(e.target)) {
+            languageContainer.classList.remove('active');
+        }
+    });
+
+    populateLanguages();
+    const saved = localStorage.getItem('risync_lang') || 'en';
+    setLanguage(saved);
   </script>
-	<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getDatabase, ref, set, push, onDisconnect, serverTimestamp } 
-  from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyBWAwm_TDtD1qXDtjxJu0jrDP45c3p1Bxg",
-    authDomain: "risync-risync.firebaseapp.com",
-    projectId: "risync-risync",
-    storageBucket: "risync-risync.firebasestorage.app",
-    messagingSenderId: "195106250121",
-    appId: "1:195106250121:web:57b23c5b94d5771995d558",
-    measurementId: "G-D5WSLQ706Z"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-  const USER_ID = "child_001"; // Hardcoded ID for demo
-
-  // Refs
-  const statusRef = ref(db, `monitoring/${USER_ID}/status`);
-  const logsRef = ref(db, `monitoring/${USER_ID}/logs`);
-
-  // --- 1. SESSION INITIALIZATION ---
-  // Set user as online immediately
-  set(statusRef, {
-      state: 'online',
-      current_page: 'content.html',
-      tab_visible: true,
-      last_seen: serverTimestamp()
-  });
-  // If user closes tab, mark offline automatically
-  onDisconnect(statusRef).update({ state: 'offline', last_seen: serverTimestamp() });
-
-  // --- 2. LOGGING FUNCTION ---
-  function log(action, details) {
-      // Save to Firebase
-      push(logsRef, {
-          action: action,
-          details: details,
-          timestamp: serverTimestamp()
-      });
-      
-      // Save to LocalStorage (Backup)
-      const lsData = JSON.parse(localStorage.getItem('risync_logs') || "[]");
-      lsData.push({ action, details, time: Date.now() });
-      localStorage.setItem('risync_logs', JSON.stringify(lsData.slice(-50)));
-  }
-
-  // --- 3. TRACKING EVENTS ---
-
-  // A. Page Load
-  log("PAGE_VIEW", "Opened Content Page");
-
-  // B. Tab Switching (Cheating Monitor)
-  document.addEventListener("visibilitychange", () => {
-      const isVisible = !document.hidden;
-      // Update status instantly
-      statusRef.update({ tab_visible: isVisible });
-      
-      if (document.hidden) {
-          log("TAB_HIDDEN", "User switched tabs or minimized browser");
-      } else {
-          log("TAB_FOCUS", "User returned to content page");
-      }
-  });
-
-  // C. Scroll Depth (Reading Monitor)
-  let maxScroll = 0;
-  window.addEventListener("scroll", () => {
-      const scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
-      if (scrollPercent > maxScroll + 10) { // Only log every 10% increase
-          maxScroll = scrollPercent;
-          statusRef.update({ scroll_depth: maxScroll }); // Live update
-          if(maxScroll % 25 === 0) { // Log history at 25, 50, 75, 100%
-             log("READING_PROGRESS", `Scrolled to ${maxScroll}%`);
-          }
-      }
-  });
-
-  // D. Generic Interaction (Clicks)
-  document.addEventListener("click", (e) => {
-      // Try to identify what was clicked (ID, Class, or Text)
-      const target = e.target.closest('button, a, video, input');
-      if (target) {
-          const id = target.id || target.className || target.innerText.substring(0, 20);
-          log("INTERACTION", `Clicked on: ${id}`);
-      }
-  });
-</script>
 </body>
 </html>
