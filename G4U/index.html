@@ -11013,393 +11013,545 @@ html.dark .qty-btn {
 }
 </style>
 
-<!-- Admin Panel Button -->
-<button id="adminPanelBtn" onclick="openAdminPanel()" title="Admin Panel">
+<!-- ADMIN PANEL BUTTON -->
+<button id="adminToggleBtn" onclick="toggleAdminPanel()" style="
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FF3C78, #FF7EAC);
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 24px;
+  box-shadow: 0 8px 24px rgba(255, 60, 120, 0.4);
+  z-index: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+" title="Admin Panel">
   <i class="fas fa-cog"></i>
 </button>
 
-<!-- Admin Modal -->
-<div id="adminModal">
-  <div class="admin-modal-content">
-    <span class="admin-modal-close" onclick="closeAdminPanel()">×</span>
-    <div class="admin-modal-header"><i class="fas fa-crown"></i> Admin Panel</div>
+<!-- ADMIN MODAL OVERLAY -->
+<div id="adminOverlay" onclick="toggleAdminPanel()" style="
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(3px);
+  z-index: 498;
+"></div>
 
-    <!-- Admin Tabs -->
-    <div class="admin-tabs">
-      <button class="admin-tab-btn active" onclick="switchAdminTab('products')">
-        <i class="fas fa-box"></i> Add Product
-      </button>
-      <button class="admin-tab-btn" onclick="switchAdminTab('deals')">
-        <i class="fas fa-tag"></i> Add Deal
-      </button>
-      <button class="admin-tab-btn" onclick="switchAdminTab('customers')">
-        <i class="fas fa-users"></i> Customers
-      </button>
-    </div>
+<!-- ADMIN MODAL -->
+<div id="adminModal" style="
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(135deg, rgba(30, 15, 40, 0.98) 0%, rgba(20, 10, 30, 0.98) 100%);
+  border: 2px solid rgba(255, 60, 120, 0.3);
+  border-radius: 20px;
+  width: 90%;
+  max-width: 750px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 40px;
+  z-index: 9999;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: slideInUp 0.4s ease;
+">
+  <button onclick="toggleAdminPanel()" style="
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 32px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  " onmouseover="this.style.color='#FF3C78'" onmouseout="this.style.color='rgba(255, 255, 255, 0.6)'">×</button>
 
-    <!-- Tab: Add Product -->
-    <div class="admin-tab-content active" id="adminTab-products">
-      <form id="productForm" onsubmit="handleProductSubmit(event)">
-        <div class="admin-form-row">
-          <div class="admin-form-group">
-            <label>Product Name</label>
-            <input type="text" id="productName" placeholder="e.g., Lavender Scented Candle" required>
-          </div>
-          <div class="admin-form-group">
-            <label>Price (₹)</label>
-            <input type="number" id="productPrice" placeholder="e.g., 499" step="0.01" required>
-          </div>
-        </div>
+  <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 30px; color: #FF3C78;">
+    <i class="fas fa-crown"></i> Admin Panel
+  </h2>
 
-        <div class="admin-form-group">
-          <label>Description</label>
-          <textarea id="productDesc" placeholder="Describe your product..." required></textarea>
-        </div>
+  <!-- TABS -->
+  <div style="display: flex; gap: 15px; margin-bottom: 30px; border-bottom: 2px solid rgba(255, 60, 120, 0.1); flex-wrap: wrap;">
+    <button onclick="switchAdminTab('product')" id="tab-product-btn" style="
+      padding: 12px 24px;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid #FF3C78;
+      color: #FF3C78;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      font-family: Poppins, sans-serif;
+    ">📦 Add Product</button>
+    
+    <button onclick="switchAdminTab('deal')" id="tab-deal-btn" style="
+      padding: 12px 24px;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      font-family: Poppins, sans-serif;
+    ">⚡ Add Deal</button>
 
-        <div class="admin-form-row">
-          <div class="admin-form-group">
-            <label>Category</label>
-            <select id="productCategory" required>
-              <option value="">Select Category</option>
-              <option value="Candles">Candles</option>
-              <option value="Beauty">Beauty Products</option>
-              <option value="Clothing">Clothing</option>
-              <option value="Accessories">Accessories</option>
-            </select>
-          </div>
-          <div class="admin-form-group">
-            <label>Stock Quantity</label>
-            <input type="number" id="productStock" placeholder="e.g., 50" min="1" required>
-          </div>
-        </div>
-
-        <div class="admin-email-preview" id="productEmailPreview">
-          <strong>📧 Email Preview:</strong><br><br>
-          Subject: 🎉 New Product Launched!<br><br>
-          Dear Valued Customer,<br>
-          We're thrilled to announce a brand new product has just launched!<br><br>
-          <strong>Product:</strong> [Will be filled]<br>
-          <strong>Price:</strong> ₹[Will be filled]<br>
-          <strong>Category:</strong> [Will be filled]
-        </div>
-
-        <div class="admin-btn-group">
-          <button type="submit" class="admin-btn admin-btn-primary">
-            <i class="fas fa-paper-plane"></i> Launch & Notify All Customers
-          </button>
-          <button type="reset" class="admin-btn admin-btn-secondary">
-            <i class="fas fa-redo"></i> Clear
-          </button>
-        </div>
-      </form>
-    </div>
-
-    <!-- Tab: Add Deal -->
-    <div class="admin-tab-content" id="adminTab-deals">
-      <form id="dealForm" onsubmit="handleDealSubmit(event)">
-        <div class="admin-form-row">
-          <div class="admin-form-group">
-            <label>Deal Title</label>
-            <input type="text" id="dealTitle" placeholder="e.g., Summer Mega Sale" required>
-          </div>
-          <div class="admin-form-group">
-            <label>Discount (%)</label>
-            <input type="number" id="dealDiscount" placeholder="e.g., 30" min="1" max="99" required>
-          </div>
-        </div>
-
-        <div class="admin-form-group">
-          <label>Deal Description</label>
-          <textarea id="dealDesc" placeholder="Describe the deal and eligible products..." required></textarea>
-        </div>
-
-        <div class="admin-form-row">
-          <div class="admin-form-group">
-            <label>Valid From</label>
-            <input type="date" id="dealFrom" required>
-          </div>
-          <div class="admin-form-group">
-            <label>Valid Until</label>
-            <input type="date" id="dealUntil" required>
-          </div>
-        </div>
-
-        <div class="admin-email-preview" id="dealEmailPreview">
-          <strong>📧 Email Preview:</strong><br><br>
-          Subject: ⚡ Limited Time Deal: [Discount]% OFF!<br><br>
-          Dear Valued Customer,<br>
-          Exciting news! We're running a special deal just for you!<br><br>
-          <strong>Deal:</strong> [Will be filled]<br>
-          <strong>Discount:</strong> [Will be filled]% OFF<br>
-          <strong>Valid:</strong> [Dates will be filled]
-        </div>
-
-        <div class="admin-btn-group">
-          <button type="submit" class="admin-btn admin-btn-primary">
-            <i class="fas fa-paper-plane"></i> Announce & Notify Customers
-          </button>
-          <button type="reset" class="admin-btn admin-btn-secondary">
-            <i class="fas fa-redo"></i> Clear
-          </button>
-        </div>
-      </form>
-    </div>
-
-    <!-- Tab: Customers -->
-    <div class="admin-tab-content" id="adminTab-customers">
-      <div style="margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid rgba(255, 60, 120, 0.1);">
-        <h3 style="color: #FF3C78; font-weight: 700; margin-bottom: 12px; font-size: 16px;">Add Customer Email</h3>
-        <form id="customerForm" onsubmit="handleAddCustomer(event)" style="display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: flex-end;">
-          <input type="email" id="customerEmail" placeholder="customer@example.com" required>
-          <button type="submit" class="admin-btn admin-btn-primary" style="flex: 0 0 auto; padding: 12px 20px;">
-            <i class="fas fa-plus"></i> Add
-          </button>
-        </form>
-      </div>
-
-      <h3 style="color: #FF3C78; font-weight: 700; margin-bottom: 16px; font-size: 16px;">Customer List</h3>
-      <div id="customersList" style="display: grid; grid-template-columns: 1fr; gap: 12px; max-height: 300px; overflow-y: auto;">
-        <p style="color: rgba(255, 255, 255, 0.6);">Loading customers...</p>
-      </div>
-    </div>
+    <button onclick="switchAdminTab('customers')" id="tab-customers-btn" style="
+      padding: 12px 24px;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      font-family: Poppins, sans-serif;
+    ">👥 Customers</button>
   </div>
+
+  <!-- TAB: ADD PRODUCT -->
+  <div id="tab-product-content" style="display: block;">
+    <form action="https://formsubmit.co/your-email@example.com" method="POST" onsubmit="submitProductEmail(event)" style="display: grid; gap: 20px;">
+      <input type="hidden" name="_captcha" value="false">
+      <input type="hidden" name="_subject" id="productEmailSubject">
+      <input type="hidden" name="message_type" value="product">
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: 600; color: rgba(255, 255, 255, 0.7); margin-bottom: 8px; text-transform: uppercase;">Product Name</label>
+          <input type="text" id="productName" name="product_name" placeholder="e.g., Rose Scented Candle" style="
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(255, 60, 120, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-family: Poppins, sans-serif;
+          " required>
+        </div>
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: 600; color: rgba(255, 255, 255, 0.7); margin-bottom: 8px; text-transform: uppercase;">Price (₹)</label>
+          <input type="number" id="productPrice" name="price" placeholder="499" step="0.01" style="
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(255, 60, 120, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-family: Poppins, sans-serif;
+          " required>
+        </div>
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 12px; font-weight: 600; color: rgba(255, 255, 255, 0.7); margin-bottom: 8px; text-transform: uppercase;">Description</label>
+        <textarea id="productDesc" name="description" placeholder="Describe your product..." style="
+          width: 100%;
+          padding: 12px 15px;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1.5px solid rgba(255, 60, 120, 0.2);
+          border-radius: 8px;
+          color: white;
+          font-family: Poppins, sans-serif;
+          min-height: 80px;
+          resize: none;
+        " required></textarea>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: 600; color: rgba(255, 255, 255, 0.7); margin-bottom: 8px; text-transform: uppercase;">Category</label>
+          <select id="productCategory" name="category" style="
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(255, 60, 120, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-family: Poppins, sans-serif;
+          " required>
+            <option value="">Select Category</option>
+            <option value="Candles">Candles</option>
+            <option value="Beauty">Beauty</option>
+            <option value="Clothing">Clothing</option>
+            <option value="Accessories">Accessories</option>
+          </select>
+        </div>
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: 600; color: rgba(255, 255, 255, 0.7); margin-bottom: 8px; text-transform: uppercase;">Stock</label>
+          <input type="number" id="productStock" name="stock" placeholder="50" min="1" style="
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(255, 60, 120, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-family: Poppins, sans-serif;
+          " required>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr auto; gap: 12px;">
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: 600; color: rgba(255, 255, 255, 0.7); margin-bottom: 8px; text-transform: uppercase;">Customers Emails (comma separated)</label>
+          <input type="text" id="productEmails" name="customer_emails" placeholder="john@example.com, priya@example.com" style="
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(255, 60, 120, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-family: Poppins, sans-serif;
+          ">
+        </div>
+      </div>
+
+      <button type="submit" style="
+        padding: 14px 28px;
+        background: linear-gradient(135deg, #FF3C78, #FF7EAC);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+      ">🚀 Launch & Send Emails</button>
+    </form>
+  </div>
+
+  <!-- TAB: ADD DEAL -->
+  <div id="tab-deal-content" style="display: none;">
+    <form action="https://formsubmit.co/your-email@example.com" method="POST" onsubmit="submitDealEmail(event)" style="display: grid; gap: 20px;">
+      <input type="hidden" name="_captcha" value="false">
+      <input type="hidden" name="_subject" id="dealEmailSubject">
+      <input type="hidden" name="message_type" value="deal">
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: 600; color: rgba(255, 255, 255, 0.7); margin-bottom: 8px; text-transform: uppercase;">Deal Title</label>
+          <input type="text" id="dealTitle" name="deal_title" placeholder="e.g., Summer Sale" style="
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(255, 60, 120, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-family: Poppins, sans-serif;
+          " required>
+        </div>
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: 600; color: rgba(255, 255, 255, 0.7); margin-bottom: 8px; text-transform: uppercase;">Discount (%)</label>
+          <input type="number" id="dealDiscount" name="discount" placeholder="30" min="1" max="99" style="
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(255, 60, 120, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-family: Poppins, sans-serif;
+          " required>
+        </div>
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 12px; font-weight: 600; color: rgba(255, 255, 255, 0.7); margin-bottom: 8px; text-transform: uppercase;">Description</label>
+        <textarea id="dealDesc" name="deal_description" placeholder="Describe your deal..." style="
+          width: 100%;
+          padding: 12px 15px;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1.5px solid rgba(255, 60, 120, 0.2);
+          border-radius: 8px;
+          color: white;
+          font-family: Poppins, sans-serif;
+          min-height: 80px;
+          resize: none;
+        " required></textarea>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: 600; color: rgba(255, 255, 255, 0.7); margin-bottom: 8px; text-transform: uppercase;">Valid From</label>
+          <input type="date" id="dealFrom" name="valid_from" style="
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(255, 60, 120, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-family: Poppins, sans-serif;
+          " required>
+        </div>
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: 600; color: rgba(255, 255, 255, 0.7); margin-bottom: 8px; text-transform: uppercase;">Valid Until</label>
+          <input type="date" id="dealUntil" name="valid_until" style="
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(255, 60, 120, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-family: Poppins, sans-serif;
+          " required>
+        </div>
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 12px; font-weight: 600; color: rgba(255, 255, 255, 0.7); margin-bottom: 8px; text-transform: uppercase;">Customers Emails (comma separated)</label>
+        <input type="text" id="dealEmails" name="customer_emails" placeholder="john@example.com, priya@example.com" style="
+          width: 100%;
+          padding: 12px 15px;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1.5px solid rgba(255, 60, 120, 0.2);
+          border-radius: 8px;
+          color: white;
+          font-family: Poppins, sans-serif;
+        ">
+      </div>
+
+      <button type="submit" style="
+        padding: 14px 28px;
+        background: linear-gradient(135deg, #FF3C78, #FF7EAC);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+      ">⚡ Announce Deal & Send Emails</button>
+    </form>
+  </div>
+
+  <!-- TAB: CUSTOMERS -->
+  <div id="tab-customers-content" style="display: none;">
+    <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid rgba(255, 60, 120, 0.1);">
+      <h3 style="color: #FF3C78; margin-bottom: 12px; font-weight: 700;">Add Customer Email</h3>
+      <form onsubmit="addCustomer(event)" style="display: grid; grid-template-columns: 1fr auto; gap: 10px;">
+        <input type="email" id="newCustomerEmail" placeholder="customer@example.com" style="
+          padding: 12px 15px;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1.5px solid rgba(255, 60, 120, 0.2);
+          border-radius: 8px;
+          color: white;
+          font-family: Poppins, sans-serif;
+        " required>
+        <button type="submit" style="
+          padding: 12px 20px;
+          background: linear-gradient(135deg, #FF3C78, #FF7EAC);
+          color: white;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 13px;
+        ">+ Add</button>
+      </form>
+    </div>
+
+    <h3 style="color: #FF3C78; margin-bottom: 15px; font-weight: 700;">Subscribed Customers</h3>
+    <div id="customersList" style="display: grid; gap: 10px; max-height: 400px; overflow-y: auto;"></div>
+  </div>
+
 </div>
 
 <script>
-// ═════════════════════════════════════════════════════════
-// ADMIN PANEL — EMAIL NOTIFICATION SYSTEM
-// ═════════════════════════════════════════════════════════
-
-const adminData = {
-  products: JSON.parse(localStorage.getItem('pix_admin_products')) || [],
-  deals: JSON.parse(localStorage.getItem('pix_admin_deals')) || [],
-  customers: JSON.parse(localStorage.getItem('pix_admin_customers')) || [
+const adminCustomers = {
+  list: JSON.parse(localStorage.getItem('pix_customers_list')) || [
     'john.doe@example.com',
     'priya.singh@example.com',
     'amit.patel@example.com',
-    'sarah.khan@example.com',
-    'rahul.sharma@example.com'
+    'sarah.khan@example.com'
   ]
 };
 
-function saveAdminData() {
-  localStorage.setItem('pix_admin_products', JSON.stringify(adminData.products));
-  localStorage.setItem('pix_admin_deals', JSON.stringify(adminData.deals));
-  localStorage.setItem('pix_admin_customers', JSON.stringify(adminData.customers));
-}
-
-function openAdminPanel() {
-  document.getElementById('adminModal').classList.add('active');
-  renderCustomerList();
-}
-
-function closeAdminPanel() {
-  document.getElementById('adminModal').classList.remove('active');
-}
-
-function switchAdminTab(tabName) {
-  document.querySelectorAll('.admin-tab-content').forEach(tab => {
-    tab.classList.remove('active');
-  });
-  document.querySelectorAll('.admin-tab-btn').forEach(btn => {
-    btn.classList.remove('active');
-  });
+function toggleAdminPanel() {
+  const modal = document.getElementById('adminModal');
+  const overlay = document.getElementById('adminOverlay');
   
-  document.getElementById('adminTab-' + tabName).classList.add('active');
-  event.target.closest('.admin-tab-btn').classList.add('active');
+  if (modal.style.display === 'none') {
+    modal.style.display = 'block';
+    overlay.style.display = 'block';
+    renderCustomers();
+  } else {
+    modal.style.display = 'none';
+    overlay.style.display = 'none';
+  }
 }
 
-function showAdminNotification(message, type = 'success') {
-  const notification = document.createElement('div');
-  notification.className = `admin-notification${type === 'error' ? ' error' : ''}`;
-  notification.textContent = message;
-  document.body.appendChild(notification);
+function switchAdminTab(tab) {
+  // Hide all
+  document.getElementById('tab-product-content').style.display = 'none';
+  document.getElementById('tab-deal-content').style.display = 'none';
+  document.getElementById('tab-customers-content').style.display = 'none';
   
+  // Reset tabs
+  document.getElementById('tab-product-btn').style.borderBottomColor = 'transparent';
+  document.getElementById('tab-product-btn').style.color = 'rgba(255, 255, 255, 0.6)';
+  document.getElementById('tab-deal-btn').style.borderBottomColor = 'transparent';
+  document.getElementById('tab-deal-btn').style.color = 'rgba(255, 255, 255, 0.6)';
+  document.getElementById('tab-customers-btn').style.borderBottomColor = 'transparent';
+  document.getElementById('tab-customers-btn').style.color = 'rgba(255, 255, 255, 0.6)';
+  
+  // Show selected
+  document.getElementById('tab-' + tab + '-content').style.display = 'block';
+  document.getElementById('tab-' + tab + '-btn').style.borderBottomColor = '#FF3C78';
+  document.getElementById('tab-' + tab + '-btn').style.color = '#FF3C78';
+}
+
+function showNotification(msg, type = 'success') {
+  const notif = document.createElement('div');
+  notif.style.cssText = `
+    position: fixed;
+    bottom: 120px;
+    right: 30px;
+    padding: 16px 24px;
+    background: ${type === 'success' ? 'linear-gradient(135deg, #51CF66, #37B24D)' : 'linear-gradient(135deg, #FF6B6B, #EE5A6F)'};
+    color: white;
+    border-radius: 10px;
+    font-weight: 600;
+    z-index: 10000;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    font-family: Poppins, sans-serif;
+  `;
+  notif.textContent = msg;
+  document.body.appendChild(notif);
+  setTimeout(() => notif.remove(), 3000);
+}
+
+function submitProductEmail(e) {
+  e.preventDefault();
+  const name = document.getElementById('productName').value;
+  const price = document.getElementById('productPrice').value;
+  const emails = document.getElementById('productEmails').value || adminCustomers.list.join(', ');
+  
+  document.getElementById('productEmailSubject').value = `🎉 New Product: ${name}`;
+  
+  console.log('📧 PRODUCT NOTIFICATION EMAIL');
+  console.log('Product:', name);
+  console.log('Price: ₹' + price);
+  console.log('Sending to:', emails);
+  
+  showNotification(`✅ Emails queued! Notification sent to customers about "${name}"`);
+  
+  // Submit form to formsubmit.co
   setTimeout(() => {
-    notification.remove();
-  }, 3500);
+    e.target.submit();
+  }, 500);
 }
 
-async function sendEmailsToAllCustomers(subject, message) {
-  return new Promise((resolve) => {
-    console.log(`📧 Sending "${subject}" to ${adminData.customers.length} customers:`);
-    adminData.customers.forEach(email => {
-      console.log(`   → ${email}`);
-    });
-    console.log(`\nEmail Body:\n${message}\n`);
-    
-    setTimeout(() => {
-      resolve({
-        success: true,
-        count: adminData.customers.length
-      });
-    }, 2000);
-  });
+function submitDealEmail(e) {
+  e.preventDefault();
+  const title = document.getElementById('dealTitle').value;
+  const discount = document.getElementById('dealDiscount').value;
+  const emails = document.getElementById('dealEmails').value || adminCustomers.list.join(', ');
+  
+  document.getElementById('dealEmailSubject').value = `⚡ Deal: ${discount}% OFF - ${title}`;
+  
+  console.log('📧 DEAL NOTIFICATION EMAIL');
+  console.log('Deal:', title);
+  console.log('Discount:', discount + '%');
+  console.log('Sending to:', emails);
+  
+  showNotification(`✅ Emails queued! Deal notification sent to customers`);
+  
+  // Submit form to formsubmit.co
+  setTimeout(() => {
+    e.target.submit();
+  }, 500);
 }
 
-async function handleProductSubmit(event) {
-  event.preventDefault();
+function addCustomer(e) {
+  e.preventDefault();
+  const email = document.getElementById('newCustomerEmail').value;
   
-  const btn = event.target.querySelector('button[type="submit"]');
-  btn.disabled = true;
-  btn.classList.add('btn-loading');
-
-  const product = {
-    id: Date.now(),
-    name: document.getElementById('productName').value,
-    price: document.getElementById('productPrice').value,
-    description: document.getElementById('productDesc').value,
-    category: document.getElementById('productCategory').value,
-    stock: document.getElementById('productStock').value,
-    date: new Date().toLocaleString()
-  };
-
-  const emailSubject = `🎉 New Product Launched: ${product.name}`;
-  const emailMessage = `
-Dear Valued Customer,
-
-We're thrilled to announce a brand new product has just launched on Pioneer I Xpress!
-
-📦 Product: ${product.name}
-💰 Price: ₹${product.price}
-🏷️ Category: ${product.category}
-📝 Description: ${product.description}
-
-Shop now and be the first to get this amazing product!
-
-Best regards,
-Pioneer I Xpress Team
-  `;
-
-  const result = await sendEmailsToAllCustomers(emailSubject, emailMessage);
-  
-  adminData.products.push(product);
-  saveAdminData();
-  
-  event.target.reset();
-  btn.disabled = false;
-  btn.classList.remove('btn-loading');
-  
-  showAdminNotification(
-    `✅ Product added! Emails sent to ${result.count} customers`,
-    'success'
-  );
-}
-
-async function handleDealSubmit(event) {
-  event.preventDefault();
-  
-  const btn = event.target.querySelector('button[type="submit"]');
-  btn.disabled = true;
-  btn.classList.add('btn-loading');
-
-  const deal = {
-    id: Date.now(),
-    title: document.getElementById('dealTitle').value,
-    discount: document.getElementById('dealDiscount').value,
-    description: document.getElementById('dealDesc').value,
-    from: document.getElementById('dealFrom').value,
-    until: document.getElementById('dealUntil').value,
-    date: new Date().toLocaleString()
-  };
-
-  const emailSubject = `⚡ Limited Time Deal: ${deal.discount}% OFF - ${deal.title}!`;
-  const emailMessage = `
-Dear Valued Customer,
-
-Exciting news! We're running a special deal just for you!
-
-🏷️ Deal: ${deal.title}
-💥 Discount: ${deal.discount}% OFF
-📅 Valid From: ${deal.from}
-📅 Valid Until: ${deal.until}
-
-📝 Details: ${deal.description}
-
-Don't miss out on this amazing offer - shop now before it expires!
-
-Best regards,
-Pioneer I Xpress Team
-  `;
-
-  const result = await sendEmailsToAllCustomers(emailSubject, emailMessage);
-  
-  adminData.deals.push(deal);
-  saveAdminData();
-  
-  event.target.reset();
-  btn.disabled = false;
-  btn.classList.remove('btn-loading');
-  
-  showAdminNotification(
-    `✅ Deal created! Notifications sent to ${result.count} customers`,
-    'success'
-  );
-}
-
-function handleAddCustomer(event) {
-  event.preventDefault();
-  
-  const email = document.getElementById('customerEmail').value;
-  
-  if (adminData.customers.includes(email)) {
-    showAdminNotification('This email already exists', 'error');
+  if (adminCustomers.list.includes(email)) {
+    showNotification('Email already exists!', 'error');
     return;
   }
   
-  adminData.customers.push(email);
-  saveAdminData();
+  adminCustomers.list.push(email);
+  localStorage.setItem('pix_customers_list', JSON.stringify(adminCustomers.list));
   
-  event.target.reset();
-  renderCustomerList();
-  
-  showAdminNotification(`✅ Customer ${email} added!`, 'success');
+  document.getElementById('newCustomerEmail').value = '';
+  renderCustomers();
+  showNotification(`✅ ${email} added!`);
 }
 
-function deleteCustomer(email) {
-  adminData.customers = adminData.customers.filter(c => c !== email);
-  saveAdminData();
-  renderCustomerList();
-  showAdminNotification('Customer removed', 'success');
+function removeCustomer(email) {
+  adminCustomers.list = adminCustomers.list.filter(e => e !== email);
+  localStorage.setItem('pix_customers_list', JSON.stringify(adminCustomers.list));
+  renderCustomers();
+  showNotification('Customer removed');
 }
 
-function renderCustomerList() {
-  const container = document.getElementById('customersList');
+function renderCustomers() {
+  const list = document.getElementById('customersList');
   
-  if (adminData.customers.length === 0) {
-    container.innerHTML = '<p style="color: rgba(255, 255, 255, 0.6);">No customers added yet</p>';
+  if (adminCustomers.list.length === 0) {
+    list.innerHTML = '<p style="color: rgba(255, 255, 255, 0.5);">No customers yet</p>';
     return;
   }
   
-  container.innerHTML = adminData.customers.map(email => `
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255, 60, 120, 0.05); border: 1px solid rgba(255, 60, 120, 0.1); border-radius: 8px;">
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #FF3C78, #FF7EAC); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px;">
-          ${email.charAt(0).toUpperCase()}
-        </div>
+  list.innerHTML = adminCustomers.list.map(email => `
+    <div style="
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      background: rgba(255, 60, 120, 0.05);
+      border: 1px solid rgba(255, 60, 120, 0.1);
+      border-radius: 8px;
+    ">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #FF3C78, #FF7EAC);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 700;
+          font-size: 14px;
+        ">${email.charAt(0).toUpperCase()}</div>
         <div>
-          <div style="font-size: 13px; color: #fff;">${email}</div>
-          <div style="font-size: 11px; color: rgba(255, 255, 255, 0.5);">Subscribed</div>
+          <div style="font-size: 13px; color: white;">${email}</div>
+          <div style="font-size: 11px; color: rgba(255, 255, 255, 0.4);">✓ Subscribed</div>
         </div>
       </div>
-      <button onclick="deleteCustomer('${email}')" class="admin-btn admin-btn-secondary" style="padding: 8px 12px; font-size: 11px;">
-        <i class="fas fa-trash"></i> Remove
-      </button>
+      <button onclick="removeCustomer('${email}')" style="
+        padding: 6px 12px;
+        background: rgba(255, 60, 120, 0.1);
+        color: #FF3C78;
+        border: 1px solid rgba(255, 60, 120, 0.3);
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 11px;
+        font-weight: 600;
+      ">Remove</button>
     </div>
   `).join('');
 }
 
-// Close modal when clicking outside
-document.addEventListener('click', (e) => {
-  const modal = document.getElementById('adminModal');
-  const btn = document.getElementById('adminPanelBtn');
-  if (modal.classList.contains('active') && !modal.contains(e.target) && !btn.contains(e.target)) {
-    closeAdminPanel();
-  }
-});
-
 // Initialize
-saveAdminData();
+renderCustomers();
 </script>
 
 </body>
