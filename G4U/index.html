@@ -5725,16 +5725,18 @@
   window._db = db;
 
   // ── Expose Firestore helpers globally so the admin panel scripts can use them ──
-  window.db        = db;
-  window.addDoc    = addDoc;
-  window.setDoc    = setDoc;
-  window.getDoc    = getDoc;
-  window.deleteDoc = deleteDoc;
-  window.collection = collection;
-  window.onSnapshot = onSnapshot;
-  window.query     = query;
-  window.orderBy   = orderBy;
-  window.getDocs   = getDocs;
+  window.db              = db;
+  window.doc             = doc;          // ← was missing, caused silent failures
+  window.addDoc          = addDoc;
+  window.setDoc          = setDoc;
+  window.getDoc          = getDoc;
+  window.deleteDoc       = deleteDoc;
+  window.collection      = collection;
+  window.onSnapshot      = onSnapshot;
+  window.query           = query;
+  window.where           = where;
+  window.orderBy         = orderBy;
+  window.getDocs         = getDocs;
   window.serverTimestamp = serverTimestamp;
 
   // Signal that Firebase is ready for scripts that depend on it
@@ -11164,9 +11166,34 @@ html.dark .qty-btn {
     transition: color 0.3s ease;
   " onmouseover="this.style.color='#FF3C78'" onmouseout="this.style.color='rgba(255, 255, 255, 0.6)'">×</button>
 
-  <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 30px; color: #FF3C78;">
-    <i class="fas fa-crown"></i> Admin Panel
-  </h2>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:30px;flex-wrap:wrap;gap:10px;">
+    <h2 style="font-size: 28px; font-weight: 800; color: #FF3C78; margin:0;">
+      <i class="fas fa-crown"></i> Admin Panel
+    </h2>
+    <span id="firebaseStatusBadge" style="font-size:0.75rem;font-weight:700;padding:5px 14px;border-radius:999px;background:rgba(107,114,128,0.15);color:#9ca3af;">
+      Checking Firebase...
+    </span>
+  </div>
+
+  <!-- Firestore Rules Notice — hidden by default, shown if permission-denied -->
+  <div id="firestoreRulesNotice" style="display:none;margin-bottom:20px;padding:14px 18px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:12px;">
+    <div style="font-weight:800;color:#ef4444;font-size:13px;margin-bottom:6px;">🔒 Firestore Security Rules are blocking writes</div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.8);line-height:1.7;">
+      1. Go to <a href="https://console.firebase.google.com/project/g4u-7231d/firestore/rules" target="_blank" style="color:#FF7EAC;font-weight:700;">Firebase Console → Firestore → Rules</a><br>
+      2. Replace the rules with:<br>
+      <pre style="background:rgba(0,0,0,0.3);padding:10px;border-radius:8px;margin:8px 0;font-size:11px;overflow-x:auto;color:#a5f3fc;">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if request.auth != null
+        &amp;&amp; request.auth.token.email == "gurunanak.garments2023@gmail.com";
+    }
+  }
+}</pre>
+      3. Click <strong>Publish</strong> — then reload this page and try again.
+    </div>
+    <button onclick="document.getElementById('firestoreRulesNotice').style.display='none'" style="margin-top:8px;padding:4px 12px;border-radius:6px;border:1px solid rgba(239,68,68,0.3);background:none;color:#ef4444;font-size:11px;cursor:pointer;">✕ Dismiss</button>
+  </div>
 
   <!-- TABS -->
   <div style="display: flex; gap: 15px; margin-bottom: 30px; border-bottom: 2px solid rgba(255, 60, 120, 0.1); flex-wrap: wrap;">
@@ -11476,6 +11503,17 @@ function toggleAdminPanel() {
     modal.style.display = 'block';
     overlay.style.display = 'block';
     renderCustomers();
+    // Show Firebase connection status
+    const statusEl = document.getElementById('firebaseStatusBadge');
+    if (statusEl) {
+      const ready = !!window.db && !!window.addDoc && !!window.collection && !!window.doc;
+      statusEl.textContent = ready ? '🟢 Firebase Connected' : '🔴 Firebase NOT Connected — reload page';
+      statusEl.style.background = ready ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)';
+      statusEl.style.color = ready ? '#10b981' : '#ef4444';
+      // Auto-show rules notice if firebase not connected
+      const notice = document.getElementById('firestoreRulesNotice');
+      if (notice && !ready) notice.style.display = 'block';
+    }
   } else {
     modal.style.display = 'none';
     overlay.style.display = 'none';
@@ -11544,221 +11582,153 @@ function showNotification(msg, type = 'success') {
 
 async function submitProductEmail(e) {
   e.preventDefault();
-  const name = document.getElementById('productName').value;
-  const price = document.getElementById('productPrice').value;
-  const desc = document.getElementById('productDesc').value;
+  const name     = document.getElementById('productName').value.trim();
+  const price    = document.getElementById('productPrice').value;
+  const desc     = document.getElementById('productDesc').value.trim();
   const category = document.getElementById('productCategory').value;
-  const stock = document.getElementById('productStock').value;
-  
-  console.log('📦 Adding Product to Firestore...');
-  console.log('Product:', name, '| Price: ₹' + price);
-  
-  // Save to Firestore
-  if (window.db && window.addDoc && window.collection) {
-    try {
-      const docRef = await window.addDoc(window.collection(window.db, 'products'), {
-        name: name,
-        price: parseFloat(price),
-        description: desc,
-        category: category,
-        stock: parseInt(stock),
-        createdAt: new Date(),
-        timestamp: Date.now()
-      });
-      console.log('✅ Product saved to Firestore');
+  const stock    = document.getElementById('productStock').value;
 
-      // ── Push into the live product grid immediately ──
-      const liveProd = {
-        id: 'fb_' + docRef.id,
-        title: name,
-        price: parseFloat(price),
-        desc: desc,
-        cat: (category || 'others').toLowerCase(),
-        stock: parseInt(stock),
-        rating: 4.5,
-        img: 'https://risync.in/G4U/candle.png',
-        imgs: ['https://risync.in/G4U/candle.png'],
-        badge: 'New'
-      };
-      if (window.PRODUCTS) window.PRODUCTS.unshift(liveProd);
-      if (typeof window._PIX_rerenderProducts === 'function') window._PIX_rerenderProducts();
-      else if (typeof renderProducts === 'function') renderProducts();
-    } catch (error) {
-      console.error('❌ Firestore error:', error);
-      showNotification(`⚠️ Firestore error: ${error.message}`, 'error');
-      return;
-    }
-  } else {
-    showNotification('⚠️ Firebase not ready yet — please wait a moment and try again', 'error');
+  if (!name || !price) { showNotification('Please fill in product name and price', 'error'); return; }
+
+  if (!window.db || !window.addDoc || !window.collection) {
+    showNotification('Firebase not connected. Please wait a moment and try again.', 'error');
+    console.error('Firebase globals missing:', { db: !!window.db, addDoc: !!window.addDoc, collection: !!window.collection });
     return;
   }
 
-  // Get customers from Firebase
-  console.log('👥 Fetching customers from Firebase...');
-  let customers = [];
-  
+  // STEP 1: Save product to Firestore
+  let savedDocId = null;
   try {
-    const querySnapshot = await window.getDocs(window.collection(window.db, 'customers'));
-    querySnapshot.forEach((doc) => {
-      customers.push(doc.data().email);
+    const docRef = await window.addDoc(window.collection(window.db, 'products'), {
+      name:        name,
+      title:       name,
+      price:       parseFloat(price),
+      description: desc,
+      desc:        desc,
+      category:    category,
+      cat:         (category || 'others').toLowerCase(),
+      stock:       parseInt(stock) || 0,
+      rating:      4.5,
+      badge:       'New',
+      img:         'https://risync.in/G4U/candle.png',
+      createdAt:   window.serverTimestamp ? window.serverTimestamp() : new Date(),
+      addedBy:     'admin'
     });
-    console.log(`✅ Got ${customers.length} customers from Firebase`);
+    savedDocId = docRef.id;
+    console.log('Product saved to Firestore, ID:', savedDocId);
+
+    const liveProd = {
+      id: 'fb_' + savedDocId, title: name, price: parseFloat(price),
+      desc: desc, cat: (category || 'others').toLowerCase(),
+      stock: parseInt(stock) || 0, rating: 4.5,
+      img: 'https://risync.in/G4U/candle.png',
+      imgs: ['https://risync.in/G4U/candle.png'], badge: 'New'
+    };
+    if (window.PRODUCTS) window.PRODUCTS.unshift(liveProd);
+    if (typeof window._PIX_rerenderProducts === 'function') window._PIX_rerenderProducts();
+    else if (typeof renderProducts === 'function') renderProducts();
+
+    showNotification('Product saved to database!');
   } catch (error) {
-    console.error('❌ Error fetching customers:', error);
-    showNotification('❌ Error getting customer list from Firebase', 'error');
-    return;
-  }
-
-  if (customers.length === 0) {
-    showNotification('⚠️ No customers in Firebase to send emails to', 'error');
-    return;
-  }
-
-  // Send emails to all customers
-  console.log('📧 Sending emails to', customers.length, 'customers...');
-  let emailsSent = 0;
-  let emailsFailed = 0;
-
-  for (const customerEmail of customers) {
-    const emailSubject = `🎉 New Product: ${name}`;
-    const emailMessage = `
-Dear Valued Customer,
-
-We're excited to announce a brand new product has just launched!
-
-📦 Product: ${name}
-💰 Price: ₹${price}
-🏷️ Category: ${category}
-📝 Description: ${desc}
-
-Shop now and be the first to get this amazing product!
-
-Best regards,
-Pioneer I Xpress Team
-    `;
-
-    try {
-      const sent = await sendEmailViaFormSubmit(customerEmail, emailSubject, emailMessage);
-      if (sent) {
-        console.log(`✅ Email sent to ${customerEmail}`);
-        emailsSent++;
-      } else {
-        console.error(`❌ Failed to send to ${customerEmail}`);
-        emailsFailed++;
-      }
-    } catch (error) {
-      console.error(`❌ Error sending to ${customerEmail}:`, error);
-      emailsFailed++;
+    console.error('Firestore save error:', error.code, error.message);
+    const hint = error.code === 'permission-denied'
+      ? 'Permission denied — check Firestore Rules (see notice above form)'
+      : 'Firestore error: ' + error.message;
+    if (error.code === 'permission-denied') {
+      const notice = document.getElementById('firestoreRulesNotice');
+      if (notice) notice.style.display = 'block';
     }
+    showNotification(hint, 'error');
+    return;
   }
 
-  // Reset form
-  e.target.reset();
+  // STEP 2: Send emails (won't undo the save if this fails)
+  let customers = [];
+  try {
+    const qs = await window.getDocs(window.collection(window.db, 'customers'));
+    qs.forEach(function(d) { if (d.data().email) customers.push(d.data().email); });
+  } catch (err) {
+    console.warn('Could not load customers:', err.message);
+  }
 
-  // Show result
-  showNotification(`✅ Product added! Emails sent to ${emailsSent}/${customers.length} customers`);
-  console.log(`📊 Summary: ${emailsSent} sent, ${emailsFailed} failed`);
+  if (customers.length === 0) { e.target.reset(); return; }
+
+  let sent = 0;
+  for (const email of customers) {
+    try {
+      const ok = await sendEmailViaFormSubmit(email,
+        'New Product: ' + name,
+        'New product just launched!\n\n' + name + '\nPrice: Rs.' + price + '\nCategory: ' + category + '\n\n' + desc + '\n\nShop at pioneeri.in\n\nPioneer I Xpress Team');
+      if (ok) sent++;
+    } catch (_) {}
+  }
+  e.target.reset();
+  if (sent > 0) showNotification('Product saved! Emails sent to ' + sent + '/' + customers.length + ' customers');
 }
 
 async function submitDealEmail(e) {
   e.preventDefault();
-  const title = document.getElementById('dealTitle').value;
+  const title    = document.getElementById('dealTitle').value.trim();
   const discount = document.getElementById('dealDiscount').value;
-  const desc = document.getElementById('dealDesc').value;
-  const from = document.getElementById('dealFrom').value;
-  const until = document.getElementById('dealUntil').value;
-  
-  console.log('⚡ Adding Deal to Firestore...');
-  console.log('Deal:', title, '|', discount + '% OFF');
-  
-  // Save to Firestore
-  if (window.db && window.addDoc && window.collection) {
-    try {
-      await window.addDoc(window.collection(window.db, 'deals'), {
-        title: title,
-        discount: parseInt(discount),
-        description: desc,
-        validFrom: from,
-        validUntil: until,
-        createdAt: new Date(),
-        timestamp: Date.now()
-      });
-      console.log('✅ Deal saved to Firestore');
-    } catch (error) {
-      console.error('❌ Firestore error:', error);
-      showNotification(`⚠️ Firestore error: ${error.message}`, 'error');
-      return;
-    }
+  const desc     = document.getElementById('dealDesc').value.trim();
+  const from     = document.getElementById('dealFrom').value;
+  const until    = document.getElementById('dealUntil').value;
+
+  if (!title || !discount) { showNotification('Please fill in deal title and discount', 'error'); return; }
+
+  if (!window.db || !window.addDoc || !window.collection) {
+    showNotification('Firebase not connected. Please wait and try again.', 'error');
+    console.error('Firebase globals missing:', { db: !!window.db, addDoc: !!window.addDoc });
+    return;
   }
 
-  // Get customers from Firebase
-  console.log('👥 Fetching customers from Firebase...');
-  let customers = [];
-  
   try {
-    const querySnapshot = await window.getDocs(window.collection(window.db, 'customers'));
-    querySnapshot.forEach((doc) => {
-      customers.push(doc.data().email);
+    await window.addDoc(window.collection(window.db, 'deals'), {
+      title:       title,
+      discount:    parseInt(discount),
+      description: desc,
+      desc:        desc,
+      validFrom:   from,
+      validUntil:  until,
+      createdAt:   window.serverTimestamp ? window.serverTimestamp() : new Date(),
+      addedBy:     'admin'
     });
-    console.log(`✅ Got ${customers.length} customers from Firebase`);
+    console.log('Deal saved to Firestore');
+    showNotification('Deal saved to database!');
   } catch (error) {
-    console.error('❌ Error fetching customers:', error);
-    showNotification('❌ Error getting customer list from Firebase', 'error');
-    return;
-  }
-
-  if (customers.length === 0) {
-    showNotification('⚠️ No customers in Firebase to send emails to', 'error');
-    return;
-  }
-
-  // Send emails to all customers
-  console.log('📧 Sending emails to', customers.length, 'customers...');
-  let emailsSent = 0;
-  let emailsFailed = 0;
-
-  for (const customerEmail of customers) {
-    const emailSubject = `⚡ Deal: ${discount}% OFF - ${title}!`;
-    const emailMessage = `
-Dear Valued Customer,
-
-Exciting news! We're running a special deal just for you!
-
-🏷️ Deal: ${title}
-💥 Discount: ${discount}% OFF
-📅 Valid From: ${from}
-📅 Valid Until: ${until}
-
-📝 Details: ${desc}
-
-Don't miss out on this amazing offer - shop now before it expires!
-
-Best regards,
-Pioneer I Xpress Team
-    `;
-
-    try {
-      const sent = await sendEmailViaFormSubmit(customerEmail, emailSubject, emailMessage);
-      if (sent) {
-        console.log(`✅ Email sent to ${customerEmail}`);
-        emailsSent++;
-      } else {
-        console.error(`❌ Failed to send to ${customerEmail}`);
-        emailsFailed++;
-      }
-    } catch (error) {
-      console.error(`❌ Error sending to ${customerEmail}:`, error);
-      emailsFailed++;
+    console.error('Firestore deal save error:', error.code, error.message);
+    const hint = error.code === 'permission-denied'
+      ? 'Permission denied — check Firestore Rules (see notice above form)'
+      : 'Firestore error: ' + error.message;
+    if (error.code === 'permission-denied') {
+      const notice = document.getElementById('firestoreRulesNotice');
+      if (notice) notice.style.display = 'block';
     }
+    showNotification(hint, 'error');
+    return;
   }
 
-  // Reset form
-  e.target.reset();
+  let customers = [];
+  try {
+    const qs = await window.getDocs(window.collection(window.db, 'customers'));
+    qs.forEach(function(d) { if (d.data().email) customers.push(d.data().email); });
+  } catch (err) { console.warn('Could not load customers:', err.message); }
 
-  // Show result
-  showNotification(`✅ Deal created! Emails sent to ${emailsSent}/${customers.length} customers`);
-  console.log(`📊 Summary: ${emailsSent} sent, ${emailsFailed} failed`);
+  if (customers.length === 0) { e.target.reset(); return; }
+
+  let sent = 0;
+  for (const email of customers) {
+    try {
+      const ok = await sendEmailViaFormSubmit(email,
+        discount + '% OFF: ' + title,
+        'Special deal!\n\n' + title + '\n' + discount + '% OFF\nValid: ' + from + ' to ' + until + '\n\n' + desc + '\n\nShop at pioneeri.in');
+      if (ok) sent++;
+    } catch (_) {}
+  }
+  e.target.reset();
+  if (sent > 0) showNotification('Deal saved! Emails sent to ' + sent + '/' + customers.length + ' customers');
 }
+
 
 function addCustomer(e) {
   e.preventDefault();
@@ -11784,10 +11754,24 @@ function addCustomer(e) {
   }
 }
 
-function removeCustomer(email) {
-  // Since we don't have a simple ID, we'll need to query and delete
-  console.log('Removing customer:', email);
-  showNotification('⚠️ Use Firebase Console to delete (temporary limitation)');
+async function removeCustomer(email) {
+  if (!window.db || !window.getDocs || !window.collection || !window.deleteDoc || !window.doc) {
+    showNotification('Firebase not ready', 'error'); return;
+  }
+  if (!confirm('Remove ' + email + ' from customer list?')) return;
+  try {
+    // Query to find the document(s) with this email
+    const qs = await window.getDocs(window.collection(window.db, 'customers'));
+    const matches = qs.docs.filter(d => d.data().email === email);
+    for (const d of matches) {
+      await window.deleteDoc(window.doc(window.db, 'customers', d.id));
+    }
+    showNotification(email + ' removed!');
+    renderCustomers();
+  } catch (err) {
+    console.error('removeCustomer error:', err);
+    showNotification('Error removing customer: ' + err.message, 'error');
+  }
 }
 
 function renderCustomers() {
@@ -11800,48 +11784,29 @@ function renderCustomers() {
 
   // Load customers from Firestore
   window.getDocs(window.collection(window.db, 'customers')).then((querySnapshot) => {
-    const customers = [];
-    querySnapshot.forEach((doc) => {
-      customers.push(doc.data().email);
-    });
-
-    if (customers.length === 0) {
+    if (querySnapshot.empty) {
       list.innerHTML = '<p style="color: rgba(255, 255, 255, 0.5);">No customers yet. Add one below!</p>';
       return;
     }
-
-    list.innerHTML = customers.map(email => `
-      <div style="
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 12px;
-        background: rgba(255, 60, 120, 0.05);
-        border: 1px solid rgba(255, 60, 120, 0.1);
-        border-radius: 8px;
-      ">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <div style="
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #FF3C78, #FF7EAC);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 14px;
-          ">${email.charAt(0).toUpperCase()}</div>
-          <div>
-            <div style="font-size: 13px; color: white;">${email}</div>
-            <div style="font-size: 11px; color: rgba(255, 255, 255, 0.4);">✓ Subscribed</div>
+    const customers = querySnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    list.innerHTML = customers.map(c => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:rgba(255,60,120,0.05);border:1px solid rgba(255,60,120,0.1);border-radius:8px;gap:10px;">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#FF3C78,#FF7EAC);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0;">${(c.email||'?').charAt(0).toUpperCase()}</div>
+          <div style="min-width:0;">
+            <div style="font-size:13px;color:white;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.email||'—'}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);">${c.name ? c.name + ' · ' : ''}✓ Subscribed</div>
           </div>
         </div>
+        <button onclick="removeCustomer('${(c.email||'').replace(/'/g,"\'")}')" style="flex-shrink:0;padding:5px 12px;border-radius:6px;border:1px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.1);color:#ef4444;font-size:11px;font-weight:700;cursor:pointer;">✕ Remove</button>
       </div>
     `).join('');
   }).catch((error) => {
     console.error('Error loading customers:', error);
-    list.innerHTML = '<p style="color: #FF6B6B;">Error loading customers</p>';
+    const hint = error.code === 'permission-denied'
+      ? '<p style="color:#ef4444;font-size:13px;">⚠️ Permission denied — update your <a href=\'https://console.firebase.google.com\' target=\'_blank\' style=\'color:#FF7EAC\'>Firestore Rules</a> to allow admin access.</p>'
+      : '<p style="color:#FF6B6B;">Error loading customers: ' + error.message + '</p>';
+    list.innerHTML = hint;
   });
 }
 
@@ -11866,7 +11831,12 @@ function loadProductsFromFirebase() {
 
     const productsList = snapshot.docs.map((doc) => {
       const product = doc.data();
-      const date = product.createdAt ? new Date(product.createdAt.toDate()).toLocaleDateString() : 'N/A';
+      let date = 'N/A';
+      try {
+        if (product.createdAt) {
+          date = product.createdAt.toDate ? product.createdAt.toDate().toLocaleDateString('en-IN') : new Date(product.createdAt).toLocaleDateString('en-IN');
+        }
+      } catch(_) {}
       
       return `
       <div style="
@@ -11896,7 +11866,10 @@ function loadProductsFromFirebase() {
     container.innerHTML = productsList;
   }, (error) => {
     console.error('Firestore error:', error);
-    document.getElementById('productsList').innerHTML = `<p style="color: #FF6B6B;">Error loading products: ${error.message}</p>`;
+    const msg = error.code === 'permission-denied'
+      ? '<p style="color:#ef4444;font-size:13px;">⚠️ <b>Firestore Rules blocking access.</b> Go to <a href="https://console.firebase.google.com" target="_blank" style="color:#FF7EAC">Firebase Console</a> → Firestore → Rules and set: <code style="background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:4px;">allow read, write: if request.auth.email == \"gurunanak.garments2023@gmail.com\";</code></p>'
+      : `<p style="color: #FF6B6B;">Error loading products: ${error.message}</p>`;
+    document.getElementById('productsList').innerHTML = msg;
   });
 }
 
@@ -11950,7 +11923,10 @@ function loadDealsFromFirebase() {
     container.innerHTML = dealsList;
   }, (error) => {
     console.error('Firestore error:', error);
-    document.getElementById('dealsList').innerHTML = `<p style="color: #FF6B6B;">Error loading deals: ${error.message}</p>`;
+    const msg = error.code === 'permission-denied'
+      ? '<p style="color:#ef4444;font-size:13px;">⚠️ <b>Firestore Rules blocking access.</b> Update rules in <a href="https://console.firebase.google.com" target="_blank" style="color:#FF7EAC">Firebase Console</a>.</p>'
+      : `<p style="color: #FF6B6B;">Error loading deals: ${error.message}</p>`;
+    document.getElementById('dealsList').innerHTML = msg;
   });
 }
 
