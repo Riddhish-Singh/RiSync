@@ -3603,8 +3603,8 @@
       // Save to Firebase pending_products collection (Firestore v9 modular)
       var savedToFirebase = false;
       try {
-        if (typeof db !== 'undefined' && typeof addDoc !== 'undefined' && typeof collection !== 'undefined') {
-          await addDoc(collection(db, 'pending_products'), newProd);
+        if (!!window.db && !!window.addDoc && !!window.collection) {
+          await window.addDoc(window.collection(window.db, 'pending_products'), newProd);
           savedToFirebase = true;
         }
       } catch (e) {
@@ -5694,17 +5694,17 @@
 
 <!-- ===== FIREBASE INTEGRATION ===== -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-analytics.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
   import {
     getAuth, onAuthStateChanged, signInWithEmailAndPassword,
     createUserWithEmailAndPassword, signOut, updateProfile,
     GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult
-  } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import {
     getFirestore, doc, setDoc, getDoc, onSnapshot, collection,
     addDoc, deleteDoc, serverTimestamp, query, where, orderBy, getDocs
-  } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAYP6k7oUtaZwoBETAgLR35KJ88eTvhxac",
@@ -6012,15 +6012,20 @@
     }, 1200);
   };
 
-  // Save order to Firestore
+  // Save order to Firestore — works for both logged-in users AND guests
   window._GI_saveOrder = async function(orderData) {
-    if (!currentUser) return;
     try {
+      const uid = currentUser ? currentUser.uid : ('guest_' + Date.now());
+      const userName = currentUser ? (currentUser.displayName || currentUser.email || 'User') : 'Guest';
       await addDoc(collection(db, 'orders'), {
-        uid: currentUser.uid,
+        uid,
+        userName,
+        isGuest: !currentUser,
         ...orderData,
+        status: 'processing',
         createdAt: serverTimestamp()
       });
+      console.log('✅ Order saved to Firestore');
     } catch (e) { console.error('saveOrder error:', e); }
   };
 
@@ -6465,26 +6470,31 @@ document.addEventListener('DOMContentLoaded', () => {
     window._patchedSave = true;
   }
 
-  // Override pay button to save orders
+  // Override pay button to save orders — runs BEFORE the handler that clears the cart
   const payBtn = document.getElementById('pay');
   if (payBtn) {
-    const _origClick = payBtn.onclick;
     payBtn.addEventListener('click', function() {
-      // Save order before clearing cart
-      if (state && state.cart && state.cart.length > 0) {
-        const sub = state.cart.reduce((a, i) => a + i.qty * i.price, 0);
-        const ship = sub < 1999 ? 99 : 0;
-        const orderData = {
-          items: state.cart.map(i => ({ id: i.id, title: i.title, price: i.price, qty: i.qty })),
-          total: sub + ship,
-          address: {
-            name: document.getElementById('fullName')?.value || '',
-            address: document.getElementById('address')?.value || '',
-          }
-        };
-        if (window._GI_saveOrder) window._GI_saveOrder(orderData);
-      }
-    }, true); // capture = true so it runs before the existing handler clears cart
+      if (!state || !state.cart || state.cart.length === 0) return;
+      const sub  = state.cart.reduce((a, i) => a + i.qty * i.price, 0);
+      const ship = sub < 1999 ? 99 : 0;
+      const coupon = document.getElementById('coupon')?.value?.trim()?.toUpperCase();
+      const disc = coupon === 'PIX10' ? Math.round(0.10 * (sub + ship)) : 0;
+      const orderData = {
+        items: state.cart.map(i => ({ id: i.id, title: i.title, price: i.price, qty: i.qty })),
+        total: sub + ship - disc,
+        subtotal: sub,
+        shipping: ship,
+        discount: disc,
+        coupon: coupon || '',
+        customer: {
+          name:    document.getElementById('fullName')?.value  || '',
+          address: document.getElementById('address')?.value   || '',
+          phone:   document.getElementById('phone')?.value     || '',
+          email:   document.getElementById('email')?.value     || '',
+        }
+      };
+      if (window._GI_saveOrder) window._GI_saveOrder(orderData);
+    }, true); // capture=true so this runs before the existing handler that clears the cart
   }
   // ======================================================
   // ===== ADMIN DASHBOARD ================================
@@ -6500,8 +6510,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load pending count for badge
     (async () => {
       try {
-        if (typeof db !== 'undefined' && typeof getDocs !== 'undefined' && typeof collection !== 'undefined') {
-          const snap = await getDocs(collection(db, 'pending_products'));
+        const _db = window.db || window._db;
+        const _getDocs = window.getDocs; const _collection = window.collection;
+        if (_db && _getDocs && _collection) {
+          const snap = await _getDocs(_collection(_db, 'pending_products'));
           const cnt = snap.size;
           const b = document.getElementById('admApprovalsBadge');
           if (b) { b.textContent = cnt; b.style.display = cnt ? 'inline' : 'none'; }
@@ -6522,7 +6534,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function admGetAllOrders() {
     try {
-      const snap = await getDocs(collection(db, 'orders'));
+      const _db = window.db || window._db;
+      const _getDocs = window.getDocs; const _collection = window.collection;
+      if (!_db || !_getDocs || !_collection) { console.warn('Firebase not ready'); return []; }
+      const snap = await _getDocs(_collection(_db, 'orders'));
       return snap.docs
         .map(d => ({ id: d.id, ...d.data() }))
         .sort((a, b) => {
@@ -6535,7 +6550,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function admGetInventory() {
     try {
-      const snap = await getDocs(collection(db, 'inventory'));
+      const _db = window.db || window._db;
+      const _getDocs = window.getDocs; const _collection = window.collection;
+      if (!_db || !_getDocs || !_collection) return {};
+      const snap = await _getDocs(_collection(_db, 'inventory'));
       const map = {};
       snap.docs.forEach(d => { map[d.id] = d.data(); });
       return map;
@@ -6544,7 +6562,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function admSaveInventory(productId, data) {
     try {
-      await setDoc(doc(db, 'inventory', productId), data, { merge: true });
+      const _db = window.db || window._db;
+      const _setDoc = window.setDoc; const _doc = window.doc;
+      if (!_db || !_setDoc || !_doc) return false;
+      await _setDoc(_doc(_db, 'inventory', productId), data, { merge: true });
       return true;
     } catch (e) { console.error(e); return false; }
   }
@@ -6912,8 +6933,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Persist to Firebase
       try {
-        if (typeof db !== 'undefined' && typeof setDoc !== 'undefined' && typeof doc !== 'undefined') {
-          await setDoc(doc(db, 'products', newProd.id), newProd);
+        if (!!window.db && !!window.setDoc && !!window.doc) {
+          await window.setDoc(window.doc(window.db, 'products', newProd.id), newProd);
         }
       } catch(e) { console.warn('Firebase save failed (not critical):', e); }
 
@@ -6950,14 +6971,14 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       // Remove from Firebase
       try {
-        if (typeof db !== 'undefined' && typeof deleteDoc !== 'undefined' && typeof doc !== 'undefined') {
-          await deleteDoc(doc(db, 'products', pid));
+        if (!!window.db && !!window.deleteDoc && !!window.doc) {
+          await window.deleteDoc(window.doc(window.db, 'products', pid));
         }
       } catch(e) { console.warn('Firebase delete failed:', e); }
       // Remove inventory row
       try {
-        if (typeof db !== 'undefined' && typeof deleteDoc !== 'undefined' && typeof doc !== 'undefined') {
-          await deleteDoc(doc(db, 'inventory', pid));
+        if (!!window.db && !!window.deleteDoc && !!window.doc) {
+          await window.deleteDoc(window.doc(window.db, 'inventory', pid));
         }
       } catch(e) {}
       // Remove from local inventory cache
@@ -7015,8 +7036,8 @@ document.addEventListener('DOMContentLoaded', () => {
     content.innerHTML = '<div class="text-sm py-8 text-center" style="color:var(--text-secondary)">Loading pending submissions…</div>';
     let pending = [];
     try {
-      if (typeof db !== 'undefined' && typeof getDocs !== 'undefined' && typeof collection !== 'undefined') {
-        const snap = await getDocs(collection(db, 'pending_products'));
+      if (!!window.db && !!window.getDocs && !!window.collection) {
+        const snap = await window.getDocs(window.collection(window.db, 'pending_products'));
         pending = snap.docs.map(d => ({ _docId: d.id, ...d.data() }));
         pending.sort((a,b) => (b.submittedAt||'').localeCompare(a.submittedAt||''));
       }
@@ -7109,8 +7130,8 @@ document.addEventListener('DOMContentLoaded', () => {
       // Find the pending item data
       let prodData = null;
       try {
-        if (typeof db !== 'undefined' && typeof getDoc !== 'undefined' && typeof doc !== 'undefined') {
-          const snap = await getDoc(doc(db, 'pending_products', docId));
+        if (!!window.db && !!window.getDoc && !!window.doc) {
+          const snap = await window.getDoc(window.doc(window.db, 'pending_products', docId));
           if (snap.exists()) prodData = snap.data();
         }
       } catch(e) {}
@@ -7127,15 +7148,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Save to products collection in Firebase
       try {
-        if (typeof db !== 'undefined' && typeof setDoc !== 'undefined' && typeof doc !== 'undefined') {
-          await setDoc(doc(db, 'products', approved.id), approved);
+        if (!!window.db && !!window.setDoc && !!window.doc) {
+          await window.setDoc(window.doc(window.db, 'products', approved.id), approved);
         }
       } catch(e) { console.warn(e); }
 
       // Delete from pending_products
       try {
-        if (typeof db !== 'undefined' && typeof deleteDoc !== 'undefined' && typeof doc !== 'undefined') {
-          await deleteDoc(doc(db, 'pending_products', docId));
+        if (!!window.db && !!window.deleteDoc && !!window.doc) {
+          await window.deleteDoc(window.doc(window.db, 'pending_products', docId));
         }
       } catch(e) { console.warn(e); }
 
@@ -7163,14 +7184,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const card = document.getElementById('pendCard_' + docId);
       // Delete from pending_products
       try {
-        if (typeof db !== 'undefined' && typeof deleteDoc !== 'undefined' && typeof doc !== 'undefined') {
-          await deleteDoc(doc(db, 'pending_products', docId));
+        if (!!window.db && !!window.deleteDoc && !!window.doc) {
+          await window.deleteDoc(window.doc(window.db, 'pending_products', docId));
         }
       } catch(e) { console.warn(e); }
       // Optionally log rejected_products
       try {
-        if (typeof db !== 'undefined' && typeof setDoc !== 'undefined' && typeof doc !== 'undefined') {
-          await setDoc(doc(db, 'rejected_products', docId), { docId, title, reason: reason||'Not specified', rejectedAt: new Date().toISOString() });
+        if (!!window.db && !!window.setDoc && !!window.doc) {
+          await window.setDoc(window.doc(window.db, 'rejected_products', docId), { docId, title, reason: reason||'Not specified', rejectedAt: new Date().toISOString() });
         }
       } catch(e) {}
       if (card) {
@@ -7185,8 +7206,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── ADMIN: Pending Product Approvals ──────────────────────────────────
   async function admGetPendingProducts() {
     try {
-      if (typeof db === 'undefined' || typeof getDocs === 'undefined' || typeof collection === 'undefined') return [];
-      const snap = await getDocs(collection(db, 'pending_products'));
+      if (!window.db || !window.getDocs || !window.collection) return [];
+      const snap = await window.getDocs(window.collection(window.db, 'pending_products'));
       return snap.docs.map(d => ({ _docId: d.id, ...d.data() }));
     } catch(e) { console.warn('Could not fetch pending products:', e); return []; }
   }
@@ -7197,12 +7218,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const liveId = prod.id || ('approved_' + Date.now());
       const liveData = { ...prod, _community: true, _approved: true, approvedAt: new Date().toISOString() };
       delete liveData._docId;
-      if (typeof db !== 'undefined' && typeof setDoc !== 'undefined' && typeof doc !== 'undefined') {
-        await setDoc(doc(db, 'products', liveId), liveData);
+      if (!!window.db && !!window.setDoc && !!window.doc) {
+        await window.setDoc(window.doc(window.db, 'products', liveId), liveData);
       }
       // 2. Delete from pending
-      if (typeof db !== 'undefined' && typeof deleteDoc !== 'undefined' && typeof doc !== 'undefined') {
-        await deleteDoc(doc(db, 'pending_products', docId));
+      if (!!window.db && !!window.deleteDoc && !!window.doc) {
+        await window.deleteDoc(window.doc(window.db, 'pending_products', docId));
       }
       // 3. Add to live PRODUCTS array
       if (!window.PRODUCTS) window.PRODUCTS = [];
@@ -7214,8 +7235,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function admRejectPending(docId) {
     try {
-      if (typeof db !== 'undefined' && typeof deleteDoc !== 'undefined' && typeof doc !== 'undefined') {
-        await deleteDoc(doc(db, 'pending_products', docId));
+      if (!!window.db && !!window.deleteDoc && !!window.doc) {
+        await window.deleteDoc(window.doc(window.db, 'pending_products', docId));
       }
     } catch(e) { console.error('Reject failed:', e); throw e; }
   }
