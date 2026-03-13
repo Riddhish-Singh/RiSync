@@ -5724,6 +5724,23 @@
   window._auth = auth;
   window._db = db;
 
+  // ── Expose Firestore helpers globally so the admin panel scripts can use them ──
+  window.db        = db;
+  window.addDoc    = addDoc;
+  window.setDoc    = setDoc;
+  window.getDoc    = getDoc;
+  window.deleteDoc = deleteDoc;
+  window.collection = collection;
+  window.onSnapshot = onSnapshot;
+  window.query     = query;
+  window.orderBy   = orderBy;
+  window.getDocs   = getDocs;
+  window.serverTimestamp = serverTimestamp;
+
+  // Signal that Firebase is ready for scripts that depend on it
+  window.firebaseReady = true;
+  document.dispatchEvent(new Event('firebaseReady'));
+
   // ---- DOM helpers ----
   const $ = id => document.getElementById(id);
   let currentUser = null;
@@ -11012,71 +11029,55 @@ html.dark .qty-btn {
   }
 </style>
 
-<!-- FormSubmit.co Integration -->
+<!-- EmailJS — sends emails TO customers from the browser -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
-  // Your FormSubmit.co email - REPLACE WITH YOUR EMAIL
-  window.FORMSUBMIT_EMAIL = 'gurunanak.garments2023@gmail.com';
-  
-  // Send email via FormSubmit.co
-  async function sendEmailViaFormSubmit(toEmail, subject, message) {
+  // ─────────────────────────────────────────────────────────────
+  // EmailJS Configuration
+  // 1. Sign up free at https://emailjs.com
+  // 2. Add Gmail as a service  → copy your Service ID below
+  // 3. Create an email template with variables:
+  //      {{to_email}}  {{subject}}  {{message}}
+  //    → copy your Template ID below
+  // 4. Go to Account → copy your Public Key below
+  // ─────────────────────────────────────────────────────────────
+  window.EMAILJS_PUBLIC_KEY  = 'YOUR_EMAILJS_PUBLIC_KEY';   // ← replace
+  window.EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID';           // ← replace
+  window.EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';          // ← replace
+
+  (function initEmailJS() {
+    if (window.EMAILJS_PUBLIC_KEY && window.EMAILJS_PUBLIC_KEY !== 'YOUR_EMAILJS_PUBLIC_KEY') {
+      emailjs.init(window.EMAILJS_PUBLIC_KEY);
+      console.log('✅ EmailJS ready');
+    } else {
+      console.warn('⚠️ EmailJS not configured — fill in PUBLIC_KEY, SERVICE_ID, TEMPLATE_ID above to enable customer emails');
+    }
+  })();
+
+  // Send one email to a customer
+  async function sendEmailToCustomer(toEmail, subject, message) {
+    if (!window.EMAILJS_SERVICE_ID || window.EMAILJS_SERVICE_ID === 'YOUR_SERVICE_ID') {
+      console.warn('EmailJS not configured — skipping email to', toEmail);
+      return false;
+    }
     try {
-      const formData = new FormData();
-      formData.append('_subject', subject);
-      formData.append('email', toEmail);
-      formData.append('message', message);
-      formData.append('_captcha', 'false');
-      
-      const response = await fetch(`https://formsubmit.co/${window.FORMSUBMIT_EMAIL}`, {
-        method: 'POST',
-        body: formData
+      await emailjs.send(window.EMAILJS_SERVICE_ID, window.EMAILJS_TEMPLATE_ID, {
+        to_email: toEmail,
+        subject:  subject,
+        message:  message,
       });
-      
-      return response.ok;
+      return true;
     } catch (error) {
-      console.error('❌ FormSubmit error:', error);
+      console.error('❌ EmailJS error sending to', toEmail, ':', error);
       return false;
     }
   }
-  
-  console.log('✅ FormSubmit.co ready');
+
+  // Keep the old name as an alias so existing calls still work
+  window.sendEmailViaFormSubmit = sendEmailToCustomer;
 </script>
 
-<script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-analytics.js";
-  import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-  
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyAYP6k7oUtaZwoBETAgLR35KJ88eTvhxac",
-    authDomain: "g4u-7231d.firebaseapp.com",
-    projectId: "g4u-7231d",
-    storageBucket: "g4u-7231d.firebasestorage.app",
-    messagingSenderId: "269559053821",
-    appId: "1:269559053821:web:f3f7ab6bc78234f33b6d94",
-    measurementId: "G-4NCBGTEV0M"
-  };
-  
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-  const db = getFirestore(app);
-
-  // Make Firestore available globally
-  window.db = db;
-  window.addDoc = addDoc;
-  window.collection = collection;
-  window.onSnapshot = onSnapshot;
-  window.query = query;
-  window.orderBy = orderBy;
-  window.getDocs = getDocs;
-  
-  console.log('✅ Firebase initialized with g4u-7231d project');
-
-
-  console.log('✅ Firestore initialized');
-</script>
+<!-- ✅ Firebase helpers are already exposed by the main module above (window.db, window.addDoc, etc.) -->
 
 <!-- ADMIN PANEL BUTTON -->
 <button id="adminToggleBtn" onclick="toggleAdminPanel()" style="
@@ -11534,7 +11535,7 @@ async function submitProductEmail(e) {
   // Save to Firestore
   if (window.db && window.addDoc && window.collection) {
     try {
-      await window.addDoc(window.collection(window.db, 'products'), {
+      const docRef = await window.addDoc(window.collection(window.db, 'products'), {
         name: name,
         price: parseFloat(price),
         description: desc,
@@ -11544,11 +11545,31 @@ async function submitProductEmail(e) {
         timestamp: Date.now()
       });
       console.log('✅ Product saved to Firestore');
+
+      // ── Push into the live product grid immediately ──
+      const liveProd = {
+        id: 'fb_' + docRef.id,
+        title: name,
+        price: parseFloat(price),
+        desc: desc,
+        cat: (category || 'others').toLowerCase(),
+        stock: parseInt(stock),
+        rating: 4.5,
+        img: 'https://risync.in/G4U/candle.png',
+        imgs: ['https://risync.in/G4U/candle.png'],
+        badge: 'New'
+      };
+      if (window.PRODUCTS) window.PRODUCTS.unshift(liveProd);
+      if (typeof window._PIX_rerenderProducts === 'function') window._PIX_rerenderProducts();
+      else if (typeof renderProducts === 'function') renderProducts();
     } catch (error) {
       console.error('❌ Firestore error:', error);
       showNotification(`⚠️ Firestore error: ${error.message}`, 'error');
       return;
     }
+  } else {
+    showNotification('⚠️ Firebase not ready yet — please wait a moment and try again', 'error');
+    return;
   }
 
   // Get customers from Firebase
@@ -11912,8 +11933,12 @@ function loadDealsFromFirebase() {
   });
 }
 
-// Initialize
-renderCustomers();
+// Wait for Firebase to be ready before rendering customers
+if (window.firebaseReady) {
+  renderCustomers();
+} else {
+  document.addEventListener('firebaseReady', () => renderCustomers());
+}
 </script>
 
 </body>
