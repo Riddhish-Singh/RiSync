@@ -1,1558 +1,1889 @@
-<script src='https://www.noupe.com/embed/0199be53273d727ab162fb659f7290ad9948.js'></script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RiSync Dashboard</title>
   
-  <title>RiSync • P2P Tutoring | Math, Science & More</title>
-  <meta name="description" content="RiSync is a peer-to-peer tutoring platform that makes learning collaborative and fun. Connect with fellow students for help in Math, Science, IT, and more.">
-  
-  <meta property="og:title" content="RiSync • P2P Tutoring | Level Up Your Learning">
-  <meta property="og:description" content="Join RiSync to connect with student tutors, access a huge resource library, and make learning a team sport. Sign up for free!">
-  <meta property="og:image" content="assets/social-preview.png">
-  <meta property="og:url" content="https://www.risync.com">
-  <meta property="og:type" content="website">
-
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Nunito+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-:root {
-  --primary-blue: #4A90E2;
-  --secondary-orange: #FF7043;
-  --dark-blue: #1D3557;
-  --light-grey: #F7F9FB;
-  --white: #ffffff;
-  --text-color: #333;
-  --box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-  --transition-speed: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
-
-body {
-  font-family: 'Poppins', sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: var(--light-grey);
-  min-height: 100vh;
-  color: var(--text-color);
-  overflow-x: hidden;
-}
-
-/* --- NEW SPLASH SCREEN STYLES --- */
-#splash-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: var(--dark-blue);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 10000;
-    opacity: 1;
-    transition: opacity 0.8s ease-out;
-    /* Animation for the background */
-    background: radial-gradient(circle, #2c4a75 0%, #1d3557 100%);
-    animation: radial-pulse 6s ease-in-out infinite alternate;
-}
-
-#splash-screen.hidden {
-    opacity: 0;
-    pointer-events: none;
-}
-
-#splash-screen img {
-    max-width: 200px;
-    opacity: 0;
-    /* The main logo animation with multiple steps */
-    animation: logo-animation 3.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-}
-
-/* Stars container and individual star animation */
-#stars {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-}
-.star {
-    position: absolute;
-    background-color: var(--white);
-    border-radius: 50%;
-    opacity: 0;
-    animation: star-sparkle 1.5s ease-in-out infinite alternate;
-}
-
-/* New keyframe for the radial gradient background animation */
-@keyframes radial-pulse {
-    0%   { background: radial-gradient(circle, #2c4a75 0%, #1d3557 100%); }
-    100% { background: radial-gradient(circle, #345c8c 0%, #203b61 100%); }
-}
-
-/* Updated logo animation with more steps and effects */
-@keyframes logo-animation {
-    20%  { transform: scale(1.1); opacity: 1; filter: blur(0px); text-shadow: 0 0 10px rgba(255, 255, 255, 0.8); }
-    40%  { transform: scale(0.95); opacity: 1; }
-    60%  { transform: scale(1); opacity: 1; text-shadow: 0 0 25px rgba(255, 255, 255, 0.9); }
-    85%  { transform: scale(1.1); opacity: 1; text-shadow: 0 0 40px rgba(255, 255, 255, 1); }
-}
-
-@keyframes star-sparkle {
-  0%   { opacity: 0; transform: scale(0); }
-  50%  { opacity: 1; transform: scale(1); }
-  100% { opacity: 0; transform: scale(0); }
-}
-
-/* Hide content initially */
-body.loading > *:not(#splash-screen) {
-    opacity: 0;
-}
-
-/* Animations for content reveal */
-body.loaded .slider-container,
-body.loaded nav {
-    opacity: 1;
-    transform: translateY(0);
-    transition: opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-    transition-delay: 0.2s; /* Stagger the animation */
-}
-
-.slider-container {
-    opacity: 0;
-    transform: translateY(-50px);
-}
-
-nav {
-    opacity: 0;
-    transform: translateY(-50px);
-}
-/* --- END SPLASH SCREEN STYLES --- */
-
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes slideInDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-@keyframes slideInUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-@keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-@keyframes typing {
-    from { width: 0; }
-    to { width: 100%; }
-}
-@keyframes blink-caret {
-    from, to { border-color: transparent; }
-    50% { border-color: var(--white); }
-}
-
-header.slider-container {
-  position: relative;
-  height: 60vh;
-  min-height: 400px;
-  color: var(--white);
-  overflow: hidden;
-  border-bottom: 5px solid var(--secondary-orange);
-}
-
-.slides {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-}
-
-.slide {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-  opacity: 0;
-  transition: opacity 1.5s ease-in-out;
-  transform: scale(1.05);
-}
-
-.slide.active {
-  opacity: 1;
-  transform: scale(1);
-  transition: opacity 1.5s ease-in-out, transform 8s linear;
-}
-
-.header-content {
-  position: relative;
-  z-index: 2;
-  background-color: rgba(29, 53, 87, 0.8);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  padding: 20px;
-}
-
-.header-content img {
-  max-width: 130px;
-  display: block;
-  margin: 0 auto 20px;
-  animation: slideInDown 0.8s ease-out;
-}
-
-.header-content h1 {
-  font-size: 48px;
-  color: var(--secondary-orange);
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
-  margin-bottom: 15px;
-  font-weight: 700;
-  animation: slideInDown 1s ease-out;
-}
-
-.header-content p {
-  font-size: 20px;
-  color: var(--white);
-  font-weight: 400;
-  border-right: 2px solid var(--white);
-  white-space: nowrap;
-  overflow: hidden;
-  width: 0;
-  animation:
-    typing 3.5s steps(40, end) forwards,
-    blink-caret 0.75s step-end infinite;
-  animation-delay: 1.2s;
-}
-
-.slider-nav {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  transform: translateY(-50%);
-  display: flex;
-  justify-content: space-between;
-  z-index: 3;
-  padding: 0 20px;
-}
-
-.slider-nav button {
-  background-color: rgba(0, 0, 0, 0.4);
-  border: none;
-  color: var(--white);
-  font-size: 24px;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.slider-nav button:hover {
-  background-color: rgba(0, 0, 0, 0.7);
-}
-
-nav {
-  background-color: var(--dark-blue);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  position: sticky;
-  top: 0;
-  z-index: 990;
-  padding: 0 20px;
-}
-
-.nav-links {
-    display: flex;
-    justify-content: center;
-    flex-grow: 1;
-}
-
-nav a {
-  color: var(--white);
-  text-decoration: none;
-  padding: 20px 25px;
-  font-size: 16px;
-  font-weight: bold;
-  text-transform: uppercase;
-  transition: color 0.3s ease, transform 0.3s ease;
-  position: relative;
-}
-
-nav a::after {
-    content: '';
-    position: absolute;
-    width: 100%;
-    transform: scaleX(0);
-    height: 3px;
-    bottom: 10px;
-    left: 0;
-    background-color: var(--secondary-orange);
-    transform-origin: bottom right;
-    transition: transform 0.25s ease-out;
-}
-
-nav a:hover::after {
-    transform: scaleX(1);
-    transform-origin: bottom left;
-}
-
-nav a:hover {
-  color: var(--secondary-orange);
-  transform: translateY(-2px);
-}
-
-.nav-cta {
-    display: flex;
-    gap: 15px;
-}
-
-.nav-cta .button {
-    padding: 10px 22px;
-    font-size: 16px;
-    text-transform: uppercase;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
-    font-weight: bold;
-}
-
-.nav-cta .signin {
-    background-color: transparent;
-    color: var(--white);
-    border-color: var(--secondary-orange);
-}
-.nav-cta .signin:hover {
-    background-color: var(--secondary-orange);
-    color: var(--dark-blue);
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-}
-
-.nav-cta .signup {
-    background-image: linear-gradient(45deg, var(--secondary-orange) 0%, #FFA726 100%);
-    color: var(--dark-blue);
-}
-.nav-cta .signup:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-}
-
-
-main {
-  padding: 40px;
-  background-color: var(--light-grey);
-  min-height: 80vh;
-  color: var(--text-color);
-  box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.05);
-}
-
-section {
-  margin-bottom: 60px;
-  padding: 50px;
-  background-color: var(--white);
-  border-radius: 12px;
-  box-shadow: var(--box-shadow);
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-}
-
-section.animate-in {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.feature-card.highlight {
-    animation: pulse 1s infinite alternate;
-    box-shadow: 0 0 0 5px rgba(74, 144, 226, 0.5), 0 8px 32px 0 rgba(31, 38, 135, 0.2);
-    z-index: 10;
-    position: relative;
-}
-
-h2 {
-  font-size: 36px;
-  color: var(--primary-blue);
-  margin-bottom: 30px;
-  text-align: center;
-  position: relative;
-  font-weight: 700;
-}
-
-h2::after {
-  content: '';
-  display: block;
-  width: 70px;
-  height: 4px;
-  background: var(--secondary-orange);
-  margin: 12px auto 0;
-  border-radius: 2px;
-}
-
-.section-intro {
-    text-align: center;
-    max-width: 800px;
-    margin: -15px auto 40px;
-    font-size: 18px;
-    line-height: 1.7;
-    color: #555;
-}
-
-.scrolling-container {
-  width: 100%;
-  overflow: hidden;
-  position: relative;
-}
-
-.scrolling-content {
-  display: flex;
-  animation: marquee-scroll 25s linear infinite;
-}
-
-.scrolling-content:hover {
-  animation-play-state: paused;
-}
-
-.feature-grid {
-  display: flex;
-  flex-shrink: 0;
-  gap: 30px;
-  padding: 0 15px;
-  width: 100%;
-  justify-content: center;
-}
-
-@keyframes marquee-scroll {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-100%); }
-}
-
-.feature-card {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    padding: 30px;
-    border-radius: 12px;
-    text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    min-width: 280px;
-}
-.feature-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 12px 40px rgba(31, 38, 135, 0.3);
-}
-.feature-card i {
-    font-size: 40px;
-    color: var(--primary-blue);
-    margin-bottom: 15px;
-}
-.feature-card h3 {
-    font-size: 22px;
-    color: var(--dark-blue);
-    margin-bottom: 10px;
-}
-.feature-card p {
-    font-size: 16px;
-    line-height: 1.6;
-    color: #444;
-}
-
-.subject-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 40px;
-}
-
-.subject, .classes {
-  color: var(--white);
-  padding: 30px;
-  border-radius: 10px;
-  text-align: center;
-  cursor: pointer;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s ease;
-  opacity: 0;
-  transform: scale(0.9);
-  font-size: 20px;
-  font-weight: bold;
-  text-decoration: none;
-}
-
-.subject { background-image: linear-gradient(45deg, var(--secondary-orange) 0%, #FFA726 100%); }
-.classes { background-image: linear-gradient(45deg, var(--primary-blue) 0%, #63a4ff 100%); }
-
-a.classes {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.subject.animate-in, .classes.animate-in { animation: popIn 0.5s ease-out forwards; }
-.subject:hover, .classes:hover {
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25);
-  transform: translateY(-5px) scale(1.03);
-}
-
-.testimonial-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
-    margin-top: 40px;
-}
-.testimonial-card {
-    background: #fdfdfd;
-    border: 1px solid #eee;
-    padding: 25px;
-    border-radius: 10px;
-    box-shadow: var(--box-shadow);
-}
-.testimonial-card p {
-    font-style: italic;
-    color: #555;
-    margin-bottom: 15px;
-}
-.testimonial-card p::before {
-    content: '“';
-    font-size: 24px;
-    font-weight: bold;
-    color: var(--secondary-orange);
-    margin-right: 5px;
-}
-.testimonial-author {
-    font-weight: bold;
-    color: var(--primary-blue);
-}
-
-#self-learning p,
-#self-learning ul {
-  color: var(--dark-blue);
-  line-height: 1.8;
-  font-size: 18px;
-}
-
-#self-learning a {
-    color: var(--secondary-orange);
-    font-weight: bold;
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-#self-learning a:hover {
-    color: var(--primary-blue);
-    text-decoration: underline;
-}
-
-#self-learning ul {
-    list-style: none;
-    padding-left: 0;
-}
-
-#self-learning li {
-    margin-bottom: 15px;
-    padding-left: 30px;
-    position: relative;
-}
-#self-learning li::before {
-    content: '\f058';
-    font-family: 'Font Awesome 6 Free';
-    font-weight: 900;
-    position: absolute;
-    left: 0;
-    top: 5px;
-    color: var(--secondary-orange);
-}
-
-#self-learning img[alt="YT Logo"] {
-  width: 24px;
-  height: auto;
-  vertical-align: middle;
-  margin-right: 8px;
-}
-
-footer {
-  background-color: var(--primary-blue);
-  padding: 30px 25px;
-  text-align: center;
-  color: var(--white);
-  font-size: 16px;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-}
-
-footer a {
-  color: var(--secondary-orange);
-  text-decoration: none;
-  font-weight: bold;
-  transition: text-decoration 0.3s ease, color 0.3s ease;
-}
-
-footer a:hover {
-  text-decoration: underline;
-  color: var(--white);
-}
-
-.fab-container {
-    position: fixed;
-    bottom: 25px;
-    right: 25px;
-    z-index: 1000;
-}
-.fab {
-    width: 55px;
-    height: 55px;
-    background-color: var(--primary-blue);
-    color: white;
-    border-radius: 50%;
-    border: none;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    font-size: 24px;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: transform 0.3s ease, background-color 0.3s ease;
-}
-.fab:hover {
-    background-color: var(--secondary-orange);
-    transform: rotate(90deg);
-}
-.fab-options {
-    position: absolute;
-    bottom: 65px;
-    right: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(10px);
-    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
-}
-.fab-container.active .fab-options {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-}
-.fab-option {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background-color: var(--primary-blue);
-    color: white;
-    border: none;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-    font-size: 22px;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: transform 0.3s ease, background-color 0.3s ease;
-}
-.fab-option:hover {
-    background-color: var(--secondary-orange);
-    transform: scale(1.1);
-}
-
-.ai-chatbot-container {
-  position: fixed;
-  bottom: 20px;
-  right: 90px;
-  width: 380px;
-  height: 520px;
-  background-color: var(--white);
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-  display: none;
-  flex-direction: column;
-  overflow: hidden;
-  z-index: 998;
-  transform: scale(0.5);
-  opacity: 0;
-  transform-origin: bottom right;
-  transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.4s ease-out, width 0.3s ease, height 0.3s ease, top 0.3s ease, right 0.3s ease, bottom 0.3s ease, left 0.3s ease;
-}
-.ai-chatbot-container.active { display: flex; transform: scale(1); opacity: 1; }
-.ai-chatbot-container.fullscreen { top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; border-radius: 0; transform: scale(1); opacity: 1; z-index: 1001; display: flex; }
-.ai-chatbot-header { background-color: var(--primary-blue); color: var(--white); padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 20px; font-weight: bold; border-top-left-radius: 15px; border-top-right-radius: 15px; flex-shrink: 0; }
-.ai-chatbot-container.fullscreen .ai-chatbot-header { border-radius: 0; }
-.ai-chatbot-header .header-controls { display: flex; gap: 12px; }
-.ai-chatbot-header button { background: none; border: none; color: var(--white); font-size: 26px; cursor: pointer; line-height: 1; transition: color 0.3s ease, transform 0.3s ease; }
-.ai-chatbot-header button:hover { color: var(--secondary-orange); transform: scale(1.1); }
-.ai-chatbot-messages { flex-grow: 1; padding: 20px; overflow-y: auto; background-color: #f9f9f9; color: var(--text-color); display: flex; flex-direction: column; }
-.ai-chatbot-message { margin-bottom: 12px; padding: 10px 15px; border-radius: 20px; max-width: 85%; position: relative; animation: fadeIn 0.3s ease-out, slideInUp 0.3s ease-out; }
-.ai-chatbot-message.user { background-color: #e0e0e0; align-self: flex-end; margin-left: auto; border-bottom-right-radius: 5px; }
-.ai-chatbot-message.bot { background-color: #d1e7dd; align-self: flex-start; margin-right: auto; display: flex; flex-direction: column; padding-right: 40px; border-bottom-left-radius: 5px; }
-.ai-chatbot-message.bot .message-text-content { flex-grow: 1; font-size: 16px; }
-.ai-chatbot-message.bot .speaker-icon { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #888; font-size: 1.1em; transition: color 0.2s ease-in-out, transform 0.2s ease; }
-.ai-chatbot-message.bot .speaker-icon:hover { color: var(--primary-blue); transform: translateY(-50%) scale(1.15); }
-.ai-chatbot-message.bot .speaker-icon:active { transform: translateY(-50%) scale(0.95); }
-.ai-chatbot-message.typing-indicator { background-color: #e0e0e0; display: flex; gap: 4px; padding: 10px 15px; width: fit-content; align-items: center; }
-.ai-chatbot-message.typing-indicator span { width: 8px; height: 8px; background-color: #888; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out; }
-.ai-chatbot-message.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-.ai-chatbot-message.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
-@keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
-.ai-chatbot-predefined-questions { padding: 15px 20px; border-top: 1px solid #eee; background-color: #f1f1f1; display: flex; flex-wrap: wrap; gap: 10px; max-height: 180px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--secondary-orange) #f1f1f1; flex-shrink: 0; }
-.ai-chatbot-predefined-questions::-webkit-scrollbar { width: 8px; }
-.ai-chatbot-predefined-questions::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-.ai-chatbot-predefined-questions::-webkit-scrollbar-thumb { background-color: var(--secondary-orange); border-radius: 10px; border: 2px solid #f1f1f1; }
-.ai-chatbot-predefined-questions::-webkit-scrollbar-thumb:hover { background-color: #e07a21; }
-.ai-chatbot-predefined-questions button { background-color: var(--secondary-orange); color: var(--white); border: none; border-radius: 25px; padding: 10px 18px; cursor: pointer; font-size: 15px; transition: background-color 0.2s, transform 0.1s; flex-shrink: 0; animation: fadeIn 0.4s ease-out; }
-.ai-chatbot-predefined-questions button:hover { background-color: #e07a21; transform: translateY(-2px); }
-.ai-chatbot-predefined-questions button:active { transform: translateY(0); }
-
-#robot-pointer {
-    position: fixed;
-    bottom: 100px;
-    right: 100px;
-    font-size: 40px;
-    color: var(--secondary-orange);
-    display: none;
-    z-index: 1002;
-    transform-origin: bottom right;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-}
-
-#robot-pointer i {
-  animation: flying-motion 3s ease-in-out infinite alternate;
-  text-shadow: 0 0 10px rgba(0,0,0,0.3);
-}
-
-#robot-pointer::after {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 15px 15px 0 15px;
-    border-color: var(--secondary-orange) transparent transparent transparent;
-    bottom: -25px;
-    left: 50%;
-    transform: translateX(-50%);
-    animation: pointer-wiggle 0.5s ease-in-out infinite alternate;
-}
-
-@keyframes fly-to-ribot {
-    from {
-        bottom: 100px;
-        right: 100px;
-        transform: scale(0.5);
+    /* --- KIDSPRENEURSHIP THEME --- */
+    :root {
+      --primary-color: #6B3EC8;
+      --primary-dark: #4A228F;
+      --primary-light: #EDE8FF;
+      --primary-mid: #8B5CF6;
+      --accent-orange: #FF7426;
+      --accent-yellow: #FFB800;
+      --accent-teal: #00B8A9;
+      --success-green: #22C55E;
+      --danger-red: #EF4444;
+      --sidebar-bg: #1E0A45;
+      --sidebar-item-hover: rgba(255,255,255,0.1);
+      --sidebar-item-active: rgba(255,255,255,0.18);
+      --light-gray: #F4F0FF;
+      --medium-gray: #D8D0F0;
+      --dark-gray: #4A3F6B;
+      --text-primary: #1A0D3C;
+      --text-secondary: #7660A8;
+      --white: #ffffff;
+      --border-color: #E2D9F7;
+      --shadow-light: 0 2px 8px rgba(107, 62, 200, 0.08);
+      --shadow-medium: 0 4px 16px rgba(107, 62, 200, 0.14);
+      --shadow-heavy: 0 8px 32px rgba(107, 62, 200, 0.18);
+      --border-radius: 16px;
+      --border-radius-sm: 10px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    to {
-        bottom: var(--target-y);
-        right: var(--target-x);
-        transform: scale(1.2);
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-}
 
-@keyframes flying-motion {
-    0% { transform: translateY(0px) rotate(5deg); }
-    50% { transform: translateY(-10px) rotate(-5deg); }
-    100% { transform: translateY(0px) rotate(5deg); }
-}
-
-@keyframes pulse {
-    from { transform: scale(1); }
-    to { transform: scale(1.05); }
-}
-
-.video-container {
-  max-width: 900px;
-  margin: 0 auto 20px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.responsive-video {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-@media (max-width: 992px) {
-    .nav-links {
-        justify-content: flex-start;
-        flex-grow: 0;
+    html {
+      scroll-behavior: smooth;
     }
-    nav {
+
+    body {
+      font-family: 'Nunito Sans', 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--light-gray);
+      min-height: 100vh;
+      overflow: hidden;
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    .main-wrapper {
+      display: flex;
+      height: 100vh;
+    }
+
+    .content-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+
+    /* --- HEADER / TOP BAR --- */
+    header.top-bar {
+      background-color: var(--white);
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      position: fixed;
+      top: 0;
+      left: 280px;
+      right: 0;
+      height: 70px;
+      border-bottom: 2px solid var(--border-color);
+      box-shadow: var(--shadow-light);
+      z-index: 99;
+      transition: left 0.3s ease;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .menu-toggle {
+      display: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--text-primary);
+    }
+
+    .header-title h3 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-primary);
+      font-family: 'Nunito', sans-serif;
+    }
+
+    .header-title small {
+      color: var(--primary-color);
+      font-size: 12px;
+      display: block;
+      margin-top: 2px;
+      font-weight: 600;
+    }
+
+    .settings-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .settings-icon {
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: var(--transition);
+    }
+    .settings-icon:hover {
+      color: var(--primary-color);
+    }
+
+    .settings-menu {
+      visibility: hidden;
+      opacity: 0;
+      position: absolute;
+      top: 60px;
+      right: 0;
+      background: var(--white);
+      border-radius: var(--border-radius);
+      padding: 8px;
+      box-shadow: var(--shadow-heavy);
+      z-index: 100;
+      min-width: 210px;
+      transform: translateY(-10px) scale(0.95);
+      transition: var(--transition);
+      border: 1.5px solid var(--border-color);
+    }
+    .settings-menu.active {
+      visibility: visible;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    .settings-menu button {
+      background-color: transparent;
+      color: var(--text-primary);
+      border: none;
+      padding: 11px 14px;
+      cursor: pointer;
+      border-radius: 10px;
+      width: 100%;
+      text-align: left;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: 'Nunito Sans', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: var(--transition);
+    }
+    .settings-menu button:hover {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+    }
+    .settings-menu button:last-child:hover {
+      background-color: #FEE2E2;
+      color: var(--danger-red);
+    }
+
+    .profile-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      cursor: pointer;
+      border: 2.5px solid var(--primary-color);
+      transition: var(--transition);
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+    .profile-icon:hover {
+      box-shadow: 0 0 0 4px rgba(107, 62, 200, 0.25);
+    }
+
+    /* --- SIDEBAR / NAVIGATION --- */
+    nav.sidebar {
+      background: linear-gradient(180deg, #1E0A45 0%, #2D1066 60%, #3A1880 100%);
+      color: rgba(255,255,255,0.85);
+      padding: 20px 0;
+      width: 280px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      z-index: 100;
+      transition: transform 0.3s ease;
+      border-right: none;
+      overflow-y: auto;
+      position: relative;
+    }
+    nav.sidebar::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: radial-gradient(circle at 20% 20%, rgba(139,92,246,0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(107,62,200,0.1) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .sidebar.open {
+      transform: translateX(0);
+    }
+    .logo-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 16px 24px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 16px;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .logo-container h2 {
+      margin: 0;
+      font-size: 26px;
+      font-weight: 900;
+      font-family: 'Nunito', sans-serif;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+    }
+    .logo-container h2 span {
+      color: var(--accent-yellow);
+    }
+    .logo-container p {
+      font-size: 11px;
+      color: rgba(255,255,255,0.5);
+      margin: 6px 0 0 0;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .nav-menu {
+      flex-grow: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 0 4px;
+    }
+
+    .nav-menu::-webkit-scrollbar {
+        width: 4px;
+    }
+    .nav-menu::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .nav-menu::-webkit-scrollbar-thumb {
+        background-color: rgba(255,255,255,0.2);
+        border-radius: 3px;
+    }
+    .nav-menu::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(255,255,255,0.35);
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background-color: rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin: 0 12px 16px;
+      border: 1px solid rgba(255,255,255,0.12);
+      transition: var(--transition);
+    }
+    .search-box:focus-within {
+      background-color: rgba(255,255,255,0.14);
+      border-color: rgba(255,255,255,0.25);
+    }
+    .search-box i {
+      color: rgba(255,255,255,0.5);
+      font-size: 14px;
+    }
+    .search-box input {
+      background-color: transparent;
+      border: none;
+      color: rgba(255,255,255,0.9);
+      font-size: 13px;
+      width: 100%;
+      outline: none;
+      font-family: 'Nunito Sans', sans-serif;
+    }
+    .search-box input::placeholder {
+      color: rgba(255,255,255,0.4);
+    }
+
+    .nav-button {
+      background-color: transparent;
+      color: rgba(255,255,255,0.65);
+      border: none;
+      padding: 11px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: 'Nunito Sans', sans-serif;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-align: left;
+      transition: var(--transition);
+      flex-shrink: 0;
+      text-decoration: none;
+      margin: 0 8px;
+    }
+    .nav-button:hover {
+      background-color: rgba(255,255,255,0.1);
+      color: #ffffff;
+    }
+    .nav-button.active {
+      background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1));
+      color: #ffffff;
+      font-weight: 700;
+      border-left: 3px solid var(--accent-yellow);
+      padding-left: 13px;
+    }
+    .nav-button i {
+      width: 20px;
+      text-align: center;
+      font-size: 16px;
+      opacity: 0.85;
+    }
+
+    /* --- MAIN CONTENT AREA --- */
+    main.content-area {
+      flex-grow: 1;
+      padding: 40px 40px;
+      overflow-y: auto;
+      margin-top: 70px;
+      animation: fadeIn 0.5s ease-out;
+      background-color: var(--light-gray);
+      background-image: 
+        radial-gradient(circle at 10% 10%, rgba(107,62,200,0.05) 0%, transparent 40%),
+        radial-gradient(circle at 90% 90%, rgba(255,116,38,0.04) 0%, transparent 40%);
+    }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 24px;
+    }
+    .card {
+        background-color: var(--white);
+        border: 1.5px solid var(--border-color);
+        border-radius: var(--border-radius);
+        padding: 28px;
+        box-shadow: var(--shadow-light);
+        transition: var(--transition);
+        animation: popIn 0.5s ease-out backwards;
+        position: relative;
+        overflow: hidden;
+    }
+    .card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-color), var(--primary-mid));
+        border-radius: var(--border-radius) var(--border-radius) 0 0;
+    }
+    .card:nth-child(2)::before { background: linear-gradient(90deg, var(--accent-orange), var(--accent-yellow)); }
+    .card:nth-child(3)::before { background: linear-gradient(90deg, var(--accent-teal), #00E5D1); }
+    .card:nth-child(4)::before { background: linear-gradient(90deg, #FF61AB, #C850C0); }
+    .card:hover {
+        box-shadow: var(--shadow-medium);
+        transform: translateY(-2px);
+    }
+    .card-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+    .card-header i {
+        font-size: 22px;
+        color: var(--primary-color);
+        background: var(--primary-light);
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        flex-shrink: 0;
+    }
+    .card:nth-child(2) .card-header i { color: var(--accent-orange); background: #FFF3EB; }
+    .card:nth-child(3) .card-header i { color: var(--accent-teal); background: #E6FAF8; }
+    .card:nth-child(4) .card-header i { color: #C850C0; background: #FCE8FB; }
+    .card-header h4 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 800;
+        color: var(--text-primary);
+        font-family: 'Nunito', sans-serif;
+    }
+    .card p {
+        color: var(--text-secondary);
+        font-size: 14px;
+        margin: 0;
+        line-height: 1.7;
+    }
+    .card ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .card li {
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 14px;
+    }
+    .card li:last-child {
+        border-bottom: none;
+    }
+
+    .progress-bar-container {
+        width: 100%;
+        background-color: var(--light-gray);
+        border-radius: 999px;
+        overflow: hidden;
+        margin: 16px 0 8px 0;
+        height: 10px;
+    }
+    .progress-bar {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--accent-teal), #00E5D1);
+        transition: width 0.5s ease-in-out;
+        border-radius: 999px;
+    }
+    .progress-text {
+        text-align: right;
+        margin-top: 8px;
+        font-weight: 700;
+        color: var(--accent-teal);
+        font-size: 14px;
+        font-family: 'Nunito', sans-serif;
+    }
+
+    .todo-list-container {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .todo-input-group {
+        display: flex;
+        gap: 8px;
+    }
+    .todo-input-group input {
+        flex-grow: 1;
+        padding: 10px 14px;
+        border: 1.5px solid var(--border-color);
+        border-radius: 10px;
+        font-size: 14px;
+        font-family: 'Nunito Sans', sans-serif;
+        transition: var(--transition);
+        color: var(--text-primary);
+    }
+    .todo-input-group input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(107, 62, 200, 0.12);
+    }
+    .todo-input-group button {
+        background: linear-gradient(135deg, var(--accent-orange), var(--accent-yellow));
+        color: var(--white);
+        border: none;
+        border-radius: 10px;
+        padding: 10px 16px;
+        cursor: pointer;
+        transition: var(--transition);
+        font-weight: 700;
+        font-size: 14px;
+        box-shadow: 0 2px 8px rgba(255,116,38,0.3);
+    }
+    .todo-input-group button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(255,116,38,0.4);
+    }
+    .todo-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .todo-list li {
+        display: flex;
+        align-items: center;
         justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 14px;
     }
-}
+    .todo-list li:last-child {
+        border-bottom: none;
+    }
+    .todo-list li.completed {
+        text-decoration: line-through;
+        color: var(--text-secondary);
+    }
+    .todo-list .remove-btn {
+        background: none;
+        border: none;
+        color: var(--danger-red);
+        cursor: pointer;
+        font-size: 16px;
+        transition: var(--transition);
+        padding: 4px 8px;
+        border-radius: 6px;
+    }
+    .todo-list .remove-btn:hover {
+        background: #FEE2E2;
+        color: #DC2626;
+    }
 
-@media (max-width: 768px) {
-  body { background-attachment: scroll; }
-  header.slider-container { height: 50vh; }
-  .header-content img { max-width: 120px; }
-  .header-content h1 { font-size: 42px; }
-  .header-content p { font-size: 20px; }
+    .floating-buttons {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 999;
+    }
+    .floating-button {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-mid));
+      color: var(--white);
+      border: none;
+      border-radius: 50%;
+      width: 56px;
+      height: 56px;
+      font-size: 22px;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(107, 62, 200, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+    .floating-button:hover {
+      transform: scale(1.1) translateY(-2px);
+      box-shadow: 0 8px 24px rgba(107, 62, 200, 0.5);
+    }
 
-  nav { flex-wrap: wrap; justify-content: center; padding: 10px 0; }
-  .nav-links { width: 100%; justify-content: center; margin-bottom: 10px; }
-  .nav-cta { width: 100%; justify-content: center; }
+    #mic-btn.active {
+      background: linear-gradient(135deg, var(--accent-orange), var(--accent-yellow));
+      animation: micPulse 1s infinite;
+      box-shadow: 0 4px 16px rgba(255, 116, 38, 0.5);
+    }
 
-  main { padding: 20px; }
-  section { padding: 25px; }
-  h2 { font-size: 32px; }
-  .subject-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 25px; }
-  #self-learning p, #self-learning ul { font-size: 16px; }
+    @keyframes micPulse {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 4px 16px rgba(255, 116, 38, 0.4);
+      }
+      50% {
+        transform: scale(1.1);
+        box-shadow: 0 8px 28px rgba(255, 116, 38, 0.6);
+      }
+      100% {
+        transform: scale(1);
+        box-shadow: 0 4px 16px rgba(255, 116, 38, 0.4);
+      }
+    }
 
-  .ai-chatbot-container { width: 320px; height: 480px; right: 70px; bottom: 70px; }
-}
+    #chatbot-popup {
+      position: fixed;
+      bottom: 120px;
+      right: 32px;
+      width: 340px;
+      background: linear-gradient(135deg, #ffffff 0%, #F4F0FF 100%);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-heavy);
+      padding: 24px;
+      z-index: 1000;
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+      transform: scale(0.8);
+      opacity: 0;
+      transition: var(--transition);
+      border: 1.5px solid var(--border-color);
+    }
 
-@media (max-width: 480px) {
-  header.slider-container { height: 45vh; }
-  .header-content img { max-width: 100px; }
-  .header-content h1 { font-size: 34px; }
-  .header-content p { font-size: 18px; }
+    #chatbot-popup.active {
+      display: flex;
+      transform: scale(1);
+      opacity: 1;
+    }
 
-  nav { padding: 15px 0; }
-  nav a { font-size: 16px; padding: 10px 15px; }
-  .nav-links { border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-  .nav-links a { padding: 12px 15px; }
+    #chatbot-popup h5 {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text-primary);
+      font-family: 'Nunito', sans-serif;
+    }
 
-  main { padding: 15px; }
-  section { padding: 20px; }
-  h2 { font-size: 28px; }
+    #chatbot-popup p {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
 
-  .feature-grid, .subject-grid, .testimonial-grid { grid-template-columns: 1fr; gap: 20px; }
+    #chatbot-popup .chatbot-buttons {
+      display: flex;
+      gap: 8px;
+    }
 
-  #self-learning p, #self-learning ul { font-size: 15px; }
-  #self-learning ul { padding-left: 20px; }
+    #chatbot-popup button {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-mid));
+      color: var(--white);
+      border: none;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      flex-grow: 1;
+      transition: var(--transition);
+      font-weight: 700;
+      font-family: 'Nunito Sans', sans-serif;
+      box-shadow: 0 2px 8px rgba(107,62,200,0.3);
+    }
 
-  footer { padding: 20px; font-size: 14px; }
+    #chatbot-popup button:last-child {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1.5px solid var(--border-color);
+      box-shadow: none;
+    }
 
-  .ai-chatbot-container.active { top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; border-radius: 0; transform: scale(1); opacity: 1; z-index: 1001; }
-}
+    #chatbot-popup button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(107,62,200,0.35);
+    }
+    #chatbot-popup button:last-child:hover {
+      background: var(--light-gray);
+      box-shadow: none;
+    }
 
-/* Self-learning: image-left compact layout */
-#self-learning {
-  display: flex;
-  gap: 18px;
-  align-items: flex-start;
-  flex-wrap: nowrap;
-  padding: 20px;
-  background: var(--white);
-  border-radius: 12px;
-  box-shadow: var(--box-shadow);
-}
+    #ribot-settings-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      width: 440px;
+      max-width: 90vw;
+      background: linear-gradient(135deg, #ffffff 0%, #F4F0FF 100%);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-heavy);
+      padding: 32px;
+      z-index: 1001;
+      display: none;
+      flex-direction: column;
+      gap: 24px;
+      opacity: 0;
+      transition: var(--transition);
+      border: 1.5px solid var(--border-color);
+    }
 
-#self-learning .self-img {
-  flex: 0 0 140px;           /* fixed width so it won't take more space */
-  width: 140px;
-  height: 140px;
-  border-radius: 12px;
-  object-fit: cover;         /* keeps image aspect and crops neatly */
-  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-  margin-top: 4px;
-}
+    #ribot-settings-popup.active {
+      display: flex;
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
 
-#self-learning .self-content {
-  flex: 1 1 auto;
-  min-width: 0;              /* important for flex item text truncation */
-}
+    #ribot-settings-popup .popup-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1.5px solid var(--border-color);
+        padding-bottom: 16px;
+        margin-bottom: 0;
+    }
 
-#self-learning .self-content p,
-#self-learning .self-content ul {
-  margin-top: 8px;
-  line-height: 1.7;
-  color: var(--text-color);
-}
+    #ribot-settings-popup h4 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 800;
+        color: var(--text-primary);
+        font-family: 'Nunito', sans-serif;
+    }
 
-/* small screens: stack */
-@media (max-width: 720px) {
-  #self-learning {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  #self-learning .self-img {
-    width: 100%;
-    height: auto;
-    flex: 0 0 auto;
-  }
-}
+    #ribot-settings-popup .close-btn {
+        background: var(--light-gray);
+        border: none;
+        font-size: 20px;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: var(--transition);
+        padding: 0;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    #ribot-settings-popup .close-btn:hover {
+        background: var(--primary-light);
+        color: var(--primary-color);
+    }
+
+    .ribot-options {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .ribot-options button {
+        background-color: var(--white);
+        color: var(--text-primary);
+        border: 1.5px solid var(--border-color);
+        border-radius: 10px;
+        padding: 13px 16px;
+        font-size: 14px;
+        cursor: pointer;
+        text-align: left;
+        transition: var(--transition);
+        font-weight: 600;
+        font-family: 'Nunito Sans', sans-serif;
+    }
+    .ribot-options button:hover {
+        background-color: var(--primary-light);
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        transform: translateX(4px);
+    }
+
+    .ribot-response {
+        padding: 16px;
+        background: linear-gradient(135deg, var(--primary-light), #fff);
+        border-left: 4px solid var(--primary-color);
+        border-radius: 10px;
+        color: var(--text-primary);
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .language-dropdown-container {
+        position: relative;
+        cursor: pointer;
+        user-select: none;
+        font-size: 13px;
+        font-weight: 700;
+        font-family: 'Nunito Sans', sans-serif;
+        width: 130px;
+        z-index: 10;
+        color: var(--text-primary);
+    }
+    .selected-language {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 12px;
+        background: var(--primary-light);
+        border-radius: 10px;
+        border: 1.5px solid var(--border-color);
+        transition: var(--transition);
+        color: var(--primary-color);
+    }
+    .selected-language:hover {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: #ffffff;
+    }
+    .selected-language .dropdown-arrow {
+        transition: transform 0.3s ease;
+        font-size: 11px;
+    }
+    .language-dropdown-container.active .selected-language .dropdown-arrow {
+        transform: rotate(180deg);
+    }
+
+    .language-dropdown-list {
+        position: absolute;
+        top: 110%;
+        left: 0;
+        width: 100%;
+        background: var(--white);
+        border-radius: 10px;
+        box-shadow: var(--shadow-heavy);
+        padding: 4px;
+        max-height: 200px;
+        overflow-y: auto;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-8px);
+        transition: var(--transition);
+        border: 1.5px solid var(--border-color);
+    }
+    .language-dropdown-container.active .language-dropdown-list {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+    .language-dropdown-list li {
+        list-style: none;
+        padding: 10px 12px;
+        border-radius: 7px;
+        cursor: pointer;
+        transition: var(--transition);
+        font-size: 13px;
+        font-weight: 600;
+    }
+    .language-dropdown-list li:hover {
+        background-color: var(--primary-light);
+        color: var(--primary-color);
+    }
+
+    /* --- WELCOME BANNER --- */
+    .welcome-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-mid) 60%, #A78BFA 100%);
+      border-radius: var(--border-radius);
+      padding: 28px 36px;
+      margin-bottom: 28px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 6px 24px rgba(107, 62, 200, 0.35);
+    }
+    .welcome-banner::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.07);
+    }
+    .welcome-banner::after {
+      content: '';
+      position: absolute;
+      bottom: -60px; right: 120px;
+      width: 180px; height: 180px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+    }
+    .welcome-sub {
+      font-size: 13px;
+      font-weight: 600;
+      opacity: 0.8;
+      margin: 0 0 6px 0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .welcome-heading {
+      font-family: 'Nunito', sans-serif;
+      font-size: 28px;
+      font-weight: 900;
+      margin: 0;
+      color: #fff;
+    }
+    .welcome-badges {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 1;
+    }
+    .badge-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: 'Nunito', sans-serif;
+      backdrop-filter: blur(8px);
+    }
+    .badge-purple {
+      background: rgba(255,255,255,0.18);
+      color: #fff;
+      border: 1.5px solid rgba(255,255,255,0.3);
+    }
+    .badge-orange {
+      background: var(--accent-yellow);
+      color: var(--text-primary);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes backgroundAnimate {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .card:nth-child(1) { animation-delay: 0.1s; }
+    .card:nth-child(2) { animation-delay: 0.2s; }
+    .card:nth-child(3) { animation-delay: 0.3s; }
+    .card:nth-child(4) { animation-delay: 0.4s; }
+
+    @media (max-width: 992px) {
+      nav.sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        transform: translateX(-100%);
+        z-index: 100;
+      }
+      nav.sidebar.open {
+        transform: translateX(0);
+      }
+      header.top-bar {
+        left: 0;
+      }
+      .menu-toggle {
+        display: block;
+      }
+      .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(30, 10, 69, 0.6);
+        z-index: 99;
+        display: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      header.top-bar {
+        padding: 0 20px;
+      }
+      .header-title h3 {
+        font-size: 18px;
+      }
+      .settings-container {
+        gap: 14px;
+      }
+      .profile-icon {
+        width: 36px;
+        height: 36px;
+      }
+      main.content-area {
+        padding: 28px 20px;
+      }
+      .welcome-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 24px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      header.top-bar {
+        padding: 0 14px;
+      }
+      .header-title {
+        display: none;
+      }
+      main.content-area {
+        padding: 20px 14px;
+      }
+      .floating-buttons {
+        bottom: 20px;
+        right: 20px;
+        gap: 10px;
+      }
+      .floating-button {
+        width: 48px;
+        height: 48px;
+        font-size: 18px;
+      }
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+      .welcome-heading {
+        font-size: 22px;
+      }
+    }
+
+    .profile-upload { display: none; }
   </style>
 </head>
-<body class="loading">
-
-  <div id="splash-screen">
-       <a href="index.html" class="logo">
-    <img src="assets/logo.png" alt="RiSync Logo">
-</a>
-    <div id="stars"></div>
-  </div>
-  <header class="slider-container">
-    <div class="slides">
-        <div class="slide" style="background-image: url('https://placehold.co/1920x1080/1D3557/FFFFFF?text=Collaborative+Learning');"></div>
-		<div class="slide" style="background-image: url('https://raw.githubusercontent.com/Riddhish-Singh/RiSync-Web/main/assets/students.png');"></div>
-        <div class="slide" style="background-image: url('https://placehold.co/1920x1080/4A90E2/FFFFFF?text=Interactive+Sessions');"></div>
-		<div class="slide" style="background-image: url('https://raw.githubusercontent.com/Riddhish-Singh/RiSync-Web/main/assets/Robot_students.png');"></div>
-        <div class="slide" style="background-image: url('https://placehold.co/1920x1080/FF7043/FFFFFF?text=Achieve+Your+Goals');"></div>
-		<div class="slide" style="background-image: url('https://raw.githubusercontent.com/Riddhish-Singh/RiSync-Web/main/assets/image.png');"></div>
-    </div>
-    <div class="header-content">
-       <a href="index.html" class="logo">
-    <img src="assets/logo.png" alt="RiSync Logo">
-</a>
-        <h1>RiSync</h1>
-        <p>Level Up Your Learning. Peer to Peer.</p>
-    </div>
-    <div class="slider-nav">
-        <button class="prev"><i class="fas fa-chevron-left"></i></button>
-        <button class="next"><i class="fas fa-chevron-right"></i></button>
-    </div>
-  </header>
-
-  <nav>
-    <div class="nav-links">
-        <a href="#features">Features</a>
-        <a href="#subjects">Subjects</a>
-        <a href="#classes">Grades</a>
-    </div>
-    <div class="nav-cta">
-        <button class="button signin" onclick="window.location.href='html/signin.html'">Sign In</button>
-        <button class="button signup" onclick="window.location.href='html/signup.html'">Create New Account</button>
-    </div>
-  </nav>
-
-  <main>
-    <section id="features">
-        <h2>Why RiSync?</h2>
-        <p class="section-intro">We're not just another tutoring site. We're a community hub built on powerful, interactive tools designed to make learning collaborative, effective, and actually fun.</p>
-        <div class="scrolling-container">
-            <div class="scrolling-content">
-                <div class="feature-grid">
-                    <div class="feature-card">
-                        <i class="fas fa-users"></i>
-                        <h3>Peer-to-Peer Matching</h3>
-                        <p>Our smart AI connects you with the perfect <br> student tutor based on subject, skill level, <br> and learning style.</p>
-                    </div>
-                    <div class="feature-card">
-                        <i class="fas fa-chalkboard-teacher"></i>
-                        <h3>Live Whiteboards</h3>
-                        <p>Tackle tricky problems together in <br> real-time with collaborative digital whiteboards. <br> Perfect for math and science!</p>
-                    </div>
-                    <div class="feature-card" data-ribot-target>
-                        <i class="fas fa-brain"></i>
-                        <h3>Meet RiBot, Your AI Pal</h3>
-                        <p>Got a question at 3 AM? RiBot,<br> our 24/7 AI assistant, is always ready<br> to help you find answers and resources<br> related to <b>RiSync</b>.</p>
-                    </div>
-                </div>
-                <div class="feature-grid">
-                    <div class="feature-card">
-                        <i class="fas fa-users"></i>
-                        <h3>Peer-to-Peer Matching</h3>
-                        <p>Our smart AI connects you with the perfect <br> student tutor based on subject, skill level, <br> and learning style.</p>
-                    </div>
-                    <div class="feature-card">
-                        <i class="fas fa-chalkboard-teacher"></i>
-                        <h3>Live Whiteboards</h3>
-                        <p>Tackle tricky problems together in <br> real-time with collaborative digital whiteboards. <br> Perfect for math and science!</p>
-                    </div>
-                    <div class="feature-card" data-ribot-target>
-                        <i class="fas fa-brain"></i>
-                        <h3>Meet RiBot, Your AI Pal</h3>
-                        <p>Got a question at 3 AM? RiBot,<br> our 24/7 AI assistant, is always ready<br> to help you find answers and resources<br> related to <b>RiSync</b>.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="ad-video">
-        <h2>See RiSync in Action</h2>
-        <p class="section-intro">Watch this quick video to see how RiSync makes learning a dynamic and collaborative experience.</p>
-        <div class="video-container">
-            <video controls playsinline poster="assets/video-thumbnail.jpg" class="responsive-video">
-                <source src="https://raw.githubusercontent.com/Riddhish-Singh/RiSync-Web/main/assets/RiSync_Final_Ad.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-        </div>
-    </section>
-    <section id="subjects">
-      <h2>Find Your Subject</h2>
-      <p class="section-intro">Whatever you're stuck on, we've got your back. Dive into our core subjects and find the support you need.</p>
-      <div class="subject-grid">
-		<a href="#classes" class="subject" aria-label="Math">Math</a>
-		<a href="#classes" class="subject" aria-label="Science">Science</a>
-		<a href="#classes" class="subject" aria-label="IT">IT</a>
-		<a href="#classes" class="subject" aria-label="Social Sciences">Social Sciences</a>
-      </div>
-    </section>
-
-    <section id="classes">
-      <h2>Choose Your Grade</h2>
-      <p class="section-intro">Learning is a journey. Select your grade to find tailored sessions and resources just for you.</p>
-      <div class="subject-grid">
-        <a href="html/signup.html?class=1" class="classes">1st</a>
-        <a href="html/signup.html?class=2" class="classes">2nd</a>
-        <a href="html/signup.html?class=3" class="classes">3rd</a>
-        <a href="html/signup.html?class=4" class="classes">4th</a>
-        <a href="html/signup.html?class=5" class="classes">5th</a>
-        <a href="html/signup.html?class=6" class="classes">6th</a>
-        <a href="html/signup.html?class=7" class="classes">7th</a>
-        <a href="html/signup.html?class=8" class="classes">8th</a>
-      </div>
-    </section>
-
-    <section id="gamification">
-        <h2>Make Learning a Flex</h2>
-        <p class="section-intro">Who said studying has to be a grind? We turn learning into a game with points, badges, and leaderboards. Stay motivated, challenge your friends, and celebrate every win.</p>
-        <div class="feature-grid">
-            <div class="feature-card">
-                <i class="fas fa-trophy"></i>
-                <h3>Earn XP & Badges</h3>
-                <p>Get recognized for your hard work! Earn points for attending sessions, helping others, and acing quizzes.</p>
-            </div>
-            <div class="feature-card">
-                <i class="fas fa-chart-line"></i>
-                <h3>Climb the Leaderboard</h3>
-                <p>See how you stack up against your peers. Friendly competition to be the "Top Tutor of the Week" keeps things spicy.</p>
-            </div>
-            <div class="feature-card">
-                <i class="fas fa-star"></i>
-                <h3>Track Your Streaks</h3>
-                <p>Build powerful study habits by maintaining daily and weekly streaks. Watch your progress skyrocket!</p>
-            </div>
-        </div>
-    </section>
-
-    <section id="testimonials">
-        <h2>What Students Say</h2>
-        <p class="section-intro">Don't just take our word for it. Here's what actual students think about learning with RiSync.</p>
-        <div class="testimonial-grid">
-            <div class="testimonial-card">
-                <p>I was so confused about algebra, but my peer tutor explained it in a way that just clicked. Way less awkward than asking a teacher.</p>
-                <div class="testimonial-author">- Ayushi, 6th Grade</div>
-            </div>
-            <div class="testimonial-card">
-                <p>The resource library is a lifesaver. Found the perfect worksheet for my science project. 10/10 would recommend.</p>
-                <div class="testimonial-author">- Ben, 8th Grade</div>
-            </div>
-            <div class="testimonial-card">
-                <p>Honestly, trying to get on the leaderboard is my new favorite game. It actually makes me want to study more.</p>
-                <div class="testimonial-author">- Rizul, 7th Grade</div>
-            </div>
-        </div>
-    </section>
-
-<section id="self-learning" aria-labelledby="own-your-growth" style="padding:30px 20px;background:#fff;border-radius:12px;">
-  <div class="self-wrapper" style="display:flex;gap:30px;align-items:center;flex-wrap:nowrap;">
+<body>
+  <div class="main-wrapper">
+    <div class="overlay" id="overlay"></div>
     
-    <!-- Left: Text Content -->
-    <div class="self-content" style="flex:1 1 auto;min-width:0;">
-      <h2 id="own-your-growth" style="margin-top:0;margin-bottom:14px;color:#4A90E2;font-size:1.8rem;">Own Your Growth</h2>
-
-      <p style="margin:6px 0 16px;font-size:1rem;line-height:1.6;">
-        <a href="https://www.youtube.com/@RiSync" target="_blank" rel="noopener" style="font-weight:600;color:#FF7043;text-decoration:none;">
-          Learn more from RiSync
-          <img src="https://raw.githubusercontent.com/Riddhish-Singh/RiSync-Web/main/assets/yt.png"
-               alt="YouTube logo"
-               style="width:20px;height:auto;vertical-align:middle;margin-left:6px;"
-               onerror="this.onerror=null;this.src='https://placehold.co/20x20/FF0000/FFFFFF?text=YT';">
-        </a>
-      </p>
-
-      <p style="margin:0 0 14px;font-size:1rem;line-height:1.6;color:#444;">
-        Our platform gives you the keys to drive your own learning journey. Ditch the stress and study smarter with features like:
-      </p>
-
-      <ul style="margin:0;padding-left:20px;line-height:1.8;font-size:1rem;color:#333;">
-        <li>Interactive quizzes that make testing your knowledge fun.</li>
-        <li>Huge resource libraries to go deeper into any subject.</li>
-        <li>Active discussion forums to brainstorm and share ideas.</li>
-        <li>Personalized learning paths that adapt to your goals.</li>
-      </ul>
+    <nav class="sidebar" id="sidebar">
+      <div class="logo-container">
+        <h2>Ri<span>Sync</span></h2>
+        <p>Learning Platform</p>
+      </div>
+      <div class="nav-menu">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" id="searchInput" placeholder="Search...">
+        </div>
+        <a href="RiSync-CHAT.html" class="nav-button"><i class="fas fa-comments"></i> Chat</a>
+        <a href="monitor.html" class="nav-button"><i class="fas fa-monitor"></i> Monitor</a>
+        <a href="books.html" class="nav-button"><i class="fas fa-book"></i> Books</a>
+        <a href="https://risync.in/RiSync-Web/html/ricall.html?schedule=true" class="nav-button"><i class="fas fa-calendar"></i> Schedule</a>
+        <a href="calendar.html" class="nav-button"><i class="fas fa-calendar-alt"></i> Calendar</a>
+        <a href="database.html" class="nav-button"><i class="fas fa-database"></i> Database</a>
+        <a href="subjects.html" class="nav-button"><i class="fas fa-book-open"></i> Subjects</a>
+        <a href="ncert.html" class="nav-button"><i class="fas fa-book"></i> NCERT</a>
+        <a href="whiteboard.html" class="nav-button"><i class="fas fa-chalkboard"></i> Whiteboard</a>
+        <a href="calculator.html" class="nav-button"><i class="fas fa-calculator"></i> Calculator</a>
+        <a href="gpt.html" class="nav-button"><i class="fas fa-robot"></i> AI Assistant</a>
+        <a href="https://cse.google.com/cse?cx=21639bebac7284493" class="nav-button"><i class="fas fa-search"></i> Search</a>
+        <a href="leaderboard.html" class="nav-button"><i class="fas fa-trophy"></i> Leaderboard</a>
+        <a href="ppt.html" class="nav-button"><i class="fas fa-file-powerpoint"></i> Presentations</a>
+        <a href="design.html" class="nav-button"><i class="fas fa-laptop-code"></i> Design</a>
+      </div>
+    </nav>
+    
+    <div class="content-container">
+      <header class="top-bar">
+        <div class="header-left">
+          <div class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+          </div>
+          <div class="header-title">
+            <h3 id="welcome-message" data-i18n="welcome">Welcome back</h3>
+            <small id="displayBranch"></small>
+          </div>
+        </div>
+        <div class="settings-container">
+          <div class="language-dropdown-container" id="language-dropdown-container">
+            <div class="selected-language" id="selected-language">
+              <span>English</span>
+              <i class="fas fa-chevron-down dropdown-arrow"></i>
+            </div>
+            <ul class="language-dropdown-list" id="language-dropdown-list"></ul>
+          </div>
+          <input type="file" id="profileUpload" class="profile-upload" accept=".png, .jpg" />
+          <img src="https://placehold.co/40x40/6B3EC8/ffffff?text=U" alt="Profile" class="profile-icon" id="profileIcon" />
+          <i class="fas fa-cog settings-icon" id="settingsIcon"></i>
+          <div class="settings-menu" id="settingsMenu">
+            <button id="profileBtn"><i class="fas fa-user"></i> Profile</button>
+            <button id="ribotSettingsBtn"><i class="fas fa-question-circle"></i> Help & Support</button>
+            <button id="logoutButton"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+          </div>
+        </div>
+      </header>
+  
+      <main class="content-area">
+        <!-- Welcome Banner -->
+        <div class="welcome-banner">
+          <div class="welcome-text">
+            <p class="welcome-sub">Ready to learn something new today?</p>
+            <h2 class="welcome-heading">Welcome back! 🚀</h2>
+          </div>
+          <div class="welcome-badges">
+            <div class="badge-pill badge-purple"><i class="fas fa-fire"></i> 7-Day Streak</div>
+            <div class="badge-pill badge-orange"><i class="fas fa-star"></i> Top Learner</div>
+          </div>
+        </div>
+        <div class="dashboard-grid">
+          <div class="card">
+            <div class="card-header">
+              <i class="fas fa-lightning-bolt"></i>
+              <h4>Quick Access</h4>
+            </div>
+            <p>Jump back into your learning journey with quick links to your favorite resources.</p>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <i class="fas fa-check-circle"></i>
+              <h4>Tasks & Goals</h4>
+            </div>
+            <div class="todo-list-container">
+              <div class="todo-input-group">
+                <input type="text" id="todo-input" data-i18n-placeholder="add-task-placeholder" placeholder="Add a new task...">
+                <button id="add-todo-btn"><i class="fas fa-plus"></i></button>
+              </div>
+              <ul class="todo-list" id="todo-list"></ul>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <i class="fas fa-trending-up"></i>
+              <h4>Learning Progress</h4>
+            </div>
+            <p>Track your course completion</p>
+            <div class="progress-bar-container">
+              <div class="progress-bar" id="progress-bar" style="width: 0%;"></div>
+            </div>
+            <div class="progress-text" id="progress-text">0% Complete</div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <i class="fas fa-lightbulb"></i>
+              <h4>Pro Tip</h4>
+            </div>
+            <p>Collaborate with peers using the Whiteboard feature to solve complex problems together in real-time!</p>
+          </div>
+        </div>
+      </main>
     </div>
-
   </div>
 
-  <!-- Mobile responsive styling -->
-  <style>
-    @media (max-width: 720px) {
-      #self-learning .self-wrapper {
-        flex-direction: column;
-        gap: 18px;
-        text-align: center;
-      }
-      #self-learning ul {
-        text-align: left;
-        display: inline-block;
-      }
-      #self-learning img {
-        max-width: 200px;
-        margin-top: 8px;
-      }
-    }
-  </style>
-</section>
-
-
-
-
-
-  </main>
-
-  <footer>
-    <p>© 2025 RiSync Tutoring. All rights reserved.</p>
-    <p><a href="Terms of Service.html" target="_blank">Terms of Service</a> | <a href="Privacy Policy.html" target="_blank">Privacy Policy</a></p>
-  </footer>
-
-  <audio id="bg-music" loop preload="auto">
-    <source src="assets/logo.mp3" type="audio/mpeg">
+  <audio id="bg-music" loop preload="none">
+    <source src="../assets/logo.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
   </audio>
 
-  <div class="fab-container" id="fab-container">
-    <div class="fab-options">
-        <a href="#" id="back-to-top" class="fab-option" title="Back to Top">
-            <i class="fas fa-arrow-up"></i>
-        </a>
-    </div>
-    <button class="fab" id="fab">
-        <i class="fas fa-plus"></i>
+  <div class="floating-buttons">
+    <button id="music-btn" class="floating-button" title="Toggle Music">
+      <i id="music-icon" class="fas fa-volume-up"></i>
+    </button>
+    <button id="mic-btn" class="floating-button" title="Voice Command">
+      <i id="mic-icon" class="fas fa-microphone"></i>
     </button>
   </div>
 
-  <div class="ai-chatbot-container" id="ai-chatbot-container">
-    <div class="ai-chatbot-header">
-      <span>RiBot</span>
-      <div class="header-controls">
-        <button id="fullscreen-btn" onclick="toggleFullscreen()" title="Toggle Fullscreen">
-            <i class="fas fa-expand-alt"></i>
-        </button>
-        <button class="close-btn" onclick="toggleAIChat(true)" title="Close Chat">
-            <i class="fas fa-times"></i>
-        </button>
-      </div>
+  <div id="chatbot-popup">
+    <h5>Hello! 👋</h5>
+    <p>Would you like some guidance to get started?</p>
+    <div class="chatbot-buttons">
+      <button id="startAssistanceBtn">Yes, help me</button>
+      <button id="hideChatbotBtn">Not now</button>
     </div>
-    <div class="ai-chatbot-messages" id="ai-chatbot-messages">
-      <div class="ai-chatbot-message bot">
-        <span class="message-text-content">Hey there! I'm RiBot, your AI study buddy. Ready to make learning awesome? Ask me about our features or how to get started!</span>
-        <i class="fas fa-volume-up speaker-icon" title="Read aloud" aria-label="Read message aloud"></i>
-      </div>
-    </div>
-    <div class="ai-chatbot-predefined-questions" id="ai-chatbot-predefined-questions">
-      </div>
   </div>
   
-  <div id="robot-pointer"><i class="fas fa-robot"></i></div>
+  <div id="ribot-settings-popup">
+    <div class="popup-header">
+      <h4>Help & Support</h4>
+      <button class="close-btn" id="closeRibotSettingsBtn">&times;</button>
+    </div>
+    <div class="ribot-intro">
+      <p>Choose a topic to learn more:</p>
+      <div class="ribot-options">
+        <button class="ribot-option-btn" data-option="help">What is RiSync?</button>
+        <button class="ribot-option-btn" data-option="features">Key Features</button>
+        <button class="ribot-option-btn" data-option="contact">Contact Support</button>
+        <button class="ribot-option-btn" data-option="voice">Voice Commands</button>
+      </div>
+    </div>
+    <div id="ribot-response-area" class="ribot-response" style="display: none;">
+      <p id="ribot-response-text"></p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+    import { getDatabase, ref, set, push, onDisconnect, serverTimestamp } 
+    from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBWAwm_TDtD1qXDtjxJu0jrDP45c3p1Bxg",
+        authDomain: "risync-risync.firebaseapp.com",
+        databaseURL: "https://risync-risync-default-rtdb.firebaseio.com/", 
+        projectId: "risync-risync",
+        storageBucket: "risync-risync.firebasestorage.app",
+        messagingSenderId: "195106250121",
+        appId: "1:195106250121:web:57b23c5b94d5771995d558",
+        measurementId: "G-D5WSLQ706Z"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const rtdb = getDatabase(app);
+
+    let currentUser = null;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        console.log("User Logged In:", user.email);
+        currentUser = user;
+
+        const USER_ID = user.uid;
+        const statusRef = ref(rtdb, `monitoring/${USER_ID}/status`);
+        const logsRef = ref(rtdb, `monitoring/${USER_ID}/logs`);
+
+        set(statusRef, {
+            state: 'online',
+            current_page: 'content.html',
+            tab_visible: true,
+            last_seen: serverTimestamp()
+        });
+        onDisconnect(statusRef).update({ state: 'offline', last_seen: serverTimestamp() });
+
+        function log(action, details) {
+            push(logsRef, {
+                action: action,
+                details: details,
+                timestamp: serverTimestamp()
+            });
+            const lsData = JSON.parse(localStorage.getItem('risync_logs') || "[]");
+            lsData.push({ action, details, time: Date.now() });
+            localStorage.setItem('risync_logs', JSON.stringify(lsData.slice(-50)));
+        }
+
+        log("PAGE_VIEW", "Opened Content Page");
+
+        document.addEventListener("visibilitychange", () => {
+            const isVisible = !document.hidden;
+            statusRef.update({ tab_visible: isVisible });
+            if (document.hidden) {
+                log("TAB_HIDDEN", "User switched tabs");
+            } else {
+                log("TAB_FOCUS", "User returned to content");
+            }
+        });
+
+        let maxScroll = 0;
+        window.addEventListener("scroll", () => {
+            const scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
+            if (scrollPercent > maxScroll + 10) {
+                maxScroll = scrollPercent;
+                statusRef.update({ scroll_depth: maxScroll });
+                if(maxScroll % 25 === 0) {
+                   log("READING_PROGRESS", `Scrolled to ${maxScroll}%`);
+                }
+            }
+        });
+
+        document.addEventListener("click", (e) => {
+            const target = e.target.closest('button, a, video, input');
+            if (target) {
+                const id = target.id || target.className || target.innerText.substring(0, 20);
+                log("INTERACTION", `Clicked: ${id}`);
+            }
+        });
+
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const userData = docSnap.data();
+          const welcomeMsg = document.getElementById('welcome-message');
+          welcomeMsg.textContent = `Welcome to RiSync, ${userData.fullname || "User"}`;
+          
+          if(userData.branch) {
+            document.getElementById('displayBranch').innerText = userData.branch;
+          }
+          
+          if(userData.todos) {
+             renderTodos(userData.todos);
+          }
+          if(userData.progress !== undefined) {
+             updateProgressUI(userData.progress);
+          } else {
+             updateProgressUI(0);
+          }
+        }
+      } else {
+        console.log("No user logged in, redirecting...");
+        window.location.href = "signin.html";
+      }
+    });
+
+    const logoutBtn = document.getElementById('logoutButton');
+    if(logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            signOut(auth).then(() => {
+                window.location.href = "signin.html";
+            }).catch((error) => {
+                console.error("Logout Error:", error);
+            });
+        });
+    }
+
+    const todoInput = document.getElementById('todo-input');
+    const addTodoBtn = document.getElementById('add-todo-btn');
+    const todoList = document.getElementById('todo-list');
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+
+    function getCurrentTodos() {
+      const todos = [];
+      todoList.querySelectorAll('li').forEach(li => {
+        todos.push({
+          text: li.querySelector('span').textContent,
+          completed: li.classList.contains('completed')
+        });
+      });
+      return todos;
+    }
+
+    async function saveTodosToFirestore() {
+        if (!currentUser) return;
+        const todos = getCurrentTodos();
+        
+        const totalTasks = todos.length;
+        const completedTasks = todos.filter(t => t.completed).length;
+        const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+        try {
+            await updateDoc(doc(db, "users", currentUser.uid), {
+                todos: todos,
+                progress: progress
+            });
+            updateProgressUI(progress);
+        } catch (e) {
+            console.error("Error saving todos:", e);
+        }
+    }
+
+    function updateProgressUI(progress) {
+        progressBar.style.width = `${progress}%`;
+        progressText.textContent = `${progress}% Complete`;
+    }
+
+    function renderTodos(todos) {
+        todoList.innerHTML = '';
+        todos.forEach(todo => addTodoToDOM(todo.text, todo.completed, false));
+    }
+    
+    function addTodoToDOM(task, isCompleted = false, shouldSave = true) {
+      const li = document.createElement('li');
+      const span = document.createElement('span');
+      span.textContent = task;
+      li.appendChild(span);
+
+      const removeBtn = document.createElement('button');
+      removeBtn.classList.add('remove-btn');
+      removeBtn.innerHTML = '&times;';
+      removeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        li.remove();
+        saveTodosToFirestore();
+      });
+
+      li.appendChild(removeBtn);
+
+      if (isCompleted) {
+        li.classList.add('completed');
+      }
+
+      li.addEventListener('click', () => {
+        li.classList.toggle('completed');
+        saveTodosToFirestore();
+      });
+
+      todoList.appendChild(li);
+      if(shouldSave) {
+          saveTodosToFirestore();
+      }
+    }
+
+    addTodoBtn.addEventListener('click', () => {
+        const task = todoInput.value.trim();
+        if (task) {
+            addTodoToDOM(task, false, true);
+            todoInput.value = '';
+        }
+    });
+
+    todoInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            addTodoBtn.click();
+        }
+    });
+
+    window.risyncAuth = auth;
+    window.risyncDb = db;
+  </script>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        
-        // --- NEW SPLASH SCREEN SCRIPT ---
-        const splashScreen = document.getElementById('splash-screen');
-        const starsContainer = document.getElementById('stars');
+    const menuToggle = document.querySelector('.menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const mainWrapper = document.querySelector('.main-wrapper');
+    const overlay = document.getElementById('overlay');
 
-        // Function to create and position stars
-        function createStars() {
-            const numStars = 50; 
-            for (let i = 0; i < numStars; i++) {
-                const star = document.createElement('div');
-                star.classList.add('star');
-                const size = Math.random() * 3 + 1; // 1px to 4px
-                const x = Math.random() * 100;
-                const y = Math.random() * 100;
-                const duration = Math.random() * 2 + 1.5; // 1.5s to 3.5s
-                const delay = Math.random() * 3; // 0s to 3s
+    function toggleMenu() {
+      sidebar.classList.toggle('open');
+      mainWrapper.classList.toggle('sidebar-open');
+    }
 
-                star.style.width = `${size}px`;
-                star.style.height = `${size}px`;
-                star.style.left = `${x}vw`;
-                star.style.top = `${y}vh`;
-                star.style.animationDuration = `${duration}s`;
-                star.style.animationDelay = `${delay}s`;
+    menuToggle.addEventListener('click', toggleMenu);
+    if(overlay) overlay.addEventListener('click', toggleMenu);
 
-                starsContainer.appendChild(star);
-            }
-        }
-        
-        createStars();
+    const settingsIcon = document.getElementById('settingsIcon');
+    const settingsMenu = document.getElementById('settingsMenu');
 
-        setTimeout(() => {
-            if (splashScreen) {
-                splashScreen.classList.add('hidden');
-                
-                // After the fade-out transition ends, remove it from the DOM flow
-                splashScreen.addEventListener('transitionend', () => {
-                    splashScreen.style.display = 'none';
-                }, { once: true });
-                
-                // Reveal the main content
-                document.body.classList.remove('loading');
-                document.body.classList.add('loaded');
-            }
-        }, 4000); // This duration should be slightly longer than the logo animation
-        // --- END SPLASH SCREEN SCRIPT ---
-
-
-        const audio = document.getElementById('bg-music');
-        const musicButton = document.getElementById('music-btn');
-        let hasInteracted = false;
-
-        function toggleMusic() {
-          if (!hasInteracted) {
-            audio.volume = 0.5;
-            audio.play().then(() => {
-              hasInteracted = true;
-              updateMusicIcon();
-            }).catch(err => {
-              console.warn("Autoplay blocked or failed:", err);
-            });
-          } else {
-            if (audio.paused) {
-              audio.play();
-            } else {
-              audio.pause();
-            }
-          }
-          updateMusicIcon();
-        }
-
-        function updateMusicIcon() {
-          if (!musicButton) return;
-          musicButton.innerHTML = audio.paused ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
-        }
-
-        audio.onplay = updateMusicIcon;
-        audio.onpause = updateMusicIcon;
-
-        const fabContainer = document.getElementById('fab-container');
-        const fab = document.getElementById('fab');
-        fab.addEventListener('click', () => {
-            fabContainer.classList.toggle('active');
-        });
-
-        const backToTopBtn = document.getElementById('back-to-top');
-        window.addEventListener('scroll', () => {
-          if (window.scrollY > 300) {
-            backToTopBtn.style.display = 'flex';
-          } else {
-            backToTopBtn.style.display = 'none';
-          }
-        });
-
-        backToTopBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-
-        const aiChatbotContainer = document.getElementById('ai-chatbot-container');
-        const aiChatbotMessages = document.getElementById('ai-chatbot-messages');
-        const predefinedQuestionsDiv = document.getElementById('ai-chatbot-predefined-questions');
-        const fullscreenBtn = document.getElementById('fullscreen-btn');
-        const robotPointer = document.getElementById('robot-pointer');
-
-        let currentUtterance = null;
-        let currentSpeakerIcon = null;
-        let selectedVoice = null;
-
-        function initializeSpeechSynthesis() {
-            if ('speechSynthesis' in window) {
-                speechSynthesis.onvoiceschanged = () => {
-                    selectedVoice = getHumanLikeVoice();
-                };
-                if (speechSynthesis.getVoices().length > 0) {
-                    selectedVoice = getHumanLikeVoice();
-                }
-            } else {
-                console.warn("Web Speech API not supported in this browser.");
-            }
-        }
-
-        function getHumanLikeVoice() {
-            const voices = speechSynthesis.getVoices();
-            let chosenVoice = voices.find(voice => voice.lang === 'en-US' && voice.name.includes('Google US English'));
-            if (chosenVoice) return chosenVoice;
-            chosenVoice = voices.find(voice => voice.lang.startsWith('en-') && (voice.name.includes('Google') || voice.name.includes('Microsoft')));
-            if (chosenVoice) return chosenVoice;
-            chosenVoice = voices.find(voice => voice.lang.startsWith('en-'));
-            return chosenVoice || voices[0] || null;
-        }
-
-        function stopSpeaking(iconElement, originalTextContent) {
-            if ('speechSynthesis' in window && window.speechSynthesis.speaking) {
-                window.speechSynthesis.cancel();
-            }
-            if (iconElement && iconElement === currentSpeakerIcon) {
-                iconElement.className = 'fas fa-volume-up speaker-icon';
-                iconElement.onclick = () => speakText(originalTextContent, iconElement);
-            }
-            currentUtterance = null;
-            currentSpeakerIcon = null;
-        }
-
-        function speakText(text, iconElement) {
-            if (!('speechSynthesis' in window)) return;
-
-            if (window.speechSynthesis.speaking) {
-                const previouslySpeakingIconText = currentSpeakerIcon ? (currentSpeakerIcon.closest('.ai-chatbot-message')?.querySelector('.message-text-content')?.textContent || '') : '';
-                stopSpeaking(currentSpeakerIcon, previouslySpeakingIconText);
-            }
-
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'en-US';
-            if (selectedVoice) utterance.voice = selectedVoice;
-            
-            currentUtterance = utterance;
-            currentSpeakerIcon = iconElement;
-
-            if (iconElement) {
-                iconElement.className = 'fas fa-volume-mute speaker-icon';
-                iconElement.onclick = () => stopSpeaking(iconElement, text);
-            }
-
-            utterance.onend = () => stopSpeaking(iconElement, text);
-            utterance.oncancel = () => stopSpeaking(iconElement, text);
-            utterance.onerror = (event) => { console.error('Speech synthesis error:', event.error); stopSpeaking(iconElement, text); };
-
-            window.speechSynthesis.speak(utterance);
-        }
-
-        const predefinedQuestions = [
-          { id: 'tutoring', text: 'What is Intelligent Peer-to-Peer Tutoring?', answer: 'It\'s a smart platform where students learn from each other, with AI matching them based on skill, topic, and availability. It builds community, boosts confidence, and is more relatable than adult tutors.' },
-          { id: 'booking', text: 'How does the Booking System work?', answer: 'It allows students to book live 1-on-1 or group tutoring sessions with calendar integration to avoid double bookings. You choose a subject, select a time, confirm, and get reminders.' },
-          { id: 'live_sessions', text: 'Tell me about Live Tutoring Sessions.', answer: 'These are real-time sessions with an optional live video/audio and a collaborative digital whiteboard. It feels like a real classroom and is ideal for explaining Maths, Diagrams, and Flowcharts.' },
-          { id: 'chatbot', text: 'What is RiBot?', answer: 'RiBot is an intelligent chatbot that answers any questions students have and supports group chatrooms. It\'s a 24x7 learning assistant, can be multilingual, supports text-to-speech/speech-to-text, and can quiz kids with MCQs or riddles.' },
-          { id: 'resources', text: 'What is the Learning Resource Library?', answer: 'It\'s a growing bank of curated notes, worksheets, videos, quizzes, and more, created by students, for students. Resources are divided by subjects, grades, difficulty, and are downloadable.' },
-          { id: 'gamification', text: 'How does Gamification work?', answer: 'It adds fun through points, badges, levels, and leaderboards to keep students motivated and foster friendly competition. Examples include earning points for solving doubts or badges for "Top Tutor of the Week".' },
-          { id: 'quizzes', text: 'What is the Smart Quiz & Assessment Builder?', answer: 'Teachers or mentors can create dynamic quizzes, and AI can auto-generate questions. It allows for personalized learning with adaptive difficulty, featuring MCQs, drag & drop, timed quizzes, and instant feedback.' },
-          { id: 'accessibility', text: 'What about Accessibility Features?', answer: 'The platform is designed for inclusivity, supporting students with visual, hearing, or motor challenges. It includes text-to-speech, Braille-compatible output, high contrast mode, font sizing, and keyboard-only navigation.' },
-          { id: 'parental_dashboard', text: 'Is there a Parental Dashboard?', answer: 'Yes, parents can view their child’s progress, session history, and scores without micro-managing. It provides growth charts, areas of concern, weekly email reports, and options to message tutors.' },
-          { id: 'admin_panel', text: 'What is the Admin & Mentor Panel?', answer: 'This panel is for the RiSync team or appointed mentors to moderate, analyze, and grow the platform, ensuring community safety. It allows approval/rejection of uploads, blocking users, and access to analytics.' },
-          { id: 'sync', text: 'Does it sync with mobile?', answer: 'RiSync works as a responsive web app and can sync with mobile devices for learning on the go, with cross-device sync, notifications, and offline access coming soon.' },
-          { id: 'future_roadmap', text: 'What\'s in the future roadmap?', answer: 'Future plans include AI-based learning path recommendations, global collaborations, story-based learning, and NGO/School Partnerships for underprivileged learners.' }
-        ];
-
-        function toggleAIChat(forceClose = false) {
-          if (aiChatbotContainer.classList.contains('active') || forceClose) {
-            aiChatbotContainer.classList.remove('active', 'fullscreen');
-            stopSpeaking(currentSpeakerIcon, '');
-            aiChatbotContainer.addEventListener('transitionend', function handler() {
-                if (!aiChatbotContainer.classList.contains('active')) {
-                    aiChatbotContainer.style.display = 'none';
-                }
-                aiChatbotContainer.removeEventListener('transitionend', handler);
-            });
-          } else {
-            aiChatbotContainer.style.display = 'flex';
-            startRobotAnimation();
-            setTimeout(() => {
-                aiChatbotContainer.classList.add('active');
-                aiChatbotMessages.innerHTML = `
-                    <div class="ai-chatbot-message bot">
-                        <span class="message-text-content">Hey there! I'm RiBot, your AI study buddy. Ready to make learning awesome? Ask me about our features or how to get started!</span>
-                        <i class="fas fa-volume-up speaker-icon" title="Read aloud" aria-label="Read message aloud"></i>
-                    </div>
-                `;
-                const initialBotMessage = aiChatbotMessages.querySelector('.ai-chatbot-message.bot');
-                const initialTextContent = initialBotMessage.querySelector('.message-text-content').textContent;
-                const initialSpeakerIcon = initialBotMessage.querySelector('.speaker-icon');
-                if (initialSpeakerIcon && initialTextContent) {
-                    initialSpeakerIcon.onclick = () => speakText(initialTextContent, initialSpeakerIcon);
-                }
-
-                populatePredefinedQuestions();
-                aiChatbotMessages.scrollTop = aiChatbotMessages.scrollHeight;
-
-                if (window.innerWidth <= 480 && !aiChatbotContainer.classList.contains('fullscreen')) {
-                    toggleFullscreen();
-                }
-            }, 10);
-          }
-          updateFullscreenButtonIcon();
-        }
-
-        function populatePredefinedQuestions() {
-          predefinedQuestionsDiv.innerHTML = '';
-          predefinedQuestions.forEach((q, index) => {
-            const button = document.createElement('button');
-            button.textContent = q.text;
-            button.onclick = () => askQuestion(q.id);
-            button.style.animationDelay = `${0.1 * index + 0.3}s`;
-            predefinedQuestionsDiv.appendChild(button);
-          });
-        }
-
-        function askQuestion(questionId) {
-          stopSpeaking(currentSpeakerIcon, '');
-
-          const question = predefinedQuestions.find(q => q.id === questionId);
-          if (question) {
-            const userMessage = document.createElement('div');
-            userMessage.classList.add('ai-chatbot-message', 'user');
-            userMessage.textContent = question.text;
-            aiChatbotMessages.appendChild(userMessage);
-            aiChatbotMessages.scrollTop = aiChatbotMessages.scrollHeight;
-
-            const typingIndicator = document.createElement('div');
-            typingIndicator.classList.add('ai-chatbot-message', 'bot', 'typing-indicator');
-            typingIndicator.innerHTML = '<span></span><span></span><span></span>';
-            aiChatbotMessages.appendChild(typingIndicator);
-            aiChatbotMessages.scrollTop = aiChatbotMessages.scrollHeight;
-
-            setTimeout(() => {
-              if (aiChatbotMessages.contains(typingIndicator)) {
-                aiChatbotMessages.removeChild(typingIndicator);
-              }
-              const botMessage = document.createElement('div');
-              botMessage.classList.add('ai-chatbot-message', 'bot');
-              const textContentSpan = document.createElement('span');
-              textContentSpan.classList.add('message-text-content');
-              textContentSpan.innerHTML = question.answer;
-              botMessage.appendChild(textContentSpan);
-              const speakerIcon = document.createElement('i');
-              speakerIcon.className = 'fas fa-volume-up speaker-icon';
-              speakerIcon.title = 'Read aloud';
-              speakerIcon.setAttribute('aria-label', 'Read message aloud');
-              speakerIcon.onclick = () => speakText(textContentSpan.textContent, speakerIcon);
-              botMessage.appendChild(speakerIcon);
-              aiChatbotMessages.appendChild(botMessage);
-              aiChatbotMessages.scrollTop = aiChatbotMessages.scrollHeight;
-            }, 1200);
-          }
-        }
-
-        function toggleFullscreen() {
-            const isCurrentlyFullscreenCSS = aiChatbotContainer.classList.contains('fullscreen');
-            aiChatbotContainer.classList.toggle('fullscreen');
-
-            if (document.fullscreenEnabled) {
-                if (!isCurrentlyFullscreenCSS) { 
-                    aiChatbotContainer.requestFullscreen().catch(err => {
-                        aiChatbotContainer.classList.remove('fullscreen');
-                        updateFullscreenButtonIcon();
-                    });
-                } else {
-                    if (document.exitFullscreen) {
-                        document.exitFullscreen().catch(err => {
-                            aiChatbotContainer.classList.add('fullscreen');
-                            updateFullscreenButtonIcon();
-                        });
-                    }
-                }
-            }
-            updateFullscreenButtonIcon();
-        }
-
-        document.addEventListener('fullscreenchange', updateFullscreenButtonIcon);
-        function updateFullscreenButtonIcon() {
-            const isFullscreen = aiChatbotContainer.classList.contains('fullscreen');
-            if (fullscreenBtn) {
-                fullscreenBtn.innerHTML = isFullscreen ? '<i class="fas fa-compress-alt"></i>' : '<i class="fas fa-expand-alt"></i>';
-                fullscreenBtn.title = isFullscreen ? 'Exit Fullscreen' : 'Toggle Fullscreen';
-            }
-        }
-
-        function startRobotAnimation() {
-          const targetCard = document.querySelector('.feature-card[data-ribot-target]');
-          if (!targetCard) return;
-
-          const cardRect = targetCard.getBoundingClientRect();
-          const targetX = window.innerWidth - cardRect.right - (cardRect.width / 2) + 20;
-          const targetY = window.innerHeight - cardRect.bottom - (cardRect.height / 2) + 20;
-
-          robotPointer.style.setProperty('--target-x', `${targetX}px`);
-          robotPointer.style.setProperty('--target-y', `${targetY}px`);
-
-          robotPointer.style.display = 'block';
-          robotPointer.style.animation = 'fly-to-ribot 2s ease-in-out forwards';
-          robotPointer.style.opacity = '1';
-          
-          setTimeout(() => {
-            targetCard.classList.add('highlight');
-          }, 2000);
-
-          setTimeout(() => {
-            robotPointer.style.animation = '';
-            robotPointer.style.opacity = '0';
-            targetCard.classList.remove('highlight');
-          }, 5000);
-
-          setTimeout(() => {
-            robotPointer.style.display = 'none';
-          }, 5500);
-        }
-
-        const sections = document.querySelectorAll('section');
-        const sectionObserver = new IntersectionObserver((entries, observer) => {
-          entries.forEach(entry => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('animate-in');
-              const gridItems = entry.target.querySelectorAll('.subject, .classes');
-              gridItems.forEach((item, index) => {
-                item.style.animationDelay = `${0.1 * index + 0.3}s`;
-                item.classList.add('animate-in');
-              });
-              observer.unobserve(entry.target);
-            }
-          });
-        }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
-
-        sections.forEach(section => {
-          sectionObserver.observe(section);
-        });
-
-        initializeSpeechSynthesis();
-        populatePredefinedQuestions();
-
-        const initialBotMessage = aiChatbotMessages.querySelector('.ai-chatbot-message.bot');
-        const initialTextContent = initialBotMessage.querySelector('.message-text-content').textContent;
-        const initialSpeakerIcon = initialBotMessage.querySelector('.speaker-icon');
-        if (initialSpeakerIcon && initialTextContent) {
-            initialSpeakerIcon.onclick = () => speakText(initialTextContent, initialSpeakerIcon);
-        }
-        updateFullscreenButtonIcon();
-
-        const slides = document.querySelectorAll('.slide');
-        const prevBtn = document.querySelector('.slider-nav .prev');
-        const nextBtn = document.querySelector('.slider-nav .next');
-        let currentSlide = 0;
-        let slideInterval;
-
-        function showSlide(n) {
-            slides.forEach((slide, index) => {
-                slide.classList.remove('active');
-            });
-            slides[n].classList.add('active');
-        }
-
-        function nextSlide() {
-            currentSlide = (currentSlide + 1) % slides.length;
-            showSlide(currentSlide);
-        }
-
-        function prevSlide() {
-            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-            showSlide(currentSlide);
-        }
-
-        function startSlider() {
-            showSlide(currentSlide);
-            slideInterval = setInterval(nextSlide, 5000);
-        }
-
-        function resetInterval() {
-            clearInterval(slideInterval);
-            slideInterval = setInterval(nextSlide, 5000);
-        }
-
-        prevBtn.addEventListener('click', () => {
-            prevSlide();
-            resetInterval();
-        });
-
-        nextBtn.addEventListener('click', () => {
-            nextSlide();
-            resetInterval();
-        });
-
-        startSlider();
+    settingsIcon.addEventListener('click', (e) => {
+      e.stopPropagation();
+      settingsMenu.classList.toggle('active');
     });
+
+    document.addEventListener('click', (e) => {
+      if (!settingsMenu.contains(e.target) && e.target !== settingsIcon) {
+        settingsMenu.classList.remove('active');
+      }
+    });
+
+    const profileIcon = document.getElementById('profileIcon');
+    const profileUpload = document.getElementById('profileUpload');
+
+    function loadProfileImage() {
+      const storedImage = localStorage.getItem('profileImage');
+      if (storedImage) {
+        profileIcon.src = storedImage;
+      }
+    }
+
+    profileIcon.addEventListener('click', () => {
+      profileUpload.click();
+    });
+
+    profileUpload.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          profileIcon.src = e.target.result;
+          localStorage.setItem('profileImage', e.target.result);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    const searchInput = document.getElementById('searchInput');
+    const navButtons = document.querySelectorAll('.nav-menu .nav-button');
+
+    if(searchInput) {
+        searchInput.addEventListener('keyup', (event) => {
+            const searchTerm = event.target.value.toLowerCase();
+            navButtons.forEach(button => {
+            const buttonText = button.textContent.toLowerCase();
+            if (buttonText.includes(searchTerm)) {
+                button.style.display = 'flex';
+            } else {
+                button.style.display = 'none';
+            }
+            });
+        });
+    }
+
+    const musicBtn = document.getElementById('music-btn');
+    const musicIcon = document.getElementById('music-icon');
+    const bgMusic = document.getElementById('bg-music');
+    let isPlaying = false;
+
+    musicBtn.addEventListener('click', () => {
+      if (isPlaying) {
+        bgMusic.pause();
+        musicIcon.classList.remove('fa-volume-mute');
+        musicIcon.classList.add('fa-volume-up');
+      } else {
+        bgMusic.play().catch(error => {
+          console.log("Autoplay prevented.");
+        });
+        musicIcon.classList.remove('fa-volume-up');
+        musicIcon.classList.add('fa-volume-mute');
+      }
+      isPlaying = !isPlaying;
+    });
+
+    // ===== VOICE COMMAND HANDLER =====
+    let isListening = false;
+    const micBtn = document.getElementById('mic-btn');
+
+    micBtn.addEventListener('click', () => {
+      if (!isListening) {
+        startVoiceRecognition();
+      } else {
+        stopVoiceRecognition();
+      }
+    });
+
+    function startVoiceRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      
+      if (!SpeechRecognition) {
+        alert('❌ Speech Recognition not supported in your browser.\n\nTry Chrome, Firefox, or Edge.');
+        return;
+      }
+
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      micBtn.classList.add('active');
+      isListening = true;
+      micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+
+      recognition.onstart = () => {
+        console.log('🎤 Listening...');
+        micBtn.style.boxShadow = 'var(--box-shadow-medium), var(--box-glow-orange)';
+      };
+
+      recognition.onresult = (event) => {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        
+        if (event.isFinal) {
+          console.log('📝 You said:', transcript);
+          processVoiceCommand(transcript.toLowerCase());
+        }
+      };
+
+      recognition.onerror = (event) => {
+        console.error('🔴 Voice error:', event.error);
+        if (event.error === 'network') {
+          showVoiceAlert('❌ Network Error', 'Please check your internet connection');
+        } else if (event.error === 'no-speech') {
+          showVoiceAlert('🔇 No Speech Detected', 'Please speak again');
+        } else {
+          showVoiceAlert('❌ Error', event.error);
+        }
+      };
+
+      recognition.onend = () => {
+        micBtn.classList.remove('active');
+        isListening = false;
+        micBtn.style.boxShadow = '';
+      };
+
+      try {
+        recognition.start();
+      } catch (e) {
+        console.log('Recognition already started');
+      }
+    }
+
+    function stopVoiceRecognition() {
+      isListening = false;
+      micBtn.classList.remove('active');
+    }
+
+    function showVoiceAlert(title, message) {
+      const popup = document.createElement('div');
+      popup.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        z-index: 10000;
+        max-width: 300px;
+      `;
+      popup.innerHTML = `<strong>${title}</strong><br>${message}`;
+      document.body.appendChild(popup);
+      setTimeout(() => popup.remove(), 3000);
+    }
+
+    function processVoiceCommand(command) {
+      console.log('🎙️ Processing command:', command);
+
+      // Navigation commands
+      const navCommands = {
+        'chat': 'RiSync-CHAT.html',
+        'peer chat': 'RiSync-CHAT.html',
+        'monitor': 'monitor.html',
+        'parent monitor': 'monitor.html',
+        'books': 'books.html',
+        'calendar': 'calendar.html',
+        'database': 'database.html',
+        'subjects': 'subjects.html',
+        'ncert': 'ncert.html',
+        'whiteboard': 'whiteboard.html',
+        'white board': 'whiteboard.html',
+        'calculator': 'calculator.html',
+        'bot': 'gpt.html',
+        'chat bot': 'gpt.html',
+        'leaderboard': 'leaderboard.html',
+        'ppt': 'ppt.html',
+        'design': 'design.html',
+        'website': 'design.html'
+      };
+
+      // Check for navigation commands
+      for (let [key, url] of Object.entries(navCommands)) {
+        if (command.includes(key)) {
+          console.log('🚀 Navigating to:', url);
+          showVoiceAlert('🎯 Navigating', `Opening ${key}...`);
+          window.location.href = url;
+          return;
+        }
+      }
+
+      // Action commands
+      if (command.includes('ribot') || command.includes('help')) {
+        showVoiceAlert('🤖 RiBot Settings', 'Opening RiBot assistance...');
+        document.getElementById('ribotSettingsBtn').click();
+        return;
+      }
+
+      if (command.includes('profile')) {
+        showVoiceAlert('👤 Profile', 'Opening profile settings...');
+        document.getElementById('profileBtn').click();
+        return;
+      }
+
+      if (command.includes('music') || command.includes('audio')) {
+        if (isPlaying) {
+          showVoiceAlert('🔇 Music Off', 'Turning off music...');
+          bgMusic.pause();
+          musicIcon.classList.remove('fa-volume-mute');
+          musicIcon.classList.add('fa-volume-up');
+          isPlaying = false;
+        } else {
+          showVoiceAlert('🎵 Music On', 'Playing music...');
+          bgMusic.play().catch(e => console.log('Play failed:', e));
+          musicIcon.classList.remove('fa-volume-up');
+          musicIcon.classList.add('fa-volume-mute');
+          isPlaying = true;
+        }
+        return;
+      }
+
+      if (command.includes('logout') || command.includes('sign out')) {
+        if (confirm('🚪 Are you sure you want to logout?')) {
+          document.getElementById('logoutButton').click();
+        }
+        return;
+      }
+
+      if (command.includes('progress') || command.includes('how') || command.includes('complete')) {
+        const progressText = document.getElementById('progress-text').textContent;
+        showVoiceAlert('📊 Your Progress', progressText);
+        const synth = window.speechSynthesis;
+        const utterance = new SpeechSynthesisUtterance(`Your current ${progressText}`);
+        synth.speak(utterance);
+        return;
+      }
+
+      if (command.includes('add task') || command.includes('new task')) {
+        showVoiceAlert('✏️ Add Task', 'Please type your task in the input box');
+        document.getElementById('todo-input').focus();
+        return;
+      }
+
+      if (command.includes('language') || command.includes('english') || command.includes('hindi')) {
+        if (command.includes('hindi')) {
+          document.getElementById('selected-language').click();
+          setTimeout(() => {
+            const hiBtn = Array.from(document.querySelectorAll('.language-dropdown-list li')).find(li => li.textContent.includes('हिन्दी'));
+            if (hiBtn) hiBtn.click();
+          }, 200);
+          showVoiceAlert('🌐 Language', 'Changed to हिन्दी');
+        } else {
+          document.getElementById('selected-language').click();
+          setTimeout(() => {
+            const enBtn = Array.from(document.querySelectorAll('.language-dropdown-list li')).find(li => li.textContent.includes('English'));
+            if (enBtn) enBtn.click();
+          }, 200);
+          showVoiceAlert('🌐 Language', 'Changed to English');
+        }
+        return;
+      }
+
+      // Help command
+      if (command.includes('what') || command.includes('commands') || command.includes('help')) {
+        const helpText = `
+        🎙️ Available Voice Commands:
+
+        Navigation:
+        • "Go to Chat" / "Chat"
+        • "Open Calendar" / "Calendar"
+        • "Database" / "Subjects"
+        • "NCERT" / "Whiteboard"
+        • "Calculator" / "Chat Bot"
+        • "Leaderboard" / "PPT"
+        • "Design" / "Monitor"
+
+        Actions:
+        • "RiBot Help" / "Help"
+        • "Profile" / "Edit Profile"
+        • "Music On/Off"
+        • "Progress" / "How am I doing"
+        • "Add Task"
+        • "Language Hindi/English"
+        • "Logout" / "Sign out"
+        `;
+        
+        showVoiceAlert('🎤 Voice Commands Help', 'See console for full list');
+        console.log(helpText);
+        
+        const synth = window.speechSynthesis;
+        const utterance = new SpeechSynthesisUtterance("Available commands: Navigate to Chat, Calendar, Database, Subjects, NCERT, Whiteboard, Calculator, Chat Bot, Leaderboard, PPT or Design. You can also ask for help, open RiBot, check your progress, toggle music, change language, or logout.");
+        synth.speak(utterance);
+        return;
+      }
+
+      // No command matched
+      showVoiceAlert('❓ Command Not Recognized', `"${command}"\n\nSay "help" for available commands`);
+      const synth = window.speechSynthesis;
+      const utterance = new SpeechSynthesisUtterance("Command not recognized. Say help for available commands.");
+      synth.speak(utterance);
+    }
+
+    // ===== CHATBOT & RIBOT POPUPS =====
+    const chatbotPopup = document.getElementById('chatbot-popup');
+    const startAssistanceBtn = document.getElementById('startAssistanceBtn');
+    const hideChatbotBtn = document.getElementById('hideChatbotBtn');
+    
+    const profileBtn = document.getElementById('profileBtn');
+    const ribotSettingsBtn = document.getElementById('ribotSettingsBtn');
+    const ribotSettingsPopup = document.getElementById('ribot-settings-popup');
+    const closeRibotSettingsBtn = document.getElementById('closeRibotSettingsBtn');
+    const ribotResponseArea = document.getElementById('ribot-response-area');
+    const ribotResponseText = document.getElementById('ribot-response-text');
+
+    function showChatbotPopup() { chatbotPopup.classList.add('active'); }
+    function hideChatbotPopup() { chatbotPopup.classList.remove('active'); }
+    function showRibotSettings() { ribotSettingsPopup.classList.add('active'); }
+    function hideRibotSettings() { ribotSettingsPopup.classList.remove('active'); }
+
+    hideChatbotBtn.addEventListener('click', hideChatbotPopup);
+    closeRibotSettingsBtn.addEventListener('click', hideRibotSettings);
+    
+    ribotSettingsBtn.addEventListener('click', () => {
+        settingsMenu.classList.remove('active');
+        showRibotSettings();
+    });
+
+    profileBtn.addEventListener('click', () => {
+        settingsMenu.classList.remove('active');
+        const username = prompt('Enter your username:');
+        if (username && window.risyncAuth && window.risyncAuth.currentUser) {
+            const userRef = doc(window.risyncDb, "users", window.risyncAuth.currentUser.uid);
+            updateDoc(userRef, { fullname: username });
+        }
+    });
+
+    const ribotAnswers = {
+        "help": "RiSync is an all-in-one educational platform designed to help you organize your studies, collaborate with peers, and access learning resources all in one place.",
+        "features": "Key features include Peer Chat for collaboration, Calendar for scheduling, Whiteboard for real-time problem solving, Database for resources, NCERT textbooks, Calculator, Chat Bot AI assistant, and more!",
+        "contact": "Contact support at support@risync.com or visit the help section. You can also use the Chat feature to reach out to other students and mentors.",
+        "voice": "Say 'Go to Chat', 'Open Calendar', 'Show Progress', 'RiBot Help', 'Toggle Music', 'Change Language', or any feature name to navigate instantly!"
+    };
+
+    document.querySelectorAll('.ribot-option-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const option = btn.getAttribute('data-option');
+            ribotResponseText.textContent = ribotAnswers[option] || "Option not found.";
+            ribotResponseArea.style.display = 'block';
+        });
+    });
+
+    startAssistanceBtn.addEventListener('click', () => {
+        showRibotSettings();
+        hideChatbotPopup();
+        const synth = window.speechSynthesis;
+        const utterance = new SpeechSynthesisUtterance("Welcome! I am RiBot. I am happy to assist you. Please choose an option from the menu, or say help for voice commands.");
+        synth.speak(utterance);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadProfileImage();
+      // Show chatbot after 3 seconds
+      setTimeout(() => {
+        showChatbotPopup();
+      }, 3000);
+    });
+
+    const translations = {
+        en: {
+            "welcome": "Welcome to RiSync",
+            "quick-actions-h4": "Quick Actions",
+            "quick-actions-p": "Jump right back into your learning journey.",
+            "todo-h4": "Your To-Do List",
+            "add-task-placeholder": "Add a new task...",
+            "progress-h4": "My Progress",
+            "progress-p": "Overall Course Completion",
+            "did-you-know-h4": "Did You Know?",
+            "did-you-know-p": "You can use the White Board feature to collaborate!",
+            "chatbot-welcome": "Hello, User! Welcome to RiSync.",
+            "chatbot-assistance": "Do you want me to assist you?",
+            "yes-please": "Yes, please",
+            "no-thanks": "No, thanks",
+            "ribot-title": "RiBot Settings",
+            "ribot-intro-text": "Hi, I am RiBot. How can I help you today?",
+            "ribot-help": "What is RiSync?",
+            "ribot-features": "What are the main features?",
+            "ribot-contact": "How can I contact support?",
+            "ribot-voice": "What voice commands are available?"
+        },
+        hi: {
+            "welcome": "RiSync में आपका स्वागत है",
+            "quick-actions-h4": "त्वरित कार्य",
+            "quick-actions-p": "अपनी सीखने की यात्रा में तुरंत वापस जाएं।",
+            "todo-h4": "आपकी करने की सूची",
+            "add-task-placeholder": "एक नया कार्य जोड़ें...",
+            "progress-h4": "मेरी प्रगति",
+            "progress-p": "कुल कोर्स पूरा होना",
+            "did-you-know-h4": "क्या आप जानते हैं?",
+            "did-you-know-p": "आप सहयोग के लिए व्हाइटबोर्ड का उपयोग कर सकते हैं!",
+            "chatbot-welcome": "नमस्ते! RiSync में आपका स्वागत है।",
+            "chatbot-assistance": "क्या आप मेरी सहायता चाहते हैं?",
+            "yes-please": "हाँ, कृपया",
+            "no-thanks": "नहीं, धन्यवाद",
+            "ribot-title": "RiBot सेटिंग्स",
+            "ribot-intro-text": "नमस्ते, मैं RiBot हूँ। मैं आपकी क्या सहायता कर सकता हूँ?",
+            "ribot-help": "RiSync क्या है?",
+            "ribot-features": "मुख्य विशेषताएं क्या हैं?",
+            "ribot-contact": "मैं सहायता से कैसे संपर्क कर सकता हूँ?",
+            "ribot-voice": "कौन से वॉयस कमांड उपलब्ध हैं?"
+        }
+    };
+
+    const langKeys = Object.keys(translations);
+    const languageListEl = document.getElementById('language-dropdown-list');
+    const selectedLangEl = document.getElementById('selected-language');
+    const languageContainer = document.getElementById('language-dropdown-container');
+
+    function populateLanguages() {
+        languageListEl.innerHTML = '';
+        langKeys.forEach(code => {
+            const li = document.createElement('li');
+            const mapping = {en: 'English', hi: 'हिन्दी'};
+            li.textContent = mapping[code] || code;
+            li.dataset.lang = code;
+            li.addEventListener('click', () => {
+                setLanguage(code);
+                languageContainer.classList.remove('active');
+            });
+            languageListEl.appendChild(li);
+        });
+    }
+
+    function setLanguage(code) {
+        const mapping = {en: 'English', hi: 'हिन्दी'};
+        const span = selectedLangEl.querySelector('span');
+        if (span) span.textContent = mapping[code] || code;
+
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (translations[code] && translations[code][key]) {
+                el.textContent = translations[code][key];
+            }
+        });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            const key = el.getAttribute('data-i18n-placeholder');
+            if (translations[code] && translations[code][key]) {
+                el.placeholder = translations[code][key];
+            }
+        });
+
+        localStorage.setItem('risync_lang', code);
+    }
+
+    selectedLangEl.addEventListener('click', () => {
+        languageContainer.classList.toggle('active');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!languageContainer.contains(e.target)) {
+            languageContainer.classList.remove('active');
+        }
+    });
+
+    populateLanguages();
+    const saved = localStorage.getItem('risync_lang') || 'en';
+    setLanguage(saved);
   </script>
 </body>
 </html>
