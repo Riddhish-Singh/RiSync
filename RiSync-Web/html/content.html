@@ -799,18 +799,20 @@
         position: absolute;
         top: 110%;
         left: 0;
-        width: 100%;
+        width: 220px;
         background: var(--white);
         border-radius: 10px;
         box-shadow: var(--shadow-heavy);
         padding: 4px;
-        max-height: 200px;
+        max-height: 320px;
         overflow-y: auto;
         opacity: 0;
         visibility: hidden;
         transform: translateY(-8px);
         transition: var(--transition);
         border: 1.5px solid var(--border-color);
+        scrollbar-width: thin;
+        scrollbar-color: var(--primary-light) transparent;
     }
     .language-dropdown-container.active .language-dropdown-list {
         opacity: 1;
@@ -819,7 +821,7 @@
     }
     .language-dropdown-list li {
         list-style: none;
-        padding: 10px 12px;
+        padding: 9px 12px;
         border-radius: 7px;
         cursor: pointer;
         transition: var(--transition);
@@ -1785,105 +1787,264 @@
       }, 3000);
     });
 
-    const translations = {
-        en: {
-            "welcome": "Welcome to RiSync",
-            "quick-actions-h4": "Quick Actions",
-            "quick-actions-p": "Jump right back into your learning journey.",
-            "todo-h4": "Your To-Do List",
-            "add-task-placeholder": "Add a new task...",
-            "progress-h4": "My Progress",
-            "progress-p": "Overall Course Completion",
-            "did-you-know-h4": "Did You Know?",
-            "did-you-know-p": "You can use the White Board feature to collaborate!",
-            "chatbot-welcome": "Hello, User! Welcome to RiSync.",
-            "chatbot-assistance": "Do you want me to assist you?",
-            "yes-please": "Yes, please",
-            "no-thanks": "No, thanks",
-            "ribot-title": "RiBot Settings",
-            "ribot-intro-text": "Hi, I am RiBot. How can I help you today?",
-            "ribot-help": "What is RiSync?",
-            "ribot-features": "What are the main features?",
-            "ribot-contact": "How can I contact support?",
-            "ribot-voice": "What voice commands are available?"
-        },
-        hi: {
-            "welcome": "RiSync में आपका स्वागत है",
-            "quick-actions-h4": "त्वरित कार्य",
-            "quick-actions-p": "अपनी सीखने की यात्रा में तुरंत वापस जाएं।",
-            "todo-h4": "आपकी करने की सूची",
-            "add-task-placeholder": "एक नया कार्य जोड़ें...",
-            "progress-h4": "मेरी प्रगति",
-            "progress-p": "कुल कोर्स पूरा होना",
-            "did-you-know-h4": "क्या आप जानते हैं?",
-            "did-you-know-p": "आप सहयोग के लिए व्हाइटबोर्ड का उपयोग कर सकते हैं!",
-            "chatbot-welcome": "नमस्ते! RiSync में आपका स्वागत है।",
-            "chatbot-assistance": "क्या आप मेरी सहायता चाहते हैं?",
-            "yes-please": "हाँ, कृपया",
-            "no-thanks": "नहीं, धन्यवाद",
-            "ribot-title": "RiBot सेटिंग्स",
-            "ribot-intro-text": "नमस्ते, मैं RiBot हूँ। मैं आपकी क्या सहायता कर सकता हूँ?",
-            "ribot-help": "RiSync क्या है?",
-            "ribot-features": "मुख्य विशेषताएं क्या हैं?",
-            "ribot-contact": "मैं सहायता से कैसे संपर्क कर सकता हूँ?",
-            "ribot-voice": "कौन से वॉयस कमांड उपलब्ध हैं?"
-        }
-    };
+    // =============================================
+    // FULL-PAGE TRANSLATION ENGINE (Google Translate — Free, No API Key)
+    // =============================================
 
-    const langKeys = Object.keys(translations);
-    const languageListEl = document.getElementById('language-dropdown-list');
-    const selectedLangEl = document.getElementById('selected-language');
-    const languageContainer = document.getElementById('language-dropdown-container');
+    const ALL_LANGUAGES = [
+      { code: 'en',    name: 'English',               native: 'English' },
+      { code: 'hi',    name: 'Hindi',                 native: 'हिन्दी' },
+      { code: 'bn',    name: 'Bengali',               native: 'বাংলা' },
+      { code: 'te',    name: 'Telugu',                native: 'తెలుగు' },
+      { code: 'mr',    name: 'Marathi',               native: 'मराठी' },
+      { code: 'ta',    name: 'Tamil',                 native: 'தமிழ்' },
+      { code: 'gu',    name: 'Gujarati',              native: 'ગુજરાતી' },
+      { code: 'kn',    name: 'Kannada',               native: 'ಕನ್ನಡ' },
+      { code: 'ml',    name: 'Malayalam',             native: 'മലയാളം' },
+      { code: 'pa',    name: 'Punjabi',               native: 'ਪੰਜਾਬੀ' },
+      { code: 'or',    name: 'Odia',                  native: 'ଓଡ଼ିଆ' },
+      { code: 'ur',    name: 'Urdu',                  native: 'اردو' },
+      { code: 'as',    name: 'Assamese',              native: 'অসমীয়া' },
+      { code: 'ne',    name: 'Nepali',                native: 'नेपाली' },
+      { code: 'si',    name: 'Sinhala',               native: 'සිංහල' },
+      { code: 'zh-CN', name: 'Chinese (Simplified)',  native: '简体中文' },
+      { code: 'zh-TW', name: 'Chinese (Traditional)', native: '繁體中文' },
+      { code: 'ja',    name: 'Japanese',              native: '日本語' },
+      { code: 'ko',    name: 'Korean',                native: '한국어' },
+      { code: 'ar',    name: 'Arabic',                native: 'العربية' },
+      { code: 'fa',    name: 'Persian',               native: 'فارسی' },
+      { code: 'ru',    name: 'Russian',               native: 'Русский' },
+      { code: 'fr',    name: 'French',                native: 'Français' },
+      { code: 'de',    name: 'German',                native: 'Deutsch' },
+      { code: 'es',    name: 'Spanish',               native: 'Español' },
+      { code: 'pt',    name: 'Portuguese',            native: 'Português' },
+      { code: 'it',    name: 'Italian',               native: 'Italiano' },
+      { code: 'nl',    name: 'Dutch',                 native: 'Nederlands' },
+      { code: 'pl',    name: 'Polish',                native: 'Polski' },
+      { code: 'tr',    name: 'Turkish',               native: 'Türkçe' },
+      { code: 'vi',    name: 'Vietnamese',            native: 'Tiếng Việt' },
+      { code: 'th',    name: 'Thai',                  native: 'ภาษาไทย' },
+      { code: 'id',    name: 'Indonesian',            native: 'Bahasa Indonesia' },
+      { code: 'ms',    name: 'Malay',                 native: 'Bahasa Melayu' },
+      { code: 'sw',    name: 'Swahili',               native: 'Kiswahili' },
+      { code: 'uk',    name: 'Ukrainian',             native: 'Українська' },
+      { code: 'he',    name: 'Hebrew',                native: 'עברית' },
+      { code: 'el',    name: 'Greek',                 native: 'Ελληνικά' },
+      { code: 'cs',    name: 'Czech',                 native: 'Čeština' },
+      { code: 'ro',    name: 'Romanian',              native: 'Română' },
+      { code: 'hu',    name: 'Hungarian',             native: 'Magyar' },
+      { code: 'sv',    name: 'Swedish',               native: 'Svenska' },
+      { code: 'no',    name: 'Norwegian',             native: 'Norsk' },
+      { code: 'fi',    name: 'Finnish',               native: 'Suomi' },
+      { code: 'da',    name: 'Danish',                native: 'Dansk' },
+      { code: 'fil',   name: 'Filipino',              native: 'Filipino' },
+    ];
+
+    const RTL_LANGS = new Set(['ar', 'he', 'ur', 'fa']);
+    const translationCache = {};
+
+    // Tags whose children we don't touch
+    const SKIP_TAGS = new Set(['SCRIPT','STYLE','NOSCRIPT','META','LINK','OPTION','SELECT']);
+    const SKIP_IDS  = new Set(['language-dropdown-list','language-dropdown-container','translate-overlay']);
+
+    // Collect all live text nodes + placeholders from the page
+    function collectNodes() {
+      const nodes = [];
+      function walk(node) {
+        if (!node) return;
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          if (SKIP_TAGS.has(node.tagName)) return;
+          if (node.id && SKIP_IDS.has(node.id)) return;
+          if (node.tagName === 'INPUT' && node.placeholder) {
+            nodes.push({ type: 'placeholder', el: node });
+          }
+          for (const child of node.childNodes) walk(child);
+        } else if (node.nodeType === Node.TEXT_NODE) {
+          const t = node.textContent.trim();
+          // Skip empty, pure numbers, percentages, single chars
+          if (t.length > 1 && !/^[\d%.,]+$/.test(t)) {
+            nodes.push({ type: 'text', node });
+          }
+        }
+      }
+      walk(document.body);
+      return nodes;
+    }
+
+    // Snapshot English originals once at boot
+    let snapshot = null;
+    function takeSnapshot() {
+      if (snapshot) return;
+      snapshot = collectNodes().map(item => {
+        if (item.type === 'text')        return { ...item, original: item.node.textContent };
+        if (item.type === 'placeholder') return { ...item, original: item.el.placeholder };
+      });
+    }
+
+    function restoreEnglish() {
+      if (!snapshot) return;
+      snapshot.forEach(item => {
+        try {
+          if (item.type === 'text')        item.node.textContent = item.original;
+          if (item.type === 'placeholder') item.el.placeholder   = item.original;
+        } catch(e) {}
+      });
+    }
+
+    // Translate a single string via Google Translate (unofficial, free)
+    async function gtranslate(text, targetLang) {
+      const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${encodeURIComponent(targetLang)}&dt=t&q=${encodeURIComponent(text)}`;
+      const res  = await fetch(url);
+      if (!res.ok) throw new Error('GT error ' + res.status);
+      const data = await res.json();
+      // data[0] is array of [translated, original, ...] chunks
+      return data[0].map(chunk => chunk[0]).join('');
+    }
+
+    // Translate an array of strings — batched as one joined request for speed
+    async function translateBatch(strings, targetLang) {
+      // Join with a unique separator that won't appear in real text
+      const SEP = ' |||RISYNC||| ';
+      const joined = strings.join(SEP);
+      const result = await gtranslate(joined, targetLang);
+      // Split back — Google preserves the separator text mostly intact
+      // but let's do a flexible split
+      const parts = result.split(/\s*\|\|\|RISYNC\|\|\|\s*/);
+      // Pad if Google merged some segments
+      while (parts.length < strings.length) parts.push('');
+      return parts.slice(0, strings.length);
+    }
+
+    // Loading overlay
+    function showOverlay(langName) {
+      let ov = document.getElementById('translate-overlay');
+      if (!ov) {
+        ov = document.createElement('div');
+        ov.id = 'translate-overlay';
+        ov.style.cssText = [
+          'position:fixed;inset:0;z-index:99999',
+          'background:rgba(30,10,69,0.85)',
+          'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px',
+          'color:#fff;font-family:Nunito,sans-serif;backdrop-filter:blur(8px)',
+          'transition:opacity .3s'
+        ].join(';');
+        ov.innerHTML = `
+          <div style="width:54px;height:54px;border-radius:50%;
+            border:4px solid rgba(255,255,255,0.15);border-top-color:#FFB800;
+            animation:_spin .8s linear infinite"></div>
+          <div id="_ov_msg" style="font-size:20px;font-weight:800">Translating…</div>
+          <div id="_ov_sub" style="font-size:13px;opacity:.55">Please wait</div>
+          <style>@keyframes _spin{to{transform:rotate(360deg)}}</style>`;
+        document.body.appendChild(ov);
+      }
+      document.getElementById('_ov_msg').textContent = `Translating to ${langName}…`;
+      document.getElementById('_ov_sub').textContent  = 'Powered by Google Translate 🌐';
+      ov.style.opacity = '1';
+      ov.style.display = 'flex';
+    }
+
+    function hideOverlay() {
+      const ov = document.getElementById('translate-overlay');
+      if (!ov) return;
+      ov.style.opacity = '0';
+      setTimeout(() => ov.style.display = 'none', 300);
+    }
+
+    // Main
+    async function translatePageTo(langCode, langName) {
+      // Always restore English first so we always translate from clean source
+      restoreEnglish();
+      document.documentElement.dir = RTL_LANGS.has(langCode) ? 'rtl' : 'ltr';
+
+      if (langCode === 'en') return;
+
+      // Serve from cache
+      if (translationCache[langCode]) {
+        applyMap(translationCache[langCode]);
+        return;
+      }
+
+      showOverlay(langName);
+
+      try {
+        const items   = collectNodes();
+        const strings = items.map(item =>
+          item.type === 'text' ? item.node.textContent.trim() : item.el.placeholder
+        );
+
+        // Deduplicate to reduce API calls
+        const unique = [...new Set(strings.filter(s => s.length > 1))];
+
+        // Translate in chunks of 40 strings
+        const CHUNK = 40;
+        const map = {};
+
+        for (let i = 0; i < unique.length; i += CHUNK) {
+          const chunk  = unique.slice(i, i + CHUNK);
+          const result = await translateBatch(chunk, langCode);
+          chunk.forEach((orig, j) => { map[orig] = result[j] || orig; });
+        }
+
+        translationCache[langCode] = map;
+        applyMap(map);
+
+      } catch (err) {
+        console.error('Translation error:', err);
+        hideOverlay();
+        alert('Translation failed. Check your internet connection and try again.');
+        return;
+      }
+
+      hideOverlay();
+    }
+
+    function applyMap(map) {
+      collectNodes().forEach(item => {
+        try {
+          if (item.type === 'text') {
+            const k = item.node.textContent.trim();
+            if (map[k]) item.node.textContent = map[k];
+          } else if (item.type === 'placeholder') {
+            const k = item.el.placeholder;
+            if (map[k]) item.el.placeholder = map[k];
+          }
+        } catch(e) {}
+      });
+    }
+
+    // ---- Build dropdown ----
+    const languageListEl   = document.getElementById('language-dropdown-list');
+    const selectedLangEl   = document.getElementById('selected-language');
+    const languageContainer= document.getElementById('language-dropdown-container');
+    let   currentLangCode  = 'en';
 
     function populateLanguages() {
-        languageListEl.innerHTML = '';
-        langKeys.forEach(code => {
-            const li = document.createElement('li');
-            const mapping = {en: 'English', hi: 'हिन्दी'};
-            li.textContent = mapping[code] || code;
-            li.dataset.lang = code;
-            li.addEventListener('click', () => {
-                setLanguage(code);
-                languageContainer.classList.remove('active');
-            });
-            languageListEl.appendChild(li);
+      languageListEl.innerHTML = '';
+      ALL_LANGUAGES.forEach(lang => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <span style="font-weight:700">${lang.native}</span>
+          <span style="opacity:.5;font-size:11px;margin-left:6px">${lang.name}</span>`;
+        li.style.cssText = 'display:flex;align-items:center;justify-content:space-between';
+        li.addEventListener('click', async () => {
+          languageContainer.classList.remove('active');
+          if (lang.code === currentLangCode) return;
+          currentLangCode = lang.code;
+          const span = selectedLangEl.querySelector('span');
+          if (span) span.textContent = lang.native;
+          await translatePageTo(lang.code, lang.name);
         });
+        languageListEl.appendChild(li);
+      });
     }
 
-    function setLanguage(code) {
-        const mapping = {en: 'English', hi: 'हिन्दी'};
-        const span = selectedLangEl.querySelector('span');
-        if (span) span.textContent = mapping[code] || code;
-
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            const key = el.getAttribute('data-i18n');
-            if (translations[code] && translations[code][key]) {
-                el.textContent = translations[code][key];
-            }
-        });
-        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-            const key = el.getAttribute('data-i18n-placeholder');
-            if (translations[code] && translations[code][key]) {
-                el.placeholder = translations[code][key];
-            }
-        });
-
-        localStorage.setItem('risync_lang', code);
-    }
-
-    selectedLangEl.addEventListener('click', () => {
-        languageContainer.classList.toggle('active');
+    selectedLangEl.addEventListener('click', () => languageContainer.classList.toggle('active'));
+    document.addEventListener('click', e => {
+      if (!languageContainer.contains(e.target)) languageContainer.classList.remove('active');
     });
 
-    document.addEventListener('click', (e) => {
-        if (!languageContainer.contains(e.target)) {
-            languageContainer.classList.remove('active');
-        }
-    });
-
+    takeSnapshot();
     populateLanguages();
-    const saved = localStorage.getItem('risync_lang') || 'en';
-    setLanguage(saved);
   </script>
 </body>
 </html>
