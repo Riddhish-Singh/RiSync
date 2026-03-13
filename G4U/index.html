@@ -1780,7 +1780,56 @@
         <!-- SLIDE TRACK -->
         <div id="heroMainTrack">
 
-          <!-- Slides injected dynamically by pixRenderHero() -->
+          <!-- Slide 1 — Candles -->
+          <div class="hero-main-slide" role="group" aria-roledescription="slide" aria-label="Slide 1 of 3: Luxury Candles">
+            <img src="https://risync.in/G4U/candle.png" alt="Luxury Candles collection" loading="eager" fetchpriority="high" width="1200" height="420">
+            <div class="hero-slide-overlay"></div>
+            <div class="hero-slide-content">
+              <div class="hero-slide-inner">
+                <span class="hero-tag" data-editable="hero1-tag">✨ New Collection 2026</span>
+                <h1 class="hero-title" data-editable="hero1-title" style="min-height:unset;margin-top:12px;">Luxury <span>Candles</span><br>Hand-Poured<br>Elegance</h1>
+                <p class="hero-sub" data-editable="hero1-sub">Soy · Paraffin · Scented — Crafted with love for every home.</p>
+                <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                  <button class="hero-cta" onclick="setFilter('candles')"><i class="fa fa-shopping-bag" aria-hidden="true"></i> Shop Candles</button>
+                  <button class="hero-cta-ghost" onclick="document.getElementById('grid').scrollIntoView({behavior:'smooth',block:'start'})">Explore All <i class="fa fa-arrow-right" aria-hidden="true"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 2 — Beauty -->
+          <div class="hero-main-slide" role="group" aria-roledescription="slide" aria-label="Slide 2 of 3: Beauty Products">
+            <img src="https://royal-sleek-and-shear-52.lovable.app/lovable-uploads/30573759-2745-499d-9bd1-3222a5059831.png" alt="Beauty Products collection" loading="lazy" width="1200" height="420">
+            <div class="hero-slide-overlay" style="background:linear-gradient(120deg,rgba(0,0,0,0.75) 0%,rgba(255,126,172,0.15) 60%,transparent 100%);"></div>
+            <div class="hero-slide-content">
+              <div class="hero-slide-inner">
+                <span class="hero-tag" data-editable="hero2-tag">💄 Beauty Edit</span>
+                <h2 class="hero-title" data-editable="hero2-title" style="min-height:unset;margin-top:12px;">Glow Up With<br><span>Beauty</span><br>Essentials</h2>
+                <p class="hero-sub" data-editable="hero2-sub">Skincare · Makeup · Wellness — Radiate confidence every day.</p>
+                <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                  <button class="hero-cta" onclick="setFilter('beauty')"><i class="fa fa-star"></i> Shop Beauty</button>
+                  <button class="hero-cta-ghost" onclick="document.getElementById('grid').scrollIntoView({behavior:'smooth',block:'start'})">Explore All <i class="fa fa-arrow-right"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 3 — Clothing -->
+          <div class="hero-main-slide" role="group" aria-roledescription="slide" aria-label="Slide 3 of 3: Clothing">
+            <img src="https://risync.in/G4U/Blue%20dot%204-5%20front.jpg" alt="Fresh Clothing collection" loading="lazy" width="1200" height="420">
+            <div class="hero-slide-overlay" style="background:linear-gradient(120deg,rgba(0,0,0,0.75) 0%,rgba(60,120,255,0.12) 60%,transparent 100%);"></div>
+            <div class="hero-slide-content">
+              <div class="hero-slide-inner">
+                <span class="hero-tag" data-editable="hero3-tag">👗 Fresh Styles</span>
+                <h2 class="hero-title" data-editable="hero3-title" style="min-height:unset;margin-top:12px;">Fresh<br><span>Clothing</span><br>For Everyone</h2>
+                <p class="hero-sub" data-editable="hero3-sub">Kids T-Shirts · Trendsetters · Everyday Wear — Style that speaks.</p>
+                <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                  <button class="hero-cta" onclick="setFilter('clothing')"><i class="fa fa-tshirt" aria-hidden="true"></i> Shop Clothing</button>
+                  <button class="hero-cta-ghost" onclick="document.getElementById('grid').scrollIntoView({behavior:'smooth',block:'start'})">Explore All <i class="fa fa-arrow-right" aria-hidden="true"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
 
 
 
@@ -1819,10 +1868,14 @@
         </button>
 
         <!-- SLIDE COUNTER -->
-        <div class="hero-slide-counter" id="heroCounter">01 / 01</div>
+        <div class="hero-slide-counter" id="heroCounter">01 / 03</div>
 
-        <!-- DOTS (rendered dynamically) -->
-        <div class="hero-dots-bar" id="heroDots"></div>
+        <!-- DOTS -->
+        <div class="hero-dots-bar" id="heroDots">
+          <span class="hero-dot active" data-idx="0"></span>
+          <span class="hero-dot" data-idx="1"></span>
+          <span class="hero-dot" data-idx="2"></span>
+        </div>
 
         <!-- PROGRESS BAR -->
         <div class="hero-progress-bar">
@@ -1832,121 +1885,98 @@
       </div><!-- /heroMainCarousel -->
     </div><!-- /hero-banner -->
 
-    <!-- Hero Carousel Script — dynamic, re-initializable -->
+    <!-- Hero Carousel Script -->
     <script>
-    // Default slides (used when nothing is saved in the database yet)
-    window.PIX_DEFAULT_SLIDES = [
-      { img:'https://risync.in/G4U/candle.png',            tag:'✨ New Collection 2026',  title:'Luxury Candles — Hand-Poured Elegance',   sub:'Soy · Paraffin · Scented — Crafted with love for every home.', cat:'candles'  },
-      { img:'https://royal-sleek-and-shear-52.lovable.app/lovable-uploads/30573759-2745-499d-9bd1-3222a5059831.png', tag:'💄 Beauty Edit', title:'Glow Up With Beauty Essentials', sub:'Skincare · Makeup · Wellness — Radiate confidence every day.', cat:'beauty' },
-      { img:'https://risync.in/G4U/Blue%20dot%204-5%20front.jpg', tag:'👗 Fresh Styles', title:'Fresh Clothing For Everyone',              sub:'Kids T-Shirts · Trendsetters · Everyday Wear — Style that speaks.', cat:'clothing' }
-    ];
-    window.PIX_HERO_SLIDES = JSON.parse(JSON.stringify(window.PIX_DEFAULT_SLIDES));
+    (function() {
+      const TOTAL = 3;
+      const DURATION = 5000; // 5 seconds per slide
+      let current = 0;
+      let autoTimer = null;
+      let progressAnim = null;
 
-    // ── Build one slide's HTML from a data object ──
-    function buildSlideHTML(s, i, total) {
-      var label = 'Slide ' + (i+1) + ' of ' + total;
-      var catLabel = s.cat ? ('Shop ' + s.cat.charAt(0).toUpperCase() + s.cat.slice(1)) : 'Shop Now';
-      var catOnclick = s.cat ? ("setFilter('" + s.cat + "')") : "document.getElementById('grid').scrollIntoView({behavior:'smooth'})";
-      return '<div class="hero-main-slide" role="group" aria-roledescription="slide" aria-label="' + label + '">' +
-        '<img src="' + (s.img||'') + '" alt="' + (s.tag||'') + '" loading="' + (i===0?'eager':'lazy') + '" width="1200" height="420">' +
-        '<div class="hero-slide-overlay"></div>' +
-        '<div class="hero-slide-content"><div class="hero-slide-inner">' +
-          '<span class="hero-tag">' + (s.tag||'') + '</span>' +
-          '<h2 class="hero-title" style="min-height:unset;margin-top:12px;">' + (s.title||'') + '</h2>' +
-          '<p class="hero-sub">' + (s.sub||'') + '</p>' +
-          '<div style="display:flex;gap:12px;flex-wrap:wrap;">' +
-            '<button class="hero-cta" onclick="' + catOnclick + '"><i class="fa fa-shopping-bag"></i> ' + catLabel + '</button>' +
-            '<button class="hero-cta-ghost" onclick="document.getElementById(\'grid\').scrollIntoView({behavior:\'smooth\',block:\'start\'})">Explore All <i class="fa fa-arrow-right"></i></button>' +
-          '</div>' +
-        '</div></div>' +
-      '</div>';
-    }
+      const track     = document.getElementById('heroMainTrack');
+      const dots      = document.querySelectorAll('.hero-dot');
+      const counter   = document.getElementById('heroCounter');
+      const progress  = document.getElementById('heroProgress');
+      const btnPrev   = document.getElementById('heroNavPrev');
+      const btnNext   = document.getElementById('heroNavNext');
 
-    // ── Re-render the whole carousel from a slides array ──
-    window.pixRenderHero = function(slides) {
-      if (!slides || !slides.length) slides = window.PIX_DEFAULT_SLIDES;
-      window.PIX_HERO_SLIDES = slides;
+      function pad(n) { return n < 10 ? '0' + n : '' + n; }
 
-      var track   = document.getElementById('heroMainTrack');
-      var dotsBar = document.getElementById('heroDots');
-      if (!track || !dotsBar) return;
+      function goTo(idx, dir) {
+        // clamp
+        idx = ((idx % TOTAL) + TOTAL) % TOTAL;
 
-      // Build slide HTML
-      track.innerHTML = slides.map(function(s,i){ return buildSlideHTML(s,i,slides.length); }).join('');
-
-      // Build dots
-      dotsBar.innerHTML = slides.map(function(_,i){
-        return '<span class="hero-dot' + (i===0?' active':'') + '" data-idx="' + i + '"></span>';
-      }).join('');
-
-      // Re-init carousel
-      pixInitCarousel(slides.length);
-    };
-
-    // ── Carousel engine (called after every render) ──
-    var _carouselTimer = null;
-    function pixInitCarousel(total) {
-      var DURATION = 5000;
-      var current  = 0;
-      var track    = document.getElementById('heroMainTrack');
-      var counter  = document.getElementById('heroCounter');
-      var progress = document.getElementById('heroProgress');
-      var btnPrev  = document.getElementById('heroNavPrev');
-      var btnNext  = document.getElementById('heroNavNext');
-      var carousel = document.getElementById('heroMainCarousel');
-
-      // Detach old listeners by cloning buttons
-      var newPrev = btnPrev.cloneNode(true);
-      var newNext = btnNext.cloneNode(true);
-      btnPrev.parentNode.replaceChild(newPrev, btnPrev);
-      btnNext.parentNode.replaceChild(newNext, btnNext);
-
-      clearInterval(_carouselTimer);
-
-      function pad(n){ return n<10?'0'+n:''+n; }
-
-      function goTo(idx) {
-        idx = ((idx % total) + total) % total;
         track.style.transform = 'translateX(-' + (idx * 100) + '%)';
-        document.querySelectorAll('.hero-dot').forEach(function(d,i){ d.classList.toggle('active', i===idx); });
-        counter.textContent = pad(idx+1) + ' / ' + pad(total);
-        // Progress bar
-        progress.style.transition = 'none';
-        progress.style.width = '0%';
-        void progress.offsetWidth;
-        progress.style.transition = 'width ' + DURATION + 'ms linear';
-        progress.style.width = '100%';
+
+        dots.forEach((d, i) => {
+          d.classList.toggle('active', i === idx);
+        });
+
+        counter.textContent = pad(idx + 1) + ' / ' + pad(TOTAL);
+
+        // restart progress
+        startProgress();
+
         current = idx;
       }
 
-      function startAuto() {
-        clearInterval(_carouselTimer);
-        _carouselTimer = setInterval(function(){ goTo(current+1); }, DURATION);
+      function startProgress() {
+        // reset
+        progress.style.transition = 'none';
+        progress.style.width = '0%';
+        // force reflow
+        void progress.offsetWidth;
+        progress.style.transition = 'width ' + DURATION + 'ms linear';
+        progress.style.width = '100%';
       }
 
-      newPrev.addEventListener('click', function(){ goTo(current-1); startAuto(); });
-      newNext.addEventListener('click', function(){ goTo(current+1); startAuto(); });
+      function startAuto() {
+        clearInterval(autoTimer);
+        autoTimer = setInterval(() => {
+          goTo(current + 1);
+        }, DURATION);
+      }
 
-      document.querySelectorAll('.hero-dot').forEach(function(d){
-        d.addEventListener('click', function(){ goTo(parseInt(d.dataset.idx)); startAuto(); });
+      function resetAuto() {
+        startAuto();
+      }
+
+      // Arrow clicks
+      btnPrev.addEventListener('click', () => { goTo(current - 1); resetAuto(); });
+      btnNext.addEventListener('click', () => { goTo(current + 1); resetAuto(); });
+
+      // Dot clicks
+      dots.forEach(d => {
+        d.addEventListener('click', () => {
+          goTo(parseInt(d.dataset.idx));
+          resetAuto();
+        });
       });
 
-      var touchStartX = 0;
-      carousel.addEventListener('touchstart', function(e){ touchStartX = e.changedTouches[0].clientX; },{passive:true});
-      carousel.addEventListener('touchend',   function(e){
-        var dx = e.changedTouches[0].clientX - touchStartX;
-        if (Math.abs(dx)>50){ goTo(dx<0?current+1:current-1); startAuto(); }
-      },{passive:true});
+      // Touch/swipe support
+      let touchStartX = 0;
+      const carousel = document.getElementById('heroMainCarousel');
+      carousel.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].clientX; }, {passive:true});
+      carousel.addEventListener('touchend', e => {
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        if (Math.abs(dx) > 50) { goTo(dx < 0 ? current + 1 : current - 1); resetAuto(); }
+      }, {passive:true});
 
-      carousel.addEventListener('mouseenter', function(){ clearInterval(_carouselTimer); progress.style.transition='none'; });
-      carousel.addEventListener('mouseleave', function(){ goTo(current); startAuto(); });
+      // Pause on hover
+      carousel.addEventListener('mouseenter', () => { clearInterval(autoTimer); progress.style.animationPlayState = 'paused'; progress.style.transition = 'none'; });
+      carousel.addEventListener('mouseleave', () => { startProgress(); startAuto(); });
 
+      // Keyboard navigation
+      document.addEventListener('keydown', e => {
+        if (e.key === 'ArrowLeft')  { goTo(current - 1); resetAuto(); }
+        if (e.key === 'ArrowRight') { goTo(current + 1); resetAuto(); }
+      });
+
+      // Init
       goTo(0);
       startAuto();
-    }
-
-    // Initial render from defaults — will be overwritten once DB loads
-    window.pixRenderHero(window.PIX_DEFAULT_SLIDES);
+    })();
     </script>
 
     <!-- ===== TRUST STRIP ===== -->
@@ -11362,6 +11392,32 @@ service cloud.firestore {
       transition: all 0.3s ease;
       font-family: Poppins, sans-serif;
     ">📊 Deals</button>
+
+    <button onclick="switchAdminTab('categories')" id="tab-categories-btn" style="
+      padding: 12px 24px;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      font-family: Poppins, sans-serif;
+    ">🏷️ Categories</button>
+
+    <button onclick="switchAdminTab('slides')" id="tab-slides-btn" style="
+      padding: 12px 24px;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      font-family: Poppins, sans-serif;
+    ">🖼️ Slides</button>
   </div>
 
   <!-- TAB: ADD PRODUCT -->
@@ -11606,6 +11662,89 @@ service cloud.firestore {
     </div>
   </div>
 
+  <!-- TAB: CATEGORIES -->
+  <div id="tab-categories-content" style="display: none;">
+    <h3 style="color: #FF3C78; margin-bottom: 6px; font-weight: 700;">🏷️ Manage Categories</h3>
+    <p style="color: rgba(255,255,255,0.5); font-size: 13px; margin-bottom: 20px;">Categories you add here will appear in all product dropdowns and hero slide options.</p>
+    <div style="display:flex; gap:10px; margin-bottom:24px; flex-wrap:wrap;">
+      <input id="newCatName" placeholder="Category name (e.g. Jewellery)" style="
+        flex:1; min-width:180px; padding:11px 14px;
+        background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,60,120,0.25);
+        border-radius:8px; color:white; font-family:Poppins,sans-serif; font-size:14px; outline:none;
+      ">
+      <input id="newCatIcon" placeholder="Icon (e.g. 💍)" style="
+        width:90px; padding:11px 14px;
+        background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,60,120,0.25);
+        border-radius:8px; color:white; font-family:Poppins,sans-serif; font-size:14px; outline:none;
+      ">
+      <input id="newCatKey" placeholder="Key (e.g. jewellery)" style="
+        width:130px; padding:11px 14px;
+        background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,60,120,0.25);
+        border-radius:8px; color:white; font-family:Poppins,sans-serif; font-size:13px; outline:none;
+      ">
+      <button onclick="adminAddCategory()" style="
+        padding:11px 22px; background:linear-gradient(135deg,#FF3C78,#FF7EAC);
+        color:white; border:none; border-radius:8px; font-weight:700;
+        font-size:14px; cursor:pointer; white-space:nowrap;
+      ">+ Add Category</button>
+    </div>
+    <div id="catList" style="display:grid; gap:10px; max-height:420px; overflow-y:auto;">
+      <p style="color:rgba(255,255,255,0.4); font-size:13px;">Loading categories…</p>
+    </div>
+  </div>
+
+  <!-- TAB: SLIDES -->
+  <div id="tab-slides-content" style="display: none;">
+    <h3 style="color: #FF3C78; margin-bottom: 6px; font-weight: 700;">🖼️ Manage Hero Slides</h3>
+    <p style="color: rgba(255,255,255,0.5); font-size: 13px; margin-bottom: 20px;">Add or remove the big banner slides at the top of the homepage.</p>
+    <div style="display:grid; gap:14px; background:rgba(255,255,255,0.03); padding:20px; border-radius:12px; margin-bottom:24px; border:1px solid rgba(255,60,120,0.15);">
+      <h4 style="color:rgba(255,255,255,0.85); font-size:13px; font-weight:700; margin:0;">Add New Slide</h4>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div>
+          <label style="font-size:11px; font-weight:600; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.06em; display:block; margin-bottom:6px;">Tag / Badge</label>
+          <input id="slideTag" placeholder="e.g. ✦ New Arrivals" style="width:100%; padding:10px 12px; background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,60,120,0.2); border-radius:8px; color:white; font-family:Poppins,sans-serif; font-size:13px; outline:none; box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="font-size:11px; font-weight:600; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.06em; display:block; margin-bottom:6px;">Category (links to shop filter)</label>
+          <select id="slideCatLink" style="width:100%; padding:10px 12px; background:rgba(30,0,20,0.9); border:1.5px solid rgba(255,60,120,0.2); border-radius:8px; color:white; font-family:Poppins,sans-serif; font-size:13px; outline:none; box-sizing:border-box;">
+            <option value="">— Loading categories… —</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label style="font-size:11px; font-weight:600; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.06em; display:block; margin-bottom:6px;">Headline (use | for line break)</label>
+        <input id="slideTitle" placeholder="e.g. Luxury|Candles|Hand-Poured" style="width:100%; padding:10px 12px; background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,60,120,0.2); border-radius:8px; color:white; font-family:Poppins,sans-serif; font-size:13px; outline:none; box-sizing:border-box;">
+      </div>
+      <div>
+        <label style="font-size:11px; font-weight:600; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.06em; display:block; margin-bottom:6px;">Subtext</label>
+        <input id="slideSub" placeholder="e.g. Hand-crafted with natural soy wax" style="width:100%; padding:10px 12px; background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,60,120,0.2); border-radius:8px; color:white; font-family:Poppins,sans-serif; font-size:13px; outline:none; box-sizing:border-box;">
+      </div>
+      <div>
+        <label style="font-size:11px; font-weight:600; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.06em; display:block; margin-bottom:6px;">Background Image URL</label>
+        <input id="slideBg" placeholder="https://images.unsplash.com/…?w=1400" style="width:100%; padding:10px 12px; background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,60,120,0.2); border-radius:8px; color:white; font-family:Poppins,sans-serif; font-size:13px; outline:none; box-sizing:border-box;">
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div>
+          <label style="font-size:11px; font-weight:600; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.06em; display:block; margin-bottom:6px;">CTA Button 1 Label</label>
+          <input id="slideCta1" placeholder="Shop Now" style="width:100%; padding:10px 12px; background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,60,120,0.2); border-radius:8px; color:white; font-family:Poppins,sans-serif; font-size:13px; outline:none; box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="font-size:11px; font-weight:600; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.06em; display:block; margin-bottom:6px;">CTA Button 2 Label</label>
+          <input id="slideCta2" placeholder="View Collection" style="width:100%; padding:10px 12px; background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,60,120,0.2); border-radius:8px; color:white; font-family:Poppins,sans-serif; font-size:13px; outline:none; box-sizing:border-box;">
+        </div>
+      </div>
+      <button onclick="adminAddSlide()" style="
+        padding:12px 24px; background:linear-gradient(135deg,#FF3C78,#FF7EAC);
+        color:white; border:none; border-radius:8px; font-weight:700;
+        font-size:14px; cursor:pointer; align-self:start; width:fit-content;
+      ">🚀 Add Slide to Homepage</button>
+    </div>
+    <h4 style="color:rgba(255,255,255,0.7); font-size:13px; font-weight:700; margin-bottom:12px;">Live Slides</h4>
+    <div id="slidesList" style="display:grid; gap:10px; max-height:380px; overflow-y:auto;">
+      <p style="color:rgba(255,255,255,0.4); font-size:13px;">Loading slides…</p>
+    </div>
+  </div>
+
 </div>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
@@ -11638,56 +11777,43 @@ function toggleAdminPanel() {
 }
 
 function switchAdminTab(tab) {
-  // Hide all
-  document.getElementById('tab-product-content').style.display = 'none';
-  document.getElementById('tab-deal-content').style.display = 'none';
-  document.getElementById('tab-customers-content').style.display = 'none';
-  document.getElementById('tab-products-content').style.display = 'none';
-  document.getElementById('tab-deals-content').style.display = 'none';
-  
-  // Reset tabs
-  document.getElementById('tab-product-btn').style.borderBottomColor = 'transparent';
-  document.getElementById('tab-product-btn').style.color = 'rgba(255, 255, 255, 0.6)';
-  document.getElementById('tab-deal-btn').style.borderBottomColor = 'transparent';
-  document.getElementById('tab-deal-btn').style.color = 'rgba(255, 255, 255, 0.6)';
-  document.getElementById('tab-customers-btn').style.borderBottomColor = 'transparent';
-  document.getElementById('tab-customers-btn').style.color = 'rgba(255, 255, 255, 0.6)';
-  document.getElementById('tab-products-btn').style.borderBottomColor = 'transparent';
-  document.getElementById('tab-products-btn').style.color = 'rgba(255, 255, 255, 0.6)';
-  document.getElementById('tab-dealsview-btn').style.borderBottomColor = 'transparent';
-  document.getElementById('tab-dealsview-btn').style.color = 'rgba(255, 255, 255, 0.6)';
-  
+  // All tab IDs
+  const allTabs = ['product','deal','customers','products','deals','categories','slides'];
+  allTabs.forEach(function(t) {
+    const contentId = t === 'deals' ? 'tab-deals-content' : t === 'products' ? 'tab-products-content' : 'tab-' + t + '-content';
+    const btnId     = t === 'deals' ? 'tab-dealsview-btn' : 'tab-' + t + '-btn';
+    const c = document.getElementById(contentId);
+    const b = document.getElementById(btnId);
+    if (c) c.style.display = 'none';
+    if (b) { b.style.borderBottomColor = 'transparent'; b.style.color = 'rgba(255,255,255,0.6)'; }
+  });
+
   // Show selected
-  const contentId = tab === 'deals' ? 'tab-deals-content' : 'tab-products-content';
-  if (tab === 'products' || tab === 'deals') {
-    document.getElementById(contentId).style.display = 'block';
-    if (tab === 'products') {
-      document.getElementById('tab-products-btn').style.borderBottomColor = '#FF3C78';
-      document.getElementById('tab-products-btn').style.color = '#FF3C78';
-      loadProductsFromFirebase();
-    } else {
-      document.getElementById('tab-dealsview-btn').style.borderBottomColor = '#FF3C78';
-      document.getElementById('tab-dealsview-btn').style.color = '#FF3C78';
-      loadDealsFromFirebase();
-    }
-  } else {
-    document.getElementById('tab-' + tab + '-content').style.display = 'block';
-    document.getElementById('tab-' + tab + '-btn').style.borderBottomColor = '#FF3C78';
-    document.getElementById('tab-' + tab + '-btn').style.color = '#FF3C78';
-    // Populate the product dropdown when "Add Deal" tab is opened
-    if (tab === 'deal') {
-      const sel = document.getElementById('dealProductId');
-      if (sel) {
-        const prods = window.PRODUCTS || [];
-        // Keep the first placeholder option, rebuild the rest
-        sel.innerHTML = '<option value="" style="background:#1a0010;color:white;">— Select a product —</option>';
-        prods.forEach(function(p) {
-          const opt = document.createElement('option');
-          opt.value = p.id;
-          opt.textContent = p.title + ' — ₹' + p.price;
-          opt.style.background = '#1a0010';
-          opt.style.color = 'white';
-          sel.appendChild(opt);
+  const contentId = tab === 'deals' ? 'tab-deals-content' : tab === 'products' ? 'tab-products-content' : 'tab-' + tab + '-content';
+  const btnId     = tab === 'deals' ? 'tab-dealsview-btn' : 'tab-' + tab + '-btn';
+  const contentEl = document.getElementById(contentId);
+  const btnEl     = document.getElementById(btnId);
+  if (contentEl) contentEl.style.display = 'block';
+  if (btnEl) { btnEl.style.borderBottomColor = '#FF3C78'; btnEl.style.color = '#FF3C78'; }
+
+  if (tab === 'products') loadProductsFromFirebase();
+  if (tab === 'deals')    loadDealsFromFirebase();
+  if (tab === 'categories') adminLoadCategories();
+  if (tab === 'slides')   { adminLoadSlides(); adminPopulateSlideCatDropdown(); }
+
+  if (tab === 'deal') {
+    // Populate product dropdown
+    const sel = document.getElementById('dealProductId');
+    if (sel) {
+      const prods = window.PRODUCTS || [];
+      sel.innerHTML = '<option value="" style="background:#1a0010;color:white;">— Select a product —</option>';
+      prods.forEach(function(p) {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.title + ' — ₹' + p.price;
+        opt.style.background = '#1a0010';
+        opt.style.color = 'white';
+        sel.appendChild(opt);
         });
       }
     }
@@ -12080,6 +12206,290 @@ if (window.firebaseReady) {
 } else {
   document.addEventListener('firebaseReady', () => renderCustomers());
 }
+
+// ══════════════════════════════════════════════════════
+//  CATEGORIES — Admin CRUD
+// ══════════════════════════════════════════════════════
+const DEFAULT_CATEGORIES = [
+  { key: 'candles',     label: 'Candles & Accessories', icon: '🕯️' },
+  { key: 'beauty',      label: 'Beauty & Skincare',      icon: '💄' },
+  { key: 'clothing',    label: 'Clothing & Fashion',     icon: '👕' },
+  { key: 'home',        label: 'Home & Decor',           icon: '🏠' },
+  { key: 'electronics', label: 'Electronics',            icon: '📱' },
+  { key: 'grocery',     label: 'Food & Grocery',         icon: '🛒' },
+  { key: 'others',      label: 'Others',                 icon: '📦' }
+];
+
+async function adminGetCategories() {
+  try {
+    if (!window.db || !window.getDocs || !window.collection) return null;
+    const snap = await window.getDocs(window.collection(window.db, 'categories'));
+    if (snap.empty) return null;
+    return snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => (a.order||0)-(b.order||0));
+  } catch(e) { console.warn('adminGetCategories:', e); return null; }
+}
+
+async function adminLoadCategories() {
+  const list = document.getElementById('catList');
+  if (!list) return;
+  list.innerHTML = '<p style="color:rgba(255,255,255,0.4);font-size:13px;">Loading…</p>';
+  let cats = await adminGetCategories();
+  if (!cats) {
+    // First time: seed defaults into Firestore
+    await adminSeedDefaultCategories();
+    cats = await adminGetCategories();
+  }
+  if (!cats || cats.length === 0) {
+    list.innerHTML = '<p style="color:rgba(255,255,255,0.4);font-size:13px;">No categories yet. Add one above.</p>';
+    return;
+  }
+  list.innerHTML = cats.map(c => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,60,120,0.15);border-radius:10px;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="font-size:22px;">${c.icon||'📦'}</span>
+        <div>
+          <div style="color:white;font-weight:600;font-size:14px;">${c.label}</div>
+          <div style="color:rgba(255,255,255,0.4);font-size:11px;font-family:monospace;">key: ${c.key}</div>
+        </div>
+      </div>
+      <button onclick="adminDeleteCategory('${c.id}')" style="
+        padding:6px 14px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);
+        border-radius:7px;color:#ef4444;font-size:12px;font-weight:700;cursor:pointer;
+      ">🗑 Delete</button>
+    </div>
+  `).join('');
+}
+
+async function adminSeedDefaultCategories() {
+  try {
+    if (!window.db || !window.addDoc || !window.collection) return;
+    for (let i = 0; i < DEFAULT_CATEGORIES.length; i++) {
+      await window.addDoc(window.collection(window.db, 'categories'), { ...DEFAULT_CATEGORIES[i], order: i });
+    }
+  } catch(e) { console.warn('seed categories:', e); }
+}
+
+async function adminAddCategory() {
+  const nameEl = document.getElementById('newCatName');
+  const iconEl = document.getElementById('newCatIcon');
+  const keyEl  = document.getElementById('newCatKey');
+  const label  = (nameEl && nameEl.value.trim()) || '';
+  const icon   = (iconEl && iconEl.value.trim()) || '📦';
+  const key    = (keyEl && keyEl.value.trim().toLowerCase().replace(/\s+/g,'_')) || label.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+  if (!label) { showNotification('Please enter a category name.', 'error'); return; }
+  if (!key)   { showNotification('Please enter a key (e.g. jewellery).', 'error'); return; }
+  try {
+    if (!window.db || !window.addDoc || !window.collection) throw new Error('Firebase not ready');
+    // get current count for order
+    const snap = await window.getDocs(window.collection(window.db, 'categories'));
+    await window.addDoc(window.collection(window.db, 'categories'), { label, icon, key, order: snap.size });
+    if (nameEl) nameEl.value = '';
+    if (iconEl) iconEl.value = '';
+    if (keyEl)  keyEl.value  = '';
+    showNotification('Category added!', 'success');
+    adminLoadCategories();
+    // Refresh dynamic dropdowns
+    adminRefreshCategoryDropdowns();
+  } catch(e) { showNotification('Error: ' + e.message, 'error'); }
+}
+
+async function adminDeleteCategory(id) {
+  if (!confirm('Delete this category?')) return;
+  try {
+    if (!window.db || !window.deleteDoc || !window.doc) throw new Error('Firebase not ready');
+    await window.deleteDoc(window.doc(window.db, 'categories', id));
+    showNotification('Category deleted.', 'success');
+    adminLoadCategories();
+    adminRefreshCategoryDropdowns();
+  } catch(e) { showNotification('Error: ' + e.message, 'error'); }
+}
+
+// Refresh all category dropdowns across the page (product form + slides form)
+async function adminRefreshCategoryDropdowns() {
+  const cats = await adminGetCategories() || DEFAULT_CATEGORIES;
+  const selectors = ['#productCategory', '#sel_category', '#slideCatLink'];
+  selectors.forEach(function(sel) {
+    const el = document.querySelector(sel);
+    if (!el) return;
+    const isSlideSel = sel === '#slideCatLink';
+    const prevVal = el.value;
+    el.innerHTML = isSlideSel
+      ? '<option value="">— No category link —</option>'
+      : '<option value="">Select Category</option>';
+    cats.forEach(function(c) {
+      const opt = document.createElement('option');
+      opt.value = isSlideSel ? c.key : c.label;
+      opt.textContent = (c.icon ? c.icon + ' ' : '') + c.label;
+      el.appendChild(opt);
+    });
+    el.value = prevVal; // restore if still valid
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  SLIDES — Admin CRUD
+// ══════════════════════════════════════════════════════
+async function adminPopulateSlideCatDropdown() {
+  const sel = document.getElementById('slideCatLink');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">— No category link —</option>';
+  const cats = await adminGetCategories() || DEFAULT_CATEGORIES;
+  cats.forEach(function(c) {
+    const opt = document.createElement('option');
+    opt.value = c.key;
+    opt.textContent = (c.icon ? c.icon + ' ' : '') + c.label;
+    sel.appendChild(opt);
+  });
+}
+
+async function adminLoadSlides() {
+  const list = document.getElementById('slidesList');
+  if (!list) return;
+  list.innerHTML = '<p style="color:rgba(255,255,255,0.4);font-size:13px;">Loading…</p>';
+  try {
+    if (!window.db || !window.getDocs || !window.collection) throw new Error('Firebase not ready');
+    const snap = await window.getDocs(window.query(
+      window.collection(window.db, 'slides'),
+      window.orderBy('order', 'asc')
+    ));
+    if (snap.empty) {
+      list.innerHTML = '<p style="color:rgba(255,255,255,0.4);font-size:13px;">No custom slides yet. The default 3 slides are shown. Add a slide above to override.</p>';
+      return;
+    }
+    list.innerHTML = snap.docs.map((d,i) => {
+      const s = d.data();
+      return `<div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,60,120,0.15);border-radius:10px;">
+        ${s.bg ? `<img src="${s.bg}" style="width:72px;height:50px;object-fit:cover;border-radius:6px;flex-shrink:0;" onerror="this.style.display='none'">` : ''}
+        <div style="flex:1;min-width:0;">
+          <div style="color:rgba(255,60,120,0.9);font-size:11px;font-weight:700;text-transform:uppercase;">${s.tag||''}</div>
+          <div style="color:white;font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${(s.title||'').replace(/\|/g,' · ')}</div>
+          <div style="color:rgba(255,255,255,0.45);font-size:11px;">${s.catLink ? '→ ' + s.catLink : 'no filter link'}</div>
+        </div>
+        <button onclick="adminDeleteSlide('${d.id}')" style="
+          padding:6px 14px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);
+          border-radius:7px;color:#ef4444;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;
+        ">🗑</button>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    list.innerHTML = `<p style="color:#ef4444;font-size:13px;">Error: ${e.message}</p>`;
+  }
+}
+
+async function adminAddSlide() {
+  const tag    = document.getElementById('slideTag')?.value.trim()    || '';
+  const title  = document.getElementById('slideTitle')?.value.trim()  || '';
+  const sub    = document.getElementById('slideSub')?.value.trim()    || '';
+  const bg     = document.getElementById('slideBg')?.value.trim()     || '';
+  const cta1   = document.getElementById('slideCta1')?.value.trim()   || 'Shop Now';
+  const cta2   = document.getElementById('slideCta2')?.value.trim()   || 'View Collection';
+  const catLink= document.getElementById('slideCatLink')?.value       || '';
+  if (!title) { showNotification('Please enter a headline.', 'error'); return; }
+  try {
+    if (!window.db || !window.addDoc || !window.collection) throw new Error('Firebase not ready');
+    const snap = await window.getDocs(window.collection(window.db, 'slides'));
+    await window.addDoc(window.collection(window.db, 'slides'), {
+      tag, title, sub, bg, cta1, cta2, catLink,
+      order: snap.size,
+      createdAt: new Date()
+    });
+    // Clear form
+    ['slideTag','slideTitle','slideSub','slideBg','slideCta1','slideCta2'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
+    showNotification('Slide added! Reload the page to see it live.', 'success');
+    adminLoadSlides();
+    applyFirebaseSlides(); // try live inject
+  } catch(e) { showNotification('Error: ' + e.message, 'error'); }
+}
+
+async function adminDeleteSlide(id) {
+  if (!confirm('Remove this slide?')) return;
+  try {
+    if (!window.db || !window.deleteDoc || !window.doc) throw new Error('Firebase not ready');
+    await window.deleteDoc(window.doc(window.db, 'slides', id));
+    showNotification('Slide removed.', 'success');
+    adminLoadSlides();
+    applyFirebaseSlides();
+  } catch(e) { showNotification('Error: ' + e.message, 'error'); }
+}
+
+// ── Apply Firebase slides to the live hero section ──────────────
+async function applyFirebaseSlides() {
+  try {
+    if (!window.db || !window.getDocs || !window.collection || !window.query || !window.orderBy) return;
+    const snap = await window.getDocs(window.query(
+      window.collection(window.db, 'slides'),
+      window.orderBy('order','asc')
+    ));
+    if (snap.empty) return; // keep default static slides
+    const slides = snap.docs.map(d => d.data());
+    const hero = document.querySelector('.hero-main-slide');
+    if (!hero) return;
+    // Remove existing slide inner elements
+    hero.querySelectorAll('.hero-slide-inner').forEach(el => el.remove());
+    // Inject new slides
+    slides.forEach(function(s, i) {
+      if (s.bg) {
+        // Try to set BG on the slide's background element if it exists, else style hero
+        const bgParts = hero.querySelectorAll('[style*="background-image"]');
+        if (bgParts[i]) bgParts[i].style.backgroundImage = 'url(' + s.bg + ')';
+      }
+      const inner = document.createElement('div');
+      inner.className = 'hero-slide-inner';
+      const titleHtml = (s.title||'').split('|').map((line,li) => {
+        if (li === 1) return `<span>${line}</span><br>`;
+        return line + '<br>';
+      }).join('');
+      inner.innerHTML = `
+        <div class="hero-slide-content">
+          <div>
+            <div class="hero-tag">${s.tag||''}</div>
+            <h1 class="hero-title" style="min-height:unset;margin-top:12px;">${titleHtml}</h1>
+            <p class="hero-sub">${s.sub||''}</p>
+            <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:20px;">
+              <button class="pix-btn pix-btn-primary" onclick="setFilter('${s.catLink||'all'}');document.querySelector('#shop,#products')?.scrollIntoView({behavior:'smooth'})">${s.cta1||'Shop Now'}</button>
+              <button class="pix-btn pix-btn-ghost"   onclick="setFilter('${s.catLink||'all'}');document.querySelector('#shop,#products')?.scrollIntoView({behavior:'smooth'})">${s.cta2||'View Collection'}</button>
+            </div>
+          </div>
+        </div>`;
+      hero.appendChild(inner);
+    });
+    // Update counter
+    const counter = document.getElementById('heroCounter');
+    if (counter) counter.textContent = '01 / ' + String(slides.length).padStart(2,'0');
+  } catch(e) { console.warn('applyFirebaseSlides:', e); }
+}
+
+// ── On page load: populate category dropdowns from Firestore ──
+(async function initDynamicDropdowns() {
+  try {
+    let cats = null;
+    // Retry a few times while Firebase initialises
+    for (let attempt = 0; attempt < 8; attempt++) {
+      if (window.db && window.getDocs && window.collection) {
+        cats = await adminGetCategories();
+        break;
+      }
+      await new Promise(r => setTimeout(r, 700));
+    }
+    if (!cats) return; // fall back to static HTML options
+    const selectors = ['#productCategory', '#sel_category'];
+    selectors.forEach(function(sel) {
+      const el = document.querySelector(sel);
+      if (!el) return;
+      el.innerHTML = '<option value="">Select Category</option>';
+      cats.forEach(function(c) {
+        const opt = document.createElement('option');
+        opt.value = c.label;
+        opt.textContent = (c.icon ? c.icon + ' ' : '') + c.label;
+        el.appendChild(opt);
+      });
+    });
+    // Also try to apply Firebase slides on load
+    applyFirebaseSlides();
+  } catch(e) { console.warn('initDynamicDropdowns:', e); }
+})();
 </script>
 
 <!-- ═══════════════════════════════════════════════════════════
@@ -12143,21 +12553,28 @@ if (window.firebaseReady) {
     <!-- ▸ HOMEPAGE SLIDESHOW -->
     <div class="ed-section">
       <div class="ed-section-title">🖼️ Homepage Slideshow</div>
-      <p class="ed-hint">The big banner at the top of the homepage. Add as many slides as you like.</p>
+      <p class="ed-hint">The big banner at the top of the homepage. There are 3 slides.</p>
 
-      <!-- Slide cards are rendered here by JS -->
-      <div id="ed-slide-list" style="display:grid;gap:16px;"></div>
+      <div class="ed-slide-group">
+        <div class="ed-slide-label">Slide 1 · Candles</div>
+        <div class="ed-field"><label class="ed-label">Tag (small label)</label><input class="ed-input" id="ef-hero1-tag" type="text" placeholder="e.g. ✨ New Collection 2026"></div>
+        <div class="ed-field"><label class="ed-label">Headline</label><input class="ed-input" id="ef-hero1-title" type="text" placeholder="e.g. Luxury Candles — Hand-Poured Elegance"></div>
+        <div class="ed-field"><label class="ed-label">Subtitle</label><input class="ed-input" id="ef-hero1-sub" type="text" placeholder="e.g. Soy · Paraffin · Scented — Crafted with love"></div>
+      </div>
 
-      <!-- Add slide button -->
-      <button onclick="edAddSlide()" style="
-        margin-top:10px;width:100%;padding:11px;
-        background:#f5f3ff;color:#7c3aed;
-        border:2px dashed #c4b5fd;border-radius:10px;
-        font-family:'Poppins',sans-serif;font-weight:800;font-size:0.85rem;
-        cursor:pointer;transition:all 0.2s;
-      " onmouseover="this.style.background='#ede9fe'" onmouseout="this.style.background='#f5f3ff'">
-        + Add New Slide
-      </button>
+      <div class="ed-slide-group">
+        <div class="ed-slide-label">Slide 2 · Beauty</div>
+        <div class="ed-field"><label class="ed-label">Tag (small label)</label><input class="ed-input" id="ef-hero2-tag" type="text" placeholder="e.g. 💄 Beauty Edit"></div>
+        <div class="ed-field"><label class="ed-label">Headline</label><input class="ed-input" id="ef-hero2-title" type="text" placeholder="e.g. Glow Up With Beauty Essentials"></div>
+        <div class="ed-field"><label class="ed-label">Subtitle</label><input class="ed-input" id="ef-hero2-sub" type="text" placeholder="e.g. Skincare · Makeup · Wellness"></div>
+      </div>
+
+      <div class="ed-slide-group">
+        <div class="ed-slide-label">Slide 3 · Clothing</div>
+        <div class="ed-field"><label class="ed-label">Tag (small label)</label><input class="ed-input" id="ef-hero3-tag" type="text" placeholder="e.g. 👗 Fresh Styles"></div>
+        <div class="ed-field"><label class="ed-label">Headline</label><input class="ed-input" id="ef-hero3-title" type="text" placeholder="e.g. Fresh Clothing For Everyone"></div>
+        <div class="ed-field"><label class="ed-label">Subtitle</label><input class="ed-input" id="ef-hero3-sub" type="text" placeholder="e.g. Kids T-Shirts · Trendsetters"></div>
+      </div>
     </div>
 
     <!-- ▸ FEATURE BANNERS -->
@@ -12325,270 +12742,195 @@ if (window.firebaseReady) {
 <script>
 (function(){
 
-  // ── Non-slide fields ──────────────────────────────────────
+  // Map of input id → data-editable key + how to read/write it
   const FIELDS = [
-    { id:'ef-ann-1',             key:'ann-1'            },
-    { id:'ef-ann-2',             key:'ann-2'            },
-    { id:'ef-ann-3',             key:'ann-3'            },
-    { id:'ef-ann-4',             key:'ann-4'            },
-    { id:'ef-ann-5',             key:'ann-5'            },
-    { id:'ef-ann-6',             key:'ann-6'            },
-    { id:'ef-promo1-badge',      key:'promo1-badge'     },
-    { id:'ef-promo1-title',      key:'promo1-title'     },
-    { id:'ef-promo2-badge',      key:'promo2-badge'     },
-    { id:'ef-promo2-title',      key:'promo2-title'     },
-    { id:'ef-brand-eyebrow',     key:'brand-eyebrow'    },
-    { id:'ef-brand-headline',    key:'brand-headline'   },
-    { id:'ef-seller-title',      key:'seller-title'     },
-    { id:'ef-seller-body',       key:'seller-body'      },
-    { id:'ef-newsletter-title',  key:'newsletter-title' },
-    { id:'ef-newsletter-sub',    key:'newsletter-sub'   },
+    { id:'ef-ann-1',           key:'ann-1',            plain:true  },
+    { id:'ef-ann-2',           key:'ann-2',            plain:true  },
+    { id:'ef-ann-3',           key:'ann-3',            plain:true  },
+    { id:'ef-ann-4',           key:'ann-4',            plain:true  },
+    { id:'ef-ann-5',           key:'ann-5',            plain:true  },
+    { id:'ef-ann-6',           key:'ann-6',            plain:true  },
+    { id:'ef-hero1-tag',       key:'hero1-tag',        plain:true  },
+    { id:'ef-hero1-title',     key:'hero1-title',      plain:true  },
+    { id:'ef-hero1-sub',       key:'hero1-sub',        plain:true  },
+    { id:'ef-hero2-tag',       key:'hero2-tag',        plain:true  },
+    { id:'ef-hero2-title',     key:'hero2-title',      plain:true  },
+    { id:'ef-hero2-sub',       key:'hero2-sub',        plain:true  },
+    { id:'ef-hero3-tag',       key:'hero3-tag',        plain:true  },
+    { id:'ef-hero3-title',     key:'hero3-title',      plain:true  },
+    { id:'ef-hero3-sub',       key:'hero3-sub',        plain:true  },
+    { id:'ef-promo1-badge',    key:'promo1-badge',     plain:true  },
+    { id:'ef-promo1-title',    key:'promo1-title',     plain:true  },
+    { id:'ef-promo2-badge',    key:'promo2-badge',     plain:true  },
+    { id:'ef-promo2-title',    key:'promo2-title',     plain:true  },
+    { id:'ef-brand-eyebrow',   key:'brand-eyebrow',    plain:true  },
+    { id:'ef-brand-headline',  key:'brand-headline',   plain:true  },
+    { id:'ef-seller-title',    key:'seller-title',     plain:true  },
+    { id:'ef-seller-body',     key:'seller-body',      plain:true  },
+    { id:'ef-newsletter-title',key:'newsletter-title', plain:true  },
+    { id:'ef-newsletter-sub',  key:'newsletter-sub',   plain:true  },
   ];
 
-  // Working copy of slides while panel is open
-  var _edSlides = [];
-
+  // Strip any leftover HTML tags so inputs show clean text
   function stripTags(html) {
-    var d = document.createElement('div'); d.innerHTML = html||''; return d.innerText||d.textContent||'';
+    const d = document.createElement('div');
+    d.innerHTML = html || '';
+    return d.innerText || d.textContent || '';
   }
-  function getEl(key) { return document.querySelector('[data-editable="'+key+'"]'); }
 
-  // ── Toast ─────────────────────────────────────────────────
+  function getEl(key) {
+    return document.querySelector('[data-editable="' + key + '"]');
+  }
+
+  // ── toast ──────────────────────────────────────────────────
   function toast(msg, dur) {
-    var t = document.getElementById('edToast');
+    const t = document.getElementById('edToast');
     if (!t) return;
-    t.textContent = msg; t.style.display='block'; t.style.opacity='1';
+    t.textContent = msg;
+    t.style.display = 'block';
+    t.style.opacity = '1';
     clearTimeout(t._tid);
-    t._tid = setTimeout(function(){ t.style.opacity='0'; setTimeout(function(){ t.style.display='none'; },320); }, dur||2400);
+    t._tid = setTimeout(function() {
+      t.style.opacity = '0';
+      setTimeout(function(){ t.style.display = 'none'; }, 320);
+    }, dur || 2400);
   }
 
-  // ── Apply saved values to live page ──────────────────────
+  // ── apply saved DB values to live page ────────────────────
   function applyToPage(vals) {
-    FIELDS.forEach(function(f){ var v=vals[f.key]; if(v){ var el=getEl(f.key); if(el) el.innerText=v; } });
+    FIELDS.forEach(function(f) {
+      var v = vals[f.key];
+      if (!v) return;
+      var el = getEl(f.key);
+      if (el) el.innerHTML = v;
+    });
+    // Colours
     if (vals['color-primary'])   document.documentElement.style.setProperty('--brand-primary',   vals['color-primary']);
     if (vals['color-secondary']) document.documentElement.style.setProperty('--brand-secondary', vals['color-secondary']);
-    if (vals['color-dark'])       document.documentElement.style.setProperty('--brand-dark',       vals['color-dark']);
-    // Slides
-    if (vals.slides && vals.slides.length) window.pixRenderHero(vals.slides);
+    if (vals['color-dark'])      document.documentElement.style.setProperty('--brand-dark',       vals['color-dark']);
   }
 
-  // ── Load from Firestore ───────────────────────────────────
+  // ── populate panel inputs from saved values ───────────────
+  function populatePanel(vals) {
+    FIELDS.forEach(function(f) {
+      var inp = document.getElementById(f.id);
+      if (!inp) return;
+      var raw = stripTags(vals[f.key] || (getEl(f.key) ? (getEl(f.key).innerHTML || '') : ''));
+      inp.value = raw;
+    });
+    // Colour pickers
+    var root = getComputedStyle(document.documentElement);
+    var c1 = document.getElementById('ef-color-primary');
+    var c2 = document.getElementById('ef-color-secondary');
+    var c3 = document.getElementById('ef-color-dark');
+    if (c1) c1.value = (vals['color-primary']   || root.getPropertyValue('--brand-primary').trim()   || '#FF3C78').trim();
+    if (c2) c2.value = (vals['color-secondary'] || root.getPropertyValue('--brand-secondary').trim() || '#FF7EAC').trim();
+    if (c3) c3.value = (vals['color-dark']       || root.getPropertyValue('--brand-dark').trim()      || '#C41755').trim();
+
+    // Live preview as user types
+    FIELDS.forEach(function(f) {
+      var inp = document.getElementById(f.id);
+      if (!inp) return;
+      inp.oninput = function() {
+        var el = getEl(f.key);
+        if (el) el.innerHTML = inp.value;
+      };
+    });
+  }
+
+  // ── load from Firestore ───────────────────────────────────
   function loadDB(cb) {
-    function attempt(){
-      if (!window.db||!window.doc||!window.getDoc){ setTimeout(attempt,600); return; }
-      window.getDoc(window.doc(window.db,'siteContent','editorValues'))
-        .then(function(snap){ cb(snap.exists()?(snap.data()||{}):{});})
-        .catch(function(){ cb({}); });
+    function attempt() {
+      if (!window.db || !window.doc || !window.getDoc) { setTimeout(attempt, 600); return; }
+      window.getDoc(window.doc(window.db, 'siteContent', 'editorValues'))
+        .then(function(snap) { cb(snap.exists() ? (snap.data() || {}) : {}); })
+        .catch(function() { cb({}); });
     }
     attempt();
   }
 
   // Auto-apply on page load for all visitors
-  document.addEventListener('DOMContentLoaded', function(){
-    setTimeout(function(){ loadDB(function(vals){ applyToPage(vals); }); }, 900);
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+      loadDB(function(vals) { applyToPage(vals); });
+    }, 900);
   });
 
-  // ── Populate panel from saved values ─────────────────────
-  function populatePanel(vals) {
-    FIELDS.forEach(function(f){
-      var inp = document.getElementById(f.id);
-      if (!inp) return;
-      inp.value = vals[f.key] || stripTags(getEl(f.key)?(getEl(f.key).innerHTML||''):'');
-      inp.oninput = function(){ var el=getEl(f.key); if(el) el.innerText=inp.value; };
-    });
-    // Colour pickers
-    var root = getComputedStyle(document.documentElement);
-    var c1=document.getElementById('ef-color-primary'),
-        c2=document.getElementById('ef-color-secondary'),
-        c3=document.getElementById('ef-color-dark');
-    if(c1) c1.value=(vals['color-primary']  ||root.getPropertyValue('--brand-primary').trim()  ||'#FF3C78').trim();
-    if(c2) c2.value=(vals['color-secondary']||root.getPropertyValue('--brand-secondary').trim()||'#FF7EAC').trim();
-    if(c3) c3.value=(vals['color-dark']     ||root.getPropertyValue('--brand-dark').trim()     ||'#C41755').trim();
-    // Slides
-    _edSlides = JSON.parse(JSON.stringify(
-      (vals.slides && vals.slides.length) ? vals.slides : window.PIX_HERO_SLIDES
-    ));
-    renderSlideList();
-  }
-
-  // ── Render slide editor cards ─────────────────────────────
-  function renderSlideList() {
-    var list = document.getElementById('ed-slide-list');
-    if (!list) return;
-    list.innerHTML = '';
-    _edSlides.forEach(function(s, i) {
-      var card = document.createElement('div');
-      card.className = 'ed-slide-group';
-      card.style.position = 'relative';
-
-      var canRemove = _edSlides.length > 1;
-
-      card.innerHTML =
-        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">' +
-          '<div class="ed-slide-label" style="margin:0;">Slide '+(i+1)+'</div>' +
-          (canRemove
-            ? '<button onclick="edRemoveSlide('+i+')" title="Delete this slide" style="background:#fee2e2;border:none;color:#dc2626;border-radius:8px;padding:5px 10px;font-size:0.78rem;font-weight:800;cursor:pointer;">🗑 Remove</button>'
-            : '<span style="font-size:0.7rem;color:#9ca3af;">Need at least 1 slide</span>') +
-        '</div>' +
-        // Image row: URL input + upload button
-        '<div class="ed-field">' +
-          '<label class="ed-label">Image</label>' +
-          '<div style="display:flex;gap:8px;align-items:center;">' +
-            '<input class="ed-input" data-slide="'+i+'" data-field="img" type="text" placeholder="Paste image URL or upload →" value="'+(s.img||'').replace(/"/g,'&quot;')+'" style="flex:1;">' +
-            '<button onclick="edPickImg('+i+')" style="padding:8px 12px;background:#ede9fe;color:#5b21b6;border:none;border-radius:8px;font-weight:800;font-size:0.75rem;cursor:pointer;white-space:nowrap;">📁 Upload</button>' +
-          '</div>' +
-          // Tiny live preview
-          (s.img ? '<img src="'+(s.img||'')+'" style="margin-top:6px;width:100%;height:60px;object-fit:cover;border-radius:6px;border:1px solid #e5e7eb;" onerror="this.style.display=\'none\';">' : '') +
-        '</div>' +
-        '<div class="ed-field"><label class="ed-label">Tag  <span style="font-weight:400;color:#9ca3af;">(small badge text)</span></label><input class="ed-input" data-slide="'+i+'" data-field="tag" type="text" placeholder="e.g. 🛍 Summer Sale" value="'+(s.tag||'').replace(/"/g,'&quot;')+'"></div>' +
-        '<div class="ed-field"><label class="ed-label">Headline</label><input class="ed-input" data-slide="'+i+'" data-field="title" type="text" placeholder="e.g. Big Summer Sale" value="'+(s.title||'').replace(/"/g,'&quot;')+'"></div>' +
-        '<div class="ed-field"><label class="ed-label">Subtitle</label><input class="ed-input" data-slide="'+i+'" data-field="sub" type="text" placeholder="e.g. Up to 50% off all products" value="'+(s.sub||'').replace(/"/g,'&quot;')+'"></div>' +
-        '<div class="ed-field"><label class="ed-label">Shop button category</label>' +
-          '<select class="ed-input" data-slide="'+i+'" data-field="cat">' +
-            '<option value="all"'    +(s.cat==='all'    ?' selected':'')+'>All Products</option>' +
-            '<option value="candles"'+(s.cat==='candles'?' selected':'')+'>Candles</option>' +
-            '<option value="beauty"' +(s.cat==='beauty' ?' selected':'')+'>Beauty</option>' +
-            '<option value="clothing"'+(s.cat==='clothing'?' selected':'')+'>Clothing</option>' +
-          '</select>' +
-        '</div>';
-
-      list.appendChild(card);
-    });
-
-    // Attach live change listeners
-    list.querySelectorAll('[data-slide][data-field]').forEach(function(inp) {
-      inp.addEventListener('input', function() {
-        var i = parseInt(inp.dataset.slide);
-        var f = inp.dataset.field;
-        if (!_edSlides[i]) return;
-        _edSlides[i][f] = inp.value;
-        // Live preview on the page
-        window.pixRenderHero(JSON.parse(JSON.stringify(_edSlides)));
-      });
-    });
-  }
-
-  // ── Add a new blank slide ─────────────────────────────────
-  window.edAddSlide = function() {
-    _edSlides.push({ img:'', tag:'🆕 New Slide', title:'Your Headline Here', sub:'Add your subtitle here', cat:'all' });
-    window.pixRenderHero(JSON.parse(JSON.stringify(_edSlides)));
-    renderSlideList();
-    // Scroll to the new card
-    var list = document.getElementById('ed-slide-list');
-    if (list) list.lastElementChild.scrollIntoView({behavior:'smooth', block:'nearest'});
-    toast('✅ Slide added — fill in the details and save');
-  };
-
-  // ── Remove a slide ────────────────────────────────────────
-  window.edRemoveSlide = function(i) {
-    if (_edSlides.length <= 1) return;
-    if (!confirm('Remove slide '+(i+1)+'?')) return;
-    _edSlides.splice(i, 1);
-    window.pixRenderHero(JSON.parse(JSON.stringify(_edSlides)));
-    renderSlideList();
-  };
-
-  // ── Image upload for a slide ──────────────────────────────
-  var _imgPickTarget = -1;
-  var _imgInput = null;
-  window.edPickImg = function(idx) {
-    _imgPickTarget = idx;
-    if (!_imgInput) {
-      _imgInput = document.createElement('input');
-      _imgInput.type = 'file';
-      _imgInput.accept = 'image/*';
-      _imgInput.style.display = 'none';
-      document.body.appendChild(_imgInput);
-      _imgInput.addEventListener('change', function(e) {
-        var file = e.target.files[0];
-        if (!file || _imgPickTarget < 0) return;
-        var reader = new FileReader();
-        reader.onload = function(ev) {
-          var src = ev.target.result;
-          if (_edSlides[_imgPickTarget]) {
-            _edSlides[_imgPickTarget].img = src;
-            window.pixRenderHero(JSON.parse(JSON.stringify(_edSlides)));
-            renderSlideList();
-            toast('🖼 Image set — click Save to keep it');
-          }
-          _imgPickTarget = -1;
-          _imgInput.value = '';
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-    _imgInput.click();
-  };
-
-  // ── Open / close panel ────────────────────────────────────
+  // ── open / close panel ────────────────────────────────────
   var _open = false;
   window.pixEditorToggle = function() {
     if (window._PIX_role !== 'editor') return;
     _open = !_open;
-    var panel    = document.getElementById('edPanel');
-    var backdrop = document.getElementById('edBackdrop');
+    var panel   = document.getElementById('edPanel');
+    var backdrop= document.getElementById('edBackdrop');
     if (_open) {
-      panel.style.display    = 'flex';
-      backdrop.style.display = 'block';
-      loadDB(function(vals){ populatePanel(vals); });
+      panel.style.display   = 'flex';
+      backdrop.style.display= 'block';
+      loadDB(function(vals) { populatePanel(vals); });
     } else {
-      panel.style.display    = 'none';
-      backdrop.style.display = 'none';
+      panel.style.display   = 'none';
+      backdrop.style.display= 'none';
     }
   };
   window.toggleEditorPanel = window.pixEditorToggle;
 
-  // ── Collect all values ────────────────────────────────────
+  // ── collect values from inputs ────────────────────────────
   function collectVals() {
     var vals = {};
-    FIELDS.forEach(function(f){ var inp=document.getElementById(f.id); if(inp) vals[f.key]=inp.value; });
-    var c1=document.getElementById('ef-color-primary'),
-        c2=document.getElementById('ef-color-secondary'),
-        c3=document.getElementById('ef-color-dark');
-    if(c1) vals['color-primary']   = c1.value;
-    if(c2) vals['color-secondary'] = c2.value;
-    if(c3) vals['color-dark']       = c3.value;
-    vals.slides = JSON.parse(JSON.stringify(_edSlides));
+    FIELDS.forEach(function(f) {
+      var inp = document.getElementById(f.id);
+      if (inp) vals[f.key] = inp.value;
+    });
+    var c1 = document.getElementById('ef-color-primary');
+    var c2 = document.getElementById('ef-color-secondary');
+    var c3 = document.getElementById('ef-color-dark');
+    if (c1) vals['color-primary']   = c1.value;
+    if (c2) vals['color-secondary'] = c2.value;
+    if (c3) vals['color-dark']       = c3.value;
     return vals;
   }
 
-  // ── Save to Firestore ─────────────────────────────────────
+  // ── save ──────────────────────────────────────────────────
   window.pixEditorSave = async function() {
     if (window._PIX_role !== 'editor') return;
-    var btn    = document.getElementById('edSaveBtn');
+    var btn = document.getElementById('edSaveBtn');
     var status = document.getElementById('edStatus');
-    if (btn) { btn.textContent='⏳ Saving…'; btn.disabled=true; }
+    if (btn) { btn.textContent = '⏳ Saving…'; btn.disabled = true; }
 
     var vals = collectVals();
     applyToPage(vals);
 
+    // Show status
     function showStatus(msg, bg, color) {
       if (!status) return;
-      status.style.display='block'; status.textContent=msg;
-      status.style.background=bg; status.style.color=color;
+      status.style.display = 'block';
+      status.textContent = msg;
+      status.style.background = bg;
+      status.style.color = color;
     }
 
-    if (!window.db||!window.doc||!window.setDoc) {
-      showStatus('⚠️ Not connected to database yet — try again shortly','rgba(245,158,11,0.2)','#92400e');
-      if(btn){btn.textContent='💾 Save All Changes';btn.disabled=false;}
+    if (!window.db || !window.doc || !window.setDoc) {
+      showStatus('⚠️ Not connected to database yet — try again in a moment', 'rgba(245,158,11,0.2)', '#92400e');
+      if (btn) { btn.textContent = '💾 Save All Changes'; btn.disabled = false; }
       return;
     }
+
     try {
-      await window.setDoc(window.doc(window.db,'siteContent','editorValues'), vals, {merge:true});
-      showStatus('✅ Saved! All visitors will see your changes.','rgba(16,185,129,0.15)','#065f46');
+      await window.setDoc(window.doc(window.db, 'siteContent', 'editorValues'), vals, { merge: true });
+      showStatus('✅ Saved! All visitors will see your changes.', 'rgba(16,185,129,0.15)', '#065f46');
       toast('✅ Changes saved and live!');
-      if(btn) btn.textContent='✓ Saved!';
-      setTimeout(function(){
-        if(status) status.style.display='none';
-        if(btn){btn.textContent='💾 Save All Changes';btn.disabled=false;}
-      },3000);
+      if (btn) { btn.textContent = '✓ Saved!'; }
+      setTimeout(function() {
+        if (status) status.style.display = 'none';
+        if (btn) { btn.textContent = '💾 Save All Changes'; btn.disabled = false; }
+      }, 3000);
     } catch(err) {
-      var msg = err.code==='permission-denied'
-        ? '🔒 Permission not set up — ask the admin to enable editor saves'
+      var msg = err.code === 'permission-denied'
+        ? '🔒 Permission not set up yet — ask the admin to enable editor saves'
         : '❌ Could not save — please try again';
-      showStatus(msg,'rgba(239,68,68,0.1)','#991b1b');
+      showStatus(msg, 'rgba(239,68,68,0.1)', '#991b1b');
       toast(msg, 5000);
-      if(btn){btn.textContent='💾 Save All Changes';btn.disabled=false;}
+      if (btn) { btn.textContent = '💾 Save All Changes'; btn.disabled = false; }
     }
   };
   window.saveEditorChanges = window.pixEditorSave;
