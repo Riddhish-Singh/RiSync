@@ -11015,7 +11015,7 @@ html.dark .qty-btn {
 <!-- FormSubmit.co Integration -->
 <script>
   // Your FormSubmit.co email - REPLACE WITH YOUR EMAIL
-  window.FORMSUBMIT_EMAIL = 'YOUR_EMAIL@gmail.com';
+  window.FORMSUBMIT_EMAIL = 'gurunanak.garments2023@gmail.com';
   
   // Send email via FormSubmit.co
   async function sendEmailViaFormSubmit(toEmail, subject, message) {
@@ -11042,21 +11042,25 @@ html.dark .qty-btn {
 </script>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-
-  // ⚠️ UPDATE THIS WITH YOUR FIREBASE CREDENTIALS ⚠️
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-analytics.js";
+  import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+  
+  // Your web app's Firebase configuration
   const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT",
-    storageBucket: "YOUR_PROJECT.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyAYP6k7oUtaZwoBETAgLR35KJ88eTvhxac",
+    authDomain: "g4u-7231d.firebaseapp.com",
+    projectId: "g4u-7231d",
+    storageBucket: "g4u-7231d.firebasestorage.app",
+    messagingSenderId: "269559053821",
+    appId: "1:269559053821:web:f3f7ab6bc78234f33b6d94",
+    measurementId: "G-4NCBGTEV0M"
   };
-
+  
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
   const db = getFirestore(app);
 
   // Make Firestore available globally
@@ -11067,6 +11071,8 @@ html.dark .qty-btn {
   window.query = query;
   window.orderBy = orderBy;
   window.getDocs = getDocs;
+  
+  console.log('✅ Firebase initialized with g4u-7231d project');
 
 
   console.log('✅ Firestore initialized');
