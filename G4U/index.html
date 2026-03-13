@@ -1780,56 +1780,7 @@
         <!-- SLIDE TRACK -->
         <div id="heroMainTrack">
 
-          <!-- Slide 1 — Candles -->
-          <div class="hero-main-slide" role="group" aria-roledescription="slide" aria-label="Slide 1 of 3: Luxury Candles">
-            <img src="https://risync.in/G4U/candle.png" alt="Luxury Candles collection" loading="eager" fetchpriority="high" width="1200" height="420">
-            <div class="hero-slide-overlay"></div>
-            <div class="hero-slide-content">
-              <div class="hero-slide-inner">
-                <span class="hero-tag" data-editable="hero1-tag">✨ New Collection 2026</span>
-                <h1 class="hero-title" data-editable="hero1-title" style="min-height:unset;margin-top:12px;">Luxury <span>Candles</span><br>Hand-Poured<br>Elegance</h1>
-                <p class="hero-sub" data-editable="hero1-sub">Soy · Paraffin · Scented — Crafted with love for every home.</p>
-                <div style="display:flex;gap:12px;flex-wrap:wrap;">
-                  <button class="hero-cta" onclick="setFilter('candles')"><i class="fa fa-shopping-bag" aria-hidden="true"></i> Shop Candles</button>
-                  <button class="hero-cta-ghost" onclick="document.getElementById('grid').scrollIntoView({behavior:'smooth',block:'start'})">Explore All <i class="fa fa-arrow-right" aria-hidden="true"></i></button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Slide 2 — Beauty -->
-          <div class="hero-main-slide" role="group" aria-roledescription="slide" aria-label="Slide 2 of 3: Beauty Products">
-            <img src="https://royal-sleek-and-shear-52.lovable.app/lovable-uploads/30573759-2745-499d-9bd1-3222a5059831.png" alt="Beauty Products collection" loading="lazy" width="1200" height="420">
-            <div class="hero-slide-overlay" style="background:linear-gradient(120deg,rgba(0,0,0,0.75) 0%,rgba(255,126,172,0.15) 60%,transparent 100%);"></div>
-            <div class="hero-slide-content">
-              <div class="hero-slide-inner">
-                <span class="hero-tag" data-editable="hero2-tag">💄 Beauty Edit</span>
-                <h2 class="hero-title" data-editable="hero2-title" style="min-height:unset;margin-top:12px;">Glow Up With<br><span>Beauty</span><br>Essentials</h2>
-                <p class="hero-sub" data-editable="hero2-sub">Skincare · Makeup · Wellness — Radiate confidence every day.</p>
-                <div style="display:flex;gap:12px;flex-wrap:wrap;">
-                  <button class="hero-cta" onclick="setFilter('beauty')"><i class="fa fa-star"></i> Shop Beauty</button>
-                  <button class="hero-cta-ghost" onclick="document.getElementById('grid').scrollIntoView({behavior:'smooth',block:'start'})">Explore All <i class="fa fa-arrow-right"></i></button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Slide 3 — Clothing -->
-          <div class="hero-main-slide" role="group" aria-roledescription="slide" aria-label="Slide 3 of 3: Clothing">
-            <img src="https://risync.in/G4U/Blue%20dot%204-5%20front.jpg" alt="Fresh Clothing collection" loading="lazy" width="1200" height="420">
-            <div class="hero-slide-overlay" style="background:linear-gradient(120deg,rgba(0,0,0,0.75) 0%,rgba(60,120,255,0.12) 60%,transparent 100%);"></div>
-            <div class="hero-slide-content">
-              <div class="hero-slide-inner">
-                <span class="hero-tag" data-editable="hero3-tag">👗 Fresh Styles</span>
-                <h2 class="hero-title" data-editable="hero3-title" style="min-height:unset;margin-top:12px;">Fresh<br><span>Clothing</span><br>For Everyone</h2>
-                <p class="hero-sub" data-editable="hero3-sub">Kids T-Shirts · Trendsetters · Everyday Wear — Style that speaks.</p>
-                <div style="display:flex;gap:12px;flex-wrap:wrap;">
-                  <button class="hero-cta" onclick="setFilter('clothing')"><i class="fa fa-tshirt" aria-hidden="true"></i> Shop Clothing</button>
-                  <button class="hero-cta-ghost" onclick="document.getElementById('grid').scrollIntoView({behavior:'smooth',block:'start'})">Explore All <i class="fa fa-arrow-right" aria-hidden="true"></i></button>
-                </div>
-              </div>
-            </div>
-          </div>
+          <!-- Slides injected dynamically by pixRenderHero() -->
 
 
 
@@ -1868,14 +1819,10 @@
         </button>
 
         <!-- SLIDE COUNTER -->
-        <div class="hero-slide-counter" id="heroCounter">01 / 03</div>
+        <div class="hero-slide-counter" id="heroCounter">01 / 01</div>
 
-        <!-- DOTS -->
-        <div class="hero-dots-bar" id="heroDots">
-          <span class="hero-dot active" data-idx="0"></span>
-          <span class="hero-dot" data-idx="1"></span>
-          <span class="hero-dot" data-idx="2"></span>
-        </div>
+        <!-- DOTS (rendered dynamically) -->
+        <div class="hero-dots-bar" id="heroDots"></div>
 
         <!-- PROGRESS BAR -->
         <div class="hero-progress-bar">
@@ -1885,98 +1832,121 @@
       </div><!-- /heroMainCarousel -->
     </div><!-- /hero-banner -->
 
-    <!-- Hero Carousel Script -->
+    <!-- Hero Carousel Script — dynamic, re-initializable -->
     <script>
-    (function() {
-      const TOTAL = 3;
-      const DURATION = 5000; // 5 seconds per slide
-      let current = 0;
-      let autoTimer = null;
-      let progressAnim = null;
+    // Default slides (used when nothing is saved in the database yet)
+    window.PIX_DEFAULT_SLIDES = [
+      { img:'https://risync.in/G4U/candle.png',            tag:'✨ New Collection 2026',  title:'Luxury Candles — Hand-Poured Elegance',   sub:'Soy · Paraffin · Scented — Crafted with love for every home.', cat:'candles'  },
+      { img:'https://royal-sleek-and-shear-52.lovable.app/lovable-uploads/30573759-2745-499d-9bd1-3222a5059831.png', tag:'💄 Beauty Edit', title:'Glow Up With Beauty Essentials', sub:'Skincare · Makeup · Wellness — Radiate confidence every day.', cat:'beauty' },
+      { img:'https://risync.in/G4U/Blue%20dot%204-5%20front.jpg', tag:'👗 Fresh Styles', title:'Fresh Clothing For Everyone',              sub:'Kids T-Shirts · Trendsetters · Everyday Wear — Style that speaks.', cat:'clothing' }
+    ];
+    window.PIX_HERO_SLIDES = JSON.parse(JSON.stringify(window.PIX_DEFAULT_SLIDES));
 
-      const track     = document.getElementById('heroMainTrack');
-      const dots      = document.querySelectorAll('.hero-dot');
-      const counter   = document.getElementById('heroCounter');
-      const progress  = document.getElementById('heroProgress');
-      const btnPrev   = document.getElementById('heroNavPrev');
-      const btnNext   = document.getElementById('heroNavNext');
+    // ── Build one slide's HTML from a data object ──
+    function buildSlideHTML(s, i, total) {
+      var label = 'Slide ' + (i+1) + ' of ' + total;
+      var catLabel = s.cat ? ('Shop ' + s.cat.charAt(0).toUpperCase() + s.cat.slice(1)) : 'Shop Now';
+      var catOnclick = s.cat ? ("setFilter('" + s.cat + "')") : "document.getElementById('grid').scrollIntoView({behavior:'smooth'})";
+      return '<div class="hero-main-slide" role="group" aria-roledescription="slide" aria-label="' + label + '">' +
+        '<img src="' + (s.img||'') + '" alt="' + (s.tag||'') + '" loading="' + (i===0?'eager':'lazy') + '" width="1200" height="420">' +
+        '<div class="hero-slide-overlay"></div>' +
+        '<div class="hero-slide-content"><div class="hero-slide-inner">' +
+          '<span class="hero-tag">' + (s.tag||'') + '</span>' +
+          '<h2 class="hero-title" style="min-height:unset;margin-top:12px;">' + (s.title||'') + '</h2>' +
+          '<p class="hero-sub">' + (s.sub||'') + '</p>' +
+          '<div style="display:flex;gap:12px;flex-wrap:wrap;">' +
+            '<button class="hero-cta" onclick="' + catOnclick + '"><i class="fa fa-shopping-bag"></i> ' + catLabel + '</button>' +
+            '<button class="hero-cta-ghost" onclick="document.getElementById(\'grid\').scrollIntoView({behavior:\'smooth\',block:\'start\'})">Explore All <i class="fa fa-arrow-right"></i></button>' +
+          '</div>' +
+        '</div></div>' +
+      '</div>';
+    }
 
-      function pad(n) { return n < 10 ? '0' + n : '' + n; }
+    // ── Re-render the whole carousel from a slides array ──
+    window.pixRenderHero = function(slides) {
+      if (!slides || !slides.length) slides = window.PIX_DEFAULT_SLIDES;
+      window.PIX_HERO_SLIDES = slides;
 
-      function goTo(idx, dir) {
-        // clamp
-        idx = ((idx % TOTAL) + TOTAL) % TOTAL;
+      var track   = document.getElementById('heroMainTrack');
+      var dotsBar = document.getElementById('heroDots');
+      if (!track || !dotsBar) return;
 
+      // Build slide HTML
+      track.innerHTML = slides.map(function(s,i){ return buildSlideHTML(s,i,slides.length); }).join('');
+
+      // Build dots
+      dotsBar.innerHTML = slides.map(function(_,i){
+        return '<span class="hero-dot' + (i===0?' active':'') + '" data-idx="' + i + '"></span>';
+      }).join('');
+
+      // Re-init carousel
+      pixInitCarousel(slides.length);
+    };
+
+    // ── Carousel engine (called after every render) ──
+    var _carouselTimer = null;
+    function pixInitCarousel(total) {
+      var DURATION = 5000;
+      var current  = 0;
+      var track    = document.getElementById('heroMainTrack');
+      var counter  = document.getElementById('heroCounter');
+      var progress = document.getElementById('heroProgress');
+      var btnPrev  = document.getElementById('heroNavPrev');
+      var btnNext  = document.getElementById('heroNavNext');
+      var carousel = document.getElementById('heroMainCarousel');
+
+      // Detach old listeners by cloning buttons
+      var newPrev = btnPrev.cloneNode(true);
+      var newNext = btnNext.cloneNode(true);
+      btnPrev.parentNode.replaceChild(newPrev, btnPrev);
+      btnNext.parentNode.replaceChild(newNext, btnNext);
+
+      clearInterval(_carouselTimer);
+
+      function pad(n){ return n<10?'0'+n:''+n; }
+
+      function goTo(idx) {
+        idx = ((idx % total) + total) % total;
         track.style.transform = 'translateX(-' + (idx * 100) + '%)';
-
-        dots.forEach((d, i) => {
-          d.classList.toggle('active', i === idx);
-        });
-
-        counter.textContent = pad(idx + 1) + ' / ' + pad(TOTAL);
-
-        // restart progress
-        startProgress();
-
-        current = idx;
-      }
-
-      function startProgress() {
-        // reset
+        document.querySelectorAll('.hero-dot').forEach(function(d,i){ d.classList.toggle('active', i===idx); });
+        counter.textContent = pad(idx+1) + ' / ' + pad(total);
+        // Progress bar
         progress.style.transition = 'none';
         progress.style.width = '0%';
-        // force reflow
         void progress.offsetWidth;
         progress.style.transition = 'width ' + DURATION + 'ms linear';
         progress.style.width = '100%';
+        current = idx;
       }
 
       function startAuto() {
-        clearInterval(autoTimer);
-        autoTimer = setInterval(() => {
-          goTo(current + 1);
-        }, DURATION);
+        clearInterval(_carouselTimer);
+        _carouselTimer = setInterval(function(){ goTo(current+1); }, DURATION);
       }
 
-      function resetAuto() {
-        startAuto();
-      }
+      newPrev.addEventListener('click', function(){ goTo(current-1); startAuto(); });
+      newNext.addEventListener('click', function(){ goTo(current+1); startAuto(); });
 
-      // Arrow clicks
-      btnPrev.addEventListener('click', () => { goTo(current - 1); resetAuto(); });
-      btnNext.addEventListener('click', () => { goTo(current + 1); resetAuto(); });
-
-      // Dot clicks
-      dots.forEach(d => {
-        d.addEventListener('click', () => {
-          goTo(parseInt(d.dataset.idx));
-          resetAuto();
-        });
+      document.querySelectorAll('.hero-dot').forEach(function(d){
+        d.addEventListener('click', function(){ goTo(parseInt(d.dataset.idx)); startAuto(); });
       });
 
-      // Touch/swipe support
-      let touchStartX = 0;
-      const carousel = document.getElementById('heroMainCarousel');
-      carousel.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].clientX; }, {passive:true});
-      carousel.addEventListener('touchend', e => {
-        const dx = e.changedTouches[0].clientX - touchStartX;
-        if (Math.abs(dx) > 50) { goTo(dx < 0 ? current + 1 : current - 1); resetAuto(); }
-      }, {passive:true});
+      var touchStartX = 0;
+      carousel.addEventListener('touchstart', function(e){ touchStartX = e.changedTouches[0].clientX; },{passive:true});
+      carousel.addEventListener('touchend',   function(e){
+        var dx = e.changedTouches[0].clientX - touchStartX;
+        if (Math.abs(dx)>50){ goTo(dx<0?current+1:current-1); startAuto(); }
+      },{passive:true});
 
-      // Pause on hover
-      carousel.addEventListener('mouseenter', () => { clearInterval(autoTimer); progress.style.animationPlayState = 'paused'; progress.style.transition = 'none'; });
-      carousel.addEventListener('mouseleave', () => { startProgress(); startAuto(); });
+      carousel.addEventListener('mouseenter', function(){ clearInterval(_carouselTimer); progress.style.transition='none'; });
+      carousel.addEventListener('mouseleave', function(){ goTo(current); startAuto(); });
 
-      // Keyboard navigation
-      document.addEventListener('keydown', e => {
-        if (e.key === 'ArrowLeft')  { goTo(current - 1); resetAuto(); }
-        if (e.key === 'ArrowRight') { goTo(current + 1); resetAuto(); }
-      });
-
-      // Init
       goTo(0);
       startAuto();
-    })();
+    }
+
+    // Initial render from defaults — will be overwritten once DB loads
+    window.pixRenderHero(window.PIX_DEFAULT_SLIDES);
     </script>
 
     <!-- ===== TRUST STRIP ===== -->
@@ -12173,28 +12143,21 @@ if (window.firebaseReady) {
     <!-- ▸ HOMEPAGE SLIDESHOW -->
     <div class="ed-section">
       <div class="ed-section-title">🖼️ Homepage Slideshow</div>
-      <p class="ed-hint">The big banner at the top of the homepage. There are 3 slides.</p>
+      <p class="ed-hint">The big banner at the top of the homepage. Add as many slides as you like.</p>
 
-      <div class="ed-slide-group">
-        <div class="ed-slide-label">Slide 1 · Candles</div>
-        <div class="ed-field"><label class="ed-label">Tag (small label)</label><input class="ed-input" id="ef-hero1-tag" type="text" placeholder="e.g. ✨ New Collection 2026"></div>
-        <div class="ed-field"><label class="ed-label">Headline</label><input class="ed-input" id="ef-hero1-title" type="text" placeholder="e.g. Luxury Candles — Hand-Poured Elegance"></div>
-        <div class="ed-field"><label class="ed-label">Subtitle</label><input class="ed-input" id="ef-hero1-sub" type="text" placeholder="e.g. Soy · Paraffin · Scented — Crafted with love"></div>
-      </div>
+      <!-- Slide cards are rendered here by JS -->
+      <div id="ed-slide-list" style="display:grid;gap:16px;"></div>
 
-      <div class="ed-slide-group">
-        <div class="ed-slide-label">Slide 2 · Beauty</div>
-        <div class="ed-field"><label class="ed-label">Tag (small label)</label><input class="ed-input" id="ef-hero2-tag" type="text" placeholder="e.g. 💄 Beauty Edit"></div>
-        <div class="ed-field"><label class="ed-label">Headline</label><input class="ed-input" id="ef-hero2-title" type="text" placeholder="e.g. Glow Up With Beauty Essentials"></div>
-        <div class="ed-field"><label class="ed-label">Subtitle</label><input class="ed-input" id="ef-hero2-sub" type="text" placeholder="e.g. Skincare · Makeup · Wellness"></div>
-      </div>
-
-      <div class="ed-slide-group">
-        <div class="ed-slide-label">Slide 3 · Clothing</div>
-        <div class="ed-field"><label class="ed-label">Tag (small label)</label><input class="ed-input" id="ef-hero3-tag" type="text" placeholder="e.g. 👗 Fresh Styles"></div>
-        <div class="ed-field"><label class="ed-label">Headline</label><input class="ed-input" id="ef-hero3-title" type="text" placeholder="e.g. Fresh Clothing For Everyone"></div>
-        <div class="ed-field"><label class="ed-label">Subtitle</label><input class="ed-input" id="ef-hero3-sub" type="text" placeholder="e.g. Kids T-Shirts · Trendsetters"></div>
-      </div>
+      <!-- Add slide button -->
+      <button onclick="edAddSlide()" style="
+        margin-top:10px;width:100%;padding:11px;
+        background:#f5f3ff;color:#7c3aed;
+        border:2px dashed #c4b5fd;border-radius:10px;
+        font-family:'Poppins',sans-serif;font-weight:800;font-size:0.85rem;
+        cursor:pointer;transition:all 0.2s;
+      " onmouseover="this.style.background='#ede9fe'" onmouseout="this.style.background='#f5f3ff'">
+        + Add New Slide
+      </button>
     </div>
 
     <!-- ▸ FEATURE BANNERS -->
@@ -12362,195 +12325,270 @@ if (window.firebaseReady) {
 <script>
 (function(){
 
-  // Map of input id → data-editable key + how to read/write it
+  // ── Non-slide fields ──────────────────────────────────────
   const FIELDS = [
-    { id:'ef-ann-1',           key:'ann-1',            plain:true  },
-    { id:'ef-ann-2',           key:'ann-2',            plain:true  },
-    { id:'ef-ann-3',           key:'ann-3',            plain:true  },
-    { id:'ef-ann-4',           key:'ann-4',            plain:true  },
-    { id:'ef-ann-5',           key:'ann-5',            plain:true  },
-    { id:'ef-ann-6',           key:'ann-6',            plain:true  },
-    { id:'ef-hero1-tag',       key:'hero1-tag',        plain:true  },
-    { id:'ef-hero1-title',     key:'hero1-title',      plain:true  },
-    { id:'ef-hero1-sub',       key:'hero1-sub',        plain:true  },
-    { id:'ef-hero2-tag',       key:'hero2-tag',        plain:true  },
-    { id:'ef-hero2-title',     key:'hero2-title',      plain:true  },
-    { id:'ef-hero2-sub',       key:'hero2-sub',        plain:true  },
-    { id:'ef-hero3-tag',       key:'hero3-tag',        plain:true  },
-    { id:'ef-hero3-title',     key:'hero3-title',      plain:true  },
-    { id:'ef-hero3-sub',       key:'hero3-sub',        plain:true  },
-    { id:'ef-promo1-badge',    key:'promo1-badge',     plain:true  },
-    { id:'ef-promo1-title',    key:'promo1-title',     plain:true  },
-    { id:'ef-promo2-badge',    key:'promo2-badge',     plain:true  },
-    { id:'ef-promo2-title',    key:'promo2-title',     plain:true  },
-    { id:'ef-brand-eyebrow',   key:'brand-eyebrow',    plain:true  },
-    { id:'ef-brand-headline',  key:'brand-headline',   plain:true  },
-    { id:'ef-seller-title',    key:'seller-title',     plain:true  },
-    { id:'ef-seller-body',     key:'seller-body',      plain:true  },
-    { id:'ef-newsletter-title',key:'newsletter-title', plain:true  },
-    { id:'ef-newsletter-sub',  key:'newsletter-sub',   plain:true  },
+    { id:'ef-ann-1',             key:'ann-1'            },
+    { id:'ef-ann-2',             key:'ann-2'            },
+    { id:'ef-ann-3',             key:'ann-3'            },
+    { id:'ef-ann-4',             key:'ann-4'            },
+    { id:'ef-ann-5',             key:'ann-5'            },
+    { id:'ef-ann-6',             key:'ann-6'            },
+    { id:'ef-promo1-badge',      key:'promo1-badge'     },
+    { id:'ef-promo1-title',      key:'promo1-title'     },
+    { id:'ef-promo2-badge',      key:'promo2-badge'     },
+    { id:'ef-promo2-title',      key:'promo2-title'     },
+    { id:'ef-brand-eyebrow',     key:'brand-eyebrow'    },
+    { id:'ef-brand-headline',    key:'brand-headline'   },
+    { id:'ef-seller-title',      key:'seller-title'     },
+    { id:'ef-seller-body',       key:'seller-body'      },
+    { id:'ef-newsletter-title',  key:'newsletter-title' },
+    { id:'ef-newsletter-sub',    key:'newsletter-sub'   },
   ];
 
-  // Strip any leftover HTML tags so inputs show clean text
+  // Working copy of slides while panel is open
+  var _edSlides = [];
+
   function stripTags(html) {
-    const d = document.createElement('div');
-    d.innerHTML = html || '';
-    return d.innerText || d.textContent || '';
+    var d = document.createElement('div'); d.innerHTML = html||''; return d.innerText||d.textContent||'';
   }
+  function getEl(key) { return document.querySelector('[data-editable="'+key+'"]'); }
 
-  function getEl(key) {
-    return document.querySelector('[data-editable="' + key + '"]');
-  }
-
-  // ── toast ──────────────────────────────────────────────────
+  // ── Toast ─────────────────────────────────────────────────
   function toast(msg, dur) {
-    const t = document.getElementById('edToast');
+    var t = document.getElementById('edToast');
     if (!t) return;
-    t.textContent = msg;
-    t.style.display = 'block';
-    t.style.opacity = '1';
+    t.textContent = msg; t.style.display='block'; t.style.opacity='1';
     clearTimeout(t._tid);
-    t._tid = setTimeout(function() {
-      t.style.opacity = '0';
-      setTimeout(function(){ t.style.display = 'none'; }, 320);
-    }, dur || 2400);
+    t._tid = setTimeout(function(){ t.style.opacity='0'; setTimeout(function(){ t.style.display='none'; },320); }, dur||2400);
   }
 
-  // ── apply saved DB values to live page ────────────────────
+  // ── Apply saved values to live page ──────────────────────
   function applyToPage(vals) {
-    FIELDS.forEach(function(f) {
-      var v = vals[f.key];
-      if (!v) return;
-      var el = getEl(f.key);
-      if (el) el.innerText = v;
-    });
-    // Colours
+    FIELDS.forEach(function(f){ var v=vals[f.key]; if(v){ var el=getEl(f.key); if(el) el.innerText=v; } });
     if (vals['color-primary'])   document.documentElement.style.setProperty('--brand-primary',   vals['color-primary']);
     if (vals['color-secondary']) document.documentElement.style.setProperty('--brand-secondary', vals['color-secondary']);
-    if (vals['color-dark'])      document.documentElement.style.setProperty('--brand-dark',       vals['color-dark']);
+    if (vals['color-dark'])       document.documentElement.style.setProperty('--brand-dark',       vals['color-dark']);
+    // Slides
+    if (vals.slides && vals.slides.length) window.pixRenderHero(vals.slides);
   }
 
-  // ── populate panel inputs from saved values ───────────────
-  function populatePanel(vals) {
-    FIELDS.forEach(function(f) {
-      var inp = document.getElementById(f.id);
-      if (!inp) return;
-      var raw = vals[f.key] || stripTags(getEl(f.key) ? (getEl(f.key).innerHTML || '') : '');
-      inp.value = raw;
-    });
-    // Colour pickers
-    var root = getComputedStyle(document.documentElement);
-    var c1 = document.getElementById('ef-color-primary');
-    var c2 = document.getElementById('ef-color-secondary');
-    var c3 = document.getElementById('ef-color-dark');
-    if (c1) c1.value = (vals['color-primary']   || root.getPropertyValue('--brand-primary').trim()   || '#FF3C78').trim();
-    if (c2) c2.value = (vals['color-secondary'] || root.getPropertyValue('--brand-secondary').trim() || '#FF7EAC').trim();
-    if (c3) c3.value = (vals['color-dark']       || root.getPropertyValue('--brand-dark').trim()      || '#C41755').trim();
-
-    // Live preview as user types
-    FIELDS.forEach(function(f) {
-      var inp = document.getElementById(f.id);
-      if (!inp) return;
-      inp.oninput = function() {
-        var el = getEl(f.key);
-        if (el) el.innerText = inp.value;
-      };
-    });
-  }
-
-  // ── load from Firestore ───────────────────────────────────
+  // ── Load from Firestore ───────────────────────────────────
   function loadDB(cb) {
-    function attempt() {
-      if (!window.db || !window.doc || !window.getDoc) { setTimeout(attempt, 600); return; }
-      window.getDoc(window.doc(window.db, 'siteContent', 'editorValues'))
-        .then(function(snap) { cb(snap.exists() ? (snap.data() || {}) : {}); })
-        .catch(function() { cb({}); });
+    function attempt(){
+      if (!window.db||!window.doc||!window.getDoc){ setTimeout(attempt,600); return; }
+      window.getDoc(window.doc(window.db,'siteContent','editorValues'))
+        .then(function(snap){ cb(snap.exists()?(snap.data()||{}):{});})
+        .catch(function(){ cb({}); });
     }
     attempt();
   }
 
   // Auto-apply on page load for all visitors
-  document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(function() {
-      loadDB(function(vals) { applyToPage(vals); });
-    }, 900);
+  document.addEventListener('DOMContentLoaded', function(){
+    setTimeout(function(){ loadDB(function(vals){ applyToPage(vals); }); }, 900);
   });
 
-  // ── open / close panel ────────────────────────────────────
+  // ── Populate panel from saved values ─────────────────────
+  function populatePanel(vals) {
+    FIELDS.forEach(function(f){
+      var inp = document.getElementById(f.id);
+      if (!inp) return;
+      inp.value = vals[f.key] || stripTags(getEl(f.key)?(getEl(f.key).innerHTML||''):'');
+      inp.oninput = function(){ var el=getEl(f.key); if(el) el.innerText=inp.value; };
+    });
+    // Colour pickers
+    var root = getComputedStyle(document.documentElement);
+    var c1=document.getElementById('ef-color-primary'),
+        c2=document.getElementById('ef-color-secondary'),
+        c3=document.getElementById('ef-color-dark');
+    if(c1) c1.value=(vals['color-primary']  ||root.getPropertyValue('--brand-primary').trim()  ||'#FF3C78').trim();
+    if(c2) c2.value=(vals['color-secondary']||root.getPropertyValue('--brand-secondary').trim()||'#FF7EAC').trim();
+    if(c3) c3.value=(vals['color-dark']     ||root.getPropertyValue('--brand-dark').trim()     ||'#C41755').trim();
+    // Slides
+    _edSlides = JSON.parse(JSON.stringify(
+      (vals.slides && vals.slides.length) ? vals.slides : window.PIX_HERO_SLIDES
+    ));
+    renderSlideList();
+  }
+
+  // ── Render slide editor cards ─────────────────────────────
+  function renderSlideList() {
+    var list = document.getElementById('ed-slide-list');
+    if (!list) return;
+    list.innerHTML = '';
+    _edSlides.forEach(function(s, i) {
+      var card = document.createElement('div');
+      card.className = 'ed-slide-group';
+      card.style.position = 'relative';
+
+      var canRemove = _edSlides.length > 1;
+
+      card.innerHTML =
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">' +
+          '<div class="ed-slide-label" style="margin:0;">Slide '+(i+1)+'</div>' +
+          (canRemove
+            ? '<button onclick="edRemoveSlide('+i+')" title="Delete this slide" style="background:#fee2e2;border:none;color:#dc2626;border-radius:8px;padding:5px 10px;font-size:0.78rem;font-weight:800;cursor:pointer;">🗑 Remove</button>'
+            : '<span style="font-size:0.7rem;color:#9ca3af;">Need at least 1 slide</span>') +
+        '</div>' +
+        // Image row: URL input + upload button
+        '<div class="ed-field">' +
+          '<label class="ed-label">Image</label>' +
+          '<div style="display:flex;gap:8px;align-items:center;">' +
+            '<input class="ed-input" data-slide="'+i+'" data-field="img" type="text" placeholder="Paste image URL or upload →" value="'+(s.img||'').replace(/"/g,'&quot;')+'" style="flex:1;">' +
+            '<button onclick="edPickImg('+i+')" style="padding:8px 12px;background:#ede9fe;color:#5b21b6;border:none;border-radius:8px;font-weight:800;font-size:0.75rem;cursor:pointer;white-space:nowrap;">📁 Upload</button>' +
+          '</div>' +
+          // Tiny live preview
+          (s.img ? '<img src="'+(s.img||'')+'" style="margin-top:6px;width:100%;height:60px;object-fit:cover;border-radius:6px;border:1px solid #e5e7eb;" onerror="this.style.display=\'none\';">' : '') +
+        '</div>' +
+        '<div class="ed-field"><label class="ed-label">Tag  <span style="font-weight:400;color:#9ca3af;">(small badge text)</span></label><input class="ed-input" data-slide="'+i+'" data-field="tag" type="text" placeholder="e.g. 🛍 Summer Sale" value="'+(s.tag||'').replace(/"/g,'&quot;')+'"></div>' +
+        '<div class="ed-field"><label class="ed-label">Headline</label><input class="ed-input" data-slide="'+i+'" data-field="title" type="text" placeholder="e.g. Big Summer Sale" value="'+(s.title||'').replace(/"/g,'&quot;')+'"></div>' +
+        '<div class="ed-field"><label class="ed-label">Subtitle</label><input class="ed-input" data-slide="'+i+'" data-field="sub" type="text" placeholder="e.g. Up to 50% off all products" value="'+(s.sub||'').replace(/"/g,'&quot;')+'"></div>' +
+        '<div class="ed-field"><label class="ed-label">Shop button category</label>' +
+          '<select class="ed-input" data-slide="'+i+'" data-field="cat">' +
+            '<option value="all"'    +(s.cat==='all'    ?' selected':'')+'>All Products</option>' +
+            '<option value="candles"'+(s.cat==='candles'?' selected':'')+'>Candles</option>' +
+            '<option value="beauty"' +(s.cat==='beauty' ?' selected':'')+'>Beauty</option>' +
+            '<option value="clothing"'+(s.cat==='clothing'?' selected':'')+'>Clothing</option>' +
+          '</select>' +
+        '</div>';
+
+      list.appendChild(card);
+    });
+
+    // Attach live change listeners
+    list.querySelectorAll('[data-slide][data-field]').forEach(function(inp) {
+      inp.addEventListener('input', function() {
+        var i = parseInt(inp.dataset.slide);
+        var f = inp.dataset.field;
+        if (!_edSlides[i]) return;
+        _edSlides[i][f] = inp.value;
+        // Live preview on the page
+        window.pixRenderHero(JSON.parse(JSON.stringify(_edSlides)));
+      });
+    });
+  }
+
+  // ── Add a new blank slide ─────────────────────────────────
+  window.edAddSlide = function() {
+    _edSlides.push({ img:'', tag:'🆕 New Slide', title:'Your Headline Here', sub:'Add your subtitle here', cat:'all' });
+    window.pixRenderHero(JSON.parse(JSON.stringify(_edSlides)));
+    renderSlideList();
+    // Scroll to the new card
+    var list = document.getElementById('ed-slide-list');
+    if (list) list.lastElementChild.scrollIntoView({behavior:'smooth', block:'nearest'});
+    toast('✅ Slide added — fill in the details and save');
+  };
+
+  // ── Remove a slide ────────────────────────────────────────
+  window.edRemoveSlide = function(i) {
+    if (_edSlides.length <= 1) return;
+    if (!confirm('Remove slide '+(i+1)+'?')) return;
+    _edSlides.splice(i, 1);
+    window.pixRenderHero(JSON.parse(JSON.stringify(_edSlides)));
+    renderSlideList();
+  };
+
+  // ── Image upload for a slide ──────────────────────────────
+  var _imgPickTarget = -1;
+  var _imgInput = null;
+  window.edPickImg = function(idx) {
+    _imgPickTarget = idx;
+    if (!_imgInput) {
+      _imgInput = document.createElement('input');
+      _imgInput.type = 'file';
+      _imgInput.accept = 'image/*';
+      _imgInput.style.display = 'none';
+      document.body.appendChild(_imgInput);
+      _imgInput.addEventListener('change', function(e) {
+        var file = e.target.files[0];
+        if (!file || _imgPickTarget < 0) return;
+        var reader = new FileReader();
+        reader.onload = function(ev) {
+          var src = ev.target.result;
+          if (_edSlides[_imgPickTarget]) {
+            _edSlides[_imgPickTarget].img = src;
+            window.pixRenderHero(JSON.parse(JSON.stringify(_edSlides)));
+            renderSlideList();
+            toast('🖼 Image set — click Save to keep it');
+          }
+          _imgPickTarget = -1;
+          _imgInput.value = '';
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+    _imgInput.click();
+  };
+
+  // ── Open / close panel ────────────────────────────────────
   var _open = false;
   window.pixEditorToggle = function() {
     if (window._PIX_role !== 'editor') return;
     _open = !_open;
-    var panel   = document.getElementById('edPanel');
-    var backdrop= document.getElementById('edBackdrop');
+    var panel    = document.getElementById('edPanel');
+    var backdrop = document.getElementById('edBackdrop');
     if (_open) {
-      panel.style.display   = 'flex';
-      backdrop.style.display= 'block';
-      loadDB(function(vals) { populatePanel(vals); });
+      panel.style.display    = 'flex';
+      backdrop.style.display = 'block';
+      loadDB(function(vals){ populatePanel(vals); });
     } else {
-      panel.style.display   = 'none';
-      backdrop.style.display= 'none';
+      panel.style.display    = 'none';
+      backdrop.style.display = 'none';
     }
   };
   window.toggleEditorPanel = window.pixEditorToggle;
 
-  // ── collect values from inputs ────────────────────────────
+  // ── Collect all values ────────────────────────────────────
   function collectVals() {
     var vals = {};
-    FIELDS.forEach(function(f) {
-      var inp = document.getElementById(f.id);
-      if (inp) vals[f.key] = inp.value;
-    });
-    var c1 = document.getElementById('ef-color-primary');
-    var c2 = document.getElementById('ef-color-secondary');
-    var c3 = document.getElementById('ef-color-dark');
-    if (c1) vals['color-primary']   = c1.value;
-    if (c2) vals['color-secondary'] = c2.value;
-    if (c3) vals['color-dark']       = c3.value;
+    FIELDS.forEach(function(f){ var inp=document.getElementById(f.id); if(inp) vals[f.key]=inp.value; });
+    var c1=document.getElementById('ef-color-primary'),
+        c2=document.getElementById('ef-color-secondary'),
+        c3=document.getElementById('ef-color-dark');
+    if(c1) vals['color-primary']   = c1.value;
+    if(c2) vals['color-secondary'] = c2.value;
+    if(c3) vals['color-dark']       = c3.value;
+    vals.slides = JSON.parse(JSON.stringify(_edSlides));
     return vals;
   }
 
-  // ── save ──────────────────────────────────────────────────
+  // ── Save to Firestore ─────────────────────────────────────
   window.pixEditorSave = async function() {
     if (window._PIX_role !== 'editor') return;
-    var btn = document.getElementById('edSaveBtn');
+    var btn    = document.getElementById('edSaveBtn');
     var status = document.getElementById('edStatus');
-    if (btn) { btn.textContent = '⏳ Saving…'; btn.disabled = true; }
+    if (btn) { btn.textContent='⏳ Saving…'; btn.disabled=true; }
 
     var vals = collectVals();
     applyToPage(vals);
 
-    // Show status
     function showStatus(msg, bg, color) {
       if (!status) return;
-      status.style.display = 'block';
-      status.textContent = msg;
-      status.style.background = bg;
-      status.style.color = color;
+      status.style.display='block'; status.textContent=msg;
+      status.style.background=bg; status.style.color=color;
     }
 
-    if (!window.db || !window.doc || !window.setDoc) {
-      showStatus('⚠️ Not connected to database yet — try again in a moment', 'rgba(245,158,11,0.2)', '#92400e');
-      if (btn) { btn.textContent = '💾 Save All Changes'; btn.disabled = false; }
+    if (!window.db||!window.doc||!window.setDoc) {
+      showStatus('⚠️ Not connected to database yet — try again shortly','rgba(245,158,11,0.2)','#92400e');
+      if(btn){btn.textContent='💾 Save All Changes';btn.disabled=false;}
       return;
     }
-
     try {
-      await window.setDoc(window.doc(window.db, 'siteContent', 'editorValues'), vals, { merge: true });
-      showStatus('✅ Saved! All visitors will see your changes.', 'rgba(16,185,129,0.15)', '#065f46');
+      await window.setDoc(window.doc(window.db,'siteContent','editorValues'), vals, {merge:true});
+      showStatus('✅ Saved! All visitors will see your changes.','rgba(16,185,129,0.15)','#065f46');
       toast('✅ Changes saved and live!');
-      if (btn) { btn.textContent = '✓ Saved!'; }
-      setTimeout(function() {
-        if (status) status.style.display = 'none';
-        if (btn) { btn.textContent = '💾 Save All Changes'; btn.disabled = false; }
-      }, 3000);
+      if(btn) btn.textContent='✓ Saved!';
+      setTimeout(function(){
+        if(status) status.style.display='none';
+        if(btn){btn.textContent='💾 Save All Changes';btn.disabled=false;}
+      },3000);
     } catch(err) {
-      var msg = err.code === 'permission-denied'
-        ? '🔒 Permission not set up yet — ask the admin to enable editor saves'
+      var msg = err.code==='permission-denied'
+        ? '🔒 Permission not set up — ask the admin to enable editor saves'
         : '❌ Could not save — please try again';
-      showStatus(msg, 'rgba(239,68,68,0.1)', '#991b1b');
+      showStatus(msg,'rgba(239,68,68,0.1)','#991b1b');
       toast(msg, 5000);
-      if (btn) { btn.textContent = '💾 Save All Changes'; btn.disabled = false; }
+      if(btn){btn.textContent='💾 Save All Changes';btn.disabled=false;}
     }
   };
   window.saveEditorChanges = window.pixEditorSave;
