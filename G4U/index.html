@@ -1620,12 +1620,12 @@
 
   <div id="announcement-bar" style="background:var(--brand-primary);color:white;overflow:hidden;">
     <div class="ann-marquee-track" id="annMarqueeTrack">
-      <span class="ann-marquee-item">🎉 Free shipping over ₹1,999 <span class="ann-star">★</span></span>
-      <span class="ann-marquee-item">Use code <b>PIX10</b> for 10% off! <span class="ann-star">★</span></span>
-      <span class="ann-marquee-item">New Arrivals Every Week <span class="ann-star">★</span></span>
-      <span class="ann-marquee-item">100% Authentic Products <span class="ann-star">★</span></span>
-      <span class="ann-marquee-item">Fast Delivery Across India <span class="ann-star">★</span></span>
-      <span class="ann-marquee-item">Earn Rewards on Every Purchase <span class="ann-star">★</span></span>
+      <span class="ann-marquee-item" data-editable="ann-1">🎉 Free shipping over ₹1,999 <span class="ann-star">★</span></span>
+      <span class="ann-marquee-item" data-editable="ann-2">Use code <b>PIX10</b> for 10% off! <span class="ann-star">★</span></span>
+      <span class="ann-marquee-item" data-editable="ann-3">New Arrivals Every Week <span class="ann-star">★</span></span>
+      <span class="ann-marquee-item" data-editable="ann-4">100% Authentic Products <span class="ann-star">★</span></span>
+      <span class="ann-marquee-item" data-editable="ann-5">Fast Delivery Across India <span class="ann-star">★</span></span>
+      <span class="ann-marquee-item" data-editable="ann-6">Earn Rewards on Every Purchase <span class="ann-star">★</span></span>
       <!-- duplicate for seamless loop -->
       <span class="ann-marquee-item">🎉 Free shipping over ₹1,999 <span class="ann-star">★</span></span>
       <span class="ann-marquee-item">Use code <b>PIX10</b> for 10% off! <span class="ann-star">★</span></span>
@@ -1747,6 +1747,10 @@
                   <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                   <span data-i18n="admin_dashboard">Admin Dashboard</span>
                 </div>
+                <div class="user-menu-item hidden" id="menuEditor" style="color:#a78bfa;font-weight:700" onclick="toggleEditorPanel()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                  <span>Editor Panel</span>
+                </div>
                 <div class="user-menu-item" id="menuOrders">
                   <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                   <span data-i18n="my_orders">My Orders</span>
@@ -1782,9 +1786,9 @@
             <div class="hero-slide-overlay"></div>
             <div class="hero-slide-content">
               <div class="hero-slide-inner">
-                <span class="hero-tag">✨ New Collection 2026</span>
-                <h1 class="hero-title" style="min-height:unset;margin-top:12px;">Luxury <span>Candles</span><br>Hand-Poured<br>Elegance</h1>
-                <p class="hero-sub">Soy · Paraffin · Scented — Crafted with love for every home.</p>
+                <span class="hero-tag" data-editable="hero1-tag">✨ New Collection 2026</span>
+                <h1 class="hero-title" data-editable="hero1-title" style="min-height:unset;margin-top:12px;">Luxury <span>Candles</span><br>Hand-Poured<br>Elegance</h1>
+                <p class="hero-sub" data-editable="hero1-sub">Soy · Paraffin · Scented — Crafted with love for every home.</p>
                 <div style="display:flex;gap:12px;flex-wrap:wrap;">
                   <button class="hero-cta" onclick="setFilter('candles')"><i class="fa fa-shopping-bag" aria-hidden="true"></i> Shop Candles</button>
                   <button class="hero-cta-ghost" onclick="document.getElementById('grid').scrollIntoView({behavior:'smooth',block:'start'})">Explore All <i class="fa fa-arrow-right" aria-hidden="true"></i></button>
@@ -1799,9 +1803,9 @@
             <div class="hero-slide-overlay" style="background:linear-gradient(120deg,rgba(0,0,0,0.75) 0%,rgba(255,126,172,0.15) 60%,transparent 100%);"></div>
             <div class="hero-slide-content">
               <div class="hero-slide-inner">
-                <span class="hero-tag">💄 Beauty Edit</span>
-                <h2 class="hero-title" style="min-height:unset;margin-top:12px;">Glow Up With<br><span>Beauty</span><br>Essentials</h2>
-                <p class="hero-sub">Skincare · Makeup · Wellness — Radiate confidence every day.</p>
+                <span class="hero-tag" data-editable="hero2-tag">💄 Beauty Edit</span>
+                <h2 class="hero-title" data-editable="hero2-title" style="min-height:unset;margin-top:12px;">Glow Up With<br><span>Beauty</span><br>Essentials</h2>
+                <p class="hero-sub" data-editable="hero2-sub">Skincare · Makeup · Wellness — Radiate confidence every day.</p>
                 <div style="display:flex;gap:12px;flex-wrap:wrap;">
                   <button class="hero-cta" onclick="setFilter('beauty')"><i class="fa fa-star"></i> Shop Beauty</button>
                   <button class="hero-cta-ghost" onclick="document.getElementById('grid').scrollIntoView({behavior:'smooth',block:'start'})">Explore All <i class="fa fa-arrow-right"></i></button>
@@ -1816,9 +1820,9 @@
             <div class="hero-slide-overlay" style="background:linear-gradient(120deg,rgba(0,0,0,0.75) 0%,rgba(60,120,255,0.12) 60%,transparent 100%);"></div>
             <div class="hero-slide-content">
               <div class="hero-slide-inner">
-                <span class="hero-tag">👗 Fresh Styles</span>
-                <h2 class="hero-title" style="min-height:unset;margin-top:12px;">Fresh<br><span>Clothing</span><br>For Everyone</h2>
-                <p class="hero-sub">Kids T-Shirts · Trendsetters · Everyday Wear — Style that speaks.</p>
+                <span class="hero-tag" data-editable="hero3-tag">👗 Fresh Styles</span>
+                <h2 class="hero-title" data-editable="hero3-title" style="min-height:unset;margin-top:12px;">Fresh<br><span>Clothing</span><br>For Everyone</h2>
+                <p class="hero-sub" data-editable="hero3-sub">Kids T-Shirts · Trendsetters · Everyday Wear — Style that speaks.</p>
                 <div style="display:flex;gap:12px;flex-wrap:wrap;">
                   <button class="hero-cta" onclick="setFilter('clothing')"><i class="fa fa-tshirt" aria-hidden="true"></i> Shop Clothing</button>
                   <button class="hero-cta-ghost" onclick="document.getElementById('grid').scrollIntoView({behavior:'smooth',block:'start'})">Explore All <i class="fa fa-arrow-right" aria-hidden="true"></i></button>
@@ -2062,8 +2066,8 @@
 
     <div class="pix-brand-section">
       <div class="container mx-auto px-4">
-        <div class="pix-brand-eyebrow">✦ Our Story</div>
-        <h2 class="pix-brand-headline">Meet <span>Pioneer I Xpress</span></h2>
+        <div class="pix-brand-eyebrow" data-editable="brand-eyebrow">✦ Our Story</div>
+        <h2 class="pix-brand-headline" data-editable="brand-headline">Meet <span>Pioneer I Xpress</span></h2>
 
         <div class="pix-stage-wrap" id="pixStage">
           <canvas id="pixBrandCanvas"></canvas>
@@ -2598,16 +2602,16 @@
         <div class="promo-grid-item" style="min-height:200px;">
           <img src="https://risync.in/G4U/Dough%20Bowl%20Multi_Wick%20Candle.png" alt="Candle Sale" style="height:200px;">
           <div class="promo-grid-item-overlay">
-            <div style="font-size:0.65rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.8);margin-bottom:4px;">LIMITED TIME</div>
-            <div style="font-family:'Montserrat',sans-serif;font-size:1.4rem;font-weight:900;color:white;line-height:1.1;">Candle Sale<br>Up to 30% Off</div>
+            <div style="font-size:0.65rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.8);margin-bottom:4px;" data-editable="promo1-badge">LIMITED TIME</div>
+            <div style="font-family:'Montserrat',sans-serif;font-size:1.4rem;font-weight:900;color:white;line-height:1.1;" data-editable="promo1-title">Candle Sale<br>Up to 30% Off</div>
             <button onclick="setFilter('candles')" style="margin-top:10px;background:white;color:var(--brand-primary);font-weight:800;font-size:0.75rem;padding:8px 18px;border-radius:999px;border:none;cursor:pointer;letter-spacing:0.06em;text-transform:uppercase;">Shop Now →</button>
           </div>
         </div>
         <div class="promo-grid-item" style="min-height:200px;">
           <img src="https://royal-sleek-and-shear-52.lovable.app/lovable-uploads/30573759-2745-499d-9bd1-3222a5059831.png" alt="Beauty" style="height:200px;">
           <div class="promo-grid-item-overlay" style="background:linear-gradient(135deg,rgba(255,60,120,0.65),rgba(0,0,0,0.2));">
-            <div style="font-size:0.65rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.8);margin-bottom:4px;">BESTSELLER</div>
-            <div style="font-family:'Montserrat',sans-serif;font-size:1.4rem;font-weight:900;color:white;line-height:1.1;">Beauty Must-Haves<br>For Every Skin</div>
+            <div style="font-size:0.65rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.8);margin-bottom:4px;" data-editable="promo2-badge">BESTSELLER</div>
+            <div style="font-family:'Montserrat',sans-serif;font-size:1.4rem;font-weight:900;color:white;line-height:1.1;" data-editable="promo2-title">Beauty Must-Haves<br>For Every Skin</div>
             <button onclick="setFilter('beauty')" style="margin-top:10px;background:white;color:var(--brand-primary);font-weight:800;font-size:0.75rem;padding:8px 18px;border-radius:999px;border:none;cursor:pointer;letter-spacing:0.06em;text-transform:uppercase;">Shop Now →</button>
           </div>
         </div>
@@ -3076,10 +3080,10 @@
           <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,60,120,0.15);border:1px solid rgba(255,60,120,0.3);border-radius:999px;padding:5px 14px;margin-bottom:16px;">
             <span style="color:var(--brand-primary);font-size:0.72rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;">🚀 Seller Program</span>
           </div>
-          <h3 style="font-family:'Montserrat',sans-serif;font-size:clamp(1.4rem,2.5vw,2rem);font-weight:900;color:white;letter-spacing:-0.02em;margin-bottom:10px;line-height:1.1;">
+          <h3 data-editable="seller-title" style="font-family:'Montserrat',sans-serif;font-size:clamp(1.4rem,2.5vw,2rem);font-weight:900;color:white;letter-spacing:-0.02em;margin-bottom:10px;line-height:1.1;">
             Sell on <span style="color:var(--brand-primary);">Pioneer I Xpress</span><br>Reach Millions of Shoppers
           </h3>
-          <p style="color:rgba(255,255,255,0.65);font-size:0.88rem;font-weight:500;line-height:1.6;max-width:420px;margin-bottom:24px;">
+          <p data-editable="seller-body" style="color:rgba(255,255,255,0.65);font-size:0.88rem;font-weight:500;line-height:1.6;max-width:420px;margin-bottom:24px;">
             Join our growing seller community. List your products, manage inventory, track orders, and grow your business — all from one powerful dashboard.
           </p>
           <div style="display:flex;flex-wrap:wrap;gap:16px;margin-bottom:28px;">
@@ -3681,8 +3685,8 @@
           <div style="background:linear-gradient(135deg,#FF3C78 0%,#c41755 100%);padding:48px 24px;">
             <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:32px;flex-wrap:wrap;">
               <div>
-                <div style="font-family:'Montserrat',sans-serif;font-size:1.55rem;font-weight:900;color:#fff;letter-spacing:-0.02em;line-height:1.15;">Stay in the know 💌</div>
-                <div style="font-size:0.85rem;color:rgba(255,255,255,0.82);margin-top:6px;font-weight:500;">Get early access to deals, launches &amp; style drops.</div>
+                <div data-editable="newsletter-title" style="font-family:'Montserrat',sans-serif;font-size:1.55rem;font-weight:900;color:#fff;letter-spacing:-0.02em;line-height:1.15;">Stay in the know 💌</div>
+                <div data-editable="newsletter-sub" style="font-size:0.85rem;color:rgba(255,255,255,0.82);margin-top:6px;font-weight:500;">Get early access to deals, launches &amp; style drops.</div>
               </div>
               <div style="display:flex;gap:0;flex:1;max-width:460px;min-width:260px;">
                 <input id="footerEmailInput" type="email" placeholder="Your email address" style="flex:1;padding:14px 18px;border:none;border-radius:12px 0 0 12px;font-size:0.875rem;font-family:'Poppins',sans-serif;outline:none;background:#fff;color:#111;" />
@@ -5950,7 +5954,8 @@
   // ---- AUTH STATE ----
   onAuthStateChanged(auth, async user => {
     currentUser = user;
-    const ADMIN_EMAIL = 'gurunanak.garments2023@gmail.com';
+    const ADMIN_EMAIL  = 'gurunanak.garments2023@gmail.com';
+    const EDITOR_EMAIL = 'riddhishdev08@gmail.com';
     if (user) {
       // Show user avatar, hide login btn
       $('loginBtn').classList.add('hidden');
@@ -5966,6 +5971,14 @@
       // Show admin button only for admin email
       const adminBtn = document.getElementById('menuAdmin');
       if (adminBtn) adminBtn.classList.toggle('hidden', user.email !== ADMIN_EMAIL);
+      // Show editor button only for editor email
+      const editorBtn = document.getElementById('menuEditor');
+      if (editorBtn) editorBtn.classList.toggle('hidden', user.email !== EDITOR_EMAIL);
+      // Also show the editor FAB
+      const editorFab = document.getElementById('editorToggleBtn');
+      if (editorFab) editorFab.style.display = user.email === EDITOR_EMAIL ? 'flex' : 'none';
+      // Expose role globally
+      window._PIX_role = user.email === ADMIN_EMAIL ? 'admin' : user.email === EDITOR_EMAIL ? 'editor' : 'user';
       // Load cloud data
       await loadCloudState(user.uid);
       // Show purchased section and load orders
@@ -5983,6 +5996,11 @@
       if (ps) ps.classList.add('hidden');
       const adminBtn = document.getElementById('menuAdmin');
       if (adminBtn) adminBtn.classList.add('hidden');
+      const editorBtn = document.getElementById('menuEditor');
+      if (editorBtn) editorBtn.classList.add('hidden');
+      const editorFab = document.getElementById('editorToggleBtn');
+      if (editorFab) editorFab.style.display = 'none';
+      window._PIX_role = 'user';
     }
   });
 
@@ -12082,4 +12100,478 @@ function loadDealsFromFirebase() {
     const msg = error.code === 'permission-denied'
       ? '<p style="color:#ef4444;font-size:13px;">⚠️ <b>Firestore Rules blocking access.</b> Update rules in <a href="https://console.firebase.google.com" target="_blank" style="color:#FF7EAC">Firebase Console</a>.</p>'
       : `<p style="color: #FF6B6B;">Error loading deals: ${error.message}</p>`;
-    document.getElementById('dealsList').innerHTML = m
+    document.getElementById('dealsList').innerHTML = msg;
+  });
+}
+
+// Wait for Firebase to be ready before rendering customers
+if (window.firebaseReady) {
+  renderCustomers();
+} else {
+  document.addEventListener('firebaseReady', () => renderCustomers());
+}
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════
+     ✏️  EDITOR PANEL  —  riddhishdev08@gmail.com only
+     Allows editing of design/copy elements, NOT products/deals/customers
+     ═══════════════════════════════════════════════════════════ -->
+
+<!-- Editor FAB button (hidden until editor logs in) -->
+<button id="editorToggleBtn" onclick="toggleEditorPanel()" title="Editor Panel" style="
+  display:none;
+  position:fixed;bottom:100px;right:30px;
+  width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(135deg,#7c3aed,#a78bfa);
+  color:white;border:none;cursor:pointer;font-size:20px;
+  box-shadow:0 6px 20px rgba(124,58,237,0.5);
+  z-index:500;align-items:center;justify-content:center;
+  transition:all 0.3s ease;
+" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+  ✏️
+</button>
+
+<!-- Editor Overlay -->
+<div id="editorOverlay" onclick="toggleEditorPanel()" style="
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,0.5);backdrop-filter:blur(3px);z-index:498;
+"></div>
+
+<!-- Editor Panel Modal -->
+<div id="editorModal" style="
+  display:none;position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  background:linear-gradient(135deg,rgba(20,10,40,0.98),rgba(10,5,30,0.98));
+  border:2px solid rgba(124,58,237,0.4);border-radius:20px;
+  width:92%;max-width:680px;max-height:88vh;overflow-y:auto;
+  padding:36px;z-index:9999;
+  box-shadow:0 20px 60px rgba(0,0,0,0.6);
+">
+  <button onclick="toggleEditorPanel()" style="
+    position:absolute;top:18px;right:18px;background:none;border:none;
+    color:rgba(255,255,255,0.5);font-size:28px;cursor:pointer;
+    transition:color 0.2s;
+  " onmouseover="this.style.color='#a78bfa'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">×</button>
+
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+    <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#7c3aed,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:1.2rem;">✏️</div>
+    <div>
+      <h2 style="color:#a78bfa;font-size:1.4rem;font-weight:800;margin:0;">Editor Panel</h2>
+      <div style="font-size:0.72rem;color:rgba(255,255,255,0.4);font-weight:500;">Design &amp; copy edits only — products, deals &amp; customers are admin-only</div>
+    </div>
+  </div>
+
+  <!-- Save status bar -->
+  <div id="editorSaveStatus" style="
+    display:none;margin:12px 0 20px;padding:10px 16px;
+    border-radius:10px;font-size:0.8rem;font-weight:700;
+    background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.3);color:#a78bfa;
+  ">✓ All changes saved</div>
+
+  <!-- Section tabs -->
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;border-bottom:2px solid rgba(124,58,237,0.15);padding-bottom:14px;">
+    <button onclick="switchEditorSection('announcement')" id="etab-announcement" class="etab etab-active">📢 Bar</button>
+    <button onclick="switchEditorSection('hero')"         id="etab-hero"         class="etab">🖼 Hero</button>
+    <button onclick="switchEditorSection('promo')"        id="etab-promo"        class="etab">🎯 Promos</button>
+    <button onclick="switchEditorSection('brand')"        id="etab-brand"        class="etab">✦ Brand</button>
+    <button onclick="switchEditorSection('seller')"       id="etab-seller"       class="etab">🚀 Seller CTA</button>
+    <button onclick="switchEditorSection('newsletter')"   id="etab-newsletter"   class="etab">💌 Newsletter</button>
+    <button onclick="switchEditorSection('colors')"       id="etab-colors"       class="etab">🎨 Colors</button>
+  </div>
+
+  <!-- ── ANNOUNCEMENT BAR ── -->
+  <div id="esec-announcement" class="esec">
+    <p style="color:rgba(255,255,255,0.45);font-size:0.75rem;margin-bottom:16px;">Edit the scrolling announcement bar messages (6 items).</p>
+    <div style="display:grid;gap:10px;" id="annEditorRows"></div>
+  </div>
+
+  <!-- ── HERO SLIDES ── -->
+  <div id="esec-hero" class="esec" style="display:none;">
+    <p style="color:rgba(255,255,255,0.45);font-size:0.75rem;margin-bottom:16px;">Edit text for each of the 3 hero slides.</p>
+    <div id="heroEditorRows" style="display:grid;gap:20px;"></div>
+  </div>
+
+  <!-- ── PROMO BANNERS ── -->
+  <div id="esec-promo" class="esec" style="display:none;">
+    <p style="color:rgba(255,255,255,0.45);font-size:0.75rem;margin-bottom:16px;">Edit the two promo banner overlays.</p>
+    <div id="promoEditorRows" style="display:grid;gap:20px;"></div>
+  </div>
+
+  <!-- ── BRAND SECTION ── -->
+  <div id="esec-brand" class="esec" style="display:none;">
+    <p style="color:rgba(255,255,255,0.45);font-size:0.75rem;margin-bottom:16px;">Edit the "Our Story" brand section copy.</p>
+    <div style="display:grid;gap:14px;" id="brandEditorRows"></div>
+  </div>
+
+  <!-- ── SELLER CTA ── -->
+  <div id="esec-seller" class="esec" style="display:none;">
+    <p style="color:rgba(255,255,255,0.45);font-size:0.75rem;margin-bottom:16px;">Edit the "Sell on Pioneer I Xpress" section.</p>
+    <div style="display:grid;gap:14px;" id="sellerEditorRows"></div>
+  </div>
+
+  <!-- ── NEWSLETTER ── -->
+  <div id="esec-newsletter" class="esec" style="display:none;">
+    <p style="color:rgba(255,255,255,0.45);font-size:0.75rem;margin-bottom:16px;">Edit the footer newsletter strip.</p>
+    <div style="display:grid;gap:14px;" id="newsletterEditorRows"></div>
+  </div>
+
+  <!-- ── BRAND COLORS ── -->
+  <div id="esec-colors" class="esec" style="display:none;">
+    <p style="color:rgba(255,255,255,0.45);font-size:0.75rem;margin-bottom:16px;">Adjust the site-wide brand colour palette.</p>
+    <div style="display:grid;gap:16px;" id="colorsEditorRows"></div>
+  </div>
+
+  <!-- Save button -->
+  <button onclick="saveEditorChanges()" style="
+    margin-top:28px;width:100%;padding:14px;
+    background:linear-gradient(135deg,#7c3aed,#a78bfa);
+    color:white;border:none;border-radius:12px;
+    font-weight:800;font-size:0.95rem;cursor:pointer;
+    letter-spacing:0.04em;transition:opacity 0.2s;
+  " onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+    💾 Save Changes to Database
+  </button>
+</div>
+
+<style>
+.etab {
+  padding:8px 16px;background:transparent;border:1.5px solid rgba(124,58,237,0.25);
+  border-radius:8px;color:rgba(255,255,255,0.5);cursor:pointer;font-weight:700;
+  font-size:0.78rem;font-family:'Poppins',sans-serif;transition:all 0.2s;
+}
+.etab:hover { border-color:rgba(124,58,237,0.6);color:#a78bfa; }
+.etab-active { background:rgba(124,58,237,0.2);border-color:#a78bfa;color:#a78bfa; }
+.esec { }
+.editor-field-label {
+  font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);
+  text-transform:uppercase;letter-spacing:0.1em;margin-bottom:5px;
+}
+.editor-input, .editor-textarea {
+  width:100%;padding:10px 14px;
+  background:rgba(255,255,255,0.05);
+  border:1.5px solid rgba(124,58,237,0.25);
+  border-radius:8px;color:white;
+  font-family:'Poppins',sans-serif;font-size:0.85rem;
+  outline:none;transition:border-color 0.2s;box-sizing:border-box;
+}
+.editor-input:focus, .editor-textarea:focus { border-color:#a78bfa; }
+.editor-textarea { min-height:70px;resize:vertical; }
+.editor-slide-group {
+  padding:16px;background:rgba(124,58,237,0.06);
+  border:1px solid rgba(124,58,237,0.15);border-radius:12px;
+}
+.editor-slide-group h4 {
+  color:#a78bfa;font-size:0.82rem;font-weight:800;
+  margin:0 0 12px;text-transform:uppercase;letter-spacing:0.08em;
+}
+</style>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  EDITOR SYSTEM  —  Pioneer I Xpress
+// ═══════════════════════════════════════════════════════════
+
+(function() {
+
+  // ── Schema: key → { selector, prop, label, multiline }
+  const EDITABLE_SCHEMA = {
+    // Announcement bar
+    'ann-1': { label:'Bar message 1' },
+    'ann-2': { label:'Bar message 2' },
+    'ann-3': { label:'Bar message 3' },
+    'ann-4': { label:'Bar message 4' },
+    'ann-5': { label:'Bar message 5' },
+    'ann-6': { label:'Bar message 6' },
+    // Hero slide 1
+    'hero1-tag':   { label:'Slide 1 — Tag line' },
+    'hero1-title': { label:'Slide 1 — Headline', multiline:true },
+    'hero1-sub':   { label:'Slide 1 — Subtitle' },
+    // Hero slide 2
+    'hero2-tag':   { label:'Slide 2 — Tag line' },
+    'hero2-title': { label:'Slide 2 — Headline', multiline:true },
+    'hero2-sub':   { label:'Slide 2 — Subtitle' },
+    // Hero slide 3
+    'hero3-tag':   { label:'Slide 3 — Tag line' },
+    'hero3-title': { label:'Slide 3 — Headline', multiline:true },
+    'hero3-sub':   { label:'Slide 3 — Subtitle' },
+    // Promo banners
+    'promo1-badge': { label:'Banner 1 — Badge text' },
+    'promo1-title': { label:'Banner 1 — Headline', multiline:true },
+    'promo2-badge': { label:'Banner 2 — Badge text' },
+    'promo2-title': { label:'Banner 2 — Headline', multiline:true },
+    // Brand section
+    'brand-eyebrow':  { label:'Brand — Eyebrow text' },
+    'brand-headline': { label:'Brand — Main headline', multiline:true },
+    // Seller CTA
+    'seller-title': { label:'Seller — Headline', multiline:true },
+    'seller-body':  { label:'Seller — Body text', multiline:true },
+    // Newsletter
+    'newsletter-title': { label:'Newsletter — Headline' },
+    'newsletter-sub':   { label:'Newsletter — Subline' },
+  };
+
+  // In-memory store of current values (loaded from Firestore on open)
+  let _editorValues = {};
+  let _editorPanelOpen = false;
+  let _currentEditorSection = 'announcement';
+
+  // ── Helpers ──────────────────────────────────────────────
+  function getEl(key) {
+    return document.querySelector('[data-editable="' + key + '"]');
+  }
+  function getLiveText(key) {
+    const el = getEl(key);
+    return el ? el.innerHTML : '';
+  }
+
+  // ── Toggle panel ─────────────────────────────────────────
+  window.toggleEditorPanel = function() {
+    if (window._PIX_role !== 'editor') return;
+    _editorPanelOpen = !_editorPanelOpen;
+    const modal   = document.getElementById('editorModal');
+    const overlay = document.getElementById('editorOverlay');
+    if (_editorPanelOpen) {
+      modal.style.display   = 'block';
+      overlay.style.display = 'block';
+      loadEditorFromFirebase();
+    } else {
+      modal.style.display   = 'none';
+      overlay.style.display = 'none';
+    }
+  };
+
+  // ── Section switching ─────────────────────────────────────
+  window.switchEditorSection = function(section) {
+    _currentEditorSection = section;
+    document.querySelectorAll('.etab').forEach(b => b.classList.remove('etab-active'));
+    const activeBtn = document.getElementById('etab-' + section);
+    if (activeBtn) activeBtn.classList.add('etab-active');
+    document.querySelectorAll('.esec').forEach(s => s.style.display = 'none');
+    const activeSection = document.getElementById('esec-' + section);
+    if (activeSection) activeSection.style.display = 'block';
+  };
+
+  // ── Build editor field ────────────────────────────────────
+  function buildField(key, value) {
+    const schema = EDITABLE_SCHEMA[key] || { label: key };
+    const id = 'ef-' + key;
+    if (schema.multiline) {
+      return `<div>
+        <div class="editor-field-label">${schema.label}</div>
+        <textarea id="${id}" class="editor-textarea" data-ekey="${key}">${value || ''}</textarea>
+      </div>`;
+    }
+    return `<div>
+      <div class="editor-field-label">${schema.label}</div>
+      <input type="text" id="${id}" class="editor-input" data-ekey="${key}" value="${(value||'').replace(/"/g,'&quot;')}">
+    </div>`;
+  }
+
+  // ── Populate all section containers ──────────────────────
+  function populateEditorUI(vals) {
+    // Announcement
+    const annRows = document.getElementById('annEditorRows');
+    if (annRows) {
+      annRows.innerHTML = ['ann-1','ann-2','ann-3','ann-4','ann-5','ann-6']
+        .map(k => buildField(k, vals[k] || getLiveText(k))).join('');
+    }
+    // Hero
+    const heroRows = document.getElementById('heroEditorRows');
+    if (heroRows) {
+      heroRows.innerHTML = [
+        '<div class="editor-slide-group"><h4>Slide 1 — Candles</h4>' +
+          ['hero1-tag','hero1-title','hero1-sub'].map(k => buildField(k, vals[k] || getLiveText(k))).join('') +
+        '</div>',
+        '<div class="editor-slide-group"><h4>Slide 2 — Beauty</h4>' +
+          ['hero2-tag','hero2-title','hero2-sub'].map(k => buildField(k, vals[k] || getLiveText(k))).join('') +
+        '</div>',
+        '<div class="editor-slide-group"><h4>Slide 3 — Clothing</h4>' +
+          ['hero3-tag','hero3-title','hero3-sub'].map(k => buildField(k, vals[k] || getLiveText(k))).join('') +
+        '</div>',
+      ].join('');
+    }
+    // Promo
+    const promoRows = document.getElementById('promoEditorRows');
+    if (promoRows) {
+      promoRows.innerHTML = [
+        '<div class="editor-slide-group"><h4>Banner 1 — Candle Sale</h4>' +
+          ['promo1-badge','promo1-title'].map(k => buildField(k, vals[k] || getLiveText(k))).join('') +
+        '</div>',
+        '<div class="editor-slide-group"><h4>Banner 2 — Beauty</h4>' +
+          ['promo2-badge','promo2-title'].map(k => buildField(k, vals[k] || getLiveText(k))).join('') +
+        '</div>',
+      ].join('');
+    }
+    // Brand
+    const brandRows = document.getElementById('brandEditorRows');
+    if (brandRows) {
+      brandRows.innerHTML = ['brand-eyebrow','brand-headline']
+        .map(k => buildField(k, vals[k] || getLiveText(k))).join('');
+    }
+    // Seller
+    const sellerRows = document.getElementById('sellerEditorRows');
+    if (sellerRows) {
+      sellerRows.innerHTML = ['seller-title','seller-body']
+        .map(k => buildField(k, vals[k] || getLiveText(k))).join('');
+    }
+    // Newsletter
+    const nlRows = document.getElementById('newsletterEditorRows');
+    if (nlRows) {
+      nlRows.innerHTML = ['newsletter-title','newsletter-sub']
+        .map(k => buildField(k, vals[k] || getLiveText(k))).join('');
+    }
+    // Colors
+    const colorsRows = document.getElementById('colorsEditorRows');
+    if (colorsRows) {
+      const root = getComputedStyle(document.documentElement);
+      const colorFields = [
+        { key:'--brand-primary',   label:'Primary Color (pink)' },
+        { key:'--brand-secondary', label:'Secondary Color (light pink)' },
+        { key:'--brand-dark',      label:'Dark Brand Color' },
+      ];
+      colorsRows.innerHTML = colorFields.map(cf => {
+        const saved = vals['color' + cf.key];
+        const live = (saved || root.getPropertyValue(cf.key).trim() || '#FF3C78').trim();
+        return `<div style="display:flex;align-items:center;gap:12px;">
+          <input type="color" id="ef-color${cf.key}" data-colorvar="${cf.key}" value="${live}"
+            style="width:44px;height:44px;border:none;background:none;cursor:pointer;border-radius:8px;"
+            oninput="document.documentElement.style.setProperty('${cf.key}', this.value)">
+          <div>
+            <div class="editor-field-label">${cf.label}</div>
+            <div style="font-size:0.78rem;color:rgba(255,255,255,0.4);">${cf.key}</div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  // ── Apply saved values to live DOM ───────────────────────
+  function applyEditorValues(vals) {
+    Object.keys(vals).forEach(key => {
+      if (key.startsWith('color')) {
+        // CSS variable
+        const varName = key.replace('color', '');
+        document.documentElement.style.setProperty(varName, vals[key]);
+        return;
+      }
+      const el = getEl(key);
+      if (el) el.innerHTML = vals[key];
+    });
+  }
+
+  // ── Load from Firestore ───────────────────────────────────
+  function loadEditorFromFirebase() {
+    const db = window.db;
+    if (!db || !window.doc || !window.getDoc) {
+      // Fallback: populate from live DOM
+      populateEditorUI({});
+      return;
+    }
+    window.getDoc(window.doc(db, 'siteContent', 'editorValues')).then(snap => {
+      _editorValues = snap.exists() ? (snap.data() || {}) : {};
+      applyEditorValues(_editorValues);
+      populateEditorUI(_editorValues);
+    }).catch(() => {
+      populateEditorUI({});
+    });
+  }
+
+  // Auto-apply on page load (for visitors too, so edits persist publicly)
+  document.addEventListener('DOMContentLoaded', function() {
+    const db = window.db;
+    if (!db || !window.doc || !window.getDoc) return;
+    // Retry after Firebase loads
+    function tryLoad() {
+      if (!window.db || !window.doc || !window.getDoc) {
+        setTimeout(tryLoad, 800);
+        return;
+      }
+      window.getDoc(window.doc(window.db, 'siteContent', 'editorValues')).then(snap => {
+        if (snap.exists()) applyEditorValues(snap.data() || {});
+      }).catch(() => {});
+    }
+    setTimeout(tryLoad, 1200);
+  });
+
+  // ── Collect values from inputs ────────────────────────────
+  function collectEditorValues() {
+    const vals = Object.assign({}, _editorValues);
+    // Text fields
+    document.querySelectorAll('.editor-input[data-ekey], .editor-textarea[data-ekey]').forEach(el => {
+      vals[el.dataset.ekey] = el.value;
+    });
+    // Color fields
+    document.querySelectorAll('input[type="color"][data-colorvar]').forEach(el => {
+      vals['color' + el.dataset.colorvar] = el.value;
+    });
+    return vals;
+  }
+
+  // ── Apply collected values to DOM ─────────────────────────
+  function applyCollectedToDOM(vals) {
+    Object.keys(vals).forEach(key => {
+      if (key.startsWith('color')) {
+        document.documentElement.style.setProperty(key.replace('color', ''), vals[key]);
+        return;
+      }
+      const el = getEl(key);
+      if (el) el.innerHTML = vals[key];
+    });
+  }
+
+  // ── Save to Firestore ─────────────────────────────────────
+  window.saveEditorChanges = async function() {
+    if (window._PIX_role !== 'editor') {
+      alert('Access denied: editor role required.');
+      return;
+    }
+    const vals = collectEditorValues();
+    applyCollectedToDOM(vals);
+    _editorValues = vals;
+
+    const statusBar = document.getElementById('editorSaveStatus');
+    if (statusBar) {
+      statusBar.style.display = 'block';
+      statusBar.textContent = '⏳ Saving…';
+      statusBar.style.background = 'rgba(124,58,237,0.15)';
+      statusBar.style.color = '#a78bfa';
+    }
+
+    const db = window.db;
+    if (!db || !window.doc || !window.setDoc) {
+      if (statusBar) {
+        statusBar.textContent = '⚠️ Saved locally only — Firebase not connected';
+        statusBar.style.background = 'rgba(245,158,11,0.15)';
+        statusBar.style.color = '#f59e0b';
+      }
+      return;
+    }
+
+    try {
+      await window.setDoc(window.doc(db, 'siteContent', 'editorValues'), vals, { merge: true });
+      if (statusBar) {
+        statusBar.textContent = '✓ All changes saved to database!';
+        statusBar.style.background = 'rgba(16,185,129,0.15)';
+        statusBar.style.color = '#10b981';
+        setTimeout(() => { statusBar.style.display = 'none'; }, 3000);
+      }
+    } catch(err) {
+      const hint = err.code === 'permission-denied'
+        ? '🔒 Permission denied — ask admin to add siteContent write rule in Firestore'
+        : '❌ Save error: ' + err.message;
+      if (statusBar) {
+        statusBar.textContent = hint;
+        statusBar.style.background = 'rgba(239,68,68,0.15)';
+        statusBar.style.color = '#ef4444';
+      }
+    }
+  };
+
+  // ── Auto-init section to announcement ─────────────────────
+  window.switchEditorSection('announcement');
+
+})();
+</script>
+
+</body>
+</html>
