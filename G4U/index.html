@@ -5974,7 +5974,7 @@
       // Show editor button only for editor email
       const editorBtn = document.getElementById('menuEditor');
       if (editorBtn) editorBtn.classList.toggle('hidden', user.email !== EDITOR_EMAIL);
-      // Also show the editor FAB
+      // Show editor FAB
       const editorFab = document.getElementById('editorToggleBtn');
       if (editorFab) editorFab.style.display = user.email === EDITOR_EMAIL ? 'flex' : 'none';
       // Expose role globally
@@ -12114,461 +12114,446 @@ if (window.firebaseReady) {
 
 <!-- ═══════════════════════════════════════════════════════════
      ✏️  EDITOR PANEL  —  riddhishdev08@gmail.com only
-     Allows editing of design/copy elements, NOT products/deals/customers
      ═══════════════════════════════════════════════════════════ -->
 
-<!-- Editor FAB button (hidden until editor logs in) -->
-<button id="editorToggleBtn" onclick="toggleEditorPanel()" title="Editor Panel" style="
-  display:none;
-  position:fixed;bottom:100px;right:30px;
-  width:56px;height:56px;border-radius:50%;
-  background:linear-gradient(135deg,#7c3aed,#a78bfa);
-  color:white;border:none;cursor:pointer;font-size:20px;
-  box-shadow:0 6px 20px rgba(124,58,237,0.5);
-  z-index:500;align-items:center;justify-content:center;
-  transition:all 0.3s ease;
-" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
-  ✏️
-</button>
+<!-- Backdrop -->
+<div id="edBackdrop" onclick="pixEditorToggle()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);backdrop-filter:blur(2px);z-index:9990;"></div>
 
-<!-- Editor Overlay -->
-<div id="editorOverlay" onclick="toggleEditorPanel()" style="
-  display:none;position:fixed;inset:0;
-  background:rgba(0,0,0,0.5);backdrop-filter:blur(3px);z-index:498;
+<!-- Editor Sidebar -->
+<div id="edPanel" style="
+  display:none; position:fixed; top:0; right:0; bottom:0;
+  width:360px; max-width:100vw;
+  background:#fff; z-index:9999;
+  box-shadow:-8px 0 40px rgba(0,0,0,0.18);
+  overflow:hidden; flex-direction:column;
+  font-family:'Poppins',sans-serif;
+">
+
+  <!-- Header -->
+  <div style="background:linear-gradient(135deg,#5b21b6,#7c3aed);padding:20px 20px 16px;flex-shrink:0;">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:1.4rem;">✏️</span>
+        <div>
+          <div style="color:white;font-weight:800;font-size:1rem;line-height:1.1;">Edit Website</div>
+          <div style="color:rgba(255,255,255,0.6);font-size:0.7rem;margin-top:1px;">Changes go live for everyone when you save</div>
+        </div>
+      </div>
+      <button onclick="pixEditorToggle()" style="background:rgba(255,255,255,0.15);border:none;color:white;width:32px;height:32px;border-radius:50%;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;" title="Close">✕</button>
+    </div>
+
+    <!-- Save button in header -->
+    <button id="edSaveBtn" onclick="pixEditorSave()" style="
+      margin-top:14px;width:100%;padding:11px;
+      background:white;color:#5b21b6;
+      border:none;border-radius:10px;
+      font-weight:800;font-size:0.88rem;cursor:pointer;
+      transition:opacity 0.2s;letter-spacing:0.02em;
+    ">💾 Save All Changes</button>
+
+    <!-- Status message -->
+    <div id="edStatus" style="display:none;margin-top:10px;padding:8px 12px;border-radius:8px;font-size:0.75rem;font-weight:700;text-align:center;"></div>
+  </div>
+
+  <!-- Scrollable form area -->
+  <div style="overflow-y:auto;flex:1;padding:20px 20px 40px;" id="edFormArea">
+
+    <!-- ▸ TOP ANNOUNCEMENT BAR -->
+    <div class="ed-section">
+      <div class="ed-section-title">📢 Top Announcement Bar</div>
+      <p class="ed-hint">The scrolling text at the very top of the site.</p>
+      <div class="ed-field"><label class="ed-label">Message 1</label><input class="ed-input" id="ef-ann-1" type="text" placeholder="e.g. Free shipping over ₹1,999 ★"></div>
+      <div class="ed-field"><label class="ed-label">Message 2</label><input class="ed-input" id="ef-ann-2" type="text" placeholder="e.g. Use code PIX10 for 10% off!"></div>
+      <div class="ed-field"><label class="ed-label">Message 3</label><input class="ed-input" id="ef-ann-3" type="text" placeholder="e.g. New Arrivals Every Week"></div>
+      <div class="ed-field"><label class="ed-label">Message 4</label><input class="ed-input" id="ef-ann-4" type="text" placeholder="e.g. 100% Authentic Products"></div>
+      <div class="ed-field"><label class="ed-label">Message 5</label><input class="ed-input" id="ef-ann-5" type="text" placeholder="e.g. Fast Delivery Across India"></div>
+      <div class="ed-field"><label class="ed-label">Message 6</label><input class="ed-input" id="ef-ann-6" type="text" placeholder="e.g. Earn Rewards on Every Purchase"></div>
+    </div>
+
+    <!-- ▸ HOMEPAGE SLIDESHOW -->
+    <div class="ed-section">
+      <div class="ed-section-title">🖼️ Homepage Slideshow</div>
+      <p class="ed-hint">The big banner at the top of the homepage. There are 3 slides.</p>
+
+      <div class="ed-slide-group">
+        <div class="ed-slide-label">Slide 1 · Candles</div>
+        <div class="ed-field"><label class="ed-label">Tag (small label)</label><input class="ed-input" id="ef-hero1-tag" type="text" placeholder="e.g. ✨ New Collection 2026"></div>
+        <div class="ed-field"><label class="ed-label">Headline</label><input class="ed-input" id="ef-hero1-title" type="text" placeholder="e.g. Luxury Candles — Hand-Poured Elegance"></div>
+        <div class="ed-field"><label class="ed-label">Subtitle</label><input class="ed-input" id="ef-hero1-sub" type="text" placeholder="e.g. Soy · Paraffin · Scented — Crafted with love"></div>
+      </div>
+
+      <div class="ed-slide-group">
+        <div class="ed-slide-label">Slide 2 · Beauty</div>
+        <div class="ed-field"><label class="ed-label">Tag (small label)</label><input class="ed-input" id="ef-hero2-tag" type="text" placeholder="e.g. 💄 Beauty Edit"></div>
+        <div class="ed-field"><label class="ed-label">Headline</label><input class="ed-input" id="ef-hero2-title" type="text" placeholder="e.g. Glow Up With Beauty Essentials"></div>
+        <div class="ed-field"><label class="ed-label">Subtitle</label><input class="ed-input" id="ef-hero2-sub" type="text" placeholder="e.g. Skincare · Makeup · Wellness"></div>
+      </div>
+
+      <div class="ed-slide-group">
+        <div class="ed-slide-label">Slide 3 · Clothing</div>
+        <div class="ed-field"><label class="ed-label">Tag (small label)</label><input class="ed-input" id="ef-hero3-tag" type="text" placeholder="e.g. 👗 Fresh Styles"></div>
+        <div class="ed-field"><label class="ed-label">Headline</label><input class="ed-input" id="ef-hero3-title" type="text" placeholder="e.g. Fresh Clothing For Everyone"></div>
+        <div class="ed-field"><label class="ed-label">Subtitle</label><input class="ed-input" id="ef-hero3-sub" type="text" placeholder="e.g. Kids T-Shirts · Trendsetters"></div>
+      </div>
+    </div>
+
+    <!-- ▸ FEATURE BANNERS -->
+    <div class="ed-section">
+      <div class="ed-section-title">🎯 Feature Banners</div>
+      <p class="ed-hint">The two promotional image banners on the homepage.</p>
+
+      <div class="ed-slide-group">
+        <div class="ed-slide-label">Banner 1 · Candle Sale</div>
+        <div class="ed-field"><label class="ed-label">Small badge text</label><input class="ed-input" id="ef-promo1-badge" type="text" placeholder="e.g. LIMITED TIME"></div>
+        <div class="ed-field"><label class="ed-label">Headline</label><input class="ed-input" id="ef-promo1-title" type="text" placeholder="e.g. Candle Sale — Up to 30% Off"></div>
+      </div>
+
+      <div class="ed-slide-group">
+        <div class="ed-slide-label">Banner 2 · Beauty</div>
+        <div class="ed-field"><label class="ed-label">Small badge text</label><input class="ed-input" id="ef-promo2-badge" type="text" placeholder="e.g. BESTSELLER"></div>
+        <div class="ed-field"><label class="ed-label">Headline</label><input class="ed-input" id="ef-promo2-title" type="text" placeholder="e.g. Beauty Must-Haves For Every Skin"></div>
+      </div>
+    </div>
+
+    <!-- ▸ ABOUT / OUR STORY -->
+    <div class="ed-section">
+      <div class="ed-section-title">✦ About / Our Story</div>
+      <p class="ed-hint">The brand introduction section on the homepage.</p>
+      <div class="ed-field"><label class="ed-label">Small eyebrow text</label><input class="ed-input" id="ef-brand-eyebrow" type="text" placeholder="e.g. ✦ Our Story"></div>
+      <div class="ed-field"><label class="ed-label">Main heading</label><input class="ed-input" id="ef-brand-headline" type="text" placeholder="e.g. Meet Pioneer I Xpress"></div>
+    </div>
+
+    <!-- ▸ SELL WITH US SECTION -->
+    <div class="ed-section">
+      <div class="ed-section-title">🚀 Sell With Us Section</div>
+      <p class="ed-hint">The dark banner inviting people to become sellers.</p>
+      <div class="ed-field"><label class="ed-label">Heading</label><input class="ed-input" id="ef-seller-title" type="text" placeholder="e.g. Sell on Pioneer I Xpress"></div>
+      <div class="ed-field"><label class="ed-label">Body text</label><textarea class="ed-textarea" id="ef-seller-body" placeholder="e.g. Join our growing seller community. List your products, manage inventory, track orders…"></textarea></div>
+    </div>
+
+    <!-- ▸ NEWSLETTER STRIP -->
+    <div class="ed-section">
+      <div class="ed-section-title">💌 Newsletter Strip</div>
+      <p class="ed-hint">The email sign-up band at the bottom of the page.</p>
+      <div class="ed-field"><label class="ed-label">Heading</label><input class="ed-input" id="ef-newsletter-title" type="text" placeholder="e.g. Stay in the know 💌"></div>
+      <div class="ed-field"><label class="ed-label">Subheading</label><input class="ed-input" id="ef-newsletter-sub" type="text" placeholder="e.g. Get early access to deals, launches &amp; style drops."></div>
+    </div>
+
+    <!-- ▸ BRAND COLOURS -->
+    <div class="ed-section" style="border-bottom:none;">
+      <div class="ed-section-title">🎨 Brand Colours</div>
+      <p class="ed-hint">Changes the main colour throughout the whole site.</p>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;">
+        <label style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;">
+          <input type="color" id="ef-color-primary" value="#FF3C78"
+            style="width:52px;height:52px;border-radius:12px;border:2px solid #e5e7eb;cursor:pointer;padding:2px;"
+            oninput="document.documentElement.style.setProperty('--brand-primary',this.value)">
+          <span style="font-size:0.7rem;color:#6b7280;font-weight:700;">Main</span>
+        </label>
+        <label style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;">
+          <input type="color" id="ef-color-secondary" value="#FF7EAC"
+            style="width:52px;height:52px;border-radius:12px;border:2px solid #e5e7eb;cursor:pointer;padding:2px;"
+            oninput="document.documentElement.style.setProperty('--brand-secondary',this.value)">
+          <span style="font-size:0.7rem;color:#6b7280;font-weight:700;">Light</span>
+        </label>
+        <label style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;">
+          <input type="color" id="ef-color-dark" value="#C41755"
+            style="width:52px;height:52px;border-radius:12px;border:2px solid #e5e7eb;cursor:pointer;padding:2px;"
+            oninput="document.documentElement.style.setProperty('--brand-dark',this.value)">
+          <span style="font-size:0.7rem;color:#6b7280;font-weight:700;">Dark</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Bottom save button -->
+    <button onclick="pixEditorSave()" style="
+      margin-top:24px;width:100%;padding:14px;
+      background:linear-gradient(135deg,#5b21b6,#7c3aed);
+      color:white;border:none;border-radius:12px;
+      font-weight:800;font-size:0.9rem;cursor:pointer;
+      box-shadow:0 4px 16px rgba(91,33,182,0.3);
+      transition:opacity 0.2s;
+    " onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'">
+      💾 Save All Changes
+    </button>
+
+  </div><!-- /edFormArea -->
+</div><!-- /edPanel -->
+
+<!-- Toast notification -->
+<div id="edToast" style="
+  display:none;position:fixed;bottom:32px;left:50%;
+  transform:translateX(-50%);
+  background:#1e1b4b;color:white;
+  padding:12px 26px;border-radius:30px;
+  font-family:'Poppins',sans-serif;font-weight:700;font-size:0.85rem;
+  z-index:999999;box-shadow:0 6px 24px rgba(0,0,0,0.3);
+  white-space:nowrap;pointer-events:none;transition:opacity 0.3s;
 "></div>
 
-<!-- Editor Panel Modal -->
-<div id="editorModal" style="
-  display:none;position:fixed;top:50%;left:50%;
-  transform:translate(-50%,-50%);
-  background:linear-gradient(135deg,rgba(20,10,40,0.98),rgba(10,5,30,0.98));
-  border:2px solid rgba(124,58,237,0.4);border-radius:20px;
-  width:92%;max-width:680px;max-height:88vh;overflow-y:auto;
-  padding:36px;z-index:9999;
-  box-shadow:0 20px 60px rgba(0,0,0,0.6);
-">
-  <button onclick="toggleEditorPanel()" style="
-    position:absolute;top:18px;right:18px;background:none;border:none;
-    color:rgba(255,255,255,0.5);font-size:28px;cursor:pointer;
-    transition:color 0.2s;
-  " onmouseover="this.style.color='#a78bfa'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">×</button>
-
-  <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
-    <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#7c3aed,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:1.2rem;">✏️</div>
-    <div>
-      <h2 style="color:#a78bfa;font-size:1.4rem;font-weight:800;margin:0;">Editor Panel</h2>
-      <div style="font-size:0.72rem;color:rgba(255,255,255,0.4);font-weight:500;">Design &amp; copy edits only — products, deals &amp; customers are admin-only</div>
-    </div>
-  </div>
-
-  <!-- Save status bar -->
-  <div id="editorSaveStatus" style="
-    display:none;margin:12px 0 20px;padding:10px 16px;
-    border-radius:10px;font-size:0.8rem;font-weight:700;
-    background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.3);color:#a78bfa;
-  ">✓ All changes saved</div>
-
-  <!-- Section tabs -->
-  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;border-bottom:2px solid rgba(124,58,237,0.15);padding-bottom:14px;">
-    <button onclick="switchEditorSection('announcement')" id="etab-announcement" class="etab etab-active">📢 Bar</button>
-    <button onclick="switchEditorSection('hero')"         id="etab-hero"         class="etab">🖼 Hero</button>
-    <button onclick="switchEditorSection('promo')"        id="etab-promo"        class="etab">🎯 Promos</button>
-    <button onclick="switchEditorSection('brand')"        id="etab-brand"        class="etab">✦ Brand</button>
-    <button onclick="switchEditorSection('seller')"       id="etab-seller"       class="etab">🚀 Seller CTA</button>
-    <button onclick="switchEditorSection('newsletter')"   id="etab-newsletter"   class="etab">💌 Newsletter</button>
-    <button onclick="switchEditorSection('colors')"       id="etab-colors"       class="etab">🎨 Colors</button>
-  </div>
-
-  <!-- ── ANNOUNCEMENT BAR ── -->
-  <div id="esec-announcement" class="esec">
-    <p style="color:rgba(255,255,255,0.45);font-size:0.75rem;margin-bottom:16px;">Edit the scrolling announcement bar messages (6 items).</p>
-    <div style="display:grid;gap:10px;" id="annEditorRows"></div>
-  </div>
-
-  <!-- ── HERO SLIDES ── -->
-  <div id="esec-hero" class="esec" style="display:none;">
-    <p style="color:rgba(255,255,255,0.45);font-size:0.75rem;margin-bottom:16px;">Edit text for each of the 3 hero slides.</p>
-    <div id="heroEditorRows" style="display:grid;gap:20px;"></div>
-  </div>
-
-  <!-- ── PROMO BANNERS ── -->
-  <div id="esec-promo" class="esec" style="display:none;">
-    <p style="color:rgba(255,255,255,0.45);font-size:0.75rem;margin-bottom:16px;">Edit the two promo banner overlays.</p>
-    <div id="promoEditorRows" style="display:grid;gap:20px;"></div>
-  </div>
-
-  <!-- ── BRAND SECTION ── -->
-  <div id="esec-brand" class="esec" style="display:none;">
-    <p style="color:rgba(255,255,255,0.45);font-size:0.75rem;margin-bottom:16px;">Edit the "Our Story" brand section copy.</p>
-    <div style="display:grid;gap:14px;" id="brandEditorRows"></div>
-  </div>
-
-  <!-- ── SELLER CTA ── -->
-  <div id="esec-seller" class="esec" style="display:none;">
-    <p style="color:rgba(255,255,255,0.45);font-size:0.75rem;margin-bottom:16px;">Edit the "Sell on Pioneer I Xpress" section.</p>
-    <div style="display:grid;gap:14px;" id="sellerEditorRows"></div>
-  </div>
-
-  <!-- ── NEWSLETTER ── -->
-  <div id="esec-newsletter" class="esec" style="display:none;">
-    <p style="color:rgba(255,255,255,0.45);font-size:0.75rem;margin-bottom:16px;">Edit the footer newsletter strip.</p>
-    <div style="display:grid;gap:14px;" id="newsletterEditorRows"></div>
-  </div>
-
-  <!-- ── BRAND COLORS ── -->
-  <div id="esec-colors" class="esec" style="display:none;">
-    <p style="color:rgba(255,255,255,0.45);font-size:0.75rem;margin-bottom:16px;">Adjust the site-wide brand colour palette.</p>
-    <div style="display:grid;gap:16px;" id="colorsEditorRows"></div>
-  </div>
-
-  <!-- Save button -->
-  <button onclick="saveEditorChanges()" style="
-    margin-top:28px;width:100%;padding:14px;
-    background:linear-gradient(135deg,#7c3aed,#a78bfa);
-    color:white;border:none;border-radius:12px;
-    font-weight:800;font-size:0.95rem;cursor:pointer;
-    letter-spacing:0.04em;transition:opacity 0.2s;
-  " onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
-    💾 Save Changes to Database
-  </button>
-</div>
-
 <style>
-.etab {
-  padding:8px 16px;background:transparent;border:1.5px solid rgba(124,58,237,0.25);
-  border-radius:8px;color:rgba(255,255,255,0.5);cursor:pointer;font-weight:700;
-  font-size:0.78rem;font-family:'Poppins',sans-serif;transition:all 0.2s;
+.ed-section {
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #f0f0f5;
 }
-.etab:hover { border-color:rgba(124,58,237,0.6);color:#a78bfa; }
-.etab-active { background:rgba(124,58,237,0.2);border-color:#a78bfa;color:#a78bfa; }
-.esec { }
-.editor-field-label {
-  font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);
-  text-transform:uppercase;letter-spacing:0.1em;margin-bottom:5px;
+.ed-section-title {
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: #1e1b4b;
+  margin-bottom: 4px;
 }
-.editor-input, .editor-textarea {
-  width:100%;padding:10px 14px;
-  background:rgba(255,255,255,0.05);
-  border:1.5px solid rgba(124,58,237,0.25);
-  border-radius:8px;color:white;
-  font-family:'Poppins',sans-serif;font-size:0.85rem;
-  outline:none;transition:border-color 0.2s;box-sizing:border-box;
+.ed-hint {
+  font-size: 0.72rem;
+  color: #9ca3af;
+  margin: 0 0 14px;
+  line-height: 1.4;
 }
-.editor-input:focus, .editor-textarea:focus { border-color:#a78bfa; }
-.editor-textarea { min-height:70px;resize:vertical; }
-.editor-slide-group {
-  padding:16px;background:rgba(124,58,237,0.06);
-  border:1px solid rgba(124,58,237,0.15);border-radius:12px;
+.ed-field { margin-bottom: 10px; }
+.ed-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 5px;
 }
-.editor-slide-group h4 {
-  color:#a78bfa;font-size:0.82rem;font-weight:800;
-  margin:0 0 12px;text-transform:uppercase;letter-spacing:0.08em;
+.ed-input, .ed-textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.84rem;
+  color: #1f2937;
+  background: #fafafa;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+  box-sizing: border-box;
+}
+.ed-input:focus, .ed-textarea:focus {
+  border-color: #7c3aed;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(124,58,237,0.1);
+}
+.ed-textarea {
+  min-height: 80px;
+  resize: vertical;
+  line-height: 1.5;
+}
+.ed-slide-group {
+  background: #f8f5ff;
+  border: 1.5px solid #ede9fe;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+.ed-slide-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #7c3aed;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
 }
 </style>
 
 <script>
-// ═══════════════════════════════════════════════════════════
-//  EDITOR SYSTEM  —  Pioneer I Xpress
-// ═══════════════════════════════════════════════════════════
+(function(){
 
-(function() {
+  // Map of input id → data-editable key + how to read/write it
+  const FIELDS = [
+    { id:'ef-ann-1',           key:'ann-1',            plain:true  },
+    { id:'ef-ann-2',           key:'ann-2',            plain:true  },
+    { id:'ef-ann-3',           key:'ann-3',            plain:true  },
+    { id:'ef-ann-4',           key:'ann-4',            plain:true  },
+    { id:'ef-ann-5',           key:'ann-5',            plain:true  },
+    { id:'ef-ann-6',           key:'ann-6',            plain:true  },
+    { id:'ef-hero1-tag',       key:'hero1-tag',        plain:true  },
+    { id:'ef-hero1-title',     key:'hero1-title',      plain:true  },
+    { id:'ef-hero1-sub',       key:'hero1-sub',        plain:true  },
+    { id:'ef-hero2-tag',       key:'hero2-tag',        plain:true  },
+    { id:'ef-hero2-title',     key:'hero2-title',      plain:true  },
+    { id:'ef-hero2-sub',       key:'hero2-sub',        plain:true  },
+    { id:'ef-hero3-tag',       key:'hero3-tag',        plain:true  },
+    { id:'ef-hero3-title',     key:'hero3-title',      plain:true  },
+    { id:'ef-hero3-sub',       key:'hero3-sub',        plain:true  },
+    { id:'ef-promo1-badge',    key:'promo1-badge',     plain:true  },
+    { id:'ef-promo1-title',    key:'promo1-title',     plain:true  },
+    { id:'ef-promo2-badge',    key:'promo2-badge',     plain:true  },
+    { id:'ef-promo2-title',    key:'promo2-title',     plain:true  },
+    { id:'ef-brand-eyebrow',   key:'brand-eyebrow',    plain:true  },
+    { id:'ef-brand-headline',  key:'brand-headline',   plain:true  },
+    { id:'ef-seller-title',    key:'seller-title',     plain:true  },
+    { id:'ef-seller-body',     key:'seller-body',      plain:true  },
+    { id:'ef-newsletter-title',key:'newsletter-title', plain:true  },
+    { id:'ef-newsletter-sub',  key:'newsletter-sub',   plain:true  },
+  ];
 
-  // ── Schema: key → { selector, prop, label, multiline }
-  const EDITABLE_SCHEMA = {
-    // Announcement bar
-    'ann-1': { label:'Bar message 1' },
-    'ann-2': { label:'Bar message 2' },
-    'ann-3': { label:'Bar message 3' },
-    'ann-4': { label:'Bar message 4' },
-    'ann-5': { label:'Bar message 5' },
-    'ann-6': { label:'Bar message 6' },
-    // Hero slide 1
-    'hero1-tag':   { label:'Slide 1 — Tag line' },
-    'hero1-title': { label:'Slide 1 — Headline', multiline:true },
-    'hero1-sub':   { label:'Slide 1 — Subtitle' },
-    // Hero slide 2
-    'hero2-tag':   { label:'Slide 2 — Tag line' },
-    'hero2-title': { label:'Slide 2 — Headline', multiline:true },
-    'hero2-sub':   { label:'Slide 2 — Subtitle' },
-    // Hero slide 3
-    'hero3-tag':   { label:'Slide 3 — Tag line' },
-    'hero3-title': { label:'Slide 3 — Headline', multiline:true },
-    'hero3-sub':   { label:'Slide 3 — Subtitle' },
-    // Promo banners
-    'promo1-badge': { label:'Banner 1 — Badge text' },
-    'promo1-title': { label:'Banner 1 — Headline', multiline:true },
-    'promo2-badge': { label:'Banner 2 — Badge text' },
-    'promo2-title': { label:'Banner 2 — Headline', multiline:true },
-    // Brand section
-    'brand-eyebrow':  { label:'Brand — Eyebrow text' },
-    'brand-headline': { label:'Brand — Main headline', multiline:true },
-    // Seller CTA
-    'seller-title': { label:'Seller — Headline', multiline:true },
-    'seller-body':  { label:'Seller — Body text', multiline:true },
-    // Newsletter
-    'newsletter-title': { label:'Newsletter — Headline' },
-    'newsletter-sub':   { label:'Newsletter — Subline' },
-  };
+  // Strip any leftover HTML tags so inputs show clean text
+  function stripTags(html) {
+    const d = document.createElement('div');
+    d.innerHTML = html || '';
+    return d.innerText || d.textContent || '';
+  }
 
-  // In-memory store of current values (loaded from Firestore on open)
-  let _editorValues = {};
-  let _editorPanelOpen = false;
-  let _currentEditorSection = 'announcement';
-
-  // ── Helpers ──────────────────────────────────────────────
   function getEl(key) {
     return document.querySelector('[data-editable="' + key + '"]');
   }
-  function getLiveText(key) {
-    const el = getEl(key);
-    return el ? el.innerHTML : '';
+
+  // ── toast ──────────────────────────────────────────────────
+  function toast(msg, dur) {
+    const t = document.getElementById('edToast');
+    if (!t) return;
+    t.textContent = msg;
+    t.style.display = 'block';
+    t.style.opacity = '1';
+    clearTimeout(t._tid);
+    t._tid = setTimeout(function() {
+      t.style.opacity = '0';
+      setTimeout(function(){ t.style.display = 'none'; }, 320);
+    }, dur || 2400);
   }
 
-  // ── Toggle panel ─────────────────────────────────────────
-  window.toggleEditorPanel = function() {
-    if (window._PIX_role !== 'editor') return;
-    _editorPanelOpen = !_editorPanelOpen;
-    const modal   = document.getElementById('editorModal');
-    const overlay = document.getElementById('editorOverlay');
-    if (_editorPanelOpen) {
-      modal.style.display   = 'block';
-      overlay.style.display = 'block';
-      loadEditorFromFirebase();
-    } else {
-      modal.style.display   = 'none';
-      overlay.style.display = 'none';
-    }
-  };
-
-  // ── Section switching ─────────────────────────────────────
-  window.switchEditorSection = function(section) {
-    _currentEditorSection = section;
-    document.querySelectorAll('.etab').forEach(b => b.classList.remove('etab-active'));
-    const activeBtn = document.getElementById('etab-' + section);
-    if (activeBtn) activeBtn.classList.add('etab-active');
-    document.querySelectorAll('.esec').forEach(s => s.style.display = 'none');
-    const activeSection = document.getElementById('esec-' + section);
-    if (activeSection) activeSection.style.display = 'block';
-  };
-
-  // ── Build editor field ────────────────────────────────────
-  function buildField(key, value) {
-    const schema = EDITABLE_SCHEMA[key] || { label: key };
-    const id = 'ef-' + key;
-    if (schema.multiline) {
-      return `<div>
-        <div class="editor-field-label">${schema.label}</div>
-        <textarea id="${id}" class="editor-textarea" data-ekey="${key}">${value || ''}</textarea>
-      </div>`;
-    }
-    return `<div>
-      <div class="editor-field-label">${schema.label}</div>
-      <input type="text" id="${id}" class="editor-input" data-ekey="${key}" value="${(value||'').replace(/"/g,'&quot;')}">
-    </div>`;
+  // ── apply saved DB values to live page ────────────────────
+  function applyToPage(vals) {
+    FIELDS.forEach(function(f) {
+      var v = vals[f.key];
+      if (!v) return;
+      var el = getEl(f.key);
+      if (el) el.innerText = v;
+    });
+    // Colours
+    if (vals['color-primary'])   document.documentElement.style.setProperty('--brand-primary',   vals['color-primary']);
+    if (vals['color-secondary']) document.documentElement.style.setProperty('--brand-secondary', vals['color-secondary']);
+    if (vals['color-dark'])      document.documentElement.style.setProperty('--brand-dark',       vals['color-dark']);
   }
 
-  // ── Populate all section containers ──────────────────────
-  function populateEditorUI(vals) {
-    // Announcement
-    const annRows = document.getElementById('annEditorRows');
-    if (annRows) {
-      annRows.innerHTML = ['ann-1','ann-2','ann-3','ann-4','ann-5','ann-6']
-        .map(k => buildField(k, vals[k] || getLiveText(k))).join('');
-    }
-    // Hero
-    const heroRows = document.getElementById('heroEditorRows');
-    if (heroRows) {
-      heroRows.innerHTML = [
-        '<div class="editor-slide-group"><h4>Slide 1 — Candles</h4>' +
-          ['hero1-tag','hero1-title','hero1-sub'].map(k => buildField(k, vals[k] || getLiveText(k))).join('') +
-        '</div>',
-        '<div class="editor-slide-group"><h4>Slide 2 — Beauty</h4>' +
-          ['hero2-tag','hero2-title','hero2-sub'].map(k => buildField(k, vals[k] || getLiveText(k))).join('') +
-        '</div>',
-        '<div class="editor-slide-group"><h4>Slide 3 — Clothing</h4>' +
-          ['hero3-tag','hero3-title','hero3-sub'].map(k => buildField(k, vals[k] || getLiveText(k))).join('') +
-        '</div>',
-      ].join('');
-    }
-    // Promo
-    const promoRows = document.getElementById('promoEditorRows');
-    if (promoRows) {
-      promoRows.innerHTML = [
-        '<div class="editor-slide-group"><h4>Banner 1 — Candle Sale</h4>' +
-          ['promo1-badge','promo1-title'].map(k => buildField(k, vals[k] || getLiveText(k))).join('') +
-        '</div>',
-        '<div class="editor-slide-group"><h4>Banner 2 — Beauty</h4>' +
-          ['promo2-badge','promo2-title'].map(k => buildField(k, vals[k] || getLiveText(k))).join('') +
-        '</div>',
-      ].join('');
-    }
-    // Brand
-    const brandRows = document.getElementById('brandEditorRows');
-    if (brandRows) {
-      brandRows.innerHTML = ['brand-eyebrow','brand-headline']
-        .map(k => buildField(k, vals[k] || getLiveText(k))).join('');
-    }
-    // Seller
-    const sellerRows = document.getElementById('sellerEditorRows');
-    if (sellerRows) {
-      sellerRows.innerHTML = ['seller-title','seller-body']
-        .map(k => buildField(k, vals[k] || getLiveText(k))).join('');
-    }
-    // Newsletter
-    const nlRows = document.getElementById('newsletterEditorRows');
-    if (nlRows) {
-      nlRows.innerHTML = ['newsletter-title','newsletter-sub']
-        .map(k => buildField(k, vals[k] || getLiveText(k))).join('');
-    }
-    // Colors
-    const colorsRows = document.getElementById('colorsEditorRows');
-    if (colorsRows) {
-      const root = getComputedStyle(document.documentElement);
-      const colorFields = [
-        { key:'--brand-primary',   label:'Primary Color (pink)' },
-        { key:'--brand-secondary', label:'Secondary Color (light pink)' },
-        { key:'--brand-dark',      label:'Dark Brand Color' },
-      ];
-      colorsRows.innerHTML = colorFields.map(cf => {
-        const saved = vals['color' + cf.key];
-        const live = (saved || root.getPropertyValue(cf.key).trim() || '#FF3C78').trim();
-        return `<div style="display:flex;align-items:center;gap:12px;">
-          <input type="color" id="ef-color${cf.key}" data-colorvar="${cf.key}" value="${live}"
-            style="width:44px;height:44px;border:none;background:none;cursor:pointer;border-radius:8px;"
-            oninput="document.documentElement.style.setProperty('${cf.key}', this.value)">
-          <div>
-            <div class="editor-field-label">${cf.label}</div>
-            <div style="font-size:0.78rem;color:rgba(255,255,255,0.4);">${cf.key}</div>
-          </div>
-        </div>`;
-      }).join('');
-    }
-  }
+  // ── populate panel inputs from saved values ───────────────
+  function populatePanel(vals) {
+    FIELDS.forEach(function(f) {
+      var inp = document.getElementById(f.id);
+      if (!inp) return;
+      var raw = vals[f.key] || stripTags(getEl(f.key) ? (getEl(f.key).innerHTML || '') : '');
+      inp.value = raw;
+    });
+    // Colour pickers
+    var root = getComputedStyle(document.documentElement);
+    var c1 = document.getElementById('ef-color-primary');
+    var c2 = document.getElementById('ef-color-secondary');
+    var c3 = document.getElementById('ef-color-dark');
+    if (c1) c1.value = (vals['color-primary']   || root.getPropertyValue('--brand-primary').trim()   || '#FF3C78').trim();
+    if (c2) c2.value = (vals['color-secondary'] || root.getPropertyValue('--brand-secondary').trim() || '#FF7EAC').trim();
+    if (c3) c3.value = (vals['color-dark']       || root.getPropertyValue('--brand-dark').trim()      || '#C41755').trim();
 
-  // ── Apply saved values to live DOM ───────────────────────
-  function applyEditorValues(vals) {
-    Object.keys(vals).forEach(key => {
-      if (key.startsWith('color')) {
-        // CSS variable
-        const varName = key.replace('color', '');
-        document.documentElement.style.setProperty(varName, vals[key]);
-        return;
-      }
-      const el = getEl(key);
-      if (el) el.innerHTML = vals[key];
+    // Live preview as user types
+    FIELDS.forEach(function(f) {
+      var inp = document.getElementById(f.id);
+      if (!inp) return;
+      inp.oninput = function() {
+        var el = getEl(f.key);
+        if (el) el.innerText = inp.value;
+      };
     });
   }
 
-  // ── Load from Firestore ───────────────────────────────────
-  function loadEditorFromFirebase() {
-    const db = window.db;
-    if (!db || !window.doc || !window.getDoc) {
-      // Fallback: populate from live DOM
-      populateEditorUI({});
-      return;
+  // ── load from Firestore ───────────────────────────────────
+  function loadDB(cb) {
+    function attempt() {
+      if (!window.db || !window.doc || !window.getDoc) { setTimeout(attempt, 600); return; }
+      window.getDoc(window.doc(window.db, 'siteContent', 'editorValues'))
+        .then(function(snap) { cb(snap.exists() ? (snap.data() || {}) : {}); })
+        .catch(function() { cb({}); });
     }
-    window.getDoc(window.doc(db, 'siteContent', 'editorValues')).then(snap => {
-      _editorValues = snap.exists() ? (snap.data() || {}) : {};
-      applyEditorValues(_editorValues);
-      populateEditorUI(_editorValues);
-    }).catch(() => {
-      populateEditorUI({});
-    });
+    attempt();
   }
 
-  // Auto-apply on page load (for visitors too, so edits persist publicly)
+  // Auto-apply on page load for all visitors
   document.addEventListener('DOMContentLoaded', function() {
-    const db = window.db;
-    if (!db || !window.doc || !window.getDoc) return;
-    // Retry after Firebase loads
-    function tryLoad() {
-      if (!window.db || !window.doc || !window.getDoc) {
-        setTimeout(tryLoad, 800);
-        return;
-      }
-      window.getDoc(window.doc(window.db, 'siteContent', 'editorValues')).then(snap => {
-        if (snap.exists()) applyEditorValues(snap.data() || {});
-      }).catch(() => {});
-    }
-    setTimeout(tryLoad, 1200);
+    setTimeout(function() {
+      loadDB(function(vals) { applyToPage(vals); });
+    }, 900);
   });
 
-  // ── Collect values from inputs ────────────────────────────
-  function collectEditorValues() {
-    const vals = Object.assign({}, _editorValues);
-    // Text fields
-    document.querySelectorAll('.editor-input[data-ekey], .editor-textarea[data-ekey]').forEach(el => {
-      vals[el.dataset.ekey] = el.value;
+  // ── open / close panel ────────────────────────────────────
+  var _open = false;
+  window.pixEditorToggle = function() {
+    if (window._PIX_role !== 'editor') return;
+    _open = !_open;
+    var panel   = document.getElementById('edPanel');
+    var backdrop= document.getElementById('edBackdrop');
+    if (_open) {
+      panel.style.display   = 'flex';
+      backdrop.style.display= 'block';
+      loadDB(function(vals) { populatePanel(vals); });
+    } else {
+      panel.style.display   = 'none';
+      backdrop.style.display= 'none';
+    }
+  };
+  window.toggleEditorPanel = window.pixEditorToggle;
+
+  // ── collect values from inputs ────────────────────────────
+  function collectVals() {
+    var vals = {};
+    FIELDS.forEach(function(f) {
+      var inp = document.getElementById(f.id);
+      if (inp) vals[f.key] = inp.value;
     });
-    // Color fields
-    document.querySelectorAll('input[type="color"][data-colorvar]').forEach(el => {
-      vals['color' + el.dataset.colorvar] = el.value;
-    });
+    var c1 = document.getElementById('ef-color-primary');
+    var c2 = document.getElementById('ef-color-secondary');
+    var c3 = document.getElementById('ef-color-dark');
+    if (c1) vals['color-primary']   = c1.value;
+    if (c2) vals['color-secondary'] = c2.value;
+    if (c3) vals['color-dark']       = c3.value;
     return vals;
   }
 
-  // ── Apply collected values to DOM ─────────────────────────
-  function applyCollectedToDOM(vals) {
-    Object.keys(vals).forEach(key => {
-      if (key.startsWith('color')) {
-        document.documentElement.style.setProperty(key.replace('color', ''), vals[key]);
-        return;
-      }
-      const el = getEl(key);
-      if (el) el.innerHTML = vals[key];
-    });
-  }
+  // ── save ──────────────────────────────────────────────────
+  window.pixEditorSave = async function() {
+    if (window._PIX_role !== 'editor') return;
+    var btn = document.getElementById('edSaveBtn');
+    var status = document.getElementById('edStatus');
+    if (btn) { btn.textContent = '⏳ Saving…'; btn.disabled = true; }
 
-  // ── Save to Firestore ─────────────────────────────────────
-  window.saveEditorChanges = async function() {
-    if (window._PIX_role !== 'editor') {
-      alert('Access denied: editor role required.');
-      return;
-    }
-    const vals = collectEditorValues();
-    applyCollectedToDOM(vals);
-    _editorValues = vals;
+    var vals = collectVals();
+    applyToPage(vals);
 
-    const statusBar = document.getElementById('editorSaveStatus');
-    if (statusBar) {
-      statusBar.style.display = 'block';
-      statusBar.textContent = '⏳ Saving…';
-      statusBar.style.background = 'rgba(124,58,237,0.15)';
-      statusBar.style.color = '#a78bfa';
+    // Show status
+    function showStatus(msg, bg, color) {
+      if (!status) return;
+      status.style.display = 'block';
+      status.textContent = msg;
+      status.style.background = bg;
+      status.style.color = color;
     }
 
-    const db = window.db;
-    if (!db || !window.doc || !window.setDoc) {
-      if (statusBar) {
-        statusBar.textContent = '⚠️ Saved locally only — Firebase not connected';
-        statusBar.style.background = 'rgba(245,158,11,0.15)';
-        statusBar.style.color = '#f59e0b';
-      }
+    if (!window.db || !window.doc || !window.setDoc) {
+      showStatus('⚠️ Not connected to database yet — try again in a moment', 'rgba(245,158,11,0.2)', '#92400e');
+      if (btn) { btn.textContent = '💾 Save All Changes'; btn.disabled = false; }
       return;
     }
 
     try {
-      await window.setDoc(window.doc(db, 'siteContent', 'editorValues'), vals, { merge: true });
-      if (statusBar) {
-        statusBar.textContent = '✓ All changes saved to database!';
-        statusBar.style.background = 'rgba(16,185,129,0.15)';
-        statusBar.style.color = '#10b981';
-        setTimeout(() => { statusBar.style.display = 'none'; }, 3000);
-      }
+      await window.setDoc(window.doc(window.db, 'siteContent', 'editorValues'), vals, { merge: true });
+      showStatus('✅ Saved! All visitors will see your changes.', 'rgba(16,185,129,0.15)', '#065f46');
+      toast('✅ Changes saved and live!');
+      if (btn) { btn.textContent = '✓ Saved!'; }
+      setTimeout(function() {
+        if (status) status.style.display = 'none';
+        if (btn) { btn.textContent = '💾 Save All Changes'; btn.disabled = false; }
+      }, 3000);
     } catch(err) {
-      const hint = err.code === 'permission-denied'
-        ? '🔒 Permission denied — ask admin to add siteContent write rule in Firestore'
-        : '❌ Save error: ' + err.message;
-      if (statusBar) {
-        statusBar.textContent = hint;
-        statusBar.style.background = 'rgba(239,68,68,0.15)';
-        statusBar.style.color = '#ef4444';
-      }
+      var msg = err.code === 'permission-denied'
+        ? '🔒 Permission not set up yet — ask the admin to enable editor saves'
+        : '❌ Could not save — please try again';
+      showStatus(msg, 'rgba(239,68,68,0.1)', '#991b1b');
+      toast(msg, 5000);
+      if (btn) { btn.textContent = '💾 Save All Changes'; btn.disabled = false; }
     }
   };
-
-  // ── Auto-init section to announcement ─────────────────────
-  window.switchEditorSection('announcement');
+  window.saveEditorChanges = window.pixEditorSave;
 
 })();
 </script>
