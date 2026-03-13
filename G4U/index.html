@@ -11019,6 +11019,16 @@ html.dark .qty-btn {
   
   // Send email via FormSubmit.co
   async function sendEmailViaFormSubmit(toEmail, subject, message) {
+    console.log('📧 Attempting to send email via FormSubmit.co');
+    console.log('   Email:', window.FORMSUBMIT_EMAIL);
+    console.log('   To:', toEmail);
+    console.log('   Subject:', subject);
+    
+    if (window.FORMSUBMIT_EMAIL === 'YOUR_EMAIL@gmail.com') {
+      console.error('❌ FormSubmit email not configured! Update YOUR_EMAIL@gmail.com');
+      return false;
+    }
+    
     try {
       const formData = new FormData();
       formData.append('_subject', subject);
@@ -11026,11 +11036,14 @@ html.dark .qty-btn {
       formData.append('message', message);
       formData.append('_captcha', 'false');
       
+      console.log('   Posting to:', `https://formsubmit.co/${window.FORMSUBMIT_EMAIL}`);
+      
       const response = await fetch(`https://formsubmit.co/${window.FORMSUBMIT_EMAIL}`, {
         method: 'POST',
         body: formData
       });
       
+      console.log('   Response status:', response.status, response.statusText);
       return response.ok;
     } catch (error) {
       console.error('❌ FormSubmit error:', error);
@@ -11071,8 +11084,215 @@ html.dark .qty-btn {
   window.query = query;
   window.orderBy = orderBy;
   window.getDocs = getDocs;
+  window.firebaseReady = true;
   
+  // Test Firebase connection
   console.log('✅ Firebase initialized with g4u-7231d project');
+  console.log('   - db:', !!window.db);
+  console.log('   - collection:', !!window.collection);
+  console.log('   - addDoc:', !!window.addDoc);
+  console.log('   - getDocs:', !!window.getDocs);
+  console.log('   - onSnapshot:', !!window.onSnapshot);
+  console.log('   - query:', !!window.query);
+  console.log('   - orderBy:', !!window.orderBy);
+  
+  // Define product submission function HERE (inside module, after Firebase is ready)
+  window.submitProductEmail = async function(e) {
+    e.preventDefault();
+    const name = document.getElementById('productName').value;
+    const price = document.getElementById('productPrice').value;
+    const desc = document.getElementById('productDesc').value;
+    const category = document.getElementById('productCategory').value;
+    const stock = document.getElementById('productStock').value;
+    
+    console.log('📦 Adding Product to Firestore...');
+    console.log('Product:', name, '| Price: ₹' + price);
+    
+    // Save to Firestore
+    try {
+      const docRef = await addDoc(collection(db, 'products'), {
+        name: name,
+        price: parseFloat(price),
+        description: desc,
+        category: category,
+        stock: parseInt(stock),
+        createdAt: new Date(),
+        timestamp: Date.now()
+      });
+      console.log('✅ Product saved to Firestore with ID:', docRef.id);
+    } catch (error) {
+      console.error('❌ Firestore error:', error.code, error.message);
+      showNotification(`⚠️ Firestore error: ${error.message}`, 'error');
+      return;
+    }
+
+    // Get customers from Firebase
+    console.log('👥 Fetching customers from Firebase...');
+    let customers = [];
+    
+    try {
+      const querySnapshot = await getDocs(collection(db, 'customers'));
+      querySnapshot.forEach((doc) => {
+        customers.push(doc.data().email);
+      });
+      console.log(`✅ Got ${customers.length} customers from Firebase`);
+    } catch (error) {
+      console.error('❌ Error fetching customers:', error.code, error.message);
+      showNotification('❌ Error getting customer list from Firebase', 'error');
+      return;
+    }
+
+    if (customers.length === 0) {
+      showNotification('⚠️ No customers in Firebase to send emails to', 'error');
+      return;
+    }
+
+    // Send emails to all customers
+    console.log('📧 Sending emails to', customers.length, 'customers...');
+    let emailsSent = 0;
+    let emailsFailed = 0;
+
+    for (const customerEmail of customers) {
+      const emailSubject = `🎉 New Product: ${name}`;
+      const emailMessage = `
+Dear Valued Customer,
+
+We're excited to announce a brand new product has just launched!
+
+📦 Product: ${name}
+💰 Price: ₹${price}
+🏷️ Category: ${category}
+📝 Description: ${desc}
+
+Shop now and be the first to get this amazing product!
+
+Best regards,
+Pioneer I Xpress Team
+      `;
+
+      try {
+        const sent = await sendEmailViaFormSubmit(customerEmail, emailSubject, emailMessage);
+        if (sent) {
+          console.log(`✅ Email sent to ${customerEmail}`);
+          emailsSent++;
+        } else {
+          console.error(`❌ Failed to send to ${customerEmail}`);
+          emailsFailed++;
+        }
+      } catch (error) {
+        console.error(`❌ Error sending to ${customerEmail}:`, error);
+        emailsFailed++;
+      }
+    }
+
+    // Reset form
+    e.target.reset();
+
+    // Show result
+    showNotification(`✅ Product added! Emails sent to ${emailsSent}/${customers.length} customers`);
+    console.log(`📊 Summary: ${emailsSent} sent, ${emailsFailed} failed`);
+  };
+
+  // Define deal submission function HERE (inside module, after Firebase is ready)
+  window.submitDealEmail = async function(e) {
+    e.preventDefault();
+    const title = document.getElementById('dealTitle').value;
+    const discount = document.getElementById('dealDiscount').value;
+    const desc = document.getElementById('dealDesc').value;
+    const from = document.getElementById('dealFrom').value;
+    const until = document.getElementById('dealUntil').value;
+    
+    console.log('⚡ Adding Deal to Firestore...');
+    console.log('Deal:', title, '|', discount + '% OFF');
+    
+    // Save to Firestore
+    try {
+      const docRef = await addDoc(collection(db, 'deals'), {
+        title: title,
+        discount: parseInt(discount),
+        description: desc,
+        validFrom: from,
+        validUntil: until,
+        createdAt: new Date(),
+        timestamp: Date.now()
+      });
+      console.log('✅ Deal saved to Firestore with ID:', docRef.id);
+    } catch (error) {
+      console.error('❌ Firestore error:', error.code, error.message);
+      showNotification(`⚠️ Firestore error: ${error.message}`, 'error');
+      return;
+    }
+
+    // Get customers from Firebase
+    console.log('👥 Fetching customers from Firebase...');
+    let customers = [];
+    
+    try {
+      const querySnapshot = await getDocs(collection(db, 'customers'));
+      querySnapshot.forEach((doc) => {
+        customers.push(doc.data().email);
+      });
+      console.log(`✅ Got ${customers.length} customers from Firebase`);
+    } catch (error) {
+      console.error('❌ Error fetching customers:', error.code, error.message);
+      showNotification('❌ Error getting customer list from Firebase', 'error');
+      return;
+    }
+
+    if (customers.length === 0) {
+      showNotification('⚠️ No customers in Firebase to send emails to', 'error');
+      return;
+    }
+
+    // Send emails to all customers
+    console.log('📧 Sending emails to', customers.length, 'customers...');
+    let emailsSent = 0;
+    let emailsFailed = 0;
+
+    for (const customerEmail of customers) {
+      const emailSubject = `⚡ Deal: ${discount}% OFF - ${title}!`;
+      const emailMessage = `
+Dear Valued Customer,
+
+Exciting news! We're running a special deal just for you!
+
+🏷️ Deal: ${title}
+💥 Discount: ${discount}% OFF
+📅 Valid From: ${from}
+📅 Valid Until: ${until}
+
+📝 Details: ${desc}
+
+Don't miss out on this amazing offer - shop now before it expires!
+
+Best regards,
+Pioneer I Xpress Team
+      `;
+
+      try {
+        const sent = await sendEmailViaFormSubmit(customerEmail, emailSubject, emailMessage);
+        if (sent) {
+          console.log(`✅ Email sent to ${customerEmail}`);
+          emailsSent++;
+        } else {
+          console.error(`❌ Failed to send to ${customerEmail}`);
+          emailsFailed++;
+        }
+      } catch (error) {
+        console.error(`❌ Error sending to ${customerEmail}:`, error);
+        emailsFailed++;
+      }
+    }
+
+    // Reset form
+    e.target.reset();
+
+    // Show result
+    showNotification(`✅ Deal created! Emails sent to ${emailsSent}/${customers.length} customers`);
+    console.log(`📊 Summary: ${emailsSent} sent, ${emailsFailed} failed`);
+  };
+  
+  console.log('✅ Product and Deal functions registered');
 
 
   console.log('✅ Firestore initialized');
@@ -11520,204 +11740,6 @@ function showNotification(msg, type = 'success') {
   setTimeout(() => notif.remove(), 3000);
 }
 
-async function submitProductEmail(e) {
-  e.preventDefault();
-  const name = document.getElementById('productName').value;
-  const price = document.getElementById('productPrice').value;
-  const desc = document.getElementById('productDesc').value;
-  const category = document.getElementById('productCategory').value;
-  const stock = document.getElementById('productStock').value;
-  
-  console.log('📦 Adding Product to Firestore...');
-  console.log('Product:', name, '| Price: ₹' + price);
-  
-  // Save to Firestore
-  if (window.db && window.addDoc && window.collection) {
-    try {
-      await window.addDoc(window.collection(window.db, 'products'), {
-        name: name,
-        price: parseFloat(price),
-        description: desc,
-        category: category,
-        stock: parseInt(stock),
-        createdAt: new Date(),
-        timestamp: Date.now()
-      });
-      console.log('✅ Product saved to Firestore');
-    } catch (error) {
-      console.error('❌ Firestore error:', error);
-      showNotification(`⚠️ Firestore error: ${error.message}`, 'error');
-      return;
-    }
-  }
-
-  // Get customers from Firebase
-  console.log('👥 Fetching customers from Firebase...');
-  let customers = [];
-  
-  try {
-    const querySnapshot = await window.getDocs(window.collection(window.db, 'customers'));
-    querySnapshot.forEach((doc) => {
-      customers.push(doc.data().email);
-    });
-    console.log(`✅ Got ${customers.length} customers from Firebase`);
-  } catch (error) {
-    console.error('❌ Error fetching customers:', error);
-    showNotification('❌ Error getting customer list from Firebase', 'error');
-    return;
-  }
-
-  if (customers.length === 0) {
-    showNotification('⚠️ No customers in Firebase to send emails to', 'error');
-    return;
-  }
-
-  // Send emails to all customers
-  console.log('📧 Sending emails to', customers.length, 'customers...');
-  let emailsSent = 0;
-  let emailsFailed = 0;
-
-  for (const customerEmail of customers) {
-    const emailSubject = `🎉 New Product: ${name}`;
-    const emailMessage = `
-Dear Valued Customer,
-
-We're excited to announce a brand new product has just launched!
-
-📦 Product: ${name}
-💰 Price: ₹${price}
-🏷️ Category: ${category}
-📝 Description: ${desc}
-
-Shop now and be the first to get this amazing product!
-
-Best regards,
-Pioneer I Xpress Team
-    `;
-
-    try {
-      const sent = await sendEmailViaFormSubmit(customerEmail, emailSubject, emailMessage);
-      if (sent) {
-        console.log(`✅ Email sent to ${customerEmail}`);
-        emailsSent++;
-      } else {
-        console.error(`❌ Failed to send to ${customerEmail}`);
-        emailsFailed++;
-      }
-    } catch (error) {
-      console.error(`❌ Error sending to ${customerEmail}:`, error);
-      emailsFailed++;
-    }
-  }
-
-  // Reset form
-  e.target.reset();
-
-  // Show result
-  showNotification(`✅ Product added! Emails sent to ${emailsSent}/${customers.length} customers`);
-  console.log(`📊 Summary: ${emailsSent} sent, ${emailsFailed} failed`);
-}
-
-async function submitDealEmail(e) {
-  e.preventDefault();
-  const title = document.getElementById('dealTitle').value;
-  const discount = document.getElementById('dealDiscount').value;
-  const desc = document.getElementById('dealDesc').value;
-  const from = document.getElementById('dealFrom').value;
-  const until = document.getElementById('dealUntil').value;
-  
-  console.log('⚡ Adding Deal to Firestore...');
-  console.log('Deal:', title, '|', discount + '% OFF');
-  
-  // Save to Firestore
-  if (window.db && window.addDoc && window.collection) {
-    try {
-      await window.addDoc(window.collection(window.db, 'deals'), {
-        title: title,
-        discount: parseInt(discount),
-        description: desc,
-        validFrom: from,
-        validUntil: until,
-        createdAt: new Date(),
-        timestamp: Date.now()
-      });
-      console.log('✅ Deal saved to Firestore');
-    } catch (error) {
-      console.error('❌ Firestore error:', error);
-      showNotification(`⚠️ Firestore error: ${error.message}`, 'error');
-      return;
-    }
-  }
-
-  // Get customers from Firebase
-  console.log('👥 Fetching customers from Firebase...');
-  let customers = [];
-  
-  try {
-    const querySnapshot = await window.getDocs(window.collection(window.db, 'customers'));
-    querySnapshot.forEach((doc) => {
-      customers.push(doc.data().email);
-    });
-    console.log(`✅ Got ${customers.length} customers from Firebase`);
-  } catch (error) {
-    console.error('❌ Error fetching customers:', error);
-    showNotification('❌ Error getting customer list from Firebase', 'error');
-    return;
-  }
-
-  if (customers.length === 0) {
-    showNotification('⚠️ No customers in Firebase to send emails to', 'error');
-    return;
-  }
-
-  // Send emails to all customers
-  console.log('📧 Sending emails to', customers.length, 'customers...');
-  let emailsSent = 0;
-  let emailsFailed = 0;
-
-  for (const customerEmail of customers) {
-    const emailSubject = `⚡ Deal: ${discount}% OFF - ${title}!`;
-    const emailMessage = `
-Dear Valued Customer,
-
-Exciting news! We're running a special deal just for you!
-
-🏷️ Deal: ${title}
-💥 Discount: ${discount}% OFF
-📅 Valid From: ${from}
-📅 Valid Until: ${until}
-
-📝 Details: ${desc}
-
-Don't miss out on this amazing offer - shop now before it expires!
-
-Best regards,
-Pioneer I Xpress Team
-    `;
-
-    try {
-      const sent = await sendEmailViaFormSubmit(customerEmail, emailSubject, emailMessage);
-      if (sent) {
-        console.log(`✅ Email sent to ${customerEmail}`);
-        emailsSent++;
-      } else {
-        console.error(`❌ Failed to send to ${customerEmail}`);
-        emailsFailed++;
-      }
-    } catch (error) {
-      console.error(`❌ Error sending to ${customerEmail}:`, error);
-      emailsFailed++;
-    }
-  }
-
-  // Reset form
-  e.target.reset();
-
-  // Show result
-  showNotification(`✅ Deal created! Emails sent to ${emailsSent}/${customers.length} customers`);
-  console.log(`📊 Summary: ${emailsSent} sent, ${emailsFailed} failed`);
-}
-
 function addCustomer(e) {
   e.preventDefault();
   const email = document.getElementById('newCustomerEmail').value;
@@ -11804,29 +11826,43 @@ function renderCustomers() {
 }
 
 function loadProductsFromFirebase() {
+  console.log('📦 loadProductsFromFirebase called');
+  console.log('   window.db:', !!window.db);
+  console.log('   window.collection:', !!window.collection);
+  console.log('   window.onSnapshot:', !!window.onSnapshot);
+  console.log('   window.query:', !!window.query);
+  console.log('   window.orderBy:', !!window.orderBy);
+  
   if (!window.db || !window.collection || !window.onSnapshot || !window.query || !window.orderBy) {
+    console.error('❌ Firestore functions not available!');
     document.getElementById('productsList').innerHTML = '<p style="color: rgba(255, 255, 255, 0.5);">Firestore not configured. Check console for errors.</p>';
     return;
   }
 
-  const q = window.query(
-    window.collection(window.db, 'products'),
-    window.orderBy('createdAt', 'desc')
-  );
+  try {
+    const q = window.query(
+      window.collection(window.db, 'products'),
+      window.orderBy('createdAt', 'desc')
+    );
+    console.log('✅ Query created for products collection');
 
-  window.onSnapshot(q, (snapshot) => {
-    const container = document.getElementById('productsList');
-    
-    if (snapshot.empty) {
-      container.innerHTML = '<p style="color: rgba(255, 255, 255, 0.5);">No products added yet.</p>';
-      return;
-    }
-
-    const productsList = snapshot.docs.map((doc) => {
-      const product = doc.data();
-      const date = product.createdAt ? new Date(product.createdAt.toDate()).toLocaleDateString() : 'N/A';
+    window.onSnapshot(q, (snapshot) => {
+      const container = document.getElementById('productsList');
       
-      return `
+      console.log('📊 Snapshot received, docs:', snapshot.docs.length);
+      
+      if (snapshot.empty) {
+        console.log('⚠️ No products found');
+        container.innerHTML = '<p style="color: rgba(255, 255, 255, 0.5);">No products added yet.</p>';
+        return;
+      }
+
+      const productsList = snapshot.docs.map((doc) => {
+        const product = doc.data();
+        console.log('📦 Product:', product.name);
+        const date = product.createdAt ? new Date(product.createdAt.toDate()).toLocaleDateString() : 'N/A';
+        
+        return `
       <div style="
         padding: 16px;
         background: rgba(255, 60, 120, 0.05);
@@ -11849,13 +11885,18 @@ function loadProductsFromFirebase() {
         </div>
       </div>
     `;
-    }).join('');
+      }).join('');
 
-    container.innerHTML = productsList;
-  }, (error) => {
-    console.error('Firestore error:', error);
-    document.getElementById('productsList').innerHTML = `<p style="color: #FF6B6B;">Error loading products: ${error.message}</p>`;
-  });
+      container.innerHTML = productsList;
+      console.log('✅ Products displayed');
+    }, (error) => {
+      console.error('❌ Firestore error loading products:', error.code, error.message);
+      document.getElementById('productsList').innerHTML = `<p style="color: #FF6B6B;">Error: ${error.message}</p>`;
+    });
+  } catch (error) {
+    console.error('❌ Error in loadProductsFromFirebase:', error);
+    document.getElementById('productsList').innerHTML = `<p style="color: #FF6B6B;">Error: ${error.message}</p>`;
+  }
 }
 
 function loadDealsFromFirebase() {
