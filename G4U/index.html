@@ -8872,36 +8872,77 @@ document.addEventListener('DOMContentLoaded', function(){
       + '</div></div>';
   }
 
+  // Firebase deals cache
+  var _fbDeals = null;
+  window._PIX_resetDealsCache = function() { _fbDeals = null; };
+
+  async function loadFirebaseDeals() {
+    if (!window.db || !window.getDocs || !window.collection) return [];
+    try {
+      var snap = await window.getDocs(window.collection(window.db, 'deals'));
+      var now = new Date();
+      var results = [];
+      snap.forEach(function(d) {
+        var deal = Object.assign({ _fbId: d.id }, d.data());
+        if (deal.validUntil) { var until = new Date(deal.validUntil); if (!isNaN(until) && until < now) return; }
+        results.push(deal);
+      });
+      _fbDeals = results;
+      return results;
+    } catch(e) { console.warn('Could not load Firebase deals:', e.message); return []; }
+  }
+
+  function fbDealCardHTML(deal, idx) {
+    var disc = deal.discount || 0;
+    var validStr = deal.validUntil ? ('Valid until ' + new Date(deal.validUntil).toLocaleDateString('en-IN',{day:'numeric',month:'short'})) : '';
+    return '<div class="deal-card-anim" style="animation-delay:' + (idx*45) + 'ms;background:var(--bg-primary);border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);border:2px solid rgba(255,60,120,0.25);transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform=\'translateY(-4px)\'" onmouseout="this.style.transform=\'translateY(0)\'">'
+      + '<div style="position:relative;height:90px;background:linear-gradient(135deg,#FF3C78,#c41755);display:flex;align-items:center;justify-content:center;">'
+      + '<div style="font-size:2.8rem;font-weight:900;color:white;">' + disc + '%</div>'
+      + '<span style="position:absolute;top:10px;left:10px;background:rgba(255,255,255,0.2);color:white;font-size:0.65rem;font-weight:900;padding:3px 8px;border-radius:999px;">🔥 OFFER</span>'
+      + '</div>'
+      + '<div style="padding:12px 12px 14px;">'
+      + '<div style="font-size:0.82rem;font-weight:800;color:var(--text-primary);margin-bottom:5px;">' + (deal.title || 'Special Offer') + '</div>'
+      + ((deal.desc||deal.description) ? '<div style="font-size:0.73rem;color:var(--text-secondary);margin-bottom:8px;">' + (deal.desc||deal.description) + '</div>' : '')
+      + '<div style="display:flex;align-items:center;justify-content:space-between;">'
+      + '<span style="font-size:1rem;font-weight:900;color:#FF3C78;">-' + disc + '% OFF</span>'
+      + (validStr ? '<span style="font-size:0.68rem;color:var(--text-secondary);">' + validStr + '</span>' : '')
+      + '</div></div></div>';
+  }
+
   // ===== RENDER DEALS GRID =====
-  function renderDeals(tab) {
+  async function renderDeals(tab) {
     var grid = document.getElementById('dealsGrid');
     var sectionLabel = document.getElementById('dealsSectionLabel');
     if (!grid) return;
-
     var products = window.PRODUCTS || [];
     var dealsToShow = tab === 'all' ? ALL_DEALS : (DEALS_BY_SECTION[tab] || []).map(function(d){ return Object.assign({ cat: tab }, d); });
-
-    // Update section label
     var meta = SECTION_META[tab] || SECTION_META.all;
     if (sectionLabel) {
-      sectionLabel.innerHTML = '<span style="display:inline-block;padding:5px 14px;border-radius:999px;background:' + meta.bg + ';color:' + meta.color + ';font-size:0.82rem;font-weight:800;letter-spacing:0.02em;">' + meta.label + '</span>';
+      sectionLabel.innerHTML = '<span style="display:inline-block;padding:5px 14px;border-radius:999px;background:' + meta.bg + ';color:' + meta.color + ';font-size:0.82rem;font-weight:800;">' + meta.label + '</span>';
     }
-
-    var html = '';
-    var found = 0;
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--text-secondary);font-size:0.85rem;">Loading deals…</div>';
+    if (_fbDeals === null) await loadFirebaseDeals();
+    var fbDeals = _fbDeals || [];
+    var html = ''; var found = 0;
+    // Firebase deals (admin-created) — show on "all" tab
+    if (tab === 'all' && fbDeals.length > 0) {
+      html += '<div style="grid-column:1/-1;font-size:0.75rem;font-weight:800;color:#FF3C78;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;padding-bottom:6px;border-bottom:2px solid rgba(255,60,120,0.15);">🔥 Admin Offers</div>';
+      fbDeals.forEach(function(d,i){ html += fbDealCardHTML(d,i); found++; });
+    }
+    // Hardcoded product deals
+    var prodHtml = ''; var prodFound = 0;
     dealsToShow.forEach(function(deal, idx) {
       var p = products.find(function(x){ return x.id === deal.id; });
       if (!p) return;
-      html += dealCardHTML(deal, p, idx * 45);
-      found++;
+      prodHtml += dealCardHTML(deal, p, (found+idx)*45);
+      prodFound++;
     });
-
-    if (!html) {
-      html = '<div style="grid-column:1/-1;text-align:center;padding:48px 20px;color:var(--text-secondary);">'
-           + '<div style="font-size:2.5rem;margin-bottom:12px;">🎉</div>'
-           + '<div style="font-weight:700;font-size:1rem;">No deals in this section right now.</div>'
-           + '<div style="font-size:0.83rem;margin-top:6px;">Check back soon for exciting offers!</div>'
-           + '</div>';
+    if (prodFound > 0) {
+      if (found > 0) html += '<div style="grid-column:1/-1;font-size:0.75rem;font-weight:800;color:var(--text-secondary);letter-spacing:0.08em;text-transform:uppercase;margin-top:12px;margin-bottom:4px;padding-bottom:6px;border-bottom:2px solid rgba(0,0,0,0.07);">Product Deals</div>';
+      html += prodHtml; found += prodFound;
+    }
+    if (!found) {
+      html = '<div style="grid-column:1/-1;text-align:center;padding:48px 20px;color:var(--text-secondary);"><div style="font-size:2.5rem;margin-bottom:12px;">🎉</div><div style="font-weight:700;font-size:1rem;">No deals right now.</div><div style="font-size:0.83rem;margin-top:6px;">Check back soon!</div></div>';
     }
     grid.innerHTML = html;
   }
@@ -11186,7 +11227,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
     match /{document=**} {
       allow read, write: if request.auth != null
-        &amp;&amp; request.auth.token.email == "gurunanak.garments2023@gmail.com";
+        &amp;&amp; request.auth.token.email == "<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="25425057504b444b444e0b42445748404b515617151716654248444c490b464a48">[email&#160;protected]</a>";
     }
   }
 }</pre>
@@ -11491,7 +11532,7 @@ service cloud.firestore {
 
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // Customers are now stored in Firebase Firestore 'customers' collection
 // No need for local storage anymore
 
@@ -11694,7 +11735,8 @@ async function submitDealEmail(e) {
       addedBy:     'admin'
     });
     console.log('Deal saved to Firestore');
-    showNotification('Deal saved to database!');
+    if (typeof window._PIX_resetDealsCache === 'function') window._PIX_resetDealsCache();
+    showNotification('Deal saved! Open the Offers section to see it.');
   } catch (error) {
     console.error('Firestore deal save error:', error.code, error.message);
     const hint = error.code === 'permission-denied'
@@ -11926,17 +11968,4 @@ function loadDealsFromFirebase() {
     const msg = error.code === 'permission-denied'
       ? '<p style="color:#ef4444;font-size:13px;">⚠️ <b>Firestore Rules blocking access.</b> Update rules in <a href="https://console.firebase.google.com" target="_blank" style="color:#FF7EAC">Firebase Console</a>.</p>'
       : `<p style="color: #FF6B6B;">Error loading deals: ${error.message}</p>`;
-    document.getElementById('dealsList').innerHTML = msg;
-  });
-}
-
-// Wait for Firebase to be ready before rendering customers
-if (window.firebaseReady) {
-  renderCustomers();
-} else {
-  document.addEventListener('firebaseReady', () => renderCustomers());
-}
-</script>
-
-</body>
-</html>
+    document.getElementById('dealsList').
