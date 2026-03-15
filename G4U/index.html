@@ -4112,7 +4112,7 @@
   </div>
 
   <!-- TOAST NOTIFICATION -->
-  <div class="toast fixed left-1/2 -translate-x-1/2 bottom-5 p-3 px-5 rounded-lg text-white font-semibold shadow-lg opacity-0 translate-y-4 transition-all duration-300 z-50" id="toast" style="background-color: var(--text-primary);">Toast</div>
+  <div class="toast fixed left-1/2 -translate-x-1/2 bottom-5 p-3 px-5 rounded-lg text-white font-semibold shadow-lg opacity-0 translate-y-4 transition-all duration-300 z-50" id="toast" style="background-color: var(--text-primary);"></div>
 
   <!-- SCROLL TO TOP -->
   <button id="toTop" style="display:none!important" aria-hidden="true">
@@ -4620,7 +4620,20 @@
         document.getElementById('mCat').textContent = niceCat(p.cat);
         document.getElementById('mPrice').textContent = fmt(p.price);
         document.getElementById('mDesc').textContent = p.desc;
-        document.getElementById('mStock').textContent = p.stock === 0 ? (window.PIX_t?window.PIX_t('out_of_stock'):'Out of stock') : (p.stock < 10 ? (window.PIX_t?window.PIX_t('hurry_only'):'Hurry! Only {n} left').replace('{n}',p.stock) : (window.PIX_t?window.PIX_t('in_stock'):'In stock: {n}').replace('{n}',p.stock));
+        // Stock display logic:
+        // - Don't show if > 10 pieces
+        // - Show "A few are left" if 2-10 pieces
+        // - Show exact count if <= 2 pieces
+        // - Show "Out of stock" if 0 pieces
+        if (p.stock === 0) {
+          document.getElementById('mStock').textContent = window.PIX_t?window.PIX_t('out_of_stock'):'Out of stock';
+        } else if (p.stock <= 2) {
+          document.getElementById('mStock').textContent = (window.PIX_t?window.PIX_t('hurry_only'):'Hurry! Only {n} left').replace('{n}',p.stock);
+        } else if (p.stock <= 10) {
+          document.getElementById('mStock').textContent = 'A few are left';
+        } else {
+          document.getElementById('mStock').textContent = '';
+        }
         document.getElementById('variantWrap').style.display = p.cat === 'candles' ? 'flex' : 'none';
         document.getElementById('mRatingBadge').textContent = `⭐ ${p.rating ? p.rating.toFixed(1) : '–'}`;
 
@@ -11392,32 +11405,6 @@ service cloud.firestore {
       transition: all 0.3s ease;
       font-family: Poppins, sans-serif;
     ">📊 Deals</button>
-
-    <button onclick="switchAdminTab('categories')" id="tab-categories-btn" style="
-      padding: 12px 24px;
-      background: transparent;
-      border: none;
-      border-bottom: 3px solid transparent;
-      color: rgba(255, 255, 255, 0.6);
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 14px;
-      transition: all 0.3s ease;
-      font-family: Poppins, sans-serif;
-    ">🏷️ Categories</button>
-
-    <button onclick="switchAdminTab('slides')" id="tab-slides-btn" style="
-      padding: 12px 24px;
-      background: transparent;
-      border: none;
-      border-bottom: 3px solid transparent;
-      color: rgba(255, 255, 255, 0.6);
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 14px;
-      transition: all 0.3s ease;
-      font-family: Poppins, sans-serif;
-    ">🖼️ Slides</button>
   </div>
 
   <!-- TAB: ADD PRODUCT -->
@@ -11662,89 +11649,6 @@ service cloud.firestore {
     </div>
   </div>
 
-  <!-- TAB: CATEGORIES -->
-  <div id="tab-categories-content" style="display: none;">
-    <h3 style="color: #FF3C78; margin-bottom: 6px; font-weight: 700;">🏷️ Manage Categories</h3>
-    <p style="color: rgba(255,255,255,0.5); font-size: 13px; margin-bottom: 20px;">Categories you add here will appear in all product dropdowns and hero slide options.</p>
-    <div style="display:flex; gap:10px; margin-bottom:24px; flex-wrap:wrap;">
-      <input id="newCatName" placeholder="Category name (e.g. Jewellery)" style="
-        flex:1; min-width:180px; padding:11px 14px;
-        background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,60,120,0.25);
-        border-radius:8px; color:white; font-family:Poppins,sans-serif; font-size:14px; outline:none;
-      ">
-      <input id="newCatIcon" placeholder="Icon (e.g. 💍)" style="
-        width:90px; padding:11px 14px;
-        background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,60,120,0.25);
-        border-radius:8px; color:white; font-family:Poppins,sans-serif; font-size:14px; outline:none;
-      ">
-      <input id="newCatKey" placeholder="Key (e.g. jewellery)" style="
-        width:130px; padding:11px 14px;
-        background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,60,120,0.25);
-        border-radius:8px; color:white; font-family:Poppins,sans-serif; font-size:13px; outline:none;
-      ">
-      <button onclick="adminAddCategory()" style="
-        padding:11px 22px; background:linear-gradient(135deg,#FF3C78,#FF7EAC);
-        color:white; border:none; border-radius:8px; font-weight:700;
-        font-size:14px; cursor:pointer; white-space:nowrap;
-      ">+ Add Category</button>
-    </div>
-    <div id="catList" style="display:grid; gap:10px; max-height:420px; overflow-y:auto;">
-      <p style="color:rgba(255,255,255,0.4); font-size:13px;">Loading categories…</p>
-    </div>
-  </div>
-
-  <!-- TAB: SLIDES -->
-  <div id="tab-slides-content" style="display: none;">
-    <h3 style="color: #FF3C78; margin-bottom: 6px; font-weight: 700;">🖼️ Manage Hero Slides</h3>
-    <p style="color: rgba(255,255,255,0.5); font-size: 13px; margin-bottom: 20px;">Add or remove the big banner slides at the top of the homepage.</p>
-    <div style="display:grid; gap:14px; background:rgba(255,255,255,0.03); padding:20px; border-radius:12px; margin-bottom:24px; border:1px solid rgba(255,60,120,0.15);">
-      <h4 style="color:rgba(255,255,255,0.85); font-size:13px; font-weight:700; margin:0;">Add New Slide</h4>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-        <div>
-          <label style="font-size:11px; font-weight:600; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.06em; display:block; margin-bottom:6px;">Tag / Badge</label>
-          <input id="slideTag" placeholder="e.g. ✦ New Arrivals" style="width:100%; padding:10px 12px; background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,60,120,0.2); border-radius:8px; color:white; font-family:Poppins,sans-serif; font-size:13px; outline:none; box-sizing:border-box;">
-        </div>
-        <div>
-          <label style="font-size:11px; font-weight:600; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.06em; display:block; margin-bottom:6px;">Category (links to shop filter)</label>
-          <select id="slideCatLink" style="width:100%; padding:10px 12px; background:rgba(30,0,20,0.9); border:1.5px solid rgba(255,60,120,0.2); border-radius:8px; color:white; font-family:Poppins,sans-serif; font-size:13px; outline:none; box-sizing:border-box;">
-            <option value="">— Loading categories… —</option>
-          </select>
-        </div>
-      </div>
-      <div>
-        <label style="font-size:11px; font-weight:600; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.06em; display:block; margin-bottom:6px;">Headline (use | for line break)</label>
-        <input id="slideTitle" placeholder="e.g. Luxury|Candles|Hand-Poured" style="width:100%; padding:10px 12px; background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,60,120,0.2); border-radius:8px; color:white; font-family:Poppins,sans-serif; font-size:13px; outline:none; box-sizing:border-box;">
-      </div>
-      <div>
-        <label style="font-size:11px; font-weight:600; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.06em; display:block; margin-bottom:6px;">Subtext</label>
-        <input id="slideSub" placeholder="e.g. Hand-crafted with natural soy wax" style="width:100%; padding:10px 12px; background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,60,120,0.2); border-radius:8px; color:white; font-family:Poppins,sans-serif; font-size:13px; outline:none; box-sizing:border-box;">
-      </div>
-      <div>
-        <label style="font-size:11px; font-weight:600; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.06em; display:block; margin-bottom:6px;">Background Image URL</label>
-        <input id="slideBg" placeholder="https://images.unsplash.com/…?w=1400" style="width:100%; padding:10px 12px; background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,60,120,0.2); border-radius:8px; color:white; font-family:Poppins,sans-serif; font-size:13px; outline:none; box-sizing:border-box;">
-      </div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-        <div>
-          <label style="font-size:11px; font-weight:600; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.06em; display:block; margin-bottom:6px;">CTA Button 1 Label</label>
-          <input id="slideCta1" placeholder="Shop Now" style="width:100%; padding:10px 12px; background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,60,120,0.2); border-radius:8px; color:white; font-family:Poppins,sans-serif; font-size:13px; outline:none; box-sizing:border-box;">
-        </div>
-        <div>
-          <label style="font-size:11px; font-weight:600; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.06em; display:block; margin-bottom:6px;">CTA Button 2 Label</label>
-          <input id="slideCta2" placeholder="View Collection" style="width:100%; padding:10px 12px; background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,60,120,0.2); border-radius:8px; color:white; font-family:Poppins,sans-serif; font-size:13px; outline:none; box-sizing:border-box;">
-        </div>
-      </div>
-      <button onclick="adminAddSlide()" style="
-        padding:12px 24px; background:linear-gradient(135deg,#FF3C78,#FF7EAC);
-        color:white; border:none; border-radius:8px; font-weight:700;
-        font-size:14px; cursor:pointer; align-self:start; width:fit-content;
-      ">🚀 Add Slide to Homepage</button>
-    </div>
-    <h4 style="color:rgba(255,255,255,0.7); font-size:13px; font-weight:700; margin-bottom:12px;">Live Slides</h4>
-    <div id="slidesList" style="display:grid; gap:10px; max-height:380px; overflow-y:auto;">
-      <p style="color:rgba(255,255,255,0.4); font-size:13px;">Loading slides…</p>
-    </div>
-  </div>
-
 </div>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
@@ -11777,43 +11681,56 @@ function toggleAdminPanel() {
 }
 
 function switchAdminTab(tab) {
-  // All tab IDs
-  const allTabs = ['product','deal','customers','products','deals','categories','slides'];
-  allTabs.forEach(function(t) {
-    const contentId = t === 'deals' ? 'tab-deals-content' : t === 'products' ? 'tab-products-content' : 'tab-' + t + '-content';
-    const btnId     = t === 'deals' ? 'tab-dealsview-btn' : 'tab-' + t + '-btn';
-    const c = document.getElementById(contentId);
-    const b = document.getElementById(btnId);
-    if (c) c.style.display = 'none';
-    if (b) { b.style.borderBottomColor = 'transparent'; b.style.color = 'rgba(255,255,255,0.6)'; }
-  });
-
+  // Hide all
+  document.getElementById('tab-product-content').style.display = 'none';
+  document.getElementById('tab-deal-content').style.display = 'none';
+  document.getElementById('tab-customers-content').style.display = 'none';
+  document.getElementById('tab-products-content').style.display = 'none';
+  document.getElementById('tab-deals-content').style.display = 'none';
+  
+  // Reset tabs
+  document.getElementById('tab-product-btn').style.borderBottomColor = 'transparent';
+  document.getElementById('tab-product-btn').style.color = 'rgba(255, 255, 255, 0.6)';
+  document.getElementById('tab-deal-btn').style.borderBottomColor = 'transparent';
+  document.getElementById('tab-deal-btn').style.color = 'rgba(255, 255, 255, 0.6)';
+  document.getElementById('tab-customers-btn').style.borderBottomColor = 'transparent';
+  document.getElementById('tab-customers-btn').style.color = 'rgba(255, 255, 255, 0.6)';
+  document.getElementById('tab-products-btn').style.borderBottomColor = 'transparent';
+  document.getElementById('tab-products-btn').style.color = 'rgba(255, 255, 255, 0.6)';
+  document.getElementById('tab-dealsview-btn').style.borderBottomColor = 'transparent';
+  document.getElementById('tab-dealsview-btn').style.color = 'rgba(255, 255, 255, 0.6)';
+  
   // Show selected
-  const contentId = tab === 'deals' ? 'tab-deals-content' : tab === 'products' ? 'tab-products-content' : 'tab-' + tab + '-content';
-  const btnId     = tab === 'deals' ? 'tab-dealsview-btn' : 'tab-' + tab + '-btn';
-  const contentEl = document.getElementById(contentId);
-  const btnEl     = document.getElementById(btnId);
-  if (contentEl) contentEl.style.display = 'block';
-  if (btnEl) { btnEl.style.borderBottomColor = '#FF3C78'; btnEl.style.color = '#FF3C78'; }
-
-  if (tab === 'products') loadProductsFromFirebase();
-  if (tab === 'deals')    loadDealsFromFirebase();
-  if (tab === 'categories') adminLoadCategories();
-  if (tab === 'slides')   { adminLoadSlides(); adminPopulateSlideCatDropdown(); }
-
-  if (tab === 'deal') {
-    // Populate product dropdown
-    const sel = document.getElementById('dealProductId');
-    if (sel) {
-      const prods = window.PRODUCTS || [];
-      sel.innerHTML = '<option value="" style="background:#1a0010;color:white;">— Select a product —</option>';
-      prods.forEach(function(p) {
-        const opt = document.createElement('option');
-        opt.value = p.id;
-        opt.textContent = p.title + ' — ₹' + p.price;
-        opt.style.background = '#1a0010';
-        opt.style.color = 'white';
-        sel.appendChild(opt);
+  const contentId = tab === 'deals' ? 'tab-deals-content' : 'tab-products-content';
+  if (tab === 'products' || tab === 'deals') {
+    document.getElementById(contentId).style.display = 'block';
+    if (tab === 'products') {
+      document.getElementById('tab-products-btn').style.borderBottomColor = '#FF3C78';
+      document.getElementById('tab-products-btn').style.color = '#FF3C78';
+      loadProductsFromFirebase();
+    } else {
+      document.getElementById('tab-dealsview-btn').style.borderBottomColor = '#FF3C78';
+      document.getElementById('tab-dealsview-btn').style.color = '#FF3C78';
+      loadDealsFromFirebase();
+    }
+  } else {
+    document.getElementById('tab-' + tab + '-content').style.display = 'block';
+    document.getElementById('tab-' + tab + '-btn').style.borderBottomColor = '#FF3C78';
+    document.getElementById('tab-' + tab + '-btn').style.color = '#FF3C78';
+    // Populate the product dropdown when "Add Deal" tab is opened
+    if (tab === 'deal') {
+      const sel = document.getElementById('dealProductId');
+      if (sel) {
+        const prods = window.PRODUCTS || [];
+        // Keep the first placeholder option, rebuild the rest
+        sel.innerHTML = '<option value="" style="background:#1a0010;color:white;">— Select a product —</option>';
+        prods.forEach(function(p) {
+          const opt = document.createElement('option');
+          opt.value = p.id;
+          opt.textContent = p.title + ' — ₹' + p.price;
+          opt.style.background = '#1a0010';
+          opt.style.color = 'white';
+          sel.appendChild(opt);
         });
       }
     }
@@ -12206,290 +12123,6 @@ if (window.firebaseReady) {
 } else {
   document.addEventListener('firebaseReady', () => renderCustomers());
 }
-
-// ══════════════════════════════════════════════════════
-//  CATEGORIES — Admin CRUD
-// ══════════════════════════════════════════════════════
-const DEFAULT_CATEGORIES = [
-  { key: 'candles',     label: 'Candles & Accessories', icon: '🕯️' },
-  { key: 'beauty',      label: 'Beauty & Skincare',      icon: '💄' },
-  { key: 'clothing',    label: 'Clothing & Fashion',     icon: '👕' },
-  { key: 'home',        label: 'Home & Decor',           icon: '🏠' },
-  { key: 'electronics', label: 'Electronics',            icon: '📱' },
-  { key: 'grocery',     label: 'Food & Grocery',         icon: '🛒' },
-  { key: 'others',      label: 'Others',                 icon: '📦' }
-];
-
-async function adminGetCategories() {
-  try {
-    if (!window.db || !window.getDocs || !window.collection) return null;
-    const snap = await window.getDocs(window.collection(window.db, 'categories'));
-    if (snap.empty) return null;
-    return snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => (a.order||0)-(b.order||0));
-  } catch(e) { console.warn('adminGetCategories:', e); return null; }
-}
-
-async function adminLoadCategories() {
-  const list = document.getElementById('catList');
-  if (!list) return;
-  list.innerHTML = '<p style="color:rgba(255,255,255,0.4);font-size:13px;">Loading…</p>';
-  let cats = await adminGetCategories();
-  if (!cats) {
-    // First time: seed defaults into Firestore
-    await adminSeedDefaultCategories();
-    cats = await adminGetCategories();
-  }
-  if (!cats || cats.length === 0) {
-    list.innerHTML = '<p style="color:rgba(255,255,255,0.4);font-size:13px;">No categories yet. Add one above.</p>';
-    return;
-  }
-  list.innerHTML = cats.map(c => `
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,60,120,0.15);border-radius:10px;">
-      <div style="display:flex;align-items:center;gap:12px;">
-        <span style="font-size:22px;">${c.icon||'📦'}</span>
-        <div>
-          <div style="color:white;font-weight:600;font-size:14px;">${c.label}</div>
-          <div style="color:rgba(255,255,255,0.4);font-size:11px;font-family:monospace;">key: ${c.key}</div>
-        </div>
-      </div>
-      <button onclick="adminDeleteCategory('${c.id}')" style="
-        padding:6px 14px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);
-        border-radius:7px;color:#ef4444;font-size:12px;font-weight:700;cursor:pointer;
-      ">🗑 Delete</button>
-    </div>
-  `).join('');
-}
-
-async function adminSeedDefaultCategories() {
-  try {
-    if (!window.db || !window.addDoc || !window.collection) return;
-    for (let i = 0; i < DEFAULT_CATEGORIES.length; i++) {
-      await window.addDoc(window.collection(window.db, 'categories'), { ...DEFAULT_CATEGORIES[i], order: i });
-    }
-  } catch(e) { console.warn('seed categories:', e); }
-}
-
-async function adminAddCategory() {
-  const nameEl = document.getElementById('newCatName');
-  const iconEl = document.getElementById('newCatIcon');
-  const keyEl  = document.getElementById('newCatKey');
-  const label  = (nameEl && nameEl.value.trim()) || '';
-  const icon   = (iconEl && iconEl.value.trim()) || '📦';
-  const key    = (keyEl && keyEl.value.trim().toLowerCase().replace(/\s+/g,'_')) || label.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
-  if (!label) { showNotification('Please enter a category name.', 'error'); return; }
-  if (!key)   { showNotification('Please enter a key (e.g. jewellery).', 'error'); return; }
-  try {
-    if (!window.db || !window.addDoc || !window.collection) throw new Error('Firebase not ready');
-    // get current count for order
-    const snap = await window.getDocs(window.collection(window.db, 'categories'));
-    await window.addDoc(window.collection(window.db, 'categories'), { label, icon, key, order: snap.size });
-    if (nameEl) nameEl.value = '';
-    if (iconEl) iconEl.value = '';
-    if (keyEl)  keyEl.value  = '';
-    showNotification('Category added!', 'success');
-    adminLoadCategories();
-    // Refresh dynamic dropdowns
-    adminRefreshCategoryDropdowns();
-  } catch(e) { showNotification('Error: ' + e.message, 'error'); }
-}
-
-async function adminDeleteCategory(id) {
-  if (!confirm('Delete this category?')) return;
-  try {
-    if (!window.db || !window.deleteDoc || !window.doc) throw new Error('Firebase not ready');
-    await window.deleteDoc(window.doc(window.db, 'categories', id));
-    showNotification('Category deleted.', 'success');
-    adminLoadCategories();
-    adminRefreshCategoryDropdowns();
-  } catch(e) { showNotification('Error: ' + e.message, 'error'); }
-}
-
-// Refresh all category dropdowns across the page (product form + slides form)
-async function adminRefreshCategoryDropdowns() {
-  const cats = await adminGetCategories() || DEFAULT_CATEGORIES;
-  const selectors = ['#productCategory', '#sel_category', '#slideCatLink'];
-  selectors.forEach(function(sel) {
-    const el = document.querySelector(sel);
-    if (!el) return;
-    const isSlideSel = sel === '#slideCatLink';
-    const prevVal = el.value;
-    el.innerHTML = isSlideSel
-      ? '<option value="">— No category link —</option>'
-      : '<option value="">Select Category</option>';
-    cats.forEach(function(c) {
-      const opt = document.createElement('option');
-      opt.value = isSlideSel ? c.key : c.label;
-      opt.textContent = (c.icon ? c.icon + ' ' : '') + c.label;
-      el.appendChild(opt);
-    });
-    el.value = prevVal; // restore if still valid
-  });
-}
-
-// ══════════════════════════════════════════════════════
-//  SLIDES — Admin CRUD
-// ══════════════════════════════════════════════════════
-async function adminPopulateSlideCatDropdown() {
-  const sel = document.getElementById('slideCatLink');
-  if (!sel) return;
-  sel.innerHTML = '<option value="">— No category link —</option>';
-  const cats = await adminGetCategories() || DEFAULT_CATEGORIES;
-  cats.forEach(function(c) {
-    const opt = document.createElement('option');
-    opt.value = c.key;
-    opt.textContent = (c.icon ? c.icon + ' ' : '') + c.label;
-    sel.appendChild(opt);
-  });
-}
-
-async function adminLoadSlides() {
-  const list = document.getElementById('slidesList');
-  if (!list) return;
-  list.innerHTML = '<p style="color:rgba(255,255,255,0.4);font-size:13px;">Loading…</p>';
-  try {
-    if (!window.db || !window.getDocs || !window.collection) throw new Error('Firebase not ready');
-    const snap = await window.getDocs(window.query(
-      window.collection(window.db, 'slides'),
-      window.orderBy('order', 'asc')
-    ));
-    if (snap.empty) {
-      list.innerHTML = '<p style="color:rgba(255,255,255,0.4);font-size:13px;">No custom slides yet. The default 3 slides are shown. Add a slide above to override.</p>';
-      return;
-    }
-    list.innerHTML = snap.docs.map((d,i) => {
-      const s = d.data();
-      return `<div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,60,120,0.15);border-radius:10px;">
-        ${s.bg ? `<img src="${s.bg}" style="width:72px;height:50px;object-fit:cover;border-radius:6px;flex-shrink:0;" onerror="this.style.display='none'">` : ''}
-        <div style="flex:1;min-width:0;">
-          <div style="color:rgba(255,60,120,0.9);font-size:11px;font-weight:700;text-transform:uppercase;">${s.tag||''}</div>
-          <div style="color:white;font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${(s.title||'').replace(/\|/g,' · ')}</div>
-          <div style="color:rgba(255,255,255,0.45);font-size:11px;">${s.catLink ? '→ ' + s.catLink : 'no filter link'}</div>
-        </div>
-        <button onclick="adminDeleteSlide('${d.id}')" style="
-          padding:6px 14px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);
-          border-radius:7px;color:#ef4444;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;
-        ">🗑</button>
-      </div>`;
-    }).join('');
-  } catch(e) {
-    list.innerHTML = `<p style="color:#ef4444;font-size:13px;">Error: ${e.message}</p>`;
-  }
-}
-
-async function adminAddSlide() {
-  const tag    = document.getElementById('slideTag')?.value.trim()    || '';
-  const title  = document.getElementById('slideTitle')?.value.trim()  || '';
-  const sub    = document.getElementById('slideSub')?.value.trim()    || '';
-  const bg     = document.getElementById('slideBg')?.value.trim()     || '';
-  const cta1   = document.getElementById('slideCta1')?.value.trim()   || 'Shop Now';
-  const cta2   = document.getElementById('slideCta2')?.value.trim()   || 'View Collection';
-  const catLink= document.getElementById('slideCatLink')?.value       || '';
-  if (!title) { showNotification('Please enter a headline.', 'error'); return; }
-  try {
-    if (!window.db || !window.addDoc || !window.collection) throw new Error('Firebase not ready');
-    const snap = await window.getDocs(window.collection(window.db, 'slides'));
-    await window.addDoc(window.collection(window.db, 'slides'), {
-      tag, title, sub, bg, cta1, cta2, catLink,
-      order: snap.size,
-      createdAt: new Date()
-    });
-    // Clear form
-    ['slideTag','slideTitle','slideSub','slideBg','slideCta1','slideCta2'].forEach(id => {
-      const el = document.getElementById(id); if (el) el.value = '';
-    });
-    showNotification('Slide added! Reload the page to see it live.', 'success');
-    adminLoadSlides();
-    applyFirebaseSlides(); // try live inject
-  } catch(e) { showNotification('Error: ' + e.message, 'error'); }
-}
-
-async function adminDeleteSlide(id) {
-  if (!confirm('Remove this slide?')) return;
-  try {
-    if (!window.db || !window.deleteDoc || !window.doc) throw new Error('Firebase not ready');
-    await window.deleteDoc(window.doc(window.db, 'slides', id));
-    showNotification('Slide removed.', 'success');
-    adminLoadSlides();
-    applyFirebaseSlides();
-  } catch(e) { showNotification('Error: ' + e.message, 'error'); }
-}
-
-// ── Apply Firebase slides to the live hero section ──────────────
-async function applyFirebaseSlides() {
-  try {
-    if (!window.db || !window.getDocs || !window.collection || !window.query || !window.orderBy) return;
-    const snap = await window.getDocs(window.query(
-      window.collection(window.db, 'slides'),
-      window.orderBy('order','asc')
-    ));
-    if (snap.empty) return; // keep default static slides
-    const slides = snap.docs.map(d => d.data());
-    const hero = document.querySelector('.hero-main-slide');
-    if (!hero) return;
-    // Remove existing slide inner elements
-    hero.querySelectorAll('.hero-slide-inner').forEach(el => el.remove());
-    // Inject new slides
-    slides.forEach(function(s, i) {
-      if (s.bg) {
-        // Try to set BG on the slide's background element if it exists, else style hero
-        const bgParts = hero.querySelectorAll('[style*="background-image"]');
-        if (bgParts[i]) bgParts[i].style.backgroundImage = 'url(' + s.bg + ')';
-      }
-      const inner = document.createElement('div');
-      inner.className = 'hero-slide-inner';
-      const titleHtml = (s.title||'').split('|').map((line,li) => {
-        if (li === 1) return `<span>${line}</span><br>`;
-        return line + '<br>';
-      }).join('');
-      inner.innerHTML = `
-        <div class="hero-slide-content">
-          <div>
-            <div class="hero-tag">${s.tag||''}</div>
-            <h1 class="hero-title" style="min-height:unset;margin-top:12px;">${titleHtml}</h1>
-            <p class="hero-sub">${s.sub||''}</p>
-            <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:20px;">
-              <button class="pix-btn pix-btn-primary" onclick="setFilter('${s.catLink||'all'}');document.querySelector('#shop,#products')?.scrollIntoView({behavior:'smooth'})">${s.cta1||'Shop Now'}</button>
-              <button class="pix-btn pix-btn-ghost"   onclick="setFilter('${s.catLink||'all'}');document.querySelector('#shop,#products')?.scrollIntoView({behavior:'smooth'})">${s.cta2||'View Collection'}</button>
-            </div>
-          </div>
-        </div>`;
-      hero.appendChild(inner);
-    });
-    // Update counter
-    const counter = document.getElementById('heroCounter');
-    if (counter) counter.textContent = '01 / ' + String(slides.length).padStart(2,'0');
-  } catch(e) { console.warn('applyFirebaseSlides:', e); }
-}
-
-// ── On page load: populate category dropdowns from Firestore ──
-(async function initDynamicDropdowns() {
-  try {
-    let cats = null;
-    // Retry a few times while Firebase initialises
-    for (let attempt = 0; attempt < 8; attempt++) {
-      if (window.db && window.getDocs && window.collection) {
-        cats = await adminGetCategories();
-        break;
-      }
-      await new Promise(r => setTimeout(r, 700));
-    }
-    if (!cats) return; // fall back to static HTML options
-    const selectors = ['#productCategory', '#sel_category'];
-    selectors.forEach(function(sel) {
-      const el = document.querySelector(sel);
-      if (!el) return;
-      el.innerHTML = '<option value="">Select Category</option>';
-      cats.forEach(function(c) {
-        const opt = document.createElement('option');
-        opt.value = c.label;
-        opt.textContent = (c.icon ? c.icon + ' ' : '') + c.label;
-        el.appendChild(opt);
-      });
-    });
-    // Also try to apply Firebase slides on load
-    applyFirebaseSlides();
-  } catch(e) { console.warn('initDynamicDropdowns:', e); }
-})();
 </script>
 
 <!-- ═══════════════════════════════════════════════════════════
@@ -12802,7 +12435,7 @@ async function applyFirebaseSlides() {
       var v = vals[f.key];
       if (!v) return;
       var el = getEl(f.key);
-      if (el) el.innerHTML = v;
+      if (el) el.innerText = v;
     });
     // Colours
     if (vals['color-primary'])   document.documentElement.style.setProperty('--brand-primary',   vals['color-primary']);
@@ -12815,7 +12448,7 @@ async function applyFirebaseSlides() {
     FIELDS.forEach(function(f) {
       var inp = document.getElementById(f.id);
       if (!inp) return;
-      var raw = stripTags(vals[f.key] || (getEl(f.key) ? (getEl(f.key).innerHTML || '') : ''));
+      var raw = vals[f.key] || stripTags(getEl(f.key) ? (getEl(f.key).innerHTML || '') : '');
       inp.value = raw;
     });
     // Colour pickers
@@ -12833,7 +12466,7 @@ async function applyFirebaseSlides() {
       if (!inp) return;
       inp.oninput = function() {
         var el = getEl(f.key);
-        if (el) el.innerHTML = inp.value;
+        if (el) el.innerText = inp.value;
       };
     });
   }
