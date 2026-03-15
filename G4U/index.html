@@ -6196,7 +6196,6 @@
         orderBy('createdAt', 'desc')
       );
       onSnapshot(q, snap => {
-        if (snap.empty) return;
         const newProds = snap.docs.map(d => {
           const data = d.data();
           return {
@@ -7014,6 +7013,7 @@ document.addEventListener('DOMContentLoaded', () => {
         brand: brand||undefined,
         mrp: mrp||undefined,
         _adminAdded: true,
+        createdAt: new Date().toISOString(),
         addedAt: new Date().toISOString()
       };
 
