@@ -6191,10 +6191,9 @@
   // Listens to the 'products' collection (admin-added products) and injects into window.PRODUCTS
   (function startAdminProductsListener() {
     try {
-      const q = query(
-        collection(db, 'products'),
-        orderBy('createdAt', 'desc')
-      );
+      // No orderBy — Firestore silently excludes docs missing the sort field,
+      // so we fetch the whole collection and sort client-side instead.
+      const q = collection(db, 'products');
       onSnapshot(q, snap => {
         const newProds = snap.docs.map(d => {
           const data = d.data();
@@ -6209,8 +6208,16 @@
             cat: data.cat || (data.category || 'others').toLowerCase(),
             rating: data.rating || 4.5,
             badge: data.badge || 'New',
-            _adminAdded: true
+            _adminAdded: true,
+            createdAt: data.createdAt || data.addedAt || '',
+            addedAt: data.addedAt || data.createdAt || ''
           };
+        })
+        // Sort newest-first client-side using whichever timestamp field exists
+        .sort((a, b) => {
+          const ta = a.createdAt || a.addedAt || '';
+          const tb = b.createdAt || b.addedAt || '';
+          return tb.localeCompare(ta);
         });
 
         if (!window.PRODUCTS) return;
