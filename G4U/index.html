@@ -4513,7 +4513,19 @@
                 ${row(t('price_lbl','Price'), p => `<td class="p-2 border" style="font-weight:900;font-size:1rem;color:var(--text-primary);">${fmt(p.price)}</td>`)}
                 ${row(t('rating_lbl','Rating'), p => `<td class="p-2 border"><span style="color:#f59e0b">⭐</span> ${p.rating.toFixed(1)}</td>`)}
                 ${row(t('category_lbl','Category'), p => `<td class="p-2 border">${niceCat(p.cat)}</td>`)}
-                ${row(t('stock_lbl','Stock'), p => `<td class="p-2 border" style="color:${p.stock>0?'#10b981':'#ef4444'}">${p.stock > 0 ? '✓ '+p.stock+' left' : t('oos_compare','Out of Stock')}</td>`)}
+                ${row(t('stock_lbl','Stock'), p => {
+                  let stockDisplay = '';
+                  if (p.stock === 0) {
+                    stockDisplay = t('oos_compare','Out of Stock');
+                  } else if (p.stock <= 2) {
+                    stockDisplay = '✓ '+p.stock+' left';
+                  } else if (p.stock <= 10) {
+                    stockDisplay = '✓ A few are left';
+                  } else {
+                    stockDisplay = '✓';
+                  }
+                  return `<td class="p-2 border" style="color:${p.stock>0?'#10b981':'#ef4444'}">${stockDisplay}</td>`;
+                })}
                 ${row('', p => `<td class="p-2 border">
                   <button onclick="addToCart('${p.id}');closeModalById('compareModal');" ${p.stock===0?'disabled':''} style="background:var(--brand-primary);color:white;font-size:0.72rem;font-weight:800;padding:8px 14px;border-radius:999px;border:none;cursor:${p.stock===0?'not-allowed':'pointer'};opacity:${p.stock===0?'0.5':'1'}">${p.stock===0 ? 'Sold Out' : '+ Add to Cart'}</button>
                 </td>`)}
