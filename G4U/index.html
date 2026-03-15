@@ -7027,12 +7027,19 @@ document.addEventListener('DOMContentLoaded', () => {
       // Add to live PRODUCTS immediately (admin privilege)
       if (window.PRODUCTS) window.PRODUCTS.unshift(newProd);
 
-      // Persist to Firebase
+      // Persist to Firebase — strip undefined fields (Firestore rejects them)
       try {
         if (!!window.db && !!window.setDoc && !!window.doc) {
-          await window.setDoc(window.doc(window.db, 'products', newProd.id), newProd);
+          const firestoreDoc = Object.fromEntries(
+            Object.entries(newProd).filter(([, v]) => v !== undefined)
+          );
+          await window.setDoc(window.doc(window.db, 'products', newProd.id), firestoreDoc);
         }
-      } catch(e) { console.warn('Firebase save failed (not critical):', e); }
+      } catch(e) { console.error('Firebase save failed:', e); alert('\u274C Could not save product to Firebase: ' + e.message); }
+
+
+
+
 
       // Update inventory record
       if (cost || mrp) {
