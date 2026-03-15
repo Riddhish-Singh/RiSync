@@ -3599,27 +3599,25 @@
         addedByName: addedByName
       };
 
-      // ⚠️ DO NOT push directly to PRODUCTS — send to pending_products for admin review
-      newProd._pending = true;
-      newProd.submittedAt = new Date().toISOString();
-      newProd.sellerName = addedByName;
+      // Save directly to communityProducts collection so products display immediately
+      newProd.createdAt = new Date().toISOString();
 
-      // Save to Firebase pending_products collection (Firestore v9 modular)
+      // Save to Firebase communityProducts collection (Firestore v9 modular)
       var savedToFirebase = false;
       try {
         if (!!window.db && !!window.addDoc && !!window.collection) {
-          await window.addDoc(window.collection(window.db, 'pending_products'), newProd);
+          await window.addDoc(window.collection(window.db, 'communityProducts'), newProd);
           savedToFirebase = true;
         }
       } catch (e) {
-        console.warn('Firebase pending save failed — storing locally:', e);
+        console.warn('Firebase save failed — storing locally:', e);
       }
 
       // Fallback: store in localStorage so it persists even without Firebase
       try {
-        var pending = JSON.parse(localStorage.getItem('PIX_pending_products') || '[]');
+        var pending = JSON.parse(localStorage.getItem('PIX_added_products') || '[]');
         pending.push(newProd);
-        localStorage.setItem('PIX_pending_products', JSON.stringify(pending));
+        localStorage.setItem('PIX_added_products', JSON.stringify(pending));
       } catch(e) {}
 
       onSellerPendingSuccess(newProd);
@@ -3627,20 +3625,20 @@
 
     function onSellerPendingSuccess(prod) {
       closeSellerModal();
-      // Show a "pending" success modal (not a generic toast — this is an important message)
+      // Show a success modal
       var overlay = document.createElement('div');
       overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px;';
       overlay.innerHTML = '<div style="background:var(--surface-primary);border-radius:24px;max-width:460px;width:100%;padding:36px 32px;text-align:center;box-shadow:0 32px 80px rgba(0,0,0,0.5);animation:modalIn 0.3s ease;">'+
-        '<div style="width:64px;height:64px;border-radius:50%;background:rgba(245,158,11,0.1);border:2px solid rgba(245,158,11,0.3);display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 18px;">🕐</div>'+
-        '<div style="font-family:Montserrat,sans-serif;font-weight:900;font-size:1.25rem;margin-bottom:8px;color:var(--text-primary);">Product Submitted for Review</div>'+
-        '<div style="font-size:0.85rem;color:var(--text-secondary);line-height:1.65;margin-bottom:6px;">Your product <strong style="color:var(--text-primary);">&ldquo;' + prod.title + '&rdquo;</strong> has been submitted and is awaiting approval by the Pioneer I Xpress admin team.</div>'+
-        '<div style="font-size:0.8rem;color:var(--text-secondary);line-height:1.6;margin-bottom:24px;">Once approved, it will go live on the storefront. You'll be notified when the review is complete.</div>'+
-        '<div style="display:flex;flex-direction:column;gap:10px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:14px;padding:14px 18px;margin-bottom:24px;text-align:left;">'+
-        '<div style="display:flex;gap:10px;font-size:0.8rem;"><span style="color:#f59e0b;flex-shrink:0;">📋</span><span style="color:var(--text-secondary);">Typical review time: <strong>24–48 hours</strong></span></div>'+
-        '<div style="display:flex;gap:10px;font-size:0.8rem;"><span style="color:#f59e0b;flex-shrink:0;">📧</span><span style="color:var(--text-secondary);">Confirmation will be sent to your registered email</span></div>'+
-        '<div style="display:flex;gap:10px;font-size:0.8rem;"><span style="color:#f59e0b;flex-shrink:0;">💬</span><span style="color:var(--text-secondary);">Questions? Chat with us on WhatsApp</span></div>'+
+        '<div style="width:64px;height:64px;border-radius:50%;background:rgba(34,197,94,0.1);border:2px solid rgba(34,197,94,0.3);display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 18px;">✅</div>'+
+        '<div style="font-family:Montserrat,sans-serif;font-weight:900;font-size:1.25rem;margin-bottom:8px;color:var(--text-primary);">Product Live!</div>'+
+        '<div style="font-size:0.85rem;color:var(--text-secondary);line-height:1.65;margin-bottom:6px;">Your product <strong style="color:var(--text-primary);">&ldquo;' + prod.title + '&rdquo;</strong> is now live on the storefront!</div>'+
+        '<div style="font-size:0.8rem;color:var(--text-secondary);line-height:1.6;margin-bottom:24px;">Customers can now see and purchase your product.</div>'+
+        '<div style="display:flex;flex-direction:column;gap:10px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:14px;padding:14px 18px;margin-bottom:24px;text-align:left;">'+
+        '<div style="display:flex;gap:10px;font-size:0.8rem;"><span style="color:#22c55e;flex-shrink:0;">🎉</span><span style="color:var(--text-secondary);">Your product is visible to all customers</span></div>'+
+        '<div style="display:flex;gap:10px;font-size:0.8rem;"><span style="color:#22c55e;flex-shrink:0;">📊</span><span style="color:var(--text-secondary);">Track inventory and manage your stock</span></div>'+
+        '<div style="display:flex;gap:10px;font-size:0.8rem;"><span style="color:#22c55e;flex-shrink:0;">💬</span><span style="color:var(--text-secondary);">Questions? Chat with us on WhatsApp</span></div>'+
         '</div>'+
-        '<button onclick="this.parentNode.parentNode.remove()" style="padding:12px 32px;background:linear-gradient(135deg,#FF3C78,#c41755);color:white;font-weight:800;font-size:0.88rem;border:none;border-radius:999px;cursor:pointer;box-shadow:0 6px 20px rgba(255,60,120,0.35);">Got it, thanks!</button>'+
+        '<button onclick="this.parentNode.parentNode.remove()" style="padding:12px 32px;background:linear-gradient(135deg,#10b981,#059669);color:white;font-weight:800;font-size:0.88rem;border:none;border-radius:999px;cursor:pointer;box-shadow:0 6px 20px rgba(34,197,94,0.35);">Great! Let\'s Go</button>'+
         '</div>';
       document.body.appendChild(overlay);
       overlay.addEventListener('click', function(e){ if(e.target===overlay) overlay.remove(); });
