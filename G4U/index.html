@@ -7028,14 +7028,25 @@ document.addEventListener('DOMContentLoaded', () => {
       if (window.PRODUCTS) window.PRODUCTS.unshift(newProd);
 
       // Persist to Firebase — strip undefined fields (Firestore rejects them)
+      if (!window.db || !window.setDoc || !window.doc) {
+        show('⚠️ Firebase is not ready yet. Please wait a moment and try again.');
+        if (window.PRODUCTS) { const idx = window.PRODUCTS.findIndex(x => x.id === newProd.id); if (idx !== -1) window.PRODUCTS.splice(idx, 1); }
+        return;
+      }
       try {
-        if (!!window.db && !!window.setDoc && !!window.doc) {
-          const firestoreDoc = Object.fromEntries(
-            Object.entries(newProd).filter(([, v]) => v !== undefined)
-          );
-          await window.setDoc(window.doc(window.db, 'products', newProd.id), firestoreDoc);
-        }
-      } catch(e) { console.error('Firebase save failed:', e); alert('\u274C Could not save product to Firebase: ' + e.message); }
+        const firestoreDoc = Object.fromEntries(
+          Object.entries(newProd).filter(([, v]) => v !== undefined)
+        );
+        await window.setDoc(window.doc(window.db, 'products', newProd.id), firestoreDoc);
+      } catch(e) {
+        console.error('Firebase save failed:', e);
+        const isRules = e.code === 'permission-denied';
+        show(isRules
+          ? '🔒 Firestore permission denied. Go to Firebase Console → Firestore → Rules and allow writes for your admin email.'
+          : '❌ Could not save to Firebase: ' + e.message);
+        if (window.PRODUCTS) { const idx = window.PRODUCTS.findIndex(x => x.id === newProd.id); if (idx !== -1) window.PRODUCTS.splice(idx, 1); }
+        return;
+      }
 
 
 
