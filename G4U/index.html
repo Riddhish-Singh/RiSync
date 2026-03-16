@@ -6375,12 +6375,12 @@
       if (adminBtn) adminBtn.classList.toggle('hidden', user.email !== ADMIN_EMAIL);
       // Show editor button only for editor email
       const editorBtn = document.getElementById('menuEditor');
-      if (editorBtn) editorBtn.classList.toggle('hidden', user.email !== EDITOR_EMAIL && user.email !== ADMIN_EMAIL);
+      if (editorBtn) editorBtn.classList.toggle('hidden', user.email !== EDITOR_EMAIL);
       // Show editor FAB
-      const editorFab = document.getElementById('fab-item-editor');
-      if (editorFab) editorFab.style.display = (user.email === EDITOR_EMAIL || user.email === ADMIN_EMAIL) ? 'flex' : 'none';
+      const editorFab = document.getElementById('editorToggleBtn');
+      if (editorFab) editorFab.style.display = user.email === EDITOR_EMAIL ? 'flex' : 'none';
       // Expose role globally
-      window._PIX_role = (user.email === ADMIN_EMAIL || user.email === EDITOR_EMAIL) ? 'editor' : 'user'; window._PIX_isAdmin = user.email === ADMIN_EMAIL;
+      window._PIX_role = user.email === ADMIN_EMAIL ? 'admin' : user.email === EDITOR_EMAIL ? 'editor' : 'user';
       // Load cloud data
       await loadCloudState(user.uid);
       // Show purchased section and load orders
@@ -6400,7 +6400,7 @@
       if (adminBtn) adminBtn.classList.add('hidden');
       const editorBtn = document.getElementById('menuEditor');
       if (editorBtn) editorBtn.classList.add('hidden');
-      const editorFab = document.getElementById('fab-item-editor');
+      const editorFab = document.getElementById('editorToggleBtn');
       if (editorFab) editorFab.style.display = 'none';
       window._PIX_role = 'user';
     }
@@ -10667,12 +10667,6 @@ if (logo) logo.addEventListener('click', function(){
 </style>
 
 <div id="fab-root">
-  <div class="fab-item" id="fab-item-editor" style="display:none;">
-    <span class="fab-label">Editor Panel</span>
-    <button id="editorToggleBtn" class="fab-icon-btn" aria-label="Editor Panel" onclick="pixEditorToggle()" style="background:linear-gradient(135deg,#FF3C78,#C41755);color:#fff;">
-      ✏️
-    </button>
-  </div>
   <div class="fab-item" id="fab-item-top">
     <span class="fab-label">Back to top</span>
     <button id="fab-top" class="fab-icon-btn" aria-label="Back to top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
@@ -11398,7 +11392,7 @@ function openMobileNav() {
     else if (pmwb) pmwb.style.display = 'none';
     // Show admin link if admin
     var admWrap = document.getElementById('pmn-admin-wrap');
-    if (admWrap && window._PIX_isAdmin) admWrap.style.display = 'block';
+    if (admWrap && window._PIX_role === 'admin') admWrap.style.display = 'block';
     // Update login label if logged in
     var loginLabel = document.getElementById('pmn-login-label');
     var userName = document.getElementById('userMenuName');
@@ -13029,13 +13023,13 @@ if (window.firebaseReady) {
      ═══════════════════════════════════════════════════════════ -->
 
 <!-- Backdrop -->
-<div id="edBackdrop" onclick="pixEditorToggle()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);backdrop-filter:blur(2px);z-index:1000000;"></div>
+<div id="edBackdrop" onclick="pixEditorToggle()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);backdrop-filter:blur(2px);z-index:9990;"></div>
 
 <!-- Editor Sidebar -->
 <div id="edPanel" style="
   display:none; position:fixed; top:0; right:0; bottom:0;
   width:360px; max-width:100vw;
-  background:#fff; z-index:1000001;
+  background:#fff; z-index:9999;
   box-shadow:-8px 0 40px rgba(196,23,85,0.18);
   overflow:hidden; flex-direction:column;
   font-family:'Poppins',sans-serif;
@@ -13445,22 +13439,6 @@ if (window.firebaseReady) {
 <script>
 (function(){
 
-  // ── EDITOR ACCESS BOOTSTRAP ──────────────────────────────
-  // If ?editor=1 is in the URL, unlock the editor FAB immediately
-  // (Firebase auth will still gate saves). Also cache in sessionStorage
-  // so navigating within the page keeps it unlocked.
-  (function() {
-    var params = new URLSearchParams(window.location.search);
-    if (params.get('editor') === '1') {
-      sessionStorage.setItem('pix_editor_unlocked', '1');
-    }
-    if (sessionStorage.getItem('pix_editor_unlocked') === '1') {
-      window._PIX_role = 'editor';
-      var fab = document.getElementById('fab-item-editor');
-      if (fab) fab.style.display = 'flex';
-    }
-  })();
-
   // Map of input id → data-editable key + how to read/write it
   const FIELDS = [
     { id:'ef-ann-1',           key:'ann-1',            plain:true  },
@@ -13737,52 +13715,18 @@ if (window.firebaseReady) {
 
   // ── open / close panel ────────────────────────────────────
   var _open = false;
-  // Elements that overlap the panel and must be hidden while it's open
-  var PANEL_HIDE_IDS = ['fab-root', 'rsChat-toggle', 'rsChat', 'adminPanelBtn', 'pix-up-btn', 'pix-sparks', 'pix-cur', 'pix-cur-ring'];
-  var _hiddenStyles = {};
-
-  function _hidePanelOverlaps() {
-    PANEL_HIDE_IDS.forEach(function(id) {
-      var el = document.getElementById(id);
-      if (el) {
-        _hiddenStyles[id] = el.style.display;
-        el.style.display = 'none';
-      }
-    });
-  }
-  function _restorePanelOverlaps() {
-    PANEL_HIDE_IDS.forEach(function(id) {
-      var el = document.getElementById(id);
-      if (el) {
-        el.style.display = (_hiddenStyles[id] !== undefined ? _hiddenStyles[id] : '');
-      }
-    });
-    _hiddenStyles = {};
-  }
-
   window.pixEditorToggle = function() {
-    // Fallback: if role isn't set yet but the editor FAB is visible,
-    // Firebase auth already confirmed this user is an editor — trust it.
-    if (window._PIX_role !== 'editor') {
-      var fab = document.getElementById('fab-item-editor');
-      if (fab && fab.style.display && fab.style.display !== 'none') {
-        window._PIX_role = 'editor';
-      } else {
-        return; // FAB hidden → not an editor, block
-      }
-    }
+    if (window._PIX_role !== 'editor') return;
     _open = !_open;
     var panel   = document.getElementById('edPanel');
     var backdrop= document.getElementById('edBackdrop');
     if (_open) {
       panel.style.display   = 'flex';
       backdrop.style.display= 'block';
-      _hidePanelOverlaps();
       loadDB(function(vals) { populatePanel(vals); });
     } else {
       panel.style.display   = 'none';
       backdrop.style.display= 'none';
-      _restorePanelOverlaps();
     }
   };
   window.toggleEditorPanel = window.pixEditorToggle;
@@ -13870,4 +13814,3 @@ if (window.firebaseReady) {
 
 </body>
 </html>
-	
