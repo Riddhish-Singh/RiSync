@@ -146,10 +146,10 @@
     .pix-addr-input {
       width: 100%;
       padding: 13px 16px;
-      border: 1.5px solid rgba(0,0,0,0.1);
+      border: 1.5px solid rgba(196,23,85,0.12);
       border-radius: 12px;
       font-family: 'Poppins', sans-serif; font-size: 0.92rem;
-      color: #111; background: #fafafa;
+      color: #1d0b14; background: #fafafa;
       outline: none;
       transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
       box-sizing: border-box;
@@ -197,7 +197,7 @@
     .pix-addr-title {
       font-family: 'Montserrat', sans-serif;
       font-size: 1.08rem; font-weight: 800;
-      color: #111; line-height: 1.2;
+      color: #1d0b14; line-height: 1.2;
     }
     html.dark .pix-addr-title { color: #f5f5f5; }
     .pix-addr-subtitle {
@@ -468,6 +468,18 @@
     #subNavStrip {
       position: relative; overflow: hidden;
     }
+    /* Light mode: white background, black text */
+    html:not(.dark) #subNavStrip {
+      background: #ffffff !important;
+      border-top: 1px solid rgba(196,23,85,0.08);
+      border-bottom: 1px solid rgba(196,23,85,0.08);
+    }
+    html:not(.dark) #subNavStrip span {
+      color: #c4759a !important;
+    }
+    html:not(.dark) #subNavStrip::after {
+      background: linear-gradient(90deg, transparent, rgba(196,23,85,0.05), transparent);
+    }
     #subNavStrip::after {
       content: '';
       position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
@@ -647,14 +659,14 @@
     .pix-stats-bar {
       display: flex; flex-wrap: wrap; justify-content: center;
       gap: 0; background: var(--surface-primary);
-      border-top: 1.5px solid rgba(0,0,0,0.05);
-      border-bottom: 1.5px solid rgba(0,0,0,0.05);
+      border-top: 1.5px solid rgba(196,23,85,0.07);
+      border-bottom: 1.5px solid rgba(196,23,85,0.07);
     }
     html.dark .pix-stats-bar { border-color: rgba(255,255,255,0.06); }
     .pix-stat-item {
       flex: 1; min-width: 140px;
       padding: 28px 20px; text-align: center;
-      border-right: 1.5px solid rgba(0,0,0,0.05);
+      border-right: 1.5px solid rgba(196,23,85,0.07);
       position: relative; overflow: hidden;
       cursor: default;
       transition: background 0.3s;
@@ -757,7 +769,7 @@
 
     /* responsive: hide stats on very small screens */
     @media (max-width: 480px) {
-      .pix-stat-item { min-width: 50%; border-bottom: 1.5px solid rgba(0,0,0,0.05); }
+      .pix-stat-item { min-width: 50%; border-bottom: 1.5px solid rgba(196,23,85,0.07); }
       html.dark .pix-stat-item { border-bottom-color: rgba(255,255,255,0.06); }
     }
   </style>
@@ -768,20 +780,20 @@
       --brand-secondary: #FF7EAC;
       --brand-dark: #C41755;
       --ring-color: rgba(255, 60, 120, 0.25);
-      --text-primary: #111111;
+      --text-primary: #1d0b14;
       --text-secondary: #666666;
       --bg-primary: #FFFFFF;
       --surface-primary: #FFFFFF;
       --success: #2ecc71;
       --error: #e74c3c;
       --header-bg: #FFFFFF;
-      --header-text: #111111;
-      --header-icon-bg: rgba(0,0,0,0.06);
-      --header-icon-color: #333333;
-      --header-border: rgba(0,0,0,0.08);
-      --header-input-bg: rgba(0,0,0,0.05);
-      --header-input-border: rgba(0,0,0,0.12);
-      --header-input-color: #111111;
+      --header-text: #1d0b14;
+      --header-icon-bg: rgba(196,23,85,0.07);
+      --header-icon-color: #3a1625;
+      --header-border: rgba(196,23,85,0.09);
+      --header-input-bg: rgba(196,23,85,0.05);
+      --header-input-border: rgba(196,23,85,0.13);
+      --header-input-color: #1d0b14;
       --subnav-bg: #FF3C78;
     }
     html.dark {
@@ -1196,7 +1208,7 @@
     .cat-tile-overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.1) 60%);
+      background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(196,23,85,0.1) 60%);
     }
     .cat-tile-label {
       position: absolute;
@@ -1291,7 +1303,7 @@
       overflow: hidden;
       transition: all 0.3s cubic-bezier(0.2, 0.9, 0.2, 1);
       background: var(--surface-primary);
-      border: 1.5px solid rgba(0,0,0,0.06);
+      border: 1.5px solid rgba(196,23,85,0.08);
     }
     html.dark .card { border-color: rgba(255,255,255,0.06); }
     .card:hover { transform: translateY(-6px); box-shadow: 0 24px 50px rgba(255,60,120,0.15); border-color: rgba(255,60,120,0.2); }
@@ -1313,7 +1325,7 @@
       cursor: pointer;
       transition: all 0.2s ease;
       background-color: var(--surface-primary);
-      border: 1.5px solid rgba(0,0,0,0.1);
+      border: 1.5px solid rgba(196,23,85,0.12);
       letter-spacing: 0.04em;
     }
     html.dark .chip { border: 1.5px solid rgba(255,255,255,0.1); }
@@ -1359,7 +1371,7 @@
     .drawer {
       transition: transform 0.3s ease-in-out;
       background-color: var(--surface-primary);
-      border-left: 1px solid rgba(0,0,0,0.1);
+      border-left: 1px solid rgba(196,23,85,0.1);
     }
     html.dark .drawer { border-left: 1px solid rgba(255,255,255,0.1); }
     .modal-backdrop { background-color: rgba(0,0,0,0.65); }
@@ -1378,7 +1390,7 @@
       width: 100%;
       padding: 10px 12px;
       border-radius: 8px;
-      border: 1px solid rgba(0,0,0,0.1);
+      border: 1px solid rgba(196,23,85,0.12);
       background-color: var(--bg-primary);
       color: var(--text-primary);
       outline-color: var(--brand-primary);
@@ -1391,7 +1403,7 @@
       border-radius: 999px;
       font-weight: 700;
       background-color: var(--surface-primary);
-      border: 1.5px solid rgba(0,0,0,0.1);
+      border: 1.5px solid rgba(196,23,85,0.1);
       transition: all 0.2s ease;
       font-size: 0.85rem;
     }
@@ -1413,7 +1425,7 @@
     .promo-grid-item:hover img { transform: scale(1.04); }
     .promo-grid-item-overlay {
       position: absolute; inset: 0;
-      background: linear-gradient(135deg, rgba(255,60,120,0.7), rgba(0,0,0,0.2));
+      background: linear-gradient(135deg, rgba(255,60,120,0.7), rgba(196,23,85,0.2));
       display: flex; flex-direction: column; justify-content: flex-end; padding: 20px;
     }
 
@@ -1444,7 +1456,7 @@
 
     /* FOOTER */
     #siteFooter {
-      background: #111111 !important;
+      background: #1d0b14 !important;
       color: rgba(255,255,255,0.6) !important;
       border-top: none !important;
     }
@@ -1482,7 +1494,7 @@
       border-radius: 16px;
       overflow: hidden;
       background: var(--surface-primary);
-      border: 1.5px solid rgba(0,0,0,0.06);
+      border: 1.5px solid rgba(196,23,85,0.06);
     }
     html.dark .skeleton-card { border-color: rgba(255,255,255,0.06); }
     .flash-timer-box {
@@ -1513,8 +1525,8 @@
       flex-wrap: wrap;
       justify-content: center;
       padding: 24px 16px;
-      border-top: 1.5px solid rgba(0,0,0,0.06);
-      border-bottom: 1.5px solid rgba(0,0,0,0.06);
+      border-top: 1.5px solid rgba(196,23,85,0.06);
+      border-bottom: 1.5px solid rgba(196,23,85,0.06);
       background: var(--surface-primary);
     }
     .trust-item {
@@ -1559,7 +1571,7 @@
   .auth-input {
     width: 100%; padding: 12px 16px;
     border-radius: 12px; font-size: 0.9rem;
-    border: 1.5px solid rgba(0,0,0,0.12);
+    border: 1.5px solid rgba(196,23,85,0.12);
     background: var(--bg-primary); color: var(--text-primary);
     outline: none; transition: border-color 0.2s, box-shadow 0.2s;
     box-sizing: border-box;
@@ -1569,25 +1581,25 @@
   .auth-btn-primary { color: white !important;
     width: 100%; padding: 13px;
     background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
-    color: #111111; font-weight: 700; font-size: 0.95rem;
+    color: #1d0b14; font-weight: 700; font-size: 0.95rem;
     border: none; border-radius: 12px; cursor: pointer;
     transition: opacity 0.2s, transform 0.15s;
   }
   .auth-btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
   .auth-btn-primary:active { transform: translateY(0); }
   .auth-divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; color: var(--text-secondary); font-size: 0.8rem; }
-  .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: rgba(0,0,0,0.1); }
+  .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: rgba(196,23,85,0.1); }
   html.dark .auth-divider::before, html.dark .auth-divider::after { background: rgba(255,255,255,0.1); }
   .google-btn {
     width: 100%; padding: 12px;
-    border: 1.5px solid rgba(0,0,0,0.12); border-radius: 12px;
+    border: 1.5px solid rgba(196,23,85,0.12); border-radius: 12px;
     background: var(--surface-primary); color: var(--text-primary);
     font-weight: 600; font-size: 0.9rem; cursor: pointer;
     display: flex; align-items: center; justify-content: center; gap: 10px;
     transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
   }
   html.dark .google-btn { border-color: rgba(255,255,255,0.12); }
-  .google-btn:hover { background: var(--bg-primary); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .google-btn:hover { background: var(--bg-primary); box-shadow: 0 4px 12px rgba(196,23,85,0.1); }
   .auth-switch { font-size: 0.875rem; text-align: center; margin-top: 20px; color: var(--text-secondary); }
   .auth-switch a { color: var(--brand-primary); font-weight: 700; cursor: pointer; text-decoration: none; }
   .auth-error { background: rgba(239,68,68,0.1); color: #ef4444; border-radius: 8px; padding: 10px 14px; font-size: 0.85rem; margin-bottom: 16px; display: none; }
@@ -1597,7 +1609,7 @@
   .user-avatar-btn {
     width: 40px; height: 40px; border-radius: 50%;
     background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
-    color: #111111; font-weight: 800; font-size: 0.9rem;
+    color: #1d0b14; font-weight: 800; font-size: 0.9rem;
     border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
     overflow: hidden; transition: box-shadow 0.2s;
   }
@@ -1607,15 +1619,15 @@
     position: absolute; right: 0; top: calc(100% + 10px);
     background: var(--surface-primary);
     border-radius: 16px; min-width: 220px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.2); 
+    box-shadow: 0 20px 50px rgba(196,23,85,0.2); 
     padding: 8px; z-index: 1000;
-    border: 1px solid rgba(0,0,0,0.08);
+    border: 1px solid rgba(196,23,85,0.08);
     opacity: 0; pointer-events: none; transform: translateY(-8px);
     transition: opacity 0.2s, transform 0.2s;
   }
   html.dark .user-menu { border-color: rgba(255,255,255,0.08); }
   .user-menu.open { opacity: 1; pointer-events: all; transform: translateY(0); }
-  .user-menu-header { padding: 10px 12px 14px; border-bottom: 1px solid rgba(0,0,0,0.08); }
+  .user-menu-header { padding: 10px 12px 14px; border-bottom: 1px solid rgba(196,23,85,0.08); }
   html.dark .user-menu-header { border-color: rgba(255,255,255,0.08); }
   .user-menu-name { font-weight: 700; font-size: 0.9rem; }
   .user-menu-email { font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px; }
@@ -1636,7 +1648,7 @@
   @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.4} }
   /* Orders modal */
   .order-card {
-    border: 1px solid rgba(0,0,0,0.08); border-radius: 12px;
+    border: 1px solid rgba(196,23,85,0.08); border-radius: 12px;
     padding: 14px; margin-bottom: 10px;
     background: var(--bg-primary);
   }
@@ -1666,7 +1678,7 @@
 
   /* Address book professional */
   #addrBookList .addr-card { transition: border-color 0.2s, box-shadow 0.2s; }
-  #addrBookList .addr-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
+  #addrBookList .addr-card:hover { box-shadow: 0 4px 14px rgba(196,23,85,0.08); }
   </style>
 
 
@@ -1720,7 +1732,7 @@
     #pix-lang-yes {
       width: 100%; padding: 14px;
       background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
-      color: #111; font-weight: 800; font-size: 0.95rem;
+      color: #1d0b14; font-weight: 800; font-size: 0.95rem;
       border: none; border-radius: 14px; cursor: pointer;
       display: flex; align-items: center; justify-content: center; gap: 8px;
       margin-bottom: 10px;
@@ -1764,9 +1776,9 @@
       position: absolute; right: 0; top: calc(100% + 10px);
       background: var(--surface-primary);
       border-radius: 18px; min-width: 260px;
-      box-shadow: 0 24px 60px rgba(0,0,0,0.22);
+      box-shadow: 0 24px 60px rgba(196,23,85,0.22);
       padding: 8px; z-index: 9000;
-      border: 1px solid rgba(0,0,0,0.09);
+      border: 1px solid rgba(196,23,85,0.09);
       opacity: 0; pointer-events: none;
       transform: translateY(-6px);
       transition: opacity 0.2s, transform 0.2s;
@@ -1775,7 +1787,7 @@
     #pix-lang-panel.pix-open { opacity: 1; pointer-events: all; transform: translateY(0); }
     .pix-lp-head {
       padding: 10px 12px 12px;
-      border-bottom: 1px solid rgba(0,0,0,0.07);
+      border-bottom: 1px solid rgba(196,23,85,0.07);
       margin-bottom: 6px;
     }
     html.dark .pix-lp-head { border-color: rgba(255,255,255,0.08); }
@@ -1798,7 +1810,7 @@
     .pix-lang-native-sm { margin-left: auto; font-size: 0.75rem; color: var(--text-secondary); }
     .pix-lang-check { color: var(--brand-primary); font-size: 0.8rem; margin-left: 4px; }
     .pix-panel-sep {
-      height: 1px; background: rgba(0,0,0,0.07);
+      height: 1px; background: rgba(196,23,85,0.07);
       margin: 6px 8px;
     }
     html.dark .pix-panel-sep { background: rgba(255,255,255,0.08); }
@@ -1896,7 +1908,7 @@
             <div class="pix-addr-title" style="margin-bottom:6px;" id="addrConfirmTitle">Great! Delivery available &#x1F389;</div>
             <div class="pix-addr-subtitle" id="addrConfirmSub">Orders above &#x20B9;1,999 get free delivery to your door.</div>
           </div>
-          <div style="background:rgba(255,60,120,0.06);border:1.5px solid rgba(255,60,120,0.15);border-radius:14px;padding:14px 16px;margin:16px 0 0;font-family:'Poppins',sans-serif;font-size:0.83rem;color:#444;" id="addrConfirmBox"></div>
+          <div style="background:rgba(255,60,120,0.06);border:1.5px solid rgba(255,60,120,0.15);border-radius:14px;padding:14px 16px;margin:16px 0 0;font-family:'Poppins',sans-serif;font-size:0.83rem;color:#5a2035;" id="addrConfirmBox"></div>
           <button class="pix-addr-btn-next" onclick="pixAddrDone()" style="margin-top:16px;">Start Shopping &#x1F6CD;&#xFE0F;</button>
         </div>
       </div>
@@ -2869,7 +2881,7 @@
         </div>
         <div class="promo-grid-item" style="min-height:200px;">
           <img src="https://royal-sleek-and-shear-52.lovable.app/lovable-uploads/30573759-2745-499d-9bd1-3222a5059831.png" alt="Beauty" style="height:200px;">
-          <div class="promo-grid-item-overlay" style="background:linear-gradient(135deg,rgba(255,60,120,0.65),rgba(0,0,0,0.2));">
+          <div class="promo-grid-item-overlay" style="background:linear-gradient(135deg,rgba(255,60,120,0.65),rgba(196,23,85,0.2));">
             <div style="font-size:0.65rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.8);margin-bottom:4px;" data-editable="promo2-badge">BESTSELLER</div>
             <div style="font-family:'Montserrat',sans-serif;font-size:1.4rem;font-weight:900;color:white;line-height:1.1;" data-editable="promo2-title">Beauty Must-Haves<br>For Every Skin</div>
             <button onclick="setFilter('beauty')" style="margin-top:10px;background:white;color:var(--brand-primary);font-weight:800;font-size:0.75rem;padding:8px 18px;border-radius:999px;border:none;cursor:pointer;letter-spacing:0.06em;text-transform:uppercase;">Shop Now →</button>
@@ -2900,13 +2912,13 @@
           <label for="minRange" style="font-weight:600;font-size:0.82rem;">Min: <span id="minVal" class="font-bold" style="color:var(--brand-primary);">₹0</span></label>
           <input id="minRange" type="range" min="0" max="5000" step="100" value="0" style="accent-color:var(--brand-primary);width:80px;">
         </div>
-        <select id="sort" class="text-sm font-semibold rounded-xl p-2 appearance-none outline-none cursor-pointer border" style="background-color: var(--surface-primary);border-color:rgba(0,0,0,0.1);">
+        <select id="sort" class="text-sm font-semibold rounded-xl p-2 appearance-none outline-none cursor-pointer border" style="background-color: var(--surface-primary);border-color:rgba(196,23,85,0.1);">
           <option value="pop" data-i18n="sort_pop">Popularity</option>
           <option value="plh" data-i18n="sort_plh">Price: Low → High</option>
           <option value="phl" data-i18n="sort_phl">Price: High → Low</option>
           <option value="rate" data-i18n="sort_rate">Rating</option>
         </select>
-        <button class="text-sm font-semibold p-2 px-4 rounded-xl border" id="reset" style="background-color: var(--surface-primary);border-color:rgba(0,0,0,0.1);" data-i18n="reset">Reset</button>
+        <button class="text-sm font-semibold p-2 px-4 rounded-xl border" id="reset" style="background-color: var(--surface-primary);border-color:rgba(196,23,85,0.1);" data-i18n="reset">Reset</button>
       </div>
     </section>
 
@@ -2948,7 +2960,7 @@
       display: flex; align-items: center; gap: 10px;
       padding: 10px 16px; border-radius: 14px;
       background: var(--surface-primary);
-      border: 1.5px solid rgba(0,0,0,0.07);
+      border: 1.5px solid rgba(196,23,85,0.07);
       cursor: pointer; white-space: nowrap; flex-shrink: 0;
       transition: all 0.25s cubic-bezier(.2,.9,.2,1);
       font-family: 'Poppins', sans-serif;
@@ -3184,7 +3196,7 @@
     <style>
     .pix-review-card {
       background: var(--surface-primary);
-      border: 1.5px solid rgba(0,0,0,0.07);
+      border: 1.5px solid rgba(196,23,85,0.07);
       border-radius: 20px;
       padding: 24px;
       min-width: 300px;
@@ -3226,7 +3238,7 @@
       justify-content: center; margin-top: 36px;
       padding: 28px 32px; border-radius: 20px;
       background: var(--surface-primary);
-      border: 1.5px solid rgba(0,0,0,0.06);
+      border: 1.5px solid rgba(196,23,85,0.06);
     }
     html.dark .pix-review-summary { border-color: rgba(255,255,255,0.07); }
     .pix-review-summary-score { text-align: center; }
@@ -3235,7 +3247,7 @@
     .pix-review-count { font-size: 0.75rem; color: var(--text-secondary); font-weight: 600; }
     .pix-review-bars { flex: 1; min-width: 200px; max-width: 320px; display: flex; flex-direction: column; gap: 6px; }
     .pix-rb-row { display: flex; align-items: center; gap: 10px; font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); }
-    .pix-rb-track { flex: 1; height: 8px; background: rgba(0,0,0,0.06); border-radius: 4px; overflow: hidden; }
+    .pix-rb-track { flex: 1; height: 8px; background: rgba(196,23,85,0.06); border-radius: 4px; overflow: hidden; }
     html.dark .pix-rb-track { background: rgba(255,255,255,0.08); }
     .pix-rb-fill { height: 100%; background: linear-gradient(90deg, #FF3C78, #FF7EAC); border-radius: 4px; transition: width 1.2s cubic-bezier(.2,.9,.2,1); }
     </style>
@@ -3334,7 +3346,7 @@
     <!-- END TESTIMONIALS -->
 
     <!-- BECOME A SELLER CTA SECTION -->
-    <section id="seller-cta-section" class="my-12 rounded-2xl overflow-hidden" style="background: linear-gradient(135deg, #111111 0%, #1a0a12 50%, #2d0e1e 100%); border: 1px solid rgba(255,60,120,0.2);">
+    <section id="seller-cta-section" class="my-12 rounded-2xl overflow-hidden" style="background: linear-gradient(135deg, #1d0b14 0%, #2a0d1a 50%, #3d1228 100%); border: 1px solid rgba(255,60,120,0.2);">
       <div class="flex flex-col md:flex-row items-center gap-8 p-8 md:p-10">
         <div class="flex-1">
           <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,60,120,0.15);border:1px solid rgba(255,60,120,0.3);border-radius:999px;padding:5px 14px;margin-bottom:16px;">
@@ -3393,7 +3405,7 @@
       <div style="max-width:680px;margin:0 auto;background:var(--surface-primary);border-radius:24px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,0.5);border:1px solid rgba(255,60,120,0.15);animation:modalIn 0.25s ease forwards;">
         
         <!-- Modal Header -->
-        <div style="background:linear-gradient(135deg,#111111,#1a0a12);padding:28px 32px;position:relative;">
+        <div style="background:linear-gradient(135deg,#1d0b14,#2a0d1a);padding:28px 32px;position:relative;">
           <button onclick="closeSellerModal()" style="position:absolute;top:16px;right:20px;background:rgba(255,255,255,0.1);border:none;color:white;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;">✕</button>
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
             <div style="width:40px;height:40px;background:var(--brand-primary);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;">🏪</div>
@@ -3908,8 +3920,8 @@
     </script>
 
     <!-- CART REMINDER PANEL (WhatsApp / SMS) -->
-    <section id="cart-reminder-section" class="my-12 rounded-2xl hidden overflow-hidden" style="background-color: var(--surface-primary); border: 1px solid rgba(0,0,0,0.08);">
-      <div class="px-6 py-4 flex items-center justify-between" style="border-bottom: 1px solid rgba(0,0,0,0.06);">
+    <section id="cart-reminder-section" class="my-12 rounded-2xl hidden overflow-hidden" style="background-color: var(--surface-primary); border: 1px solid rgba(196,23,85,0.08);">
+      <div class="px-6 py-4 flex items-center justify-between" style="border-bottom: 1px solid rgba(196,23,85,0.06);">
         <div>
           <h3 class="text-base font-bold tracking-tight" data-i18n="cart_reminder">Abandoned Cart Reminder</h3>
           <p class="text-xs mt-0.5" style="color:var(--text-secondary)" data-i18n="cart_reminder_sub">Send an automated reminder to the customer's registered number</p>
@@ -3949,14 +3961,14 @@
                 <div data-editable="newsletter-sub" style="font-size:0.85rem;color:rgba(255,255,255,0.82);margin-top:6px;font-weight:500;">Get early access to deals, launches &amp; style drops.</div>
               </div>
               <div style="display:flex;gap:0;flex:1;max-width:460px;min-width:260px;">
-                <input id="footerEmailInput" type="email" placeholder="Your email address" style="flex:1;padding:14px 18px;border:none;border-radius:12px 0 0 12px;font-size:0.875rem;font-family:'Poppins',sans-serif;outline:none;background:#fff;color:#111;" />
-                <button onclick="(function(){var v=document.getElementById('footerEmailInput').value.trim();if(!v||!v.includes('@')){document.getElementById('footerEmailInput').style.outline='2px solid rgba(255,255,255,0.6)';setTimeout(function(){document.getElementById('footerEmailInput').style.outline='none';},1200);return;}document.getElementById('footerEmailInput').value='';var b=event.target;b.textContent='✓ Subscribed!';b.style.background='#fff';b.style.color='#c41755';setTimeout(function(){b.textContent='Subscribe';b.style.background='#111';b.style.color='#fff';},3000);})()" style="padding:14px 22px;background:#111;color:#fff;font-size:0.82rem;font-weight:800;border:none;border-radius:0 12px 12px 0;cursor:pointer;white-space:nowrap;letter-spacing:0.04em;transition:background 0.2s;" onmouseover="this.style.background='#333'" onmouseout="this.style.background='#111'">Subscribe</button>
+                <input id="footerEmailInput" type="email" placeholder="Your email address" style="flex:1;padding:14px 18px;border:none;border-radius:12px 0 0 12px;font-size:0.875rem;font-family:'Poppins',sans-serif;outline:none;background:#fff;color:#1d0b14;" />
+                <button onclick="(function(){var v=document.getElementById('footerEmailInput').value.trim();if(!v||!v.includes('@')){document.getElementById('footerEmailInput').style.outline='2px solid rgba(255,255,255,0.6)';setTimeout(function(){document.getElementById('footerEmailInput').style.outline='none';},1200);return;}document.getElementById('footerEmailInput').value='';var b=event.target;b.textContent='✓ Subscribed!';b.style.background='#fff';b.style.color='#c41755';setTimeout(function(){b.textContent='Subscribe';b.style.background='#2d0b1a';b.style.color='#fff';},3000);})()" style="padding:14px 22px;background:#2d0b1a;color:#fff;font-size:0.82rem;font-weight:800;border:none;border-radius:0 12px 12px 0;cursor:pointer;white-space:nowrap;letter-spacing:0.04em;transition:background 0.2s;" onmouseover="this.style.background='#3a1625'" onmouseout="this.style.background='#2d0b1a'">Subscribe</button>
               </div>
             </div>
           </div>
 
           <!-- TRUST STRIP -->
-          <div style="background:#111;border-bottom:1px solid rgba(255,255,255,0.07);padding:20px 24px;">
+          <div style="background:#1d0b14;border-bottom:1px solid rgba(255,255,255,0.07);padding:20px 24px;">
             <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:40px;flex-wrap:wrap;">
               <div style="display:flex;align-items:center;gap:10px;white-space:nowrap;">
                 <span style="font-size:1.4rem;">🚚</span>
@@ -4130,7 +4142,7 @@
   <aside class="drawer fixed top-0 right-0 bottom-0 w-full max-w-md transform translate-x-full z-50 flex flex-col" id="cart">
     <header class="p-4 flex items-center justify-between border-b" style="border-color: rgba(128,128,128,0.2);">
         <strong class="text-lg" data-i18n="your_cart">Your Cart</strong>
-        <button class="p-2 rounded-lg font-semibold text-sm" style="border:1.5px solid rgba(0,0,0,0.15);color:var(--text-primary);background:transparent;" id="cartClose" data-i18n="close">Close</button>
+        <button class="p-2 rounded-lg font-semibold text-sm" style="border:1.5px solid rgba(196,23,85,0.15);color:var(--text-primary);background:transparent;" id="cartClose" data-i18n="close">Close</button>
     </header>
     <div class="flex-1 overflow-auto p-4 space-y-3" id="cartItems"></div>
     <footer class="p-4 border-t" style="border-color: rgba(128,128,128,0.2);background:var(--surface-primary);color:var(--text-primary);">
@@ -4142,7 +4154,7 @@
         <div class="text-xs text-center mb-2" id="freeMsg" style="color: var(--text-secondary);"></div>
         <div class="h-2 rounded-full progress-bar" style="background-color: var(--bg-primary);"><span id="shipProg" class="block h-full rounded-full w-0"></span></div>
         <div class="grid grid-cols-2 gap-3 mt-3">
-            <button class="font-bold py-2 px-4 rounded-lg" style="background:transparent;border:1.5px solid rgba(0,0,0,0.18);color:var(--text-primary);" id="clear" data-i18n="clear_cart">Clear Cart</button>
+            <button class="font-bold py-2 px-4 rounded-lg" style="background:transparent;border:1.5px solid rgba(196,23,85,0.18);color:var(--text-primary);" id="clear" data-i18n="clear_cart">Clear Cart</button>
             <a class="btn-primary text-white text-center font-bold py-2 px-4 rounded-lg" href="#checkout" id="toCheckout" data-i18n="checkout">Checkout</a>
         </div>
     </footer>
@@ -4151,7 +4163,7 @@
   <aside class="drawer fixed top-0 right-0 bottom-0 w-full max-w-md transform translate-x-full z-50 flex flex-col" id="wishlist">
     <header class="p-4 flex items-center justify-between border-b" style="border-color: rgba(128,128,128,0.2);">
         <strong class="text-lg" data-i18n="wishlist_title">Wishlist</strong>
-        <button class="p-2 rounded-lg font-semibold text-sm" style="border:1.5px solid rgba(0,0,0,0.15);color:var(--text-primary);background:transparent;" id="wishClose" data-i18n="close">Close</button>
+        <button class="p-2 rounded-lg font-semibold text-sm" style="border:1.5px solid rgba(196,23,85,0.15);color:var(--text-primary);background:transparent;" id="wishClose" data-i18n="close">Close</button>
     </header>
     <div class="flex-1 overflow-auto p-4 space-y-3" id="wishItems"></div>
   </aside>
@@ -4177,7 +4189,7 @@
         <div id="addrBookList"></div>
 
         <!-- Add new address -->
-        <div class="rounded-2xl p-5 border" style="border-color:rgba(0,0,0,0.08);background:var(--bg-primary)">
+        <div class="rounded-2xl p-5 border" style="border-color:rgba(196,23,85,0.08);background:var(--bg-primary)">
           <div class="flex items-center gap-2 mb-4">
             <div class="w-6 h-6 rounded-lg flex items-center justify-center text-white text-sm font-bold" style="background:var(--brand-primary)">
               <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -4301,7 +4313,7 @@
         <div class="flex-1 overflow-hidden relative" style="min-height:260px">
           <img id="mImg" alt="Product" class="w-full h-full object-cover transition-all duration-300">
         </div>
-        <div id="mThumbStrip" class="hidden flex-shrink-0 flex gap-2 p-2 overflow-x-auto" style="background:rgba(0,0,0,0.04)"></div>
+        <div id="mThumbStrip" class="hidden flex-shrink-0 flex gap-2 p-2 overflow-x-auto" style="background:rgba(196,23,85,0.04)"></div>
       </div>
 
       <!-- RIGHT: scrollable info + reviews column -->
@@ -4608,7 +4620,7 @@
                 ${communityBadge}
                 ${galleryDots}
                 <!-- Wishlist heart always visible in top-right (if no community badge) -->
-                ${!p._community ? `<button class="wish" style="position:absolute;top:10px;right:10px;z-index:2;background:rgba(255,255,255,0.9);border:none;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,0.15);backdrop-filter:blur(4px);" title="Wishlist">${wishIcon}</button>` : ''}
+                ${!p._community ? `<button class="wish" style="position:absolute;top:10px;right:10px;z-index:2;background:rgba(255,255,255,0.9);border:none;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:pointer;box-shadow:0 2px 10px rgba(196,23,85,0.15);backdrop-filter:blur(4px);" title="Wishlist">${wishIcon}</button>` : ''}
                 <img loading="lazy" src="${cardImg}" alt="${p.title}" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.5s ease;">
                 <!-- Quick actions overlay (desktop hover) -->
                 <div class="pix-card-overlay absolute inset-0 flex items-end justify-center pb-3 gap-2 transition-opacity" style="background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,transparent 60%);opacity:0;pointer-events:none;">
@@ -4616,7 +4628,7 @@
                     <button class="cmp" style="background:rgba(255,255,255,0.2);color:white;font-size:0.7rem;font-weight:700;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,0.4);cursor:pointer;backdrop-filter:blur(4px);pointer-events:all;" title="Compare">⇄</button>
                 </div>
                 <!-- Mobile quick view (always visible) -->
-                <button class="quick" onclick="event.stopPropagation();if(window.openModal){var p=window.PRODUCTS&&window.PRODUCTS.find(function(x){return x.id==='${p.id}'});if(p)window.openModal(p);}" style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,0.93);color:var(--brand-primary);font-size:0.62rem;font-weight:800;padding:5px 13px;border-radius:999px;border:none;cursor:pointer;z-index:4;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.18);display:none;" title="Quick View">👁 View</button>    </div>
+                <button class="quick" onclick="event.stopPropagation();if(window.openModal){var p=window.PRODUCTS&&window.PRODUCTS.find(function(x){return x.id==='${p.id}'});if(p)window.openModal(p);}" style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,0.93);color:var(--brand-primary);font-size:0.62rem;font-weight:800;padding:5px 13px;border-radius:999px;border:none;cursor:pointer;z-index:4;white-space:nowrap;box-shadow:0 2px 8px rgba(196,23,85,0.18);display:none;" title="Quick View">👁 View</button>    </div>
             <div style="padding:14px 14px 16px;flex:1;display:flex;flex-direction:column;">
                 <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--brand-primary);margin-bottom:4px;">${niceCat(p.cat)}</div>
                 <h3 style="font-weight:700;font-size:0.88rem;line-height:1.35;flex:1;margin-bottom:4px;color:var(--text-primary);">${p.title}</h3>
@@ -4672,9 +4684,9 @@
                     <div class="text-xs" style="color: var(--text-secondary);">${fmt(i.price)}</div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button class="qty-btn dec w-6 h-6 rounded font-bold text-sm" style="border:1.5px solid rgba(0,0,0,0.18);background:#e5e7eb;color:#111111;cursor:pointer;">−</button>
+                    <button class="qty-btn dec w-6 h-6 rounded font-bold text-sm" style="border:1.5px solid rgba(196,23,85,0.18);background:#e5e7eb;color:#1d0b14;cursor:pointer;">−</button>
                     <span class="w-6 text-center font-semibold" style="color:var(--text-primary);">${i.qty}</span>
-                    <button class="qty-btn inc w-6 h-6 rounded font-bold text-sm" style="border:1.5px solid rgba(0,0,0,0.18);background:#e5e7eb;color:#111111;cursor:pointer;">+</button>
+                    <button class="qty-btn inc w-6 h-6 rounded font-bold text-sm" style="border:1.5px solid rgba(196,23,85,0.18);background:#e5e7eb;color:#1d0b14;cursor:pointer;">+</button>
                 </div>
                 <button class="rm font-bold" style="color:#ef4444;">✕</button>
             </div>`).join('');
@@ -5084,7 +5096,7 @@
                 el.innerHTML = orders.slice(0, 5).map(o => {
                     const date = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : 'Recently';
                     const items = (o.items || []).map(i => `<div class="flex justify-between text-sm py-1"><span class="font-medium">${i.title} <span style="color:var(--text-secondary)">× ${i.qty}</span></span><span class="font-bold">₹${(i.price * i.qty).toLocaleString()}</span></div>`).join('');
-                    return `<div class="p-4 rounded-2xl" style="background:var(--surface-primary);border:1px solid rgba(0,0,0,0.07)">
+                    return `<div class="p-4 rounded-2xl" style="background:var(--surface-primary);border:1px solid rgba(196,23,85,0.07)">
                         <div class="flex justify-between items-start mb-3">
                           <div>
                             <div class="font-bold text-sm">Order #${o.id ? o.id.slice(-6).toUpperCase() : '------'}</div>
@@ -5104,8 +5116,8 @@
                             }
                           </span>
                         </div>
-                        <div style="border-top:1px solid rgba(0,0,0,0.06);padding-top:10px">${items}</div>
-                        <div class="flex justify-between font-bold text-sm mt-3 pt-3" style="border-top:1px solid rgba(0,0,0,0.06)">
+                        <div style="border-top:1px solid rgba(196,23,85,0.06);padding-top:10px">${items}</div>
+                        <div class="flex justify-between font-bold text-sm mt-3 pt-3" style="border-top:1px solid rgba(196,23,85,0.06)">
                           <span>Total</span><span style="color:var(--brand-primary)">₹${(o.total || 0).toLocaleString()}</span>
                         </div>
                     </div>`;
@@ -5667,7 +5679,7 @@
         surface:   '#FFFFFF',
         headerBg:  '#0A0A0A',
         subnavBg:  '#0A0A0A',
-        textPri:   '#111111',
+        textPri:   '#1d0b14',
         textSec:   '#666666',
       },
       candles: {
@@ -5715,7 +5727,7 @@
         surface:   '#FFFFFF',
         headerBg:  '#3D444A',
         subnavBg:  '#4C6EF5',
-        textPri:   '#111111',
+        textPri:   '#1d0b14',
         textSec:   '#6C757D',
       },
     };
@@ -5885,28 +5897,28 @@
   <style>
     #adminDashboard { font-family: 'Inter', system-ui, sans-serif; }
     .adm-tab { padding: 10px 20px; font-weight: 600; font-size: 0.875rem; border-radius: 10px; cursor: pointer; transition: all 0.2s; border: none; background: transparent; color: var(--text-secondary); }
-    .adm-tab.active { background: var(--brand-primary); color: #111; }
+    .adm-tab.active { background: var(--brand-primary); color: #1d0b14; }
     .adm-card { background: var(--surface-primary); border-radius: 16px; padding: 20px; }
     .adm-stat { background: var(--surface-primary); border-radius: 14px; padding: 18px 22px; flex: 1; min-width: 140px; }
     .adm-stat .val { font-size: 1.8rem; font-weight: 800; line-height: 1; }
     .adm-stat .lbl { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); margin-top: 6px; }
     .adm-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-    .adm-table th { text-align: left; padding: 10px 12px; font-weight: 700; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); border-bottom: 2px solid rgba(0,0,0,0.08); }
+    .adm-table th { text-align: left; padding: 10px 12px; font-weight: 700; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); border-bottom: 2px solid rgba(196,23,85,0.08); }
     html.dark .adm-table th { border-color: rgba(255,255,255,0.08); }
-    .adm-table td { padding: 10px 12px; border-bottom: 1px solid rgba(0,0,0,0.05); vertical-align: middle; }
+    .adm-table td { padding: 10px 12px; border-bottom: 1px solid rgba(196,23,85,0.05); vertical-align: middle; }
     html.dark .adm-table td { border-color: rgba(255,255,255,0.06); }
     .adm-table tr:last-child td { border-bottom: none; }
     .adm-table tr:hover td { background: rgba(198,167,94,0.04); }
-    .adm-input { padding: 7px 10px; border-radius: 8px; border: 1.5px solid rgba(0,0,0,0.12); background: var(--bg-primary); font-size: 0.8rem; width: 90px; outline: none; color: var(--text-primary); }
+    .adm-input { padding: 7px 10px; border-radius: 8px; border: 1.5px solid rgba(196,23,85,0.12); background: var(--bg-primary); font-size: 0.8rem; width: 90px; outline: none; color: var(--text-primary); }
     html.dark .adm-input { border-color: rgba(255,255,255,0.12); }
     .adm-input:focus { border-color: var(--brand-primary); }
     .adm-pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 700; }
-    .adm-filter-btn { padding: 6px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: 1.5px solid rgba(0,0,0,0.1); background: var(--bg-primary); color: var(--text-secondary); transition: all 0.15s; }
+    .adm-filter-btn { padding: 6px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: 1.5px solid rgba(196,23,85,0.1); background: var(--bg-primary); color: var(--text-secondary); transition: all 0.15s; }
     .adm-filter-btn.active { border-color: var(--brand-primary); color: var(--brand-primary); background: rgba(198,167,94,0.08); }
     html.dark .adm-filter-btn { border-color: rgba(255,255,255,0.12); }
   </style>
   <!-- Header -->
-  <div class="flex items-center justify-between px-6 py-4 border-b" style="border-color:rgba(0,0,0,0.08);background:var(--surface-primary);flex-shrink:0">
+  <div class="flex items-center justify-between px-6 py-4 border-b" style="border-color:rgba(196,23,85,0.08);background:var(--surface-primary);flex-shrink:0">
     <div class="flex items-center gap-3">
       <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg font-black" style="background:rgba(198,167,94,0.15);color:var(--brand-primary)">G</div>
       <div>
@@ -5926,11 +5938,11 @@
         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
         Download Excel
       </button>
-      <button onclick="document.getElementById('adminDashboard').classList.add('hidden')" class="w-9 h-9 rounded-xl flex items-center justify-center text-lg" style="background:rgba(0,0,0,0.06)">✕</button>
+      <button onclick="document.getElementById('adminDashboard').classList.add('hidden')" class="w-9 h-9 rounded-xl flex items-center justify-center text-lg" style="background:rgba(196,23,85,0.06)">✕</button>
     </div>
   </div>
   <!-- Tabs -->
-  <div class="flex gap-2 px-6 py-3 border-b" style="border-color:rgba(0,0,0,0.08);background:var(--surface-primary);flex-shrink:0">
+  <div class="flex gap-2 px-6 py-3 border-b" style="border-color:rgba(196,23,85,0.08);background:var(--surface-primary);flex-shrink:0">
     <button class="adm-tab active" data-tab="sales">📊 Sales Analytics</button>
     <button class="adm-tab" data-tab="inventory">📦 Inventory & Pricing</button>
     <button class="adm-tab" data-tab="orders">🧾 All Orders</button>
@@ -5956,12 +5968,12 @@
 <style>
   #rsChat { position: fixed; right: 20px; bottom: 20px; width: 360px; max-width: calc(100% - 40px); border-radius: 14px; box-shadow: 0 12px 30px rgba(11,18,32,0.18); overflow: hidden; font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; z-index: 9999; }
   #rsChat .header { background: linear-gradient(90deg, #0b63ff, #ff6a00); color: #fff; padding: 10px 12px; display:flex; align-items:center; gap:8px; }
-  #rsChat .body { background: #ffffff; color: #111827; max-height: 420px; overflow:auto; padding:12px; }
+  #rsChat .body { background: #ffffff; color: #1d0b14; max-height: 420px; overflow:auto; padding:12px; }
   #rsChat .msg { margin-bottom:10px; display:flex; gap:8px; align-items:flex-start; }
-  #rsChat .msg.user .bubble { background:#111827; color:#fff; margin-left:auto; border-bottom-right-radius:4px; }
-  #rsChat .msg.bot .bubble { background: #f3f4f6; color:#111827; }
+  #rsChat .msg.user .bubble { background:#1d0b14; color:#fff; margin-left:auto; border-bottom-right-radius:4px; }
+  #rsChat .msg.bot .bubble { background: #f3f4f6; color:#1d0b14; }
   #rsChat .options { display:flex; flex-direction:column; gap:8px; margin-top:8px; }
-  #rsChat .options button, #rsChat .options a.button-link { padding:10px 12px; border-radius:10px; border:1px solid rgba(0,0,0,0.06); background:#f8fafc; cursor:pointer; text-align:left; font-weight:700; text-decoration:none; color:inherit; display:block; }
+  #rsChat .options button, #rsChat .options a.button-link { padding:10px 12px; border-radius:10px; border:1px solid rgba(196,23,85,0.06); background:#f8fafc; cursor:pointer; text-align:left; font-weight:700; text-decoration:none; color:inherit; display:block; }
   #rsChat-toggle { position: fixed; right: 20px; bottom: 20px; width:56px; height:56px; border-radius:999px; background:linear-gradient(90deg,#0b63ff,#ff6a00); color:white; display:flex; align-items:center; justify-content:center; z-index:9998; box-shadow:0 10px 25px rgba(11,18,32,0.18); cursor:pointer; }
   @media (max-width:420px){ #rsChat { width: 92%; right:4%; bottom:80px; } }
   .bubble strong{ font-weight:800; }
@@ -6329,8 +6341,8 @@
             </div>
             <span class="text-xs font-bold px-3 py-1 rounded-full" style="background:rgba(16,185,129,0.12);color:#10b981">✓ Placed</span>
           </div>
-          <div style="border-top:1px solid rgba(0,0,0,0.06);padding-top:10px;display:flex;flex-direction:column;gap:6px">${items}</div>
-          <div class="flex justify-between font-bold text-sm mt-3 pt-3" style="border-top:1px solid rgba(0,0,0,0.06)">
+          <div style="border-top:1px solid rgba(196,23,85,0.06);padding-top:10px;display:flex;flex-direction:column;gap:6px">${items}</div>
+          <div class="flex justify-between font-bold text-sm mt-3 pt-3" style="border-top:1px solid rgba(196,23,85,0.06)">
             <span>Total</span><span style="color:var(--brand-primary)">₹${(o.total || 0).toLocaleString()}</span>
           </div>
         </div>`;
@@ -7117,7 +7129,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="text-xs mb-3" style="color:var(--text-secondary)">When a customer orders, a WhatsApp message with full order details will be sent to this number.</div>
           <div class="flex gap-2 items-center flex-wrap">
             <input id="admWaPhone" type="tel" placeholder="91XXXXXXXXXX (with country code)" value="${ns.admin_whatsapp || '916280096796'}"
-              style="flex:1;min-width:220px;padding:8px 12px;border-radius:8px;border:1.5px solid rgba(0,0,0,0.12);background:var(--bg-primary);font-size:0.85rem;outline:none;color:var(--text-primary)">
+              style="flex:1;min-width:220px;padding:8px 12px;border-radius:8px;border:1.5px solid rgba(196,23,85,0.12);background:var(--bg-primary);font-size:0.85rem;outline:none;color:var(--text-primary)">
             <button onclick="admSaveWA()" style="padding:8px 20px;border-radius:8px;background:#25D366;color:white;font-weight:700;font-size:0.85rem;border:none;cursor:pointer">
               Save WhatsApp Number
             </button>
@@ -7142,7 +7154,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
           <div class="flex gap-2 items-center flex-wrap">
             <input id="admFormEmail" type="email" placeholder="gurunanak.garments2023@gmail.com" value="${ns.admin_email || 'gurunanak.garments2023@gmail.com'}"
-              style="flex:1;min-width:260px;padding:8px 12px;border-radius:8px;border:1.5px solid rgba(0,0,0,0.12);background:var(--bg-primary);font-size:0.85rem;outline:none;color:var(--text-primary)">
+              style="flex:1;min-width:260px;padding:8px 12px;border-radius:8px;border:1.5px solid rgba(196,23,85,0.12);background:var(--bg-primary);font-size:0.85rem;outline:none;color:var(--text-primary)">
             <button onclick="admSaveFormEmail()" style="padding:9px 20px;border-radius:8px;background:var(--brand-primary);color:white;font-weight:700;font-size:0.85rem;border:none;cursor:pointer">
               💾 Save Email
             </button>
@@ -7164,7 +7176,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const itemsStr = (o.items||[]).map(i => `${i.name} x${i.qty}`).join(', ') || '—';
                 const customerPhone = (o.phone || '').replace(/\D/g,'');
                 const waMsg = encodeURIComponent(`Hi ${o.customer||'Customer'}, your Pioneer I Xpress order (₹${(o.total||0).toLocaleString('en-IN')}) has been received and is being processed. Thank you! 🛍️`);
-                return `<div style="padding:12px 0;border-bottom:1px solid rgba(0,0,0,0.06);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                return `<div style="padding:12px 0;border-bottom:1px solid rgba(196,23,85,0.06);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
                   <div style="flex:1;min-width:200px">
                     <div style="font-weight:700;font-size:0.85rem">${o.customer||'—'} <span style="font-size:0.7rem;color:var(--text-secondary);font-weight:400">${o.phone||''}</span></div>
                     <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:2px">${itemsStr}</div>
@@ -7941,7 +7953,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const img = p.img || p.image || '';
           return `<div class="adm-card" id="pendingCard_${idx}" style="border:1.5px solid rgba(245,158,11,0.2);">
             <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;">
-              ${img ? `<img src="${img}" style="width:80px;height:80px;border-radius:12px;object-fit:cover;flex-shrink:0;border:1px solid rgba(0,0,0,0.08);" onerror="this.style.display='none'">` : `<div style="width:80px;height:80px;border-radius:12px;background:rgba(245,158,11,0.1);display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;">📦</div>`}
+              ${img ? `<img src="${img}" style="width:80px;height:80px;border-radius:12px;object-fit:cover;flex-shrink:0;border:1px solid rgba(196,23,85,0.08);" onerror="this.style.display='none'">` : `<div style="width:80px;height:80px;border-radius:12px;background:rgba(245,158,11,0.1);display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;">📦</div>`}
               <div style="flex:1;min-width:200px;">
                 <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:8px;">
                   <div>
@@ -9379,7 +9391,7 @@ document.addEventListener('DOMContentLoaded', function(){
     white-space: nowrap;
   }
   .deal-tab-btn:hover { background: rgba(255,255,255,0.22); border-color: rgba(255,255,255,0.5); color: white; }
-  .deal-tab-btn.active { background: white; color: #c41755; border-color: white; box-shadow: 0 4px 16px rgba(0,0,0,0.18); }
+  .deal-tab-btn.active { background: white; color: #c41755; border-color: white; box-shadow: 0 4px 16px rgba(196,23,85,0.18); }
   .deal-card-anim { animation: dealCardIn 0.3s ease forwards; opacity: 0; }
   @keyframes dealCardIn {
     from { opacity: 0; transform: translateY(12px) scale(0.97); }
@@ -9413,7 +9425,7 @@ document.addEventListener('DOMContentLoaded', function(){
       </div>
 
       <!-- Countdown timer strip -->
-      <div style="margin-top:14px;display:inline-flex;align-items:center;gap:8px;background:rgba(0,0,0,0.22);border-radius:10px;padding:8px 14px;">
+      <div style="margin-top:14px;display:inline-flex;align-items:center;gap:8px;background:rgba(196,23,85,0.22);border-radius:10px;padding:8px 14px;">
         <span style="color:rgba(255,255,255,0.8);font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;">⏱ Ends in:</span>
         <span id="dealTimerH" style="color:white;font-weight:900;font-size:1.05rem;font-family:'Montserrat',sans-serif;">00</span><span style="color:rgba(255,255,255,0.55);font-weight:900;font-size:0.9rem;">h</span>
         <span id="dealTimerM" style="color:white;font-weight:900;font-size:1.05rem;font-family:'Montserrat',sans-serif;">00</span><span style="color:rgba(255,255,255,0.55);font-weight:900;font-size:0.9rem;">m</span>
@@ -9586,7 +9598,7 @@ document.addEventListener('DOMContentLoaded', function(){
       ? '<span class="deal-section-badge" style="background:' + (secColors[deal.cat]||'#FF3C78') + '1a;color:' + (secColors[deal.cat]||'#FF3C78') + ';border:1px solid ' + (secColors[deal.cat]||'#FF3C78') + '44;">' + (secLabels[deal.cat]||deal.cat) + '</span>'
       : '';
 
-    return '<div class="deal-card-anim" style="animation-delay:' + animDelay + 'ms;background:var(--bg-primary);border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);border:1px solid rgba(255,60,120,0.1);transition:transform 0.2s,box-shadow 0.2s;cursor:pointer;" onmouseover="this.style.transform=\'translateY(-4px)\';this.style.boxShadow=\'0 14px 36px rgba(255,60,120,0.2)\'" onmouseout="this.style.transform=\'translateY(0)\';this.style.boxShadow=\'0 4px 20px rgba(0,0,0,0.08)\'" onclick="window._PIX_openDealProduct(\'' + p.id + '\')">'
+    return '<div class="deal-card-anim" style="animation-delay:' + animDelay + 'ms;background:var(--bg-primary);border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(196,23,85,0.08);border:1px solid rgba(255,60,120,0.1);transition:transform 0.2s,box-shadow 0.2s;cursor:pointer;" onmouseover="this.style.transform=\'translateY(-4px)\';this.style.boxShadow=\'0 14px 36px rgba(255,60,120,0.2)\'" onmouseout="this.style.transform=\'translateY(0)\';this.style.boxShadow=\'0 4px 20px rgba(196,23,85,0.08)\'" onclick="window._PIX_openDealProduct(\'' + p.id + '\')">'
       + '<div style="position:relative;height:155px;overflow:hidden;">'
       + '<img src="' + p.img + '" alt="' + p.title + '" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.4s ease;" onmouseover="this.style.transform=\'scale(1.06)\'" onmouseout="this.style.transform=\'scale(1)\'" loading="lazy" onerror="this.src=\'https://via.placeholder.com/300x155?text=Product\'">'
       + '<span style="position:absolute;top:10px;left:10px;background:linear-gradient(135deg,#FF3C78,#c41755);color:white;font-size:0.65rem;font-weight:900;padding:4px 10px;border-radius:999px;letter-spacing:0.06em;text-transform:uppercase;box-shadow:0 3px 10px rgba(255,60,120,0.4);">' + deal.label + '</span>'
@@ -9804,7 +9816,7 @@ document.addEventListener('DOMContentLoaded', function(){
 #notifyMeStrip .nm-row{display:flex;gap:8px;}
 #notifyMeInput{
   flex:1;padding:9px 14px;border-radius:8px;
-  border:1.5px solid rgba(0,0,0,0.1);font-size:0.8rem;
+  border:1.5px solid rgba(196,23,85,0.1);font-size:0.8rem;
   background:var(--bg-primary);color:var(--text-primary);outline:none;
 }
 html.dark #notifyMeInput{border-color:rgba(255,255,255,0.15);}
@@ -9820,7 +9832,7 @@ html.dark #notifyMeInput{border-color:rgba(255,255,255,0.15);}
 #socialProofToast{
   position:fixed;bottom:90px;left:20px;z-index:9200;
   background:var(--surface-primary);border-radius:14px;
-  box-shadow:0 8px 32px rgba(0,0,0,0.22);border:1px solid rgba(0,0,0,0.07);
+  box-shadow:0 8px 32px rgba(196,23,85,0.22);border:1px solid rgba(196,23,85,0.07);
   padding:12px 16px;display:flex;align-items:center;gap:12px;
   max-width:290px;transform:translateX(-120%);transition:transform 0.45s cubic-bezier(0.2,1.3,0.4,1);
   pointer-events:none;
@@ -9841,7 +9853,7 @@ html.dark #socialProofToast{border-color:rgba(255,255,255,0.08);}
 #searchAutoList{
   position:absolute;top:calc(100% + 6px);left:0;right:0;
   background:var(--surface-primary);border-radius:14px;
-  box-shadow:0 12px 40px rgba(0,0,0,0.22);border:1px solid rgba(0,0,0,0.08);
+  box-shadow:0 12px 40px rgba(196,23,85,0.22);border:1px solid rgba(196,23,85,0.08);
   z-index:9999;overflow:hidden;max-height:340px;overflow-y:auto;
   display:none;
 }
@@ -9860,7 +9872,7 @@ html.dark #searchAutoList{border-color:rgba(255,255,255,0.1);}
 /* ── 7. Cookie Consent ── */
 #cookieBanner{
   position:fixed;bottom:0;left:0;right:0;z-index:9800;
-  background:#111;color:rgba(255,255,255,0.85);
+  background:#1d0b14;color:rgba(255,255,255,0.85);
   padding:16px 24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;
   border-top:1px solid rgba(255,255,255,0.08);
   transform:translateY(100%);transition:transform 0.4s ease;
@@ -10366,7 +10378,7 @@ function onScroll(){
   if (upBtn) { pct > 8 ? upBtn.classList.add('show') : upBtn.classList.remove('show'); }
   // header shadow on scroll
   var hdr = document.getElementById('siteHeader');
-  if (hdr) { st > 60 ? hdr.style.boxShadow = '0 4px 32px rgba(0,0,0,0.55)' : hdr.style.boxShadow = ''; }
+  if (hdr) { st > 60 ? hdr.style.boxShadow = '0 4px 32px rgba(60,15,35,0.45)' : hdr.style.boxShadow = ''; }
 }
 window.addEventListener('scroll', onScroll, {passive:true});
 
@@ -10763,7 +10775,7 @@ if (logo) logo.addEventListener('click', function(){
           '<div style="display:flex;gap:8px;align-items:flex-start;">' +
             '<i class="fas fa-location-dot" style="color:#FF3C78;margin-top:2px;flex-shrink:0;"></i>' +
             '<div>' +
-              '<div style="font-weight:700;color:#111;font-size:0.88rem;margin-bottom:2px;">' + _addrData.street + '</div>' +
+              '<div style="font-weight:700;color:#1d0b14;font-size:0.88rem;margin-bottom:2px;">' + _addrData.street + '</div>' +
               '<div style="color:#777;">' + [_addrData.city, _addrData.state, _addrData.pin].filter(Boolean).join(', ') + '</div>' +
             '</div>' +
           '</div>';
@@ -11019,7 +11031,7 @@ if (logo) logo.addEventListener('click', function(){
   width: 320px; max-width: 92vw;
   background: var(--bg-primary);
   border-right: 1.5px solid var(--header-border);
-  box-shadow: 8px 0 40px rgba(0,0,0,0.12);
+  box-shadow: 8px 0 40px rgba(196,23,85,0.12);
   transform: translateX(-100%);
   transition: transform 0.38s cubic-bezier(.2,.9,.2,1);
   display: flex; flex-direction: column;
@@ -11444,7 +11456,7 @@ if (pmns) {
 /* Stock bar */
 .pix-stock-bar {
   height: 3px; border-radius: 2px;
-  background: rgba(0,0,0,0.07); overflow: hidden; margin-top: 8px;
+  background: rgba(196,23,85,0.07); overflow: hidden; margin-top: 8px;
 }
 html.dark .pix-stock-bar { background: rgba(255,255,255,0.08); }
 .pix-stock-fill {
@@ -11473,7 +11485,7 @@ html.dark .pix-stock-bar { background: rgba(255,255,255,0.08); }
 .card:hover .pix-card-quick { transform: translateY(0); }
 .pix-quick-btn {
   width: 100%; padding: 9px;
-  background: white; color: #111;
+  background: white; color: #1d0b14;
   font-weight: 800; font-size: 0.78rem;
   border: none; border-radius: 10px; cursor: pointer;
   font-family: 'Poppins', sans-serif;
@@ -11491,7 +11503,7 @@ html.dark .pix-stock-bar { background: rgba(255,255,255,0.08); }
   top: 64px; /* header height */
   z-index: 40;
   background: var(--bg-primary);
-  border-bottom: 1px solid rgba(0,0,0,0.06);
+  border-bottom: 1px solid rgba(196,23,85,0.06);
   padding: 8px 0;
   margin: 0 -16px;
   padding: 8px 16px;
@@ -11499,7 +11511,7 @@ html.dark .pix-stock-bar { background: rgba(255,255,255,0.08); }
 }
 html.dark #pix-filter-sticky { border-color: rgba(255,255,255,0.06); }
 #pix-filter-sticky.pix-stuck {
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 20px rgba(196,23,85,0.1);
 }
 </style>
 <script>
@@ -11541,7 +11553,7 @@ html.dark #pix-filter-sticky { border-color: rgba(255,255,255,0.06); }
 
 /* ── Better promo banner overlay ── */
 .promo-grid-item-overlay {
-  background: linear-gradient(160deg, rgba(255,60,120,0.75) 0%, rgba(0,0,0,0.15) 100%) !important;
+  background: linear-gradient(160deg, rgba(255,60,120,0.75) 0%, rgba(196,23,85,0.15) 100%) !important;
 }
 
 /* ── Improved announcement bar typography ── */
@@ -13018,7 +13030,7 @@ if (window.firebaseReady) {
   display:none; position:fixed; top:0; right:0; bottom:0;
   width:360px; max-width:100vw;
   background:#fff; z-index:9999;
-  box-shadow:-8px 0 40px rgba(0,0,0,0.18);
+  box-shadow:-8px 0 40px rgba(196,23,85,0.18);
   overflow:hidden; flex-direction:column;
   font-family:'Poppins',sans-serif;
 ">
