@@ -13239,29 +13239,6 @@ if (window.firebaseReady) {
       </div>
     </div>
 
-
-    <!-- ▸ PRODUCT IMAGES -->
-    <div class="ed-section" id="ed-prod-img-section">
-      <div class="ed-section-title">🛍️ Product Images</div>
-      <p class="ed-hint">Change the image for any product. Paste a URL or upload a file.</p>
-
-      <!-- Search / filter -->
-      <div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap;">
-        <input id="ed-prod-search" class="ed-input" type="text" placeholder="Search products…"
-          oninput="pixProdSearch(this.value)" style="flex:1;min-width:140px;">
-        <select id="ed-prod-cat-filter" class="ed-input" onchange="pixProdSearch(document.getElementById('ed-prod-search').value)" style="width:110px;">
-          <option value="">All</option>
-          <option value="candles">Candles</option>
-          <option value="beauty">Beauty</option>
-          <option value="clothing">Clothing</option>
-          <option value="techbags">Tech Bags</option>
-        </select>
-      </div>
-
-      <!-- Product rows are rendered by pixBuildProdImgEditor() -->
-      <div id="ed-prod-img-list"></div>
-    </div>
-
     <!-- ▸ BRAND COLOURS -->
     <div class="ed-section" style="border-bottom:none;">
       <div class="ed-section-title">🎨 Brand Colours</div>
@@ -13381,17 +13358,6 @@ if (window.firebaseReady) {
   margin-bottom: 10px;
 }
 
-
-/* ── Editor Product Image Rows ── */
-.ed-prod-row {
-  display: flex; gap: 10px; align-items: flex-start;
-  margin-bottom: 10px; padding: 9px;
-  background: #fdf9ff; border: 1.5px solid #ede9fe;
-  border-radius: 10px;
-  transition: border-color 0.2s;
-}
-.ed-prod-row:hover { border-color: #c4b5fd; }
-
 /* ── Editor Images Section ── */
 .ed-img-group {
   margin-bottom: 18px;
@@ -13490,76 +13456,6 @@ if (window.firebaseReady) {
   }
 
 
-
-  // ── Product Image Editor ─────────────────────────────────────────────────
-
-  // Build the product image rows in the editor panel
-  window.pixBuildProdImgEditor = function(vals) {
-    var prods = window.PRODUCTS;
-    if (!prods || !prods.length) return;
-    var container = document.getElementById('ed-prod-img-list');
-    if (!container) return;
-    var html = '';
-    for (var i = 0; i < prods.length; i++) {
-      var p = prods[i];
-      if (p._community) continue; // skip community products
-      var savedImg = vals && vals['pimg-' + i] ? vals['pimg-' + i] : p.img;
-      var thumb = savedImg || '';
-      var catLabel = (p.cat || '').charAt(0).toUpperCase() + (p.cat || '').slice(1);
-      html += '<div class="ed-prod-row" data-idx="' + i + '" data-cat="' + (p.cat||'') + '" data-title="' + (p.title||'').toLowerCase() + '">'
-        + '<div class="ed-img-thumb-wrap">'
-        +   '<img class="ed-img-thumb ed-prod-prev-' + i + '" src="' + (thumb.startsWith('data:') ? thumb : (thumb || 'https://via.placeholder.com/64x48?text=?')) + '" onerror="this.src='https://via.placeholder.com/64x48?text=?'" >'
-        +   '<div class="ed-img-label-pill" style="font-size:0.58rem;">' + catLabel + '</div>'
-        + '</div>'
-        + '<div class="ed-img-inputs" style="flex:1;">'
-        +   '<div style="font-size:0.72rem;font-weight:700;color:#1d0b14;margin-bottom:4px;line-height:1.2;">' + (p.title||'Product '+i) + '</div>'
-        +   '<input class="ed-input" id="ei-pimg-' + i + '" type="url" placeholder="Paste image URL…" value="' + (thumb.startsWith('data:') ? '' : (thumb||'')) + '" oninput="pixProdImgPreview(' + i + ',this.value)">'
-        +   '<label class="ed-img-upload-btn" style="margin-top:4px;"><i class="fa fa-upload"></i> Upload<input type="file" accept="image/*" style="display:none" onchange="pixProdImgUpload(' + i + ',this)"></label>'
-        + '</div>'
-        + '</div>';
-    }
-    container.innerHTML = html;
-  };
-
-  // Live preview when URL is typed
-  window.pixProdImgPreview = function(idx, url) {
-    if (!url) return;
-    // update thumbnail in panel
-    var thumbs = document.querySelectorAll('.ed-prod-prev-' + idx);
-    thumbs.forEach(function(t){ t.src = url; });
-    // live-update the product image in the grid
-    if (window.PRODUCTS && window.PRODUCTS[idx]) {
-      window.PRODUCTS[idx].img = url;
-      if (window._PIX_rerenderProducts) window._PIX_rerenderProducts();
-    }
-  };
-
-  // Upload from file
-  window.pixProdImgUpload = function(idx, inputEl) {
-    var file = inputEl.files[0];
-    if (!file) return;
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      var dataUrl = e.target.result;
-      var urlInp = document.getElementById('ei-pimg-' + idx);
-      if (urlInp) urlInp.value = dataUrl;
-      window.pixProdImgPreview(idx, dataUrl);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  // Search/filter products in the editor list
-  window.pixProdSearch = function(query) {
-    var cat = (document.getElementById('ed-prod-cat-filter') || {}).value || '';
-    var q = (query || '').toLowerCase();
-    var rows = document.querySelectorAll('.ed-prod-row');
-    rows.forEach(function(row) {
-      var matchTitle = !q || (row.dataset.title || '').includes(q);
-      var matchCat   = !cat || row.dataset.cat === cat;
-      row.style.display = (matchTitle && matchCat) ? '' : 'none';
-    });
-  };
-
   // ── Image helpers ────────────────────────────────────────────────────────
   window.pixImgPreview = function(slug, url) {
     if (!url) return;
@@ -13610,21 +13506,6 @@ if (window.firebaseReady) {
     });
     // Colours
 
-
-    // Apply saved product images to PRODUCTS array and re-render
-    if (window.PRODUCTS) {
-      var changed = false;
-      for (var _pi = 0; _pi < window.PRODUCTS.length; _pi++) {
-        if (vals['pimg-' + _pi]) {
-          window.PRODUCTS[_pi].img = vals['pimg-' + _pi];
-          changed = true;
-        }
-      }
-      if (changed && window._PIX_rerenderProducts) {
-        setTimeout(function(){ window._PIX_rerenderProducts(); }, 200);
-      }
-    }
-
     // Apply images
     var IMG_IDS = {
       'img-hero1':'img-hero1','img-hero2':'img-hero2','img-hero3':'img-hero3',
@@ -13651,9 +13532,6 @@ if (window.firebaseReady) {
       var raw = vals[f.key] || stripTags(getEl(f.key) ? (getEl(f.key).innerHTML || '') : '');
       inp.value = raw;
     });
-
-    // Build product image rows
-    window.pixBuildProdImgEditor(vals);
 
     // Populate image inputs and previews
     var IMG_DEFAULTS = {
@@ -13741,16 +13619,6 @@ if (window.firebaseReady) {
     var c1 = document.getElementById('ef-color-primary');
     var c2 = document.getElementById('ef-color-secondary');
     var c3 = document.getElementById('ef-color-dark');
-
-
-    // Collect product image URLs
-    if (window.PRODUCTS) {
-      for (var _pi2 = 0; _pi2 < window.PRODUCTS.length; _pi2++) {
-        var _inp = document.getElementById('ei-pimg-' + _pi2);
-        if (_inp && _inp.value) vals['pimg-' + _pi2] = _inp.value;
-        else if (window.PRODUCTS[_pi2] && window.PRODUCTS[_pi2].img) vals['pimg-' + _pi2] = window.PRODUCTS[_pi2].img;
-      }
-    }
 
     // Collect image URLs
     var IMG_SLUGS = ['hero1','hero2','hero3','cat-beauty','cat-candles','cat-clothing','cat-others','promo1','promo2'];
