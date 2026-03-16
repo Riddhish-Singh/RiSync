@@ -6375,12 +6375,12 @@
       if (adminBtn) adminBtn.classList.toggle('hidden', user.email !== ADMIN_EMAIL);
       // Show editor button only for editor email
       const editorBtn = document.getElementById('menuEditor');
-      if (editorBtn) editorBtn.classList.toggle('hidden', user.email !== EDITOR_EMAIL);
+      if (editorBtn) editorBtn.classList.toggle('hidden', user.email !== EDITOR_EMAIL && user.email !== ADMIN_EMAIL);
       // Show editor FAB
-      const editorFab = document.getElementById('editorToggleBtn');
-      if (editorFab) editorFab.style.display = user.email === EDITOR_EMAIL ? 'flex' : 'none';
+      const editorFab = document.getElementById('fab-item-editor');
+      if (editorFab) editorFab.style.display = (user.email === EDITOR_EMAIL || user.email === ADMIN_EMAIL) ? 'flex' : 'none';
       // Expose role globally
-      window._PIX_role = user.email === ADMIN_EMAIL ? 'admin' : user.email === EDITOR_EMAIL ? 'editor' : 'user';
+      window._PIX_role = (user.email === ADMIN_EMAIL || user.email === EDITOR_EMAIL) ? 'editor' : 'user'; window._PIX_isAdmin = user.email === ADMIN_EMAIL;
       // Load cloud data
       await loadCloudState(user.uid);
       // Show purchased section and load orders
@@ -6400,7 +6400,7 @@
       if (adminBtn) adminBtn.classList.add('hidden');
       const editorBtn = document.getElementById('menuEditor');
       if (editorBtn) editorBtn.classList.add('hidden');
-      const editorFab = document.getElementById('editorToggleBtn');
+      const editorFab = document.getElementById('fab-item-editor');
       if (editorFab) editorFab.style.display = 'none';
       window._PIX_role = 'user';
     }
@@ -10667,6 +10667,12 @@ if (logo) logo.addEventListener('click', function(){
 </style>
 
 <div id="fab-root">
+  <div class="fab-item" id="fab-item-editor" style="display:none;">
+    <span class="fab-label">Editor Panel</span>
+    <button id="editorToggleBtn" class="fab-icon-btn" aria-label="Editor Panel" onclick="pixEditorToggle()" style="background:linear-gradient(135deg,#FF3C78,#C41755);color:#fff;">
+      ✏️
+    </button>
+  </div>
   <div class="fab-item" id="fab-item-top">
     <span class="fab-label">Back to top</span>
     <button id="fab-top" class="fab-icon-btn" aria-label="Back to top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
@@ -11392,7 +11398,7 @@ function openMobileNav() {
     else if (pmwb) pmwb.style.display = 'none';
     // Show admin link if admin
     var admWrap = document.getElementById('pmn-admin-wrap');
-    if (admWrap && window._PIX_role === 'admin') admWrap.style.display = 'block';
+    if (admWrap && window._PIX_isAdmin) admWrap.style.display = 'block';
     // Update login label if logged in
     var loginLabel = document.getElementById('pmn-login-label');
     var userName = document.getElementById('userMenuName');
