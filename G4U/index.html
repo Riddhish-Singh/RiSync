@@ -65,6 +65,179 @@
       transition: opacity 0.7s ease, visibility 0.7s ease;
     }
     #pix-loader.fade-out { opacity: 0; visibility: hidden; pointer-events: none; }
+
+    /* ── ADDRESS CAROUSEL MODAL ── */
+    #pix-addr-modal {
+      position: fixed; inset: 0; z-index: 99998;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.72);
+      backdrop-filter: blur(8px);
+      opacity: 0; visibility: hidden; pointer-events: none;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+    #pix-addr-modal.show {
+      opacity: 1; visibility: visible; pointer-events: all;
+    }
+    #pix-addr-modal.hide {
+      opacity: 0; visibility: hidden; pointer-events: none;
+    }
+    .pix-addr-card {
+      background: #fff;
+      border-radius: 24px;
+      width: 92%; max-width: 480px;
+      overflow: hidden;
+      transform: translateY(40px) scale(0.95);
+      transition: transform 0.5s cubic-bezier(.2,.9,.2,1);
+      box-shadow: 0 32px 80px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,60,120,0.12);
+    }
+    html.dark .pix-addr-card { background: #1a0d12; }
+    #pix-addr-modal.show .pix-addr-card {
+      transform: translateY(0) scale(1);
+    }
+    .pix-addr-header {
+      background: linear-gradient(135deg, #FF3C78 0%, #c41755 100%);
+      padding: 28px 28px 22px;
+      position: relative; overflow: hidden;
+    }
+    .pix-addr-header::before {
+      content: '';
+      position: absolute; top: -40px; right: -40px;
+      width: 150px; height: 150px; border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+    }
+    .pix-addr-header::after {
+      content: '';
+      position: absolute; bottom: -30px; left: -20px;
+      width: 100px; height: 100px; border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+    }
+    .pix-addr-steps {
+      display: flex; gap: 8px; margin-bottom: 14px; position: relative; z-index: 1;
+    }
+    .pix-addr-step-dot {
+      height: 4px; flex: 1; border-radius: 99px;
+      background: rgba(255,255,255,0.28);
+      transition: background 0.4s ease;
+    }
+    .pix-addr-step-dot.active { background: #fff; }
+    .pix-addr-body {
+      padding: 28px;
+    }
+    .pix-addr-slide {
+      display: none;
+      animation: addrSlideIn 0.4s cubic-bezier(.2,.9,.2,1) both;
+    }
+    .pix-addr-slide.active { display: block; }
+    @keyframes addrSlideIn {
+      from { opacity: 0; transform: translateX(30px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes addrSlideInBack {
+      from { opacity: 0; transform: translateX(-30px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .pix-addr-slide.slide-back { animation-name: addrSlideInBack; }
+    .pix-addr-label {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: #FF3C78; margin-bottom: 8px; display: block;
+    }
+    .pix-addr-input {
+      width: 100%;
+      padding: 13px 16px;
+      border: 1.5px solid rgba(0,0,0,0.1);
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif; font-size: 0.92rem;
+      color: #111; background: #fafafa;
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+      box-sizing: border-box;
+    }
+    html.dark .pix-addr-input { background: #2a1520; border-color: rgba(255,255,255,0.1); color: #f5f5f5; }
+    .pix-addr-input:focus {
+      border-color: #FF3C78;
+      box-shadow: 0 0 0 3px rgba(255,60,120,0.15);
+      background: #fff;
+    }
+    html.dark .pix-addr-input:focus { background: #321820; }
+    .pix-addr-input::placeholder { color: #aaa; }
+    .pix-addr-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .pix-addr-btn-next {
+      width: 100%; margin-top: 20px;
+      padding: 14px;
+      background: linear-gradient(135deg, #FF3C78, #c41755);
+      color: #fff; border: none; border-radius: 14px;
+      font-family: 'Poppins', sans-serif; font-size: 0.95rem; font-weight: 700;
+      cursor: pointer; letter-spacing: 0.02em;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 8px 24px rgba(255,60,120,0.3);
+    }
+    .pix-addr-btn-next:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 36px rgba(255,60,120,0.4);
+    }
+    .pix-addr-btn-next:active { transform: scale(0.97); }
+    .pix-addr-skip {
+      display: block; text-align: center; margin-top: 12px;
+      font-family: 'Poppins', sans-serif; font-size: 0.82rem;
+      color: #999; cursor: pointer;
+      transition: color 0.2s;
+    }
+    .pix-addr-skip:hover { color: #FF3C78; }
+    .pix-addr-icon-row {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+    }
+    .pix-addr-icon-bg {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: rgba(255,60,120,0.1);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .pix-addr-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.08rem; font-weight: 800;
+      color: #111; line-height: 1.2;
+    }
+    html.dark .pix-addr-title { color: #f5f5f5; }
+    .pix-addr-subtitle {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.78rem; color: #888; margin-top: 1px;
+    }
+    .pix-addr-suggestion-row {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px;
+    }
+    .pix-addr-suggestion {
+      padding: 6px 14px; border-radius: 99px;
+      background: rgba(255,60,120,0.07);
+      border: 1.5px solid rgba(255,60,120,0.18);
+      font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 600;
+      color: #FF3C78; cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .pix-addr-suggestion:hover {
+      background: rgba(255,60,120,0.15);
+      transform: translateY(-1px);
+    }
+    .pix-addr-success-anim {
+      text-align: center; padding: 10px 0 4px;
+    }
+    .pix-addr-check-circle {
+      width: 68px; height: 68px; border-radius: 50%;
+      background: linear-gradient(135deg, #FF3C78, #c41755);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 2rem; color: #fff; margin-bottom: 14px;
+      animation: addrCheckPop 0.5s cubic-bezier(.2,1.4,.3,1) both;
+      box-shadow: 0 8px 32px rgba(255,60,120,0.35);
+    }
+    @keyframes addrCheckPop {
+      from { transform: scale(0) rotate(-20deg); opacity: 0; }
+      to   { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    .pix-addr-error {
+      font-family: 'Poppins', sans-serif; font-size: 0.78rem;
+      color: #e53e3e; margin-top: 6px; display: none;
+    }
     .pix-loader-logo {
       width: 80px; height: 80px; border-radius: 20px;
       background: linear-gradient(135deg, #FF3C78, #c41755);
@@ -1656,6 +1829,78 @@
     <div class="pix-loader-logo">P</div>
     <div class="pix-loader-text">Pioneer I Xpress</div>
     <div class="pix-loader-bar-wrap"><div class="pix-loader-bar"></div></div>
+  </div>
+
+  <!-- ADDRESS CAROUSEL MODAL -->
+  <div id="pix-addr-modal" role="dialog" aria-modal="true" aria-label="Delivery address">
+    <div class="pix-addr-card">
+      <div class="pix-addr-header">
+        <div class="pix-addr-steps">
+          <div class="pix-addr-step-dot active" id="addrDot0"></div>
+          <div class="pix-addr-step-dot" id="addrDot1"></div>
+          <div class="pix-addr-step-dot" id="addrDot2"></div>
+        </div>
+        <div style="color:#fff;font-family:'Montserrat',sans-serif;font-size:1.25rem;font-weight:900;position:relative;z-index:1;">Where should we deliver? &#x1F4E6;</div>
+        <div style="color:rgba(255,255,255,0.75);font-family:'Poppins',sans-serif;font-size:0.8rem;margin-top:4px;position:relative;z-index:1;">Help us show accurate delivery estimates &amp; offers</div>
+      </div>
+      <div class="pix-addr-body">
+        <!-- Step 1 -->
+        <div class="pix-addr-slide active" id="addrSlide0">
+          <div class="pix-addr-icon-row">
+            <div class="pix-addr-icon-bg"><i class="fas fa-map-pin" style="color:#FF3C78;font-size:1.1rem;"></i></div>
+            <div>
+              <div class="pix-addr-title">Enter your PIN code</div>
+              <div class="pix-addr-subtitle">We'll check delivery availability instantly</div>
+            </div>
+          </div>
+          <div class="pix-addr-suggestion-row">
+            <span class="pix-addr-suggestion" onclick="pixAddrPinSuggest('141001')">141001 &middot; Ludhiana</span>
+            <span class="pix-addr-suggestion" onclick="pixAddrPinSuggest('110001')">110001 &middot; Delhi</span>
+            <span class="pix-addr-suggestion" onclick="pixAddrPinSuggest('400001')">400001 &middot; Mumbai</span>
+          </div>
+          <label class="pix-addr-label">PIN Code</label>
+          <input class="pix-addr-input" id="addrPin" type="tel" maxlength="6" placeholder="e.g. 141001" inputmode="numeric" autocomplete="postal-code">
+          <div class="pix-addr-error" id="addrPinErr">Please enter a valid 6-digit PIN code.</div>
+          <button class="pix-addr-btn-next" onclick="pixAddrNext(0)">Check Delivery &nbsp;&rarr;</button>
+          <span class="pix-addr-skip" onclick="pixAddrSkip()">Skip for now</span>
+        </div>
+        <!-- Step 2 -->
+        <div class="pix-addr-slide" id="addrSlide1">
+          <div class="pix-addr-icon-row">
+            <div class="pix-addr-icon-bg"><i class="fas fa-home" style="color:#FF3C78;font-size:1.1rem;"></i></div>
+            <div>
+              <div class="pix-addr-title">Your delivery address</div>
+              <div class="pix-addr-subtitle">Flat / House no., street &amp; city</div>
+            </div>
+          </div>
+          <label class="pix-addr-label">House / Flat / Street</label>
+          <input class="pix-addr-input" id="addrStreet" type="text" placeholder="e.g. 12B, Model Town, GT Road" autocomplete="address-line1" style="margin-bottom:12px;">
+          <div class="pix-addr-row">
+            <div>
+              <label class="pix-addr-label">City</label>
+              <input class="pix-addr-input" id="addrCity" type="text" placeholder="Ludhiana" autocomplete="address-level2">
+            </div>
+            <div>
+              <label class="pix-addr-label">State</label>
+              <input class="pix-addr-input" id="addrState" type="text" placeholder="Punjab" autocomplete="address-level1">
+            </div>
+          </div>
+          <div class="pix-addr-error" id="addrStreetErr">Please fill in your street address.</div>
+          <button class="pix-addr-btn-next" onclick="pixAddrNext(1)">Continue &nbsp;&rarr;</button>
+          <span class="pix-addr-skip" onclick="pixAddrSkip()">Skip for now</span>
+        </div>
+        <!-- Step 3 -->
+        <div class="pix-addr-slide" id="addrSlide2">
+          <div class="pix-addr-success-anim">
+            <div class="pix-addr-check-circle"><i class="fas fa-check"></i></div>
+            <div class="pix-addr-title" style="margin-bottom:6px;" id="addrConfirmTitle">Great! Delivery available &#x1F389;</div>
+            <div class="pix-addr-subtitle" id="addrConfirmSub">Orders above &#x20B9;1,999 get free delivery to your door.</div>
+          </div>
+          <div style="background:rgba(255,60,120,0.06);border:1.5px solid rgba(255,60,120,0.15);border-radius:14px;padding:14px 16px;margin:16px 0 0;font-family:'Poppins',sans-serif;font-size:0.83rem;color:#444;" id="addrConfirmBox"></div>
+          <button class="pix-addr-btn-next" onclick="pixAddrDone()" style="margin-top:16px;">Start Shopping &#x1F6CD;&#xFE0F;</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- ── FLOATING BACKGROUND ORBS ── -->
@@ -10455,9 +10700,115 @@ if (logo) logo.addEventListener('click', function(){
   var loader = document.getElementById('pix-loader');
   if (loader) {
     window.addEventListener('load', function() {
-      setTimeout(function() { loader.classList.add('fade-out'); }, 1600);
+      setTimeout(function() {
+        loader.classList.add('fade-out');
+        setTimeout(pixAddrModalOpen, 600);
+      }, 1600);
     });
-    setTimeout(function() { loader.classList.add('fade-out'); }, 2500);
+    setTimeout(function() {
+      loader.classList.add('fade-out');
+      setTimeout(pixAddrModalOpen, 600);
+    }, 2500);
+  }
+
+  /* ── ADDRESS CAROUSEL MODAL ── */
+  var _addrStep = 0;
+  var _addrData = { pin: '', street: '', city: '', state: '' };
+
+  function pixAddrModalOpen() {
+    // Don't show if already set in session
+    if (sessionStorage.getItem('pix_addr_done')) return;
+    var modal = document.getElementById('pix-addr-modal');
+    if (!modal) return;
+    modal.classList.add('show');
+    setTimeout(function() {
+      var inp = document.getElementById('addrPin');
+      if (inp) inp.focus();
+    }, 400);
+  }
+
+  window.pixAddrPinSuggest = function(pin) {
+    var inp = document.getElementById('addrPin');
+    if (inp) { inp.value = pin; inp.focus(); }
+  };
+
+  window.pixAddrNext = function(step) {
+    if (step === 0) {
+      var pin = (document.getElementById('addrPin').value || '').trim();
+      var err = document.getElementById('addrPinErr');
+      if (!/^\d{6}$/.test(pin)) { err.style.display = 'block'; return; }
+      err.style.display = 'none';
+      _addrData.pin = pin;
+      _addrGoTo(1);
+      // Try to pre-fill city/state from pin prefix
+      var cityMap = { '14':'Ludhiana', '11':'Delhi', '40':'Mumbai', '56':'Bengaluru', '70':'Kolkata', '60':'Chennai' };
+      var stateMap = { '14':'Punjab', '11':'Delhi', '40':'Maharashtra', '56':'Karnataka', '70':'West Bengal', '60':'Tamil Nadu' };
+      var prefix = pin.substring(0,2);
+      var ci = document.getElementById('addrCity');
+      var st = document.getElementById('addrState');
+      if (ci && !ci.value && cityMap[prefix]) ci.value = cityMap[prefix];
+      if (st && !st.value && stateMap[prefix]) st.value = stateMap[prefix];
+    } else if (step === 1) {
+      var street = (document.getElementById('addrStreet').value || '').trim();
+      var err2 = document.getElementById('addrStreetErr');
+      if (!street) { err2.style.display = 'block'; return; }
+      err2.style.display = 'none';
+      _addrData.street = street;
+      _addrData.city   = (document.getElementById('addrCity').value || '').trim();
+      _addrData.state  = (document.getElementById('addrState').value || '').trim();
+      // Build confirm card
+      var box = document.getElementById('addrConfirmBox');
+      if (box) {
+        box.innerHTML =
+          '<div style="display:flex;gap:8px;align-items:flex-start;">' +
+            '<i class="fas fa-location-dot" style="color:#FF3C78;margin-top:2px;flex-shrink:0;"></i>' +
+            '<div>' +
+              '<div style="font-weight:700;color:#111;font-size:0.88rem;margin-bottom:2px;">' + _addrData.street + '</div>' +
+              '<div style="color:#777;">' + [_addrData.city, _addrData.state, _addrData.pin].filter(Boolean).join(', ') + '</div>' +
+            '</div>' +
+          '</div>';
+      }
+      _addrGoTo(2);
+    }
+  };
+
+  window.pixAddrDone = function() {
+    sessionStorage.setItem('pix_addr_done', '1');
+    sessionStorage.setItem('pix_addr', JSON.stringify(_addrData));
+    var modal = document.getElementById('pix-addr-modal');
+    if (modal) modal.classList.remove('show');
+    // Optionally pre-fill checkout address field
+    var checkoutAddr = document.getElementById('address');
+    if (checkoutAddr && _addrData.street) {
+      checkoutAddr.value = _addrData.street + ', ' + _addrData.city + ', ' + _addrData.state + ' - ' + _addrData.pin;
+    }
+  };
+
+  window.pixAddrSkip = function() {
+    sessionStorage.setItem('pix_addr_done', '1');
+    var modal = document.getElementById('pix-addr-modal');
+    if (modal) modal.classList.remove('show');
+  };
+
+  function _addrGoTo(step) {
+    var back = step < _addrStep;
+    _addrStep = step;
+    [0,1,2].forEach(function(i) {
+      var sl = document.getElementById('addrSlide' + i);
+      var dt = document.getElementById('addrDot' + i);
+      if (!sl) return;
+      sl.classList.remove('active', 'slide-back');
+      if (dt) dt.classList.toggle('active', i <= step);
+      if (i === step) {
+        sl.classList.add('active');
+        if (back) sl.classList.add('slide-back');
+      }
+    });
+    // Focus first input
+    setTimeout(function() {
+      var inputs = document.querySelectorAll('#addrSlide' + step + ' .pix-addr-input');
+      if (inputs.length) inputs[0].focus();
+    }, 100);
   }
 
 
