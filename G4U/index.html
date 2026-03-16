@@ -10716,8 +10716,8 @@ if (logo) logo.addEventListener('click', function(){
   var _addrData = { pin: '', street: '', city: '', state: '' };
 
   function pixAddrModalOpen() {
-    // Don't show if already set in session
-    if (sessionStorage.getItem('pix_addr_done')) return;
+    // Don't show if already completed or skipped (persists across sessions)
+    if (localStorage.getItem('pix_addr_done')) return;
     var modal = document.getElementById('pix-addr-modal');
     if (!modal) return;
     modal.classList.add('show');
@@ -10773,8 +10773,8 @@ if (logo) logo.addEventListener('click', function(){
   };
 
   window.pixAddrDone = function() {
-    sessionStorage.setItem('pix_addr_done', '1');
-    sessionStorage.setItem('pix_addr', JSON.stringify(_addrData));
+    localStorage.setItem('pix_addr_done', '1');
+    localStorage.setItem('pix_addr', JSON.stringify(_addrData));
     var modal = document.getElementById('pix-addr-modal');
     if (modal) modal.classList.remove('show');
     // Optionally pre-fill checkout address field
@@ -10785,7 +10785,7 @@ if (logo) logo.addEventListener('click', function(){
   };
 
   window.pixAddrSkip = function() {
-    sessionStorage.setItem('pix_addr_done', '1');
+    localStorage.setItem('pix_addr_done', '1');
     var modal = document.getElementById('pix-addr-modal');
     if (modal) modal.classList.remove('show');
   };
