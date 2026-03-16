@@ -228,7 +228,9 @@
     #pix-orbs {
       position: fixed; inset: 0; pointer-events: none; z-index: 0;
       overflow: hidden;
+      display: none;
     }
+    html.dark #pix-orbs { display: block; }
     .pix-orb {
       position: absolute; border-radius: 50%;
       filter: blur(80px); opacity: 0.06;
@@ -594,13 +596,19 @@
       --brand-dark: #C41755;
       --ring-color: rgba(255, 60, 120, 0.25);
       --text-primary: #111111;
-      --text-secondary: #888888;
+      --text-secondary: #666666;
       --bg-primary: #FFFFFF;
       --surface-primary: #FFFFFF;
       --success: #2ecc71;
       --error: #e74c3c;
-      --header-bg: #111111;
-      --header-text: #FFFFFF;
+      --header-bg: #FFFFFF;
+      --header-text: #111111;
+      --header-icon-bg: rgba(0,0,0,0.06);
+      --header-icon-color: #333333;
+      --header-border: rgba(0,0,0,0.08);
+      --header-input-bg: rgba(0,0,0,0.05);
+      --header-input-border: rgba(0,0,0,0.12);
+      --header-input-color: #111111;
       --subnav-bg: #FF3C78;
     }
     html.dark {
@@ -609,6 +617,13 @@
       --bg-primary: #111111;
       --surface-primary: #1a1a1a;
       --header-bg: #000000;
+      --header-text: #FFFFFF;
+      --header-icon-bg: rgba(255,255,255,0.1);
+      --header-icon-color: #FFFFFF;
+      --header-border: rgba(255,255,255,0.06);
+      --header-input-bg: rgba(255,255,255,0.1);
+      --header-input-border: rgba(255,255,255,0.15);
+      --header-input-color: #FFFFFF;
     }
 
     /* ===== CUSTOM SCROLLBAR ===== */
@@ -1653,7 +1668,7 @@
   <!-- Skip to main content for keyboard/screen reader users -->
   <a href="#main-content" style="position:absolute;top:-40px;left:0;background:var(--brand-primary);color:white;padding:8px 16px;border-radius:0 0 8px 0;font-weight:700;font-size:0.875rem;z-index:9999;transition:top 0.2s;" onfocus="this.style.top='0'" onblur="this.style.top='-40px'">Skip to main content</a>
 
-  <header id="siteHeader" class="sticky top-0 z-50" style="background-color:var(--header-bg);box-shadow:0 2px 20px rgba(0,0,0,0.3);transition:background-color 0.45s ease;">
+  <header id="siteHeader" class="sticky top-0 z-50" style="background-color:var(--header-bg);box-shadow:0 2px 20px var(--header-border);transition:background-color 0.45s ease;border-bottom:1.5px solid var(--header-border);">
     <!-- Sub-nav marquee -->
     <div id="subNavStrip" style="background:var(--brand-primary);overflow:hidden;padding:0;transition:background-color 0.45s ease;">
       <div style="display:inline-flex;animation:marqueeScroll 40s linear infinite;">
@@ -1684,15 +1699,15 @@
 
         <div class="hidden md:flex flex-1 max-w-lg items-center gap-2 mx-6">
           <div style="position:relative;flex:1;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            <input id="q" type="search" placeholder="Search candles, clothing, beauty… ( / )" data-i18n-placeholder="search_placeholder" style="width:100%;background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.15);color:white;border-radius:999px;padding:9px 18px 9px 42px;font-size:0.85rem;outline:none;font-family:'Poppins',sans-serif;" onfocus="this.style.borderColor=getComputedStyle(document.documentElement).getPropertyValue('--brand-primary').trim();this.style.background='rgba(255,255,255,0.15)'" onblur="this.style.borderColor='rgba(255,255,255,0.15)';this.style.background='rgba(255,255,255,0.1)'">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--header-icon-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none;opacity:0.45;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input id="q" type="search" placeholder="Search candles, clothing, beauty… ( / )" data-i18n-placeholder="search_placeholder" style="width:100%;background:var(--header-input-bg);border:1.5px solid var(--header-input-border);color:var(--header-input-color);border-radius:999px;padding:9px 18px 9px 42px;font-size:0.85rem;outline:none;font-family:'Poppins',sans-serif;" onfocus="this.style.borderColor=getComputedStyle(document.documentElement).getPropertyValue('--brand-primary').trim();this.style.boxShadow='0 0 0 3px rgba(255,60,120,0.12)'" onblur="this.style.borderColor=getComputedStyle(document.documentElement).getPropertyValue('--header-input-border').trim();this.style.boxShadow='none'">
           </div>
         </div>
 
         <div class="flex items-center gap-2">
           <button id="pix-hamburger" onclick="openMobileNav()" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
           <div class="relative hidden sm:block" id="pix-globe-wrap">
-            <button id="pix-globe-btn" title="Change Language" style="width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:10px;border:none;cursor:pointer;background:rgba(255,255,255,0.1);color:white;transition:background 0.2s;" onmouseover="this.style.background='rgba('+hexToRgbStr(getComputedStyle(document.documentElement).getPropertyValue('--brand-primary').trim())+',0.35)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+            <button id="pix-globe-btn" title="Change Language" style="width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:10px;border:none;cursor:pointer;background:var(--header-icon-bg);color:var(--header-icon-color);transition:background 0.2s;">
               <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
               <span id="pix-globe-dot"></span>
             </button>
@@ -1704,19 +1719,19 @@
               <div id="pix-lang-opts"></div>
             </div>
           </div>
-          <select id="currency" class="text-xs font-bold rounded-lg p-2 appearance-none outline-none cursor-pointer" style="background:rgba(255,255,255,0.1);color:white;border:1.5px solid rgba(255,255,255,0.15);" title="Currency">
+          <select id="currency" class="text-xs font-bold rounded-lg p-2 appearance-none outline-none cursor-pointer" style="background:var(--header-icon-bg);color:var(--header-icon-color);border:1.5px solid var(--header-input-border);" title="Currency">
             <option value="INR">INR ₹</option>
             <option value="USD">USD $</option>
           </select>
-          <button class="flex items-center justify-center rounded-lg" id="themeBtn" title="Toggle dark/light theme" aria-label="Toggle dark/light theme" style="width:38px;height:38px;background:rgba(255,255,255,0.1);color:white;border:none;cursor:pointer;">
+          <button class="flex items-center justify-center rounded-lg" id="themeBtn" title="Toggle dark/light theme" aria-label="Toggle dark/light theme" style="width:38px;height:38px;background:var(--header-icon-bg);color:var(--header-icon-color);border:none;cursor:pointer;">
             <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
             <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
           </button>
-          <button class="relative hidden sm:flex items-center justify-center rounded-lg" id="wishBtn" title="Open wishlist" aria-label="Open wishlist" style="width:38px;height:38px;background:rgba(255,255,255,0.1);color:white;border:none;cursor:pointer;">
+          <button class="relative hidden sm:flex items-center justify-center rounded-lg" id="wishBtn" title="Open wishlist" aria-label="Open wishlist" style="width:38px;height:38px;background:var(--header-icon-bg);color:var(--header-icon-color);border:none;cursor:pointer;">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
             <span id="wishBadge" class="absolute -top-1 -right-1 text-xs w-5 h-5 flex items-center justify-center rounded-full" style="background:var(--brand-primary);color:white;font-size:0.65rem;font-weight:800;">0</span>
           </button>
-          <button class="relative hidden sm:flex items-center justify-center rounded-lg" id="compareBtn" title="Compare items" aria-label="Compare items" style="width:38px;height:38px;background:rgba(255,255,255,0.1);color:white;border:none;cursor:pointer;">
+          <button class="relative hidden sm:flex items-center justify-center rounded-lg" id="compareBtn" title="Compare items" aria-label="Compare items" style="width:38px;height:38px;background:var(--header-icon-bg);color:var(--header-icon-color);border:none;cursor:pointer;">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
             <span id="compareBadge" class="absolute -top-1 -right-1 text-xs w-5 h-5 flex items-center justify-center rounded-full" style="background:var(--brand-primary);color:white;font-size:0.65rem;font-weight:800;">0</span>
           </button>
@@ -1727,7 +1742,7 @@
           </button>
           <!-- AUTH BUTTON -->
           <div id="authArea">
-            <button id="loginBtn" class="flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl border transition-all" style="border-color: rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:white;">
+            <button id="loginBtn" class="flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl border transition-all" style="border-color:var(--header-input-border);background:var(--header-icon-bg);color:var(--header-icon-color);">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.029 10 8 10c-2.03 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/></svg>
               <span class="hidden sm:block" data-i18n="login">Login</span>
             </button>
@@ -5074,7 +5089,108 @@
             // Optionally save address if checkbox ticked
             if (window._PIX_trySaveAddr) await window._PIX_trySaveAddr();
 
+            // ── Collect order data ──────────────────────────────────────────
+            const customerName  = document.getElementById('fullName')?.value?.trim() || 'Guest';
+            const customerPhone = document.getElementById('phone')?.value?.trim() || '';
+            const customerEmail = document.getElementById('email')?.value?.trim() || '';
+            const customerAddr  = document.getElementById('address')?.value?.trim() || '';
+            const orderItems = state.cart.map(ci => {
+              const p = PRODUCTS.find(x => x.id === ci.id);
+              return { id: ci.id, name: p ? p.name : ci.id, qty: ci.qty, price: p ? p.price : 0 };
+            });
+            const orderTotal = orderItems.reduce((s, i) => s + i.price * i.qty, 0);
+            const orderObj = {
+              customer: customerName,
+              phone:    customerPhone,
+              email:    customerEmail,
+              address:  customerAddr,
+              items:    orderItems,
+              total:    orderTotal,
+              status:   'Paid',
+              notified: false,
+              createdAt: window.serverTimestamp ? window.serverTimestamp() : new Date()
+            };
+
+            // ── 1. Save order to Firestore ──────────────────────────────────
+            let orderId = 'ORD-' + Date.now();
+            try {
+              if (window.db && window.addDoc && window.collection) {
+                const ref = await window.addDoc(window.collection(window.db, 'orders'), orderObj);
+                orderId = ref.id;
+              }
+            } catch(e) { console.warn('Order save error:', e); }
+
             toast('Payment successful! 🎉 Order placed. Thank you!');
+
+            // ── 2. Admin in-app notification badge ─────────────────────────
+            try {
+              window._PIX_newOrderCount = (window._PIX_newOrderCount || 0) + 1;
+              const nb  = document.getElementById('admNotifBadge');
+              const ntb = document.getElementById('admNotifTabBadge');
+              const cnt = window._PIX_newOrderCount;
+              if (nb)  { nb.textContent  = cnt; nb.style.display  = 'flex'; }
+              if (ntb) { ntb.textContent = cnt; ntb.style.display = 'inline'; }
+            } catch(e) {}
+
+            // ── 3. Send Email to Admin via FormSubmit.co ───────────────────
+            (async () => {
+              try {
+                const _db = window.db || window._db;
+                const ns = _db && window.getDoc && window.doc
+                  ? ((await window.getDoc(window.doc(_db, 'siteContent', 'notificationSettings'))).data() || {})
+                  : {};
+                const adminEmail = ns.admin_email || 'gurunanak.garments2023@gmail.com';
+                const adminWA    = ns.admin_whatsapp || '916280096796';
+
+                const itemsStr = orderItems.map(i => `${i.name} x${i.qty} — ₹${(i.price * i.qty).toLocaleString('en-IN')}`).join('\n');
+
+                // ── FormSubmit.co AJAX POST ──────────────────────────────────
+                try {
+                  const res = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(adminEmail)}`, {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({
+                      _subject:        `🛍️ New Order #${orderId} — Pioneer I Xpress`,
+                      _template:       'table',
+                      _captcha:        'false',
+                      'Order ID':      orderId,
+                      'Customer Name': customerName,
+                      'Phone':         customerPhone,
+                      'Email':         customerEmail,
+                      'Address':       customerAddr,
+                      'Items':         itemsStr,
+                      'Total':         '₹' + orderTotal.toLocaleString('en-IN'),
+                      'Date':          new Date().toLocaleString('en-IN'),
+                    })
+                  });
+                  const result = await res.json();
+                  if (result.success === 'true' || result.success === true) {
+                    console.log('📧 Admin order email sent via FormSubmit.co');
+                  } else {
+                    console.warn('FormSubmit.co response:', result);
+                  }
+                } catch(mailErr) {
+                  console.warn('FormSubmit email error:', mailErr);
+                }
+
+                // ── 4. Send WhatsApp to Admin ───────────────────────────────
+                const waMsg = `🛍️ *New Order — Pioneer I Xpress*\n\n` +
+                  `📋 Order ID: ${orderId}\n` +
+                  `👤 Customer: ${customerName}\n` +
+                  `📞 Phone: ${customerPhone}\n` +
+                  `📧 Email: ${customerEmail}\n` +
+                  `🏠 Address: ${customerAddr}\n\n` +
+                  `🛒 Items:\n${itemsStr}\n\n` +
+                  `💰 Total: ₹${orderTotal.toLocaleString('en-IN')}\n` +
+                  `🕒 ${new Date().toLocaleString('en-IN')}`;
+                const waNum = adminWA.replace(/\D/g, '');
+                setTimeout(() => {
+                  window.open('https://wa.me/' + waNum + '?text=' + encodeURIComponent(waMsg), '_blank');
+                }, 600);
+
+              } catch(e) { console.warn('Notification error:', e); }
+            })();
+
             state.cart.forEach(cartItem => {
               const prod = PRODUCTS.find(p => p.id === cartItem.id);
               if (prod) prod.stock = Math.max(0, prod.stock - cartItem.qty);
@@ -5554,6 +5670,13 @@
       </div>
     </div>
     <div class="flex items-center gap-3">
+      <!-- 🔔 Notification Bell -->
+      <button id="admNotifBell" onclick="renderAdmTab('notifications'); document.querySelectorAll('.adm-tab').forEach(b=>b.classList.remove('active')); document.getElementById('admNotifTab').classList.add('active');"
+        class="relative w-9 h-9 rounded-xl flex items-center justify-center text-lg"
+        style="background:rgba(255,60,120,0.1);color:var(--brand-primary)" title="Order Notifications">
+        🔔
+        <span id="admNotifBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:#ef4444;color:white;font-size:0.6rem;font-weight:900;min-width:18px;height:18px;border-radius:999px;display:none;align-items:center;justify-content:center;padding:0 4px;border:2px solid var(--bg-primary)"></span>
+      </button>
       <button id="admExcelBtn" class="flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-xl" style="background:rgba(34,197,94,0.12);color:#16a34a">
         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
         Download Excel
@@ -5568,6 +5691,7 @@
     <button class="adm-tab" data-tab="orders">🧾 All Orders</button>
     <button class="adm-tab" data-tab="approvals" id="admApprovalsTab">🕐 Approvals <span id="admApprovalsBadge" style="display:none;background:#ef4444;color:white;font-size:0.65rem;font-weight:900;padding:1px 7px;border-radius:999px;margin-left:4px;vertical-align:middle;"></span></button>
     <button class="adm-tab" data-tab="pending" id="admPendingTab">🕐 Pending Approvals <span id="admPendingBadge" style="display:none;background:#FF3C78;color:white;font-size:0.6rem;font-weight:900;padding:1px 6px;border-radius:999px;margin-left:4px;vertical-align:middle;"></span></button>
+    <button class="adm-tab" data-tab="notifications" id="admNotifTab">🔔 Notifications <span id="admNotifTabBadge" style="display:none;background:#FF3C78;color:white;font-size:0.6rem;font-weight:900;padding:1px 6px;border-radius:999px;margin-left:4px;vertical-align:middle;"></span></button>
   </div>
   <!-- Content area -->
   <div class="flex-1 overflow-y-auto p-6" id="admContent">
@@ -6689,7 +6813,191 @@ document.addEventListener('DOMContentLoaded', () => {
     else if (tab === 'orders') await renderAdmOrders(content);
     else if (tab === 'approvals') await renderAdmApprovals(content);
     else if (tab === 'pending') await renderAdmPending(content);
+    else if (tab === 'notifications') await renderAdmNotifications(content);
   }
+
+  // ── Notifications Tab ─────────────────────────────────────────────────────
+  async function renderAdmNotifications(content) {
+    // Load settings
+    let ns = {};
+    try {
+      const _db = window.db || window._db;
+      if (_db && window.getDoc && window.doc) {
+        const snap = await window.getDoc(window.doc(_db, 'siteContent', 'notificationSettings'));
+        if (snap.exists()) ns = snap.data() || {};
+      }
+    } catch(e) {}
+
+    // Fetch recent orders (last 20)
+    const recentOrders = (_admOrders || []).slice(0, 20);
+
+    content.innerHTML = `
+      <div style="max-width:780px;margin:0 auto">
+        <!-- New Order Alerts -->
+        <div class="adm-card mb-6">
+          <div class="flex items-center gap-3 mb-4">
+            <span style="font-size:1.6rem">🔔</span>
+            <div>
+              <div class="font-bold text-base">Order Notification Centre</div>
+              <div class="text-xs" style="color:var(--text-secondary)">Real-time alerts sent to admin when a customer places an order</div>
+            </div>
+          </div>
+          <!-- Status Cards -->
+          <div class="flex gap-3 flex-wrap mb-4">
+            <div style="flex:1;min-width:140px;background:rgba(37,211,102,0.08);border:1.5px solid rgba(37,211,102,0.2);border-radius:12px;padding:14px 18px">
+              <div style="font-size:1.5rem;font-weight:900;color:#16a34a">${recentOrders.length}</div>
+              <div style="font-size:0.72rem;font-weight:600;color:var(--text-secondary);margin-top:2px">Total Orders</div>
+            </div>
+            <div style="flex:1;min-width:140px;background:rgba(255,60,120,0.08);border:1.5px solid rgba(255,60,120,0.2);border-radius:12px;padding:14px 18px">
+              <div style="font-size:1.5rem;font-weight:900;color:var(--brand-primary)">${window._PIX_newOrderCount || 0}</div>
+              <div style="font-size:0.72rem;font-weight:600;color:var(--text-secondary);margin-top:2px">New Since Login</div>
+            </div>
+            <div style="flex:1;min-width:140px;background:rgba(59,130,246,0.08);border:1.5px solid rgba(59,130,246,0.2);border-radius:12px;padding:14px 18px">
+              <div style="font-size:1rem;font-weight:700;color:#2563eb">${ns.admin_email ? '✅ Active' : '⚠️ Default'}</div>
+              <div style="font-size:0.72rem;font-weight:600;color:var(--text-secondary);margin-top:2px">Email Alerts</div>
+            </div>
+            <div style="flex:1;min-width:140px;background:rgba(37,211,102,0.08);border:1.5px solid rgba(37,211,102,0.2);border-radius:12px;padding:14px 18px">
+              <div style="font-size:1rem;font-weight:700;color:#16a34a">${ns.admin_whatsapp ? '✅ Active' : '⚠️ Default'}</div>
+              <div style="font-size:0.72rem;font-weight:600;color:var(--text-secondary);margin-top:2px">WhatsApp Alerts</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- WhatsApp Settings -->
+        <div class="adm-card mb-6">
+          <div class="flex items-center gap-2 mb-4">
+            <span style="font-size:1.3rem">💬</span>
+            <div class="font-bold">WhatsApp Admin Number</div>
+          </div>
+          <div class="text-xs mb-3" style="color:var(--text-secondary)">When a customer orders, a WhatsApp message with full order details will be sent to this number.</div>
+          <div class="flex gap-2 items-center flex-wrap">
+            <input id="admWaPhone" type="tel" placeholder="91XXXXXXXXXX (with country code)" value="${ns.admin_whatsapp || '916280096796'}"
+              style="flex:1;min-width:220px;padding:8px 12px;border-radius:8px;border:1.5px solid rgba(0,0,0,0.12);background:var(--bg-primary);font-size:0.85rem;outline:none;color:var(--text-primary)">
+            <button onclick="admSaveWA()" style="padding:8px 20px;border-radius:8px;background:#25D366;color:white;font-weight:700;font-size:0.85rem;border:none;cursor:pointer">
+              Save WhatsApp Number
+            </button>
+          </div>
+          <div id="admWaStatus" class="text-xs mt-2" style="color:var(--text-secondary);display:none"></div>
+        </div>
+
+        <!-- EmailJS Settings -->
+        <div class="adm-card mb-6">
+          <div class="flex items-center gap-2 mb-1">
+            <span style="font-size:1.3rem">📧</span>
+            <div class="font-bold">Email Notifications via FormSubmit.co</div>
+          </div>
+          <div class="text-xs mb-4" style="color:var(--text-secondary)">
+            Powered by <a href="https://formsubmit.co" target="_blank" style="color:var(--brand-primary);font-weight:600">formsubmit.co</a> — zero setup, no API keys.
+            Just enter the admin email below. The <strong>first order</strong> will send a confirmation link to that email — click it once to activate, and every future order will arrive automatically.
+          </div>
+          <!-- Info box -->
+          <div style="background:rgba(59,130,246,0.06);border:1.5px solid rgba(59,130,246,0.15);border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:0.78rem;line-height:1.7;color:var(--text-primary)">
+            <strong>📋 What the email contains:</strong><br>
+            Order ID · Customer Name · Phone · Email · Delivery Address · Items Ordered · Total Amount · Date &amp; Time
+          </div>
+          <div class="flex gap-2 items-center flex-wrap">
+            <input id="admFormEmail" type="email" placeholder="gurunanak.garments2023@gmail.com" value="${ns.admin_email || 'gurunanak.garments2023@gmail.com'}"
+              style="flex:1;min-width:260px;padding:8px 12px;border-radius:8px;border:1.5px solid rgba(0,0,0,0.12);background:var(--bg-primary);font-size:0.85rem;outline:none;color:var(--text-primary)">
+            <button onclick="admSaveFormEmail()" style="padding:9px 20px;border-radius:8px;background:var(--brand-primary);color:white;font-weight:700;font-size:0.85rem;border:none;cursor:pointer">
+              💾 Save Email
+            </button>
+          </div>
+          <div id="admFormEmailStatus" class="text-xs mt-2" style="color:var(--text-secondary);display:none"></div>
+        </div>
+
+        <!-- Recent Orders Notifications -->
+        <div class="adm-card">
+          <div class="flex items-center gap-2 mb-4">
+            <span style="font-size:1.3rem">🧾</span>
+            <div class="font-bold">Recent Order Alerts</div>
+          </div>
+          <div id="admNotifOrderList">
+            ${recentOrders.length === 0 ? '<div class="text-sm" style="color:var(--text-secondary)">No orders yet.</div>' :
+              recentOrders.map(o => {
+                const d = o.createdAt?.toDate ? o.createdAt.toDate() : (o.createdAt ? new Date(o.createdAt) : new Date());
+                const dStr = d.toLocaleString('en-IN');
+                const itemsStr = (o.items||[]).map(i => `${i.name} x${i.qty}`).join(', ') || '—';
+                const customerPhone = (o.phone || '').replace(/\D/g,'');
+                const waMsg = encodeURIComponent(`Hi ${o.customer||'Customer'}, your Pioneer I Xpress order (₹${(o.total||0).toLocaleString('en-IN')}) has been received and is being processed. Thank you! 🛍️`);
+                return `<div style="padding:12px 0;border-bottom:1px solid rgba(0,0,0,0.06);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                  <div style="flex:1;min-width:200px">
+                    <div style="font-weight:700;font-size:0.85rem">${o.customer||'—'} <span style="font-size:0.7rem;color:var(--text-secondary);font-weight:400">${o.phone||''}</span></div>
+                    <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:2px">${itemsStr}</div>
+                    <div style="font-size:0.7rem;color:var(--text-secondary);margin-top:2px">${dStr}</div>
+                  </div>
+                  <div style="font-weight:800;color:var(--brand-primary);font-size:0.9rem">₹${(o.total||0).toLocaleString('en-IN')}</div>
+                  ${customerPhone ? `<a href="https://wa.me/${customerPhone.startsWith('91')?customerPhone:'91'+customerPhone}?text=${waMsg}" target="_blank"
+                    style="padding:5px 12px;border-radius:8px;background:rgba(37,211,102,0.12);color:#16a34a;font-size:0.75rem;font-weight:700;text-decoration:none">
+                    💬 WhatsApp</a>` : ''}
+                </div>`;
+              }).join('')
+            }
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  window.admSaveWA = async function() {
+    const phone = document.getElementById('admWaPhone')?.value?.trim().replace(/\D/g,'');
+    const status = document.getElementById('admWaStatus');
+    if (!phone) { if(status){status.textContent='Please enter a valid number';status.style.display='block';} return; }
+    try {
+      const _db = window.db || window._db;
+      if (_db && window.setDoc && window.doc) {
+        await window.setDoc(window.doc(_db,'siteContent','notificationSettings'), { admin_whatsapp: phone }, { merge:true });
+        if(status){status.textContent='✅ WhatsApp number saved!';status.style.color='#16a34a';status.style.display='block';}
+        setTimeout(()=>{ if(status)status.style.display='none'; },3000);
+      }
+    } catch(e) { if(status){status.textContent='❌ Error: '+e.message;status.style.display='block';} }
+  };
+
+  window.admSaveFormEmail = async function() {
+    const email  = document.getElementById('admFormEmail')?.value?.trim();
+    const status = document.getElementById('admFormEmailStatus');
+    if (!email || !email.includes('@')) { if(status){status.textContent='Please enter a valid email address.';status.style.color='#dc2626';status.style.display='block';} return; }
+    try {
+      const _db = window.db || window._db;
+      if (_db && window.setDoc && window.doc) {
+        await window.setDoc(window.doc(_db,'siteContent','notificationSettings'), { admin_email: email }, { merge:true });
+        if(status){status.textContent='✅ Admin email saved! Order emails will be sent here.';status.style.color='#16a34a';status.style.display='block';}
+        setTimeout(()=>{ if(status)status.style.display='none'; },3500);
+      }
+    } catch(e) { if(status){status.textContent='❌ Error: '+e.message;status.style.color='#dc2626';status.style.display='block';} }
+  };
+
+  // ── Real-time Firestore listener: notify admin of new orders ─────────────
+  (function _startOrderNotifListener() {
+    function attempt() {
+      const _db  = window.db || window._db;
+      const _col = window.collection;
+      const _q   = window.query;
+      const _ob  = window.orderBy;
+      const _lim = window.limit;
+      const _oss = window.onSnapshot;
+      if (!_db || !_col || !_oss) { setTimeout(attempt, 1500); return; }
+      try {
+        let _first = true;
+        const colRef = _col(_db, 'orders');
+        _oss(colRef, snap => {
+          if (_first) { _first = false; return; } // skip initial load
+          const newCount = snap.docChanges().filter(c => c.type === 'added').length;
+          if (newCount > 0) {
+            window._PIX_newOrderCount = (window._PIX_newOrderCount || 0) + newCount;
+            const cnt = window._PIX_newOrderCount;
+            const nb  = document.getElementById('admNotifBadge');
+            const ntb = document.getElementById('admNotifTabBadge');
+            if (nb)  { nb.textContent  = cnt; nb.style.display  = 'flex'; }
+            if (ntb) { ntb.textContent = cnt; ntb.style.display = 'inline'; }
+            // Flash bell icon
+            const bell = document.getElementById('admNotifBell');
+            if (bell) { bell.style.background='rgba(255,60,120,0.25)'; setTimeout(()=>{bell.style.background='rgba(255,60,120,0.1)';},1200); }
+          }
+        });
+      } catch(e) { console.warn('Order listener error', e); }
+    }
+    setTimeout(attempt, 3000);
+  })();
 
   async function renderAdmSales(content) {
     const filtered = admFilterOrders(_admOrders, _admPeriod);
@@ -10344,202 +10652,391 @@ if (logo) logo.addEventListener('click', function(){
 
 <!-- ===== MOBILE NAV MENU ===== -->
 <style>
+/* ── FULL-FEATURED SIDEBAR ─────────────────────────────────── */
 #pix-mobile-nav {
   position: fixed; inset: 0; z-index: 9800;
   display: flex; pointer-events: none;
 }
 #pix-mobile-backdrop {
   position: absolute; inset: 0;
-  background: rgba(0,0,0,0.65);
-  backdrop-filter: blur(6px);
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
   opacity: 0; transition: opacity 0.35s ease;
 }
 #pix-mobile-drawer {
   position: relative; z-index: 1;
-  width: 300px; max-width: 88vw;
-  background: #0a0005;
-  border-right: 1px solid rgba(255,60,120,0.2);
-  padding: 0;
+  width: 320px; max-width: 92vw;
+  background: var(--bg-primary);
+  border-right: 1.5px solid var(--header-border);
+  box-shadow: 8px 0 40px rgba(0,0,0,0.12);
   transform: translateX(-100%);
   transition: transform 0.38s cubic-bezier(.2,.9,.2,1);
   display: flex; flex-direction: column;
-  overflow-y: auto;
+  overflow: hidden;
 }
 #pix-mobile-nav.open { pointer-events: all; }
 #pix-mobile-nav.open #pix-mobile-backdrop { opacity: 1; }
 #pix-mobile-nav.open #pix-mobile-drawer { transform: translateX(0); }
 
+/* ── Sidebar Header ── */
 .pmn-header {
-  padding: 20px 20px 16px;
-  background: linear-gradient(135deg, #FF3C78 0%, #c41755 100%);
+  padding: 0 20px;
+  height: 64px;
+  background: var(--bg-primary);
+  border-bottom: 1.5px solid var(--header-border);
   display: flex; align-items: center; justify-content: space-between;
   flex-shrink: 0;
 }
-.pmn-brand {
+.pmn-brand-wrap { display: flex; align-items: center; gap: 10px; }
+.pmn-brand-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, #FF3C78, #C41755);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 1rem; color: white;
+  flex-shrink: 0;
+}
+.pmn-brand-name {
   font-family: 'Montserrat', sans-serif;
-  font-weight: 900; font-size: 1.05rem; color: white;
-  letter-spacing: -0.01em;
+  font-weight: 800; font-size: 0.95rem; color: var(--text-primary);
+  line-height: 1.2;
+}
+.pmn-brand-sub {
+  font-size: 0.62rem; color: var(--text-secondary);
+  font-weight: 500;
 }
 .pmn-close {
   width: 34px; height: 34px; border-radius: 50%;
-  background: rgba(255,255,255,0.18); border: none;
-  color: white; font-size: 1.1rem; cursor: pointer;
+  background: var(--header-icon-bg); border: none;
+  color: var(--header-icon-color); font-size: 1rem; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   transition: background 0.2s;
 }
-.pmn-close:hover { background: rgba(255,255,255,0.32); }
+.pmn-close:hover { background: rgba(255,60,120,0.15); color: #FF3C78; }
 
+/* ── Search ── */
 .pmn-search {
-  padding: 14px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 12px 16px;
+  border-bottom: 1.5px solid var(--header-border);
+  flex-shrink: 0;
+}
+.pmn-search-wrap {
+  position: relative;
+}
+.pmn-search-wrap svg {
+  position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+  pointer-events: none; opacity: 0.4;
 }
 .pmn-search input {
-  width: 100%; padding: 10px 14px;
-  background: rgba(255,255,255,0.08);
-  border: 1.5px solid rgba(255,255,255,0.12);
-  border-radius: 10px; color: white; font-size: 0.85rem;
+  width: 100%; padding: 9px 14px 9px 36px;
+  background: var(--header-input-bg);
+  border: 1.5px solid var(--header-input-border);
+  border-radius: 10px; color: var(--text-primary); font-size: 0.83rem;
   font-family: 'Poppins', sans-serif; outline: none;
-  box-sizing: border-box;
-  transition: border-color 0.2s;
+  box-sizing: border-box; transition: border-color 0.2s;
 }
-.pmn-search input:focus { border-color: #FF3C78; }
-.pmn-search input::placeholder { color: rgba(255,255,255,0.4); }
+.pmn-search input:focus { border-color: #FF3C78; box-shadow: 0 0 0 3px rgba(255,60,120,0.1); }
+.pmn-search input::placeholder { color: var(--text-secondary); opacity: 0.7; }
 
-.pmn-cats {
-  padding: 14px 16px 10px;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+/* ── Scrollable body ── */
+.pmn-body {
+  flex: 1; overflow-y: auto; padding-bottom: 12px;
 }
-.pmn-cats-label {
-  font-size: 0.62rem; font-weight: 800;
-  letter-spacing: 0.18em; text-transform: uppercase;
-  color: rgba(255,255,255,0.4); margin-bottom: 10px;
+.pmn-body::-webkit-scrollbar { width: 4px; }
+.pmn-body::-webkit-scrollbar-thumb { background: rgba(255,60,120,0.25); border-radius: 4px; }
+
+/* ── Section Labels ── */
+.pmn-section-label {
+  font-size: 0.6rem; font-weight: 800;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--text-secondary); opacity: 0.7;
+  padding: 16px 18px 6px;
 }
-.pmn-cat-row {
-  display: flex; flex-wrap: wrap; gap: 7px;
-}
+
+/* ── Category chips ── */
+.pmn-cats { padding: 4px 16px 12px; }
+.pmn-cat-row { display: flex; flex-wrap: wrap; gap: 6px; }
 .pmn-cat-chip {
-  padding: 6px 13px; border-radius: 999px;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: rgba(255,255,255,0.75); font-size: 0.76rem;
-  font-weight: 700; cursor: pointer;
-  transition: all 0.2s; font-family: 'Poppins', sans-serif;
+  padding: 5px 12px; border-radius: 999px;
+  background: var(--header-icon-bg);
+  border: 1.5px solid var(--header-input-border);
+  color: var(--text-primary); font-size: 0.75rem;
+  font-weight: 600; cursor: pointer;
+  transition: all 0.18s; font-family: 'Poppins', sans-serif;
 }
 .pmn-cat-chip:hover, .pmn-cat-chip.active {
   background: #FF3C78; border-color: #FF3C78; color: white;
 }
 
-.pmn-links { padding: 10px 0; flex: 1; }
+/* ── Nav Links ── */
 .pmn-link {
   display: flex; align-items: center; gap: 13px;
-  padding: 13px 20px; color: rgba(255,255,255,0.8);
-  font-size: 0.9rem; font-weight: 600; cursor: pointer;
-  transition: all 0.18s; border: none; background: none;
+  padding: 11px 18px; color: var(--text-primary);
+  font-size: 0.875rem; font-weight: 600; cursor: pointer;
+  transition: all 0.15s; border: none; background: none;
   width: 100%; text-align: left; font-family: 'Poppins', sans-serif;
+  border-radius: 10px; margin: 1px 8px; width: calc(100% - 16px);
 }
 .pmn-link:hover {
-  background: rgba(255,60,120,0.1);
-  color: white; padding-left: 26px;
+  background: rgba(255,60,120,0.08);
+  color: #FF3C78;
 }
-.pmn-link .pmn-icon { font-size: 1.1rem; width: 24px; text-align: center; flex-shrink: 0; }
-.pmn-link .pmn-arrow { margin-left: auto; font-size: 0.7rem; opacity: 0.4; }
+.pmn-link:hover .pmn-arrow { opacity: 1; transform: translateX(3px); }
+.pmn-link .pmn-icon {
+  width: 34px; height: 34px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; flex-shrink: 0;
+  background: var(--header-icon-bg);
+  transition: background 0.15s;
+}
+.pmn-link:hover .pmn-icon { background: rgba(255,60,120,0.15); }
+.pmn-link .pmn-label { flex: 1; }
+.pmn-link .pmn-badge {
+  background: #FF3C78; color: white;
+  font-size: 0.6rem; font-weight: 800;
+  padding: 2px 7px; border-radius: 999px;
+}
+.pmn-link .pmn-arrow {
+  font-size: 0.75rem; color: var(--text-secondary);
+  opacity: 0.4; transition: all 0.15s;
+}
+.pmn-divider {
+  height: 1.5px; background: var(--header-border);
+  margin: 8px 16px;
+}
 
+/* ── Footer ── */
 .pmn-footer {
-  padding: 14px 16px 20px;
-  border-top: 1px solid rgba(255,255,255,0.06);
+  padding: 12px 16px 16px;
+  border-top: 1.5px solid var(--header-border);
   flex-shrink: 0;
 }
-.pmn-social { display: flex; gap: 10px; justify-content: center; }
+.pmn-footer-actions {
+  display: flex; gap: 8px; margin-bottom: 12px;
+}
+.pmn-footer-btn {
+  flex: 1; padding: 9px; border-radius: 10px;
+  background: var(--header-icon-bg); border: 1.5px solid var(--header-input-border);
+  color: var(--text-primary); font-size: 0.78rem; font-weight: 600;
+  cursor: pointer; transition: all 0.18s;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  font-family: 'Poppins', sans-serif;
+}
+.pmn-footer-btn:hover { background: rgba(255,60,120,0.1); border-color: #FF3C78; color: #FF3C78; }
+.pmn-social { display: flex; gap: 8px; justify-content: center; }
 .pmn-soc-btn {
-  width: 38px; height: 38px; border-radius: 50%;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: rgba(255,255,255,0.7); font-size: 0.95rem;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--header-icon-bg);
+  border: 1.5px solid var(--header-input-border);
+  color: var(--text-secondary); font-size: 0.9rem;
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: all 0.2s;
+  cursor: pointer; transition: all 0.18s;
 }
 .pmn-soc-btn:hover { background: #FF3C78; border-color: #FF3C78; color: white; }
 
-/* Hamburger button */
+/* ── Hamburger button — always visible ── */
 #pix-hamburger {
-  display: none;
+  display: flex;
   flex-direction: column; gap: 5px;
   width: 38px; height: 38px;
-  background: rgba(255,255,255,0.1); border: none;
+  background: var(--header-icon-bg); border: none;
   border-radius: 10px; cursor: pointer; padding: 9px 8px;
   transition: background 0.2s;
 }
-#pix-hamburger:hover { background: rgba(255,60,120,0.3); }
+#pix-hamburger:hover { background: rgba(255,60,120,0.15); }
 #pix-hamburger span {
   display: block; height: 2px; border-radius: 2px;
-  background: white; transition: all 0.3s ease;
+  background: var(--header-icon-color); transition: all 0.3s ease;
 }
 #pix-hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
 #pix-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
 #pix-hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
-
-@media (max-width: 768px) {
-  #pix-hamburger { display: flex; }
-}
 </style>
 
-<!-- Mobile Nav Overlay -->
+<!-- ══════════ FULL SIDEBAR ══════════ -->
 <div id="pix-mobile-nav" role="dialog" aria-modal="true" aria-label="Navigation menu">
   <div id="pix-mobile-backdrop"></div>
   <div id="pix-mobile-drawer">
+
+    <!-- Header -->
     <div class="pmn-header">
-      <div class="pmn-brand">Pioneer I Xpress</div>
+      <div class="pmn-brand-wrap">
+        <div class="pmn-brand-icon">P</div>
+        <div>
+          <div class="pmn-brand-name">Pioneer I Xpress</div>
+          <div class="pmn-brand-sub">Candles · Clothing · Beauty & More</div>
+        </div>
+      </div>
       <button class="pmn-close" id="pix-mob-close" aria-label="Close menu">✕</button>
     </div>
+
+    <!-- Search -->
     <div class="pmn-search">
-      <input type="search" placeholder="Search candles, beauty, clothing…" id="pmn-search-input" autocomplete="off">
-    </div>
-    <div class="pmn-cats">
-      <div class="pmn-cats-label">Shop by Category</div>
-      <div class="pmn-cat-row">
-        <button class="pmn-cat-chip active" onclick="closeMobileNav();setFilter('all')">All</button>
-        <button class="pmn-cat-chip" onclick="closeMobileNav();setFilter('candles')">🕯️ Candles</button>
-        <button class="pmn-cat-chip" onclick="closeMobileNav();setFilter('clothing')">👗 Clothing</button>
-        <button class="pmn-cat-chip" onclick="closeMobileNav();setFilter('beauty')">💄 Beauty</button>
-        <button class="pmn-cat-chip" onclick="closeMobileNav();setFilter('others')">📦 Others</button>
+      <div class="pmn-search-wrap">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="search" placeholder="Search products…" id="pmn-search-input" autocomplete="off">
       </div>
     </div>
-    <nav class="pmn-links">
+
+    <!-- Scrollable body -->
+    <div class="pmn-body">
+
+      <!-- Shop by Category -->
+      <div class="pmn-section-label">Shop by Category</div>
+      <div class="pmn-cats">
+        <div class="pmn-cat-row">
+          <button class="pmn-cat-chip active" onclick="closeMobileNav();setFilter('all')">🏠 All</button>
+          <button class="pmn-cat-chip" onclick="closeMobileNav();setFilter('candles')">🕯️ Candles</button>
+          <button class="pmn-cat-chip" onclick="closeMobileNav();setFilter('clothing')">👗 Clothing</button>
+          <button class="pmn-cat-chip" onclick="closeMobileNav();setFilter('beauty')">💄 Beauty</button>
+          <button class="pmn-cat-chip" onclick="closeMobileNav();setFilter('others')">📦 Others</button>
+        </div>
+      </div>
+
+      <div class="pmn-divider"></div>
+
+      <!-- Shop -->
+      <div class="pmn-section-label">Shop</div>
       <button class="pmn-link" onclick="closeMobileNav();document.getElementById('grid').scrollIntoView({behavior:'smooth'})">
-        <span class="pmn-icon">🛍️</span> All Products <span class="pmn-arrow">›</span>
+        <span class="pmn-icon">🛍️</span><span class="pmn-label">All Products</span><span class="pmn-arrow">›</span>
       </button>
       <button class="pmn-link" onclick="closeMobileNav();if(typeof window._PIX_openDealsModal==='function')window._PIX_openDealsModal('all')">
-        <span class="pmn-icon">🔥</span> Hot Deals <span class="pmn-arrow">›</span>
+        <span class="pmn-icon">🔥</span><span class="pmn-label">Hot Deals</span><span class="pmn-badge">SALE</span><span class="pmn-arrow">›</span>
+      </button>
+      <button class="pmn-link" onclick="closeMobileNav();setFilter('candles')">
+        <span class="pmn-icon">🕯️</span><span class="pmn-label">Candles Collection</span><span class="pmn-arrow">›</span>
+      </button>
+      <button class="pmn-link" onclick="closeMobileNav();setFilter('beauty')">
+        <span class="pmn-icon">💄</span><span class="pmn-label">Beauty & Skincare</span><span class="pmn-arrow">›</span>
+      </button>
+      <button class="pmn-link" onclick="closeMobileNav();setFilter('clothing')">
+        <span class="pmn-icon">👗</span><span class="pmn-label">Clothing & Apparel</span><span class="pmn-arrow">›</span>
+      </button>
+      <button class="pmn-link" onclick="closeMobileNav();setFilter('others')">
+        <span class="pmn-icon">📦</span><span class="pmn-label">Other Products</span><span class="pmn-arrow">›</span>
+      </button>
+
+      <div class="pmn-divider"></div>
+
+      <!-- My Account -->
+      <div class="pmn-section-label">My Account</div>
+      <button class="pmn-link" onclick="closeMobileNav();document.getElementById('cartBtn')&&document.getElementById('cartBtn').click()">
+        <span class="pmn-icon">🛒</span><span class="pmn-label">My Cart</span>
+        <span id="pmn-cart-badge" class="pmn-badge" style="display:none"></span>
+        <span class="pmn-arrow">›</span>
       </button>
       <button class="pmn-link" onclick="closeMobileNav();document.getElementById('wishBtn')&&document.getElementById('wishBtn').click()">
-        <span class="pmn-icon">❤️</span> Wishlist <span class="pmn-arrow">›</span>
+        <span class="pmn-icon">❤️</span><span class="pmn-label">Wishlist</span>
+        <span id="pmn-wish-badge" class="pmn-badge" style="display:none"></span>
+        <span class="pmn-arrow">›</span>
       </button>
-      <button class="pmn-link" onclick="closeMobileNav();document.getElementById('cartBtn')&&document.getElementById('cartBtn').click()">
-        <span class="pmn-icon">🛒</span> Cart <span class="pmn-arrow">›</span>
+      <button class="pmn-link" onclick="closeMobileNav();document.getElementById('compareBtn')&&document.getElementById('compareBtn').click()">
+        <span class="pmn-icon">⚖️</span><span class="pmn-label">Compare Products</span><span class="pmn-arrow">›</span>
+      </button>
+      <button class="pmn-link" id="pmn-orders-btn" onclick="closeMobileNav();document.getElementById('menuOrders')&&document.getElementById('menuOrders').click()">
+        <span class="pmn-icon">📋</span><span class="pmn-label">My Orders</span><span class="pmn-arrow">›</span>
+      </button>
+      <button class="pmn-link" id="pmn-addresses-btn" onclick="closeMobileNav();document.getElementById('menuAddresses')&&document.getElementById('menuAddresses').click()">
+        <span class="pmn-icon">📍</span><span class="pmn-label">Saved Addresses</span><span class="pmn-arrow">›</span>
       </button>
       <button class="pmn-link" onclick="closeMobileNav();document.getElementById('loginBtn')&&document.getElementById('loginBtn').click()">
-        <span class="pmn-icon">👤</span> Account <span class="pmn-arrow">›</span>
+        <span class="pmn-icon">👤</span><span class="pmn-label" id="pmn-login-label">Login / Sign Up</span><span class="pmn-arrow">›</span>
       </button>
-      <button class="pmn-link" onclick="closeMobileNav();openSellerModal()">
-        <span class="pmn-icon">🏪</span> Sell on PIX <span class="pmn-arrow">›</span>
+
+      <div class="pmn-divider"></div>
+
+      <!-- More -->
+      <div class="pmn-section-label">More</div>
+      <button class="pmn-link" onclick="closeMobileNav();openSellerModal&&openSellerModal()">
+        <span class="pmn-icon">🏪</span><span class="pmn-label">Sell on Pioneer I Xpress</span><span class="pmn-arrow">›</span>
       </button>
-    </nav>
+      <button class="pmn-link" onclick="closeMobileNav();document.getElementById('seller-cta-section')&&document.getElementById('seller-cta-section').scrollIntoView({behavior:'smooth'})">
+        <span class="pmn-icon">💼</span><span class="pmn-label">Become a Seller</span><span class="pmn-arrow">›</span>
+      </button>
+      <button class="pmn-link" onclick="closeMobileNav();document.getElementById('newsletter-section')&&document.getElementById('newsletter-section').scrollIntoView({behavior:'smooth'})">
+        <span class="pmn-icon">📧</span><span class="pmn-label">Newsletter</span><span class="pmn-arrow">›</span>
+      </button>
+      <button class="pmn-link" onclick="closeMobileNav();document.getElementById('rsChat')&&(document.getElementById('rsChat').style.display='flex')">
+        <span class="pmn-icon">💬</span><span class="pmn-label">Chat & Support</span><span class="pmn-arrow">›</span>
+      </button>
+      <a class="pmn-link" href="https://wa.me/916280096796" target="_blank" onclick="closeMobileNav()" style="text-decoration:none">
+        <span class="pmn-icon" style="background:rgba(37,211,102,0.1);color:#16a34a">💬</span>
+        <span class="pmn-label">WhatsApp Us</span>
+        <span class="pmn-arrow">›</span>
+      </a>
+
+      <div class="pmn-divider"></div>
+
+      <!-- Settings -->
+      <div class="pmn-section-label">Settings</div>
+      <button class="pmn-link" onclick="document.getElementById('themeBtn')&&document.getElementById('themeBtn').click()">
+        <span class="pmn-icon">🌓</span><span class="pmn-label">Toggle Dark / Light Mode</span><span class="pmn-arrow">›</span>
+      </button>
+      <button class="pmn-link" onclick="document.getElementById('pix-globe-btn')&&document.getElementById('pix-globe-btn').click()">
+        <span class="pmn-icon">🌐</span><span class="pmn-label">Change Language</span><span class="pmn-arrow">›</span>
+      </button>
+
+      <!-- Admin link (hidden until admin logs in) -->
+      <div id="pmn-admin-wrap" style="display:none">
+        <div class="pmn-divider"></div>
+        <div class="pmn-section-label">Admin</div>
+        <button class="pmn-link" style="color:#FF3C78" onclick="closeMobileNav();document.getElementById('menuAdmin')&&document.getElementById('menuAdmin').click()">
+          <span class="pmn-icon" style="background:rgba(255,60,120,0.1)">📊</span>
+          <span class="pmn-label" style="font-weight:700">Admin Dashboard</span>
+          <span class="pmn-arrow" style="opacity:1;color:#FF3C78">›</span>
+        </button>
+      </div>
+
+    </div><!-- /pmn-body -->
+
+    <!-- Footer -->
     <div class="pmn-footer">
+      <div class="pmn-footer-actions">
+        <button class="pmn-footer-btn" onclick="closeMobileNav();document.getElementById('cartBtn')&&document.getElementById('cartBtn').click()">
+          🛒 Cart
+        </button>
+        <button class="pmn-footer-btn" onclick="closeMobileNav();document.getElementById('wishBtn')&&document.getElementById('wishBtn').click()">
+          ❤️ Wishlist
+        </button>
+        <button class="pmn-footer-btn" onclick="closeMobileNav();document.getElementById('loginBtn')&&document.getElementById('loginBtn').click()">
+          👤 Account
+        </button>
+      </div>
       <div class="pmn-social">
         <button class="pmn-soc-btn" title="Instagram"><i class="fab fa-instagram"></i></button>
         <button class="pmn-soc-btn" title="Facebook"><i class="fab fa-facebook-f"></i></button>
         <button class="pmn-soc-btn" title="YouTube"><i class="fab fa-youtube"></i></button>
-        <a class="pmn-soc-btn" href="https://wa.me/916280096796" target="_blank" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        <a class="pmn-soc-btn" href="https://wa.me/916280096796" target="_blank" title="WhatsApp" style="text-decoration:none"><i class="fab fa-whatsapp"></i></a>
       </div>
     </div>
-  </div>
-</div>
+
+  </div><!-- /drawer -->
+</div><!-- /nav overlay -->
 
 <script>
 function openMobileNav() {
   document.getElementById('pix-mobile-nav').classList.add('open');
   document.getElementById('pix-hamburger').classList.add('open');
   document.body.style.overflow = 'hidden';
+  // Sync live cart/wish badges into sidebar
+  try {
+    var cBadge = document.getElementById('cartBadge');
+    var wBadge = document.getElementById('wishBadge');
+    var pmcb = document.getElementById('pmn-cart-badge');
+    var pmwb = document.getElementById('pmn-wish-badge');
+    if (pmcb && cBadge && cBadge.textContent !== '0') { pmcb.textContent = cBadge.textContent; pmcb.style.display = 'inline'; }
+    else if (pmcb) pmcb.style.display = 'none';
+    if (pmwb && wBadge && wBadge.textContent !== '0') { pmwb.textContent = wBadge.textContent; pmwb.style.display = 'inline'; }
+    else if (pmwb) pmwb.style.display = 'none';
+    // Show admin link if admin
+    var admWrap = document.getElementById('pmn-admin-wrap');
+    if (admWrap && window._PIX_role === 'admin') admWrap.style.display = 'block';
+    // Update login label if logged in
+    var loginLabel = document.getElementById('pmn-login-label');
+    var userName = document.getElementById('userMenuName');
+    if (loginLabel && userName && userName.textContent && userName.textContent !== 'User') {
+      loginLabel.textContent = userName.textContent;
+    }
+  } catch(e) {}
 }
 function closeMobileNav() {
   document.getElementById('pix-mobile-nav').classList.remove('open');
