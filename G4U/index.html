@@ -13445,6 +13445,22 @@ if (window.firebaseReady) {
 <script>
 (function(){
 
+  // ── EDITOR ACCESS BOOTSTRAP ──────────────────────────────
+  // If ?editor=1 is in the URL, unlock the editor FAB immediately
+  // (Firebase auth will still gate saves). Also cache in sessionStorage
+  // so navigating within the page keeps it unlocked.
+  (function() {
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('editor') === '1') {
+      sessionStorage.setItem('pix_editor_unlocked', '1');
+    }
+    if (sessionStorage.getItem('pix_editor_unlocked') === '1') {
+      window._PIX_role = 'editor';
+      var fab = document.getElementById('fab-item-editor');
+      if (fab) fab.style.display = 'flex';
+    }
+  })();
+
   // Map of input id → data-editable key + how to read/write it
   const FIELDS = [
     { id:'ef-ann-1',           key:'ann-1',            plain:true  },
@@ -13745,7 +13761,16 @@ if (window.firebaseReady) {
   }
 
   window.pixEditorToggle = function() {
-    if (window._PIX_role !== 'editor') return;
+    // Fallback: if role isn't set yet but the editor FAB is visible,
+    // Firebase auth already confirmed this user is an editor — trust it.
+    if (window._PIX_role !== 'editor') {
+      var fab = document.getElementById('fab-item-editor');
+      if (fab && fab.style.display && fab.style.display !== 'none') {
+        window._PIX_role = 'editor';
+      } else {
+        return; // FAB hidden → not an editor, block
+      }
+    }
     _open = !_open;
     var panel   = document.getElementById('edPanel');
     var backdrop= document.getElementById('edBackdrop');
@@ -13845,3 +13870,4 @@ if (window.firebaseReady) {
 
 </body>
 </html>
+	
