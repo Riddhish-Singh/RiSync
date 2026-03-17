@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -66,6 +65,179 @@
       transition: opacity 0.7s ease, visibility 0.7s ease;
     }
     #pix-loader.fade-out { opacity: 0; visibility: hidden; pointer-events: none; }
+
+    /* ── ADDRESS CAROUSEL MODAL ── */
+    #pix-addr-modal {
+      position: fixed; inset: 0; z-index: 99998;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.72);
+      backdrop-filter: blur(8px);
+      opacity: 0; visibility: hidden; pointer-events: none;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+    #pix-addr-modal.show {
+      opacity: 1; visibility: visible; pointer-events: all;
+    }
+    #pix-addr-modal.hide {
+      opacity: 0; visibility: hidden; pointer-events: none;
+    }
+    .pix-addr-card {
+      background: #fff;
+      border-radius: 24px;
+      width: 92%; max-width: 480px;
+      overflow: hidden;
+      transform: translateY(40px) scale(0.95);
+      transition: transform 0.5s cubic-bezier(.2,.9,.2,1);
+      box-shadow: 0 32px 80px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,60,120,0.12);
+    }
+    html.dark .pix-addr-card { background: #1a0d12; }
+    #pix-addr-modal.show .pix-addr-card {
+      transform: translateY(0) scale(1);
+    }
+    .pix-addr-header {
+      background: linear-gradient(135deg, #FF3C78 0%, #c41755 100%);
+      padding: 28px 28px 22px;
+      position: relative; overflow: hidden;
+    }
+    .pix-addr-header::before {
+      content: '';
+      position: absolute; top: -40px; right: -40px;
+      width: 150px; height: 150px; border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+    }
+    .pix-addr-header::after {
+      content: '';
+      position: absolute; bottom: -30px; left: -20px;
+      width: 100px; height: 100px; border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+    }
+    .pix-addr-steps {
+      display: flex; gap: 8px; margin-bottom: 14px; position: relative; z-index: 1;
+    }
+    .pix-addr-step-dot {
+      height: 4px; flex: 1; border-radius: 99px;
+      background: rgba(255,255,255,0.28);
+      transition: background 0.4s ease;
+    }
+    .pix-addr-step-dot.active { background: #fff; }
+    .pix-addr-body {
+      padding: 28px;
+    }
+    .pix-addr-slide {
+      display: none;
+      animation: addrSlideIn 0.4s cubic-bezier(.2,.9,.2,1) both;
+    }
+    .pix-addr-slide.active { display: block; }
+    @keyframes addrSlideIn {
+      from { opacity: 0; transform: translateX(30px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes addrSlideInBack {
+      from { opacity: 0; transform: translateX(-30px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .pix-addr-slide.slide-back { animation-name: addrSlideInBack; }
+    .pix-addr-label {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: #FF3C78; margin-bottom: 8px; display: block;
+    }
+    .pix-addr-input {
+      width: 100%;
+      padding: 13px 16px;
+      border: 1.5px solid rgba(196,23,85,0.12);
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif; font-size: 0.92rem;
+      color: #1d0b14; background: #fafafa;
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+      box-sizing: border-box;
+    }
+    html.dark .pix-addr-input { background: #2a1520; border-color: rgba(255,255,255,0.1); color: #f5f5f5; }
+    .pix-addr-input:focus {
+      border-color: #FF3C78;
+      box-shadow: 0 0 0 3px rgba(255,60,120,0.15);
+      background: #fff;
+    }
+    html.dark .pix-addr-input:focus { background: #321820; }
+    .pix-addr-input::placeholder { color: #aaa; }
+    .pix-addr-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .pix-addr-btn-next {
+      width: 100%; margin-top: 20px;
+      padding: 14px;
+      background: linear-gradient(135deg, #FF3C78, #c41755);
+      color: #fff; border: none; border-radius: 14px;
+      font-family: 'Poppins', sans-serif; font-size: 0.95rem; font-weight: 700;
+      cursor: pointer; letter-spacing: 0.02em;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 8px 24px rgba(255,60,120,0.3);
+    }
+    .pix-addr-btn-next:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 36px rgba(255,60,120,0.4);
+    }
+    .pix-addr-btn-next:active { transform: scale(0.97); }
+    .pix-addr-skip {
+      display: block; text-align: center; margin-top: 12px;
+      font-family: 'Poppins', sans-serif; font-size: 0.82rem;
+      color: #999; cursor: pointer;
+      transition: color 0.2s;
+    }
+    .pix-addr-skip:hover { color: #FF3C78; }
+    .pix-addr-icon-row {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+    }
+    .pix-addr-icon-bg {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: rgba(255,60,120,0.1);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .pix-addr-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.08rem; font-weight: 800;
+      color: #1d0b14; line-height: 1.2;
+    }
+    html.dark .pix-addr-title { color: #f5f5f5; }
+    .pix-addr-subtitle {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.78rem; color: #888; margin-top: 1px;
+    }
+    .pix-addr-suggestion-row {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px;
+    }
+    .pix-addr-suggestion {
+      padding: 6px 14px; border-radius: 99px;
+      background: rgba(255,60,120,0.07);
+      border: 1.5px solid rgba(255,60,120,0.18);
+      font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 600;
+      color: #FF3C78; cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .pix-addr-suggestion:hover {
+      background: rgba(255,60,120,0.15);
+      transform: translateY(-1px);
+    }
+    .pix-addr-success-anim {
+      text-align: center; padding: 10px 0 4px;
+    }
+    .pix-addr-check-circle {
+      width: 68px; height: 68px; border-radius: 50%;
+      background: linear-gradient(135deg, #FF3C78, #c41755);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 2rem; color: #fff; margin-bottom: 14px;
+      animation: addrCheckPop 0.5s cubic-bezier(.2,1.4,.3,1) both;
+      box-shadow: 0 8px 32px rgba(255,60,120,0.35);
+    }
+    @keyframes addrCheckPop {
+      from { transform: scale(0) rotate(-20deg); opacity: 0; }
+      to   { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    .pix-addr-error {
+      font-family: 'Poppins', sans-serif; font-size: 0.78rem;
+      color: #e53e3e; margin-top: 6px; display: none;
+    }
     .pix-loader-logo {
       width: 80px; height: 80px; border-radius: 20px;
       background: linear-gradient(135deg, #FF3C78, #c41755);
@@ -296,6 +468,18 @@
     #subNavStrip {
       position: relative; overflow: hidden;
     }
+    /* Light mode: white background, black text */
+    html:not(.dark) #subNavStrip {
+      background: #ffffff !important;
+      border-top: 1px solid rgba(196,23,85,0.08);
+      border-bottom: 1px solid rgba(196,23,85,0.08);
+    }
+    html:not(.dark) #subNavStrip span {
+      color: #c4759a !important;
+    }
+    html:not(.dark) #subNavStrip::after {
+      background: linear-gradient(90deg, transparent, rgba(196,23,85,0.05), transparent);
+    }
     #subNavStrip::after {
       content: '';
       position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
@@ -475,14 +659,14 @@
     .pix-stats-bar {
       display: flex; flex-wrap: wrap; justify-content: center;
       gap: 0; background: var(--surface-primary);
-      border-top: 1.5px solid rgba(0,0,0,0.05);
-      border-bottom: 1.5px solid rgba(0,0,0,0.05);
+      border-top: 1.5px solid rgba(196,23,85,0.07);
+      border-bottom: 1.5px solid rgba(196,23,85,0.07);
     }
     html.dark .pix-stats-bar { border-color: rgba(255,255,255,0.06); }
     .pix-stat-item {
       flex: 1; min-width: 140px;
       padding: 28px 20px; text-align: center;
-      border-right: 1.5px solid rgba(0,0,0,0.05);
+      border-right: 1.5px solid rgba(196,23,85,0.07);
       position: relative; overflow: hidden;
       cursor: default;
       transition: background 0.3s;
@@ -585,7 +769,7 @@
 
     /* responsive: hide stats on very small screens */
     @media (max-width: 480px) {
-      .pix-stat-item { min-width: 50%; border-bottom: 1.5px solid rgba(0,0,0,0.05); }
+      .pix-stat-item { min-width: 50%; border-bottom: 1.5px solid rgba(196,23,85,0.07); }
       html.dark .pix-stat-item { border-bottom-color: rgba(255,255,255,0.06); }
     }
   </style>
@@ -596,20 +780,20 @@
       --brand-secondary: #FF7EAC;
       --brand-dark: #C41755;
       --ring-color: rgba(255, 60, 120, 0.25);
-      --text-primary: #111111;
+      --text-primary: #1d0b14;
       --text-secondary: #666666;
       --bg-primary: #FFFFFF;
       --surface-primary: #FFFFFF;
       --success: #2ecc71;
       --error: #e74c3c;
       --header-bg: #FFFFFF;
-      --header-text: #111111;
-      --header-icon-bg: rgba(0,0,0,0.06);
-      --header-icon-color: #333333;
-      --header-border: rgba(0,0,0,0.08);
-      --header-input-bg: rgba(0,0,0,0.05);
-      --header-input-border: rgba(0,0,0,0.12);
-      --header-input-color: #111111;
+      --header-text: #1d0b14;
+      --header-icon-bg: rgba(196,23,85,0.07);
+      --header-icon-color: #3a1625;
+      --header-border: rgba(196,23,85,0.09);
+      --header-input-bg: rgba(196,23,85,0.05);
+      --header-input-border: rgba(196,23,85,0.13);
+      --header-input-color: #1d0b14;
       --subnav-bg: #FF3C78;
     }
     html.dark {
@@ -1024,7 +1208,7 @@
     .cat-tile-overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.1) 60%);
+      background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(196,23,85,0.1) 60%);
     }
     .cat-tile-label {
       position: absolute;
@@ -1119,7 +1303,7 @@
       overflow: hidden;
       transition: all 0.3s cubic-bezier(0.2, 0.9, 0.2, 1);
       background: var(--surface-primary);
-      border: 1.5px solid rgba(0,0,0,0.06);
+      border: 1.5px solid rgba(196,23,85,0.08);
     }
     html.dark .card { border-color: rgba(255,255,255,0.06); }
     .card:hover { transform: translateY(-6px); box-shadow: 0 24px 50px rgba(255,60,120,0.15); border-color: rgba(255,60,120,0.2); }
@@ -1141,7 +1325,7 @@
       cursor: pointer;
       transition: all 0.2s ease;
       background-color: var(--surface-primary);
-      border: 1.5px solid rgba(0,0,0,0.1);
+      border: 1.5px solid rgba(196,23,85,0.12);
       letter-spacing: 0.04em;
     }
     html.dark .chip { border: 1.5px solid rgba(255,255,255,0.1); }
@@ -1187,7 +1371,7 @@
     .drawer {
       transition: transform 0.3s ease-in-out;
       background-color: var(--surface-primary);
-      border-left: 1px solid rgba(0,0,0,0.1);
+      border-left: 1px solid rgba(196,23,85,0.1);
     }
     html.dark .drawer { border-left: 1px solid rgba(255,255,255,0.1); }
     .modal-backdrop { background-color: rgba(0,0,0,0.65); }
@@ -1206,7 +1390,7 @@
       width: 100%;
       padding: 10px 12px;
       border-radius: 8px;
-      border: 1px solid rgba(0,0,0,0.1);
+      border: 1px solid rgba(196,23,85,0.12);
       background-color: var(--bg-primary);
       color: var(--text-primary);
       outline-color: var(--brand-primary);
@@ -1219,7 +1403,7 @@
       border-radius: 999px;
       font-weight: 700;
       background-color: var(--surface-primary);
-      border: 1.5px solid rgba(0,0,0,0.1);
+      border: 1.5px solid rgba(196,23,85,0.1);
       transition: all 0.2s ease;
       font-size: 0.85rem;
     }
@@ -1241,7 +1425,7 @@
     .promo-grid-item:hover img { transform: scale(1.04); }
     .promo-grid-item-overlay {
       position: absolute; inset: 0;
-      background: linear-gradient(135deg, rgba(255,60,120,0.7), rgba(0,0,0,0.2));
+      background: linear-gradient(135deg, rgba(255,60,120,0.7), rgba(196,23,85,0.2));
       display: flex; flex-direction: column; justify-content: flex-end; padding: 20px;
     }
 
@@ -1272,7 +1456,7 @@
 
     /* FOOTER */
     #siteFooter {
-      background: #111111 !important;
+      background: #1d0b14 !important;
       color: rgba(255,255,255,0.6) !important;
       border-top: none !important;
     }
@@ -1310,7 +1494,7 @@
       border-radius: 16px;
       overflow: hidden;
       background: var(--surface-primary);
-      border: 1.5px solid rgba(0,0,0,0.06);
+      border: 1.5px solid rgba(196,23,85,0.06);
     }
     html.dark .skeleton-card { border-color: rgba(255,255,255,0.06); }
     .flash-timer-box {
@@ -1341,8 +1525,8 @@
       flex-wrap: wrap;
       justify-content: center;
       padding: 24px 16px;
-      border-top: 1.5px solid rgba(0,0,0,0.06);
-      border-bottom: 1.5px solid rgba(0,0,0,0.06);
+      border-top: 1.5px solid rgba(196,23,85,0.06);
+      border-bottom: 1.5px solid rgba(196,23,85,0.06);
       background: var(--surface-primary);
     }
     .trust-item {
@@ -1387,7 +1571,7 @@
   .auth-input {
     width: 100%; padding: 12px 16px;
     border-radius: 12px; font-size: 0.9rem;
-    border: 1.5px solid rgba(0,0,0,0.12);
+    border: 1.5px solid rgba(196,23,85,0.12);
     background: var(--bg-primary); color: var(--text-primary);
     outline: none; transition: border-color 0.2s, box-shadow 0.2s;
     box-sizing: border-box;
@@ -1397,25 +1581,25 @@
   .auth-btn-primary { color: white !important;
     width: 100%; padding: 13px;
     background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
-    color: #111111; font-weight: 700; font-size: 0.95rem;
+    color: #1d0b14; font-weight: 700; font-size: 0.95rem;
     border: none; border-radius: 12px; cursor: pointer;
     transition: opacity 0.2s, transform 0.15s;
   }
   .auth-btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
   .auth-btn-primary:active { transform: translateY(0); }
   .auth-divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; color: var(--text-secondary); font-size: 0.8rem; }
-  .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: rgba(0,0,0,0.1); }
+  .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: rgba(196,23,85,0.1); }
   html.dark .auth-divider::before, html.dark .auth-divider::after { background: rgba(255,255,255,0.1); }
   .google-btn {
     width: 100%; padding: 12px;
-    border: 1.5px solid rgba(0,0,0,0.12); border-radius: 12px;
+    border: 1.5px solid rgba(196,23,85,0.12); border-radius: 12px;
     background: var(--surface-primary); color: var(--text-primary);
     font-weight: 600; font-size: 0.9rem; cursor: pointer;
     display: flex; align-items: center; justify-content: center; gap: 10px;
     transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
   }
   html.dark .google-btn { border-color: rgba(255,255,255,0.12); }
-  .google-btn:hover { background: var(--bg-primary); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .google-btn:hover { background: var(--bg-primary); box-shadow: 0 4px 12px rgba(196,23,85,0.1); }
   .auth-switch { font-size: 0.875rem; text-align: center; margin-top: 20px; color: var(--text-secondary); }
   .auth-switch a { color: var(--brand-primary); font-weight: 700; cursor: pointer; text-decoration: none; }
   .auth-error { background: rgba(239,68,68,0.1); color: #ef4444; border-radius: 8px; padding: 10px 14px; font-size: 0.85rem; margin-bottom: 16px; display: none; }
@@ -1425,7 +1609,7 @@
   .user-avatar-btn {
     width: 40px; height: 40px; border-radius: 50%;
     background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
-    color: #111111; font-weight: 800; font-size: 0.9rem;
+    color: #1d0b14; font-weight: 800; font-size: 0.9rem;
     border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
     overflow: hidden; transition: box-shadow 0.2s;
   }
@@ -1435,15 +1619,15 @@
     position: absolute; right: 0; top: calc(100% + 10px);
     background: var(--surface-primary);
     border-radius: 16px; min-width: 220px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.2); 
+    box-shadow: 0 20px 50px rgba(196,23,85,0.2); 
     padding: 8px; z-index: 1000;
-    border: 1px solid rgba(0,0,0,0.08);
+    border: 1px solid rgba(196,23,85,0.08);
     opacity: 0; pointer-events: none; transform: translateY(-8px);
     transition: opacity 0.2s, transform 0.2s;
   }
   html.dark .user-menu { border-color: rgba(255,255,255,0.08); }
   .user-menu.open { opacity: 1; pointer-events: all; transform: translateY(0); }
-  .user-menu-header { padding: 10px 12px 14px; border-bottom: 1px solid rgba(0,0,0,0.08); }
+  .user-menu-header { padding: 10px 12px 14px; border-bottom: 1px solid rgba(196,23,85,0.08); }
   html.dark .user-menu-header { border-color: rgba(255,255,255,0.08); }
   .user-menu-name { font-weight: 700; font-size: 0.9rem; }
   .user-menu-email { font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px; }
@@ -1464,7 +1648,7 @@
   @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.4} }
   /* Orders modal */
   .order-card {
-    border: 1px solid rgba(0,0,0,0.08); border-radius: 12px;
+    border: 1px solid rgba(196,23,85,0.08); border-radius: 12px;
     padding: 14px; margin-bottom: 10px;
     background: var(--bg-primary);
   }
@@ -1494,7 +1678,7 @@
 
   /* Address book professional */
   #addrBookList .addr-card { transition: border-color 0.2s, box-shadow 0.2s; }
-  #addrBookList .addr-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
+  #addrBookList .addr-card:hover { box-shadow: 0 4px 14px rgba(196,23,85,0.08); }
   </style>
 
 
@@ -1548,7 +1732,7 @@
     #pix-lang-yes {
       width: 100%; padding: 14px;
       background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
-      color: #111; font-weight: 800; font-size: 0.95rem;
+      color: #1d0b14; font-weight: 800; font-size: 0.95rem;
       border: none; border-radius: 14px; cursor: pointer;
       display: flex; align-items: center; justify-content: center; gap: 8px;
       margin-bottom: 10px;
@@ -1592,9 +1776,9 @@
       position: absolute; right: 0; top: calc(100% + 10px);
       background: var(--surface-primary);
       border-radius: 18px; min-width: 260px;
-      box-shadow: 0 24px 60px rgba(0,0,0,0.22);
+      box-shadow: 0 24px 60px rgba(196,23,85,0.22);
       padding: 8px; z-index: 9000;
-      border: 1px solid rgba(0,0,0,0.09);
+      border: 1px solid rgba(196,23,85,0.09);
       opacity: 0; pointer-events: none;
       transform: translateY(-6px);
       transition: opacity 0.2s, transform 0.2s;
@@ -1603,7 +1787,7 @@
     #pix-lang-panel.pix-open { opacity: 1; pointer-events: all; transform: translateY(0); }
     .pix-lp-head {
       padding: 10px 12px 12px;
-      border-bottom: 1px solid rgba(0,0,0,0.07);
+      border-bottom: 1px solid rgba(196,23,85,0.07);
       margin-bottom: 6px;
     }
     html.dark .pix-lp-head { border-color: rgba(255,255,255,0.08); }
@@ -1626,7 +1810,7 @@
     .pix-lang-native-sm { margin-left: auto; font-size: 0.75rem; color: var(--text-secondary); }
     .pix-lang-check { color: var(--brand-primary); font-size: 0.8rem; margin-left: 4px; }
     .pix-panel-sep {
-      height: 1px; background: rgba(0,0,0,0.07);
+      height: 1px; background: rgba(196,23,85,0.07);
       margin: 6px 8px;
     }
     html.dark .pix-panel-sep { background: rgba(255,255,255,0.08); }
@@ -1657,6 +1841,78 @@
     <div class="pix-loader-logo">P</div>
     <div class="pix-loader-text">Pioneer I Xpress</div>
     <div class="pix-loader-bar-wrap"><div class="pix-loader-bar"></div></div>
+  </div>
+
+  <!-- ADDRESS CAROUSEL MODAL -->
+  <div id="pix-addr-modal" role="dialog" aria-modal="true" aria-label="Delivery address">
+    <div class="pix-addr-card">
+      <div class="pix-addr-header">
+        <div class="pix-addr-steps">
+          <div class="pix-addr-step-dot active" id="addrDot0"></div>
+          <div class="pix-addr-step-dot" id="addrDot1"></div>
+          <div class="pix-addr-step-dot" id="addrDot2"></div>
+        </div>
+        <div style="color:#fff;font-family:'Montserrat',sans-serif;font-size:1.25rem;font-weight:900;position:relative;z-index:1;">Where should we deliver? &#x1F4E6;</div>
+        <div style="color:rgba(255,255,255,0.75);font-family:'Poppins',sans-serif;font-size:0.8rem;margin-top:4px;position:relative;z-index:1;">Help us show accurate delivery estimates &amp; offers</div>
+      </div>
+      <div class="pix-addr-body">
+        <!-- Step 1 -->
+        <div class="pix-addr-slide active" id="addrSlide0">
+          <div class="pix-addr-icon-row">
+            <div class="pix-addr-icon-bg"><i class="fas fa-map-pin" style="color:#FF3C78;font-size:1.1rem;"></i></div>
+            <div>
+              <div class="pix-addr-title">Enter your PIN code</div>
+              <div class="pix-addr-subtitle">We'll check delivery availability instantly</div>
+            </div>
+          </div>
+          <div class="pix-addr-suggestion-row">
+            <span class="pix-addr-suggestion" onclick="pixAddrPinSuggest('141001')">141001 &middot; Ludhiana</span>
+            <span class="pix-addr-suggestion" onclick="pixAddrPinSuggest('110001')">110001 &middot; Delhi</span>
+            <span class="pix-addr-suggestion" onclick="pixAddrPinSuggest('400001')">400001 &middot; Mumbai</span>
+          </div>
+          <label class="pix-addr-label">PIN Code</label>
+          <input class="pix-addr-input" id="addrPin" type="tel" maxlength="6" placeholder="e.g. 141001" inputmode="numeric" autocomplete="postal-code">
+          <div class="pix-addr-error" id="addrPinErr">Please enter a valid 6-digit PIN code.</div>
+          <button class="pix-addr-btn-next" onclick="pixAddrNext(0)">Check Delivery &nbsp;&rarr;</button>
+          <span class="pix-addr-skip" onclick="pixAddrSkip()">Skip for now</span>
+        </div>
+        <!-- Step 2 -->
+        <div class="pix-addr-slide" id="addrSlide1">
+          <div class="pix-addr-icon-row">
+            <div class="pix-addr-icon-bg"><i class="fas fa-home" style="color:#FF3C78;font-size:1.1rem;"></i></div>
+            <div>
+              <div class="pix-addr-title">Your delivery address</div>
+              <div class="pix-addr-subtitle">Flat / House no., street &amp; city</div>
+            </div>
+          </div>
+          <label class="pix-addr-label">House / Flat / Street</label>
+          <input class="pix-addr-input" id="addrStreet" type="text" placeholder="e.g. 12B, Model Town, GT Road" autocomplete="address-line1" style="margin-bottom:12px;">
+          <div class="pix-addr-row">
+            <div>
+              <label class="pix-addr-label">City</label>
+              <input class="pix-addr-input" id="addrCity" type="text" placeholder="Ludhiana" autocomplete="address-level2">
+            </div>
+            <div>
+              <label class="pix-addr-label">State</label>
+              <input class="pix-addr-input" id="addrState" type="text" placeholder="Punjab" autocomplete="address-level1">
+            </div>
+          </div>
+          <div class="pix-addr-error" id="addrStreetErr">Please fill in your street address.</div>
+          <button class="pix-addr-btn-next" onclick="pixAddrNext(1)">Continue &nbsp;&rarr;</button>
+          <span class="pix-addr-skip" onclick="pixAddrSkip()">Skip for now</span>
+        </div>
+        <!-- Step 3 -->
+        <div class="pix-addr-slide" id="addrSlide2">
+          <div class="pix-addr-success-anim">
+            <div class="pix-addr-check-circle"><i class="fas fa-check"></i></div>
+            <div class="pix-addr-title" style="margin-bottom:6px;" id="addrConfirmTitle">Great! Delivery available &#x1F389;</div>
+            <div class="pix-addr-subtitle" id="addrConfirmSub">Orders above &#x20B9;1,999 get free delivery to your door.</div>
+          </div>
+          <div style="background:rgba(255,60,120,0.06);border:1.5px solid rgba(255,60,120,0.15);border-radius:14px;padding:14px 16px;margin:16px 0 0;font-family:'Poppins',sans-serif;font-size:0.83rem;color:#5a2035;" id="addrConfirmBox"></div>
+          <button class="pix-addr-btn-next" onclick="pixAddrDone()" style="margin-top:16px;">Start Shopping &#x1F6CD;&#xFE0F;</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- ── FLOATING BACKGROUND ORBS ── -->
@@ -1798,7 +2054,7 @@
 
           <!-- Slide 1 — Candles -->
           <div class="hero-main-slide" role="group" aria-roledescription="slide" aria-label="Slide 1 of 3: Luxury Candles">
-            <img src="https://risync.in/G4U/candle.png" alt="Luxury Candles collection" loading="eager" fetchpriority="high" width="1200" height="420">
+            <img id="img-hero1" src="https://risync.in/G4U/candle.png" alt="Luxury Candles collection" loading="eager" fetchpriority="high" width="1200" height="420">
             <div class="hero-slide-overlay"></div>
             <div class="hero-slide-content">
               <div class="hero-slide-inner">
@@ -1815,7 +2071,7 @@
 
           <!-- Slide 2 — Beauty -->
           <div class="hero-main-slide" role="group" aria-roledescription="slide" aria-label="Slide 2 of 3: Beauty Products">
-            <img src="https://royal-sleek-and-shear-52.lovable.app/lovable-uploads/30573759-2745-499d-9bd1-3222a5059831.png" alt="Beauty Products collection" loading="lazy" width="1200" height="420">
+            <img id="img-hero2" src="https://royal-sleek-and-shear-52.lovable.app/lovable-uploads/30573759-2745-499d-9bd1-3222a5059831.png" alt="Beauty Products collection" loading="lazy" width="1200" height="420">
             <div class="hero-slide-overlay" style="background:linear-gradient(120deg,rgba(0,0,0,0.75) 0%,rgba(255,126,172,0.15) 60%,transparent 100%);"></div>
             <div class="hero-slide-content">
               <div class="hero-slide-inner">
@@ -1832,7 +2088,7 @@
 
           <!-- Slide 3 — Clothing -->
           <div class="hero-main-slide" role="group" aria-roledescription="slide" aria-label="Slide 3 of 3: Clothing">
-            <img src="https://risync.in/G4U/Blue%20dot%204-5%20front.jpg" alt="Fresh Clothing collection" loading="lazy" width="1200" height="420">
+            <img id="img-hero3" src="https://risync.in/G4U/Blue%20dot%204-5%20front.jpg" alt="Fresh Clothing collection" loading="lazy" width="1200" height="420">
             <div class="hero-slide-overlay" style="background:linear-gradient(120deg,rgba(0,0,0,0.75) 0%,rgba(60,120,255,0.12) 60%,transparent 100%);"></div>
             <div class="hero-slide-content">
               <div class="hero-slide-inner">
@@ -2580,19 +2836,19 @@
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;margin-bottom:48px;">
           <!-- Category tiles — clicking sets filter chip -->
           <div class="cat-tile" onclick="setFilter('beauty')" title="Shop Beauty">
-            <img src="https://royal-sleek-and-shear-52.lovable.app/lovable-uploads/30573759-2745-499d-9bd1-3222a5059831.png" alt="Beauty Products">
+            <img id="img-cat-beauty" src="https://royal-sleek-and-shear-52.lovable.app/lovable-uploads/30573759-2745-499d-9bd1-3222a5059831.png" alt="Beauty Products">
             <div class="cat-tile-overlay"></div>
             <div class="cat-tile-label"><div class="cat-tile-name">Beauty</div><div class="cat-tile-count">Skincare & More</div></div>
             <div class="cat-tile-badge">HOT</div>
           </div>
           <div class="cat-tile" onclick="setFilter('candles')" title="Shop Candles">
-            <img src="https://risync.in/G4U/candle.png" alt="Candles" style="aspect-ratio:3/4;object-fit:cover;">
+            <img id="img-cat-candles" src="https://risync.in/G4U/candle.png" alt="Candles" style="aspect-ratio:3/4;object-fit:cover;">
             <div class="cat-tile-overlay"></div>
             <div class="cat-tile-label"><div class="cat-tile-name">Candles</div><div class="cat-tile-count">Soy & Paraffin</div></div>
             <div class="cat-tile-badge">NEW</div>
           </div>
           <div class="cat-tile" onclick="setFilter('clothing')" title="Shop Clothing">
-            <img src="https://risync.in/G4U/Blue%20dot%204-5%20front.jpg" alt="Clothing" style="aspect-ratio:3/4;object-fit:cover;">
+            <img id="img-cat-clothing" src="https://risync.in/G4U/Blue%20dot%204-5%20front.jpg" alt="Clothing" style="aspect-ratio:3/4;object-fit:cover;">
             <div class="cat-tile-overlay"></div>
             <div class="cat-tile-label"><div class="cat-tile-name">Clothing</div><div class="cat-tile-count">Kids T-Shirts</div></div>
           </div>
@@ -2600,7 +2856,7 @@
           
           
           <div class="cat-tile" onclick="setFilter('others')" title="Others">
-            <img src="https://media.bribooks.com/public/AuthorCoverImages/user_cover_66eb343d62adf_b1_v799599.png?width=500&format=avif" alt="Others" style="aspect-ratio:3/4;object-fit:cover;">
+            <img id="img-cat-others" src="https://media.bribooks.com/public/AuthorCoverImages/user_cover_66eb343d62adf_b1_v799599.png?width=500&format=avif" alt="Others" style="aspect-ratio:3/4;object-fit:cover;">
             <div class="cat-tile-overlay"></div>
             <div class="cat-tile-label"><div class="cat-tile-name">Others</div><div class="cat-tile-count">Community Picks</div></div>
           </div>
@@ -2616,7 +2872,7 @@
       <!-- ===== PROMO BANNERS 2-column ===== -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:48px;" class="hidden md:grid">
         <div class="promo-grid-item" style="min-height:200px;">
-          <img src="https://risync.in/G4U/Dough%20Bowl%20Multi_Wick%20Candle.png" alt="Candle Sale" style="height:200px;">
+          <img id="img-promo1" src="https://risync.in/G4U/Dough%20Bowl%20Multi_Wick%20Candle.png" alt="Candle Sale" style="height:200px;">
           <div class="promo-grid-item-overlay">
             <div style="font-size:0.65rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.8);margin-bottom:4px;" data-editable="promo1-badge">LIMITED TIME</div>
             <div style="font-family:'Montserrat',sans-serif;font-size:1.4rem;font-weight:900;color:white;line-height:1.1;" data-editable="promo1-title">Candle Sale<br>Up to 30% Off</div>
@@ -2624,8 +2880,8 @@
           </div>
         </div>
         <div class="promo-grid-item" style="min-height:200px;">
-          <img src="https://royal-sleek-and-shear-52.lovable.app/lovable-uploads/30573759-2745-499d-9bd1-3222a5059831.png" alt="Beauty" style="height:200px;">
-          <div class="promo-grid-item-overlay" style="background:linear-gradient(135deg,rgba(255,60,120,0.65),rgba(0,0,0,0.2));">
+          <img id="img-promo2" src="https://royal-sleek-and-shear-52.lovable.app/lovable-uploads/30573759-2745-499d-9bd1-3222a5059831.png" alt="Beauty" style="height:200px;">
+          <div class="promo-grid-item-overlay" style="background:linear-gradient(135deg,rgba(255,60,120,0.65),rgba(196,23,85,0.2));">
             <div style="font-size:0.65rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.8);margin-bottom:4px;" data-editable="promo2-badge">BESTSELLER</div>
             <div style="font-family:'Montserrat',sans-serif;font-size:1.4rem;font-weight:900;color:white;line-height:1.1;" data-editable="promo2-title">Beauty Must-Haves<br>For Every Skin</div>
             <button onclick="setFilter('beauty')" style="margin-top:10px;background:white;color:var(--brand-primary);font-weight:800;font-size:0.75rem;padding:8px 18px;border-radius:999px;border:none;cursor:pointer;letter-spacing:0.06em;text-transform:uppercase;">Shop Now →</button>
@@ -2656,13 +2912,13 @@
           <label for="minRange" style="font-weight:600;font-size:0.82rem;">Min: <span id="minVal" class="font-bold" style="color:var(--brand-primary);">₹0</span></label>
           <input id="minRange" type="range" min="0" max="5000" step="100" value="0" style="accent-color:var(--brand-primary);width:80px;">
         </div>
-        <select id="sort" class="text-sm font-semibold rounded-xl p-2 appearance-none outline-none cursor-pointer border" style="background-color: var(--surface-primary);border-color:rgba(0,0,0,0.1);">
+        <select id="sort" class="text-sm font-semibold rounded-xl p-2 appearance-none outline-none cursor-pointer border" style="background-color: var(--surface-primary);border-color:rgba(196,23,85,0.1);">
           <option value="pop" data-i18n="sort_pop">Popularity</option>
           <option value="plh" data-i18n="sort_plh">Price: Low → High</option>
           <option value="phl" data-i18n="sort_phl">Price: High → Low</option>
           <option value="rate" data-i18n="sort_rate">Rating</option>
         </select>
-        <button class="text-sm font-semibold p-2 px-4 rounded-xl border" id="reset" style="background-color: var(--surface-primary);border-color:rgba(0,0,0,0.1);" data-i18n="reset">Reset</button>
+        <button class="text-sm font-semibold p-2 px-4 rounded-xl border" id="reset" style="background-color: var(--surface-primary);border-color:rgba(196,23,85,0.1);" data-i18n="reset">Reset</button>
       </div>
     </section>
 
@@ -2704,7 +2960,7 @@
       display: flex; align-items: center; gap: 10px;
       padding: 10px 16px; border-radius: 14px;
       background: var(--surface-primary);
-      border: 1.5px solid rgba(0,0,0,0.07);
+      border: 1.5px solid rgba(196,23,85,0.07);
       cursor: pointer; white-space: nowrap; flex-shrink: 0;
       transition: all 0.25s cubic-bezier(.2,.9,.2,1);
       font-family: 'Poppins', sans-serif;
@@ -2732,7 +2988,7 @@
         var picks = prods.slice().sort(function(a,b){ return b.rating - a.rating; }).slice(0, Math.min(8, prods.length));
         track.innerHTML = picks.map(function(p) {
           var img = p.img || p.image || 'https://risync.in/G4U/candle.png';
-          return '<div class="pix-trending-chip" onclick="openProductModal && openProductModal(\'' + p.id + '\')">'
+          return '<div class="pix-trending-chip" onclick="openProductModal && openProductModal(''+p.id+'')">'
             + '<img class="pix-trending-img" src="'+img+'" alt="'+p.title+'" loading="lazy">'
             + '<div><div class="pix-trending-name">'+p.title+'</div>'
             + '<div class="pix-trending-price">₹'+p.price.toLocaleString()+'</div>'
@@ -2940,7 +3196,7 @@
     <style>
     .pix-review-card {
       background: var(--surface-primary);
-      border: 1.5px solid rgba(0,0,0,0.07);
+      border: 1.5px solid rgba(196,23,85,0.07);
       border-radius: 20px;
       padding: 24px;
       min-width: 300px;
@@ -2982,7 +3238,7 @@
       justify-content: center; margin-top: 36px;
       padding: 28px 32px; border-radius: 20px;
       background: var(--surface-primary);
-      border: 1.5px solid rgba(0,0,0,0.06);
+      border: 1.5px solid rgba(196,23,85,0.06);
     }
     html.dark .pix-review-summary { border-color: rgba(255,255,255,0.07); }
     .pix-review-summary-score { text-align: center; }
@@ -2991,7 +3247,7 @@
     .pix-review-count { font-size: 0.75rem; color: var(--text-secondary); font-weight: 600; }
     .pix-review-bars { flex: 1; min-width: 200px; max-width: 320px; display: flex; flex-direction: column; gap: 6px; }
     .pix-rb-row { display: flex; align-items: center; gap: 10px; font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); }
-    .pix-rb-track { flex: 1; height: 8px; background: rgba(0,0,0,0.06); border-radius: 4px; overflow: hidden; }
+    .pix-rb-track { flex: 1; height: 8px; background: rgba(196,23,85,0.06); border-radius: 4px; overflow: hidden; }
     html.dark .pix-rb-track { background: rgba(255,255,255,0.08); }
     .pix-rb-fill { height: 100%; background: linear-gradient(90deg, #FF3C78, #FF7EAC); border-radius: 4px; transition: width 1.2s cubic-bezier(.2,.9,.2,1); }
     </style>
@@ -3090,7 +3346,7 @@
     <!-- END TESTIMONIALS -->
 
     <!-- BECOME A SELLER CTA SECTION -->
-    <section id="seller-cta-section" class="my-12 rounded-2xl overflow-hidden" style="background: linear-gradient(135deg, #111111 0%, #1a0a12 50%, #2d0e1e 100%); border: 1px solid rgba(255,60,120,0.2);">
+    <section id="seller-cta-section" class="my-12 rounded-2xl overflow-hidden" style="background: linear-gradient(135deg, #1d0b14 0%, #2a0d1a 50%, #3d1228 100%); border: 1px solid rgba(255,60,120,0.2);">
       <div class="flex flex-col md:flex-row items-center gap-8 p-8 md:p-10">
         <div class="flex-1">
           <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,60,120,0.15);border:1px solid rgba(255,60,120,0.3);border-radius:999px;padding:5px 14px;margin-bottom:16px;">
@@ -3149,7 +3405,7 @@
       <div style="max-width:680px;margin:0 auto;background:var(--surface-primary);border-radius:24px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,0.5);border:1px solid rgba(255,60,120,0.15);animation:modalIn 0.25s ease forwards;">
         
         <!-- Modal Header -->
-        <div style="background:linear-gradient(135deg,#111111,#1a0a12);padding:28px 32px;position:relative;">
+        <div style="background:linear-gradient(135deg,#1d0b14,#2a0d1a);padding:28px 32px;position:relative;">
           <button onclick="closeSellerModal()" style="position:absolute;top:16px;right:20px;background:rgba(255,255,255,0.1);border:none;color:white;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;">✕</button>
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
             <div style="width:40px;height:40px;background:var(--brand-primary);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;">🏪</div>
@@ -3650,7 +3906,7 @@
         '<div style="width:64px;height:64px;border-radius:50%;background:rgba(245,158,11,0.1);border:2px solid rgba(245,158,11,0.3);display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 18px;">🕐</div>'+
         '<div style="font-family:Montserrat,sans-serif;font-weight:900;font-size:1.25rem;margin-bottom:8px;color:var(--text-primary);">Product Submitted for Review</div>'+
         '<div style="font-size:0.85rem;color:var(--text-secondary);line-height:1.65;margin-bottom:6px;">Your product <strong style="color:var(--text-primary);">&ldquo;' + prod.title + '&rdquo;</strong> has been submitted and is awaiting approval by the Pioneer I Xpress admin team.</div>'+
-        '<div style="font-size:0.8rem;color:var(--text-secondary);line-height:1.6;margin-bottom:24px;">Once approved, it will go live on the storefront. You\'ll be notified when the review is complete.</div>'+
+        '<div style="font-size:0.8rem;color:var(--text-secondary);line-height:1.6;margin-bottom:24px;">Once approved, it will go live on the storefront. You'll be notified when the review is complete.</div>'+
         '<div style="display:flex;flex-direction:column;gap:10px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:14px;padding:14px 18px;margin-bottom:24px;text-align:left;">'+
         '<div style="display:flex;gap:10px;font-size:0.8rem;"><span style="color:#f59e0b;flex-shrink:0;">📋</span><span style="color:var(--text-secondary);">Typical review time: <strong>24–48 hours</strong></span></div>'+
         '<div style="display:flex;gap:10px;font-size:0.8rem;"><span style="color:#f59e0b;flex-shrink:0;">📧</span><span style="color:var(--text-secondary);">Confirmation will be sent to your registered email</span></div>'+
@@ -3664,8 +3920,8 @@
     </script>
 
     <!-- CART REMINDER PANEL (WhatsApp / SMS) -->
-    <section id="cart-reminder-section" class="my-12 rounded-2xl hidden overflow-hidden" style="background-color: var(--surface-primary); border: 1px solid rgba(0,0,0,0.08);">
-      <div class="px-6 py-4 flex items-center justify-between" style="border-bottom: 1px solid rgba(0,0,0,0.06);">
+    <section id="cart-reminder-section" class="my-12 rounded-2xl hidden overflow-hidden" style="background-color: var(--surface-primary); border: 1px solid rgba(196,23,85,0.08);">
+      <div class="px-6 py-4 flex items-center justify-between" style="border-bottom: 1px solid rgba(196,23,85,0.06);">
         <div>
           <h3 class="text-base font-bold tracking-tight" data-i18n="cart_reminder">Abandoned Cart Reminder</h3>
           <p class="text-xs mt-0.5" style="color:var(--text-secondary)" data-i18n="cart_reminder_sub">Send an automated reminder to the customer's registered number</p>
@@ -3705,14 +3961,14 @@
                 <div data-editable="newsletter-sub" style="font-size:0.85rem;color:rgba(255,255,255,0.82);margin-top:6px;font-weight:500;">Get early access to deals, launches &amp; style drops.</div>
               </div>
               <div style="display:flex;gap:0;flex:1;max-width:460px;min-width:260px;">
-                <input id="footerEmailInput" type="email" placeholder="Your email address" style="flex:1;padding:14px 18px;border:none;border-radius:12px 0 0 12px;font-size:0.875rem;font-family:'Poppins',sans-serif;outline:none;background:#fff;color:#111;" />
-                <button onclick="(function(){var v=document.getElementById('footerEmailInput').value.trim();if(!v||!v.includes('@')){document.getElementById('footerEmailInput').style.outline='2px solid rgba(255,255,255,0.6)';setTimeout(function(){document.getElementById('footerEmailInput').style.outline='none';},1200);return;}document.getElementById('footerEmailInput').value='';var b=event.target;b.textContent='✓ Subscribed!';b.style.background='#fff';b.style.color='#c41755';setTimeout(function(){b.textContent='Subscribe';b.style.background='#111';b.style.color='#fff';},3000);})()" style="padding:14px 22px;background:#111;color:#fff;font-size:0.82rem;font-weight:800;border:none;border-radius:0 12px 12px 0;cursor:pointer;white-space:nowrap;letter-spacing:0.04em;transition:background 0.2s;" onmouseover="this.style.background='#333'" onmouseout="this.style.background='#111'">Subscribe</button>
+                <input id="footerEmailInput" type="email" placeholder="Your email address" style="flex:1;padding:14px 18px;border:none;border-radius:12px 0 0 12px;font-size:0.875rem;font-family:'Poppins',sans-serif;outline:none;background:#fff;color:#1d0b14;" />
+                <button onclick="(function(){var v=document.getElementById('footerEmailInput').value.trim();if(!v||!v.includes('@')){document.getElementById('footerEmailInput').style.outline='2px solid rgba(255,255,255,0.6)';setTimeout(function(){document.getElementById('footerEmailInput').style.outline='none';},1200);return;}document.getElementById('footerEmailInput').value='';var b=event.target;b.textContent='✓ Subscribed!';b.style.background='#fff';b.style.color='#c41755';setTimeout(function(){b.textContent='Subscribe';b.style.background='#2d0b1a';b.style.color='#fff';},3000);})()" style="padding:14px 22px;background:#2d0b1a;color:#fff;font-size:0.82rem;font-weight:800;border:none;border-radius:0 12px 12px 0;cursor:pointer;white-space:nowrap;letter-spacing:0.04em;transition:background 0.2s;" onmouseover="this.style.background='#3a1625'" onmouseout="this.style.background='#2d0b1a'">Subscribe</button>
               </div>
             </div>
           </div>
 
           <!-- TRUST STRIP -->
-          <div style="background:#111;border-bottom:1px solid rgba(255,255,255,0.07);padding:20px 24px;">
+          <div style="background:#1d0b14;border-bottom:1px solid rgba(255,255,255,0.07);padding:20px 24px;">
             <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:40px;flex-wrap:wrap;">
               <div style="display:flex;align-items:center;gap:10px;white-space:nowrap;">
                 <span style="font-size:1.4rem;">🚚</span>
@@ -3886,7 +4142,7 @@
   <aside class="drawer fixed top-0 right-0 bottom-0 w-full max-w-md transform translate-x-full z-50 flex flex-col" id="cart">
     <header class="p-4 flex items-center justify-between border-b" style="border-color: rgba(128,128,128,0.2);">
         <strong class="text-lg" data-i18n="your_cart">Your Cart</strong>
-        <button class="p-2 rounded-lg font-semibold text-sm" style="border:1.5px solid rgba(0,0,0,0.15);color:var(--text-primary);background:transparent;" id="cartClose" data-i18n="close">Close</button>
+        <button class="p-2 rounded-lg font-semibold text-sm" style="border:1.5px solid rgba(196,23,85,0.15);color:var(--text-primary);background:transparent;" id="cartClose" data-i18n="close">Close</button>
     </header>
     <div class="flex-1 overflow-auto p-4 space-y-3" id="cartItems"></div>
     <footer class="p-4 border-t" style="border-color: rgba(128,128,128,0.2);background:var(--surface-primary);color:var(--text-primary);">
@@ -3898,7 +4154,7 @@
         <div class="text-xs text-center mb-2" id="freeMsg" style="color: var(--text-secondary);"></div>
         <div class="h-2 rounded-full progress-bar" style="background-color: var(--bg-primary);"><span id="shipProg" class="block h-full rounded-full w-0"></span></div>
         <div class="grid grid-cols-2 gap-3 mt-3">
-            <button class="font-bold py-2 px-4 rounded-lg" style="background:transparent;border:1.5px solid rgba(0,0,0,0.18);color:var(--text-primary);" id="clear" data-i18n="clear_cart">Clear Cart</button>
+            <button class="font-bold py-2 px-4 rounded-lg" style="background:transparent;border:1.5px solid rgba(196,23,85,0.18);color:var(--text-primary);" id="clear" data-i18n="clear_cart">Clear Cart</button>
             <a class="btn-primary text-white text-center font-bold py-2 px-4 rounded-lg" href="#checkout" id="toCheckout" data-i18n="checkout">Checkout</a>
         </div>
     </footer>
@@ -3907,7 +4163,7 @@
   <aside class="drawer fixed top-0 right-0 bottom-0 w-full max-w-md transform translate-x-full z-50 flex flex-col" id="wishlist">
     <header class="p-4 flex items-center justify-between border-b" style="border-color: rgba(128,128,128,0.2);">
         <strong class="text-lg" data-i18n="wishlist_title">Wishlist</strong>
-        <button class="p-2 rounded-lg font-semibold text-sm" style="border:1.5px solid rgba(0,0,0,0.15);color:var(--text-primary);background:transparent;" id="wishClose" data-i18n="close">Close</button>
+        <button class="p-2 rounded-lg font-semibold text-sm" style="border:1.5px solid rgba(196,23,85,0.15);color:var(--text-primary);background:transparent;" id="wishClose" data-i18n="close">Close</button>
     </header>
     <div class="flex-1 overflow-auto p-4 space-y-3" id="wishItems"></div>
   </aside>
@@ -3933,7 +4189,7 @@
         <div id="addrBookList"></div>
 
         <!-- Add new address -->
-        <div class="rounded-2xl p-5 border" style="border-color:rgba(0,0,0,0.08);background:var(--bg-primary)">
+        <div class="rounded-2xl p-5 border" style="border-color:rgba(196,23,85,0.08);background:var(--bg-primary)">
           <div class="flex items-center gap-2 mb-4">
             <div class="w-6 h-6 rounded-lg flex items-center justify-center text-white text-sm font-bold" style="background:var(--brand-primary)">
               <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -4057,7 +4313,7 @@
         <div class="flex-1 overflow-hidden relative" style="min-height:260px">
           <img id="mImg" alt="Product" class="w-full h-full object-cover transition-all duration-300">
         </div>
-        <div id="mThumbStrip" class="hidden flex-shrink-0 flex gap-2 p-2 overflow-x-auto" style="background:rgba(0,0,0,0.04)"></div>
+        <div id="mThumbStrip" class="hidden flex-shrink-0 flex gap-2 p-2 overflow-x-auto" style="background:rgba(196,23,85,0.04)"></div>
       </div>
 
       <!-- RIGHT: scrollable info + reviews column -->
@@ -4167,10 +4423,10 @@
     };
     const PRODUCTS = [
       // Candles (Expanded)
-      {id:'c1', title:'Scented Floating Flower Candle', price:1599, cat:'candles', rating:5.0, stock:30, img:'https://risync.in/G4U/Scented%20Floatig%20Flower%20Candle.png', desc:'Looks elegant everywhere.'},
-      {id:'c2', title:'Lavender Fields Candle', price:849, cat:'candles', rating:4.7, stock:30, img:'https://risync.in/G4U/Lavender%20Fields%20Candle.png', desc:'Calming lavender aroma, perfect for relaxation. Made with essential oils.'},
-      {id:'c3', title:'Sandalwood & Musk Jar', price:999, cat:'candles', rating:4.9, stock:50, img:'https://risync.in/G4U/Sandalwood_Musk_Jar.png', desc:'A warm, woody fragrance in a stylish amber glass jar. 50h burn time.'},
-      {id:'c4', title:'Ocean Breeze Pillar Candle', price:649, cat:'candles', rating:4.5, stock:50, img:'https://risync.in/G4U/Ocean%20Breeze%20Pillar%20Candle.png', desc:'A fresh, clean scent reminiscent of a sea breeze. Dripless design.'},
+	  {id:'c1', title:'Scented Floating Flower Candle', price:1599, cat:'candles', rating:5.0, stock:30, img:'https://risync.in/G4U/Scented Floatig Flower Candle.png', desc:'Looks elegant everywhere.'},
+      {id:'c2', title:'Lavender Fields Candle', price:849, cat:'candles', rating:4.7, stock:30, img:'https://risync.in/G4U/Lavender Fields Candle.png', desc:'Calming lavender aroma, perfect for relaxation. Made with essential oils.'},
+      {id:'c4', title:'Sandalwood & Musk Jar', price:999, cat:'candles', rating:4.9, stock:50, img:'https://risync.in/G4U/Sandalwood_Musk_Jar.png', desc:'A warm, woody fragrance in a stylish amber glass jar. 50h burn time.'},
+      {id:'c4', title:'Ocean Breeze Pillar Candle', price:649, cat:'candles', rating:4.5, stock:50, img:'https://risync.in/G4U/Ocean Breeze Pillar Candle.png', desc:'A fresh, clean scent reminiscent of a sea breeze. Dripless design.'},
       {id:'c5', title:'Modak Scented Candles (Set of 4)', price:1299, cat:'candles', rating:4.9, stock:80, img:'data:image/jpeg;base64,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', desc:'Beautifully crafted Modak-shaped candles, perfect for festive occasions. Scented with saffron and cardamom.'},
       { id:'c6', title:'Iron Man Candle', price:799, cat:'candles', rating:4.8, stock:40, img:'https://risync.in/G4U/iron.png', desc:'Heroic Iron Man candle – metallic red & gold shine for Marvel fans.' },
       { id:'c7', title:'Spider-Man Candle', price:749, cat:'candles', rating:4.6, stock:50, img:'https://risync.in/G4U/spider.png', desc:'Spider-Man inspired design – perfect for kids and collectors alike.' },
@@ -4178,10 +4434,10 @@
       {id:'c9', title:'Twisted Taper Candles (Pair)', price:599, cat:'candles', rating:4.6, stock:65, img:'https://images.urbndata.com/is/image/Anthropologie/83426924_004_b?$a15-pdp-detail-shot$&fit=constrain&qlt=80&wid=640', desc:'Elegant and modern twisted design. Available in various pastel colors.'},
       {id:'c10', title:'Geometric Concrete Soy Candle', price:1199, cat:'candles', rating:4.8, stock:25, img:'https://m.media-amazon.com/images/I/614n+wgmwlL._UF894,1000_QL80_.jpg', desc:'A minimalist statement piece with a concrete base and a refreshing citrus scent.'},
       {id:'c11', title:'Swiril Candle', price:1099, cat:'candles', rating:4.9, stock:40, img:'data:image/jpeg;base64,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', desc:'Personalized with your zodiac sign. Scented with night-blooming jasmine.'},
-      {id:'c12', title:'Espresso Shot Candle', price:899, cat:'candles', rating:4.9, stock:55, img:'https://risync.in/G4U/Espresso%20Shot%20Candle.png', desc:'The rich, aromatic scent of freshly brewed espresso. Perfect for coffee lovers.'},
-      {id:'c13', title:'Christmas Pine Tree Candle', price:1399, cat:'candles', rating:4.8, stock:25, img:'https://risync.in/G4U/Christmas%20Pine%20Tree%20Candle.png', desc:'Bring the festive spirit home with the scent of fresh pine needles. Limited edition.'},
-      {id:'c14', title:'Dough Bowl Multi-Wick Candle', price:3499, cat:'candles', rating:4.9, stock:15, img:'https://risync.in/G4U/Dough%20Bowl%20Multi_Wick%20Candle.png', desc:'A stunning centerpiece with 5 wicks in a reusable wooden dough bowl. Farmhouse chic.'},
-      {id:'c15', title:'Chakra Healing Crystal Candle', price:1599, cat:'candles', rating:4.7, stock:30, img:'https://risync.in/G4U/Chakra%20Healing%20Crystal%20Candle.png', desc:'Infused with real crystals and essential oils to balance your energy centers.'},
+      {id:'c12', title:'Espresso Shot Candle', price:899, cat:'candles', rating:4.9, stock:55, img:'https://risync.in/G4U/Espresso Shot Candle.png', desc:'The rich, aromatic scent of freshly brewed espresso. Perfect for coffee lovers.'},
+      {id:'c13', title:'Christmas Pine Tree Candle', price:1399, cat:'candles', rating:4.8, stock:25, img:'https://risync.in/G4U/Christmas Pine Tree Candle.png', desc:'Bring the festive spirit home with the scent of fresh pine needles. Limited edition.'},
+      {id:'c14', title:'Dough Bowl Multi-Wick Candle', price:3499, cat:'candles', rating:4.9, stock:15, img:'https://risync.in/G4U/Dough Bowl Multi_Wick Candle.png', desc:'A stunning centerpiece with 5 wicks in a reusable wooden dough bowl. Farmhouse chic.'},
+      {id:'c15', title:'Chakra Healing Crystal Candle', price:1599, cat:'candles', rating:4.7, stock:30, img:'https://risync.in/G4U/Chakra Healing Crystal Candle.png', desc:'Infused with real crystals and essential oils to balance your energy centers.'},
 	  {id:'c16', title:'Tea Light Candle', price:799, cat:'candles', rating:4.8, stock:45, img:'data:image/jpeg;base64,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', desc:'A classic, rich vanilla scent in a slow-burning soy wax. 40h burn time.'},
 
 
@@ -4402,7 +4658,7 @@
                 ${communityBadge}
                 ${galleryDots}
                 <!-- Wishlist heart always visible in top-right (if no community badge) -->
-                ${!p._community ? `<button class="wish" style="position:absolute;top:10px;right:10px;z-index:2;background:rgba(255,255,255,0.9);border:none;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,0.15);backdrop-filter:blur(4px);" title="Wishlist">${wishIcon}</button>` : ''}
+                ${!p._community ? `<button class="wish" style="position:absolute;top:10px;right:10px;z-index:2;background:rgba(255,255,255,0.9);border:none;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:pointer;box-shadow:0 2px 10px rgba(196,23,85,0.15);backdrop-filter:blur(4px);" title="Wishlist">${wishIcon}</button>` : ''}
                 <img loading="lazy" src="${cardImg}" alt="${p.title}" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.5s ease;">
                 <!-- Quick actions overlay (desktop hover) -->
                 <div class="pix-card-overlay absolute inset-0 flex items-end justify-center pb-3 gap-2 transition-opacity" style="background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,transparent 60%);opacity:0;pointer-events:none;">
@@ -4410,7 +4666,7 @@
                     <button class="cmp" style="background:rgba(255,255,255,0.2);color:white;font-size:0.7rem;font-weight:700;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,0.4);cursor:pointer;backdrop-filter:blur(4px);pointer-events:all;" title="Compare">⇄</button>
                 </div>
                 <!-- Mobile quick view (always visible) -->
-                <button class="quick" onclick="event.stopPropagation();if(window.openModal){var p=window.PRODUCTS&&window.PRODUCTS.find(function(x){return x.id==='${p.id}'});if(p)window.openModal(p);}" style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,0.93);color:var(--brand-primary);font-size:0.62rem;font-weight:800;padding:5px 13px;border-radius:999px;border:none;cursor:pointer;z-index:4;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.18);display:none;" title="Quick View">👁 View</button>    </div>
+                <button class="quick" onclick="event.stopPropagation();if(window.openModal){var p=window.PRODUCTS&&window.PRODUCTS.find(function(x){return x.id==='${p.id}'});if(p)window.openModal(p);}" style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,0.93);color:var(--brand-primary);font-size:0.62rem;font-weight:800;padding:5px 13px;border-radius:999px;border:none;cursor:pointer;z-index:4;white-space:nowrap;box-shadow:0 2px 8px rgba(196,23,85,0.18);display:none;" title="Quick View">👁 View</button>    </div>
             <div style="padding:14px 14px 16px;flex:1;display:flex;flex-direction:column;">
                 <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--brand-primary);margin-bottom:4px;">${niceCat(p.cat)}</div>
                 <h3 style="font-weight:700;font-size:0.88rem;line-height:1.35;flex:1;margin-bottom:4px;color:var(--text-primary);">${p.title}</h3>
@@ -4466,9 +4722,9 @@
                     <div class="text-xs" style="color: var(--text-secondary);">${fmt(i.price)}</div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button class="qty-btn dec w-6 h-6 rounded font-bold text-sm" style="border:1.5px solid rgba(0,0,0,0.18);background:#e5e7eb;color:#111111;cursor:pointer;">−</button>
+                    <button class="qty-btn dec w-6 h-6 rounded font-bold text-sm" style="border:1.5px solid rgba(196,23,85,0.18);background:#e5e7eb;color:#1d0b14;cursor:pointer;">−</button>
                     <span class="w-6 text-center font-semibold" style="color:var(--text-primary);">${i.qty}</span>
-                    <button class="qty-btn inc w-6 h-6 rounded font-bold text-sm" style="border:1.5px solid rgba(0,0,0,0.18);background:#e5e7eb;color:#111111;cursor:pointer;">+</button>
+                    <button class="qty-btn inc w-6 h-6 rounded font-bold text-sm" style="border:1.5px solid rgba(196,23,85,0.18);background:#e5e7eb;color:#1d0b14;cursor:pointer;">+</button>
                 </div>
                 <button class="rm font-bold" style="color:#ef4444;">✕</button>
             </div>`).join('');
@@ -4878,7 +5134,7 @@
                 el.innerHTML = orders.slice(0, 5).map(o => {
                     const date = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : 'Recently';
                     const items = (o.items || []).map(i => `<div class="flex justify-between text-sm py-1"><span class="font-medium">${i.title} <span style="color:var(--text-secondary)">× ${i.qty}</span></span><span class="font-bold">₹${(i.price * i.qty).toLocaleString()}</span></div>`).join('');
-                    return `<div class="p-4 rounded-2xl" style="background:var(--surface-primary);border:1px solid rgba(0,0,0,0.07)">
+                    return `<div class="p-4 rounded-2xl" style="background:var(--surface-primary);border:1px solid rgba(196,23,85,0.07)">
                         <div class="flex justify-between items-start mb-3">
                           <div>
                             <div class="font-bold text-sm">Order #${o.id ? o.id.slice(-6).toUpperCase() : '------'}</div>
@@ -4898,8 +5154,8 @@
                             }
                           </span>
                         </div>
-                        <div style="border-top:1px solid rgba(0,0,0,0.06);padding-top:10px">${items}</div>
-                        <div class="flex justify-between font-bold text-sm mt-3 pt-3" style="border-top:1px solid rgba(0,0,0,0.06)">
+                        <div style="border-top:1px solid rgba(196,23,85,0.06);padding-top:10px">${items}</div>
+                        <div class="flex justify-between font-bold text-sm mt-3 pt-3" style="border-top:1px solid rgba(196,23,85,0.06)">
                           <span>Total</span><span style="color:var(--brand-primary)">₹${(o.total || 0).toLocaleString()}</span>
                         </div>
                     </div>`;
@@ -5137,22 +5393,13 @@
               const p = PRODUCTS.find(x => x.id === ci.id);
               return { id: ci.id, name: p ? p.name : ci.id, qty: ci.qty, price: p ? p.price : 0 };
             });
-            const orderSubtotal = orderItems.reduce((s, i) => s + i.price * i.qty, 0);
-            const freeShipThreshold = state.currency === 'USD' ? CX.FREE_SHIP_USD / CX.USD_RATE : CX.FREE_SHIP_INR;
-            const orderShipping = orderSubtotal > 0 && orderSubtotal < freeShipThreshold ? 99 : 0;
-            const couponCode = document.getElementById('coupon')?.value?.trim()?.toUpperCase() || '';
-            const orderDiscount = (couponCode === 'PIX10') ? Math.round(0.10 * (orderSubtotal + orderShipping)) : 0;
-            const orderTotal = orderSubtotal + orderShipping - orderDiscount;
+            const orderTotal = orderItems.reduce((s, i) => s + i.price * i.qty, 0);
             const orderObj = {
               customer: customerName,
               phone:    customerPhone,
               email:    customerEmail,
               address:  customerAddr,
               items:    orderItems,
-              subtotal: orderSubtotal,
-              shipping: orderShipping,
-              discount: orderDiscount,
-              coupon:   couponCode || 'None',
               total:    orderTotal,
               status:   'Paid',
               notified: false,
@@ -5191,9 +5438,6 @@
                 const adminWA    = ns.admin_whatsapp || '916280096796';
 
                 const itemsStr = orderItems.map(i => `${i.name} x${i.qty} — ₹${(i.price * i.qty).toLocaleString('en-IN')}`).join('\n');
-                const discountLine = orderDiscount > 0
-                  ? `\nCoupon (${couponCode}): -₹${orderDiscount.toLocaleString('en-IN')}`
-                  : '\nCoupon: None';
 
                 // ── FormSubmit.co AJAX POST ──────────────────────────────────
                 try {
@@ -5209,12 +5453,8 @@
                       'Phone':         customerPhone,
                       'Email':         customerEmail,
                       'Address':       customerAddr,
-                      'Products Ordered': itemsStr,
-                      'Subtotal':      '₹' + orderSubtotal.toLocaleString('en-IN'),
-                      'Shipping':      orderShipping === 0 ? 'FREE' : '₹' + orderShipping.toLocaleString('en-IN'),
-                      'Coupon Code':   couponCode || 'None',
-                      'Discount':      orderDiscount > 0 ? '-₹' + orderDiscount.toLocaleString('en-IN') : '₹0',
-                      'Total (After Discount)': '₹' + orderTotal.toLocaleString('en-IN'),
+                      'Items':         itemsStr,
+                      'Total':         '₹' + orderTotal.toLocaleString('en-IN'),
                       'Date':          new Date().toLocaleString('en-IN'),
                     })
                   });
@@ -5235,11 +5475,8 @@
                   `📞 Phone: ${customerPhone}\n` +
                   `📧 Email: ${customerEmail}\n` +
                   `🏠 Address: ${customerAddr}\n\n` +
-                  `🛒 *Products Ordered:*\n${itemsStr}\n\n` +
-                  `💵 Subtotal: ₹${orderSubtotal.toLocaleString('en-IN')}\n` +
-                  `🚚 Shipping: ${orderShipping === 0 ? 'FREE' : '₹' + orderShipping.toLocaleString('en-IN')}\n` +
-                  (orderDiscount > 0 ? `🏷️ Coupon (${couponCode}): -₹${orderDiscount.toLocaleString('en-IN')}\n` : `🏷️ Coupon: None\n`) +
-                  `💰 *Total (After Discount): ₹${orderTotal.toLocaleString('en-IN')}*\n` +
+                  `🛒 Items:\n${itemsStr}\n\n` +
+                  `💰 Total: ₹${orderTotal.toLocaleString('en-IN')}\n` +
                   `🕒 ${new Date().toLocaleString('en-IN')}`;
                 const waNum = adminWA.replace(/\D/g, '');
                 setTimeout(() => {
@@ -5480,7 +5717,7 @@
         surface:   '#FFFFFF',
         headerBg:  '#0A0A0A',
         subnavBg:  '#0A0A0A',
-        textPri:   '#111111',
+        textPri:   '#1d0b14',
         textSec:   '#666666',
       },
       candles: {
@@ -5528,7 +5765,7 @@
         surface:   '#FFFFFF',
         headerBg:  '#3D444A',
         subnavBg:  '#4C6EF5',
-        textPri:   '#111111',
+        textPri:   '#1d0b14',
         textSec:   '#6C757D',
       },
     };
@@ -5698,28 +5935,28 @@
   <style>
     #adminDashboard { font-family: 'Inter', system-ui, sans-serif; }
     .adm-tab { padding: 10px 20px; font-weight: 600; font-size: 0.875rem; border-radius: 10px; cursor: pointer; transition: all 0.2s; border: none; background: transparent; color: var(--text-secondary); }
-    .adm-tab.active { background: var(--brand-primary); color: #111; }
+    .adm-tab.active { background: var(--brand-primary); color: #1d0b14; }
     .adm-card { background: var(--surface-primary); border-radius: 16px; padding: 20px; }
     .adm-stat { background: var(--surface-primary); border-radius: 14px; padding: 18px 22px; flex: 1; min-width: 140px; }
     .adm-stat .val { font-size: 1.8rem; font-weight: 800; line-height: 1; }
     .adm-stat .lbl { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); margin-top: 6px; }
     .adm-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-    .adm-table th { text-align: left; padding: 10px 12px; font-weight: 700; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); border-bottom: 2px solid rgba(0,0,0,0.08); }
+    .adm-table th { text-align: left; padding: 10px 12px; font-weight: 700; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); border-bottom: 2px solid rgba(196,23,85,0.08); }
     html.dark .adm-table th { border-color: rgba(255,255,255,0.08); }
-    .adm-table td { padding: 10px 12px; border-bottom: 1px solid rgba(0,0,0,0.05); vertical-align: middle; }
+    .adm-table td { padding: 10px 12px; border-bottom: 1px solid rgba(196,23,85,0.05); vertical-align: middle; }
     html.dark .adm-table td { border-color: rgba(255,255,255,0.06); }
     .adm-table tr:last-child td { border-bottom: none; }
     .adm-table tr:hover td { background: rgba(198,167,94,0.04); }
-    .adm-input { padding: 7px 10px; border-radius: 8px; border: 1.5px solid rgba(0,0,0,0.12); background: var(--bg-primary); font-size: 0.8rem; width: 90px; outline: none; color: var(--text-primary); }
+    .adm-input { padding: 7px 10px; border-radius: 8px; border: 1.5px solid rgba(196,23,85,0.12); background: var(--bg-primary); font-size: 0.8rem; width: 90px; outline: none; color: var(--text-primary); }
     html.dark .adm-input { border-color: rgba(255,255,255,0.12); }
     .adm-input:focus { border-color: var(--brand-primary); }
     .adm-pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 700; }
-    .adm-filter-btn { padding: 6px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: 1.5px solid rgba(0,0,0,0.1); background: var(--bg-primary); color: var(--text-secondary); transition: all 0.15s; }
+    .adm-filter-btn { padding: 6px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: 1.5px solid rgba(196,23,85,0.1); background: var(--bg-primary); color: var(--text-secondary); transition: all 0.15s; }
     .adm-filter-btn.active { border-color: var(--brand-primary); color: var(--brand-primary); background: rgba(198,167,94,0.08); }
     html.dark .adm-filter-btn { border-color: rgba(255,255,255,0.12); }
   </style>
   <!-- Header -->
-  <div class="flex items-center justify-between px-6 py-4 border-b" style="border-color:rgba(0,0,0,0.08);background:var(--surface-primary);flex-shrink:0">
+  <div class="flex items-center justify-between px-6 py-4 border-b" style="border-color:rgba(196,23,85,0.08);background:var(--surface-primary);flex-shrink:0">
     <div class="flex items-center gap-3">
       <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg font-black" style="background:rgba(198,167,94,0.15);color:var(--brand-primary)">G</div>
       <div>
@@ -5739,11 +5976,11 @@
         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
         Download Excel
       </button>
-      <button onclick="document.getElementById('adminDashboard').classList.add('hidden')" class="w-9 h-9 rounded-xl flex items-center justify-center text-lg" style="background:rgba(0,0,0,0.06)">✕</button>
+      <button onclick="document.getElementById('adminDashboard').classList.add('hidden')" class="w-9 h-9 rounded-xl flex items-center justify-center text-lg" style="background:rgba(196,23,85,0.06)">✕</button>
     </div>
   </div>
   <!-- Tabs -->
-  <div class="flex gap-2 px-6 py-3 border-b" style="border-color:rgba(0,0,0,0.08);background:var(--surface-primary);flex-shrink:0">
+  <div class="flex gap-2 px-6 py-3 border-b" style="border-color:rgba(196,23,85,0.08);background:var(--surface-primary);flex-shrink:0">
     <button class="adm-tab active" data-tab="sales">📊 Sales Analytics</button>
     <button class="adm-tab" data-tab="inventory">📦 Inventory & Pricing</button>
     <button class="adm-tab" data-tab="orders">🧾 All Orders</button>
@@ -5769,12 +6006,12 @@
 <style>
   #rsChat { position: fixed; right: 20px; bottom: 20px; width: 360px; max-width: calc(100% - 40px); border-radius: 14px; box-shadow: 0 12px 30px rgba(11,18,32,0.18); overflow: hidden; font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; z-index: 9999; }
   #rsChat .header { background: linear-gradient(90deg, #0b63ff, #ff6a00); color: #fff; padding: 10px 12px; display:flex; align-items:center; gap:8px; }
-  #rsChat .body { background: #ffffff; color: #111827; max-height: 420px; overflow:auto; padding:12px; }
+  #rsChat .body { background: #ffffff; color: #1d0b14; max-height: 420px; overflow:auto; padding:12px; }
   #rsChat .msg { margin-bottom:10px; display:flex; gap:8px; align-items:flex-start; }
-  #rsChat .msg.user .bubble { background:#111827; color:#fff; margin-left:auto; border-bottom-right-radius:4px; }
-  #rsChat .msg.bot .bubble { background: #f3f4f6; color:#111827; }
+  #rsChat .msg.user .bubble { background:#1d0b14; color:#fff; margin-left:auto; border-bottom-right-radius:4px; }
+  #rsChat .msg.bot .bubble { background: #f3f4f6; color:#1d0b14; }
   #rsChat .options { display:flex; flex-direction:column; gap:8px; margin-top:8px; }
-  #rsChat .options button, #rsChat .options a.button-link { padding:10px 12px; border-radius:10px; border:1px solid rgba(0,0,0,0.06); background:#f8fafc; cursor:pointer; text-align:left; font-weight:700; text-decoration:none; color:inherit; display:block; }
+  #rsChat .options button, #rsChat .options a.button-link { padding:10px 12px; border-radius:10px; border:1px solid rgba(196,23,85,0.06); background:#f8fafc; cursor:pointer; text-align:left; font-weight:700; text-decoration:none; color:inherit; display:block; }
   #rsChat-toggle { position: fixed; right: 20px; bottom: 20px; width:56px; height:56px; border-radius:999px; background:linear-gradient(90deg,#0b63ff,#ff6a00); color:white; display:flex; align-items:center; justify-content:center; z-index:9998; box-shadow:0 10px 25px rgba(11,18,32,0.18); cursor:pointer; }
   @media (max-width:420px){ #rsChat { width: 92%; right:4%; bottom:80px; } }
   .bubble strong{ font-weight:800; }
@@ -6142,8 +6379,8 @@
             </div>
             <span class="text-xs font-bold px-3 py-1 rounded-full" style="background:rgba(16,185,129,0.12);color:#10b981">✓ Placed</span>
           </div>
-          <div style="border-top:1px solid rgba(0,0,0,0.06);padding-top:10px;display:flex;flex-direction:column;gap:6px">${items}</div>
-          <div class="flex justify-between font-bold text-sm mt-3 pt-3" style="border-top:1px solid rgba(0,0,0,0.06)">
+          <div style="border-top:1px solid rgba(196,23,85,0.06);padding-top:10px;display:flex;flex-direction:column;gap:6px">${items}</div>
+          <div class="flex justify-between font-bold text-sm mt-3 pt-3" style="border-top:1px solid rgba(196,23,85,0.06)">
             <span>Total</span><span style="color:var(--brand-primary)">₹${(o.total || 0).toLocaleString()}</span>
           </div>
         </div>`;
@@ -6930,7 +7167,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="text-xs mb-3" style="color:var(--text-secondary)">When a customer orders, a WhatsApp message with full order details will be sent to this number.</div>
           <div class="flex gap-2 items-center flex-wrap">
             <input id="admWaPhone" type="tel" placeholder="91XXXXXXXXXX (with country code)" value="${ns.admin_whatsapp || '916280096796'}"
-              style="flex:1;min-width:220px;padding:8px 12px;border-radius:8px;border:1.5px solid rgba(0,0,0,0.12);background:var(--bg-primary);font-size:0.85rem;outline:none;color:var(--text-primary)">
+              style="flex:1;min-width:220px;padding:8px 12px;border-radius:8px;border:1.5px solid rgba(196,23,85,0.12);background:var(--bg-primary);font-size:0.85rem;outline:none;color:var(--text-primary)">
             <button onclick="admSaveWA()" style="padding:8px 20px;border-radius:8px;background:#25D366;color:white;font-weight:700;font-size:0.85rem;border:none;cursor:pointer">
               Save WhatsApp Number
             </button>
@@ -6955,7 +7192,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
           <div class="flex gap-2 items-center flex-wrap">
             <input id="admFormEmail" type="email" placeholder="gurunanak.garments2023@gmail.com" value="${ns.admin_email || 'gurunanak.garments2023@gmail.com'}"
-              style="flex:1;min-width:260px;padding:8px 12px;border-radius:8px;border:1.5px solid rgba(0,0,0,0.12);background:var(--bg-primary);font-size:0.85rem;outline:none;color:var(--text-primary)">
+              style="flex:1;min-width:260px;padding:8px 12px;border-radius:8px;border:1.5px solid rgba(196,23,85,0.12);background:var(--bg-primary);font-size:0.85rem;outline:none;color:var(--text-primary)">
             <button onclick="admSaveFormEmail()" style="padding:9px 20px;border-radius:8px;background:var(--brand-primary);color:white;font-weight:700;font-size:0.85rem;border:none;cursor:pointer">
               💾 Save Email
             </button>
@@ -6977,7 +7214,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const itemsStr = (o.items||[]).map(i => `${i.name} x${i.qty}`).join(', ') || '—';
                 const customerPhone = (o.phone || '').replace(/\D/g,'');
                 const waMsg = encodeURIComponent(`Hi ${o.customer||'Customer'}, your Pioneer I Xpress order (₹${(o.total||0).toLocaleString('en-IN')}) has been received and is being processed. Thank you! 🛍️`);
-                return `<div style="padding:12px 0;border-bottom:1px solid rgba(0,0,0,0.06);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                return `<div style="padding:12px 0;border-bottom:1px solid rgba(196,23,85,0.06);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
                   <div style="flex:1;min-width:200px">
                     <div style="font-weight:700;font-size:0.85rem">${o.customer||'—'} <span style="font-size:0.7rem;color:var(--text-secondary);font-weight:400">${o.phone||''}</span></div>
                     <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:2px">${itemsStr}</div>
@@ -7754,7 +7991,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const img = p.img || p.image || '';
           return `<div class="adm-card" id="pendingCard_${idx}" style="border:1.5px solid rgba(245,158,11,0.2);">
             <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;">
-              ${img ? `<img src="${img}" style="width:80px;height:80px;border-radius:12px;object-fit:cover;flex-shrink:0;border:1px solid rgba(0,0,0,0.08);" onerror="this.style.display='none'">` : `<div style="width:80px;height:80px;border-radius:12px;background:rgba(245,158,11,0.1);display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;">📦</div>`}
+              ${img ? `<img src="${img}" style="width:80px;height:80px;border-radius:12px;object-fit:cover;flex-shrink:0;border:1px solid rgba(196,23,85,0.08);" onerror="this.style.display='none'">` : `<div style="width:80px;height:80px;border-radius:12px;background:rgba(245,158,11,0.1);display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;">📦</div>`}
               <div style="flex:1;min-width:200px;">
                 <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:8px;">
                   <div>
@@ -9192,7 +9429,7 @@ document.addEventListener('DOMContentLoaded', function(){
     white-space: nowrap;
   }
   .deal-tab-btn:hover { background: rgba(255,255,255,0.22); border-color: rgba(255,255,255,0.5); color: white; }
-  .deal-tab-btn.active { background: white; color: #c41755; border-color: white; box-shadow: 0 4px 16px rgba(0,0,0,0.18); }
+  .deal-tab-btn.active { background: white; color: #c41755; border-color: white; box-shadow: 0 4px 16px rgba(196,23,85,0.18); }
   .deal-card-anim { animation: dealCardIn 0.3s ease forwards; opacity: 0; }
   @keyframes dealCardIn {
     from { opacity: 0; transform: translateY(12px) scale(0.97); }
@@ -9226,7 +9463,7 @@ document.addEventListener('DOMContentLoaded', function(){
       </div>
 
       <!-- Countdown timer strip -->
-      <div style="margin-top:14px;display:inline-flex;align-items:center;gap:8px;background:rgba(0,0,0,0.22);border-radius:10px;padding:8px 14px;">
+      <div style="margin-top:14px;display:inline-flex;align-items:center;gap:8px;background:rgba(196,23,85,0.22);border-radius:10px;padding:8px 14px;">
         <span style="color:rgba(255,255,255,0.8);font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;">⏱ Ends in:</span>
         <span id="dealTimerH" style="color:white;font-weight:900;font-size:1.05rem;font-family:'Montserrat',sans-serif;">00</span><span style="color:rgba(255,255,255,0.55);font-weight:900;font-size:0.9rem;">h</span>
         <span id="dealTimerM" style="color:white;font-weight:900;font-size:1.05rem;font-family:'Montserrat',sans-serif;">00</span><span style="color:rgba(255,255,255,0.55);font-weight:900;font-size:0.9rem;">m</span>
@@ -9399,7 +9636,7 @@ document.addEventListener('DOMContentLoaded', function(){
       ? '<span class="deal-section-badge" style="background:' + (secColors[deal.cat]||'#FF3C78') + '1a;color:' + (secColors[deal.cat]||'#FF3C78') + ';border:1px solid ' + (secColors[deal.cat]||'#FF3C78') + '44;">' + (secLabels[deal.cat]||deal.cat) + '</span>'
       : '';
 
-    return '<div class="deal-card-anim" style="animation-delay:' + animDelay + 'ms;background:var(--bg-primary);border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);border:1px solid rgba(255,60,120,0.1);transition:transform 0.2s,box-shadow 0.2s;cursor:pointer;" onmouseover="this.style.transform=\'translateY(-4px)\';this.style.boxShadow=\'0 14px 36px rgba(255,60,120,0.2)\'" onmouseout="this.style.transform=\'translateY(0)\';this.style.boxShadow=\'0 4px 20px rgba(0,0,0,0.08)\'" onclick="window._PIX_openDealProduct(\'' + p.id + '\')">'
+    return '<div class="deal-card-anim" style="animation-delay:' + animDelay + 'ms;background:var(--bg-primary);border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(196,23,85,0.08);border:1px solid rgba(255,60,120,0.1);transition:transform 0.2s,box-shadow 0.2s;cursor:pointer;" onmouseover="this.style.transform=\'translateY(-4px)\';this.style.boxShadow=\'0 14px 36px rgba(255,60,120,0.2)\'" onmouseout="this.style.transform=\'translateY(0)\';this.style.boxShadow=\'0 4px 20px rgba(196,23,85,0.08)\'" onclick="window._PIX_openDealProduct(\'' + p.id + '\')">'
       + '<div style="position:relative;height:155px;overflow:hidden;">'
       + '<img src="' + p.img + '" alt="' + p.title + '" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.4s ease;" onmouseover="this.style.transform=\'scale(1.06)\'" onmouseout="this.style.transform=\'scale(1)\'" loading="lazy" onerror="this.src=\'https://via.placeholder.com/300x155?text=Product\'">'
       + '<span style="position:absolute;top:10px;left:10px;background:linear-gradient(135deg,#FF3C78,#c41755);color:white;font-size:0.65rem;font-weight:900;padding:4px 10px;border-radius:999px;letter-spacing:0.06em;text-transform:uppercase;box-shadow:0 3px 10px rgba(255,60,120,0.4);">' + deal.label + '</span>'
@@ -9617,7 +9854,7 @@ document.addEventListener('DOMContentLoaded', function(){
 #notifyMeStrip .nm-row{display:flex;gap:8px;}
 #notifyMeInput{
   flex:1;padding:9px 14px;border-radius:8px;
-  border:1.5px solid rgba(0,0,0,0.1);font-size:0.8rem;
+  border:1.5px solid rgba(196,23,85,0.1);font-size:0.8rem;
   background:var(--bg-primary);color:var(--text-primary);outline:none;
 }
 html.dark #notifyMeInput{border-color:rgba(255,255,255,0.15);}
@@ -9633,7 +9870,7 @@ html.dark #notifyMeInput{border-color:rgba(255,255,255,0.15);}
 #socialProofToast{
   position:fixed;bottom:90px;left:20px;z-index:9200;
   background:var(--surface-primary);border-radius:14px;
-  box-shadow:0 8px 32px rgba(0,0,0,0.22);border:1px solid rgba(0,0,0,0.07);
+  box-shadow:0 8px 32px rgba(196,23,85,0.22);border:1px solid rgba(196,23,85,0.07);
   padding:12px 16px;display:flex;align-items:center;gap:12px;
   max-width:290px;transform:translateX(-120%);transition:transform 0.45s cubic-bezier(0.2,1.3,0.4,1);
   pointer-events:none;
@@ -9654,7 +9891,7 @@ html.dark #socialProofToast{border-color:rgba(255,255,255,0.08);}
 #searchAutoList{
   position:absolute;top:calc(100% + 6px);left:0;right:0;
   background:var(--surface-primary);border-radius:14px;
-  box-shadow:0 12px 40px rgba(0,0,0,0.22);border:1px solid rgba(0,0,0,0.08);
+  box-shadow:0 12px 40px rgba(196,23,85,0.22);border:1px solid rgba(196,23,85,0.08);
   z-index:9999;overflow:hidden;max-height:340px;overflow-y:auto;
   display:none;
 }
@@ -9673,7 +9910,7 @@ html.dark #searchAutoList{border-color:rgba(255,255,255,0.1);}
 /* ── 7. Cookie Consent ── */
 #cookieBanner{
   position:fixed;bottom:0;left:0;right:0;z-index:9800;
-  background:#111;color:rgba(255,255,255,0.85);
+  background:#1d0b14;color:rgba(255,255,255,0.85);
   padding:16px 24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;
   border-top:1px solid rgba(255,255,255,0.08);
   transform:translateY(100%);transition:transform 0.4s ease;
@@ -10179,7 +10416,7 @@ function onScroll(){
   if (upBtn) { pct > 8 ? upBtn.classList.add('show') : upBtn.classList.remove('show'); }
   // header shadow on scroll
   var hdr = document.getElementById('siteHeader');
-  if (hdr) { st > 60 ? hdr.style.boxShadow = '0 4px 32px rgba(0,0,0,0.55)' : hdr.style.boxShadow = ''; }
+  if (hdr) { st > 60 ? hdr.style.boxShadow = '0 4px 32px rgba(60,15,35,0.45)' : hdr.style.boxShadow = ''; }
 }
 window.addEventListener('scroll', onScroll, {passive:true});
 
@@ -10513,9 +10750,115 @@ if (logo) logo.addEventListener('click', function(){
   var loader = document.getElementById('pix-loader');
   if (loader) {
     window.addEventListener('load', function() {
-      setTimeout(function() { loader.classList.add('fade-out'); }, 1600);
+      setTimeout(function() {
+        loader.classList.add('fade-out');
+        setTimeout(pixAddrModalOpen, 600);
+      }, 1600);
     });
-    setTimeout(function() { loader.classList.add('fade-out'); }, 2500);
+    setTimeout(function() {
+      loader.classList.add('fade-out');
+      setTimeout(pixAddrModalOpen, 600);
+    }, 2500);
+  }
+
+  /* ── ADDRESS CAROUSEL MODAL ── */
+  var _addrStep = 0;
+  var _addrData = { pin: '', street: '', city: '', state: '' };
+
+  function pixAddrModalOpen() {
+    // Don't show if already completed or skipped (persists across sessions)
+    if (localStorage.getItem('pix_addr_done')) return;
+    var modal = document.getElementById('pix-addr-modal');
+    if (!modal) return;
+    modal.classList.add('show');
+    setTimeout(function() {
+      var inp = document.getElementById('addrPin');
+      if (inp) inp.focus();
+    }, 400);
+  }
+
+  window.pixAddrPinSuggest = function(pin) {
+    var inp = document.getElementById('addrPin');
+    if (inp) { inp.value = pin; inp.focus(); }
+  };
+
+  window.pixAddrNext = function(step) {
+    if (step === 0) {
+      var pin = (document.getElementById('addrPin').value || '').trim();
+      var err = document.getElementById('addrPinErr');
+      if (!/^\d{6}$/.test(pin)) { err.style.display = 'block'; return; }
+      err.style.display = 'none';
+      _addrData.pin = pin;
+      _addrGoTo(1);
+      // Try to pre-fill city/state from pin prefix
+      var cityMap = { '14':'Ludhiana', '11':'Delhi', '40':'Mumbai', '56':'Bengaluru', '70':'Kolkata', '60':'Chennai' };
+      var stateMap = { '14':'Punjab', '11':'Delhi', '40':'Maharashtra', '56':'Karnataka', '70':'West Bengal', '60':'Tamil Nadu' };
+      var prefix = pin.substring(0,2);
+      var ci = document.getElementById('addrCity');
+      var st = document.getElementById('addrState');
+      if (ci && !ci.value && cityMap[prefix]) ci.value = cityMap[prefix];
+      if (st && !st.value && stateMap[prefix]) st.value = stateMap[prefix];
+    } else if (step === 1) {
+      var street = (document.getElementById('addrStreet').value || '').trim();
+      var err2 = document.getElementById('addrStreetErr');
+      if (!street) { err2.style.display = 'block'; return; }
+      err2.style.display = 'none';
+      _addrData.street = street;
+      _addrData.city   = (document.getElementById('addrCity').value || '').trim();
+      _addrData.state  = (document.getElementById('addrState').value || '').trim();
+      // Build confirm card
+      var box = document.getElementById('addrConfirmBox');
+      if (box) {
+        box.innerHTML =
+          '<div style="display:flex;gap:8px;align-items:flex-start;">' +
+            '<i class="fas fa-location-dot" style="color:#FF3C78;margin-top:2px;flex-shrink:0;"></i>' +
+            '<div>' +
+              '<div style="font-weight:700;color:#1d0b14;font-size:0.88rem;margin-bottom:2px;">' + _addrData.street + '</div>' +
+              '<div style="color:#777;">' + [_addrData.city, _addrData.state, _addrData.pin].filter(Boolean).join(', ') + '</div>' +
+            '</div>' +
+          '</div>';
+      }
+      _addrGoTo(2);
+    }
+  };
+
+  window.pixAddrDone = function() {
+    localStorage.setItem('pix_addr_done', '1');
+    localStorage.setItem('pix_addr', JSON.stringify(_addrData));
+    var modal = document.getElementById('pix-addr-modal');
+    if (modal) modal.classList.remove('show');
+    // Optionally pre-fill checkout address field
+    var checkoutAddr = document.getElementById('address');
+    if (checkoutAddr && _addrData.street) {
+      checkoutAddr.value = _addrData.street + ', ' + _addrData.city + ', ' + _addrData.state + ' - ' + _addrData.pin;
+    }
+  };
+
+  window.pixAddrSkip = function() {
+    localStorage.setItem('pix_addr_done', '1');
+    var modal = document.getElementById('pix-addr-modal');
+    if (modal) modal.classList.remove('show');
+  };
+
+  function _addrGoTo(step) {
+    var back = step < _addrStep;
+    _addrStep = step;
+    [0,1,2].forEach(function(i) {
+      var sl = document.getElementById('addrSlide' + i);
+      var dt = document.getElementById('addrDot' + i);
+      if (!sl) return;
+      sl.classList.remove('active', 'slide-back');
+      if (dt) dt.classList.toggle('active', i <= step);
+      if (i === step) {
+        sl.classList.add('active');
+        if (back) sl.classList.add('slide-back');
+      }
+    });
+    // Focus first input
+    setTimeout(function() {
+      var inputs = document.querySelectorAll('#addrSlide' + step + ' .pix-addr-input');
+      if (inputs.length) inputs[0].focus();
+    }, 100);
   }
 
 
@@ -10726,7 +11069,7 @@ if (logo) logo.addEventListener('click', function(){
   width: 320px; max-width: 92vw;
   background: var(--bg-primary);
   border-right: 1.5px solid var(--header-border);
-  box-shadow: 8px 0 40px rgba(0,0,0,0.12);
+  box-shadow: 8px 0 40px rgba(196,23,85,0.12);
   transform: translateX(-100%);
   transition: transform 0.38s cubic-bezier(.2,.9,.2,1);
   display: flex; flex-direction: column;
@@ -11151,7 +11494,7 @@ if (pmns) {
 /* Stock bar */
 .pix-stock-bar {
   height: 3px; border-radius: 2px;
-  background: rgba(0,0,0,0.07); overflow: hidden; margin-top: 8px;
+  background: rgba(196,23,85,0.07); overflow: hidden; margin-top: 8px;
 }
 html.dark .pix-stock-bar { background: rgba(255,255,255,0.08); }
 .pix-stock-fill {
@@ -11180,7 +11523,7 @@ html.dark .pix-stock-bar { background: rgba(255,255,255,0.08); }
 .card:hover .pix-card-quick { transform: translateY(0); }
 .pix-quick-btn {
   width: 100%; padding: 9px;
-  background: white; color: #111;
+  background: white; color: #1d0b14;
   font-weight: 800; font-size: 0.78rem;
   border: none; border-radius: 10px; cursor: pointer;
   font-family: 'Poppins', sans-serif;
@@ -11198,7 +11541,7 @@ html.dark .pix-stock-bar { background: rgba(255,255,255,0.08); }
   top: 64px; /* header height */
   z-index: 40;
   background: var(--bg-primary);
-  border-bottom: 1px solid rgba(0,0,0,0.06);
+  border-bottom: 1px solid rgba(196,23,85,0.06);
   padding: 8px 0;
   margin: 0 -16px;
   padding: 8px 16px;
@@ -11206,7 +11549,7 @@ html.dark .pix-stock-bar { background: rgba(255,255,255,0.08); }
 }
 html.dark #pix-filter-sticky { border-color: rgba(255,255,255,0.06); }
 #pix-filter-sticky.pix-stuck {
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 20px rgba(196,23,85,0.1);
 }
 </style>
 <script>
@@ -11248,7 +11591,7 @@ html.dark #pix-filter-sticky { border-color: rgba(255,255,255,0.06); }
 
 /* ── Better promo banner overlay ── */
 .promo-grid-item-overlay {
-  background: linear-gradient(160deg, rgba(255,60,120,0.75) 0%, rgba(0,0,0,0.15) 100%) !important;
+  background: linear-gradient(160deg, rgba(255,60,120,0.75) 0%, rgba(196,23,85,0.15) 100%) !important;
 }
 
 /* ── Improved announcement bar typography ── */
@@ -12725,7 +13068,7 @@ if (window.firebaseReady) {
   display:none; position:fixed; top:0; right:0; bottom:0;
   width:360px; max-width:100vw;
   background:#fff; z-index:9999;
-  box-shadow:-8px 0 40px rgba(0,0,0,0.18);
+  box-shadow:-8px 0 40px rgba(196,23,85,0.18);
   overflow:hidden; flex-direction:column;
   font-family:'Poppins',sans-serif;
 ">
@@ -12838,6 +13181,100 @@ if (window.firebaseReady) {
       <p class="ed-hint">The email sign-up band at the bottom of the page.</p>
       <div class="ed-field"><label class="ed-label">Heading</label><input class="ed-input" id="ef-newsletter-title" type="text" placeholder="e.g. Stay in the know 💌"></div>
       <div class="ed-field"><label class="ed-label">Subheading</label><input class="ed-input" id="ef-newsletter-sub" type="text" placeholder="e.g. Get early access to deals, launches &amp; style drops."></div>
+    </div>
+
+
+    <!-- ▸ IMAGES -->
+    <div class="ed-section" id="ed-images-section">
+      <div class="ed-section-title">🖼️ Images</div>
+      <p class="ed-hint">Change any image on the site — paste a URL or upload a file.</p>
+
+      <!-- Hero Slides -->
+      <div class="ed-img-group">
+        <div class="ed-img-group-title">🎠 Hero Slideshow</div>
+
+        <div class="ed-img-row" id="ei-row-hero1">
+          <div class="ed-img-thumb-wrap"><img class="ed-img-thumb" id="ei-prev-hero1" src="https://risync.in/G4U/candle.png"><div class="ed-img-label-pill">Slide 1 · Candles</div></div>
+          <div class="ed-img-inputs">
+            <input class="ed-input" id="ei-url-hero1" type="url" placeholder="Paste image URL…" oninput="pixImgPreview('hero1',this.value)">
+            <label class="ed-img-upload-btn"><i class="fa fa-upload"></i> Upload<input type="file" accept="image/*" style="display:none" onchange="pixImgUpload('hero1',this)"></label>
+          </div>
+        </div>
+
+        <div class="ed-img-row" id="ei-row-hero2">
+          <div class="ed-img-thumb-wrap"><img class="ed-img-thumb" id="ei-prev-hero2" src="https://royal-sleek-and-shear-52.lovable.app/lovable-uploads/30573759-2745-499d-9bd1-3222a5059831.png"><div class="ed-img-label-pill">Slide 2 · Beauty</div></div>
+          <div class="ed-img-inputs">
+            <input class="ed-input" id="ei-url-hero2" type="url" placeholder="Paste image URL…" oninput="pixImgPreview('hero2',this.value)">
+            <label class="ed-img-upload-btn"><i class="fa fa-upload"></i> Upload<input type="file" accept="image/*" style="display:none" onchange="pixImgUpload('hero2',this)"></label>
+          </div>
+        </div>
+
+        <div class="ed-img-row" id="ei-row-hero3">
+          <div class="ed-img-thumb-wrap"><img class="ed-img-thumb" id="ei-prev-hero3" src="https://risync.in/G4U/Blue%20dot%204-5%20front.jpg"><div class="ed-img-label-pill">Slide 3 · Clothing</div></div>
+          <div class="ed-img-inputs">
+            <input class="ed-input" id="ei-url-hero3" type="url" placeholder="Paste image URL…" oninput="pixImgPreview('hero3',this.value)">
+            <label class="ed-img-upload-btn"><i class="fa fa-upload"></i> Upload<input type="file" accept="image/*" style="display:none" onchange="pixImgUpload('hero3',this)"></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category Tiles -->
+      <div class="ed-img-group">
+        <div class="ed-img-group-title">🗂️ Category Tiles</div>
+
+        <div class="ed-img-row">
+          <div class="ed-img-thumb-wrap"><img class="ed-img-thumb" id="ei-prev-cat-beauty" src="https://royal-sleek-and-shear-52.lovable.app/lovable-uploads/30573759-2745-499d-9bd1-3222a5059831.png"><div class="ed-img-label-pill">Beauty</div></div>
+          <div class="ed-img-inputs">
+            <input class="ed-input" id="ei-url-cat-beauty" type="url" placeholder="Paste image URL…" oninput="pixImgPreview('cat-beauty',this.value)">
+            <label class="ed-img-upload-btn"><i class="fa fa-upload"></i> Upload<input type="file" accept="image/*" style="display:none" onchange="pixImgUpload('cat-beauty',this)"></label>
+          </div>
+        </div>
+
+        <div class="ed-img-row">
+          <div class="ed-img-thumb-wrap"><img class="ed-img-thumb" id="ei-prev-cat-candles" src="https://risync.in/G4U/candle.png"><div class="ed-img-label-pill">Candles</div></div>
+          <div class="ed-img-inputs">
+            <input class="ed-input" id="ei-url-cat-candles" type="url" placeholder="Paste image URL…" oninput="pixImgPreview('cat-candles',this.value)">
+            <label class="ed-img-upload-btn"><i class="fa fa-upload"></i> Upload<input type="file" accept="image/*" style="display:none" onchange="pixImgUpload('cat-candles',this)"></label>
+          </div>
+        </div>
+
+        <div class="ed-img-row">
+          <div class="ed-img-thumb-wrap"><img class="ed-img-thumb" id="ei-prev-cat-clothing" src="https://risync.in/G4U/Blue%20dot%204-5%20front.jpg"><div class="ed-img-label-pill">Clothing</div></div>
+          <div class="ed-img-inputs">
+            <input class="ed-input" id="ei-url-cat-clothing" type="url" placeholder="Paste image URL…" oninput="pixImgPreview('cat-clothing',this.value)">
+            <label class="ed-img-upload-btn"><i class="fa fa-upload"></i> Upload<input type="file" accept="image/*" style="display:none" onchange="pixImgUpload('cat-clothing',this)"></label>
+          </div>
+        </div>
+
+        <div class="ed-img-row">
+          <div class="ed-img-thumb-wrap"><img class="ed-img-thumb" id="ei-prev-cat-others" src="https://media.bribooks.com/public/AuthorCoverImages/user_cover_66eb343d62adf_b1_v799599.png?width=500&format=avif"><div class="ed-img-label-pill">Others</div></div>
+          <div class="ed-img-inputs">
+            <input class="ed-input" id="ei-url-cat-others" type="url" placeholder="Paste image URL…" oninput="pixImgPreview('cat-others',this.value)">
+            <label class="ed-img-upload-btn"><i class="fa fa-upload"></i> Upload<input type="file" accept="image/*" style="display:none" onchange="pixImgUpload('cat-others',this)"></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Promo Banners -->
+      <div class="ed-img-group" style="margin-bottom:0;">
+        <div class="ed-img-group-title">🎯 Promo Banners</div>
+
+        <div class="ed-img-row">
+          <div class="ed-img-thumb-wrap"><img class="ed-img-thumb" id="ei-prev-promo1" src="https://risync.in/G4U/Dough%20Bowl%20Multi_Wick%20Candle.png"><div class="ed-img-label-pill">Banner 1</div></div>
+          <div class="ed-img-inputs">
+            <input class="ed-input" id="ei-url-promo1" type="url" placeholder="Paste image URL…" oninput="pixImgPreview('promo1',this.value)">
+            <label class="ed-img-upload-btn"><i class="fa fa-upload"></i> Upload<input type="file" accept="image/*" style="display:none" onchange="pixImgUpload('promo1',this)"></label>
+          </div>
+        </div>
+
+        <div class="ed-img-row">
+          <div class="ed-img-thumb-wrap"><img class="ed-img-thumb" id="ei-prev-promo2" src="https://royal-sleek-and-shear-52.lovable.app/lovable-uploads/30573759-2745-499d-9bd1-3222a5059831.png"><div class="ed-img-label-pill">Banner 2</div></div>
+          <div class="ed-img-inputs">
+            <input class="ed-input" id="ei-url-promo2" type="url" placeholder="Paste image URL…" oninput="pixImgPreview('promo2',this.value)">
+            <label class="ed-img-upload-btn"><i class="fa fa-upload"></i> Upload<input type="file" accept="image/*" style="display:none" onchange="pixImgUpload('promo2',this)"></label>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- ▸ BRAND COLOURS -->
@@ -12958,6 +13395,49 @@ if (window.firebaseReady) {
   letter-spacing: 0.08em;
   margin-bottom: 10px;
 }
+
+/* ── Editor Images Section ── */
+.ed-img-group {
+  margin-bottom: 18px;
+}
+.ed-img-group-title {
+  font-size: 0.72rem; font-weight: 800;
+  color: #7c3aed; text-transform: uppercase;
+  letter-spacing: 0.07em; margin-bottom: 10px;
+}
+.ed-img-row {
+  display: flex; gap: 10px; align-items: flex-start;
+  margin-bottom: 12px; padding: 10px;
+  background: #f8f5ff; border: 1.5px solid #ede9fe;
+  border-radius: 12px;
+}
+.ed-img-thumb-wrap {
+  flex-shrink: 0; text-align: center;
+}
+.ed-img-thumb {
+  width: 64px; height: 48px;
+  object-fit: cover; border-radius: 8px;
+  border: 1.5px solid #ede9fe;
+  display: block;
+}
+.ed-img-label-pill {
+  font-size: 0.62rem; font-weight: 700;
+  color: #7c3aed; margin-top: 4px;
+  letter-spacing: 0.04em;
+}
+.ed-img-inputs {
+  flex: 1; display: flex; flex-direction: column; gap: 6px;
+}
+.ed-img-upload-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: 8px;
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+  color: white; font-size: 0.75rem; font-weight: 700;
+  cursor: pointer; width: fit-content;
+  transition: opacity 0.2s;
+}
+.ed-img-upload-btn:hover { opacity: 0.85; }
+
 </style>
 
 <script>
@@ -12990,6 +13470,16 @@ if (window.firebaseReady) {
     { id:'ef-seller-body',     key:'seller-body',      plain:true  },
     { id:'ef-newsletter-title',key:'newsletter-title', plain:true  },
     { id:'ef-newsletter-sub',  key:'newsletter-sub',   plain:true  },
+    // Image fields
+    { id:'ei-url-hero1',      key:'img-hero1',      isImg:true },
+    { id:'ei-url-hero2',      key:'img-hero2',      isImg:true },
+    { id:'ei-url-hero3',      key:'img-hero3',      isImg:true },
+    { id:'ei-url-cat-beauty', key:'img-cat-beauty', isImg:true },
+    { id:'ei-url-cat-candles',key:'img-cat-candles',isImg:true },
+    { id:'ei-url-cat-clothing',key:'img-cat-clothing',isImg:true },
+    { id:'ei-url-cat-others', key:'img-cat-others', isImg:true },
+    { id:'ei-url-promo1',     key:'img-promo1',     isImg:true },
+    { id:'ei-url-promo2',     key:'img-promo2',     isImg:true },
   ];
 
   // Strip any leftover HTML tags so inputs show clean text
@@ -13002,6 +13492,33 @@ if (window.firebaseReady) {
   function getEl(key) {
     return document.querySelector('[data-editable="' + key + '"]');
   }
+
+
+  // ── Image helpers ────────────────────────────────────────────────────────
+  window.pixImgPreview = function(slug, url) {
+    if (!url) return;
+    // Update panel preview thumbnail
+    var prev = document.getElementById('ei-prev-' + slug);
+    if (prev) prev.src = url;
+    // Live-update the page image
+    var pageImg = document.getElementById('img-' + slug);
+    if (pageImg) pageImg.src = url;
+  };
+
+  window.pixImgUpload = function(slug, inputEl) {
+    var file = inputEl.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var dataUrl = e.target.result;
+      // Update URL input field
+      var urlInp = document.getElementById('ei-url-' + slug);
+      if (urlInp) urlInp.value = dataUrl;
+      // Update preview + page
+      window.pixImgPreview(slug, dataUrl);
+    };
+    reader.readAsDataURL(file);
+  };
 
   // ── toast ──────────────────────────────────────────────────
   function toast(msg, dur) {
@@ -13026,6 +13543,20 @@ if (window.firebaseReady) {
       if (el) el.innerText = v;
     });
     // Colours
+
+    // Apply images
+    var IMG_IDS = {
+      'img-hero1':'img-hero1','img-hero2':'img-hero2','img-hero3':'img-hero3',
+      'img-cat-beauty':'img-cat-beauty','img-cat-candles':'img-cat-candles',
+      'img-cat-clothing':'img-cat-clothing','img-cat-others':'img-cat-others',
+      'img-promo1':'img-promo1','img-promo2':'img-promo2'
+    };
+    Object.keys(IMG_IDS).forEach(function(key) {
+      if (vals[key]) {
+        var el = document.getElementById(IMG_IDS[key]);
+        if (el) el.src = vals[key];
+      }
+    });
     if (vals['color-primary'])   document.documentElement.style.setProperty('--brand-primary',   vals['color-primary']);
     if (vals['color-secondary']) document.documentElement.style.setProperty('--brand-secondary', vals['color-secondary']);
     if (vals['color-dark'])      document.documentElement.style.setProperty('--brand-dark',       vals['color-dark']);
@@ -13038,6 +13569,27 @@ if (window.firebaseReady) {
       if (!inp) return;
       var raw = vals[f.key] || stripTags(getEl(f.key) ? (getEl(f.key).innerHTML || '') : '');
       inp.value = raw;
+    });
+
+    // Populate image inputs and previews
+    var IMG_DEFAULTS = {
+      'img-hero1':'https://risync.in/G4U/candle.png',
+      'img-hero2':'https://royal-sleek-and-shear-52.lovable.app/lovable-uploads/30573759-2745-499d-9bd1-3222a5059831.png',
+      'img-hero3':'https://risync.in/G4U/Blue%20dot%204-5%20front.jpg',
+      'img-cat-beauty':'https://royal-sleek-and-shear-52.lovable.app/lovable-uploads/30573759-2745-499d-9bd1-3222a5059831.png',
+      'img-cat-candles':'https://risync.in/G4U/candle.png',
+      'img-cat-clothing':'https://risync.in/G4U/Blue%20dot%204-5%20front.jpg',
+      'img-cat-others':'https://media.bribooks.com/public/AuthorCoverImages/user_cover_66eb343d62adf_b1_v799599.png?width=500&format=avif',
+      'img-promo1':'https://risync.in/G4U/Dough%20Bowl%20Multi_Wick%20Candle.png',
+      'img-promo2':'https://royal-sleek-and-shear-52.lovable.app/lovable-uploads/30573759-2745-499d-9bd1-3222a5059831.png'
+    };
+    Object.keys(IMG_DEFAULTS).forEach(function(key) {
+      var slug = key.replace('img-','');
+      var urlInp = document.getElementById('ei-url-' + slug);
+      var prevEl = document.getElementById('ei-prev-' + slug);
+      var currentSrc = vals[key] || IMG_DEFAULTS[key];
+      if (urlInp) urlInp.value = currentSrc;
+      if (prevEl) prevEl.src = currentSrc;
     });
     // Colour pickers
     var root = getComputedStyle(document.documentElement);
@@ -13105,6 +13657,13 @@ if (window.firebaseReady) {
     var c1 = document.getElementById('ef-color-primary');
     var c2 = document.getElementById('ef-color-secondary');
     var c3 = document.getElementById('ef-color-dark');
+
+    // Collect image URLs
+    var IMG_SLUGS = ['hero1','hero2','hero3','cat-beauty','cat-candles','cat-clothing','cat-others','promo1','promo2'];
+    IMG_SLUGS.forEach(function(slug) {
+      var inp = document.getElementById('ei-url-' + slug);
+      if (inp && inp.value) vals['img-' + slug] = inp.value;
+    });
     if (c1) vals['color-primary']   = c1.value;
     if (c2) vals['color-secondary'] = c2.value;
     if (c3) vals['color-dark']       = c3.value;
