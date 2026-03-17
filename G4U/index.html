@@ -775,27 +775,36 @@
   </style>
 
   <style>
-    :root {
-      --brand-primary: #FF3C78;
-      --brand-secondary: #FF7EAC;
-      --brand-dark: #C41755;
-      --ring-color: rgba(255, 60, 120, 0.25);
-      --text-primary: #1d0b14;
-      --text-secondary: #666666;
-      --bg-primary: #FFFFFF;
-      --surface-primary: #FFFFFF;
-      --success: #2ecc71;
-      --error: #e74c3c;
-      --header-bg: #FFFFFF;
-      --header-text: #1d0b14;
-      --header-icon-bg: rgba(196,23,85,0.07);
-      --header-icon-color: #3a1625;
-      --header-border: rgba(196,23,85,0.09);
-      --header-input-bg: rgba(196,23,85,0.05);
-      --header-input-border: rgba(196,23,85,0.13);
-      --header-input-color: #1d0b14;
-      --subnav-bg: #FF3C78;
-    }
+:root {
+  /* Brand Colors */
+  --brand-primary: #FF3C78;
+  --brand-secondary: #FF7EAC;
+  --brand-dark: #C41755;
+  --ring-color: rgba(255, 60, 120, 0.25);
+
+  /* General Text & Background */
+  --text-primary: #1d0b14;
+  --text-secondary: #666666;
+  --bg-primary: #FFFFFF;
+  --surface-primary: #FFFFFF;
+  --success: #2ecc71;
+  --error: #e74c3c;
+
+  /* --- HEADER & FOOTER UPDATES --- */
+  --header-bg: #424242;             /* Set to your requested dark grey */
+  --header-text: #FFFFFF;           /* Changed to white for readability */
+  --header-icon-bg: rgba(255,255,255,0.1); 
+  --header-icon-color: #FFFFFF;     /* Changed to white */
+  --header-border: rgba(255,255,255,0.1);
+  
+  /* Search Input Adjustments */
+  --header-input-bg: rgba(255,255,255,0.08);
+  --header-input-border: rgba(255,255,255,0.2);
+  --header-input-color: #FFFFFF;
+
+  /* Sub-navigation (The thin top bar) */
+  --subnav-bg: #424242; 
+}
     html.dark {
       --text-primary: #F8F8F8;
       --text-secondary: #AAAAAA;
@@ -1925,7 +1934,7 @@
   <!-- Skip to main content for keyboard/screen reader users -->
   <a href="#main-content" style="position:absolute;top:-40px;left:0;background:var(--brand-primary);color:white;padding:8px 16px;border-radius:0 0 8px 0;font-weight:700;font-size:0.875rem;z-index:9999;transition:top 0.2s;" onfocus="this.style.top='0'" onblur="this.style.top='-40px'">Skip to main content</a>
 
-  <header id="siteHeader" class="sticky top-0 z-50" style="background-color:var(--header-bg);box-shadow:0 2px 20px var(--header-border);transition:background-color 0.45s ease;border-bottom:1.5px solid var(--header-border);">
+<header id="siteHeader" class="sticky top-0 z-50" style="background-color:#424242; box-shadow:0 2px 20px rgba(0,0,0,0.5); transition:background-color 0.45s ease; border-bottom:1.5px solid #333;">
     <!-- Sub-nav marquee -->
     <div id="subNavStrip" style="background:var(--brand-primary);overflow:hidden;padding:0;transition:background-color 0.45s ease;">
       <div style="display:inline-flex;animation:marqueeScroll 40s linear infinite;">
@@ -2413,8 +2422,8 @@
         var W = canvas.width, H = canvas.height;
         // Deep dark base
         var bg = ctx.createRadialGradient(W*0.5,H*0.5,0, W*0.5,H*0.5,W*0.7);
-        bg.addColorStop(0,   '#160010');
-        bg.addColorStop(0.5, '#0a0008');
+        bg.addColorStop(0,   '#424242');
+        bg.addColorStop(0.5, '#424242');
         bg.addColorStop(1,   '#050005');
         ctx.fillStyle = bg;
         ctx.fillRect(0,0,W,H);
