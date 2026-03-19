@@ -46,6 +46,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Montserrat:wght@400;700;800;900&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -5402,123 +5403,186 @@
             const customerAddr  = document.getElementById('address')?.value?.trim() || '';
             const orderItems = state.cart.map(ci => {
               const p = PRODUCTS.find(x => x.id === ci.id);
-              return { id: ci.id, name: p ? p.name : ci.id, qty: ci.qty, price: p ? p.price : 0 };
+              return { id: ci.id, name: p ? p.title : ci.id, qty: ci.qty, price: p ? p.price : 0 };
             });
-            const orderTotal = orderItems.reduce((s, i) => s + i.price * i.qty, 0);
-            const orderObj = {
-              customer: customerName,
-              phone:    customerPhone,
-              email:    customerEmail,
-              address:  customerAddr,
-              items:    orderItems,
-              total:    orderTotal,
-              status:   'Paid',
-              notified: false,
-              createdAt: window.serverTimestamp ? window.serverTimestamp() : new Date()
-            };
 
-            // ── 1. Save order to Firestore ──────────────────────────────────
-            let orderId = 'ORD-' + Date.now();
-            try {
-              if (window.db && window.addDoc && window.collection) {
-                const ref = await window.addDoc(window.collection(window.db, 'orders'), orderObj);
-                orderId = ref.id;
-              }
-            } catch(e) { console.warn('Order save error:', e); }
+            // ── Apply coupon discount ───────────────────────────────────────
+            const couponCode = ($('#coupon')?.value || '').trim().toUpperCase();
+            const subtotal   = state.cart.reduce((s, ci) => {
+              const p = PRODUCTS.find(x => x.id === ci.id);
+              return s + (p ? p.price : 0) * ci.qty;
+            }, 0);
+            const shipping   = subtotal >= CX.FREE_SHIP_INR ? 0 : CX.SHIPPING_INR;
+            const discount   = couponCode === 'PIX10' ? Math.round(subtotal * 0.1) : 0;
+            const orderTotal = subtotal + shipping - discount;
 
-            toast('Payment successful! 🎉 Order placed. Thank you!');
+            // ── Launch Razorpay ─────────────────────────────────────────────
+            const payBtn = $('#pay');
+            payBtn.disabled = true;
+            payBtn.innerHTML = '<svg class="animate-spin" style="animation:spin 1s linear infinite;display:inline-block;vertical-align:middle;margin-right:6px;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Opening Payment…';
 
-            // ── 2. Admin in-app notification badge ─────────────────────────
-            try {
-              window._PIX_newOrderCount = (window._PIX_newOrderCount || 0) + 1;
-              const nb  = document.getElementById('admNotifBadge');
-              const ntb = document.getElementById('admNotifTabBadge');
-              const cnt = window._PIX_newOrderCount;
-              if (nb)  { nb.textContent  = cnt; nb.style.display  = 'flex'; }
-              if (ntb) { ntb.textContent = cnt; ntb.style.display = 'inline'; }
-            } catch(e) {}
+            // ── NOTE: Replace with your live Razorpay Key ID ─────────────
+            // Get your key from https://dashboard.razorpay.com/app/keys
+            const RAZORPAY_KEY_ID = 'rzp_test_YourKeyHere'; // ← REPLACE THIS
 
-            // ── 3. Send Email to Admin via FormSubmit.co ───────────────────
-            (async () => {
-              try {
-                const _db = window.db || window._db;
-                const ns = _db && window.getDoc && window.doc
-                  ? ((await window.getDoc(window.doc(_db, 'siteContent', 'notificationSettings'))).data() || {})
-                  : {};
-                const adminEmail = ns.admin_email || 'gurunanak.garments2023@gmail.com';
-                const adminWA    = ns.admin_whatsapp || '916280096796';
+            const rzpOptions = {
+              key:         RAZORPAY_KEY_ID,
+              amount:      orderTotal * 100,          // Razorpay expects paise
+              currency:    'INR',
+              name:        'Pioneer I Xpress',
+              description: `Order of ${orderItems.length} item${orderItems.length !== 1 ? 's' : ''}`,
+              image:       'https://risync.in/G4U/candle.png',
+              prefill: {
+                name:    customerName,
+                email:   customerEmail,
+                contact: customerPhone,
+              },
+              notes: {
+                address: customerAddr,
+                items:   orderItems.map(i => `${i.name} x${i.qty}`).join(', ')
+              },
+              theme: { color: '#FF3C78' },
 
-                const itemsStr = orderItems.map(i => `${i.name} x${i.qty} — ₹${(i.price * i.qty).toLocaleString('en-IN')}`).join('\n');
+              // ── Payment successful ──────────────────────────────────────
+              handler: async function(response) {
+                const razorpayPaymentId = response.razorpay_payment_id;
 
-                // ── FormSubmit.co AJAX POST ──────────────────────────────────
+                const orderObj = {
+                  customer: customerName,
+                  phone:    customerPhone,
+                  email:    customerEmail,
+                  address:  customerAddr,
+                  items:    orderItems,
+                  total:    orderTotal,
+                  discount,
+                  shipping,
+                  coupon:   couponCode || null,
+                  status:   'Paid',
+                  paymentId: razorpayPaymentId,
+                  paymentMethod: 'Razorpay',
+                  notified: false,
+                  createdAt: window.serverTimestamp ? window.serverTimestamp() : new Date()
+                };
+
+                // ── 1. Save order to Firestore ──────────────────────────────
+                let orderId = 'ORD-' + Date.now();
                 try {
-                  const res = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(adminEmail)}`, {
-                    method:  'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify({
-                      _subject:        `🛍️ New Order #${orderId} — Pioneer I Xpress`,
-                      _template:       'table',
-                      _captcha:        'false',
-                      'Order ID':      orderId,
-                      'Customer Name': customerName,
-                      'Phone':         customerPhone,
-                      'Email':         customerEmail,
-                      'Address':       customerAddr,
-                      'Items':         itemsStr,
-                      'Total':         '₹' + orderTotal.toLocaleString('en-IN'),
-                      'Date':          new Date().toLocaleString('en-IN'),
-                    })
-                  });
-                  const result = await res.json();
-                  if (result.success === 'true' || result.success === true) {
-                    console.log('📧 Admin order email sent via FormSubmit.co');
-                  } else {
-                    console.warn('FormSubmit.co response:', result);
+                  if (window.db && window.addDoc && window.collection) {
+                    const ref = await window.addDoc(window.collection(window.db, 'orders'), orderObj);
+                    orderId = ref.id;
                   }
-                } catch(mailErr) {
-                  console.warn('FormSubmit email error:', mailErr);
+                } catch(e) { console.warn('Order save error:', e); }
+
+                toast('Payment successful! 🎉 Order placed. Thank you!');
+
+                // ── 2. Admin in-app notification badge ───────────────────────
+                try {
+                  window._PIX_newOrderCount = (window._PIX_newOrderCount || 0) + 1;
+                  const nb  = document.getElementById('admNotifBadge');
+                  const ntb = document.getElementById('admNotifTabBadge');
+                  const cnt = window._PIX_newOrderCount;
+                  if (nb)  { nb.textContent  = cnt; nb.style.display  = 'flex'; }
+                  if (ntb) { ntb.textContent = cnt; ntb.style.display = 'inline'; }
+                } catch(e) {}
+
+                // ── 3. Send Email + WhatsApp to Admin ────────────────────────
+                (async () => {
+                  try {
+                    const _db = window.db || window._db;
+                    const ns = _db && window.getDoc && window.doc
+                      ? ((await window.getDoc(window.doc(_db, 'siteContent', 'notificationSettings'))).data() || {})
+                      : {};
+                    const adminEmail = ns.admin_email || 'gurunanak.garments2023@gmail.com';
+                    const adminWA    = ns.admin_whatsapp || '916280096796';
+                    const itemsStr = orderItems.map(i => `${i.name} x${i.qty} — ₹${(i.price * i.qty).toLocaleString('en-IN')}`).join('\n');
+
+                    // FormSubmit.co AJAX POST
+                    try {
+                      const res = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(adminEmail)}`, {
+                        method:  'POST',
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                        body: JSON.stringify({
+                          _subject:        `🛍️ New Order #${orderId} — Pioneer I Xpress`,
+                          _template:       'table',
+                          _captcha:        'false',
+                          'Order ID':      orderId,
+                          'Customer Name': customerName,
+                          'Phone':         customerPhone,
+                          'Email':         customerEmail,
+                          'Address':       customerAddr,
+                          'Items':         itemsStr,
+                          'Total':         '₹' + orderTotal.toLocaleString('en-IN'),
+                          'Payment ID':    razorpayPaymentId,
+                          'Date':          new Date().toLocaleString('en-IN'),
+                        })
+                      });
+                      const result = await res.json();
+                      if (result.success === 'true' || result.success === true) {
+                        console.log('📧 Admin order email sent via FormSubmit.co');
+                      } else {
+                        console.warn('FormSubmit.co response:', result);
+                      }
+                    } catch(mailErr) { console.warn('FormSubmit email error:', mailErr); }
+
+                    // WhatsApp to Admin
+                    const waMsg = `🛍️ *New Order — Pioneer I Xpress*\n\n` +
+                      `📋 Order ID: ${orderId}\n` +
+                      `💳 Payment ID: ${razorpayPaymentId}\n` +
+                      `👤 Customer: ${customerName}\n` +
+                      `📞 Phone: ${customerPhone}\n` +
+                      `📧 Email: ${customerEmail}\n` +
+                      `🏠 Address: ${customerAddr}\n\n` +
+                      `🛒 Items:\n${itemsStr}\n\n` +
+                      `💰 Total: ₹${orderTotal.toLocaleString('en-IN')}\n` +
+                      `🕒 ${new Date().toLocaleString('en-IN')}`;
+                    const waNum = adminWA.replace(/\D/g, '');
+                    setTimeout(() => {
+                      window.open('https://wa.me/' + waNum + '?text=' + encodeURIComponent(waMsg), '_blank');
+                    }, 600);
+                  } catch(e) { console.warn('Notification error:', e); }
+                })();
+
+                // ── 4. Post-payment cart & UI cleanup ────────────────────────
+                state.cart.forEach(cartItem => {
+                  const prod = PRODUCTS.find(p => p.id === cartItem.id);
+                  if (prod) prod.stock = Math.max(0, prod.stock - cartItem.qty);
+                });
+                const customProds = JSON.parse(localStorage.getItem('PIX_customProducts') || '[]');
+                customProds.forEach((cp, idx) => {
+                  const updated = PRODUCTS.find(p => p.id === cp.id);
+                  if (updated) customProds[idx].stock = updated.stock;
+                });
+                localStorage.setItem('PIX_customProducts', JSON.stringify(customProds));
+                const purchasedIds = state.cart.map(item => item.id);
+                state.purchased = [...new Set([...purchasedIds, ...state.purchased])];
+                state.cart = [];
+                save();
+                $('#cart-reminder-section').classList.add('hidden');
+                rerenderAll();
+                $('#checkoutForm').reset();
+                $('#checkout').classList.add('hidden');
+                document.getElementById('savedAddrWrap').classList.add('hidden');
+                document.getElementById('checkoutForm').style.display = '';
+                window.location.hash = '#home';
+              }, // end handler
+
+              // ── Payment dialog dismissed/closed ──────────────────────────
+              modal: {
+                ondismiss: function() {
+                  payBtn.disabled = false;
+                  payBtn.innerHTML = '<svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Confirm &amp; Pay';
+                  toast('Payment cancelled.', false);
                 }
+              }
+            }; // end rzpOptions
 
-                // ── 4. Send WhatsApp to Admin ───────────────────────────────
-                const waMsg = `🛍️ *New Order — Pioneer I Xpress*\n\n` +
-                  `📋 Order ID: ${orderId}\n` +
-                  `👤 Customer: ${customerName}\n` +
-                  `📞 Phone: ${customerPhone}\n` +
-                  `📧 Email: ${customerEmail}\n` +
-                  `🏠 Address: ${customerAddr}\n\n` +
-                  `🛒 Items:\n${itemsStr}\n\n` +
-                  `💰 Total: ₹${orderTotal.toLocaleString('en-IN')}\n` +
-                  `🕒 ${new Date().toLocaleString('en-IN')}`;
-                const waNum = adminWA.replace(/\D/g, '');
-                setTimeout(() => {
-                  window.open('https://wa.me/' + waNum + '?text=' + encodeURIComponent(waMsg), '_blank');
-                }, 600);
-
-              } catch(e) { console.warn('Notification error:', e); }
-            })();
-
-            state.cart.forEach(cartItem => {
-              const prod = PRODUCTS.find(p => p.id === cartItem.id);
-              if (prod) prod.stock = Math.max(0, prod.stock - cartItem.qty);
+            const rzp = new Razorpay(rzpOptions);
+            rzp.on('payment.failed', function(response) {
+              payBtn.disabled = false;
+              payBtn.innerHTML = '<svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Confirm &amp; Pay';
+              toast('Payment failed: ' + (response.error?.description || 'Please try again.'), false);
             });
-            const customProds = JSON.parse(localStorage.getItem('PIX_customProducts') || '[]');
-            customProds.forEach((cp, idx) => {
-              const updated = PRODUCTS.find(p => p.id === cp.id);
-              if (updated) customProds[idx].stock = updated.stock;
-            });
-            localStorage.setItem('PIX_customProducts', JSON.stringify(customProds));
-            const purchasedIds = state.cart.map(item => item.id);
-            state.purchased = [...new Set([...purchasedIds, ...state.purchased])];
-            state.cart = [];
-            save();
-            $('#cart-reminder-section').classList.add('hidden');
-            rerenderAll();
-            $('#checkoutForm').reset();
-            $('#checkout').classList.add('hidden');
-            // Reset saved-address picker state
-            document.getElementById('savedAddrWrap').classList.add('hidden');
-            document.getElementById('checkoutForm').style.display = '';
-            window.location.hash = '#home';
+            rzp.open();
         });
 
         // ===== CUSTOM PRODUCT SUBMISSION (Others category) — saved to Firebase ===================
@@ -14016,274 +14080,727 @@ if (window.firebaseReady) {
 </script>
 
 <!-- ═══════════════════════════════════════════════════════════════
-     🔔 FREE CART REMINDER — No Firebase Functions / No paid plan
+     🔔 PIX SMART NOTIFY — Free, Serverless, 6 PM Scheduler
      ═══════════════════════════════════════════════════════════════
-     HOW IT WORKS:
-       1. When user adds first item → browser asks for notification permission
-       2. Cart data saved to localStorage so it survives page reloads
-       3. A Service Worker is injected inline via Blob URL (no extra file!)
-       4. The SW wakes up periodically and fires a push at 7 PM IST
-       5. If tab is open, a direct in-tab notification fires at 7 PM
+     HOW IT WORKS (100% FREE, NO BACKEND):
+       • Cart customers    → notified EVERY DAY at 6 PM
+       • Visitors (no cart)→ notified EVERY 2ND DAY at 6 PM
+       • Admin panel       → visit  /#pix-admin  (invisible to customers)
+       • Service Worker injected via Blob URL — no extra files needed
+       • Do Not Disturb: never fires between 10 PM – 8 AM
      ═══════════════════════════════════════════════════════════════ -->
+
+<!-- ══ PIX ADMIN PANEL — HIDDEN FROM CUSTOMERS ══════════════════
+     Only opens when you visit:  https://pioneeri.in/#pix-admin
+     Customers see NOTHING. Bookmark that URL.
+     ══════════════════════════════════════════════════════════════ -->
+<style>
+  /* ── PIX ADMIN OVERLAY ────────────────────────────── */
+  #pix-admin-overlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 2147483647;
+    background: rgba(8,3,8,0.97);
+    backdrop-filter: blur(24px);
+    overflow-y: auto;
+    padding: 40px 20px 60px;
+    font-family: 'Poppins', sans-serif;
+  }
+  #pix-admin-overlay.pix-admin-show { display: block; }
+  .pix-adm-wrap { max-width: 700px; margin: 0 auto; }
+  .pix-adm-hdr {
+    display: flex; align-items: center; gap: 14px; margin-bottom: 28px;
+  }
+  .pix-adm-logo {
+    width: 50px; height: 50px;
+    background: linear-gradient(135deg,#FF3C78,#c41755);
+    border-radius: 15px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; flex-shrink: 0;
+  }
+  .pix-adm-hdr h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.35rem; font-weight: 900;
+    background: linear-gradient(135deg,#FF3C78,#ff8cb0);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .pix-adm-hdr p { font-size: 0.73rem; color: #8a6070; margin-top: 2px; }
+  .pix-adm-close {
+    margin-left: auto;
+    background: rgba(255,255,255,0.06); border: none;
+    color: #8a6070; width: 38px; height: 38px;
+    border-radius: 11px; cursor: pointer; font-size: 1rem;
+    transition: background 0.2s, color 0.2s;
+  }
+  .pix-adm-close:hover { background: rgba(255,60,120,0.15); color: #FF3C78; }
+  .pix-adm-tip {
+    background: rgba(255,210,51,0.06);
+    border: 1px solid rgba(255,210,51,0.15);
+    border-radius: 14px; padding: 13px 18px;
+    display: flex; gap: 10px; align-items: flex-start;
+    margin-bottom: 22px;
+  }
+  .pix-adm-tip p { font-size: 0.75rem; color: #c0a070; line-height: 1.6; }
+  .pix-adm-tip code {
+    background: rgba(255,210,51,0.12); padding: 1px 6px;
+    border-radius: 5px; font-family: monospace; font-size: 0.85em; color: #FFD233;
+  }
+  .pix-adm-stats {
+    display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 24px;
+  }
+  .pix-adm-stat {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px; padding: 14px; text-align: center;
+  }
+  .pix-adm-stat .num {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.5rem; font-weight: 900; color: #FF3C78;
+  }
+  .pix-adm-stat .lbl { font-size: 0.68rem; color: #7a5060; margin-top: 3px; }
+  .pix-adm-card {
+    background: #120910;
+    border: 1px solid rgba(255,60,120,0.14);
+    border-radius: 20px; overflow: hidden; margin-bottom: 16px;
+  }
+  .pix-adm-card-hdr {
+    padding: 17px 22px; display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .pix-adm-card-icon {
+    width: 38px; height: 38px; border-radius: 11px;
+    display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0;
+  }
+  .pix-adm-icon-cart  { background: rgba(255,60,120,0.15); }
+  .pix-adm-icon-visit { background: rgba(91,155,230,0.15); color: #5B9BE6; }
+  .pix-adm-icon-sched { background: rgba(255,200,50,0.12); color: #FFD233; }
+  .pix-adm-card-hdr h3 { font-size: 0.95rem; font-weight: 700; color: #f0dde8; }
+  .pix-adm-card-hdr p  { font-size: 0.72rem; color: #7a5060; margin-top: 2px; }
+  .pix-adm-card-body {
+    padding: 20px 22px; display: flex; flex-direction: column; gap: 13px;
+  }
+  .pix-adm-field { display: flex; flex-direction: column; gap: 6px; }
+  .pix-adm-field label {
+    font-size: 0.67rem; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase; color: #FF3C78;
+  }
+  .pix-adm-field label.blue { color: #5B9BE6; }
+  .pix-adm-inp {
+    padding: 11px 15px;
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(255,255,255,0.08);
+    border-radius: 11px;
+    font-family: 'Poppins', sans-serif; font-size: 0.85rem; color: #f0dde8;
+    outline: none; width: 100%;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .pix-adm-inp:focus {
+    border-color: #FF3C78; box-shadow: 0 0 0 3px rgba(255,60,120,0.12);
+    background: rgba(255,255,255,0.06);
+  }
+  .pix-adm-inp.blue:focus { border-color: #5B9BE6; box-shadow: 0 0 0 3px rgba(91,155,230,0.12); }
+  .pix-adm-inp::placeholder { color: #4a2535; }
+  textarea.pix-adm-inp { resize: vertical; min-height: 68px; line-height: 1.5; }
+  .pix-adm-hint { font-size: 0.7rem; color: #6a4050; line-height: 1.5; }
+  .pix-adm-freq { display: flex; gap: 8px; }
+  .pix-adm-freq-btn {
+    flex: 1; padding: 9px 4px;
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(255,255,255,0.08);
+    border-radius: 9px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.73rem; font-weight: 600; color: #7a5060;
+    cursor: pointer; text-align: center; transition: all 0.2s;
+  }
+  .pix-adm-freq-btn.pix-freq-active {
+    background: rgba(255,60,120,0.15); border-color: #FF3C78; color: #FF3C78;
+  }
+  .pix-adm-freq-btn.pix-freq-active.blue {
+    background: rgba(91,155,230,0.15); border-color: #5B9BE6; color: #5B9BE6;
+  }
+  .pix-adm-preview {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 13px; padding: 13px 15px; position: relative;
+  }
+  .pix-adm-preview::before {
+    content: '🔔 PREVIEW'; display: block;
+    font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; color: #5a3545; margin-bottom: 8px;
+  }
+  .pix-adm-notif-mock { display: flex; align-items: flex-start; gap: 11px; }
+  .pix-adm-notif-icon {
+    width: 36px; height: 36px; border-radius: 9px;
+    background: linear-gradient(135deg,#FF3C78,#c41755);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; flex-shrink: 0;
+  }
+  .pix-adm-notif-title { font-size: 0.8rem; font-weight: 700; color: #f0dde8; line-height: 1.3; }
+  .pix-adm-notif-body  { font-size: 0.72rem; color: #7a5060; margin-top: 3px; line-height: 1.4; }
+  .pix-adm-row-toggle {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  }
+  .pix-adm-row-toggle .left h4 { font-size: 0.86rem; font-weight: 600; color: #f0dde8; }
+  .pix-adm-row-toggle .left p  { font-size: 0.71rem; color: #7a5060; margin-top: 2px; }
+  .pix-adm-toggle { position: relative; width: 48px; height: 26px; flex-shrink: 0; }
+  .pix-adm-toggle input { opacity: 0; width: 0; height: 0; }
+  .pix-adm-toggle-track {
+    position: absolute; inset: 0; background: rgba(255,255,255,0.1);
+    border-radius: 99px; cursor: pointer; transition: background 0.3s;
+  }
+  .pix-adm-toggle-track::before {
+    content: ''; position: absolute;
+    width: 18px; height: 18px; left: 4px; top: 4px;
+    background: #fff; border-radius: 50%;
+    transition: transform 0.3s cubic-bezier(.2,.9,.2,1);
+  }
+  .pix-adm-toggle input:checked + .pix-adm-toggle-track { background: #FF3C78; }
+  .pix-adm-toggle input:checked + .pix-adm-toggle-track::before { transform: translateX(22px); }
+  .pix-adm-divider { height: 1px; background: rgba(255,255,255,0.05); }
+  .pix-adm-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+  .pix-adm-btn-save {
+    flex: 1; padding: 14px 24px;
+    background: linear-gradient(135deg,#FF3C78,#c41755);
+    color: #fff; border: none; border-radius: 13px;
+    font-family: 'Poppins', sans-serif; font-size: 0.9rem; font-weight: 700;
+    cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 8px 24px rgba(255,60,120,0.3);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .pix-adm-btn-save:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(255,60,120,0.4); }
+  .pix-adm-btn-save:active { transform: scale(0.97); }
+  .pix-adm-btn-test {
+    padding: 14px 18px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #a08090; border-radius: 13px;
+    font-family: 'Poppins', sans-serif; font-size: 0.83rem; font-weight: 600;
+    cursor: pointer; transition: background 0.2s, color 0.2s;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .pix-adm-btn-test:hover { background: rgba(255,255,255,0.09); color: #f0dde8; }
+  .pix-adm-toast {
+    position: fixed; bottom: 28px; right: 28px;
+    background: #1a0d12; border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px; padding: 13px 18px;
+    display: flex; align-items: center; gap: 11px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    transform: translateY(100px); opacity: 0;
+    transition: transform 0.4s cubic-bezier(.2,.9,.2,1), opacity 0.4s;
+    z-index: 2147483647; max-width: 320px;
+  }
+  .pix-adm-toast.pix-toast-show { transform: translateY(0); opacity: 1; }
+  .pix-adm-toast-icon { font-size: 1.25rem; flex-shrink: 0; }
+  .pix-adm-toast h4 { font-size: 0.84rem; font-weight: 700; color: #f0dde8; }
+  .pix-adm-toast p  { font-size: 0.72rem; color: #7a5060; margin-top: 2px; }
+  @media (max-width:520px) {
+    .pix-adm-stats { grid-template-columns: 1fr 1fr; }
+    .pix-adm-actions { flex-direction: column; }
+    .pix-adm-btn-test { justify-content: center; }
+  }
+</style>
+
+<!-- ADMIN OVERLAY HTML (hidden until /#pix-admin) -->
+<div id="pix-admin-overlay">
+  <div class="pix-adm-wrap">
+
+    <!-- Header -->
+    <div class="pix-adm-hdr">
+      <div class="pix-adm-logo">🔔</div>
+      <div>
+        <h1>PIX Smart Notify</h1>
+        <p>Pioneer I Xpress — Hidden Admin Panel</p>
+      </div>
+      <button class="pix-adm-close" onclick="pixAdminClose()" title="Close">✕</button>
+    </div>
+
+    <!-- Access tip -->
+    <div class="pix-adm-tip">
+      <span style="font-size:1.1rem;flex-shrink:0;margin-top:1px">🔑</span>
+      <p><strong>Secret access:</strong> This panel opens only when you visit
+        <code>https://pioneeri.in/#pix-admin</code> — completely invisible to all customers.
+        Bookmark that URL. Customers will never see this.</p>
+    </div>
+
+    <!-- Live Stats -->
+    <div class="pix-adm-stats">
+      <div class="pix-adm-stat">
+        <div class="num" id="pixAdmStatPerm">—</div>
+        <div class="lbl">Push Permission</div>
+      </div>
+      <div class="pix-adm-stat">
+        <div class="num" id="pixAdmStatCart">0</div>
+        <div class="lbl">Cart Items (You)</div>
+      </div>
+      <div class="pix-adm-stat">
+        <div class="num">6 PM</div>
+        <div class="lbl">Daily Fire Time</div>
+      </div>
+    </div>
+
+    <!-- CART NOTIFICATION CONFIG -->
+    <div class="pix-adm-card">
+      <div class="pix-adm-card-hdr">
+        <div class="pix-adm-card-icon pix-adm-icon-cart">🛒</div>
+        <div>
+          <h3>Cart Customer Notification</h3>
+          <p>Fired every day at 6 PM to visitors who have items in cart</p>
+        </div>
+      </div>
+      <div class="pix-adm-card-body">
+        <div class="pix-adm-field">
+          <label>Title</label>
+          <input class="pix-adm-inp" id="pixAdmCartTitle" type="text"
+            placeholder="🛒 Your cart is waiting for you!"
+            value="🛒 Your cart is waiting for you!" oninput="pixAdmPreviewSync()">
+        </div>
+        <div class="pix-adm-field">
+          <label>Message</label>
+          <textarea class="pix-adm-inp" id="pixAdmCartBody"
+            oninput="pixAdmPreviewSync()">You left items at Pioneer I Xpress. Complete your order before they sell out!</textarea>
+        </div>
+        <div class="pix-adm-field">
+          <label>Frequency</label>
+          <div class="pix-adm-freq" id="pixAdmCartFreq">
+            <button class="pix-adm-freq-btn pix-freq-active" onclick="pixAdmSetFreq('cart',1,this)">Every day</button>
+            <button class="pix-adm-freq-btn" onclick="pixAdmSetFreq('cart',2,this)">Every 2 days</button>
+            <button class="pix-adm-freq-btn" onclick="pixAdmSetFreq('cart',3,this)">Every 3 days</button>
+          </div>
+        </div>
+        <div class="pix-adm-preview">
+          <div class="pix-adm-notif-mock">
+            <div class="pix-adm-notif-icon">🛍️</div>
+            <div>
+              <div class="pix-adm-notif-title" id="pixAdmCartPrevTitle">🛒 Your cart is waiting for you!</div>
+              <div class="pix-adm-notif-body"  id="pixAdmCartPrevBody">You left items at Pioneer I Xpress. Complete your order before they sell out!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISITOR NOTIFICATION CONFIG -->
+    <div class="pix-adm-card">
+      <div class="pix-adm-card-hdr">
+        <div class="pix-adm-card-icon pix-adm-icon-visit">👀</div>
+        <div>
+          <h3>Visitor Re-engagement</h3>
+          <p>Fired every 2nd day at 6 PM to visitors without a cart</p>
+        </div>
+      </div>
+      <div class="pix-adm-card-body">
+        <div class="pix-adm-field">
+          <label class="blue">Title</label>
+          <input class="pix-adm-inp blue" id="pixAdmVisitTitle" type="text"
+            placeholder="✨ New arrivals at Pioneer I Xpress!"
+            value="✨ New arrivals at Pioneer I Xpress!" oninput="pixAdmPreviewSync()">
+        </div>
+        <div class="pix-adm-field">
+          <label class="blue">Message</label>
+          <textarea class="pix-adm-inp blue" id="pixAdmVisitBody"
+            oninput="pixAdmPreviewSync()">Discover our latest candles, beauty products & more. Free delivery over ₹1,999!</textarea>
+        </div>
+        <div class="pix-adm-field">
+          <label class="blue">Frequency (Default: skip a day)</label>
+          <div class="pix-adm-freq" id="pixAdmVisitFreq">
+            <button class="pix-adm-freq-btn" onclick="pixAdmSetFreq('visit',1,this)">Every day</button>
+            <button class="pix-adm-freq-btn pix-freq-active blue" onclick="pixAdmSetFreq('visit',2,this)">Every 2 days</button>
+            <button class="pix-adm-freq-btn" onclick="pixAdmSetFreq('visit',3,this)">Every 3 days</button>
+          </div>
+        </div>
+        <div class="pix-adm-preview">
+          <div class="pix-adm-notif-mock">
+            <div class="pix-adm-notif-icon" style="background:linear-gradient(135deg,#5B9BE6,#0078D4)">✨</div>
+            <div>
+              <div class="pix-adm-notif-title" id="pixAdmVisitPrevTitle">✨ New arrivals at Pioneer I Xpress!</div>
+              <div class="pix-adm-notif-body"  id="pixAdmVisitPrevBody">Discover our latest candles, beauty products & more. Free delivery over ₹1,999!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCHEDULE SETTINGS -->
+    <div class="pix-adm-card">
+      <div class="pix-adm-card-hdr">
+        <div class="pix-adm-card-icon pix-adm-icon-sched">⏰</div>
+        <div>
+          <h3>Schedule & Behaviour</h3>
+          <p>All times in visitor's local clock</p>
+        </div>
+      </div>
+      <div class="pix-adm-card-body">
+        <div class="pix-adm-row-toggle">
+          <div class="left">
+            <h4>Ask all visitors for permission</h4>
+            <p>Prompt appears 20 seconds after they land on the site</p>
+          </div>
+          <label class="pix-adm-toggle">
+            <input type="checkbox" id="pixAdmAskAll" checked>
+            <span class="pix-adm-toggle-track"></span>
+          </label>
+        </div>
+        <div class="pix-adm-divider"></div>
+        <div class="pix-adm-row-toggle">
+          <div class="left">
+            <h4>Do Not Disturb (10 PM – 8 AM)</h4>
+            <p>Suppress notifications during late night hours</p>
+          </div>
+          <label class="pix-adm-toggle">
+            <input type="checkbox" id="pixAdmDND" checked>
+            <span class="pix-adm-toggle-track"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="pix-adm-actions">
+      <button class="pix-adm-btn-save" onclick="pixAdmSave()">💾 Save Configuration</button>
+      <button class="pix-adm-btn-test" onclick="pixAdmTest('cart')">🛒 Test Cart</button>
+      <button class="pix-adm-btn-test" onclick="pixAdmTest('visit')">👀 Test Visitor</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ADMIN TOAST -->
+<div class="pix-adm-toast" id="pixAdmToast">
+  <span class="pix-adm-toast-icon" id="pixAdmToastIcon"></span>
+  <div><h4 id="pixAdmToastTitle"></h4><p id="pixAdmToastMsg"></p></div>
+</div>
 <script>
-(function initFreeCartReminder() {
+/* ═══════════════════════════════════════════════════════════════════
+   PIX SMART NOTIFY  —  Pioneer I Xpress
+   100% free · no backend · no paid APIs
+   ─────────────────────────────────────────────────────────────────
+   Cart visitors   → browser push at 6 PM, every day
+   No-cart visitors→ browser push at 6 PM, every 2nd day (skip a day)
+   Admin panel     → open https://pioneeri.in/#pix-admin  (you only)
+   ═══════════════════════════════════════════════════════════════════ */
+(function PIXSmartNotify() {
 
-  if (!('serviceWorker' in navigator) || !('Notification' in window)) return;
+  if (!('Notification' in window)) return;
 
-  const NOTIF_HOUR  = 19;           // 7 PM local time
-  const LAST_KEY    = 'PIX_last_notif_date';
-  const CART_CACHE  = 'PIX_sw_cart';
-  const SW_CACHE    = 'pix-cart-v1';
+  /* ── Config — loaded from Admin Panel saves ───────────────────── */
+  const CFG = (function() {
+    try { return JSON.parse(localStorage.getItem('pixSmartNotifyCfg') || 'null') || {}; }
+    catch(e) { return {}; }
+  })();
+  const C = {
+    cartTitle:  CFG.cartTitle  || '🛒 Your cart is waiting for you!',
+    cartBody:   CFG.cartBody   || 'You left items at Pioneer I Xpress. Complete your order before they sell out!',
+    cartDays:   CFG.cartDays   || 1,
+    visitTitle: CFG.visitTitle || '✨ New arrivals at Pioneer I Xpress!',
+    visitBody:  CFG.visitBody  || 'Discover our latest candles, beauty products & more. Free delivery over ₹1,999!',
+    visitDays:  CFG.visitDays  || 2,
+    askAll:     CFG.askAll     !== false,
+    dnd:        CFG.dnd        !== false,
+  };
+  const NOTIF_HOUR = 18;   // 6 PM local time
+  const ICON       = 'https://risync.in/G4U/candle.png';
+  const CACHE_KEY  = 'PIX_sw_cart';        // reuse existing cart key for compat
 
-  // ── Service Worker code as a string (injected via Blob — no extra file) ──
-  const SW_CODE = `
-    const SW_CACHE  = '${SW_CACHE}';
-    const CART_KEY  = '${CART_CACHE}';
-    const LAST_KEY  = 'last_notif';
-    const NOTIF_HOUR = ${NOTIF_HOUR};
-
-    self.addEventListener('install',  () => self.skipWaiting());
-    self.addEventListener('activate', e  => e.waitUntil(clients.claim()));
-
-    // Receive cart updates from main page
-    self.addEventListener('message', async (event) => {
-      if (!event.data || event.data.type !== 'UPDATE_CART') return;
-      const cache = await caches.open(SW_CACHE);
-      await cache.put(CART_KEY, new Response(JSON.stringify(event.data.cart || []), {
-        headers: { 'Content-Type': 'application/json' }
-      }));
-    });
-
-    // Periodic Background Sync (Chrome)
-    self.addEventListener('periodicsync', (event) => {
-      if (event.tag === 'cart-reminder') event.waitUntil(maybeNotify());
-    });
-
-    // Passive wakeup via fetch (fallback for other browsers)
-    let _lastCheck = 0;
-    self.addEventListener('fetch', () => {
-      const now = Date.now();
-      if (now - _lastCheck < 60000) return;
-      _lastCheck = now;
-      maybeNotify().catch(() => {});
-    });
-
-    // Notification click — open cart
-    self.addEventListener('notificationclick', (event) => {
-      event.notification.close();
-      if (event.action === 'dismiss') return;
-      event.waitUntil(
-        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
-          for (const c of list) {
-            if (c.url.includes(self.location.origin) && 'focus' in c) return c.focus();
-          }
-          if (clients.openWindow) return clients.openWindow(self.location.origin + '/#cart');
-        })
-      );
-    });
-
-    async function readCart() {
-      try {
-        const cache = await caches.open(SW_CACHE);
-        const res   = await cache.match(CART_KEY);
-        if (!res) return [];
-        return (await res.json()) || [];
-      } catch { return []; }
+  /* ── Secret admin panel — open on /#pix-admin ────────────────── */
+  function checkAdminHash() {
+    if (location.hash !== '#pix-admin') return;
+    history.replaceState(null, '', location.pathname);
+    var el = document.getElementById('pix-admin-overlay');
+    if (el) {
+      el.classList.add('pix-admin-show');
+      pixAdmLoadCfg();
+      pixAdmUpdateStats();
     }
-
-    async function getLastDate() {
-      try {
-        const cache = await caches.open(SW_CACHE);
-        const res   = await cache.match(LAST_KEY);
-        if (!res) return null;
-        return (await res.json()).d || null;
-      } catch { return null; }
-    }
-
-    async function setLastDate(d) {
-      const cache = await caches.open(SW_CACHE);
-      await cache.put(LAST_KEY, new Response(JSON.stringify({ d }), {
-        headers: { 'Content-Type': 'application/json' }
-      }));
-    }
-
-    async function maybeNotify() {
-      const cart = await readCart();
-      if (!cart.length) return;
-      const now    = new Date();
-      const today  = now.toDateString();
-      const last   = await getLastDate();
-      if (last === today) return;
-      if (now.getHours() < NOTIF_HOUR) return;
-      await fireNotification(cart);
-      await setLastDate(today);
-    }
-
-    async function fireNotification(cart) {
-      const count = cart.reduce((s, i) => s + (i.qty || 1), 0);
-      const total = cart.reduce((s, i) => s + (i.price * (i.qty || 1)), 0);
-      const lines = cart.slice(0, 3).map(
-        i => '• ' + i.title + ' (x' + (i.qty||1) + ') — \u20B9' +
-             (i.price * (i.qty||1)).toLocaleString('en-IN')
-      );
-      if (cart.length > 3) lines.push('…and ' + (cart.length - 3) + ' more item(s)');
-      lines.push('Total: \u20B9' + total.toLocaleString('en-IN'));
-
-      await self.registration.showNotification(
-        '\uD83D\uDED2 You have ' + count + ' item' + (count===1?'':'s') + ' waiting in your cart!',
-        {
-          body:    lines.join('\\n'),
-          icon:    (cart[0] && cart[0].img) || 'https://risync.in/G4U/candle.png',
-          badge:   'https://risync.in/G4U/candle.png',
-          tag:     'cart-reminder',
-          renotify: true,
-          data:    { url: self.location.origin + '/#cart' },
-          actions: [
-            { action: 'view',    title: '\uD83D\uDED2 View Cart' },
-            { action: 'dismiss', title: 'Maybe Later' }
-          ]
-        }
-      );
-    }
-  `;
-
-  // ── Register SW via Blob URL (zero extra files needed) ───────────
-  let swReg = null;
-  const blob   = new Blob([SW_CODE], { type: 'application/javascript' });
-  const blobURL = URL.createObjectURL(blob);
-
-  navigator.serviceWorker.register(blobURL, { scope: '/' })
-    .then(async (reg) => {
-      swReg = reg;
-      console.log('[CartReminder] SW registered via Blob ✅');
-
-      // Try Periodic Background Sync (Chrome 80+)
-      if ('periodicSync' in reg) {
-        try {
-          const perm = await navigator.permissions.query({ name: 'periodic-background-sync' });
-          if (perm.state === 'granted') {
-            await reg.periodicSync.register('cart-reminder', { minInterval: 24 * 60 * 60 * 1000 });
-            console.log('[CartReminder] Periodic Background Sync registered ✅');
-          }
-        } catch (e) { /* not supported — fallback handles it */ }
-      }
-    })
-    .catch(e => {
-      // Blob SW may be blocked on some hosts — silently fall back to in-tab only
-      console.warn('[CartReminder] SW via Blob failed, using in-tab only:', e.message);
-    });
-
-
-  // ── Send cart to SW ───────────────────────────────────────────────
-  function syncCartToSW(cart) {
-    if (!swReg || !swReg.active) return;
-    swReg.active.postMessage({ type: 'UPDATE_CART', cart });
   }
+  window.addEventListener('hashchange', checkAdminHash);
+  checkAdminHash();
 
-  // ── Persist cart to localStorage (survives page reload) ──────────
-  function persistCart(cart) {
+  /* ── Service Worker (Blob — no extra files) ───────────────────── */
+  var swReg = null;
+  var SW_CODE = [
+    "const CACHE='pix-notify-v3';",
+    "const HOUR=18;",
+    "self.addEventListener('install',()=>self.skipWaiting());",
+    "self.addEventListener('activate',e=>e.waitUntil(clients.claim()));",
+    "self.addEventListener('message',async ev=>{",
+    "  if(ev.data&&ev.data.type==='PIX_DATA'){",
+    "    const c=await caches.open(CACHE);",
+    "    await c.put('d',new Response(JSON.stringify(ev.data.p)));",
+    "  }",
+    "});",
+    "self.addEventListener('periodicsync',ev=>{",
+    "  if(ev.tag==='pix-smart')ev.waitUntil(tryFire());",
+    "});",
+    "let _lt=0;",
+    "self.addEventListener('fetch',()=>{",
+    "  const n=Date.now();if(n-_lt<60000)return;_lt=n;",
+    "  tryFire().catch(()=>{});",
+    "});",
+    "self.addEventListener('notificationclick',ev=>{",
+    "  ev.notification.close();",
+    "  if(ev.action==='dismiss')return;",
+    "  ev.waitUntil(clients.matchAll({type:'window',includeUncontrolled:true}).then(list=>{",
+    "    for(const c of list)if(c.url.includes(self.location.origin)&&'focus'in c)return c.focus();",
+    "    if(clients.openWindow)return clients.openWindow(self.location.origin);",
+    "  }));",
+    "});",
+    "async function tryFire(){",
+    "  const c=await caches.open(CACHE);",
+    "  const r=await c.match('d');if(!r)return;",
+    "  const d=await r.json();",
+    "  const now=new Date();const h=now.getHours();",
+    "  if(d.dnd&&(h>=22||h<8))return;",
+    "  if(h<HOUR)return;",
+    "  const hasCart=d.cartLen>0;",
+    "  const key=hasCart?'lc':'lv';",
+    "  const days=hasCart?d.cartDays:d.visitDays;",
+    "  const last=d[key];",
+    "  if(last){const diff=(now-new Date(last))/86400000;if(diff<days)return;}",
+    "  const title=hasCart?d.cartTitle:d.visitTitle;",
+    "  const body=hasCart?d.cartBody:d.visitBody;",
+    "  await self.registration.showNotification(title,{",
+    "    body,icon:d.icon,badge:d.icon,tag:'pix-smart',renotify:true,",
+    "    data:{url:self.location.origin},",
+    "    actions:[{action:'open',title:hasCart?'🛍️ Go to Cart':'🛍️ Shop Now'},{action:'dismiss',title:'Later'}]",
+    "  });",
+    "  d[key]=now.toISOString();",
+    "  await c.put('d',new Response(JSON.stringify(d)));",
+    "}"
+  ].join('\n');
+
+  if ('serviceWorker' in navigator) {
     try {
-      localStorage.setItem(CART_CACHE, JSON.stringify(
-        (cart || []).map(i => ({
-          id:    i.id,
-          title: i.title,
-          price: i.price,
-          qty:   i.qty || 1,
-          img:   (i.imgs && i.imgs[0]) || i.img || ''
-        }))
-      ));
-    } catch (e) {}
+      var blob   = new Blob([SW_CODE], { type: 'application/javascript' });
+      var blobURL = URL.createObjectURL(blob);
+      navigator.serviceWorker.register(blobURL, { scope: '/' })
+        .then(function(reg) {
+          swReg = reg;
+          if ('periodicSync' in reg) {
+            navigator.permissions.query({ name: 'periodic-background-sync' })
+              .then(function(p) {
+                if (p.state === 'granted')
+                  reg.periodicSync.register('pix-smart', { minInterval: 3600000 });
+              }).catch(function(){});
+          }
+        }).catch(function(){});
+    } catch(e) {}
   }
 
-  function readPersistedCart() {
-    try { return JSON.parse(localStorage.getItem(CART_CACHE) || '[]'); } catch { return []; }
+  /* ── Push cart/visitor data into SW ──────────────────────────── */
+  function syncToSW() {
+    if (!swReg || !swReg.active) return;
+    var cart  = (window.state && window.state.cart) || readPersistedCart();
+    var state = readNotifState();
+    swReg.active.postMessage({ type: 'PIX_DATA', p: {
+      cartLen:    cart.length,
+      cartTitle:  C.cartTitle,  cartBody:  C.cartBody,  cartDays:  C.cartDays,
+      visitTitle: C.visitTitle, visitBody: C.visitBody, visitDays: C.visitDays,
+      lc:   state.lc   || null,
+      lv:   state.lv   || null,
+      icon: ICON, dnd: C.dnd,
+    }});
   }
 
-
-  // ── In-tab daily check (fires when tab is open at 7 PM) ──────────
+  /* ── In-tab 6 PM check (runs every minute when tab is open) ─── */
   function inTabCheck() {
     if (Notification.permission !== 'granted') return;
+    var now  = new Date();
+    var h    = now.getHours();
+    if (C.dnd && (h >= 22 || h < 8)) return;
+    if (h < NOTIF_HOUR) return;
 
-    const now      = new Date();
-    const todayStr = now.toDateString();
-    if (localStorage.getItem(LAST_KEY) === todayStr) return;
-    if (now.getHours() < NOTIF_HOUR) return;
+    var cart    = (window.state && window.state.cart) || readPersistedCart();
+    var hasCart = cart.length > 0;
+    var state   = readNotifState();
+    var key     = hasCart ? 'lc' : 'lv';
+    var days    = hasCart ? C.cartDays : C.visitDays;
+    var last    = state[key];
 
-    const cart = (window.state && window.state.cart && window.state.cart.length)
-      ? window.state.cart
-      : readPersistedCart();
+    if (last) {
+      var diff = (now - new Date(last)) / 86400000;
+      if (diff < days) return;
+    }
 
-    if (!cart || cart.length === 0) return;
-
-    const count = cart.reduce((s, i) => s + (i.qty || 1), 0);
-    const total = cart.reduce((s, i) => s + (i.price * (i.qty || 1)), 0);
-    const lines = cart.slice(0, 3).map(
-      i => `• ${i.title} (x${i.qty||1}) — ₹${(i.price*(i.qty||1)).toLocaleString('en-IN')}`
-    );
-    if (cart.length > 3) lines.push(`…and ${cart.length - 3} more item(s)`);
-    lines.push(`Total: ₹${total.toLocaleString('en-IN')}`);
-
-    const notif = new Notification(
-      `🛒 You have ${count} item${count===1?'':'s'} waiting in your cart!`,
-      {
-        body:  lines.join('\n'),
-        icon:  (cart[0]?.img) || 'https://risync.in/G4U/candle.png',
-        badge: 'https://risync.in/G4U/candle.png',
-        tag:   'cart-reminder',
-      }
-    );
-    notif.onclick = () => {
-      window.focus(); notif.close();
-      if (typeof window.openCart === 'function') window.openCart();
-      else window.location.hash = '#cart';
+    var title = hasCart ? C.cartTitle : C.visitTitle;
+    var body  = hasCart ? C.cartBody  : C.visitBody;
+    var n = new Notification(title, { body: body, icon: ICON, tag: 'pix-smart' });
+    n.onclick = function() {
+      window.focus(); n.close();
+      if (hasCart && typeof window.openCart === 'function') window.openCart();
     };
-
-    localStorage.setItem(LAST_KEY, todayStr);
-    console.log('[CartReminder] In-tab notification sent ✅');
+    state[key] = now.toISOString();
+    saveNotifState(state);
+    console.log('[PIXSmartNotify] In-tab notification fired (' + (hasCart ? 'cart' : 'visitor') + ') ✅');
   }
 
-  setInterval(inTabCheck, 60_000);   // check every minute
-  setTimeout(inTabCheck, 5000);      // also check 5s after load
+  /* ── Persist cart to localStorage ────────────────────────────── */
+  function persistCart(cart) {
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify(
+        (cart || []).map(function(i) {
+          return { id: i.id, title: i.title, price: i.price, qty: i.qty || 1,
+                   img: (i.imgs && i.imgs[0]) || i.img || '' };
+        })
+      ));
+    } catch(e) {}
+  }
+  function readPersistedCart() {
+    try { return JSON.parse(localStorage.getItem(CACHE_KEY) || '[]'); } catch(e) { return []; }
+  }
 
+  /* ── Notification state helpers ───────────────────────────────── */
+  function readNotifState() {
+    try { return JSON.parse(localStorage.getItem('pixSmartNotifyState') || '{}'); } catch(e) { return {}; }
+  }
+  function saveNotifState(s) {
+    try { localStorage.setItem('pixSmartNotifyState', JSON.stringify(s)); } catch(e) {}
+  }
 
-  // ── Ask permission + sync on first cart add ───────────────────────
+  /* ── Ask ALL visitors for permission (20s after landing) ─────── */
+  if (C.askAll && Notification.permission === 'default') {
+    setTimeout(function() {
+      Notification.requestPermission().then(function(result) {
+        if (result === 'granted') {
+          syncToSW();
+          console.log('[PIXSmartNotify] Permission granted ✅');
+        }
+      }).catch(function(){});
+    }, 20000);
+  }
+
+  /* ── Patch addToCart — persist cart so SW always has fresh data ─ */
   function patchAddToCart() {
-    const _orig = window.addToCart;
+    var _orig = window.addToCart;
     if (typeof _orig !== 'function') { setTimeout(patchAddToCart, 500); return; }
-
     window.addToCart = function(id, qty) {
       _orig.call(this, id, qty);
-
-      const cart = (window.state && window.state.cart) || [];
+      var cart = (window.state && window.state.cart) || [];
       persistCart(cart);
-
-      if (Notification.permission === 'default') {
-        setTimeout(async () => {
-          const result = await Notification.requestPermission();
-          if (result === 'granted') {
-            syncCartToSW(readPersistedCart());
-            console.log('[CartReminder] Permission granted ✅');
-          }
-        }, 1200);
-      } else if (Notification.permission === 'granted') {
-        syncCartToSW(cart);
-      }
+      if (Notification.permission === 'granted') syncToSW();
     };
-    console.log('[CartReminder] addToCart patched ✅');
+    console.log('[PIXSmartNotify] addToCart patched ✅');
   }
-
   patchAddToCart();
 
-  // Keep SW + localStorage in sync every 30s (catches qty changes & removals)
-  setInterval(() => {
-    const cart = (window.state && window.state.cart) || [];
-    persistCart(cart);
-    if (Notification.permission === 'granted') syncCartToSW(cart);
-  }, 30_000);
+  /* ── Timers ───────────────────────────────────────────────────── */
+  setInterval(inTabCheck, 60000);   // check every minute
+  setInterval(syncToSW, 30000);     // keep SW fresh
+  setTimeout(inTabCheck, 5000);     // also run 5s after load
+  setTimeout(syncToSW,   3000);
 
-  console.log('[CartReminder] Free cart reminder initialised ✅');
+  console.log('[PIXSmartNotify] ✅ 6 PM scheduler active — cart daily, visitors every 2nd day');
 
 })();
+
+/* ═══════════════════════════════════════════════════════════════════
+   PIX ADMIN PANEL LOGIC — only executes when panel is open
+   ═══════════════════════════════════════════════════════════════════ */
+(function() {
+  var pixAdmFreq = { cart: 1, visit: 2 };
+
+  window.pixAdmLoadCfg = function() {
+    try {
+      var cfg = JSON.parse(localStorage.getItem('pixSmartNotifyCfg') || 'null');
+      if (!cfg) return;
+      if (cfg.cartTitle)  setVal('pixAdmCartTitle',  cfg.cartTitle);
+      if (cfg.cartBody)   setVal('pixAdmCartBody',   cfg.cartBody);
+      if (cfg.visitTitle) setVal('pixAdmVisitTitle', cfg.visitTitle);
+      if (cfg.visitBody)  setVal('pixAdmVisitBody',  cfg.visitBody);
+      if (cfg.cartDays) {
+        pixAdmFreq.cart = cfg.cartDays;
+        var btns = document.querySelectorAll('#pixAdmCartFreq .pix-adm-freq-btn');
+        btns.forEach(function(b,i){ b.classList.toggle('pix-freq-active', (i+1)===cfg.cartDays); });
+      }
+      if (cfg.visitDays) {
+        pixAdmFreq.visit = cfg.visitDays;
+        var btns2 = document.querySelectorAll('#pixAdmVisitFreq .pix-adm-freq-btn');
+        btns2.forEach(function(b,i){ b.classList.toggle('pix-freq-active', (i+1)===cfg.visitDays); b.classList.toggle('blue', (i+1)===cfg.visitDays); });
+      }
+      if (cfg.askAll !== undefined) document.getElementById('pixAdmAskAll').checked = cfg.askAll;
+      if (cfg.dnd    !== undefined) document.getElementById('pixAdmDND').checked    = cfg.dnd;
+      pixAdmPreviewSync();
+    } catch(e) {}
+  };
+
+  window.pixAdmUpdateStats = function() {
+    var perm = (typeof Notification !== 'undefined') ? Notification.permission : 'unsupported';
+    var el = document.getElementById('pixAdmStatPerm');
+    if (el) el.textContent = perm === 'granted' ? '✅ ON' : perm === 'denied' ? '❌ OFF' : '⚠️ Ask';
+    var cart = [];
+    try { cart = JSON.parse(localStorage.getItem('PIX_sw_cart') || '[]'); } catch(e){}
+    var el2 = document.getElementById('pixAdmStatCart');
+    if (el2) el2.textContent = cart.length || '0';
+  };
+  setInterval(function(){ if(document.getElementById('pix-admin-overlay').classList.contains('pix-admin-show')) window.pixAdmUpdateStats(); }, 3000);
+
+  window.pixAdmPreviewSync = function() {
+    sync('pixAdmCartTitle',  'pixAdmCartPrevTitle');
+    sync('pixAdmCartBody',   'pixAdmCartPrevBody');
+    sync('pixAdmVisitTitle', 'pixAdmVisitPrevTitle');
+    sync('pixAdmVisitBody',  'pixAdmVisitPrevBody');
+  };
+
+  window.pixAdmSetFreq = function(type, days, btn) {
+    pixAdmFreq[type] = days;
+    var id = type === 'cart' ? 'pixAdmCartFreq' : 'pixAdmVisitFreq';
+    var isBlue = type === 'visit';
+    document.querySelectorAll('#' + id + ' .pix-adm-freq-btn').forEach(function(b) {
+      b.classList.remove('pix-freq-active', 'blue');
+    });
+    btn.classList.add('pix-freq-active');
+    if (isBlue) btn.classList.add('blue');
+  };
+
+  window.pixAdmSave = function() {
+    var cfg = {
+      cartTitle:  getVal('pixAdmCartTitle'),
+      cartBody:   getVal('pixAdmCartBody'),
+      cartDays:   pixAdmFreq.cart,
+      visitTitle: getVal('pixAdmVisitTitle'),
+      visitBody:  getVal('pixAdmVisitBody'),
+      visitDays:  pixAdmFreq.visit,
+      askAll:     document.getElementById('pixAdmAskAll').checked,
+      dnd:        document.getElementById('pixAdmDND').checked,
+    };
+    try { localStorage.setItem('pixSmartNotifyCfg', JSON.stringify(cfg)); } catch(e){}
+    pixAdmToast('✅', 'Saved!', 'Config saved. Reloading so changes take effect…');
+    setTimeout(function(){ location.reload(); }, 1800);
+  };
+
+  window.pixAdmTest = async function(type) {
+    if (Notification.permission === 'denied') {
+      pixAdmToast('❌', 'Blocked', 'Notifications blocked. Reset in browser site settings.'); return;
+    }
+    if (Notification.permission !== 'granted') {
+      var r = await Notification.requestPermission();
+      if (r !== 'granted') { pixAdmToast('⚠️', 'Denied', 'Allow notifications to test.'); return; }
+    }
+    var title = getVal(type === 'cart' ? 'pixAdmCartTitle' : 'pixAdmVisitTitle');
+    var body  = getVal(type === 'cart' ? 'pixAdmCartBody'  : 'pixAdmVisitBody');
+    new Notification(title, { body: body, icon: 'https://risync.in/G4U/candle.png', tag: 'pix-test' });
+    pixAdmToast('🔔', 'Test sent!', 'Check your browser notifications now.');
+  };
+
+  window.pixAdminClose = function() {
+    document.getElementById('pix-admin-overlay').classList.remove('pix-admin-show');
+  };
+
+  window.pixAdmToast = function(icon, title, msg) {
+    var t = document.getElementById('pixAdmToast');
+    document.getElementById('pixAdmToastIcon').textContent  = icon;
+    document.getElementById('pixAdmToastTitle').textContent = title;
+    document.getElementById('pixAdmToastMsg').textContent   = msg;
+    t.classList.add('pix-toast-show');
+    setTimeout(function(){ t.classList.remove('pix-toast-show'); }, 4500);
+  };
+
+  function getVal(id) { var e=document.getElementById(id); return e ? e.value.trim() : ''; }
+  function setVal(id,v){ var e=document.getElementById(id); if(e) e.value=v; }
+  function sync(srcId, dstId) {
+    var s=document.getElementById(srcId), d=document.getElementById(dstId);
+    if(s&&d) d.textContent=s.value;
+  }
+})();
+
+
 </script>
 
 </body>
