@@ -14079,728 +14079,672 @@ if (window.firebaseReady) {
 })();
 </script>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     🔔 PIX SMART NOTIFY — Free, Serverless, 6 PM Scheduler
-     ═══════════════════════════════════════════════════════════════
-     HOW IT WORKS (100% FREE, NO BACKEND):
-       • Cart customers    → notified EVERY DAY at 6 PM
-       • Visitors (no cart)→ notified EVERY 2ND DAY at 6 PM
-       • Admin panel       → visit  /#pix-admin  (invisible to customers)
-       • Service Worker injected via Blob URL — no extra files needed
-       • Do Not Disturb: never fires between 10 PM – 8 AM
-     ═══════════════════════════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════════════════════════
+     🔔 PIX SMART NOTIFY  —  Pioneer I Xpress
+     ───────────────────────────────────────────────────────────────────
+     ✅ Every visitor who allows = subscriber (tracked in localStorage)
+     ✅ Notification fires on EVERY page visit (immediately)
+     ✅ Background 6 PM notification via Service Worker (tab closed)
+     ✅ Cart customers  → cart items shown in notification
+     ✅ Non-cart users  → "new arrivals" notification
+     ✅ Admin panel at  /#pix-admin  — invisible to customers
+     ═══════════════════════════════════════════════════════════════════ -->
 
-<!-- ══ PIX ADMIN PANEL — HIDDEN FROM CUSTOMERS ══════════════════
-     Only opens when you visit:  https://pioneeri.in/#pix-admin
-     Customers see NOTHING. Bookmark that URL.
-     ══════════════════════════════════════════════════════════════ -->
+<!-- ══ PIX ADMIN PANEL STYLES (invisible div — customers see nothing) ══ -->
 <style>
-  /* ── PIX ADMIN OVERLAY ────────────────────────────── */
-  #pix-admin-overlay {
-    display: none;
-    position: fixed; inset: 0; z-index: 2147483647;
-    background: rgba(8,3,8,0.97);
-    backdrop-filter: blur(24px);
-    overflow-y: auto;
-    padding: 40px 20px 60px;
-    font-family: 'Poppins', sans-serif;
-  }
-  #pix-admin-overlay.pix-admin-show { display: block; }
-  .pix-adm-wrap { max-width: 700px; margin: 0 auto; }
-  .pix-adm-hdr {
-    display: flex; align-items: center; gap: 14px; margin-bottom: 28px;
-  }
-  .pix-adm-logo {
-    width: 50px; height: 50px;
-    background: linear-gradient(135deg,#FF3C78,#c41755);
-    border-radius: 15px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.4rem; flex-shrink: 0;
-  }
-  .pix-adm-hdr h1 {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 1.35rem; font-weight: 900;
-    background: linear-gradient(135deg,#FF3C78,#ff8cb0);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  }
-  .pix-adm-hdr p { font-size: 0.73rem; color: #8a6070; margin-top: 2px; }
-  .pix-adm-close {
-    margin-left: auto;
-    background: rgba(255,255,255,0.06); border: none;
-    color: #8a6070; width: 38px; height: 38px;
-    border-radius: 11px; cursor: pointer; font-size: 1rem;
-    transition: background 0.2s, color 0.2s;
-  }
-  .pix-adm-close:hover { background: rgba(255,60,120,0.15); color: #FF3C78; }
-  .pix-adm-tip {
-    background: rgba(255,210,51,0.06);
-    border: 1px solid rgba(255,210,51,0.15);
-    border-radius: 14px; padding: 13px 18px;
-    display: flex; gap: 10px; align-items: flex-start;
-    margin-bottom: 22px;
-  }
-  .pix-adm-tip p { font-size: 0.75rem; color: #c0a070; line-height: 1.6; }
-  .pix-adm-tip code {
-    background: rgba(255,210,51,0.12); padding: 1px 6px;
-    border-radius: 5px; font-family: monospace; font-size: 0.85em; color: #FFD233;
-  }
-  .pix-adm-stats {
-    display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 24px;
-  }
-  .pix-adm-stat {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 14px; padding: 14px; text-align: center;
-  }
-  .pix-adm-stat .num {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 1.5rem; font-weight: 900; color: #FF3C78;
-  }
-  .pix-adm-stat .lbl { font-size: 0.68rem; color: #7a5060; margin-top: 3px; }
-  .pix-adm-card {
-    background: #120910;
-    border: 1px solid rgba(255,60,120,0.14);
-    border-radius: 20px; overflow: hidden; margin-bottom: 16px;
-  }
-  .pix-adm-card-hdr {
-    padding: 17px 22px; display: flex; align-items: center; gap: 12px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-  }
-  .pix-adm-card-icon {
-    width: 38px; height: 38px; border-radius: 11px;
-    display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0;
-  }
-  .pix-adm-icon-cart  { background: rgba(255,60,120,0.15); }
-  .pix-adm-icon-visit { background: rgba(91,155,230,0.15); color: #5B9BE6; }
-  .pix-adm-icon-sched { background: rgba(255,200,50,0.12); color: #FFD233; }
-  .pix-adm-card-hdr h3 { font-size: 0.95rem; font-weight: 700; color: #f0dde8; }
-  .pix-adm-card-hdr p  { font-size: 0.72rem; color: #7a5060; margin-top: 2px; }
-  .pix-adm-card-body {
-    padding: 20px 22px; display: flex; flex-direction: column; gap: 13px;
-  }
-  .pix-adm-field { display: flex; flex-direction: column; gap: 6px; }
-  .pix-adm-field label {
-    font-size: 0.67rem; font-weight: 700;
-    letter-spacing: 0.08em; text-transform: uppercase; color: #FF3C78;
-  }
-  .pix-adm-field label.blue { color: #5B9BE6; }
-  .pix-adm-inp {
-    padding: 11px 15px;
-    background: rgba(255,255,255,0.04);
-    border: 1.5px solid rgba(255,255,255,0.08);
-    border-radius: 11px;
-    font-family: 'Poppins', sans-serif; font-size: 0.85rem; color: #f0dde8;
-    outline: none; width: 100%;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-  .pix-adm-inp:focus {
-    border-color: #FF3C78; box-shadow: 0 0 0 3px rgba(255,60,120,0.12);
-    background: rgba(255,255,255,0.06);
-  }
-  .pix-adm-inp.blue:focus { border-color: #5B9BE6; box-shadow: 0 0 0 3px rgba(91,155,230,0.12); }
-  .pix-adm-inp::placeholder { color: #4a2535; }
-  textarea.pix-adm-inp { resize: vertical; min-height: 68px; line-height: 1.5; }
-  .pix-adm-hint { font-size: 0.7rem; color: #6a4050; line-height: 1.5; }
-  .pix-adm-freq { display: flex; gap: 8px; }
-  .pix-adm-freq-btn {
-    flex: 1; padding: 9px 4px;
-    background: rgba(255,255,255,0.04);
-    border: 1.5px solid rgba(255,255,255,0.08);
-    border-radius: 9px;
-    font-family: 'Poppins', sans-serif;
-    font-size: 0.73rem; font-weight: 600; color: #7a5060;
-    cursor: pointer; text-align: center; transition: all 0.2s;
-  }
-  .pix-adm-freq-btn.pix-freq-active {
-    background: rgba(255,60,120,0.15); border-color: #FF3C78; color: #FF3C78;
-  }
-  .pix-adm-freq-btn.pix-freq-active.blue {
-    background: rgba(91,155,230,0.15); border-color: #5B9BE6; color: #5B9BE6;
-  }
-  .pix-adm-preview {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 13px; padding: 13px 15px; position: relative;
-  }
-  .pix-adm-preview::before {
-    content: '🔔 PREVIEW'; display: block;
-    font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; color: #5a3545; margin-bottom: 8px;
-  }
-  .pix-adm-notif-mock { display: flex; align-items: flex-start; gap: 11px; }
-  .pix-adm-notif-icon {
-    width: 36px; height: 36px; border-radius: 9px;
-    background: linear-gradient(135deg,#FF3C78,#c41755);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1rem; flex-shrink: 0;
-  }
-  .pix-adm-notif-title { font-size: 0.8rem; font-weight: 700; color: #f0dde8; line-height: 1.3; }
-  .pix-adm-notif-body  { font-size: 0.72rem; color: #7a5060; margin-top: 3px; line-height: 1.4; }
-  .pix-adm-row-toggle {
-    display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  }
-  .pix-adm-row-toggle .left h4 { font-size: 0.86rem; font-weight: 600; color: #f0dde8; }
-  .pix-adm-row-toggle .left p  { font-size: 0.71rem; color: #7a5060; margin-top: 2px; }
-  .pix-adm-toggle { position: relative; width: 48px; height: 26px; flex-shrink: 0; }
-  .pix-adm-toggle input { opacity: 0; width: 0; height: 0; }
-  .pix-adm-toggle-track {
-    position: absolute; inset: 0; background: rgba(255,255,255,0.1);
-    border-radius: 99px; cursor: pointer; transition: background 0.3s;
-  }
-  .pix-adm-toggle-track::before {
-    content: ''; position: absolute;
-    width: 18px; height: 18px; left: 4px; top: 4px;
-    background: #fff; border-radius: 50%;
-    transition: transform 0.3s cubic-bezier(.2,.9,.2,1);
-  }
-  .pix-adm-toggle input:checked + .pix-adm-toggle-track { background: #FF3C78; }
-  .pix-adm-toggle input:checked + .pix-adm-toggle-track::before { transform: translateX(22px); }
-  .pix-adm-divider { height: 1px; background: rgba(255,255,255,0.05); }
-  .pix-adm-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
-  .pix-adm-btn-save {
-    flex: 1; padding: 14px 24px;
-    background: linear-gradient(135deg,#FF3C78,#c41755);
-    color: #fff; border: none; border-radius: 13px;
-    font-family: 'Poppins', sans-serif; font-size: 0.9rem; font-weight: 700;
-    cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
-    box-shadow: 0 8px 24px rgba(255,60,120,0.3);
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-  }
-  .pix-adm-btn-save:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(255,60,120,0.4); }
-  .pix-adm-btn-save:active { transform: scale(0.97); }
-  .pix-adm-btn-test {
-    padding: 14px 18px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    color: #a08090; border-radius: 13px;
-    font-family: 'Poppins', sans-serif; font-size: 0.83rem; font-weight: 600;
-    cursor: pointer; transition: background 0.2s, color 0.2s;
-    display: flex; align-items: center; gap: 7px;
-  }
-  .pix-adm-btn-test:hover { background: rgba(255,255,255,0.09); color: #f0dde8; }
-  .pix-adm-toast {
-    position: fixed; bottom: 28px; right: 28px;
-    background: #1a0d12; border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 14px; padding: 13px 18px;
-    display: flex; align-items: center; gap: 11px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    transform: translateY(100px); opacity: 0;
-    transition: transform 0.4s cubic-bezier(.2,.9,.2,1), opacity 0.4s;
-    z-index: 2147483647; max-width: 320px;
-  }
-  .pix-adm-toast.pix-toast-show { transform: translateY(0); opacity: 1; }
-  .pix-adm-toast-icon { font-size: 1.25rem; flex-shrink: 0; }
-  .pix-adm-toast h4 { font-size: 0.84rem; font-weight: 700; color: #f0dde8; }
-  .pix-adm-toast p  { font-size: 0.72rem; color: #7a5060; margin-top: 2px; }
-  @media (max-width:520px) {
-    .pix-adm-stats { grid-template-columns: 1fr 1fr; }
-    .pix-adm-actions { flex-direction: column; }
-    .pix-adm-btn-test { justify-content: center; }
-  }
+#pix-adm{display:none;position:fixed;inset:0;z-index:2147483647;background:rgba(6,2,8,.97);backdrop-filter:blur(22px);overflow-y:auto;padding:36px 18px 60px;font-family:'Poppins',sans-serif;color:#f0dde8}
+#pix-adm.pix-adm-open{display:block}
+.pa-wrap{max-width:680px;margin:0 auto}
+.pa-hdr{display:flex;align-items:center;gap:13px;margin-bottom:24px}
+.pa-logo{width:48px;height:48px;background:linear-gradient(135deg,#FF3C78,#c41755);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.35rem;flex-shrink:0}
+.pa-hdr h1{font-family:'Montserrat',sans-serif;font-size:1.3rem;font-weight:900;background:linear-gradient(135deg,#FF3C78,#ff8cb0);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.pa-hdr p{font-size:.72rem;color:#7a5060;margin-top:2px}
+.pa-close{margin-left:auto;background:rgba(255,255,255,.06);border:none;color:#7a5060;width:36px;height:36px;border-radius:10px;cursor:pointer;font-size:.95rem;transition:background .2s,color .2s}
+.pa-close:hover{background:rgba(255,60,120,.15);color:#FF3C78}
+.pa-tip{background:rgba(255,210,51,.05);border:1px solid rgba(255,210,51,.15);border-radius:13px;padding:13px 17px;display:flex;gap:10px;align-items:flex-start;margin-bottom:20px}
+.pa-tip p{font-size:.74rem;color:#c0a070;line-height:1.6}
+.pa-tip code{background:rgba(255,210,51,.1);padding:1px 6px;border-radius:4px;font-family:monospace;font-size:.85em;color:#FFD233}
+
+/* Stats grid */
+.pa-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:22px}
+@media(max-width:540px){.pa-stats{grid-template-columns:repeat(2,1fr)}}
+.pa-stat{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:14px;text-align:center}
+.pa-stat .n{font-family:'Montserrat',sans-serif;font-size:1.45rem;font-weight:900;color:#FF3C78;line-height:1}
+.pa-stat .n.green{color:#25D366}
+.pa-stat .n.amber{color:#FFD233}
+.pa-stat .n.blue{color:#5B9BE6}
+.pa-stat .l{font-size:.65rem;color:#6a4555;margin-top:5px;line-height:1.3}
+
+/* Cards */
+.pa-card{background:#110810;border:1px solid rgba(255,60,120,.13);border-radius:18px;overflow:hidden;margin-bottom:14px}
+.pa-card-hd{padding:16px 20px;display:flex;align-items:center;gap:11px;border-bottom:1px solid rgba(255,255,255,.05)}
+.pa-card-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0}
+.ico-cart{background:rgba(255,60,120,.14)}
+.ico-visit{background:rgba(91,155,230,.14);color:#5B9BE6}
+.ico-sched{background:rgba(255,200,50,.1);color:#FFD233}
+.pa-card-hd h3{font-size:.9rem;font-weight:700;color:#f0dde8}
+.pa-card-hd p{font-size:.7rem;color:#6a4555;margin-top:2px}
+.pa-card-bd{padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+
+/* Fields */
+.pa-field{display:flex;flex-direction:column;gap:5px}
+.pa-field label{font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#FF3C78}
+.pa-field label.blue{color:#5B9BE6}
+.pa-inp{padding:11px 14px;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);border-radius:10px;font-family:'Poppins',sans-serif;font-size:.84rem;color:#f0dde8;outline:none;width:100%;transition:border-color .2s,box-shadow .2s}
+.pa-inp:focus{border-color:#FF3C78;box-shadow:0 0 0 3px rgba(255,60,120,.12);background:rgba(255,255,255,.06)}
+.pa-inp.blue:focus{border-color:#5B9BE6;box-shadow:0 0 0 3px rgba(91,155,230,.12)}
+.pa-inp::placeholder{color:#3a1828}
+textarea.pa-inp{resize:vertical;min-height:64px;line-height:1.5}
+
+/* Freq buttons */
+.pa-freq{display:flex;gap:7px}
+.pa-freq-btn{flex:1;padding:9px 3px;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);border-radius:9px;font-family:'Poppins',sans-serif;font-size:.71rem;font-weight:600;color:#6a4555;cursor:pointer;text-align:center;transition:all .2s}
+.pa-freq-btn.pa-fa{background:rgba(255,60,120,.14);border-color:#FF3C78;color:#FF3C78}
+.pa-freq-btn.pa-fa.blue{background:rgba(91,155,230,.14);border-color:#5B9BE6;color:#5B9BE6}
+
+/* Toggle */
+.pa-toggle-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.pa-toggle-row .tl h4{font-size:.84rem;font-weight:600;color:#f0dde8}
+.pa-toggle-row .tl p{font-size:.69rem;color:#6a4555;margin-top:2px}
+.pa-tog{position:relative;width:46px;height:25px;flex-shrink:0}
+.pa-tog input{opacity:0;width:0;height:0}
+.pa-tog-track{position:absolute;inset:0;background:rgba(255,255,255,.1);border-radius:99px;cursor:pointer;transition:background .3s}
+.pa-tog-track::before{content:'';position:absolute;width:17px;height:17px;left:4px;top:4px;background:#fff;border-radius:50%;transition:transform .3s cubic-bezier(.2,.9,.2,1)}
+.pa-tog input:checked+.pa-tog-track{background:#FF3C78}
+.pa-tog input:checked+.pa-tog-track::before{transform:translateX(21px)}
+.pa-divider{height:1px;background:rgba(255,255,255,.05)}
+
+/* Preview */
+.pa-preview{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:12px 14px}
+.pa-preview::before{content:'🔔 LIVE PREVIEW';display:block;font-size:.58rem;font-weight:700;letter-spacing:.1em;color:#4a2535;margin-bottom:8px}
+.pa-notif-mock{display:flex;align-items:flex-start;gap:10px}
+.pa-notif-ico{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#FF3C78,#c41755);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0}
+.pa-notif-title{font-size:.78rem;font-weight:700;color:#f0dde8;line-height:1.3}
+.pa-notif-body{font-size:.7rem;color:#6a4555;margin-top:3px;line-height:1.4}
+
+/* Subscriber list */
+.pa-sub-list{max-height:180px;overflow-y:auto;display:flex;flex-direction:column;gap:7px}
+.pa-sub-item{display:flex;align-items:center;gap:10px;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px}
+.pa-sub-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.pa-sub-dot.cart{background:#FF3C78}
+.pa-sub-dot.visit{background:#5B9BE6}
+.pa-sub-info{flex:1}
+.pa-sub-info .name{font-size:.78rem;font-weight:600;color:#f0dde8}
+.pa-sub-info .meta{font-size:.67rem;color:#6a4555;margin-top:2px}
+.pa-sub-badge{font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:99px}
+.pa-sub-badge.cart{background:rgba(255,60,120,.15);color:#FF3C78}
+.pa-sub-badge.visit{background:rgba(91,155,230,.15);color:#5B9BE6}
+.pa-empty{font-size:.76rem;color:#5a3545;text-align:center;padding:20px 0}
+
+/* Actions */
+.pa-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.pa-btn-save{flex:1;padding:13px 22px;background:linear-gradient(135deg,#FF3C78,#c41755);color:#fff;border:none;border-radius:12px;font-family:'Poppins',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:0 8px 24px rgba(255,60,120,.3);display:flex;align-items:center;justify-content:center;gap:8px}
+.pa-btn-save:hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(255,60,120,.4)}
+.pa-btn-test{padding:13px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#a08090;border-radius:12px;font-family:'Poppins',sans-serif;font-size:.81rem;font-weight:600;cursor:pointer;transition:background .2s,color .2s;display:flex;align-items:center;gap:7px}
+.pa-btn-test:hover{background:rgba(255,255,255,.09);color:#f0dde8}
+@media(max-width:500px){.pa-actions{flex-direction:column}.pa-btn-test{justify-content:center}}
+
+/* Toast */
+#pa-toast{position:fixed;bottom:24px;right:24px;background:#140a10;border:1px solid rgba(255,255,255,.1);border-radius:13px;padding:13px 17px;display:flex;align-items:center;gap:11px;box-shadow:0 20px 60px rgba(0,0,0,.5);transform:translateY(100px);opacity:0;transition:transform .4s cubic-bezier(.2,.9,.2,1),opacity .4s;z-index:2147483647;max-width:310px}
+#pa-toast.show{transform:translateY(0);opacity:1}
+#pa-toast .ti{font-size:1.2rem;flex-shrink:0}
+#pa-toast h4{font-size:.82rem;font-weight:700;color:#f0dde8}
+#pa-toast p{font-size:.7rem;color:#7a5060;margin-top:2px}
 </style>
 
-<!-- ADMIN OVERLAY HTML (hidden until /#pix-admin) -->
-<div id="pix-admin-overlay">
-  <div class="pix-adm-wrap">
+<!-- ══ HIDDEN ADMIN PANEL (customers see nothing) ══════════════════ -->
+<div id="pix-adm">
+  <div class="pa-wrap">
 
-    <!-- Header -->
-    <div class="pix-adm-hdr">
-      <div class="pix-adm-logo">🔔</div>
+    <div class="pa-hdr">
+      <div class="pa-logo">🔔</div>
       <div>
         <h1>PIX Smart Notify</h1>
-        <p>Pioneer I Xpress — Hidden Admin Panel</p>
+        <p>Pioneer I Xpress — Admin Panel (hidden from customers)</p>
       </div>
-      <button class="pix-adm-close" onclick="pixAdminClose()" title="Close">✕</button>
+      <button class="pa-close" onclick="pixAdmClose()">✕</button>
     </div>
 
-    <!-- Access tip -->
-    <div class="pix-adm-tip">
-      <span style="font-size:1.1rem;flex-shrink:0;margin-top:1px">🔑</span>
-      <p><strong>Secret access:</strong> This panel opens only when you visit
-        <code>https://pioneeri.in/#pix-admin</code> — completely invisible to all customers.
-        Bookmark that URL. Customers will never see this.</p>
+    <div class="pa-tip">
+      <span style="font-size:1rem;flex-shrink:0;margin-top:1px">🔑</span>
+      <p>Open this panel anytime at <code>https://pioneeri.in/#pix-admin</code> — customers never see it.
+      Stats update every 3 seconds live from browser data.</p>
     </div>
 
-    <!-- Live Stats -->
-    <div class="pix-adm-stats">
-      <div class="pix-adm-stat">
-        <div class="num" id="pixAdmStatPerm">—</div>
-        <div class="lbl">Push Permission</div>
+    <!-- LIVE STATS -->
+    <div class="pa-stats">
+      <div class="pa-stat">
+        <div class="n green" id="pa-stat-subs">—</div>
+        <div class="l">Total Subscribers<br>(this device)</div>
       </div>
-      <div class="pix-adm-stat">
-        <div class="num" id="pixAdmStatCart">0</div>
-        <div class="lbl">Cart Items (You)</div>
+      <div class="pa-stat">
+        <div class="n amber" id="pa-stat-visits">—</div>
+        <div class="l">Total Site Visits<br>(this device)</div>
       </div>
-      <div class="pix-adm-stat">
-        <div class="num">6 PM</div>
-        <div class="lbl">Daily Fire Time</div>
+      <div class="pa-stat">
+        <div class="n" id="pa-stat-cart">—</div>
+        <div class="l">Cart Items<br>(live count)</div>
+      </div>
+      <div class="pa-stat">
+        <div class="n blue" id="pa-stat-perm">—</div>
+        <div class="l">Push Permission<br>(this browser)</div>
       </div>
     </div>
 
-    <!-- CART NOTIFICATION CONFIG -->
-    <div class="pix-adm-card">
-      <div class="pix-adm-card-hdr">
-        <div class="pix-adm-card-icon pix-adm-icon-cart">🛒</div>
+    <!-- SUBSCRIBER LOG -->
+    <div class="pa-card">
+      <div class="pa-card-hd">
+        <div class="pa-card-ico ico-cart">👥</div>
         <div>
-          <h3>Cart Customer Notification</h3>
-          <p>Fired every day at 6 PM to visitors who have items in cart</p>
+          <h3>Subscriber Log</h3>
+          <p>Everyone who allowed notifications from this device — newest first</p>
         </div>
       </div>
-      <div class="pix-adm-card-body">
-        <div class="pix-adm-field">
+      <div class="pa-card-bd">
+        <div class="pa-sub-list" id="pa-sub-list">
+          <div class="pa-empty">No subscribers yet on this device</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CART NOTIFICATION -->
+    <div class="pa-card">
+      <div class="pa-card-hd">
+        <div class="pa-card-ico ico-cart">🛒</div>
+        <div>
+          <h3>Cart Visitor Notification</h3>
+          <p>Fires on every visit when cart has items</p>
+        </div>
+      </div>
+      <div class="pa-card-bd">
+        <div class="pa-field">
           <label>Title</label>
-          <input class="pix-adm-inp" id="pixAdmCartTitle" type="text"
-            placeholder="🛒 Your cart is waiting for you!"
-            value="🛒 Your cart is waiting for you!" oninput="pixAdmPreviewSync()">
+          <input class="pa-inp" id="pa-cart-title" type="text" oninput="pixAdmSyncPreview()"
+            value="🛒 Your cart is waiting for you!">
         </div>
-        <div class="pix-adm-field">
-          <label>Message</label>
-          <textarea class="pix-adm-inp" id="pixAdmCartBody"
-            oninput="pixAdmPreviewSync()">You left items at Pioneer I Xpress. Complete your order before they sell out!</textarea>
+        <div class="pa-field">
+          <label>Message <span style="color:#5a3545;font-size:.65rem;text-transform:none;letter-spacing:0">(use {count} {total} for live values)</span></label>
+          <textarea class="pa-inp" id="pa-cart-body" oninput="pixAdmSyncPreview()">You left {count} item(s) worth ₹{total} at Pioneer I Xpress. Complete your order!</textarea>
         </div>
-        <div class="pix-adm-field">
-          <label>Frequency</label>
-          <div class="pix-adm-freq" id="pixAdmCartFreq">
-            <button class="pix-adm-freq-btn pix-freq-active" onclick="pixAdmSetFreq('cart',1,this)">Every day</button>
-            <button class="pix-adm-freq-btn" onclick="pixAdmSetFreq('cart',2,this)">Every 2 days</button>
-            <button class="pix-adm-freq-btn" onclick="pixAdmSetFreq('cart',3,this)">Every 3 days</button>
-          </div>
-        </div>
-        <div class="pix-adm-preview">
-          <div class="pix-adm-notif-mock">
-            <div class="pix-adm-notif-icon">🛍️</div>
+        <div class="pa-preview">
+          <div class="pa-notif-mock">
+            <div class="pa-notif-ico">🛍️</div>
             <div>
-              <div class="pix-adm-notif-title" id="pixAdmCartPrevTitle">🛒 Your cart is waiting for you!</div>
-              <div class="pix-adm-notif-body"  id="pixAdmCartPrevBody">You left items at Pioneer I Xpress. Complete your order before they sell out!</div>
+              <div class="pa-notif-title" id="pa-cart-prev-title">🛒 Your cart is waiting for you!</div>
+              <div class="pa-notif-body" id="pa-cart-prev-body">You left 2 item(s) worth ₹999 at Pioneer I Xpress. Complete your order!</div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- VISITOR NOTIFICATION CONFIG -->
-    <div class="pix-adm-card">
-      <div class="pix-adm-card-hdr">
-        <div class="pix-adm-card-icon pix-adm-icon-visit">👀</div>
+    <!-- VISITOR NOTIFICATION -->
+    <div class="pa-card">
+      <div class="pa-card-hd">
+        <div class="pa-card-ico ico-visit">👀</div>
         <div>
-          <h3>Visitor Re-engagement</h3>
-          <p>Fired every 2nd day at 6 PM to visitors without a cart</p>
+          <h3>Visitor Notification</h3>
+          <p>Fires on every visit when cart is empty</p>
         </div>
       </div>
-      <div class="pix-adm-card-body">
-        <div class="pix-adm-field">
+      <div class="pa-card-bd">
+        <div class="pa-field">
           <label class="blue">Title</label>
-          <input class="pix-adm-inp blue" id="pixAdmVisitTitle" type="text"
-            placeholder="✨ New arrivals at Pioneer I Xpress!"
-            value="✨ New arrivals at Pioneer I Xpress!" oninput="pixAdmPreviewSync()">
+          <input class="pa-inp blue" id="pa-visit-title" type="text" oninput="pixAdmSyncPreview()"
+            value="✨ Welcome back to Pioneer I Xpress!">
         </div>
-        <div class="pix-adm-field">
+        <div class="pa-field">
           <label class="blue">Message</label>
-          <textarea class="pix-adm-inp blue" id="pixAdmVisitBody"
-            oninput="pixAdmPreviewSync()">Discover our latest candles, beauty products & more. Free delivery over ₹1,999!</textarea>
+          <textarea class="pa-inp blue" id="pa-visit-body" oninput="pixAdmSyncPreview()">Discover our latest candles, beauty products & more. Free delivery over ₹1,999!</textarea>
         </div>
-        <div class="pix-adm-field">
-          <label class="blue">Frequency (Default: skip a day)</label>
-          <div class="pix-adm-freq" id="pixAdmVisitFreq">
-            <button class="pix-adm-freq-btn" onclick="pixAdmSetFreq('visit',1,this)">Every day</button>
-            <button class="pix-adm-freq-btn pix-freq-active blue" onclick="pixAdmSetFreq('visit',2,this)">Every 2 days</button>
-            <button class="pix-adm-freq-btn" onclick="pixAdmSetFreq('visit',3,this)">Every 3 days</button>
-          </div>
-        </div>
-        <div class="pix-adm-preview">
-          <div class="pix-adm-notif-mock">
-            <div class="pix-adm-notif-icon" style="background:linear-gradient(135deg,#5B9BE6,#0078D4)">✨</div>
+        <div class="pa-preview">
+          <div class="pa-notif-mock">
+            <div class="pa-notif-ico" style="background:linear-gradient(135deg,#5B9BE6,#0078D4)">✨</div>
             <div>
-              <div class="pix-adm-notif-title" id="pixAdmVisitPrevTitle">✨ New arrivals at Pioneer I Xpress!</div>
-              <div class="pix-adm-notif-body"  id="pixAdmVisitPrevBody">Discover our latest candles, beauty products & more. Free delivery over ₹1,999!</div>
+              <div class="pa-notif-title" id="pa-visit-prev-title">✨ Welcome back to Pioneer I Xpress!</div>
+              <div class="pa-notif-body" id="pa-visit-prev-body">Discover our latest candles, beauty products & more. Free delivery over ₹1,999!</div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- SCHEDULE SETTINGS -->
-    <div class="pix-adm-card">
-      <div class="pix-adm-card-hdr">
-        <div class="pix-adm-card-icon pix-adm-icon-sched">⏰</div>
+    <!-- SCHEDULE & BEHAVIOUR -->
+    <div class="pa-card">
+      <div class="pa-card-hd">
+        <div class="pa-card-ico ico-sched">⚙️</div>
         <div>
-          <h3>Schedule & Behaviour</h3>
-          <p>All times in visitor's local clock</p>
+          <h3>Behaviour Settings</h3>
+          <p>Control when and how notifications fire</p>
         </div>
       </div>
-      <div class="pix-adm-card-body">
-        <div class="pix-adm-row-toggle">
-          <div class="left">
-            <h4>Ask all visitors for permission</h4>
-            <p>Prompt appears 20 seconds after they land on the site</p>
+      <div class="pa-card-bd">
+        <div class="pa-toggle-row">
+          <div class="tl">
+            <h4>Fire notification on every visit</h4>
+            <p>Sends immediately when visitor opens the site (if permitted)</p>
           </div>
-          <label class="pix-adm-toggle">
-            <input type="checkbox" id="pixAdmAskAll" checked>
-            <span class="pix-adm-toggle-track"></span>
-          </label>
+          <label class="pa-tog"><input type="checkbox" id="pa-on-visit" checked><span class="pa-tog-track"></span></label>
         </div>
-        <div class="pix-adm-divider"></div>
-        <div class="pix-adm-row-toggle">
-          <div class="left">
-            <h4>Do Not Disturb (10 PM – 8 AM)</h4>
-            <p>Suppress notifications during late night hours</p>
+        <div class="pa-divider"></div>
+        <div class="pa-toggle-row">
+          <div class="tl">
+            <h4>Also fire at 6 PM (background)</h4>
+            <p>Service Worker wakes up at 6 PM even when tab is closed</p>
           </div>
-          <label class="pix-adm-toggle">
-            <input type="checkbox" id="pixAdmDND" checked>
-            <span class="pix-adm-toggle-track"></span>
-          </label>
+          <label class="pa-tog"><input type="checkbox" id="pa-6pm" checked><span class="pa-tog-track"></span></label>
+        </div>
+        <div class="pa-divider"></div>
+        <div class="pa-toggle-row">
+          <div class="tl">
+            <h4>Ask permission from all visitors</h4>
+            <p>Prompt appears 4 seconds after landing — everyone becomes a subscriber</p>
+          </div>
+          <label class="pa-tog"><input type="checkbox" id="pa-ask-all" checked><span class="pa-tog-track"></span></label>
+        </div>
+        <div class="pa-divider"></div>
+        <div class="pa-toggle-row">
+          <div class="tl">
+            <h4>Do Not Disturb (10 PM – 8 AM)</h4>
+            <p>Suppresses notifications during late night hours</p>
+          </div>
+          <label class="pa-tog"><input type="checkbox" id="pa-dnd" checked><span class="pa-tog-track"></span></label>
         </div>
       </div>
     </div>
 
     <!-- ACTIONS -->
-    <div class="pix-adm-actions">
-      <button class="pix-adm-btn-save" onclick="pixAdmSave()">💾 Save Configuration</button>
-      <button class="pix-adm-btn-test" onclick="pixAdmTest('cart')">🛒 Test Cart</button>
-      <button class="pix-adm-btn-test" onclick="pixAdmTest('visit')">👀 Test Visitor</button>
+    <div class="pa-actions">
+      <button class="pa-btn-save" onclick="pixAdmSave()">💾 Save & Apply</button>
+      <button class="pa-btn-test" onclick="pixAdmTest('cart')">🛒 Test Cart Notif</button>
+      <button class="pa-btn-test" onclick="pixAdmTest('visit')">👀 Test Visitor Notif</button>
     </div>
 
   </div>
 </div>
+<div id="pa-toast"><span class="ti" id="pa-ti"></span><div><h4 id="pa-tt"></h4><p id="pa-tm"></p></div></div>
 
-<!-- ADMIN TOAST -->
-<div class="pix-adm-toast" id="pixAdmToast">
-  <span class="pix-adm-toast-icon" id="pixAdmToastIcon"></span>
-  <div><h4 id="pixAdmToastTitle"></h4><p id="pixAdmToastMsg"></p></div>
-</div>
 <script>
 /* ═══════════════════════════════════════════════════════════════════
-   PIX SMART NOTIFY  —  Pioneer I Xpress
-   100% free · no backend · no paid APIs
-   ─────────────────────────────────────────────────────────────────
-   Cart visitors   → browser push at 6 PM, every day
-   No-cart visitors→ browser push at 6 PM, every 2nd day (skip a day)
-   Admin panel     → open https://pioneeri.in/#pix-admin  (you only)
+   PIX SMART NOTIFY  v3  —  Pioneer I Xpress
+   ✅ Notification on EVERY visit (immediate)
+   ✅ Background 6 PM SW notification (tab closed)
+   ✅ Everyone who visits + allows = subscriber (logged in localStorage)
+   ✅ Real cart data from window.state
+   ✅ Admin at /#pix-admin — 100% hidden from customers
    ═══════════════════════════════════════════════════════════════════ */
 (function PIXSmartNotify() {
-
   if (!('Notification' in window)) return;
 
-  /* ── Config — loaded from Admin Panel saves ───────────────────── */
-  const CFG = (function() {
-    try { return JSON.parse(localStorage.getItem('pixSmartNotifyCfg') || 'null') || {}; }
-    catch(e) { return {}; }
-  })();
-  const C = {
-    cartTitle:  CFG.cartTitle  || '🛒 Your cart is waiting for you!',
-    cartBody:   CFG.cartBody   || 'You left items at Pioneer I Xpress. Complete your order before they sell out!',
-    cartDays:   CFG.cartDays   || 1,
-    visitTitle: CFG.visitTitle || '✨ New arrivals at Pioneer I Xpress!',
-    visitBody:  CFG.visitBody  || 'Discover our latest candles, beauty products & more. Free delivery over ₹1,999!',
-    visitDays:  CFG.visitDays  || 2,
-    askAll:     CFG.askAll     !== false,
-    dnd:        CFG.dnd        !== false,
+  /* ── Keys ───────────────────────────────────────────────────────── */
+  const K = {
+    cfg:   'pixCfg',       // admin config
+    subs:  'pixSubs',      // subscriber log []
+    state: 'pixState',     // { lc, lv } last notif timestamps
+    visits:'pixVisits',    // total visit counter
+    cart:  'PIX_sw_cart',  // persisted cart
   };
-  const NOTIF_HOUR = 18;   // 6 PM local time
-  const ICON       = 'https://risync.in/G4U/candle.png';
-  const CACHE_KEY  = 'PIX_sw_cart';        // reuse existing cart key for compat
 
-  /* ── Secret admin panel — open on /#pix-admin ────────────────── */
-  function checkAdminHash() {
-    if (location.hash !== '#pix-admin') return;
-    history.replaceState(null, '', location.pathname);
-    var el = document.getElementById('pix-admin-overlay');
-    if (el) {
-      el.classList.add('pix-admin-show');
-      pixAdmLoadCfg();
-      pixAdmUpdateStats();
+  const ICON = 'https://risync.in/G4U/candle.png';
+
+  /* ── Load config ────────────────────────────────────────────────── */
+  function getCfg() {
+    try { return JSON.parse(localStorage.getItem(K.cfg) || 'null') || {}; } catch(e) { return {}; }
+  }
+  function cfg(key, def) { var c=getCfg(); return (c[key] !== undefined) ? c[key] : def; }
+
+  /* ── Visit counter ──────────────────────────────────────────────── */
+  var visits = parseInt(localStorage.getItem(K.visits) || '0') + 1;
+  localStorage.setItem(K.visits, visits);
+
+  /* ── Cart helpers ───────────────────────────────────────────────── */
+  function getCart() {
+    // Try live state first, fall back to persisted
+    if (window.state && window.state.cart && window.state.cart.length)
+      return window.state.cart;
+    try { return JSON.parse(localStorage.getItem(K.cart) || '[]'); } catch(e) { return []; }
+  }
+  function persistCart(cart) {
+    try {
+      localStorage.setItem(K.cart, JSON.stringify(
+        (cart||[]).map(function(i){ return {
+          id: i.id, title: i.title, price: i.price,
+          qty: i.qty||1, img: (i.imgs&&i.imgs[0])||i.img||''
+        }; })
+      ));
+    } catch(e){}
+  }
+
+  /* ── Subscriber log ─────────────────────────────────────────────── */
+  function getSubs() {
+    try { return JSON.parse(localStorage.getItem(K.subs) || '[]'); } catch(e) { return []; }
+  }
+  function addSub() {
+    var subs = getSubs();
+    var now  = new Date().toISOString();
+    // Only add if no entry in last 24h from same session
+    if (!subs.length || (new Date() - new Date(subs[0].t)) > 86400000) {
+      subs.unshift({ t: now, ua: navigator.userAgent.slice(0,40), perm: 'granted' });
+      if (subs.length > 50) subs = subs.slice(0, 50);
+      localStorage.setItem(K.subs, JSON.stringify(subs));
     }
   }
-  window.addEventListener('hashchange', checkAdminHash);
-  checkAdminHash();
 
-  /* ── Service Worker (Blob — no extra files) ───────────────────── */
+  /* ── DND check ──────────────────────────────────────────────────── */
+  function isDND() {
+    if (!cfg('dnd', true)) return false;
+    var h = new Date().getHours();
+    return (h >= 22 || h < 8);
+  }
+
+  /* ── Build notification content ─────────────────────────────────── */
+  function buildNotif(forceType) {
+    var cart    = getCart();
+    var hasCart = cart.length > 0;
+    var type    = forceType || (hasCart ? 'cart' : 'visit');
+
+    if (type === 'cart' && hasCart) {
+      var count = cart.reduce(function(s,i){ return s+(i.qty||1); }, 0);
+      var total = cart.reduce(function(s,i){ return s+(i.price*(i.qty||1)); }, 0);
+      var titleTpl = cfg('cartTitle', '🛒 Your cart is waiting for you!');
+      var bodyTpl  = cfg('cartBody',  'You left {count} item(s) worth ₹{total} at Pioneer I Xpress. Complete your order!');
+      var t = titleTpl.replace('{count}', count).replace('{total}', total.toLocaleString('en-IN'));
+      var b = bodyTpl .replace('{count}', count).replace('{total}', total.toLocaleString('en-IN'));
+      // Append top 2 items
+      var lines = cart.slice(0,2).map(function(i){
+        return '• ' + i.title + ' ×' + (i.qty||1) + ' — ₹' + (i.price*(i.qty||1)).toLocaleString('en-IN');
+      });
+      if (cart.length > 2) lines.push('…and ' + (cart.length-2) + ' more');
+      return { title: t, body: b + '\n' + lines.join('\n'), isCart: true };
+    } else {
+      return {
+        title:  cfg('visitTitle', '✨ Welcome back to Pioneer I Xpress!'),
+        body:   cfg('visitBody',  'Discover our latest candles, beauty products & more. Free delivery over ₹1,999!'),
+        isCart: false
+      };
+    }
+  }
+
+  /* ── Fire in-tab notification ───────────────────────────────────── */
+  function fireNotif(forceType) {
+    if (Notification.permission !== 'granted') return;
+    if (isDND()) return;
+    var n = buildNotif(forceType);
+    var notif = new Notification(n.title, {
+      body: n.body, icon: ICON, badge: ICON,
+      tag: 'pix-visit', renotify: true
+    });
+    notif.onclick = function() {
+      window.focus(); notif.close();
+      if (n.isCart && typeof window.openCart === 'function') window.openCart();
+    };
+    console.log('[PIXNotify] Notification fired:', n.title);
+  }
+
+  /* ── ON EVERY VISIT: fire notification ─────────────────────────── */
+  if (Notification.permission === 'granted' && cfg('onVisit', true)) {
+    // Wait 1.5s for window.state to populate
+    setTimeout(function() { fireNotif(); }, 1500);
+  }
+
+  /* ── Ask ALL visitors for permission (4s after landing) ─────────── */
+  if (Notification.permission === 'default' && cfg('askAll', true)) {
+    setTimeout(function() {
+      Notification.requestPermission().then(function(result) {
+        if (result === 'granted') {
+          addSub();
+          console.log('[PIXNotify] Permission granted — subscriber added ✅');
+          setTimeout(function() { fireNotif(); }, 800);
+          syncToSW();
+        }
+      }).catch(function(){});
+    }, 4000);
+  }
+
+  /* ── 6 PM background Service Worker ─────────────────────────────── */
   var swReg = null;
-  var SW_CODE = [
-    "const CACHE='pix-notify-v3';",
-    "const HOUR=18;",
-    "self.addEventListener('install',()=>self.skipWaiting());",
-    "self.addEventListener('activate',e=>e.waitUntil(clients.claim()));",
-    "self.addEventListener('message',async ev=>{",
-    "  if(ev.data&&ev.data.type==='PIX_DATA'){",
-    "    const c=await caches.open(CACHE);",
-    "    await c.put('d',new Response(JSON.stringify(ev.data.p)));",
-    "  }",
-    "});",
-    "self.addEventListener('periodicsync',ev=>{",
-    "  if(ev.tag==='pix-smart')ev.waitUntil(tryFire());",
-    "});",
-    "let _lt=0;",
-    "self.addEventListener('fetch',()=>{",
-    "  const n=Date.now();if(n-_lt<60000)return;_lt=n;",
-    "  tryFire().catch(()=>{});",
-    "});",
-    "self.addEventListener('notificationclick',ev=>{",
-    "  ev.notification.close();",
-    "  if(ev.action==='dismiss')return;",
-    "  ev.waitUntil(clients.matchAll({type:'window',includeUncontrolled:true}).then(list=>{",
-    "    for(const c of list)if(c.url.includes(self.location.origin)&&'focus'in c)return c.focus();",
-    "    if(clients.openWindow)return clients.openWindow(self.location.origin);",
-    "  }));",
-    "});",
-    "async function tryFire(){",
-    "  const c=await caches.open(CACHE);",
-    "  const r=await c.match('d');if(!r)return;",
-    "  const d=await r.json();",
-    "  const now=new Date();const h=now.getHours();",
-    "  if(d.dnd&&(h>=22||h<8))return;",
-    "  if(h<HOUR)return;",
-    "  const hasCart=d.cartLen>0;",
-    "  const key=hasCart?'lc':'lv';",
-    "  const days=hasCart?d.cartDays:d.visitDays;",
-    "  const last=d[key];",
-    "  if(last){const diff=(now-new Date(last))/86400000;if(diff<days)return;}",
-    "  const title=hasCart?d.cartTitle:d.visitTitle;",
-    "  const body=hasCart?d.cartBody:d.visitBody;",
-    "  await self.registration.showNotification(title,{",
-    "    body,icon:d.icon,badge:d.icon,tag:'pix-smart',renotify:true,",
-    "    data:{url:self.location.origin},",
-    "    actions:[{action:'open',title:hasCart?'🛍️ Go to Cart':'🛍️ Shop Now'},{action:'dismiss',title:'Later'}]",
-    "  });",
-    "  d[key]=now.toISOString();",
-    "  await c.put('d',new Response(JSON.stringify(d)));",
-    "}"
-  ].join('\n');
+  var SW_SRC = '' +
+    'const C="pix-v3";const HOUR=18;' +
+    'self.addEventListener("install",()=>self.skipWaiting());' +
+    'self.addEventListener("activate",e=>e.waitUntil(clients.claim()));' +
+    'self.addEventListener("message",async ev=>{' +
+    '  if(!ev.data||ev.data.type!=="PIX_D")return;' +
+    '  const c=await caches.open(C);await c.put("d",new Response(JSON.stringify(ev.data.p)));' +
+    '});' +
+    'self.addEventListener("periodicsync",ev=>{if(ev.tag==="pix6pm")ev.waitUntil(fire6pm());});' +
+    'let _t=0;self.addEventListener("fetch",()=>{const n=Date.now();if(n-_t<60000)return;_t=n;fire6pm().catch(()=>{});});' +
+    'self.addEventListener("notificationclick",ev=>{' +
+    '  ev.notification.close();if(ev.action==="dismiss")return;' +
+    '  ev.waitUntil(clients.matchAll({type:"window",includeUncontrolled:true}).then(list=>{' +
+    '    for(const c of list)if(c.url.includes(self.location.origin)&&"focus"in c)return c.focus();' +
+    '    if(clients.openWindow)return clients.openWindow(self.location.origin);' +
+    '  }));' +
+    '});' +
+    'async function fire6pm(){' +
+    '  const c=await caches.open(C);const r=await c.match("d");if(!r)return;' +
+    '  const d=await r.json();' +
+    '  if(!d.en6pm)return;' +
+    '  const now=new Date();const h=now.getHours();' +
+    '  if(d.dnd&&(h>=22||h<8))return;' +
+    '  if(h<HOUR)return;' +
+    '  const key=d.cartLen>0?"lc":"lv";' +
+    '  const last=d[key];' +
+    '  if(last){const diff=(now-new Date(last))/86400000;if(diff<1)return;}' +
+    '  const title=d.cartLen>0?d.ct:d.vt;' +
+    '  const body=d.cartLen>0?d.cb:d.vb;' +
+    '  await self.registration.showNotification(title,{' +
+    '    body,icon:d.icon,badge:d.icon,tag:"pix-6pm",renotify:true,' +
+    '    actions:[{action:"open",title:d.cartLen>0?"🛍️ Go to Cart":"🛍️ Shop Now"},{action:"dismiss",title:"Later"}]' +
+    '  });' +
+    '  d[key]=now.toISOString();' +
+    '  await c.put("d",new Response(JSON.stringify(d)));' +
+    '}';
 
   if ('serviceWorker' in navigator) {
     try {
-      var blob   = new Blob([SW_CODE], { type: 'application/javascript' });
-      var blobURL = URL.createObjectURL(blob);
-      navigator.serviceWorker.register(blobURL, { scope: '/' })
+      var blob = new Blob([SW_SRC], { type: 'application/javascript' });
+      navigator.serviceWorker.register(URL.createObjectURL(blob), { scope: '/' })
         .then(function(reg) {
           swReg = reg;
           if ('periodicSync' in reg) {
             navigator.permissions.query({ name: 'periodic-background-sync' })
               .then(function(p) {
                 if (p.state === 'granted')
-                  reg.periodicSync.register('pix-smart', { minInterval: 3600000 });
+                  reg.periodicSync.register('pix6pm', { minInterval: 3600000 });
               }).catch(function(){});
           }
         }).catch(function(){});
     } catch(e) {}
   }
 
-  /* ── Push cart/visitor data into SW ──────────────────────────── */
+  /* ── Sync data to SW ────────────────────────────────────────────── */
   function syncToSW() {
     if (!swReg || !swReg.active) return;
-    var cart  = (window.state && window.state.cart) || readPersistedCart();
-    var state = readNotifState();
-    swReg.active.postMessage({ type: 'PIX_DATA', p: {
-      cartLen:    cart.length,
-      cartTitle:  C.cartTitle,  cartBody:  C.cartBody,  cartDays:  C.cartDays,
-      visitTitle: C.visitTitle, visitBody: C.visitBody, visitDays: C.visitDays,
-      lc:   state.lc   || null,
-      lv:   state.lv   || null,
-      icon: ICON, dnd: C.dnd,
+    var cart   = getCart();
+    var st     = {};
+    try { st = JSON.parse(localStorage.getItem(K.state) || '{}'); } catch(e){}
+    var nb = buildNotif();
+    swReg.active.postMessage({ type: 'PIX_D', p: {
+      cartLen: cart.length,
+      ct: cfg('cartTitle', '🛒 Your cart is waiting for you!'),
+      cb: nb.isCart ? nb.body : cfg('cartBody', 'Complete your order at Pioneer I Xpress!'),
+      vt: cfg('visitTitle', '✨ Welcome back to Pioneer I Xpress!'),
+      vb: cfg('visitBody',  'Discover our latest products. Free delivery over ₹1,999!'),
+      lc: st.lc || null, lv: st.lv || null,
+      icon: ICON, dnd: cfg('dnd', true), en6pm: cfg('enable6pm', true)
     }});
   }
 
-  /* ── In-tab 6 PM check (runs every minute when tab is open) ─── */
-  function inTabCheck() {
+  /* ── Also fire at 6 PM if tab is open ──────────────────────────── */
+  function inTab6pmCheck() {
+    if (!cfg('enable6pm', true)) return;
     if (Notification.permission !== 'granted') return;
-    var now  = new Date();
-    var h    = now.getHours();
-    if (C.dnd && (h >= 22 || h < 8)) return;
-    if (h < NOTIF_HOUR) return;
-
-    var cart    = (window.state && window.state.cart) || readPersistedCart();
-    var hasCart = cart.length > 0;
-    var state   = readNotifState();
-    var key     = hasCart ? 'lc' : 'lv';
-    var days    = hasCart ? C.cartDays : C.visitDays;
-    var last    = state[key];
-
-    if (last) {
-      var diff = (now - new Date(last)) / 86400000;
-      if (diff < days) return;
-    }
-
-    var title = hasCart ? C.cartTitle : C.visitTitle;
-    var body  = hasCart ? C.cartBody  : C.visitBody;
-    var n = new Notification(title, { body: body, icon: ICON, tag: 'pix-smart' });
-    n.onclick = function() {
-      window.focus(); n.close();
-      if (hasCart && typeof window.openCart === 'function') window.openCart();
-    };
-    state[key] = now.toISOString();
-    saveNotifState(state);
-    console.log('[PIXSmartNotify] In-tab notification fired (' + (hasCart ? 'cart' : 'visitor') + ') ✅');
+    if (isDND()) return;
+    var h = new Date().getHours();
+    if (h < 18) return;
+    var st = {};
+    try { st = JSON.parse(localStorage.getItem(K.state)||'{}'); } catch(e){}
+    var cart = getCart();
+    var key  = cart.length > 0 ? 'lc' : 'lv';
+    var last = st[key];
+    if (last && (new Date() - new Date(last)) < 86400000) return;
+    fireNotif();
+    st[key] = new Date().toISOString();
+    try { localStorage.setItem(K.state, JSON.stringify(st)); } catch(e){}
   }
+  setInterval(inTab6pmCheck, 60000);
 
-  /* ── Persist cart to localStorage ────────────────────────────── */
-  function persistCart(cart) {
-    try {
-      localStorage.setItem(CACHE_KEY, JSON.stringify(
-        (cart || []).map(function(i) {
-          return { id: i.id, title: i.title, price: i.price, qty: i.qty || 1,
-                   img: (i.imgs && i.imgs[0]) || i.img || '' };
-        })
-      ));
-    } catch(e) {}
-  }
-  function readPersistedCart() {
-    try { return JSON.parse(localStorage.getItem(CACHE_KEY) || '[]'); } catch(e) { return []; }
-  }
-
-  /* ── Notification state helpers ───────────────────────────────── */
-  function readNotifState() {
-    try { return JSON.parse(localStorage.getItem('pixSmartNotifyState') || '{}'); } catch(e) { return {}; }
-  }
-  function saveNotifState(s) {
-    try { localStorage.setItem('pixSmartNotifyState', JSON.stringify(s)); } catch(e) {}
-  }
-
-  /* ── Ask ALL visitors for permission (20s after landing) ─────── */
-  if (C.askAll && Notification.permission === 'default') {
-    setTimeout(function() {
-      Notification.requestPermission().then(function(result) {
-        if (result === 'granted') {
-          syncToSW();
-          console.log('[PIXSmartNotify] Permission granted ✅');
-        }
-      }).catch(function(){});
-    }, 20000);
-  }
-
-  /* ── Patch addToCart — persist cart so SW always has fresh data ─ */
+  /* ── Patch addToCart so cart persists immediately ───────────────── */
   function patchAddToCart() {
     var _orig = window.addToCart;
     if (typeof _orig !== 'function') { setTimeout(patchAddToCart, 500); return; }
     window.addToCart = function(id, qty) {
       _orig.call(this, id, qty);
-      var cart = (window.state && window.state.cart) || [];
-      persistCart(cart);
-      if (Notification.permission === 'granted') syncToSW();
+      setTimeout(function() {
+        var cart = (window.state && window.state.cart) || [];
+        persistCart(cart);
+        if (Notification.permission === 'granted') syncToSW();
+      }, 200);
     };
-    console.log('[PIXSmartNotify] addToCart patched ✅');
   }
   patchAddToCart();
 
-  /* ── Timers ───────────────────────────────────────────────────── */
-  setInterval(inTabCheck, 60000);   // check every minute
-  setInterval(syncToSW, 30000);     // keep SW fresh
-  setTimeout(inTabCheck, 5000);     // also run 5s after load
-  setTimeout(syncToSW,   3000);
+  /* ── Keep SW fresh every 30s ────────────────────────────────────── */
+  setInterval(function() {
+    var cart = (window.state && window.state.cart) || [];
+    persistCart(cart);
+    if (Notification.permission === 'granted') syncToSW();
+  }, 30000);
+  setTimeout(syncToSW, 3000);
 
-  console.log('[PIXSmartNotify] ✅ 6 PM scheduler active — cart daily, visitors every 2nd day');
+  /* ── Secret admin panel at /#pix-admin ──────────────────────────── */
+  function checkHash() {
+    if (location.hash === '#pix-admin') {
+      history.replaceState(null, '', location.pathname);
+      var el = document.getElementById('pix-adm');
+      if (el) {
+        el.classList.add('pix-adm-open');
+        pixAdmLoadCfg();
+        pixAdmRefreshStats();
+      }
+    }
+  }
+  window.addEventListener('hashchange', checkHash);
+  checkHash();
 
-})();
+  /* ══ ADMIN PANEL LOGIC ═══════════════════════════════════════════ */
+  var _admFreq = { cart: 1, visit: 2 };
 
-/* ═══════════════════════════════════════════════════════════════════
-   PIX ADMIN PANEL LOGIC — only executes when panel is open
-   ═══════════════════════════════════════════════════════════════════ */
-(function() {
-  var pixAdmFreq = { cart: 1, visit: 2 };
+  window.pixAdmClose = function() {
+    document.getElementById('pix-adm').classList.remove('pix-adm-open');
+  };
 
   window.pixAdmLoadCfg = function() {
-    try {
-      var cfg = JSON.parse(localStorage.getItem('pixSmartNotifyCfg') || 'null');
-      if (!cfg) return;
-      if (cfg.cartTitle)  setVal('pixAdmCartTitle',  cfg.cartTitle);
-      if (cfg.cartBody)   setVal('pixAdmCartBody',   cfg.cartBody);
-      if (cfg.visitTitle) setVal('pixAdmVisitTitle', cfg.visitTitle);
-      if (cfg.visitBody)  setVal('pixAdmVisitBody',  cfg.visitBody);
-      if (cfg.cartDays) {
-        pixAdmFreq.cart = cfg.cartDays;
-        var btns = document.querySelectorAll('#pixAdmCartFreq .pix-adm-freq-btn');
-        btns.forEach(function(b,i){ b.classList.toggle('pix-freq-active', (i+1)===cfg.cartDays); });
-      }
-      if (cfg.visitDays) {
-        pixAdmFreq.visit = cfg.visitDays;
-        var btns2 = document.querySelectorAll('#pixAdmVisitFreq .pix-adm-freq-btn');
-        btns2.forEach(function(b,i){ b.classList.toggle('pix-freq-active', (i+1)===cfg.visitDays); b.classList.toggle('blue', (i+1)===cfg.visitDays); });
-      }
-      if (cfg.askAll !== undefined) document.getElementById('pixAdmAskAll').checked = cfg.askAll;
-      if (cfg.dnd    !== undefined) document.getElementById('pixAdmDND').checked    = cfg.dnd;
-      pixAdmPreviewSync();
-    } catch(e) {}
+    var c = getCfg();
+    if (c.cartTitle)   document.getElementById('pa-cart-title').value  = c.cartTitle;
+    if (c.cartBody)    document.getElementById('pa-cart-body').value   = c.cartBody;
+    if (c.visitTitle)  document.getElementById('pa-visit-title').value = c.visitTitle;
+    if (c.visitBody)   document.getElementById('pa-visit-body').value  = c.visitBody;
+    document.getElementById('pa-on-visit').checked = cfg('onVisit',  true);
+    document.getElementById('pa-6pm').checked      = cfg('enable6pm', true);
+    document.getElementById('pa-ask-all').checked  = cfg('askAll',   true);
+    document.getElementById('pa-dnd').checked      = cfg('dnd',      true);
+    pixAdmSyncPreview();
   };
 
-  window.pixAdmUpdateStats = function() {
-    var perm = (typeof Notification !== 'undefined') ? Notification.permission : 'unsupported';
-    var el = document.getElementById('pixAdmStatPerm');
-    if (el) el.textContent = perm === 'granted' ? '✅ ON' : perm === 'denied' ? '❌ OFF' : '⚠️ Ask';
-    var cart = [];
-    try { cart = JSON.parse(localStorage.getItem('PIX_sw_cart') || '[]'); } catch(e){}
-    var el2 = document.getElementById('pixAdmStatCart');
-    if (el2) el2.textContent = cart.length || '0';
-  };
-  setInterval(function(){ if(document.getElementById('pix-admin-overlay').classList.contains('pix-admin-show')) window.pixAdmUpdateStats(); }, 3000);
-
-  window.pixAdmPreviewSync = function() {
-    sync('pixAdmCartTitle',  'pixAdmCartPrevTitle');
-    sync('pixAdmCartBody',   'pixAdmCartPrevBody');
-    sync('pixAdmVisitTitle', 'pixAdmVisitPrevTitle');
-    sync('pixAdmVisitBody',  'pixAdmVisitPrevBody');
+  window.pixAdmSyncPreview = function() {
+    function s(src, dst) {
+      var e = document.getElementById(src), d = document.getElementById(dst);
+      if (e && d) d.textContent = e.value;
+    }
+    s('pa-cart-title','pa-cart-prev-title');
+    s('pa-cart-body', 'pa-cart-prev-body');
+    s('pa-visit-title','pa-visit-prev-title');
+    s('pa-visit-body', 'pa-visit-prev-body');
   };
 
-  window.pixAdmSetFreq = function(type, days, btn) {
-    pixAdmFreq[type] = days;
-    var id = type === 'cart' ? 'pixAdmCartFreq' : 'pixAdmVisitFreq';
-    var isBlue = type === 'visit';
-    document.querySelectorAll('#' + id + ' .pix-adm-freq-btn').forEach(function(b) {
-      b.classList.remove('pix-freq-active', 'blue');
-    });
-    btn.classList.add('pix-freq-active');
-    if (isBlue) btn.classList.add('blue');
+  window.pixAdmRefreshStats = function() {
+    // Subscribers
+    var subs = getSubs();
+    document.getElementById('pa-stat-subs').textContent  = subs.length;
+    document.getElementById('pa-stat-visits').textContent= localStorage.getItem(K.visits) || '0';
+
+    // Cart — poll window.state
+    var cart = getCart();
+    document.getElementById('pa-stat-cart').textContent  = cart.length || '0';
+
+    // Permission
+    var perm = Notification.permission;
+    var permEl = document.getElementById('pa-stat-perm');
+    permEl.textContent = perm === 'granted' ? '✅' : perm === 'denied' ? '❌' : '⏳';
+    permEl.className   = 'n ' + (perm==='granted'?'green':perm==='denied'?'':'amber');
+
+    // Subscriber list
+    var listEl = document.getElementById('pa-sub-list');
+    if (subs.length === 0) {
+      listEl.innerHTML = '<div class="pa-empty">No subscribers yet — visitors who click Allow appear here</div>';
+    } else {
+      listEl.innerHTML = subs.map(function(s) {
+        var hasC = s.cart && s.cart > 0;
+        var d    = new Date(s.t);
+        var dateStr = d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) + ' ' +
+                      d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+        return '<div class="pa-sub-item">' +
+          '<div class="pa-sub-dot ' + (hasC?'cart':'visit') + '"></div>' +
+          '<div class="pa-sub-info">' +
+            '<div class="name">Subscriber #' + (subs.indexOf(s)+1) + '</div>' +
+            '<div class="meta">' + dateStr + ' · ' + s.ua + '</div>' +
+          '</div>' +
+          '<span class="pa-sub-badge ' + (hasC?'cart':'visit') + '">' + (hasC?'🛒 Had Cart':'👀 Visitor') + '</span>' +
+        '</div>';
+      }).join('');
+    }
   };
+  setInterval(function() {
+    if (document.getElementById('pix-adm').classList.contains('pix-adm-open'))
+      pixAdmRefreshStats();
+  }, 3000);
 
   window.pixAdmSave = function() {
-    var cfg = {
-      cartTitle:  getVal('pixAdmCartTitle'),
-      cartBody:   getVal('pixAdmCartBody'),
-      cartDays:   pixAdmFreq.cart,
-      visitTitle: getVal('pixAdmVisitTitle'),
-      visitBody:  getVal('pixAdmVisitBody'),
-      visitDays:  pixAdmFreq.visit,
-      askAll:     document.getElementById('pixAdmAskAll').checked,
-      dnd:        document.getElementById('pixAdmDND').checked,
+    var c = {
+      cartTitle:  document.getElementById('pa-cart-title').value.trim(),
+      cartBody:   document.getElementById('pa-cart-body').value.trim(),
+      visitTitle: document.getElementById('pa-visit-title').value.trim(),
+      visitBody:  document.getElementById('pa-visit-body').value.trim(),
+      onVisit:    document.getElementById('pa-on-visit').checked,
+      enable6pm:  document.getElementById('pa-6pm').checked,
+      askAll:     document.getElementById('pa-ask-all').checked,
+      dnd:        document.getElementById('pa-dnd').checked,
     };
-    try { localStorage.setItem('pixSmartNotifyCfg', JSON.stringify(cfg)); } catch(e){}
-    pixAdmToast('✅', 'Saved!', 'Config saved. Reloading so changes take effect…');
-    setTimeout(function(){ location.reload(); }, 1800);
+    localStorage.setItem(K.cfg, JSON.stringify(c));
+    paToast('✅','Saved & Applied','Configuration updated. Notification behaviour changes on next visit.');
+    syncToSW();
   };
 
   window.pixAdmTest = async function(type) {
     if (Notification.permission === 'denied') {
-      pixAdmToast('❌', 'Blocked', 'Notifications blocked. Reset in browser site settings.'); return;
+      paToast('❌','Blocked','Reset notification permission in browser site settings.'); return;
     }
     if (Notification.permission !== 'granted') {
       var r = await Notification.requestPermission();
-      if (r !== 'granted') { pixAdmToast('⚠️', 'Denied', 'Allow notifications to test.'); return; }
+      if (r !== 'granted') { paToast('⚠️','Denied','Allow notifications first.'); return; }
+      addSub();
     }
-    var title = getVal(type === 'cart' ? 'pixAdmCartTitle' : 'pixAdmVisitTitle');
-    var body  = getVal(type === 'cart' ? 'pixAdmCartBody'  : 'pixAdmVisitBody');
-    new Notification(title, { body: body, icon: 'https://risync.in/G4U/candle.png', tag: 'pix-test' });
-    pixAdmToast('🔔', 'Test sent!', 'Check your browser notifications now.');
+    fireNotif(type);
+    paToast('🔔','Test fired!','Check your browser notifications now.');
   };
 
-  window.pixAdminClose = function() {
-    document.getElementById('pix-admin-overlay').classList.remove('pix-admin-show');
-  };
-
-  window.pixAdmToast = function(icon, title, msg) {
-    var t = document.getElementById('pixAdmToast');
-    document.getElementById('pixAdmToastIcon').textContent  = icon;
-    document.getElementById('pixAdmToastTitle').textContent = title;
-    document.getElementById('pixAdmToastMsg').textContent   = msg;
-    t.classList.add('pix-toast-show');
-    setTimeout(function(){ t.classList.remove('pix-toast-show'); }, 4500);
-  };
-
-  function getVal(id) { var e=document.getElementById(id); return e ? e.value.trim() : ''; }
-  function setVal(id,v){ var e=document.getElementById(id); if(e) e.value=v; }
-  function sync(srcId, dstId) {
-    var s=document.getElementById(srcId), d=document.getElementById(dstId);
-    if(s&&d) d.textContent=s.value;
+  function paToast(icon, title, msg) {
+    document.getElementById('pa-ti').textContent = icon;
+    document.getElementById('pa-tt').textContent = title;
+    document.getElementById('pa-tm').textContent = msg;
+    var t = document.getElementById('pa-toast');
+    t.classList.add('show');
+    setTimeout(function(){ t.classList.remove('show'); }, 4500);
   }
+
+  console.log('[PIXSmartNotify v3] ✅ Live — visits:' + visits + ' perm:' + Notification.permission);
 })();
-
-
 </script>
 
 </body>
