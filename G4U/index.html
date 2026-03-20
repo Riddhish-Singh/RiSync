@@ -1686,6 +1686,88 @@
   #checkout .input { border-radius: 10px; font-size: 0.9rem; }
   #checkout h3 { letter-spacing: -0.02em; }
 
+  /* ── PORTER DELIVERY INTEGRATION STYLES ── */
+  .porter-section {
+    margin-top: 20px;
+    border-top: 1.5px solid rgba(196,23,85,0.08);
+    padding-top: 18px;
+  }
+  .porter-section-title {
+    font-size: 0.78rem; font-weight: 700; letter-spacing: 0.07em;
+    text-transform: uppercase; color: var(--text-secondary);
+    margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .porter-section-title::before {
+    content: '🚚'; font-size: 1rem;
+  }
+  .porter-options {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;
+  }
+  @media (max-width: 480px) { .porter-options { grid-template-columns: 1fr; } }
+  .porter-option {
+    border: 2px solid rgba(196,23,85,0.12);
+    border-radius: 14px; padding: 14px 16px;
+    cursor: pointer; position: relative;
+    transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+    background: var(--surface-primary);
+  }
+  html.dark .porter-option { border-color: rgba(255,255,255,0.1); }
+  .porter-option:hover { border-color: rgba(255,60,120,0.3); }
+  .porter-option.selected {
+    border-color: var(--brand-primary);
+    background: rgba(255,60,120,0.04);
+    box-shadow: 0 0 0 3px rgba(255,60,120,0.12);
+  }
+  .porter-option input[type="radio"] { display: none; }
+  .porter-option-label {
+    font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 0.88rem;
+    color: var(--text-primary); margin-bottom: 2px;
+  }
+  .porter-option-sub {
+    font-size: 0.73rem; color: var(--text-secondary); margin-bottom: 6px;
+  }
+  .porter-option-price {
+    font-family: 'Montserrat', sans-serif; font-weight: 900;
+    font-size: 1rem; color: var(--brand-primary);
+  }
+  .porter-option-eta {
+    font-size: 0.68rem; font-weight: 600; color: var(--text-secondary);
+    margin-top: 2px;
+  }
+  .porter-option-badge {
+    position: absolute; top: 10px; right: 10px;
+    background: var(--brand-primary); color: white;
+    font-size: 0.6rem; font-weight: 800; letter-spacing: 0.08em;
+    text-transform: uppercase; padding: 3px 8px; border-radius: 999px;
+  }
+  .porter-check {
+    position: absolute; top: 10px; right: 10px;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--brand-primary); color: white;
+    display: none; align-items: center; justify-content: center;
+    font-size: 0.75rem;
+  }
+  .porter-option.selected .porter-check { display: flex; }
+  .porter-option.selected .porter-option-badge { display: none; }
+  .porter-quote-status {
+    font-size: 0.78rem; color: var(--text-secondary);
+    padding: 8px 12px; border-radius: 10px;
+    background: rgba(196,23,85,0.04); border: 1px solid rgba(196,23,85,0.08);
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 10px;
+  }
+  .porter-spinner {
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 2px solid rgba(255,60,120,0.2);
+    border-top-color: var(--brand-primary);
+    animation: porterSpin 0.7s linear infinite; flex-shrink: 0;
+  }
+  @keyframes porterSpin { to { transform: rotate(360deg); } }
+  .porter-quote-status.error { background: rgba(231,76,60,0.06); border-color: rgba(231,76,60,0.15); color: #c0392b; }
+  .porter-quote-status.success { background: rgba(46,204,113,0.06); border-color: rgba(46,204,113,0.18); color: #27ae60; }
+  html.dark .porter-quote-status.success { color: #2ecc71; }
+  html.dark .porter-quote-status.error { color: #e74c3c; }
+
   /* Address book professional */
   #addrBookList .addr-card { transition: border-color 0.2s, box-shadow 0.2s; }
   #addrBookList .addr-card:hover { box-shadow: 0 4px 14px rgba(196,23,85,0.08); }
@@ -3098,7 +3180,48 @@
                     <div class="flex justify-between font-bold text-base mt-2 pt-2 border-t" style="border-color: rgba(128,128,128,0.2);"><strong data-i18n="total">Total</strong><strong id="coTot">₹0</strong></div>
                 </div>
                 <div class="field mb-4"><label class="text-sm font-medium">Coupon Code</label><input class="input" id="coupon" placeholder="PIX10"></div>
-                <div class="flex flex-col gap-3">
+
+                <!-- ═══ PORTER DELIVERY SECTION ═══ -->
+                <div class="porter-section" id="porterSection">
+                  <div class="porter-section-title">Delivery Method</div>
+
+                  <!-- Quote status indicator -->
+                  <div id="porterStatus" class="porter-quote-status" style="display:none;">
+                    <span class="porter-spinner" id="porterSpinner"></span>
+                    <span id="porterStatusText">Fetching delivery quotes…</span>
+                  </div>
+
+                  <!-- Delivery options -->
+                  <div class="porter-options" id="porterOptions">
+                    <!-- Standard option (always available) -->
+                    <label class="porter-option selected" id="opt-standard" onclick="selectPorterOption('standard')">
+                      <input type="radio" name="deliveryMethod" value="standard" checked>
+                      <div class="porter-option-label">🚛 Standard</div>
+                      <div class="porter-option-sub">Regular courier delivery</div>
+                      <div class="porter-option-price" id="std-price">₹99</div>
+                      <div class="porter-option-eta">3–6 business days</div>
+                      <div class="porter-check">✓</div>
+                    </label>
+
+                    <!-- Porter Express option -->
+                    <label class="porter-option" id="opt-porter" onclick="selectPorterOption('porter')" style="display:none;">
+                      <input type="radio" name="deliveryMethod" value="porter">
+                      <div class="porter-option-badge">EXPRESS</div>
+                      <div class="porter-option-label">⚡ Porter Express</div>
+                      <div class="porter-option-sub">Same-day / next-day</div>
+                      <div class="porter-option-price" id="porter-price">—</div>
+                      <div class="porter-option-eta" id="porter-eta">Calculating…</div>
+                      <div class="porter-check">✓</div>
+                    </label>
+                  </div>
+
+                  <div id="porterNote" style="font-size:0.73rem;color:var(--text-secondary);margin-bottom:4px;display:none;">
+                    📍 Porter express available for your area. Enter your address to get a quote.
+                  </div>
+                </div>
+                <!-- ═══ END PORTER SECTION ═══ -->
+
+                <div class="flex flex-col gap-3" style="margin-top:16px;">
                     <button class="w-full font-bold py-3.5 px-5 rounded-xl disabled:opacity-40 transition-all hover:shadow-lg flex items-center justify-center gap-2" id="pay" disabled style="background:linear-gradient(135deg,var(--brand-primary),var(--brand-secondary));color:white">
                       <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                       Confirm &amp; Pay
@@ -5196,7 +5319,20 @@
         }
         const sub = state.cart.reduce((a, i) => a + i.qty * i.price, 0);
         const freeShipThreshold = state.currency === 'USD' ? CX.FREE_SHIP_USD / CX.USD_RATE : CX.FREE_SHIP_INR;
-        const ship = sub > 0 && sub < freeShipThreshold ? 99 : 0;
+
+        // ── Porter delivery: use dynamic shipping cost if set ──────────────
+        let ship;
+        if (window.PORTER_STATE && window.PORTER_STATE.selectedMethod === 'porter' && window.PORTER_STATE.porterFee != null) {
+          ship = window.PORTER_STATE.porterFee;
+        } else if (window.PORTER_STATE && window.PORTER_STATE.selectedMethod === 'standard') {
+          ship = sub > 0 && sub < freeShipThreshold ? 99 : 0;
+          // Update standard option display price
+          const stdPriceEl = document.getElementById('std-price');
+          if (stdPriceEl) stdPriceEl.textContent = ship === 0 ? 'FREE' : fmt(ship);
+        } else {
+          ship = sub > 0 && sub < freeShipThreshold ? 99 : 0;
+        }
+
         const disc = ($('#coupon').value.trim().toUpperCase() === 'PIX10') ? Math.round(0.10 * (sub + ship)) : 0;
         // ⚠️ SECURITY: In production, coupon validation MUST happen server-side.
         // Never rely on client-side checks for discounts — users can bypass them.
@@ -5412,7 +5548,13 @@
               const p = PRODUCTS.find(x => x.id === ci.id);
               return s + (p ? p.price : 0) * ci.qty;
             }, 0);
-            const shipping   = subtotal >= CX.FREE_SHIP_INR ? 0 : CX.SHIPPING_INR;
+            // ── Porter: use selected delivery method shipping cost ──────────
+            let shipping;
+            if (window.PORTER_STATE && window.PORTER_STATE.selectedMethod === 'porter' && window.PORTER_STATE.porterFee != null) {
+              shipping = window.PORTER_STATE.porterFee;
+            } else {
+              shipping = subtotal >= CX.FREE_SHIP_INR ? 0 : (CX.SHIPPING_INR || 99);
+            }
             const discount   = couponCode === 'PIX10' ? Math.round(subtotal * 0.1) : 0;
             const orderTotal = subtotal + shipping - discount;
 
@@ -14744,6 +14886,390 @@ textarea.pa-inp{resize:vertical;min-height:64px;line-height:1.5}
   }
 
   console.log('[PIXSmartNotify v3] ✅ Live — visits:' + visits + ' perm:' + Notification.permission);
+})();
+</script>
+
+<!-- ══════════════════════════════════════════════════════════
+     🚚 PORTER DELIVERY INTEGRATION — Pioneer I Xpress
+     ══════════════════════════════════════════════════════════
+     Porter API docs: https://developer.porter.in/docs
+     Replace PORTER_API_KEY below with your actual API key.
+     Get it at: https://dashboard.porter.in → Settings → API Keys
+     ══════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+
+  /* ── CONFIG ──────────────────────────────────────────────────────── */
+  var PORTER_API_KEY  = 'YOUR_PORTER_API_KEY_HERE'; // ← Replace with your Porter API key
+  var PORTER_API_BASE = 'https://pfe-apigw-uat.porter.in'; // UAT (sandbox) endpoint
+  // For production use: 'https://api.porter.in'
+
+  /* Store pickup location coordinates (your warehouse / shop address).
+     Update these to your actual store coordinates. */
+  var PICKUP_LAT  = 30.9010;  // Example: Ludhiana, Punjab
+  var PICKUP_LNG  = 75.8573;
+  var PICKUP_ADDRESS = 'Pioneer I Xpress, Ludhiana, Punjab 141001';
+
+  /* Vehicle type to use for Porter express deliveries */
+  var VEHICLE_TYPE = '2 Wheelers'; // Options: '2 Wheelers', 'Porter Mini', 'Porter Truck'
+
+  /* ── STATE ───────────────────────────────────────────────────────── */
+  window.PORTER_STATE = {
+    selectedMethod : 'standard',
+    porterFee      : null,
+    porterETA      : null,
+    quoteId        : null,
+    dropLat        : null,
+    dropLng        : null,
+    isFetching     : false,
+    lastAddress    : ''
+  };
+
+  /* ── HELPERS ─────────────────────────────────────────────────────── */
+  function fmt(n) {
+    if (n === 0) return 'FREE';
+    return '₹' + n.toLocaleString('en-IN');
+  }
+
+  function setStatus(msg, type) {
+    var el = document.getElementById('porterStatus');
+    var txtEl = document.getElementById('porterStatusText');
+    var spinner = document.getElementById('porterSpinner');
+    if (!el || !txtEl) return;
+    el.style.display = msg ? 'flex' : 'none';
+    el.className = 'porter-quote-status' + (type ? ' ' + type : '');
+    txtEl.textContent = msg || '';
+    if (spinner) spinner.style.display = type === 'loading' ? 'block' : 'none';
+  }
+
+  function showPorterOption(fee, eta, quoteId) {
+    var optEl   = document.getElementById('opt-porter');
+    var priceEl = document.getElementById('porter-price');
+    var etaEl   = document.getElementById('porter-eta');
+    var noteEl  = document.getElementById('porterNote');
+    if (!optEl) return;
+    optEl.style.display = 'block';
+    if (priceEl) priceEl.textContent = fmt(fee);
+    if (etaEl)   etaEl.textContent   = eta || 'Same / Next day';
+    if (noteEl)  noteEl.style.display = 'block';
+    window.PORTER_STATE.porterFee  = fee;
+    window.PORTER_STATE.porterETA  = eta;
+    window.PORTER_STATE.quoteId    = quoteId || null;
+  }
+
+  function hidePorterOption() {
+    var optEl  = document.getElementById('opt-porter');
+    var noteEl = document.getElementById('porterNote');
+    if (optEl)  optEl.style.display  = 'none';
+    if (noteEl) noteEl.style.display = 'none';
+    // If Porter was selected, fall back to standard
+    if (window.PORTER_STATE.selectedMethod === 'porter') {
+      selectPorterOption('standard');
+    }
+  }
+
+  /* ── GEOCODE address → lat/lng using OpenStreetMap Nominatim (free) ── */
+  function geocodeAddress(address, callback) {
+    var encoded = encodeURIComponent(address + ', India');
+    var url = 'https://nominatim.openstreetmap.org/search?q=' + encoded + '&format=json&limit=1&countrycodes=in';
+    fetch(url, { headers: { 'Accept-Language': 'en' } })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data && data.length > 0) {
+          callback(null, { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) });
+        } else {
+          callback(new Error('Address not found'));
+        }
+      })
+      .catch(function (e) { callback(e); });
+  }
+
+  /* ── FETCH PORTER QUOTE ──────────────────────────────────────────── */
+  function fetchPorterQuote(dropLat, dropLng) {
+    /* Porter quote endpoint:
+       POST /v1/orders/get_quote
+       Docs: https://developer.porter.in/docs/get-quote */
+    var payload = {
+      pickup_details: {
+        lat: PICKUP_LAT,
+        lng: PICKUP_LNG
+      },
+      drop_details: {
+        lat: dropLat,
+        lng: dropLng
+      },
+      customer: {
+        mobile: { country_code: '+91', number: '9999999999' } // placeholder
+      }
+    };
+
+    return fetch(PORTER_API_BASE + '/v1/orders/get_quote', {
+      method  : 'POST',
+      headers : {
+        'Content-Type'  : 'application/json',
+        'x-api-key'     : PORTER_API_KEY
+      },
+      body: JSON.stringify(payload)
+    })
+    .then(function (r) {
+      if (!r.ok) throw new Error('Porter API error: ' + r.status);
+      return r.json();
+    });
+  }
+
+  /* ── PARSE PORTER QUOTE RESPONSE ────────────────────────────────── */
+  function parsePorterQuote(data) {
+    /* Response shape (Porter API):
+       { vehicles: [ { type: '2 Wheelers', fare: { minor_amount: 4900, currency: 'INR' }, eta: { ... } }, ... ] } */
+    if (!data || !data.vehicles || !data.vehicles.length) return null;
+
+    // Prefer the configured vehicle type, else use the first available
+    var vehicle = data.vehicles.find(function (v) {
+      return v.type && v.type.toLowerCase().indexOf(VEHICLE_TYPE.toLowerCase().split(' ')[0]) !== -1;
+    }) || data.vehicles[0];
+
+    if (!vehicle || !vehicle.fare) return null;
+
+    var amountPaise = vehicle.fare.minor_amount || 0;
+    var fee = Math.round(amountPaise / 100); // convert paise → rupees
+
+    // Build ETA string
+    var etaStr = '';
+    try {
+      var pickupMins = vehicle.eta && vehicle.eta.pickup && vehicle.eta.pickup.time
+        ? Math.round(vehicle.eta.pickup.time / 60) : null;
+      if (pickupMins !== null) {
+        etaStr = 'Pickup in ~' + pickupMins + ' min';
+      } else {
+        etaStr = 'Express delivery';
+      }
+    } catch (e) { etaStr = 'Express delivery'; }
+
+    return { fee: fee, eta: etaStr, vehicleType: vehicle.type };
+  }
+
+  /* ── MAIN: trigger quote fetch after address input ──────────────── */
+  var _quoteTimer = null;
+
+  function triggerPorterQuote(address) {
+    if (!address || address.length < 8) return;
+    if (address === window.PORTER_STATE.lastAddress) return;
+    window.PORTER_STATE.lastAddress = address;
+
+    clearTimeout(_quoteTimer);
+    _quoteTimer = setTimeout(function () {
+      if (window.PORTER_STATE.isFetching) return;
+      window.PORTER_STATE.isFetching = true;
+
+      setStatus('Getting Porter express quote…', 'loading');
+
+      geocodeAddress(address, function (geoErr, coords) {
+        if (geoErr || !coords) {
+          window.PORTER_STATE.isFetching = false;
+          setStatus('Could not locate address for express delivery.', 'error');
+          setTimeout(function () { setStatus(''); }, 4000);
+          hidePorterOption();
+          return;
+        }
+
+        window.PORTER_STATE.dropLat = coords.lat;
+        window.PORTER_STATE.dropLng = coords.lng;
+
+        fetchPorterQuote(coords.lat, coords.lng)
+          .then(function (data) {
+            window.PORTER_STATE.isFetching = false;
+            var parsed = parsePorterQuote(data);
+            if (!parsed) {
+              setStatus('Porter express not available for this area.', 'error');
+              setTimeout(function () { setStatus(''); }, 4000);
+              hidePorterOption();
+              return;
+            }
+            setStatus('✓ Porter express available for your area!', 'success');
+            setTimeout(function () { setStatus(''); }, 3500);
+            showPorterOption(parsed.fee, parsed.eta, data.quote_id);
+            // Re-render checkout totals
+            if (typeof renderCheckout === 'function') renderCheckout();
+          })
+          .catch(function (err) {
+            window.PORTER_STATE.isFetching = false;
+            console.warn('[Porter] Quote fetch failed:', err.message);
+            /* Graceful fallback: hide express option, standard still works */
+            setStatus('');
+            hidePorterOption();
+          });
+      });
+    }, 900); // debounce 900ms after user stops typing
+  }
+
+  /* ── DELIVERY METHOD SELECTION ───────────────────────────────────── */
+  window.selectPorterOption = function (method) {
+    window.PORTER_STATE.selectedMethod = method;
+
+    var stdEl    = document.getElementById('opt-standard');
+    var porterEl = document.getElementById('opt-porter');
+
+    if (stdEl)    stdEl.classList.toggle('selected',    method === 'standard');
+    if (porterEl) porterEl.classList.toggle('selected', method === 'porter');
+
+    // Re-render checkout totals with new shipping cost
+    if (typeof renderCheckout === 'function') renderCheckout();
+  };
+
+  /* ── ATTACH TO ADDRESS INPUT ─────────────────────────────────────── */
+  function attachAddressListener() {
+    var addrInput = document.getElementById('address');
+    if (!addrInput) { setTimeout(attachAddressListener, 500); return; }
+
+    // Trigger on input (debounced)
+    addrInput.addEventListener('input', function () {
+      var val = addrInput.value.trim();
+      triggerPorterQuote(val);
+    });
+
+    // Also trigger when address is auto-filled from saved addresses / locate button
+    // We observe the value via a MutationObserver on the input
+    var mo = new MutationObserver(function () {
+      var val = addrInput.value.trim();
+      if (val && val !== window.PORTER_STATE.lastAddress) triggerPorterQuote(val);
+    });
+    mo.observe(addrInput, { attributes: true, attributeFilter: ['value'] });
+
+    // Poll for programmatic fills (e.g. Locate button, saved address picker)
+    var _lastPoll = '';
+    setInterval(function () {
+      var val = addrInput.value.trim();
+      if (val && val !== _lastPoll && val !== window.PORTER_STATE.lastAddress) {
+        _lastPoll = val;
+        triggerPorterQuote(val);
+      }
+    }, 1200);
+  }
+
+  /* ── ALSO ATTACH TO coupon input so totals update ───────────────── */
+  function attachCouponListener() {
+    var couponInput = document.getElementById('coupon');
+    if (!couponInput) return;
+    couponInput.addEventListener('input', function () {
+      if (typeof renderCheckout === 'function') renderCheckout();
+    });
+  }
+
+  /* ── PORTER ORDER CREATION (called after Razorpay success) ──────── */
+  /* Porter requires a separate order creation call if you want them to
+     dispatch a rider. Call this from your Razorpay success handler.
+     POST /v1/orders/create  — see Porter docs for full payload.        */
+  window.createPorterOrder = function (razorpayOrderId, customerDetails) {
+    if (window.PORTER_STATE.selectedMethod !== 'porter') return Promise.resolve(null);
+    if (!window.PORTER_STATE.dropLat || !window.PORTER_STATE.dropLng) return Promise.resolve(null);
+
+    var payload = {
+      request_id    : 'PIX-' + Date.now(),
+      delivery_instructions: { instructions_list: [{ type: 'text', description: 'Handle with care' }] },
+      pickup_details: {
+        address: {
+          apartment_address : PICKUP_ADDRESS,
+          street_address1   : 'Pioneer I Xpress Store',
+          city              : 'Ludhiana',
+          state             : 'Punjab',
+          pincode           : '141001',
+          country           : 'India',
+          lat               : PICKUP_LAT,
+          lng               : PICKUP_LNG
+        },
+        contact: {
+          name   : 'Pioneer I Xpress',
+          mobile : { country_code: '+91', number: '6280096796' }
+        }
+      },
+      drop_details: {
+        address: {
+          apartment_address : customerDetails.address || '',
+          street_address1   : customerDetails.address || '',
+          city              : 'India',
+          state             : 'India',
+          pincode           : '',
+          country           : 'India',
+          lat               : window.PORTER_STATE.dropLat,
+          lng               : window.PORTER_STATE.dropLng
+        },
+        contact: {
+          name   : customerDetails.name || 'Customer',
+          mobile : { country_code: '+91', number: (customerDetails.phone || '9999999999').replace(/[^0-9]/g, '').slice(-10) }
+        }
+      },
+      invoice_amount  : customerDetails.orderTotal || 0,
+      payment_details : { type: 'prepaid' } // order is already paid via Razorpay
+    };
+
+    return fetch(PORTER_API_BASE + '/v1/orders/create', {
+      method  : 'POST',
+      headers : {
+        'Content-Type' : 'application/json',
+        'x-api-key'    : PORTER_API_KEY
+      },
+      body: JSON.stringify(payload)
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      console.log('[Porter] Order created:', data);
+      return data;
+    })
+    .catch(function (err) {
+      console.error('[Porter] Order creation failed:', err);
+      return null;
+    });
+  };
+
+  /* ── PATCH RAZORPAY SUCCESS HANDLER to create Porter order ─────── */
+  /* We hook into the global Razorpay handler by patching window after
+     the DOM is ready. The main script stores handler logic inline,
+     so we watch for payment success via a custom event approach.      */
+  document.addEventListener('PIX_ORDER_SUCCESS', function (e) {
+    var d = e.detail || {};
+    if (window.PORTER_STATE.selectedMethod !== 'porter') return;
+    window.createPorterOrder(d.razorpayOrderId, {
+      name       : d.customerName,
+      phone      : d.customerPhone,
+      address    : d.customerAddr,
+      orderTotal : d.orderTotal
+    }).then(function (result) {
+      if (result && result.order_id) {
+        console.log('[Porter] Rider dispatched. Porter Order ID:', result.order_id);
+      }
+    });
+  });
+
+  /* ── INIT ────────────────────────────────────────────────────────── */
+  document.addEventListener('DOMContentLoaded', function () {
+    attachAddressListener();
+    attachCouponListener();
+
+    /* Reset Porter state whenever checkout section opens */
+    var toCheckoutBtn = document.getElementById('toCheckout');
+    if (toCheckoutBtn) {
+      toCheckoutBtn.addEventListener('click', function () {
+        setTimeout(function () {
+          // Re-init standard option display
+          var stdPriceEl = document.getElementById('std-price');
+          if (stdPriceEl) {
+            var sub = (window.state && window.state.cart)
+              ? window.state.cart.reduce(function (a, i) { return a + i.qty * i.price; }, 0) : 0;
+            stdPriceEl.textContent = sub >= 1999 ? 'FREE' : '₹99';
+          }
+          // Trigger quote if address already filled
+          var addrInput = document.getElementById('address');
+          if (addrInput && addrInput.value.trim().length > 8) {
+            triggerPorterQuote(addrInput.value.trim());
+          }
+        }, 400);
+      });
+    }
+
+    console.log('[PIX Porter v1] ✅ Delivery integration loaded.');
+  });
+
 })();
 </script>
 
