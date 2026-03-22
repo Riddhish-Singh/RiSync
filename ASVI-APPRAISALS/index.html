@@ -2045,19 +2045,25 @@
                     <h2>Manager Zone</h2>
                     <p class="subtitle">Review your full team hierarchy — direct reports and their reportees.</p>
                 </div>
-                <div class="page-actions">
-                    <button class="btn-secondary" onclick="loadAdminTeamDashboard()">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.12-3.89"/></svg>
-                        Refresh Team
-                    </button>
-                </div>
             </div>
 
             <!-- Team Dashboard -->
             <div class="section-card" style="margin-bottom:20px;">
-                <div class="section-card-header">
+                <div class="section-card-header" style="flex-wrap:wrap;gap:8px;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                     <span class="section-card-title">Team Dashboard</span>
+                    <div style="display:flex;align-items:center;gap:8px;margin-left:auto;">
+                        <div style="display:flex;align-items:center;gap:6px;background:#f5f6f7;border:1px solid var(--border-color);border-radius:8px;padding:4px 10px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                            <select id="adminTeamViewFilter" onchange="applyAdminTeamDashboardFilter()" style="border:none;background:transparent;font-size:0.8rem;color:var(--text-main);font-family:inherit;outline:none;cursor:pointer;min-width:160px;">
+                                <option value="all">All Team Members</option>
+                            </select>
+                        </div>
+                        <button class="btn-secondary" onclick="loadAdminTeamDashboard()" style="font-size:0.78rem;padding:5px 12px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.12-3.89"/></svg>
+                            Refresh
+                        </button>
+                    </div>
                 </div>
                 <div class="section-card-body" style="padding:0;">
                     <div id="adminTeamDashboardSummary" style="display:flex;gap:0;border-bottom:1px solid var(--border-color);"></div>
@@ -5491,10 +5497,35 @@
             tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:28px;color:#6b7280;">Loading…</td></tr>';
 
             const allSubs = getAllSubordinates(currentUser.email);
+            window._adminTeamDashboardRows = [];
+
             if (allSubs.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:28px;color:#6b7280;">No team members found for your account.</td></tr>';
+                if (summaryEl) summaryEl.innerHTML = '';
                 return;
             }
+
+            // ── Populate admin view filter dropdown ──────────────────────
+            const filterSel = document.getElementById('adminTeamViewFilter');
+            if (filterSel) {
+                const directEmails = allSubs.filter(s => s.depth === 1).map(s => s.email);
+                const subManagerEmails = new Set(
+                    allSubs.filter(s => s.depth > 1).map(s => s.directManagerEmail)
+                             .filter(e => directEmails.includes(e))
+                );
+                filterSel.innerHTML = `<option value="all">All Team Members (${allSubs.length})</option>`;
+                const directCount = allSubs.filter(s => s.depth === 1).length;
+                if (directCount > 0) {
+                    filterSel.innerHTML += `<option value="direct">My Direct Reports (${directCount})</option>`;
+                }
+                subManagerEmails.forEach(mgrEmail => {
+                    const mgrName = DIRECTORY[mgrEmail]?.name || mgrEmail;
+                    const subCount = allSubs.filter(s => s.depth > 1 && s.directManagerEmail === mgrEmail).length;
+                    filterSel.innerHTML += `<option value="sub:${mgrEmail}">Team of ${mgrName} (${subCount})</option>`;
+                });
+                filterSel.value = 'all';
+            }
+
             try {
                 const snap = await getDocs(query(collection(db, "appraisals")));
                 const selfMap = {}, mgrMap = {};
@@ -5515,45 +5546,37 @@
                     return `<span style="font-weight:700;color:${c[r]||'#374151'};font-size:0.95rem;">${r}</span>`;
                 };
 
-                let submitted=0, reviewed=0, pending=0;
-                const ratingDist={1:0,2:0,3:0,4:0,5:0};
-
-                // Budget accumulators
-                let teamEligibleCTC=0, teamTotalIncrement=0, incrementPctSum=0, incrementPctCount=0;
-
-                tbody.innerHTML = allSubs.map(({ email: emp, info, depth, directManagerEmail }) => {
+                allSubs.forEach(({ email: emp, info, depth, directManagerEmail }) => {
                     const self = selfMap[emp], mgr = mgrMap[emp];
                     const sr = self ? parseInt(self.rating) : null;
                     const mr = mgr  ? parseInt(mgr.rating)  : null;
                     const fr = mr || sr;
-                    const ss = self?.status||'pending', ms = mgr?.status||'pending';
-                    if (ss==='submitted') submitted++;
-                    if (ms==='submitted') reviewed++; else if (ss==='submitted') pending++;
-                    if (fr) ratingDist[fr]=(ratingDist[fr]||0)+1;
-                    const fin = EMP_FINANCIAL_DATA[emp]||{};
+                    const ss = self?.status || 'pending';
+                    const ms = mgr?.status  || 'pending';
+                    const fin = EMP_FINANCIAL_DATA[emp] || {};
 
-                    // Budget accumulate
-                    const incCalc = calculateIncrement(emp, fr || 3);
-                    if (incCalc && incCalc.eligible) {
-                        teamEligibleCTC   += fin.currentCTC || 0;
-                        teamTotalIncrement += incCalc.incrementAmount + incCalc.additionalIncrement;
-                        incrementPctSum   += incCalc.finalIncrementPercent * 100;
-                        incrementPctCount++;
-                    }
+                    const incCalc  = calculateIncrement(emp, fr || 3);
+                    const rowStats = {
+                        selfStatus: ss, mgrStatus: ms, finalRating: fr,
+                        incEligible: !!(incCalc && incCalc.eligible),
+                        currentCTC:  fin.currentCTC || 0,
+                        incAmount:   incCalc?.eligible ? (incCalc.incrementAmount + incCalc.additionalIncrement) : 0,
+                        incPct:      incCalc?.eligible ? (incCalc.finalIncrementPercent * 100) : 0,
+                    };
 
                     const directMgrName = depth > 1
                         ? `<span style="font-size:0.68rem;color:#6b7280;display:block;margin-top:2px;">via ${DIRECTORY[directManagerEmail]?.name || directManagerEmail}</span>`
                         : `<span style="font-size:0.68rem;background:#e0e7ff;color:#3730a3;padding:1px 6px;border-radius:10px;font-weight:600;">Direct</span>`;
 
-                        const _colors2 = ['#6366f1','#0891b2','#059669','#d97706','#dc2626','#7c3aed','#db2777','#0284c7'];
-                        const _init2    = info.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-                        const _tPic2    = getEmployeePhoto(emp);
-                        const _col2     = _colors2[info.name.charCodeAt(0) % _colors2.length];
-                        const _avHtml2  = _tPic2
-                            ? `<img src="${_tPic2}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;" onerror="this.outerHTML='<div style=\\'width:32px;height:32px;border-radius:50%;background:${_col2};color:#fff;font-size:0.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;\\'>${_init2}</div>'">`
-                            : `<div style="width:32px;height:32px;border-radius:50%;background:${_col2};color:#fff;font-size:0.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${_init2}</div>`;
+                    const _colors2 = ['#6366f1','#0891b2','#059669','#d97706','#dc2626','#7c3aed','#db2777','#0284c7'];
+                    const _init2   = info.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+                    const _tPic2   = getEmployeePhoto(emp);
+                    const _col2    = _colors2[info.name.charCodeAt(0) % _colors2.length];
+                    const _avHtml2 = _tPic2
+                        ? `<img src="${_tPic2}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;" onerror="this.outerHTML='<div style=\\'width:32px;height:32px;border-radius:50%;background:${_col2};color:#fff;font-size:0.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;\\'>${_init2}</div>'">`
+                        : `<div style="width:32px;height:32px;border-radius:50%;background:${_col2};color:#fff;font-size:0.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${_init2}</div>`;
 
-                        return `<tr>
+                    const rowHtml = `<tr>
                         <td>
                             <div style="display:flex;align-items:center;gap:10px;">
                                 ${_avHtml2}
@@ -5572,72 +5595,56 @@
                         <td style="text-align:center;">${statusBadge(ss, ss==='submitted'?'Submitted':ss==='draft'?'Draft':'Pending')}</td>
                         <td style="text-align:center;">${statusBadge(ms, ms==='submitted'?'Reviewed':ms==='draft'?'Draft':'Pending')}</td>
                     </tr>`;
-                }).join('');
 
-                // Budget summary
-                const teamBudgetAllocated = teamEligibleCTC * 0.10;
-                const avgIncrementPct     = incrementPctCount > 0 ? incrementPctSum / incrementPctCount : 0;
-                const budgetUtilizedPct   = teamBudgetAllocated > 0 ? (teamTotalIncrement / teamBudgetAllocated) * 100 : 0;
-                const isOverBudget        = budgetUtilizedPct > 100;
-                const fmtL = (v) => v >= 100000 ? '₹' + (v / 100000).toFixed(1) + 'L' : '₹' + Math.round(v).toLocaleString('en-IN');
-                const budgetUtilColor = isOverBudget ? '#b91c1c' : budgetUtilizedPct > 80 ? '#d97706' : '#047857';
+                    window._adminTeamDashboardRows.push({ email: emp, depth, directManagerEmail, html: rowHtml, stats: rowStats });
+                });
 
-                const overBudgetBanner = isOverBudget ? `
-                    <div style="background:#fef2f2;border:1.5px solid #fca5a5;border-radius:8px;padding:10px 18px;margin:12px 16px 0;display:flex;align-items:center;gap:10px;">
-                        <svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='#b91c1c' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'/><line x1='12' y1='9' x2='12' y2='13'/><line x1='12' y1='17' x2='12.01' y2='17'/></svg>
-                        <div>
-                            <div style="font-size:0.82rem;font-weight:700;color:#b91c1c;">⚠ Over Budget Alert</div>
-                            <div style="font-size:0.74rem;color:#b91c1c;">Team increment spend of ${fmtL(teamTotalIncrement)} exceeds the allocated budget of ${fmtL(teamBudgetAllocated)} by ${fmtL(teamTotalIncrement - teamBudgetAllocated)} (${(budgetUtilizedPct - 100).toFixed(1)}% over). Please review ratings.</div>
-                        </div>
-                    </div>` : '';
+                tbody.innerHTML = window._adminTeamDashboardRows.map(r => r.html).join('') ||
+                    '<tr><td colspan="9" style="text-align:center;padding:28px;color:#6b7280;">No data.</td></tr>';
 
-                if (summaryEl) {
-                    const ms = 'flex:1;padding:14px 18px;text-align:center;border-right:1px solid var(--border-color);min-width:0;';
-                    const rc = {1:'#b91c1c',2:'#d97706',3:'#047857',4:'#1e40af',5:'#7c3aed'};
-                    const dots = [1,2,3,4,5].map(r=>
-                        `<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.72rem;font-weight:600;color:${rc[r]};margin:0 4px;">
-                            <span style="width:8px;height:8px;border-radius:50%;background:${rc[r]};display:inline-block;"></span>${r}:${ratingDist[r]||0}</span>`).join('');
-                    summaryEl.style.flexWrap = 'wrap';
-                    summaryEl.innerHTML = `
-                        <div style="${ms}">
-                            <div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Team Size</div>
-                            <div style="font-size:1.5rem;font-weight:800;color:var(--brand-primary);">${allSubs.length}</div>
-                        </div>
-                        <div style="${ms}">
-                            <div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Self Submitted</div>
-                            <div style="font-size:1.5rem;font-weight:800;color:#047857;">${submitted}</div>
-                        </div>
-                        <div style="${ms}">
-                            <div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Reviewed</div>
-                            <div style="font-size:1.5rem;font-weight:800;color:#1e40af;">${reviewed}</div>
-                        </div>
-                        <div style="${ms}">
-                            <div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Pending Review</div>
-                            <div style="font-size:1.5rem;font-weight:800;color:#d97706;">${pending}</div>
-                        </div>
-                        <div style="${ms}${isOverBudget?'border-top:2px solid #fca5a5;':''}">
-                            <div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Budget Allocated</div>
-                            <div style="font-size:1.2rem;font-weight:800;color:var(--brand-primary);">${fmtL(teamBudgetAllocated)}</div>
-                            <div style="font-size:0.63rem;color:var(--text-muted);margin-top:1px;">10% of eligible CTC</div>
-                        </div>
-                        <div style="${ms}">
-                            <div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Avg Increment %</div>
-                            <div style="font-size:1.5rem;font-weight:800;color:#1e40af;">${avgIncrementPct.toFixed(1)}%</div>
-                            <div style="font-size:0.63rem;color:var(--text-muted);margin-top:1px;">eligible members</div>
-                        </div>
-                        <div style="${ms}${isOverBudget?'background:#fef2f2;border-top:2px solid #fca5a5;':''}border-right:none;">
-                            <div style="font-size:0.68rem;text-transform:uppercase;color:${isOverBudget?'#b91c1c':'var(--text-muted)'};margin-bottom:3px;">${isOverBudget?'⚠ Budget Used':'Budget Used'}</div>
-                            <div style="font-size:1.2rem;font-weight:800;color:${budgetUtilColor};">${fmtL(teamTotalIncrement)}</div>
-                            <div style="font-size:0.72rem;font-weight:700;color:${budgetUtilColor};margin-top:2px;padding:1px 8px;border-radius:20px;display:inline-block;background:${isOverBudget?'#fee2e2':budgetUtilizedPct>80?'#fef3c7':'#d1fae5'};">${budgetUtilizedPct.toFixed(0)}% of budget</div>
-                        </div>
-                        ${overBudgetBanner ? `<div style="width:100%;padding:0 0 8px 0;">${overBudgetBanner}</div>` : ''}
-                        <div style="width:100%;padding:10px 18px 12px;border-top:1px solid var(--border-color);"><div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">Rating Distribution</div><div>${dots}</div></div>`;
-                }
+                _renderTeamSummary(summaryEl, window._adminTeamDashboardRows.map(r => r.stats), window._adminTeamDashboardRows.length);
+
             } catch(e) {
                 tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:28px;color:red;">${e.message}</td></tr>`;
             }
         }
         window.loadAdminTeamDashboard = loadAdminTeamDashboard;
+
+        // ── Admin Team Dashboard filter handler ───────────────────────────
+        function applyAdminTeamDashboardFilter() {
+            const tbody     = document.getElementById('adminTeamDashboardBody');
+            const summaryEl = document.getElementById('adminTeamDashboardSummary');
+
+            if (!window._adminTeamDashboardRows || window._adminTeamDashboardRows.length === 0) {
+                loadAdminTeamDashboard();
+                return;
+            }
+
+            const filterSel = document.getElementById('adminTeamViewFilter');
+            const filterVal = filterSel ? filterSel.value : 'all';
+
+            let filtered;
+            if (filterVal === 'all') {
+                filtered = window._adminTeamDashboardRows;
+            } else if (filterVal === 'direct') {
+                filtered = window._adminTeamDashboardRows.filter(r => r.depth === 1);
+            } else if (filterVal.startsWith('sub:')) {
+                const subMgrEmail = filterVal.slice(4);
+                filtered = window._adminTeamDashboardRows.filter(r => r.depth > 1 && r.directManagerEmail === subMgrEmail);
+            } else {
+                filtered = window._adminTeamDashboardRows;
+            }
+
+            if (tbody) {
+                tbody.innerHTML = filtered.length
+                    ? filtered.map(r => r.html).join('')
+                    : '<tr><td colspan="9" style="text-align:center;padding:28px;color:#6b7280;">No members found for this filter.</td></tr>';
+            }
+
+            _renderTeamSummary(summaryEl, filtered.map(r => r.stats), filtered.length);
+        }
+        window.applyAdminTeamDashboardFilter = applyAdminTeamDashboardFilter;
+
         window.initAdminManagerView = initAdminManagerView;
 
         let _adminLastLoadedEmpKPIs = [];
