@@ -5178,9 +5178,94 @@
         // TEAM DASHBOARD (Employee Manager Zone)
         // ═══════════════════════════════════════════════════════════════
 
-        // Store all rendered rows keyed by email for filtering
-        window._teamDashboardRows = []; // [{email, depth, directManagerEmail, html}]
+        // Store all row data (HTML + stats) for filter-time recalculation
+        window._teamDashboardRows = []; // [{email, depth, directManagerEmail, html, stats:{...}}]
         window._teamDashboardAllSubs = [];
+
+        // ── Shared helper: render the summary bar from an array of row-stats ──
+        function _renderTeamSummary(summaryEl, rowStats, totalCount) {
+            if (!summaryEl) return;
+            const fmtL = (v) => v >= 100000 ? '₹' + (v / 100000).toFixed(1) + 'L' : '₹' + Math.round(v).toLocaleString('en-IN');
+
+            let submitted = 0, reviewed = 0, pending = 0;
+            const ratingDist = {1:0,2:0,3:0,4:0,5:0};
+            let teamEligibleCTC = 0, teamTotalIncrement = 0, incrementPctSum = 0, incrementPctCount = 0;
+
+            rowStats.forEach(s => {
+                if (s.selfStatus === 'submitted') submitted++;
+                if (s.mgrStatus  === 'submitted') reviewed++;
+                else if (s.selfStatus === 'submitted') pending++;
+                if (s.finalRating) ratingDist[s.finalRating] = (ratingDist[s.finalRating] || 0) + 1;
+                if (s.incEligible) {
+                    teamEligibleCTC   += s.currentCTC || 0;
+                    teamTotalIncrement += s.incAmount  || 0;
+                    incrementPctSum   += s.incPct      || 0;
+                    incrementPctCount++;
+                }
+            });
+
+            const teamBudgetAllocated = teamEligibleCTC * 0.10;
+            const avgIncrementPct     = incrementPctCount > 0 ? (incrementPctSum / incrementPctCount) : 0;
+            const budgetUtilizedPct   = teamBudgetAllocated > 0 ? (teamTotalIncrement / teamBudgetAllocated) * 100 : 0;
+            const isOverBudget        = budgetUtilizedPct > 100;
+            const budgetUtilColor     = isOverBudget ? '#b91c1c' : budgetUtilizedPct > 80 ? '#d97706' : '#047857';
+
+            const overBudgetBanner = isOverBudget ? `
+                <div style="background:#fef2f2;border:1.5px solid #fca5a5;border-radius:8px;padding:10px 18px;margin:12px 16px 0;display:flex;align-items:center;gap:10px;">
+                    <svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='#b91c1c' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'/><line x1='12' y1='9' x2='12' y2='13'/><line x1='12' y1='17' x2='12.01' y2='17'/></svg>
+                    <div>
+                        <div style="font-size:0.82rem;font-weight:700;color:#b91c1c;">⚠ Over Budget Alert</div>
+                        <div style="font-size:0.74rem;color:#b91c1c;">Team increment spend of ${fmtL(teamTotalIncrement)} exceeds the allocated budget of ${fmtL(teamBudgetAllocated)} by ${fmtL(teamTotalIncrement - teamBudgetAllocated)} (${(budgetUtilizedPct - 100).toFixed(1)}% over). Please review ratings.</div>
+                    </div>
+                </div>` : '';
+
+            const metricStyle = 'flex:1;padding:14px 18px;text-align:center;border-right:1px solid var(--border-color);min-width:0;';
+            const ratingColors = {1:'#b91c1c',2:'#d97706',3:'#047857',4:'#1e40af',5:'#7c3aed'};
+            const ratingDots = [1,2,3,4,5].map(r =>
+                `<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.72rem;font-weight:600;color:${ratingColors[r]};margin:0 4px;">
+                    <span style="width:8px;height:8px;border-radius:50%;background:${ratingColors[r]};display:inline-block;"></span>${r}:${ratingDist[r]||0}
+                </span>`).join('');
+
+            summaryEl.style.flexWrap = 'wrap';
+            summaryEl.innerHTML = `
+                <div style="${metricStyle}">
+                    <div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Showing</div>
+                    <div style="font-size:1.5rem;font-weight:800;color:var(--brand-primary);">${totalCount}</div>
+                    <div style="font-size:0.63rem;color:var(--text-muted);margin-top:1px;">members</div>
+                </div>
+                <div style="${metricStyle}">
+                    <div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Self Submitted</div>
+                    <div style="font-size:1.5rem;font-weight:800;color:#047857;">${submitted}</div>
+                </div>
+                <div style="${metricStyle}">
+                    <div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Reviewed</div>
+                    <div style="font-size:1.5rem;font-weight:800;color:#1e40af;">${reviewed}</div>
+                </div>
+                <div style="${metricStyle}">
+                    <div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Pending Review</div>
+                    <div style="font-size:1.5rem;font-weight:800;color:#d97706;">${pending}</div>
+                </div>
+                <div style="${metricStyle}${isOverBudget ? 'border-top:2px solid #fca5a5;' : ''}">
+                    <div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Budget Allocated</div>
+                    <div style="font-size:1.2rem;font-weight:800;color:var(--brand-primary);">${fmtL(teamBudgetAllocated)}</div>
+                    <div style="font-size:0.63rem;color:var(--text-muted);margin-top:1px;">10% of eligible CTC</div>
+                </div>
+                <div style="${metricStyle}">
+                    <div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Avg Increment %</div>
+                    <div style="font-size:1.5rem;font-weight:800;color:#1e40af;">${avgIncrementPct.toFixed(1)}%</div>
+                    <div style="font-size:0.63rem;color:var(--text-muted);margin-top:1px;">eligible members</div>
+                </div>
+                <div style="${metricStyle}${isOverBudget ? 'background:#fef2f2;border-top:2px solid #fca5a5;' : ''}border-right:none;">
+                    <div style="font-size:0.68rem;text-transform:uppercase;color:${isOverBudget?'#b91c1c':'var(--text-muted)'};margin-bottom:3px;">${isOverBudget ? '⚠ Budget Used' : 'Budget Used'}</div>
+                    <div style="font-size:1.2rem;font-weight:800;color:${budgetUtilColor};">${fmtL(teamTotalIncrement)}</div>
+                    <div style="font-size:0.72rem;font-weight:700;color:${budgetUtilColor};margin-top:2px;padding:1px 8px;border-radius:20px;display:inline-block;background:${isOverBudget?'#fee2e2':budgetUtilizedPct>80?'#fef3c7':'#d1fae5'};">${budgetUtilizedPct.toFixed(0)}% of budget</div>
+                </div>
+                ${overBudgetBanner ? `<div style="width:100%;padding:0 0 8px 0;">${overBudgetBanner}</div>` : ''}
+                <div style="width:100%;padding:10px 18px 12px;border-top:1px solid var(--border-color);">
+                    <div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">Rating Distribution</div>
+                    <div>${ratingDots}</div>
+                </div>`;
+        }
 
         async function loadTeamDashboard() {
             const tbody = document.getElementById('teamDashboardBody');
@@ -5194,32 +5279,29 @@
 
             if (reports.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:28px;color:#6b7280;">No team members found.</td></tr>';
+                if (summaryEl) summaryEl.innerHTML = '';
                 return;
             }
 
             // ── Populate view filter dropdown ────────────────────────────
             const filterSel = document.getElementById('teamViewFilter');
             if (filterSel) {
-                // Identify sub-managers: direct reports who themselves manage someone
                 const directReports = allSubs.filter(s => s.depth === 1).map(s => s.email);
                 const subManagerEmails = new Set(
                     allSubs.filter(s => s.depth > 1).map(s => s.directManagerEmail)
                              .filter(e => directReports.includes(e))
                 );
-
-                // Reset & rebuild options
                 filterSel.innerHTML = `<option value="all">All Team Members (${allSubs.length})</option>`;
-
                 const directCount = allSubs.filter(s => s.depth === 1).length;
                 if (directCount > 0) {
                     filterSel.innerHTML += `<option value="direct">My Direct Reports (${directCount})</option>`;
                 }
-
                 subManagerEmails.forEach(mgrEmail => {
                     const mgrName = DIRECTORY[mgrEmail]?.name || mgrEmail;
                     const subCount = allSubs.filter(s => s.depth > 1 && s.directManagerEmail === mgrEmail).length;
                     filterSel.innerHTML += `<option value="sub:${mgrEmail}">Team of ${mgrName} (${subCount})</option>`;
                 });
+                filterSel.value = 'all'; // reset to All on each refresh
             }
 
             try {
@@ -5238,8 +5320,7 @@
                         draft:     'background:#fef3c7;color:#92400e;',
                         default:   'background:#f1f5f9;color:#6b7280;'
                     };
-                    const s = cfg[status] || cfg.default;
-                    return `<span style="${s}padding:2px 8px;border-radius:20px;font-size:0.72rem;font-weight:600;">${label}</span>`;
+                    return `<span style="${cfg[status]||cfg.default}padding:2px 8px;border-radius:20px;font-size:0.72rem;font-weight:600;">${label}</span>`;
                 };
                 const ratingBadge = (r) => {
                     if (!r) return `<span style="color:#9ca3af;font-size:0.78rem;">—</span>`;
@@ -5247,43 +5328,37 @@
                     return `<span style="font-weight:700;color:${colors[r]||'#374151'};font-size:0.95rem;">${r}</span>`;
                 };
 
-                let submitted = 0, reviewed = 0, pending = 0;
-                const ratingDist = {1:0,2:0,3:0,4:0,5:0};
-                let teamEligibleCTC = 0, teamTotalIncrement = 0, incrementPctSum = 0, incrementPctCount = 0;
-
-                // Build rows and store for filtering
+                // Build rows — store HTML + per-row stats separately
                 window._teamDashboardRows = [];
 
                 reports.forEach(([email, info, depth, directManagerEmail]) => {
                     const self = selfMap[email];
                     const mgr  = mgrMap[email];
-                    const selfRating = self ? parseInt(self.rating) : null;
-                    const mgrRating  = mgr  ? parseInt(mgr.rating)  : null;
+                    const selfRating  = self ? parseInt(self.rating) : null;
+                    const mgrRating   = mgr  ? parseInt(mgr.rating)  : null;
                     const finalRating = mgrRating || selfRating;
-                    const selfStatus = self?.status || 'pending';
-                    const mgrStatus  = mgr?.status  || 'pending';
-                    if (selfStatus === 'submitted') submitted++;
-                    if (mgrStatus  === 'submitted') reviewed++;
-                    else if (selfStatus === 'submitted') pending++;
-                    if (finalRating) ratingDist[finalRating] = (ratingDist[finalRating] || 0) + 1;
-                    const fin = EMP_FINANCIAL_DATA[email] || {};
+                    const selfStatus  = self?.status || 'pending';
+                    const mgrStatus   = mgr?.status  || 'pending';
+                    const fin         = EMP_FINANCIAL_DATA[email] || {};
 
-                    const incCalc = calculateIncrement(email, finalRating || 3);
-                    if (incCalc && incCalc.eligible) {
-                        teamEligibleCTC   += fin.currentCTC || 0;
-                        teamTotalIncrement += incCalc.incrementAmount + incCalc.additionalIncrement;
-                        incrementPctSum   += incCalc.finalIncrementPercent * 100;
-                        incrementPctCount++;
-                    }
+                    // Per-row budget stats
+                    const incCalc  = calculateIncrement(email, finalRating || 3);
+                    const rowStats = {
+                        selfStatus, mgrStatus, finalRating,
+                        incEligible: !!(incCalc && incCalc.eligible),
+                        currentCTC:  fin.currentCTC || 0,
+                        incAmount:   incCalc?.eligible ? (incCalc.incrementAmount + incCalc.additionalIncrement) : 0,
+                        incPct:      incCalc?.eligible ? (incCalc.finalIncrementPercent * 100) : 0,
+                    };
 
                     const directMgrName = depth > 1
                         ? `<span style="font-size:0.68rem;color:#6b7280;display:block;margin-top:2px;">via ${DIRECTORY[directManagerEmail]?.name || directManagerEmail}</span>`
                         : `<span style="font-size:0.68rem;background:#e0e7ff;color:#3730a3;padding:1px 6px;border-radius:10px;font-weight:600;">Direct</span>`;
 
                     const _colors = ['#6366f1','#0891b2','#059669','#d97706','#dc2626','#7c3aed','#db2777','#0284c7'];
-                    const _initials = info.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-                    const _teamPic  = getEmployeePhoto(email);
-                    const _col      = _colors[info.name.charCodeAt(0) % _colors.length];
+                    const _initials  = info.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+                    const _teamPic   = getEmployeePhoto(email);
+                    const _col       = _colors[info.name.charCodeAt(0) % _colors.length];
                     const _avatarHtml = _teamPic
                         ? `<img src="${_teamPic}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;" onerror="this.outerHTML='<div style=\\'width:32px;height:32px;border-radius:50%;background:${_col};color:#fff;font-size:0.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;\\'>${_initials}</div>'">`
                         : `<div style="width:32px;height:32px;border-radius:50%;background:${_col};color:#fff;font-size:0.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${_initials}</div>`;
@@ -5304,88 +5379,32 @@
                         <td style="text-align:center;">${ratingBadge(selfRating)}</td>
                         <td style="text-align:center;">${ratingBadge(mgrRating)}</td>
                         <td style="text-align:center;">${ratingBadge(finalRating)}</td>
-                        <td style="text-align:center;">${statusBadge(selfStatus, selfStatus === 'submitted' ? 'Submitted' : selfStatus === 'draft' ? 'Draft' : 'Pending')}</td>
-                        <td style="text-align:center;">${statusBadge(mgrStatus, mgrStatus === 'submitted' ? 'Reviewed' : mgrStatus === 'draft' ? 'Draft' : 'Pending')}</td>
+                        <td style="text-align:center;">${statusBadge(selfStatus, selfStatus==='submitted'?'Submitted':selfStatus==='draft'?'Draft':'Pending')}</td>
+                        <td style="text-align:center;">${statusBadge(mgrStatus,  mgrStatus==='submitted'?'Reviewed':mgrStatus==='draft'?'Draft':'Pending')}</td>
                     </tr>`;
 
-                    window._teamDashboardRows.push({ email, depth, directManagerEmail, html: rowHtml });
+                    window._teamDashboardRows.push({ email, depth, directManagerEmail, html: rowHtml, stats: rowStats });
                 });
 
-                // Render all rows initially
+                // Render all rows and summary initially (no filter)
                 tbody.innerHTML = window._teamDashboardRows.map(r => r.html).join('') ||
                     '<tr><td colspan="9" style="text-align:center;padding:28px;color:#6b7280;">No data.</td></tr>';
 
-                // Compute budget summary
-                const teamBudgetAllocated = teamEligibleCTC * 0.10;
-                const avgIncrementPct     = incrementPctCount > 0 ? (incrementPctSum / incrementPctCount) : 0;
-                const budgetUtilizedPct   = teamBudgetAllocated > 0 ? (teamTotalIncrement / teamBudgetAllocated) * 100 : 0;
-                const isOverBudget        = budgetUtilizedPct > 100;
-                const fmtL = (v) => v >= 100000 ? '₹' + (v / 100000).toFixed(1) + 'L' : '₹' + Math.round(v).toLocaleString('en-IN');
-                const budgetUtilColor = isOverBudget ? '#b91c1c' : budgetUtilizedPct > 80 ? '#d97706' : '#047857';
+                _renderTeamSummary(summaryEl, window._teamDashboardRows.map(r => r.stats), window._teamDashboardRows.length);
 
-                const overBudgetBanner = isOverBudget ? `
-                    <div style="background:#fef2f2;border:1.5px solid #fca5a5;border-radius:8px;padding:10px 18px;margin:12px 16px 0;display:flex;align-items:center;gap:10px;">
-                        <svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='#b91c1c' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'/><line x1='12' y1='9' x2='12' y2='13'/><line x1='12' y1='17' x2='12.01' y2='17'/></svg>
-                        <div>
-                            <div style="font-size:0.82rem;font-weight:700;color:#b91c1c;">⚠ Over Budget Alert</div>
-                            <div style="font-size:0.74rem;color:#b91c1c;">Team increment spend of ${fmtL(teamTotalIncrement)} exceeds the allocated budget of ${fmtL(teamBudgetAllocated)} by ${fmtL(teamTotalIncrement - teamBudgetAllocated)} (${(budgetUtilizedPct - 100).toFixed(1)}% over). Please review ratings.</div>
-                        </div>
-                    </div>` : '';
-
-                if (summaryEl) {
-                    const metricStyle = 'flex:1;padding:14px 18px;text-align:center;border-right:1px solid var(--border-color);min-width:0;';
-                    const ratingColors = {1:'#b91c1c',2:'#d97706',3:'#047857',4:'#1e40af',5:'#7c3aed'};
-                    const ratingDots = [1,2,3,4,5].map(r =>
-                        `<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.72rem;font-weight:600;color:${ratingColors[r]};margin:0 4px;">
-                            <span style="width:8px;height:8px;border-radius:50%;background:${ratingColors[r]};display:inline-block;"></span>${r}:${ratingDist[r]||0}
-                        </span>`).join('');
-                    summaryEl.style.flexWrap = 'wrap';
-                    summaryEl.innerHTML = `
-                        <div style="${metricStyle}">
-                            <div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Team Size</div>
-                            <div style="font-size:1.5rem;font-weight:800;color:var(--brand-primary);">${allSubs.length}</div>
-                        </div>
-                        <div style="${metricStyle}">
-                            <div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Self Submitted</div>
-                            <div style="font-size:1.5rem;font-weight:800;color:#047857;">${submitted}</div>
-                        </div>
-                        <div style="${metricStyle}">
-                            <div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Reviewed</div>
-                            <div style="font-size:1.5rem;font-weight:800;color:#1e40af;">${reviewed}</div>
-                        </div>
-                        <div style="${metricStyle}">
-                            <div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Pending Review</div>
-                            <div style="font-size:1.5rem;font-weight:800;color:#d97706;">${pending}</div>
-                        </div>
-                        <div style="${metricStyle}${isOverBudget ? 'border-top:2px solid #fca5a5;' : ''}">
-                            <div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Budget Allocated</div>
-                            <div style="font-size:1.2rem;font-weight:800;color:var(--brand-primary);">${fmtL(teamBudgetAllocated)}</div>
-                            <div style="font-size:0.63rem;color:var(--text-muted);margin-top:1px;">10% of eligible CTC</div>
-                        </div>
-                        <div style="${metricStyle}">
-                            <div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Avg Increment %</div>
-                            <div style="font-size:1.5rem;font-weight:800;color:#1e40af;">${avgIncrementPct.toFixed(1)}%</div>
-                            <div style="font-size:0.63rem;color:var(--text-muted);margin-top:1px;">eligible members</div>
-                        </div>
-                        <div style="${metricStyle}${isOverBudget ? 'background:#fef2f2;border-top:2px solid #fca5a5;' : ''}border-right:none;">
-                            <div style="font-size:0.68rem;text-transform:uppercase;color:${isOverBudget?'#b91c1c':'var(--text-muted)'};margin-bottom:3px;">${isOverBudget ? '⚠ Budget Used' : 'Budget Used'}</div>
-                            <div style="font-size:1.2rem;font-weight:800;color:${budgetUtilColor};">${fmtL(teamTotalIncrement)}</div>
-                            <div style="font-size:0.72rem;font-weight:700;color:${budgetUtilColor};margin-top:2px;padding:1px 8px;border-radius:20px;display:inline-block;background:${isOverBudget?'#fee2e2':budgetUtilizedPct>80?'#fef3c7':'#d1fae5'};">${budgetUtilizedPct.toFixed(0)}% of budget</div>
-                        </div>
-                        ${overBudgetBanner ? `<div style="width:100%;padding:0 0 8px 0;">${overBudgetBanner}</div>` : ''}
-                        <div style="width:100%;padding:10px 18px 12px;border-top:1px solid var(--border-color);"><div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">Rating Distribution</div><div>${ratingDots}</div></div>`;
-                }
             } catch(e) {
                 tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:28px;color:red;">${e.message}</td></tr>`;
             }
         }
         window.loadTeamDashboard = loadTeamDashboard;
 
-        // ── Team Dashboard filter handler ─────────────────────────────────
+        // ── Team Dashboard filter handler — recalculates ALL stats for the filtered subset ──
         function applyTeamDashboardFilter() {
-            const tbody = document.getElementById('teamDashboardBody');
-            if (!tbody || !window._teamDashboardRows || window._teamDashboardRows.length === 0) {
-                // Data not loaded yet — trigger a load
+            const tbody     = document.getElementById('teamDashboardBody');
+            const summaryEl = document.getElementById('teamDashboardSummary');
+
+            if (!window._teamDashboardRows || window._teamDashboardRows.length === 0) {
+                // Data not loaded yet — trigger a full load
                 loadTeamDashboard();
                 return;
             }
@@ -5405,11 +5424,15 @@
                 filtered = window._teamDashboardRows;
             }
 
-            if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:28px;color:#6b7280;">No members found for this filter.</td></tr>';
-            } else {
-                tbody.innerHTML = filtered.map(r => r.html).join('');
+            // Update table rows
+            if (tbody) {
+                tbody.innerHTML = filtered.length
+                    ? filtered.map(r => r.html).join('')
+                    : '<tr><td colspan="9" style="text-align:center;padding:28px;color:#6b7280;">No members found for this filter.</td></tr>';
             }
+
+            // Recompute and re-render summary stats for the filtered subset
+            _renderTeamSummary(summaryEl, filtered.map(r => r.stats), filtered.length);
         }
         window.applyTeamDashboardFilter = applyTeamDashboardFilter;
 
@@ -7547,3 +7570,9 @@
     </div>
 
     <style>
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .settings-tab { transition: color 0.15s, border-color 0.15s; }
+        .settings-tab:hover { color: #6B0F1A !important; }
+    </style>
+</body>
+</html>
