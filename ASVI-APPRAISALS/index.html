@@ -909,45 +909,105 @@
             </div>
 
             <div id="tabSelf" class="tab-content">
-                <div class="section-card">
+
+                <!-- EMPLOYEE INFO BANNER (auto-populated on login) -->
+                <div id="empInfoBanner" style="background:linear-gradient(135deg,var(--brand-primary) 0%,var(--brand-primary-dark) 100%);border-radius:8px;padding:18px 22px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+                    <div style="display:flex;align-items:center;gap:14px;">
+                        <div id="empAvatarLarge" style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:800;color:#fff;flex-shrink:0;">—</div>
+                        <div>
+                            <div id="empBannerName" style="font-size:1.05rem;font-weight:800;color:#fff;line-height:1.2;">—</div>
+                            <div id="empBannerDesig" style="font-size:0.82rem;color:rgba(255,255,255,0.78);margin-top:2px;">—</div>
+                            <div id="empBannerDept" style="font-size:0.75rem;color:rgba(255,255,255,0.55);margin-top:1px;">—</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:20px;flex-wrap:wrap;">
+                        <div style="text-align:center;">
+                            <div style="font-size:0.65rem;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;">Emp ID</div>
+                            <div id="empBannerEmpId" style="font-size:0.9rem;font-weight:700;color:#fff;">—</div>
+                        </div>
+                        <div style="text-align:center;">
+                            <div style="font-size:0.65rem;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;">Date of Joining</div>
+                            <div id="empBannerDOJ" style="font-size:0.9rem;font-weight:700;color:#fff;">—</div>
+                        </div>
+                        <div style="text-align:center;">
+                            <div style="font-size:0.65rem;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;">Fixed CTC</div>
+                            <div id="empBannerFixed" style="font-size:0.9rem;font-weight:700;color:#fff;">—</div>
+                        </div>
+                        <div style="text-align:center;">
+                            <div style="font-size:0.65rem;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;">PLI</div>
+                            <div id="empBannerPLI" style="font-size:0.9rem;font-weight:700;color:#fff;">—</div>
+                        </div>
+                        <div style="text-align:center;">
+                            <div style="font-size:0.65rem;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;">Total CTC</div>
+                            <div id="empBannerTotal" style="font-size:0.9rem;font-weight:700;color:#fff;">—</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CTC SECTION -->
+                <div class="section-card" style="margin-bottom:16px;">
                     <div class="section-card-header">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>
-                        <span class="section-card-title">Self Appraisal</span>
-                        <span style="color:var(--text-muted);font-size:0.78rem;margin-left:auto;">FY 2025–26 Cycle</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+                        <span class="section-card-title">Current CTC Details</span>
+                        <span style="margin-left:auto;font-size:0.75rem;color:var(--text-muted);background:var(--tint-purple);padding:2px 10px;border-radius:20px;">Auto-filled from HR records</span>
                     </div>
                     <div class="section-card-body">
-                    <div id="selfDraftNotice" class="draft-notice">Draft loaded. You can continue editing.</div>
-                    <div class="form-grid">
-                    <div class="input-wrapper">
-                        <label>Key Accomplishments</label>
-                        <textarea id="selfAccom" rows="5" placeholder="Highlight your wins, completed projects, and value delivered..."></textarea>
+                        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+                            <div class="input-wrapper" style="margin:0;">
+                                <label>Fixed CTC (Yearly) ₹</label>
+                                <input type="number" id="ctcFixed" placeholder="e.g. 1200000" oninput="recalcTotalCTC()" min="0" step="1000" style="background:#f8f5fa;font-weight:600;" readonly>
+                            </div>
+                            <div class="input-wrapper" style="margin:0;">
+                                <label>Performance Linked Incentive (PLI) ₹</label>
+                                <input type="number" id="ctcPLI" placeholder="e.g. 200000" oninput="recalcTotalCTC()" min="0" step="1000" style="background:#f8f5fa;font-weight:600;" readonly>
+                            </div>
+                            <div class="input-wrapper" style="margin:0;">
+                                <label>Total CTC ₹</label>
+                                <input type="number" id="ctcTotal" placeholder="Auto-calculated" readonly style="background:#f8f5fa;font-weight:700;color:var(--brand-primary);">
+                            </div>
+                        </div>
                     </div>
-                    <div class="input-wrapper">
-                        <label>Challenges & Growth Areas</label>
-                        <textarea id="selfChall" rows="5" placeholder="What obstacles did you face? What support do you need?"></textarea>
+                </div>
+
+                <!-- KPI SECTION -->
+                <div class="section-card">
+                    <div class="section-card-header" style="justify-content:space-between;">
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>
+                            <span class="section-card-title">Self Appraisal — KRA & KPIs</span>
+                        </div>
+                        <span style="color:var(--text-muted);font-size:0.78rem;">FY 2025–26 Cycle</span>
                     </div>
-                    <div class="input-wrapper">
-                        <label>Self Rating (1-5)</label>
-                        <select id="selfRating">
-                            <option value="">Select Rating...</option>
-                            <option value="5">5 - Outstanding</option>
-                            <option value="4">4 - Exceeds Expectations</option>
-                            <option value="3">3 - Meets Expectations</option>
-                            <option value="2">2 - Needs Improvement</option>
-                            <option value="1">1 - Unsatisfactory</option>
-                        </select>
+                    <div class="section-card-body">
+                        <div id="selfDraftNotice" class="draft-notice">Draft loaded. You can continue editing.</div>
+
+                        <!-- Weightage tracker -->
+                        <div id="weightageTracker" style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--tint-purple);border-radius:6px;margin-bottom:16px;border:1px solid rgba(81,40,93,0.12);">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                            <span style="font-size:0.82rem;color:var(--brand-primary);">Total KPI Weightage: <strong id="totalWeightageDisplay">0%</strong> <span id="weightageWarning" style="color:var(--brand-accent);display:none;"> — Must sum to 100%</span></span>
+                            <span style="margin-left:auto;font-size:0.78rem;color:var(--text-muted);">Overall Self Rating: <strong id="overallSelfRatingDisplay" style="color:var(--brand-primary);">—</strong></span>
+                        </div>
+
+                        <!-- KPI Cards Container -->
+                        <div id="kpiCardsContainer"></div>
+
+                        <!-- Add KPI Button -->
+                        <div id="addKpiArea" style="margin-bottom:20px;">
+                            <button onclick="addKPICard()" class="btn-secondary" style="display:flex;align-items:center;gap:8px;border-style:dashed;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                Add KRA / KPI
+                            </button>
+                        </div>
+
+                        <div id="selfBtnGroup" class="btn-group">
+                            <button onclick="saveSelfDraft()" class="btn-secondary">Save Draft</button>
+                            <button onclick="submitSelfAppraisal()" class="btn-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                Submit Final
+                            </button>
+                        </div>
                     </div>
-                    
-                    <div id="selfBtnGroup" class="btn-group">
-                        <button onclick="saveSelfDraft()" class="btn-secondary">Save Draft</button>
-                        <button onclick="submitSelfAppraisal()" class="btn-primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                            Submit Final
-                        </button>
-                    </div>
-                    </div><!-- /form-grid -->
-                    </div><!-- /section-card-body -->
-                </div><!-- /section-card -->
+                </div>
             </div>
 
             <div id="tabMyData" class="tab-content" style="display:none;">
@@ -1004,8 +1064,8 @@
                 <!-- ── INDIVIDUAL REVIEW ───────────────────────────────── -->
                 <div class="section-card">
                     <div class="section-card-header">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                        <span class="section-card-title">Write Review</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        <span class="section-card-title">Write Manager Review</span>
                     </div>
                     <div class="section-card-body">
                     <div id="managerDraftNotice" class="draft-notice">Draft loaded for this employee.</div>
@@ -1017,25 +1077,36 @@
                         </select>
                     </div>
                     
-                    <div id="employeeSelfView" style="display:none;">
+                    <!-- Employee CTC (read-only display) -->
+                    <div id="employeeCTCView" style="display:none;margin-bottom:16px;">
+                        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:14px 16px;background:#f8f5fa;border-radius:8px;border:1px solid rgba(81,40,93,0.12);">
+                            <div><span style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Fixed CTC</span><br><strong id="mgrViewFixedCTC" style="color:var(--brand-primary);">—</strong></div>
+                            <div><span style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">PLI</span><br><strong id="mgrViewPLI" style="color:var(--brand-primary);">—</strong></div>
+                            <div><span style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Total CTC</span><br><strong id="mgrViewTotalCTC" style="color:var(--brand-primary);">—</strong></div>
                         </div>
+                    </div>
 
-                    <div class="input-wrapper">
-                        <label>Manager's Feedback</label>
-                        <textarea id="managerFeedback" rows="5" placeholder="Provide constructive feedback..."></textarea>
+                    <!-- Employee self-view (KPI cards) -->
+                    <div id="employeeSelfView" style="display:none;"></div>
+
+                    <!-- Manager KPI Review Panels -->
+                    <div id="managerKPIReviewContainer" style="display:none;">
+                        <div style="font-weight:700;color:var(--brand-primary);font-size:0.9rem;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--brand-primary);">Manager Assessment per KRA / KPI</div>
+                        <div id="managerKPIReviewCards"></div>
+                        <!-- Overall manager rating -->
+                        <div style="background:var(--tint-purple);border-radius:8px;padding:16px;margin-top:16px;border:1px solid rgba(81,40,93,0.15);">
+                            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+                                <strong style="color:var(--brand-primary);">Manager Overall Assessment</strong>
+                                <span style="font-size:0.82rem;color:var(--text-muted);">Weighted avg: <strong id="mgrOverallPctDisplay">—</strong> &nbsp;|&nbsp; Rating out of 5: <strong id="mgrOverallRatingDisplay">—</strong></span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="input-wrapper">
-                        <label>Performance Rating</label>
-                        <select id="managerRating">
-                            <option value="">Select Rating...</option>
-                            <option value="5">5 - Outstanding</option>
-                            <option value="4">4 - Exceeds Expectations</option>
-                            <option value="3">3 - Meets Expectations</option>
-                            <option value="2">2 - Needs Improvement</option>
-                            <option value="1">1 - Unsatisfactory</option>
-                        </select>
+
+                    <!-- Fallback: no KPIs yet -->
+                    <div id="managerNoKPIMsg" style="display:none;padding:16px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;color:#92400e;font-size:0.85rem;">
+                        ⚠️ This employee has not submitted their self-appraisal yet or has no KPIs defined.
                     </div>
-                    
+
                     <div id="managerBtnGroup" class="btn-group">
                         <button onclick="saveManagerDraft()" class="btn-secondary">Save Draft</button>
                         <button onclick="submitManagerReview()" class="btn-primary">
@@ -1081,15 +1152,16 @@
                         <table id="adminTable">
                             <thead>
                                 <tr>
-                                    <th style="width:90px;">Type</th>
-                                    <th style="width:200px;">Employee</th>
-                                    <th style="width:180px;">Reviewer</th>
-                                    <th style="width:80px;">Rating</th>
-                                    <th>Feedback Details</th>
+                                    <th style="width:240px;">Employee</th>
+                                    <th style="width:160px;">Designation / Dept</th>
+                                    <th style="width:130px;">Self Assessment</th>
+                                    <th style="width:130px;">Manager Review</th>
+                                    <th style="width:100px;">Final Rating</th>
+                                    <th style="width:100px; text-align:center;">Details</th>
                                 </tr>
                             </thead>
                             <tbody id="adminBody">
-                                <tr><td colspan="5" style="text-align:center; padding:60px; color:#6b7280;">Loading records...</td></tr>
+                                <tr><td colspan="6" style="text-align:center; padding:60px; color:#6b7280;">Loading records...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1164,7 +1236,7 @@
                                 <th style="font-size:0.65rem;font-weight:500;color:#9ca3af;text-transform:none;letter-spacing:0;padding:4px 10px;border-bottom:none;">Manual Input</th>
                                 <th colspan="2" style="font-size:0.65rem;font-weight:500;color:#e0ad00;text-transform:none;letter-spacing:0;padding:4px 10px;border-bottom:none;">Current CTC</th>
                                 <th colspan="2" style="font-size:0.65rem;font-weight:500;color:#9ca3af;text-transform:none;letter-spacing:0;padding:4px 10px;border-bottom:none;">Manual Input</th>
-                                <th style="font-size:0.65rem;font-weight:500;color:#e0ad00;text-transform:none;letter-spacing:0;padding:4px 10px;border-bottom:none;">Manual Input</th>
+                                <th style="font-size:0.65rem;font-weight:500;color:#047857;text-transform:none;letter-spacing:0;padding:4px 10px;border-bottom:none;">Auto (HR) 🔒</th>
                                 <th style="font-size:0.65rem;font-weight:500;color:#6b7280;font-style:italic;text-transform:none;letter-spacing:0;padding:4px 10px;border-bottom:none;">Formula</th>
                                 <th style="font-size:0.65rem;font-weight:500;color:#6b7280;font-style:italic;text-transform:none;letter-spacing:0;padding:4px 10px;border-bottom:none;">Formula</th>
                                 <th style="font-size:0.65rem;font-weight:500;color:#6b7280;font-style:italic;text-transform:none;letter-spacing:0;padding:4px 10px;border-bottom:none;">Formula</th>
@@ -1190,7 +1262,7 @@
                                 <th style="min-width:110px;">Cost to Company</th>
                                 <th style="min-width:80px;">Variable2</th>
                                 <th style="min-width:110px;">CTC</th>
-                                <th style="min-width:120px;">Current CTC</th>
+                                <th style="min-width:120px;" title="Auto-filled from HR records — not editable">Current CTC 🔒</th>
                                 <th style="min-width:130px;">Market Benchmark</th>
                                 <th style="min-width:100px;">Difference %</th>
                                 <th style="min-width:85px;">Rating %</th>
@@ -1610,21 +1682,27 @@
                                 <option value="">-- Choose Employee --</option>
                             </select>
                         </div>
-                        <div id="adminEmployeeSelfView" style="display:none;"></div>
-                        <div class="input-wrapper">
-                            <label>Manager's Feedback</label>
-                            <textarea id="adminManagerFeedback" rows="5" placeholder="Provide constructive feedback..."></textarea>
+                        <!-- CTC display -->
+                        <div id="adminEmployeeCTCView" style="display:none;margin-bottom:16px;">
+                            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:14px 16px;background:#f8f5fa;border-radius:8px;border:1px solid rgba(81,40,93,0.12);">
+                                <div><span style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Fixed CTC</span><br><strong id="adminMgrViewFixedCTC" style="color:var(--brand-primary);">—</strong></div>
+                                <div><span style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">PLI</span><br><strong id="adminMgrViewPLI" style="color:var(--brand-primary);">—</strong></div>
+                                <div><span style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Total CTC</span><br><strong id="adminMgrViewTotalCTC" style="color:var(--brand-primary);">—</strong></div>
+                            </div>
                         </div>
-                        <div class="input-wrapper">
-                            <label>Performance Rating</label>
-                            <select id="adminManagerRating">
-                                <option value="">Select Rating...</option>
-                                <option value="5">5 - Outstanding</option>
-                                <option value="4">4 - Exceeds Expectations</option>
-                                <option value="3">3 - Meets Expectations</option>
-                                <option value="2">2 - Needs Improvement</option>
-                                <option value="1">1 - Unsatisfactory</option>
-                            </select>
+                        <div id="adminEmployeeSelfView" style="display:none;"></div>
+                        <div id="adminManagerKPIReviewContainer" style="display:none;">
+                            <div style="font-weight:700;color:var(--brand-primary);font-size:0.9rem;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--brand-primary);">Manager Assessment per KRA / KPI</div>
+                            <div id="adminManagerKPIReviewCards"></div>
+                            <div style="background:var(--tint-purple);border-radius:8px;padding:16px;margin-top:16px;border:1px solid rgba(81,40,93,0.15);">
+                                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+                                    <strong style="color:var(--brand-primary);">Manager Overall Assessment</strong>
+                                    <span style="font-size:0.82rem;color:var(--text-muted);">Weighted avg: <strong id="adminMgrOverallPctDisplay">—</strong> &nbsp;|&nbsp; Rating out of 5: <strong id="adminMgrOverallRatingDisplay">—</strong></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="adminManagerNoKPIMsg" style="display:none;padding:16px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;color:#92400e;font-size:0.85rem;">
+                            ⚠️ This employee has not submitted their self-appraisal yet or has no KPIs defined.
                         </div>
                         <div class="btn-group">
                             <button onclick="saveAdminManagerDraft()" class="btn-secondary">Save Draft</button>
@@ -1644,7 +1722,7 @@
                 <div class="page-header">
                     <div class="page-header-left">
                         <h2 style="margin:0 0 4px;color:var(--brand-primary);">Employee Directory</h2>
-                        <p class="subtitle" style="margin:0;color:var(--text-muted);">All employees in the system — including those added via Firebase Auth.</p>
+                        <p class="subtitle" style="margin:0;color:var(--text-muted);">All employees registered in the portal.</p>
                     </div>
                     <div class="page-actions">
                         <button class="btn-primary" onclick="openAddEmployeeModal()" style="display:flex;align-items:center;gap:8px;">
@@ -1667,7 +1745,7 @@
                     <div class="stat-card" style="flex:1;min-width:140px;">
                         <div class="stat-card-label">Added via Portal</div>
                         <div class="stat-card-value" id="dir_added">—</div>
-                        <div class="stat-card-sub">from Firestore</div>
+                        <div class="stat-card-sub">added via portal</div>
                     </div>
                     <div class="stat-card" style="flex:1;min-width:140px;">
                         <div class="stat-card-label">Departments</div>
@@ -1722,7 +1800,7 @@
                     </div>
                     <div>
                         <h3 style="margin:0;color:var(--brand-primary);font-size:1.1rem;">Add New Employee</h3>
-                        <p style="margin:0;font-size:0.78rem;color:var(--text-muted);">Creates Firebase Auth account + saves to Firestore employee directory</p>
+                        <p style="margin:0;font-size:0.78rem;color:var(--text-muted);">Creates a secure account and saves to the employee directory</p>
                     </div>
                 </div>
 
@@ -1799,7 +1877,7 @@
                     <button class="btn-secondary" onclick="closeAddEmployeeModal()" style="flex:0 0 auto;padding:0 24px;">Cancel</button>
                 </div>
                 <p style="font-size:0.72rem;color:var(--text-muted);text-align:center;margin:12px 0 0 0;">
-                    ⚡ A Firebase Auth account will be created. The employee can log in immediately with their email and temporary password.
+                    ⚡ A secure account will be created. The employee can log in immediately with their email and temporary password.
                 </p>
             </div>
         </div>
@@ -1897,86 +1975,78 @@
 
         // DATA: Employee Hierarchy
         const DIRECTORY = {
-            // HR Admin (not in xlsx – kept for system access)
-            "human.capital@vtion.in": { name: "Snigdha Tripathi", manager: "manoj.dawane@vtion.in" },
-            // All employees from VTION_Employee_View.xlsx
-            "kapil.bhawariwal@vtion.in": { name: "Kapil Bhanwariwal", manager: "abhinav.lalam@vtion.in" },
-            "gautam.agrawal@vtion.in": { name: "Gautam Agrawal", manager: "abhinav.lalam@vtion.in" },
-            "riju.chaudhuri@vtion.in": { name: "Riju Chaudhuri", manager: "reshma.doshi@vtion.in" },
-            "divya.bansal@vtion.in": { name: "Divya Bansal", manager: "piyush.gupta@vtion.in" },
-            "abhishek.mohite@vtion.in": { name: "Abhishek Mohite", manager: "bipin@vtion.in" },
-            "pulkit.bharadwaj@vtion.in": { name: "Pulkit Bhardwaj", manager: "abhinav.lalam@vtion.in" },
-            "saurabh.singh@vtion.in": { name: "Saurabh Singh", manager: "piyush.gupta@vtion.in" },
-            "abhinav.lalam@vtion.in": { name: "Abhinav Lalam", manager: "shubham.saxena@vtion.in" },
-            "devanshi.choudhary@vtion.in": { name: "Devanshi Choudhary", manager: "shailesh.varudkar@vtion.in" },
-            "prajakta.joshi@vtion.in": { name: "Prajakta Joshi", manager: "shailesh.varudkar@vtion.in" },
-            "ripula.gulati@vtion.in": { name: "Ripula Gulati", manager: "abhinav.lalam@vtion.in" },
-            "indrajeet.jyoti@vtion.in": { name: "Indrajeet Jyoti", manager: "mahesh.marapalli@vtion.in" },
-            "bipin@vtion.in": { name: "Bipin Koli", manager: "shubham.saxena@vtion.in" },
-            "swapnil.shetty@vtion.in": { name: "Swapnil Shetty", manager: "reshma.doshi@vtion.in" },
-            "piyush.gupta@vtion.in": { name: "Piyush Gupta", manager: "manoj.dawane@vtion.in" },
-            "kamal.thakur@vtion.in": { name: "Kamal Thakur", manager: "bipin@vtion.in" },
-            "sanjay.natra@vtion.in": { name: "Sanjay Natra", manager: "shubham.saxena@vtion.in" },
-            "anurag.chaturvedi@vtion.in": { name: "Anurag Chaturvedi", manager: "reshma.doshi@vtion.in" },
-            "utsav.kumar@vtion.in": { name: "Utsav Kumar", manager: "mahesh.marapalli@vtion.in" },
-            "aditya.roongta@vtion.in": { name: "Aditya Roongta", manager: "reshma.doshi@vtion.in" },
-            "shivam.awasthi@vtion.in": { name: "Shivam Awasthi", manager: "abhinav.lalam@vtion.in" },
-            "vishal.singh@vtion.in": { name: "Vishal Singh", manager: "abhinav.lalam@vtion.in" },
-            "yashali.navalkar@vtion.in": { name: "Yashali Navalkar", manager: "abhinav.lalam@vtion.in" },
-            "mahesh.marapalli@vtion.in": { name: "Mahesh Marapalli", manager: "shubham.saxena@vtion.in" },
-            "aanya.aggarwaal@vtion.in": { name: "Aanya Aggarwaal", manager: "piyush.gupta@vtion.in" },
-            "bhumika.pithadia@vtion.in": { name: "Bhumika Pithadia", manager: "reshma.doshi@vtion.in" },
-            "priyanka.yadav@vtion.in": { name: "Priyanka Yadav", manager: "mahesh.marapalli@vtion.in" },
-            "hema.gala@vtion.in": { name: "Hema Gala", manager: "reshma.doshi@vtion.in" },
-            "aditya.choudhary@vtion.in": { name: "Aditya Choudhary", manager: "manoj.dawane@vtion.in" },
-            "ankit.jain@vtion.in": { name: "Ankit Jain", manager: "mahesh.marapalli@vtion.in" },
-            "mahesh.kadam@vtion.in": { name: "Mahesh Kadam", manager: "abhinav.lalam@vtion.in" },
-            "reshma.doshi@vtion.in": { name: "Reshma Doshi", manager: "manoj.dawane@vtion.in" },
-            "shubham.saxena@vtion.in": { name: "Shubham Saxena", manager: "manoj.dawane@vtion.in" },
-            "shailesh.varudkar@vtion.in": { name: "Shailesh Varudkar", manager: "manoj.dawane@vtion.in" },
-            "manoj.dawane@vtion.in": { name: "Manoj Dawane", manager: null },
+            // HR Admin account
+            "human.capital@vtion.in": { name:"Snigdha Tripathi", designation:"HR Manager", department:"Human Resources", manager:"manoj.dawane@vtion.in" },
+            "manoj.dawane@vtion.in": { name:"Manoj Dawane", designation:"Founder & CEO", department:"Business & Strategy", manager:"" },
+            "shubham.saxena@vtion.in": { name:"Shubham Saxena", designation:"Head - Product & Technology", department:"Product & Technology", manager:"manoj.dawane@vtion.in" },
+            "shailesh.varudkar@vtion.in": { name:"Shailesh Varudkar", designation:"Chief Operating Officer and DPO", department:"Business & Strategy", manager:"manoj.dawane@vtion.in" },
+            "reshma.doshi@vtion.in": { name:"Reshma Doshi", designation:"Head – Client Engagement : Insights and Research", department:"Sales", manager:"manoj.dawane@vtion.in" },
+            "mahesh.kadam@vtion.in": { name:"Mahesh Kadam", designation:"Business Analyst", department:"Product & Technology", manager:"abhinav.lalam@vtion.in" },
+            "ankit.jain@vtion.in": { name:"Ankit Jain", designation:"Android Developer", department:"Product & Technology", manager:"mahesh.marapalli@vtion.in" },
+            "aditya.choudhary@vtion.in": { name:"Aditya Choudhary", designation:"Chief of Staff", department:"Business & Strategy", manager:"manoj.dawane@vtion.in" },
+            "hema.gala@vtion.in": { name:"Hema Gala", designation:"Manager Consumer Insights", department:"Customer Success", manager:"reshma.doshi@vtion.in" },
+            "priyanka.yadav@vtion.in": { name:"Priyanka Yadav", designation:"Android Developer", department:"Product & Technology", manager:"mahesh.marapalli@vtion.in" },
+            "bhumika.pithadia@vtion.in": { name:"Bhumika Pithadia", designation:"Lead - Customer success and Surveys", department:"Customer Success", manager:"reshma.doshi@vtion.in" },
+            "aanya.aggarwaal@vtion.in": { name:"Aanya Aggarwaal", designation:"Lead - Product Management- SMB", department:"Marketing", manager:"piyush.gupta@vtion.in" },
+            "mahesh.marapalli@vtion.in": { name:"Mahesh Marapalli", designation:"Lead Engineer - Android", department:"Product & Technology", manager:"shubham.saxena@vtion.in" },
+            "yashali.navalkar@vtion.in": { name:"Yashali Navalkar", designation:"Manager Consumer Insights", department:"Product & Technology", manager:"abhinav.lalam@vtion.in" },
+            "vishal.singh@vtion.in": { name:"Vishal Singh", designation:"Developer", department:"Product & Technology", manager:"abhinav.lalam@vtion.in" },
+            "shivam.awasthi@vtion.in": { name:"Shivam Awasthi", designation:"Data Scientist", department:"Product & Technology", manager:"abhinav.lalam@vtion.in" },
+            "utsav.kumar@vtion.in": { name:"Utsav Kumar", designation:"Android Developer", department:"Product & Technology", manager:"mahesh.marapalli@vtion.in" },
+            "aditya.roongta@vtion.in": { name:"Aditya Roongta", designation:"Client Engagement Lead", department:"Sales", manager:"reshma.doshi@vtion.in" },
+            "anurag.chaturvedi@vtion.in": { name:"Anurag Chaturvedi", designation:"Client Engagement Lead", department:"Sales", manager:"reshma.doshi@vtion.in" },
+            "sanjay.natra@vtion.in": { name:"Sanjay Natra", designation:"Technical Program Manager", department:"Product & Technology", manager:"shubham.saxena@vtion.in" },
+            "kamal.thakur@vtion.in": { name:"Kamal Thakur", designation:"Developer", department:"Product & Technology", manager:"bipin@vtion.in" },
+            "piyush.gupta@vtion.in": { name:"Piyush Gupta", designation:"Head - Client Engagement- SMB", department:"Sales", manager:"manoj.dawane@vtion.in" },
+            "swapnil.shetty@vtion.in": { name:"Swapnil Shetty", designation:"West Lead - Media Enterprises", department:"Sales", manager:"reshma.doshi@vtion.in" },
+            "bipin@vtion.in": { name:"Bipin Koli", designation:"Manager - Technology", department:"Product & Technology", manager:"shubham.saxena@vtion.in" },
+            "indrajeet.jyoti@vtion.in": { name:"Indrajeet Jyoti", designation:"Android Developer", department:"Product & Technology", manager:"mahesh.marapalli@vtion.in" },
+            "ripula.gulati@vtion.in": { name:"Ripula Gulati", designation:"Analyst - Quality", department:"Product & Technology", manager:"abhinav.lalam@vtion.in" },
+            "devanshi.choudhary@vtion.in": { name:"Devanshi Choudhary", designation:"Executive - Panel", department:"Panel Management", manager:"shailesh.varudkar@vtion.in" },
+            "abhinav.lalam@vtion.in": { name:"Abhinav Lalam", designation:"Head - Data Science", department:"Product & Technology", manager:"shubham.saxena@vtion.in" },
+            "pulkit.bharadwaj@vtion.in": { name:"Pulkit Bhardwaj", designation:"Power BI Developer", department:"Product & Technology", manager:"abhinav.lalam@vtion.in" },
+            "abhishek.mohite@vtion.in": { name:"Abhishek Mohite", designation:"Developer", department:"Product & Technology", manager:"bipin@vtion.in" },
+            "divya.bansal@vtion.in": { name:"Divya Bansal", designation:"Executive- Digital Marketing", department:"Sales", manager:"piyush.gupta@vtion.in" },
+            "gautam.agrawal@vtion.in": { name:"Gautam Agrawal", designation:"Power BI Developer", department:"Product & Technology", manager:"abhinav.lalam@vtion.in" },
+            "kapil.bhawariwal@vtion.in": { name:"Kapil Bhanwariwal", designation:"Data Scientist", department:"Product & Technology", manager:"abhinav.lalam@vtion.in" },
         };
 
         const ADMINS = ["human.capital@vtion.in", "manoj.dawane@vtion.in"];
 
-        // ─── EMPLOYEE FINANCIAL DATA (sourced from VTION_Employee_View.xlsx) ───
-        // currentCTC = Total CTC (annual). marketBenchmark set where known.
+        // ─── EMPLOYEE FINANCIAL DATA (sourced from Employee_View.xls) ───
         const EMP_FINANCIAL_DATA = {
-            "kapil.bhawariwal@vtion.in":   { empId:56, currentCTC:2700000,  marketBenchmark:null, doj:"2025-12-03", designation:"Data Scientist",                               department:"Product & Technology" },
-            "gautam.agrawal@vtion.in":     { empId:55, currentCTC:900000,   marketBenchmark:null, doj:"2025-11-24", designation:"Power BI Developer",                           department:"Product & Technology" },
-            "riju.chaudhuri@vtion.in":     { empId:54, currentCTC:3000000,  marketBenchmark:null, doj:"2025-11-17", designation:"Client Engagement Lead",                       department:"Sales" },
-            "divya.bansal@vtion.in":       { empId:53, currentCTC:1600000,  marketBenchmark:null, doj:"2025-08-04", designation:"Executive- Digital Marketing",                 department:"Sales" },
-            "abhishek.mohite@vtion.in":    { empId:52, currentCTC:1450000,  marketBenchmark:null, doj:"2025-07-21", designation:"Developer",                                    department:"Product & Technology" },
-            "pulkit.bharadwaj@vtion.in":   { empId:49, currentCTC:1400000,  marketBenchmark:null, doj:"2025-05-01", designation:"Power BI Developer",                           department:"Product & Technology" },
-            "saurabh.singh@vtion.in":      { empId:48, currentCTC:3800000,  marketBenchmark:null, doj:"2025-04-04", designation:"Sales Lead - North",                           department:"Sales" },
-            "abhinav.lalam@vtion.in":      { empId:46, currentCTC:4600000,  marketBenchmark:null, doj:"2025-03-12", designation:"Head - Data Science",                          department:"Product & Technology" },
-            "devanshi.choudhary@vtion.in": { empId:45, currentCTC:800000,   marketBenchmark:null, doj:"2025-03-10", designation:"Executive - Panel",                            department:"Panel Management" },
-            "prajakta.joshi@vtion.in":     { empId:44, currentCTC:2400000,  marketBenchmark:null, doj:"2025-03-10", designation:"Marketing Manager",                            department:"Marketing" },
-            "ripula.gulati@vtion.in":      { empId:43, currentCTC:1200000,  marketBenchmark:null, doj:"2025-02-11", designation:"Analyst - Quality",                            department:"Product & Technology" },
-            "indrajeet.jyoti@vtion.in":    { empId:42, currentCTC:2300000,  marketBenchmark:null, doj:"2025-01-08", designation:"Android Developer",                            department:"Product & Technology" },
-            "bipin@vtion.in":              { empId:41, currentCTC:4000000,  marketBenchmark:null, doj:"2024-11-25", designation:"Manager - Technology",                         department:"Product & Technology" },
-            "swapnil.shetty@vtion.in":     { empId:39, currentCTC:2800000,  marketBenchmark:null, doj:"2024-11-04", designation:"West Lead - Media Enterprises",                department:"Sales" },
-            "piyush.gupta@vtion.in":       { empId:38, currentCTC:3300000,  marketBenchmark:null, doj:"2024-10-16", designation:"Head - Client Engagement- SMB",               department:"Sales" },
-            "kamal.thakur@vtion.in":       { empId:37, currentCTC:2000000,  marketBenchmark:null, doj:"2024-08-05", designation:"Developer",                                    department:"Product & Technology" },
-            "sanjay.natra@vtion.in":       { empId:34, currentCTC:3200000,  marketBenchmark:null, doj:"2024-06-10", designation:"Technical Program Manager",                   department:"Product & Technology" },
-            "anurag.chaturvedi@vtion.in":  { empId:32, currentCTC:4104000,  marketBenchmark:null, doj:"2024-05-13", designation:"Client Engagement Lead",                       department:"Sales" },
-            "utsav.kumar@vtion.in":        { empId:30, currentCTC:2300000,  marketBenchmark:null, doj:"2024-04-22", designation:"Android Developer",                            department:"Product & Technology" },
-            "aditya.roongta@vtion.in":     { empId:31, currentCTC:4500000,  marketBenchmark:null, doj:"2024-04-26", designation:"Client Engagement Lead",                       department:"Sales" },
-            "shivam.awasthi@vtion.in":     { empId:28, currentCTC:1800000,  marketBenchmark:null, doj:"2023-12-05", designation:"Data Scientist",                               department:"Product & Technology" },
-            "vishal.singh@vtion.in":       { empId:22, currentCTC:1200000,  marketBenchmark:null, doj:"2023-09-05", designation:"Developer",                                    department:"Product & Technology" },
-            "yashali.navalkar@vtion.in":   { empId:21, currentCTC:1200000,  marketBenchmark:null, doj:"2023-08-01", designation:"Manager Consumer Insights",                   department:"Product & Technology" },
-            "mahesh.marapalli@vtion.in":   { empId:20, currentCTC:3200000,  marketBenchmark:null, doj:"2023-06-20", designation:"Lead Engineer - Android",                     department:"Product & Technology" },
-            "aanya.aggarwaal@vtion.in":    { empId:15, currentCTC:1010000,  marketBenchmark:null, doj:"2023-04-01", designation:"Lead - Product Management- SMB",              department:"Marketing" },
-            "bhumika.pithadia@vtion.in":   { empId:12, currentCTC:1750000,  marketBenchmark:null, doj:"2022-12-20", designation:"Lead - Customer success and Surveys",         department:"Customer Success" },
-            "priyanka.yadav@vtion.in":     { empId:11, currentCTC:1900000,  marketBenchmark:null, doj:"2022-09-26", designation:"Android Developer",                            department:"Product & Technology" },
-            "hema.gala@vtion.in":          { empId:10, currentCTC:2000000,  marketBenchmark:null, doj:"2022-07-18", designation:"Manager Consumer Insights",                   department:"Customer Success" },
-            "aditya.choudhary@vtion.in":   { empId:9,  currentCTC:5000000,  marketBenchmark:null, doj:"2022-07-01", designation:"Chief of Staff",                              department:"Business & Strategy" },
-            "ankit.jain@vtion.in":         { empId:7,  currentCTC:2000000,  marketBenchmark:null, doj:"2022-06-01", designation:"Android Developer",                            department:"Product & Technology" },
-            "mahesh.kadam@vtion.in":       { empId:5,  currentCTC:1800000,  marketBenchmark:null, doj:"2022-02-01", designation:"Business Analyst",                             department:"Product & Technology" },
-            "reshma.doshi@vtion.in":       { empId:4,  currentCTC:7000000,  marketBenchmark:null, doj:"2020-02-03", designation:"Head - Client Engagement: Insights & Research",department:"Sales" },
-            "shubham.saxena@vtion.in":     { empId:2,  currentCTC:6000000,  marketBenchmark:null, doj:"2019-12-05", designation:"Head - Product & Technology",                 department:"Product & Technology" },
-            "shailesh.varudkar@vtion.in":  { empId:3,  currentCTC:5200000,  marketBenchmark:null, doj:"2020-01-11", designation:"Chief Operating Officer and DPO",             department:"Business & Strategy" },
-            "manoj.dawane@vtion.in":       { empId:1,  currentCTC:5000000,  marketBenchmark:null, doj:"2018-01-01", designation:"Founder & CEO",                               department:"Business & Strategy" },
+            "manoj.dawane@vtion.in": { empId:"001", currentCTC:5000000.0, marketBenchmark:null, doj:"2018-01-01", designation:"Founder & CEO", department:"Business & Strategy", fixedCTC:4200000.0, pli:800000.0, totalCTC:5000000.0 },
+            "shubham.saxena@vtion.in": { empId:"002", currentCTC:6000000.0, marketBenchmark:null, doj:"2019-12-05", designation:"Head - Product & Technology", department:"Product & Technology", fixedCTC:5000000.0, pli:1000000.0, totalCTC:6000000.0 },
+            "shailesh.varudkar@vtion.in": { empId:"003", currentCTC:5200000.0, marketBenchmark:null, doj:"2020-01-11", designation:"Chief Operating Officer and DPO", department:"Business & Strategy", fixedCTC:4000000.0, pli:1200000.0, totalCTC:5200000.0 },
+            "reshma.doshi@vtion.in": { empId:"004", currentCTC:7000000.0, marketBenchmark:null, doj:"2020-02-03", designation:"Head – Client Engagement : Insights and Research", department:"Sales", fixedCTC:4800000.0, pli:2200000.0, totalCTC:7000000.0 },
+            "mahesh.kadam@vtion.in": { empId:"005", currentCTC:1800000.0, marketBenchmark:null, doj:"2022-02-01", designation:"Business Analyst", department:"Product & Technology", fixedCTC:1600000.0, pli:200000.0, totalCTC:1800000.0 },
+            "ankit.jain@vtion.in": { empId:"007", currentCTC:2000000.0, marketBenchmark:null, doj:"2022-06-01", designation:"Android Developer", department:"Product & Technology", fixedCTC:1800000.0, pli:200000.0, totalCTC:2000000.0 },
+            "aditya.choudhary@vtion.in": { empId:"009", currentCTC:5000000.0, marketBenchmark:null, doj:"2022-07-01", designation:"Chief of Staff", department:"Business & Strategy", fixedCTC:4500000.0, pli:500000.0, totalCTC:5000000.0 },
+            "hema.gala@vtion.in": { empId:"010", currentCTC:2000000.0, marketBenchmark:null, doj:"2022-07-18", designation:"Manager Consumer Insights", department:"Customer Success", fixedCTC:1800000.0, pli:200000.0, totalCTC:2000000.0 },
+            "priyanka.yadav@vtion.in": { empId:"011", currentCTC:1900000.0, marketBenchmark:null, doj:"2022-09-26", designation:"Android Developer", department:"Product & Technology", fixedCTC:1800000.0, pli:100000.0, totalCTC:1900000.0 },
+            "bhumika.pithadia@vtion.in": { empId:"012", currentCTC:1750000.0, marketBenchmark:null, doj:"2022-12-20", designation:"Lead - Customer success and Surveys", department:"Customer Success", fixedCTC:1650000.0, pli:100000.0, totalCTC:1750000.0 },
+            "aanya.aggarwaal@vtion.in": { empId:"015", currentCTC:1010000.0, marketBenchmark:null, doj:"2023-04-01", designation:"Lead - Product Management- SMB", department:"Marketing", fixedCTC:950000.0, pli:60000.0, totalCTC:1010000.0 },
+            "mahesh.marapalli@vtion.in": { empId:"020", currentCTC:3200000.0, marketBenchmark:null, doj:"2023-06-20", designation:"Lead Engineer - Android", department:"Product & Technology", fixedCTC:3100000.0, pli:100000.0, totalCTC:3200000.0 },
+            "yashali.navalkar@vtion.in": { empId:"021", currentCTC:1200000.0, marketBenchmark:null, doj:"2023-08-01", designation:"Manager Consumer Insights", department:"Product & Technology", fixedCTC:1000000.0, pli:200000.0, totalCTC:1200000.0 },
+            "vishal.singh@vtion.in": { empId:"022", currentCTC:1200000.0, marketBenchmark:null, doj:"2023-09-05", designation:"Developer", department:"Product & Technology", fixedCTC:1100000.0, pli:100000.0, totalCTC:1200000.0 },
+            "shivam.awasthi@vtion.in": { empId:"028", currentCTC:1800000.0, marketBenchmark:null, doj:"2023-12-05", designation:"Data Scientist", department:"Product & Technology", fixedCTC:1700000.0, pli:100000.0, totalCTC:1800000.0 },
+            "utsav.kumar@vtion.in": { empId:"030", currentCTC:2300000.0, marketBenchmark:null, doj:"2024-04-22", designation:"Android Developer", department:"Product & Technology", fixedCTC:2200000.0, pli:100000.0, totalCTC:2300000.0 },
+            "aditya.roongta@vtion.in": { empId:"031", currentCTC:4500000.0, marketBenchmark:null, doj:"2024-04-26", designation:"Client Engagement Lead", department:"Sales", fixedCTC:3800000.0, pli:700000.0, totalCTC:4500000.0 },
+            "anurag.chaturvedi@vtion.in": { empId:"032", currentCTC:4104000.0, marketBenchmark:null, doj:"2024-05-13", designation:"Client Engagement Lead", department:"Sales", fixedCTC:3564000.0, pli:540000.0, totalCTC:4104000.0 },
+            "sanjay.natra@vtion.in": { empId:"034", currentCTC:3200000.0, marketBenchmark:null, doj:"2024-06-10", designation:"Technical Program Manager", department:"Product & Technology", fixedCTC:3000000.0, pli:200000.0, totalCTC:3200000.0 },
+            "kamal.thakur@vtion.in": { empId:"037", currentCTC:2000000.0, marketBenchmark:null, doj:"2024-08-05", designation:"Developer", department:"Product & Technology", fixedCTC:1800000.0, pli:200000.0, totalCTC:2000000.0 },
+            "piyush.gupta@vtion.in": { empId:"038", currentCTC:3300000.0, marketBenchmark:null, doj:"2024-10-16", designation:"Head - Client Engagement- SMB", department:"Sales", fixedCTC:2800000.0, pli:500000.0, totalCTC:3300000.0 },
+            "swapnil.shetty@vtion.in": { empId:"039", currentCTC:2800000.0, marketBenchmark:null, doj:"2024-11-04", designation:"West Lead - Media Enterprises", department:"Sales", fixedCTC:2700000.0, pli:100000.0, totalCTC:2800000.0 },
+            "bipin@vtion.in": { empId:"041", currentCTC:4000000.0, marketBenchmark:null, doj:"2024-11-25", designation:"Manager - Technology", department:"Product & Technology", fixedCTC:3500000.0, pli:500000.0, totalCTC:4000000.0 },
+            "indrajeet.jyoti@vtion.in": { empId:"042", currentCTC:2300000.0, marketBenchmark:null, doj:"2025-01-08", designation:"Android Developer", department:"Product & Technology", fixedCTC:2200000.0, pli:100000.0, totalCTC:2300000.0 },
+            "ripula.gulati@vtion.in": { empId:"043", currentCTC:1200000.0, marketBenchmark:null, doj:"2025-02-11", designation:"Analyst - Quality", department:"Product & Technology", fixedCTC:1200000.0, pli:0, totalCTC:1200000.0 },
+            "devanshi.choudhary@vtion.in": { empId:"045", currentCTC:800000.0, marketBenchmark:null, doj:"2025-03-10", designation:"Executive - Panel", department:"Panel Management", fixedCTC:700000.0, pli:100000.0, totalCTC:800000.0 },
+            "abhinav.lalam@vtion.in": { empId:"046", currentCTC:4600000.0, marketBenchmark:null, doj:"2025-03-12", designation:"Head - Data Science", department:"Product & Technology", fixedCTC:4200000.0, pli:400000.0, totalCTC:4600000.0 },
+            "pulkit.bharadwaj@vtion.in": { empId:"049", currentCTC:1400000.0, marketBenchmark:null, doj:"2025-05-01", designation:"Power BI Developer", department:"Product & Technology", fixedCTC:1350000.0, pli:50000.0, totalCTC:1400000.0 },
+            "abhishek.mohite@vtion.in": { empId:"052", currentCTC:1450000.0, marketBenchmark:null, doj:"2025-07-21", designation:"Developer", department:"Product & Technology", fixedCTC:1400000.0, pli:50000.0, totalCTC:1450000.0 },
+            "divya.bansal@vtion.in": { empId:"053", currentCTC:1600000.0, marketBenchmark:null, doj:"2025-08-04", designation:"Executive- Digital Marketing", department:"Sales", fixedCTC:1500000.0, pli:100000.0, totalCTC:1600000.0 },
+            "gautam.agrawal@vtion.in": { empId:"055", currentCTC:900000.0, marketBenchmark:null, doj:"2025-11-24", designation:"Power BI Developer", department:"Product & Technology", fixedCTC:800000.0, pli:100000.0, totalCTC:900000.0 },
+            "kapil.bhawariwal@vtion.in": { empId:"056", currentCTC:2700000.0, marketBenchmark:null, doj:"2025-12-03", designation:"Data Scientist", department:"Product & Technology", fixedCTC:2500000.0, pli:200000.0, totalCTC:2700000.0 },
         };
 
         // ─── KRA RATING TABLE (from Guidelines sheet) ───
@@ -2049,6 +2119,11 @@
         window.adminExportData = [];
 
         // EXPORTS
+        window.addKPICard = addKPICard;
+        window.removeKPICard = removeKPICard;
+        window.recalcTotalCTC = recalcTotalCTC;
+        window.recalcOverallSelfRating = recalcOverallSelfRating;
+        window.recalcManagerOverallRating = recalcManagerOverallRating;
         window.handleLogin = handleLogin;
         window.logout = logout;
         window.switchTab = switchTab;
@@ -2072,6 +2147,21 @@
         window.revokeGuidelinesAccess = revokeGuidelinesAccess;
         window.loadAuditTrail = loadAuditTrail;
         window.downloadAuditTrail = downloadAuditTrail;
+
+        // ── ADMIN MANAGER ZONE VISIBILITY CHECK ──────────────────────────────
+        // Must be called AFTER loadEmployeesFromFirestore() resolves so DIRECTORY
+        // contains Firestore-added employees too. Case-insensitive email compare.
+        function checkAndShowAdminManagerZone(adminEmail) {
+            const emailLower = (adminEmail || '').toLowerCase();
+            const reports = Object.entries(DIRECTORY).filter(([e, d]) =>
+                d.manager && d.manager.toLowerCase() === emailLower
+            );
+            const adminMgrBtn = document.getElementById('adminTabMBtn');
+            if (adminMgrBtn) {
+                adminMgrBtn.style.display = reports.length > 0 ? 'flex' : 'none';
+            }
+        }
+        window.checkAndShowAdminManagerZone = checkAndShowAdminManagerZone;
 
         // --- AUTH ---
         async function handleLogin() {
@@ -2138,15 +2228,14 @@
                     if (contentArea) contentArea.classList.add('with-sidebar');
                     switchAdminTab('adminTab1');
                     loadAdminData();
-                    loadEmployeesFromFirestore(); // merge Firestore employees into DIRECTORY
+                    // Load Firestore employees first, THEN check if admin is also a manager
+                    Promise.all([
+                        loadEmployeesFromFirestore(),
+                        loadRemovedEmployees()
+                    ]).then(() => {
+                        checkAndShowAdminManagerZone(email);
+                    });
                     logAuditAction(email, 'Admin login - accessed dashboard', 'LOGIN_ADMIN');
-
-                    // If admin is also a manager, show Manager Zone in admin sidebar
-                    const adminReports = Object.entries(DIRECTORY).filter(([e, d]) => d.manager === email);
-                    const adminMgrBtn = document.getElementById('adminTabMBtn');
-                    if (adminReports.length > 0 && adminMgrBtn) {
-                        adminMgrBtn.style.display = 'flex';
-                    }
                 } else {
                     document.getElementById('employeeView').style.display = 'block';
                     document.getElementById('sidebarEmployee').style.display = 'flex';
@@ -2174,6 +2263,48 @@
 
         // --- EMPLOYEE LOGIC ---
         function initEmployeeView() {
+            // ── Auto-fill employee info banner & CTC from HR records ──
+            const fin = EMP_FINANCIAL_DATA[currentUser.email];
+            const dir = DIRECTORY[currentUser.email];
+            if (fin || dir) {
+                const name   = dir?.name || currentUser.name || '';
+                const desig  = fin?.designation || dir?.designation || '';
+                const dept   = fin?.department  || dir?.department  || '';
+                const empId  = fin?.empId || '—';
+                const doj    = fin?.doj   ? new Date(fin.doj).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+                const fixed  = fin?.fixedCTC  || 0;
+                const pli    = fin?.pli       || 0;
+                const total  = fin?.totalCTC  || (fixed + pli);
+
+                // Banner
+                const bannerName  = document.getElementById('empBannerName');
+                const bannerDesig = document.getElementById('empBannerDesig');
+                const bannerDept  = document.getElementById('empBannerDept');
+                const bannerEmpId = document.getElementById('empBannerEmpId');
+                const bannerDOJ   = document.getElementById('empBannerDOJ');
+                const bannerFixed = document.getElementById('empBannerFixed');
+                const bannerPLI   = document.getElementById('empBannerPLI');
+                const bannerTotal = document.getElementById('empBannerTotal');
+                const avatarLarge = document.getElementById('empAvatarLarge');
+
+                if (bannerName)  bannerName.textContent  = name;
+                if (bannerDesig) bannerDesig.textContent = desig;
+                if (bannerDept)  bannerDept.textContent  = dept;
+                if (bannerEmpId) bannerEmpId.textContent = empId ? '#' + empId : '—';
+                if (bannerDOJ)   bannerDOJ.textContent   = doj;
+                if (bannerFixed) bannerFixed.textContent = fmtCurrency(fixed);
+                if (bannerPLI)   bannerPLI.textContent   = fmtCurrency(pli);
+                if (bannerTotal) bannerTotal.textContent = fmtCurrency(total);
+                if (avatarLarge) avatarLarge.textContent = name.charAt(0).toUpperCase();
+
+                // Auto-fill CTC fields (read-only — sourced from HR)
+                const ctcFixedEl = document.getElementById('ctcFixed');
+                const ctcPLIEl   = document.getElementById('ctcPLI');
+                const ctcTotalEl = document.getElementById('ctcTotal');
+                if (ctcFixedEl) ctcFixedEl.value = fixed || '';
+                if (ctcPLIEl)   ctcPLIEl.value   = pli   || '';
+                if (ctcTotalEl) ctcTotalEl.value  = total || '';
+            }
             const reports = Object.entries(DIRECTORY).filter(([e, d]) => d.manager === currentUser.email);
             if(reports.length > 0) {
                 document.getElementById('managerTabBtn').style.display = 'block';
@@ -2192,89 +2323,253 @@
             loadMySubmissions();
         }
 
+        // ── KPI CARD BUILDER ──────────────────────────────────────────────
+        let kpiCardCount = 0;
+
+        function recalcTotalCTC() {
+            const fixed = parseFloat(document.getElementById('ctcFixed').value) || 0;
+            const pli   = parseFloat(document.getElementById('ctcPLI').value) || 0;
+            document.getElementById('ctcTotal').value = fixed + pli || '';
+        }
+
+        function addKPICard(data = {}) {
+            kpiCardCount++;
+            const id = kpiCardCount;
+            const container = document.getElementById('kpiCardsContainer');
+            const card = document.createElement('div');
+            card.id = `kpiCard_${id}`;
+            card.style.cssText = 'background:#fafafa;border:1px solid var(--border-color);border-radius:8px;padding:20px;margin-bottom:16px;position:relative;';
+            card.innerHTML = `
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                    <span style="font-weight:700;color:var(--brand-primary);font-size:0.9rem;">KRA #${id}</span>
+                    <button onclick="removeKPICard(${id})" style="background:none;border:none;cursor:pointer;color:#9ca3af;padding:4px;" title="Remove" onmouseover="this.style.color='var(--brand-accent)'" onmouseout="this.style.color='#9ca3af'">
+                        <svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><line x1='18' y1='6' x2='6' y2='18'/><line x1='6' y1='6' x2='18' y2='18'/></svg>
+                    </button>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+                    <div class="input-wrapper" style="margin:0;">
+                        <label>Key Result Area (KRA Name)</label>
+                        <input type="text" id="kra_name_${id}" placeholder="e.g. Segmentation" value="${data.kraName||''}" oninput="recalcOverallSelfRating()">
+                    </div>
+                    <div class="input-wrapper" style="margin:0;">
+                        <label>KPI Weightage (%)</label>
+                        <input type="number" id="kra_weight_${id}" placeholder="e.g. 30" min="0" max="100" value="${data.weightage||''}" oninput="recalcOverallSelfRating()">
+                    </div>
+                </div>
+                <div class="input-wrapper" style="margin-bottom:12px;">
+                    <label>Key Performance Indicator (KPI Description)</label>
+                    <textarea id="kra_kpi_${id}" rows="2" placeholder="Describe the KPI...">${data.kpiDescription||''}</textarea>
+                </div>
+                <div class="input-wrapper" style="margin-bottom:12px;">
+                    <label>Self Assessment (0–100%) & Achievements</label>
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                        <input type="number" id="kra_selfpct_${id}" placeholder="%" min="0" max="100" style="width:90px;flex-shrink:0;" value="${data.selfAssessment||''}" oninput="recalcOverallSelfRating()">
+                        <span style="font-size:0.78rem;color:var(--text-muted);">Enter % achievement then describe your accomplishments below.</span>
+                    </div>
+                    <textarea id="kra_achievements_${id}" rows="4" placeholder="Detail your key achievements for this KPI...">${data.achievements||''}</textarea>
+                </div>
+            `;
+            container.appendChild(card);
+            recalcOverallSelfRating();
+        }
+
+        function removeKPICard(id) {
+            const card = document.getElementById(`kpiCard_${id}`);
+            if (card) card.remove();
+            recalcOverallSelfRating();
+        }
+
+        function getKPICards() {
+            const container = document.getElementById('kpiCardsContainer');
+            if (!container) return [];
+            const cards = container.querySelectorAll('[id^="kpiCard_"]');
+            const result = [];
+            cards.forEach(card => {
+                const id = card.id.replace('kpiCard_','');
+                result.push({
+                    kraName: (document.getElementById(`kra_name_${id}`)?.value||'').trim(),
+                    kpiDescription: (document.getElementById(`kra_kpi_${id}`)?.value||'').trim(),
+                    weightage: parseFloat(document.getElementById(`kra_weight_${id}`)?.value)||0,
+                    selfAssessment: parseFloat(document.getElementById(`kra_selfpct_${id}`)?.value)||0,
+                    achievements: (document.getElementById(`kra_achievements_${id}`)?.value||'').trim(),
+                });
+            });
+            return result;
+        }
+
+        function recalcOverallSelfRating() {
+            const kpis = getKPICards();
+            const totalWeight = kpis.reduce((s,k)=>s+k.weightage,0);
+            document.getElementById('totalWeightageDisplay').textContent = totalWeight + '%';
+            const warn = document.getElementById('weightageWarning');
+            if (warn) warn.style.display = kpis.length > 0 && totalWeight !== 100 ? 'inline' : 'none';
+            // weighted average
+            let weighted = 0;
+            kpis.forEach(k => { weighted += (k.selfAssessment * k.weightage); });
+            const overallPct = totalWeight > 0 ? (weighted / totalWeight).toFixed(1) : 0;
+            const overallEl = document.getElementById('overallSelfRatingDisplay');
+            if (overallEl) {
+                if (totalWeight > 0) {
+                    const r5 = ((overallPct/100)*5).toFixed(2);
+                    overallEl.textContent = `${overallPct}% (${r5}/5)`;
+                } else {
+                    overallEl.textContent = '—';
+                }
+            }
+        }
+
+        function renderKPIsReadOnly(kpis, container) {
+            if (!kpis || kpis.length === 0) { container.innerHTML = ''; return; }
+            let html = '<div style="margin-bottom:16px;">';
+            kpis.forEach((k,i) => {
+                const assessment = k.managerAssessment !== undefined ? k.managerAssessment : null;
+                html += `
+                <div style="background:var(--tint-purple);border:1px solid rgba(81,40,93,0.15);border-radius:8px;padding:16px;margin-bottom:12px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+                        <strong style="color:var(--brand-primary);">${i+1}. ${k.kraName||'KRA '+(i+1)}</strong>
+                        <div style="display:flex;gap:16px;font-size:0.8rem;">
+                            <span style="background:rgba(81,40,93,0.1);padding:2px 10px;border-radius:20px;font-weight:700;color:var(--brand-primary);">Weight: ${k.weightage||0}%</span>
+                            <span style="background:var(--tint-red);color:var(--brand-accent);padding:2px 10px;border-radius:20px;font-weight:700;">Self: ${k.selfAssessment||0}%</span>
+                            ${assessment!==null?`<span style="background:#dcfce7;color:#047857;padding:2px 10px;border-radius:20px;font-weight:700;">Mgr: ${assessment}%</span>`:''}
+                        </div>
+                    </div>
+                    ${k.kpiDescription?`<p style="margin:0 0 8px;font-size:0.82rem;color:#6b7280;font-style:italic;">${k.kpiDescription}</p>`:''}
+                    ${k.achievements?`<div style="font-size:0.85rem;color:var(--text-main);white-space:pre-wrap;">${k.achievements}</div>`:''}
+                    ${k.improvementAreas?`<div style="margin-top:8px;padding:8px 12px;background:#fff7ed;border-left:3px solid #f97316;border-radius:4px;font-size:0.82rem;"><strong style="color:#c2410c;">Improvement Areas:</strong><br>${k.improvementAreas}</div>`:''}
+                    ${k.managerFeedback?`<div style="margin-top:8px;padding:8px 12px;background:#f0fdf4;border-left:3px solid #22c55e;border-radius:4px;font-size:0.82rem;"><strong style="color:#15803d;">Manager Feedback:</strong><br>${k.managerFeedback}</div>`:''}
+                </div>`;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function fmtCurrency(v) {
+            if (!v) return '—';
+            return '₹' + Number(v).toLocaleString('en-IN');
+        }
+
         // --- DRAFTS & SUBMISSIONS: SELF ---
         async function checkSelfDraft() {
-            // Reset Fields
-            document.getElementById('selfAccom').value = "";
-            document.getElementById('selfChall').value = "";
-            document.getElementById('selfRating').value = "";
-            
+            // CTC is auto-filled from HR records — only reset if a draft overrides it
+            const fin = EMP_FINANCIAL_DATA[currentUser?.email];
+            const hrFixed = fin?.fixedCTC || 0;
+            const hrPLI   = fin?.pli      || 0;
+            const hrTotal = fin?.totalCTC || (hrFixed + hrPLI);
+
+            document.getElementById('ctcFixed').value = hrFixed || '';
+            document.getElementById('ctcPLI').value   = hrPLI   || '';
+            document.getElementById('ctcTotal').value  = hrTotal || '';
+            // Reset KPIs
+            document.getElementById('kpiCardsContainer').innerHTML = '';
+            kpiCardCount = 0;
+            recalcOverallSelfRating();
+
             const notice = document.getElementById('selfDraftNotice');
             notice.style.display = 'none';
-            notice.style.color = '#d97706'; // Reset color to amber (draft default)
+            notice.style.color = '#d97706';
 
             const btnGroup = document.getElementById('selfBtnGroup');
-            const inputs = document.querySelectorAll('#tabSelf textarea, #tabSelf select');
-            
-            // Enable by default
-            inputs.forEach(el => el.disabled = false);
-            btnGroup.style.display = 'flex';
+            const addKpiArea = document.getElementById('addKpiArea');
+            const ctcInputs = document.querySelectorAll('#ctcFixed, #ctcPLI');
+
+            ctcInputs.forEach(el => el.disabled = false);
+            if (btnGroup) btnGroup.style.display = 'flex';
+            if (addKpiArea) addKpiArea.style.display = 'block';
 
             currentSelfDraftId = null;
 
             try {
-                // Fetch all self appraisals for this user
                 const q = query(
                     collection(db, "appraisals"),
                     where("targetEmail", "==", currentUser.email),
                     where("type", "==", "self")
                 );
                 const snap = await getDocs(q);
-                
-                // 1. Check if ANY document is submitted
+
                 const submittedDoc = snap.docs.find(d => d.data().status === 'submitted');
-                
+
                 if (submittedDoc) {
                     const data = submittedDoc.data();
-                    // Populate fields
-                    document.getElementById('selfAccom').value = data.accomplishments || "";
-                    document.getElementById('selfChall').value = data.challenges || "";
-                    document.getElementById('selfRating').value = data.rating || "";
-                    
+                    restoreSelfFormData(data);
                     // LOCK UI
-                    inputs.forEach(el => el.disabled = true);
-                    btnGroup.style.display = 'none';
-                    
+                    document.querySelectorAll('#tabSelf input, #tabSelf textarea, #tabSelf select').forEach(el => el.disabled = true);
+                    if (btnGroup) btnGroup.style.display = 'none';
+                    if (addKpiArea) addKpiArea.style.display = 'none';
                     notice.innerText = "You have already submitted your appraisal.";
-                    notice.style.color = "var(--success-text)"; // Green
+                    notice.style.color = "var(--success-text)";
                     notice.style.display = "block";
-                    return; // Stop here
+                    return;
                 }
 
-                // 2. If no submission, check for draft
                 const draftDoc = snap.docs.find(d => d.data().status === 'draft');
                 if (draftDoc) {
                     const data = draftDoc.data();
                     currentSelfDraftId = draftDoc.id;
-                    document.getElementById('selfAccom').value = data.accomplishments || "";
-                    document.getElementById('selfChall').value = data.challenges || "";
-                    document.getElementById('selfRating').value = data.rating || "";
-                    
+                    restoreSelfFormData(data);
                     notice.innerText = "Draft loaded. You can continue editing.";
                     notice.style.display = 'block';
+                } else {
+                    // Auto-add first KPI if empty
+                    addKPICard();
                 }
-
-            } catch (e) { console.error("Error checking draft", e); }
+            } catch (e) { console.error("Error checking draft", e); addKPICard(); }
         }
 
-        async function saveSelfDraft() {
-            const accom = document.getElementById('selfAccom').value;
-            const chall = document.getElementById('selfChall').value;
-            const rate = document.getElementById('selfRating').value;
+        function restoreSelfFormData(data) {
+            // CTC: use saved draft value if present, otherwise fall back to HR records
+            const fin = EMP_FINANCIAL_DATA[currentUser?.email];
+            const hrFixed = fin?.fixedCTC || 0;
+            const hrPLI   = fin?.pli      || 0;
+            const hrTotal = fin?.totalCTC || (hrFixed + hrPLI);
+            if (data.ctc) {
+                document.getElementById('ctcFixed').value = data.ctc.fixed || hrFixed || '';
+                document.getElementById('ctcPLI').value   = data.ctc.pli   || hrPLI   || '';
+                document.getElementById('ctcTotal').value  = data.ctc.total  || hrTotal  || '';
+            } else {
+                document.getElementById('ctcFixed').value = hrFixed || '';
+                document.getElementById('ctcPLI').value   = hrPLI   || '';
+                document.getElementById('ctcTotal').value  = hrTotal  || '';
+            }
+            // KPIs
+            document.getElementById('kpiCardsContainer').innerHTML = '';
+            kpiCardCount = 0;
+            const kpis = data.kpis || [];
+            if (kpis.length > 0) {
+                kpis.forEach(k => addKPICard(k));
+            } else {
+                addKPICard();
+            }
+            recalcOverallSelfRating();
+        }
 
-            const payload = {
-                type: "self",
-                status: "draft",
+        function buildSelfPayload(status) {
+            // Always use HR-sourced CTC values as the authoritative source
+            const fin    = EMP_FINANCIAL_DATA[currentUser?.email];
+            const fixed  = fin?.fixedCTC || parseFloat(document.getElementById('ctcFixed').value)||0;
+            const pli    = fin?.pli      || parseFloat(document.getElementById('ctcPLI').value)||0;
+            const total  = fin?.totalCTC || parseFloat(document.getElementById('ctcTotal').value)||(fixed+pli);
+            const kpis   = getKPICards();
+            const totalW = kpis.reduce((s,k)=>s+k.weightage,0);
+            let wPct = 0;
+            kpis.forEach(k => { wPct += (k.selfAssessment * k.weightage); });
+            const overallPct    = totalW > 0 ? wPct/totalW : 0;
+            const overallRating = parseFloat(((overallPct/100)*5).toFixed(2));
+            return {
+                type: "self", status,
                 targetEmail: currentUser.email,
                 reviewerEmail: currentUser.email,
                 reviewerName: currentUser.name,
                 targetName: currentUser.name,
-                accomplishments: accom,
-                challenges: chall,
-                rating: rate,
+                ctc: { fixed, pli, total },
+                kpis,
+                overallSelfPct: overallPct,
+                rating: overallRating,
                 timestamp: Timestamp.now()
             };
+        }
 
+        async function saveSelfDraft() {
+            const payload = buildSelfPayload('draft');
             try {
                 if (currentSelfDraftId) {
                     await updateDoc(doc(db, "appraisals", currentSelfDraftId), payload);
@@ -2290,25 +2585,11 @@
         }
 
         async function submitSelfAppraisal() {
-            const accom = document.getElementById('selfAccom').value;
-            const chall = document.getElementById('selfChall').value;
-            const rate = document.getElementById('selfRating').value;
-
-            if(!accom || !chall || !rate) return showAlert("Please fill all fields before submitting.", "error");
-
-            const payload = {
-                type: "self",
-                status: "submitted",
-                targetEmail: currentUser.email,
-                reviewerEmail: currentUser.email,
-                reviewerName: currentUser.name,
-                targetName: currentUser.name,
-                accomplishments: accom,
-                challenges: chall,
-                rating: rate,
-                timestamp: Timestamp.now()
-            };
-
+            const kpis = getKPICards();
+            if (kpis.length === 0) return showAlert("Please add at least one KRA/KPI.", "error");
+            const totalW = kpis.reduce((s,k)=>s+k.weightage,0);
+            if (totalW !== 100) return showAlert(`KPI weightage must total 100%. Currently: ${totalW}%.`, "error");
+            const payload = buildSelfPayload('submitted');
             try {
                 if (currentSelfDraftId) {
                     await updateDoc(doc(db, "appraisals", currentSelfDraftId), payload);
@@ -2317,158 +2598,286 @@
                     await addDoc(collection(db, "appraisals"), payload);
                 }
                 showAlert("Self appraisal submitted successfully.", "success");
-                logAuditAction(currentUser.email, `Submitted self appraisal (Rating: ${rate})`, 'SELF_APPRAISAL_SUBMIT');
-                
-                // Refresh to lock UI
+                logAuditAction(currentUser.email, `Submitted self appraisal — ${kpis.length} KPIs, Overall: ${payload.overallSelfPct.toFixed(1)}% (${payload.rating}/5)`, 'SELF_APPRAISAL_SUBMIT');
                 checkSelfDraft();
-                
                 loadMySubmissions();
             } catch (e) { console.error(e); showAlert("Error submitting: " + e.message, "error"); }
+        }
+
+        // Build manager KPI review panels from employee's submitted KPI data
+        function buildManagerKPIReviewPanels(kpis, containerEl, overallPctEl, overallRatingEl, savedMgrKpis = []) {
+            if (!kpis || kpis.length === 0) return;
+            containerEl.innerHTML = '';
+            kpis.forEach((k, i) => {
+                const saved = savedMgrKpis[i] || {};
+                const panel = document.createElement('div');
+                panel.style.cssText = 'background:#fff;border:1px solid var(--border-color);border-radius:8px;padding:18px;margin-bottom:14px;';
+                panel.innerHTML = `
+                    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+                        <strong style="color:var(--brand-primary);">${i+1}. ${k.kraName||'KRA '+(i+1)}</strong>
+                        <div style="display:flex;gap:10px;font-size:0.8rem;">
+                            <span style="background:rgba(81,40,93,0.1);padding:2px 10px;border-radius:20px;font-weight:700;color:var(--brand-primary);">Weight: ${k.weightage||0}%</span>
+                            <span style="background:var(--tint-red);color:var(--brand-accent);padding:2px 10px;border-radius:20px;font-weight:700;">Self: ${k.selfAssessment||0}%</span>
+                        </div>
+                    </div>
+                    ${k.kpiDescription?`<p style="margin:0 0 10px;font-size:0.82rem;color:#6b7280;font-style:italic;">${k.kpiDescription}</p>`:''}
+                    ${k.achievements?`<div style="font-size:0.83rem;color:var(--text-main);white-space:pre-wrap;margin-bottom:12px;padding:10px;background:#f9f9f9;border-radius:6px;">${k.achievements}</div>`:''}
+                    <div style="display:grid;grid-template-columns:120px 1fr;gap:12px;align-items:start;">
+                        <div class="input-wrapper" style="margin:0;">
+                            <label style="font-size:0.75rem;">Manager Assessment (%)</label>
+                            <input type="number" id="mgr_pct_${i}" min="0" max="100" placeholder="0-100" value="${saved.managerAssessment||''}" oninput="recalcManagerOverallRating('${overallPctEl}','${overallRatingEl}',${kpis.length})" style="font-weight:700;">
+                        </div>
+                        <div class="input-wrapper" style="margin:0;">
+                            <label style="font-size:0.75rem;">Improvement Areas / Feedback</label>
+                            <textarea id="mgr_imp_${i}" rows="2" placeholder="Constructive feedback for this KPI...">${saved.improvementAreas||''}</textarea>
+                        </div>
+                    </div>
+                    <div class="input-wrapper" style="margin-top:10px;margin-bottom:0;">
+                        <label style="font-size:0.75rem;">Manager Narrative Feedback</label>
+                        <textarea id="mgr_feedback_${i}" rows="3" placeholder="Narrative assessment of this KRA...">${saved.managerFeedback||''}</textarea>
+                    </div>
+                `;
+                containerEl.appendChild(panel);
+            });
+            recalcManagerOverallRating(overallPctEl, overallRatingEl, kpis.length, kpis);
+        }
+
+        function recalcManagerOverallRating(pctElId, ratingElId, kpiCount, kpisRef) {
+            // kpisRef for weightage; read from DOM
+            const pctEl = document.getElementById(pctElId);
+            const ratingEl = document.getElementById(ratingElId);
+            if (!pctEl || !ratingEl) return;
+            let totalW = 0, weighted = 0;
+            for (let i = 0; i < kpiCount; i++) {
+                const pctInput = document.getElementById(`mgr_pct_${i}`);
+                const w = kpisRef ? (kpisRef[i]?.weightage||0) : 0;
+                totalW += w;
+                if (pctInput) weighted += (parseFloat(pctInput.value)||0) * w;
+            }
+            if (totalW > 0) {
+                const avgPct = (weighted/totalW).toFixed(1);
+                const r5 = ((avgPct/100)*5).toFixed(2);
+                pctEl.textContent = `${avgPct}%`;
+                ratingEl.textContent = `${r5}/5`;
+            } else {
+                pctEl.textContent = '—'; ratingEl.textContent = '—';
+            }
+        }
+
+        function getManagerKPIReviewData(kpis, count) {
+            const result = [];
+            for (let i = 0; i < count; i++) {
+                result.push({
+                    ...(kpis?.[i]||{}),
+                    managerAssessment: parseFloat(document.getElementById(`mgr_pct_${i}`)?.value)||0,
+                    improvementAreas: (document.getElementById(`mgr_imp_${i}`)?.value||'').trim(),
+                    managerFeedback: (document.getElementById(`mgr_feedback_${i}`)?.value||'').trim(),
+                });
+            }
+            return result;
+        }
+
+        function restoreManagerKPIReviewData(mgrKpis, containerElId, overallPctElId, overallRatingElId) {
+            mgrKpis.forEach((k, i) => {
+                const pctEl = document.getElementById(`mgr_pct_${i}`);
+                const impEl = document.getElementById(`mgr_imp_${i}`);
+                const feedEl = document.getElementById(`mgr_feedback_${i}`);
+                if (pctEl) pctEl.value = k.managerAssessment||'';
+                if (impEl) impEl.value = k.improvementAreas||'';
+                if (feedEl) feedEl.value = k.managerFeedback||'';
+            });
+            recalcManagerOverallRating(overallPctElId, overallRatingElId, mgrKpis.length, mgrKpis);
+        }
+
+        // Storage for last loaded employee KPIs (used by manager save/submit)
+        let _lastLoadedEmpKPIs = [];
+        let _lastLoadedEmpKPICount = 0;
+
+        async function loadEmployeeSelfAppraisal(targetEmail, selfViewElId, kpiContainerElId, noKPIMsgElId, kpiSectionElId, overallPctElId, overallRatingElId, savedMgrData = null) {
+            selfViewElId = selfViewElId || 'employeeSelfView';
+            kpiContainerElId = kpiContainerElId || 'managerKPIReviewContainer';
+            noKPIMsgElId = noKPIMsgElId || 'managerNoKPIMsg';
+            overallPctElId = overallPctElId || 'mgrOverallPctDisplay';
+            overallRatingElId = overallRatingElId || 'mgrOverallRatingDisplay';
+
+            const container = document.getElementById(selfViewElId);
+            const kpiSection = document.getElementById(kpiContainerElId);
+            const noKPIMsg = document.getElementById(noKPIMsgElId);
+            const ctcView = document.getElementById(selfViewElId === 'employeeSelfView' ? 'employeeCTCView' : 'adminEmployeeCTCView');
+
+            if (container) { container.style.display = 'block'; container.innerHTML = '<p style="color:#6b7280;font-size:0.85rem;">Loading employee self-appraisal...</p>'; }
+            if (kpiSection) kpiSection.style.display = 'none';
+            if (noKPIMsg)   noKPIMsg.style.display = 'none';
+            if (ctcView)    ctcView.style.display = 'none';
+
+            try {
+                const q = query(collection(db, "appraisals"), where("targetEmail", "==", targetEmail));
+                const snap = await getDocs(q);
+                const selfDocs = snap.docs.map(d=>d.data()).filter(d=>d.type==='self'&&d.status==='submitted').sort((a,b)=>(b.timestamp?.seconds??0)-(a.timestamp?.seconds??0));
+                const data = selfDocs.length > 0 ? selfDocs[0] : null;
+
+                if (data) {
+                    // Show CTC
+                    if (data.ctc && ctcView) {
+                        const fixedEl = document.getElementById(selfViewElId==='employeeSelfView'?'mgrViewFixedCTC':'adminMgrViewFixedCTC');
+                        const pliEl   = document.getElementById(selfViewElId==='employeeSelfView'?'mgrViewPLI':'adminMgrViewPLI');
+                        const totEl   = document.getElementById(selfViewElId==='employeeSelfView'?'mgrViewTotalCTC':'adminMgrViewTotalCTC');
+                        if (fixedEl) fixedEl.textContent = fmtCurrency(data.ctc.fixed);
+                        if (pliEl)   pliEl.textContent   = fmtCurrency(data.ctc.pli);
+                        if (totEl)   totEl.textContent    = fmtCurrency(data.ctc.total);
+                        ctcView.style.display = 'block';
+                    } else if (ctcView) {
+                        // Fallback to HR records even if employee didn't save CTC in draft
+                        const empFin = EMP_FINANCIAL_DATA[targetEmail];
+                        if (empFin) {
+                            const fixedEl = document.getElementById(selfViewElId==='employeeSelfView'?'mgrViewFixedCTC':'adminMgrViewFixedCTC');
+                            const pliEl   = document.getElementById(selfViewElId==='employeeSelfView'?'mgrViewPLI':'adminMgrViewPLI');
+                            const totEl   = document.getElementById(selfViewElId==='employeeSelfView'?'mgrViewTotalCTC':'adminMgrViewTotalCTC');
+                            if (fixedEl) fixedEl.textContent = fmtCurrency(empFin.fixedCTC);
+                            if (pliEl)   pliEl.textContent   = fmtCurrency(empFin.pli);
+                            if (totEl)   totEl.textContent    = fmtCurrency(empFin.totalCTC || empFin.currentCTC);
+                            ctcView.style.display = 'block';
+                        }
+                    }
+                    // Summary header — pull designation from DIRECTORY/EMP_FINANCIAL_DATA for richer context
+                    const empDirEntry = DIRECTORY[targetEmail] || {};
+                    const empFinEntry = EMP_FINANCIAL_DATA[targetEmail] || {};
+                    const empDesig = empFinEntry.designation || empDirEntry.designation || '';
+                    const empDept  = empFinEntry.department  || empDirEntry.department  || '';
+                    if (container) container.innerHTML = `
+                        <div style="background:linear-gradient(135deg,var(--brand-primary) 0%,var(--brand-primary-dark) 100%);border-radius:8px;padding:16px 20px;margin-bottom:16px;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+                                <div style="display:flex;align-items:center;gap:12px;">
+                                    <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:800;color:#fff;flex-shrink:0;">${data.targetName.charAt(0).toUpperCase()}</div>
+                                    <div>
+                                        <div style="font-size:0.95rem;font-weight:800;color:#fff;">${data.targetName}</div>
+                                        ${empDesig?`<div style="font-size:0.78rem;color:rgba(255,255,255,0.75);">${empDesig}</div>`:''}
+                                        ${empDept?`<div style="font-size:0.7rem;color:rgba(255,255,255,0.5);">${empDept}</div>`:''}
+                                    </div>
+                                </div>
+                                <span style="background:rgba(255,255,255,0.15);color:#fff;padding:4px 14px;border-radius:20px;font-weight:700;font-size:0.82rem;border:1px solid rgba(255,255,255,0.2);">Self: ${(data.overallSelfPct||0).toFixed(1)}% (${data.rating}/5)</span>
+                            </div>
+                        </div>
+                    `;
+                    const kpis = data.kpis || [];
+                    _lastLoadedEmpKPIs = kpis;
+                    _lastLoadedEmpKPICount = kpis.length;
+                    if (kpis.length > 0 && kpiSection) {
+                        kpiSection.style.display = 'block';
+                        const cardsEl = document.getElementById(kpiContainerElId === 'managerKPIReviewContainer' ? 'managerKPIReviewCards' : 'adminManagerKPIReviewCards');
+                        if (cardsEl) buildManagerKPIReviewPanels(kpis, cardsEl, overallPctElId, overallRatingElId, savedMgrData?.kpis||[]);
+                    } else if (noKPIMsg) noKPIMsg.style.display = 'block';
+                } else {
+                    _lastLoadedEmpKPIs = []; _lastLoadedEmpKPICount = 0;
+                    // Even without a submission, show employee info from HR records
+                    const empDirEntry2 = DIRECTORY[targetEmail] || {};
+                    const empFinEntry2 = EMP_FINANCIAL_DATA[targetEmail] || {};
+                    const empName2  = empDirEntry2.name  || targetEmail;
+                    const empDesig2 = empFinEntry2.designation || empDirEntry2.designation || '';
+                    const empDept2  = empFinEntry2.department  || empDirEntry2.department  || '';
+                    // Show CTC from HR records
+                    if (ctcView && empFinEntry2.fixedCTC) {
+                        const fixedEl2 = document.getElementById(selfViewElId==='employeeSelfView'?'mgrViewFixedCTC':'adminMgrViewFixedCTC');
+                        const pliEl2   = document.getElementById(selfViewElId==='employeeSelfView'?'mgrViewPLI':'adminMgrViewPLI');
+                        const totEl2   = document.getElementById(selfViewElId==='employeeSelfView'?'mgrViewTotalCTC':'adminMgrViewTotalCTC');
+                        if (fixedEl2) fixedEl2.textContent = fmtCurrency(empFinEntry2.fixedCTC);
+                        if (pliEl2)   pliEl2.textContent   = fmtCurrency(empFinEntry2.pli);
+                        if (totEl2)   totEl2.textContent    = fmtCurrency(empFinEntry2.totalCTC || empFinEntry2.currentCTC);
+                        ctcView.style.display = 'block';
+                    }
+                    if (container) container.innerHTML = `
+                        <div style="background:linear-gradient(135deg,var(--brand-primary) 0%,var(--brand-primary-dark) 100%);border-radius:8px;padding:16px 20px;margin-bottom:12px;">
+                            <div style="display:flex;align-items:center;gap:12px;">
+                                <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:800;color:#fff;flex-shrink:0;">${empName2.charAt(0).toUpperCase()}</div>
+                                <div>
+                                    <div style="font-size:0.95rem;font-weight:800;color:#fff;">${empName2}</div>
+                                    ${empDesig2?`<div style="font-size:0.78rem;color:rgba(255,255,255,0.75);">${empDesig2}</div>`:''}
+                                    ${empDept2?`<div style="font-size:0.7rem;color:rgba(255,255,255,0.5);">${empDept2}</div>`:''}
+                                </div>
+                            </div>
+                        </div>
+                        <div style="background:#f9fafb;border:1px dashed #d1d5db;border-radius:8px;padding:12px;color:#6b7280;text-align:center;font-size:0.85rem;"><em>This employee has not submitted their self-appraisal yet.</em></div>
+                    `;
+                    if (noKPIMsg) noKPIMsg.style.display = 'block';
+                }
+            } catch (e) {
+                console.error(e);
+                if (container) container.innerHTML = `<p style="color:red;font-size:0.85rem;">Error loading employee data.</p>`;
+            }
         }
 
         // --- DRAFTS & SUBMISSIONS: MANAGER ---
         async function checkManagerDraft() {
             const target = document.getElementById('reporteeSelect').value;
-            
-            // Reset UI
-            document.getElementById('managerFeedback').value = "";
-            document.getElementById('managerRating').value = "";
-            
+            _lastLoadedEmpKPIs = []; _lastLoadedEmpKPICount = 0;
+
             const notice = document.getElementById('managerDraftNotice');
-            notice.style.display = 'none';
-            notice.style.color = '#d97706';
-            
+            notice.style.display = 'none'; notice.style.color = '#d97706';
+
             const empView = document.getElementById('employeeSelfView');
-            empView.style.display = 'none';
-            empView.innerHTML = "";
+            if (empView) { empView.style.display = 'none'; empView.innerHTML = ''; }
+            const kpiSection = document.getElementById('managerKPIReviewContainer');
+            if (kpiSection) kpiSection.style.display = 'none';
+            const noKPIMsg = document.getElementById('managerNoKPIMsg');
+            if (noKPIMsg) noKPIMsg.style.display = 'none';
 
             const btnGroup = document.getElementById('managerBtnGroup');
-            const inputs = document.querySelectorAll('#tabManager textarea, #tabManager select:not(#reporteeSelect)'); 
-            
-            inputs.forEach(el => el.disabled = false);
-            btnGroup.style.display = 'flex';
+            if (btnGroup) btnGroup.style.display = 'flex';
 
             currentManagerDraftId = null;
+            if (!target) return;
 
-            if(!target) return;
-
-            // NEW: LOAD EMPLOYEE SELF APPRAISAL DATA
-            await loadEmployeeSelfAppraisal(target);
-
+            // First check for existing submission/draft to pass saved KPI data
+            let savedMgrData = null;
             try {
-                // Fetch appraisals by this manager for this target
-                const q = query(
-                    collection(db, "appraisals"),
-                    where("type", "==", "manager"),
-                    where("reviewerEmail", "==", currentUser.email),
-                    where("targetEmail", "==", target)
-                );
-                const snap = await getDocs(q);
-                
-                // 1. Check for Submitted
-                const submittedDoc = snap.docs.find(d => d.data().status === 'submitted');
+                const qm = query(collection(db, "appraisals"), where("type","==","manager"), where("reviewerEmail","==",currentUser.email), where("targetEmail","==",target));
+                const snapM = await getDocs(qm);
+                const submittedDoc = snapM.docs.find(d => d.data().status === 'submitted');
                 if (submittedDoc) {
-                    const data = submittedDoc.data();
-                    document.getElementById('managerFeedback').value = data.feedback || "";
-                    document.getElementById('managerRating').value = data.rating || "";
-
-                    // LOCK UI
-                    inputs.forEach(el => el.disabled = true);
-                    btnGroup.style.display = 'none';
-
+                    savedMgrData = submittedDoc.data();
+                    await loadEmployeeSelfAppraisal(target, 'employeeSelfView', 'managerKPIReviewContainer', 'managerNoKPIMsg', 'managerKPIReviewContainer', 'mgrOverallPctDisplay', 'mgrOverallRatingDisplay', savedMgrData);
+                    if (savedMgrData.kpis) restoreManagerKPIReviewData(savedMgrData.kpis, 'managerKPIReviewCards', 'mgrOverallPctDisplay', 'mgrOverallRatingDisplay');
+                    document.querySelectorAll('#managerKPIReviewCards input, #managerKPIReviewCards textarea').forEach(el => el.disabled = true);
+                    if (btnGroup) btnGroup.style.display = 'none';
                     notice.innerText = "You have already submitted a review for this employee.";
-                    notice.style.color = "var(--success-text)";
-                    notice.style.display = 'block';
+                    notice.style.color = "var(--success-text)"; notice.style.display = 'block';
                     return;
                 }
-
-                // 2. Check for Draft
-                const draftDoc = snap.docs.find(d => d.data().status === 'draft');
+                const draftDoc = snapM.docs.find(d => d.data().status === 'draft');
                 if (draftDoc) {
-                    const data = draftDoc.data();
+                    savedMgrData = draftDoc.data();
                     currentManagerDraftId = draftDoc.id;
-                    document.getElementById('managerFeedback').value = data.feedback || "";
-                    document.getElementById('managerRating').value = data.rating || "";
-                    
-                    notice.innerText = "Draft loaded for this employee.";
-                    notice.style.display = 'block';
+                    notice.innerText = "Draft loaded for this employee."; notice.style.display = 'block';
                 }
-            } catch(e) { console.error("Draft check error", e); }
+            } catch(e) { console.error(e); }
+
+            await loadEmployeeSelfAppraisal(target, 'employeeSelfView', 'managerKPIReviewContainer', 'managerNoKPIMsg', 'managerKPIReviewContainer', 'mgrOverallPctDisplay', 'mgrOverallRatingDisplay', savedMgrData);
+            if (savedMgrData?.kpis) restoreManagerKPIReviewData(savedMgrData.kpis, 'managerKPIReviewCards', 'mgrOverallPctDisplay', 'mgrOverallRatingDisplay');
         }
 
-        async function loadEmployeeSelfAppraisal(targetEmail) {
-            const container = document.getElementById('employeeSelfView');
-            container.style.display = 'block';
-            container.innerHTML = '<p class="subtitle" style="font-size:0.85rem;">Fetching employee self-review...</p>';
-            
-            try {
-                // Query: Get all docs for this target
-                const q = query(collection(db, "appraisals"), where("targetEmail", "==", targetEmail));
-                const snap = await getDocs(q);
-                
-                // Client-side filter: find type="self" and status="submitted"
-                // We use latest if multiple exist (though logic prevents multiple)
-                const selfDocs = snap.docs
-                    .map(d => d.data())
-                    .filter(d => d.type === 'self' && d.status === 'submitted')
-                    .sort((a,b) => (b.timestamp?.seconds ?? 0) - (a.timestamp?.seconds ?? 0));
-                
-                const data = selfDocs.length > 0 ? selfDocs[0] : null;
-
-                if (data) {
-                    container.innerHTML = `
-                        <div style="background: var(--tint-purple); border: 1px solid rgba(81, 40, 93, 0.2); border-radius: 8px; padding: 20px; margin-bottom: 24px;">
-                            <h4 style="margin-top:0; margin-bottom:15px; color:var(--brand-primary); border-bottom:1px solid rgba(81, 40, 93, 0.1); padding-bottom:8px;">
-                                ${data.targetName}'s Self Appraisal
-                            </h4>
-                            <div style="margin-bottom:12px;">
-                                <strong style="font-size:0.85rem; color:#6b7280; text-transform:uppercase;">Key Accomplishments</strong>
-                                <p style="margin:4px 0 0 0; color:var(--text-main); white-space:pre-wrap;">${data.accomplishments}</p>
-                            </div>
-                            <div style="margin-bottom:12px;">
-                                <strong style="font-size:0.85rem; color:#6b7280; text-transform:uppercase;">Challenges</strong>
-                                <p style="margin:4px 0 0 0; color:var(--text-main); white-space:pre-wrap;">${data.challenges}</p>
-                            </div>
-                            <div>
-                                <strong style="font-size:0.85rem; color:#6b7280; text-transform:uppercase;">Self Rating</strong>
-                                <span style="display:inline-block; margin-left:8px; font-weight:700; color:var(--brand-primary);">${data.rating}/5</span>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    container.innerHTML = `
-                        <div style="background: #f9fafb; border: 1px dashed #d1d5db; border-radius: 8px; padding: 15px; margin-bottom: 24px; color: #6b7280; text-align: center; font-size:0.9rem;">
-                            <em>This employee has not submitted their self-appraisal yet.</em>
-                        </div>
-                    `;
-                }
-
-            } catch (e) {
-                console.error("Error loading employee data", e);
-                container.innerHTML = '<p style="color:red; font-size:0.85rem;">Error loading employee self-appraisal.</p>';
-            }
+        function buildManagerPayload(target, status, kpis, kpiCount) {
+            const mgrKpis = getManagerKPIReviewData(kpis, kpiCount);
+            let totalW = 0, weighted = 0;
+            mgrKpis.forEach(k => { totalW += (k.weightage||0); weighted += (k.managerAssessment||0)*(k.weightage||0); });
+            const overallPct = totalW > 0 ? weighted/totalW : 0;
+            const overallRating = parseFloat(((overallPct/100)*5).toFixed(2));
+            return {
+                type: "manager", status,
+                targetEmail: target,
+                reviewerEmail: currentUser.email,
+                reviewerName: currentUser.name,
+                targetName: DIRECTORY[target]?.name || target,
+                kpis: mgrKpis,
+                overallMgrPct: overallPct,
+                rating: overallRating,
+                timestamp: Timestamp.now()
+            };
         }
 
         async function saveManagerDraft() {
             const target = document.getElementById('reporteeSelect').value;
-            const feed = document.getElementById('managerFeedback').value;
-            const rate = document.getElementById('managerRating').value;
-
-            if(!target) return showAlert("Please select an employee first.", "error");
-
-            const targetName = DIRECTORY[target].name;
-            const payload = {
-                type: "manager",
-                status: "draft",
-                targetEmail: target,
-                reviewerEmail: currentUser.email,
-                reviewerName: currentUser.name,
-                targetName: targetName,
-                feedback: feed,
-                rating: rate,
-                timestamp: Timestamp.now()
-            };
-
+            if (!target) return showAlert("Please select an employee first.", "error");
+            const payload = buildManagerPayload(target, 'draft', _lastLoadedEmpKPIs, _lastLoadedEmpKPICount);
             try {
                 if (currentManagerDraftId) {
                     await updateDoc(doc(db, "appraisals", currentManagerDraftId), payload);
@@ -2480,29 +2889,14 @@
                     document.getElementById('managerDraftNotice').innerText = "Draft loaded for this employee.";
                     showAlert("Review draft saved.", "info");
                 }
-            } catch(e) { showAlert("Error saving draft.", "error"); }
+            } catch(e) { showAlert("Error saving draft: " + e.message, "error"); }
         }
 
         async function submitManagerReview() {
             const target = document.getElementById('reporteeSelect').value;
-            const feed = document.getElementById('managerFeedback').value;
-            const rate = document.getElementById('managerRating').value;
-
-            if(!target || !feed || !rate) return showAlert("Please fill all fields.", "error");
-
-            const targetName = DIRECTORY[target].name;
-            const payload = {
-                type: "manager",
-                status: "submitted",
-                targetEmail: target,
-                reviewerEmail: currentUser.email,
-                reviewerName: currentUser.name,
-                targetName: targetName,
-                feedback: feed,
-                rating: rate,
-                timestamp: Timestamp.now()
-            };
-
+            if (!target) return showAlert("Please select an employee first.", "error");
+            if (_lastLoadedEmpKPICount === 0) return showAlert("Cannot submit — employee has not submitted their KPIs yet.", "error");
+            const payload = buildManagerPayload(target, 'submitted', _lastLoadedEmpKPIs, _lastLoadedEmpKPICount);
             try {
                 if (currentManagerDraftId) {
                     await updateDoc(doc(db, "appraisals", currentManagerDraftId), payload);
@@ -2511,128 +2905,386 @@
                     await addDoc(collection(db, "appraisals"), payload);
                 }
                 showAlert("Manager review submitted.", "success");
-                logAuditAction(currentUser.email, `Submitted manager review for ${DIRECTORY[target]?.name || target} (Rating: ${rate})`, 'MANAGER_REVIEW_SUBMIT', target);
-                
-                // Re-check to lock UI
+                logAuditAction(currentUser.email, `Submitted manager review for ${DIRECTORY[target]?.name||target} (Rating: ${payload.rating}/5)`, 'MANAGER_REVIEW_SUBMIT', target);
                 checkManagerDraft();
-
-            } catch (e) { console.error(e); showAlert("Error submitting review.", "error"); }
+            } catch (e) { console.error(e); showAlert("Error submitting review: " + e.message, "error"); }
         }
 
-        // --- LOAD DATA (UPDATED TO FIX INDEX ISSUE) ---
+        // --- LOAD DATA ---
         async function loadMySubmissions() {
             const div = document.getElementById('myFeedbackList');
-            div.innerHTML = "<div style='padding:40px; text-align:center; color:#666;'>Loading your data...</div>";
-
+            div.innerHTML = "<div style='padding:40px;text-align:center;color:#666;'>Loading your data...</div>";
             try {
-                // 1. Fetch ALL records for this user (No filtering by status/type in DB to avoid Index issues)
                 const q = query(collection(db, "appraisals"), where("targetEmail", "==", currentUser.email));
                 const snap = await getDocs(q);
+                const allDocs = snap.docs.map(d=>d.data());
+                const selfSub = allDocs.filter(d=>d.type==='self'&&d.status==='submitted').sort((a,b)=>(b.timestamp?.seconds??0)-(a.timestamp?.seconds??0));
+                const mgrSub  = allDocs.filter(d=>d.type==='manager'&&d.status==='submitted').sort((a,b)=>(b.timestamp?.seconds??0)-(a.timestamp?.seconds??0));
 
-                // 2. Filter & Sort in JavaScript
-                const submissions = [];
-                snap.forEach(doc => {
-                    const data = doc.data();
-                    // Show if it is Self Appraisal AND Submitted
-                    if (data.type === 'self' && data.status === 'submitted') {
-                        submissions.push(data);
-                    }
-                });
-
-                // Sort descending by time
-                submissions.sort((a, b) => (b.timestamp?.seconds ?? 0) - (a.timestamp?.seconds ?? 0));
-
-                if(submissions.length === 0) {
-                    div.innerHTML = "<div style='padding:20px; background:#fafafa; border-radius:6px; text-align:center;'>No submitted appraisals yet.</div>";
+                if (selfSub.length === 0 && mgrSub.length === 0) {
+                    div.innerHTML = "<div style='padding:20px;background:#fafafa;border-radius:6px;text-align:center;'>No submitted appraisals yet.</div>";
                     return;
                 }
-
                 div.innerHTML = "";
-                submissions.forEach(data => {
-                    div.innerHTML += `
-                        <div style="background:#FFFFFF; padding:24px; border:1px solid #E5E7EB; border-radius:8px; margin-bottom:16px; box-shadow:0 1px 2px rgba(0,0,0,0.05);">
-                            <div style="display:flex; justify-content:space-between; margin-bottom:12px; align-items:center;">
-                                <strong style="color:#51285d;">${data.timestamp?.toDate ? data.timestamp.toDate().toLocaleDateString() : '—'}</strong>
-                                <span style="background:#fef2f2; color:#e85046; padding:4px 12px; border-radius:20px; font-size:0.8rem; font-weight:700;">Rating: ${data.rating}/5</span>
+
+                selfSub.forEach(data => {
+                    const kpis = data.kpis || [];
+                    let kpiHtml = '';
+                    kpis.forEach((k, i) => {
+                        kpiHtml += `
+                        <div style="border:1px solid var(--border-color);border-radius:6px;padding:12px;margin-bottom:10px;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:6px;">
+                                <strong style="color:var(--brand-primary);font-size:0.85rem;">${i+1}. ${k.kraName||'KRA '+(i+1)}</strong>
+                                <div style="display:flex;gap:8px;font-size:0.78rem;">
+                                    <span style="background:rgba(81,40,93,0.1);padding:1px 8px;border-radius:20px;font-weight:700;color:var(--brand-primary);">Wt: ${k.weightage||0}%</span>
+                                    <span style="background:var(--tint-red);color:var(--brand-accent);padding:1px 8px;border-radius:20px;font-weight:700;">Self: ${k.selfAssessment||0}%</span>
+                                    ${k.managerAssessment!==undefined?`<span style="background:#dcfce7;color:#047857;padding:1px 8px;border-radius:20px;font-weight:700;">Mgr: ${k.managerAssessment}%</span>`:''}
+                                </div>
                             </div>
-                            <p style="margin:0 0 12px 0; color:#374151;"><strong>Accomplishments:</strong><br>${data.accomplishments}</p>
-                            <p style="margin:0; color:#374151;"><strong>Challenges:</strong><br>${data.challenges}</p>
-                        </div>
-                    `;
+                            ${k.kpiDescription?`<p style="margin:0 0 6px;font-size:0.78rem;color:#6b7280;font-style:italic;">${k.kpiDescription}</p>`:''}
+                            ${k.achievements?`<div style="font-size:0.82rem;color:var(--text-main);white-space:pre-wrap;">${k.achievements}</div>`:''}
+                            ${k.improvementAreas?`<div style="margin-top:6px;padding:6px 10px;background:#fff7ed;border-left:3px solid #f97316;border-radius:4px;font-size:0.78rem;"><strong style="color:#c2410c;">Manager Feedback:</strong> ${k.improvementAreas}</div>`:''}
+                        </div>`;
+                    });
+                    const ctcInfo = data.ctc ? `<div style="display:flex;gap:16px;font-size:0.78rem;margin-bottom:12px;flex-wrap:wrap;">
+                        <span>Fixed CTC: <strong>${fmtCurrency(data.ctc.fixed)}</strong></span>
+                        <span>PLI: <strong>${fmtCurrency(data.ctc.pli)}</strong></span>
+                        <span>Total: <strong>${fmtCurrency(data.ctc.total)}</strong></span>
+                    </div>` : '';
+                    div.innerHTML += `
+                        <div style="background:#fff;padding:20px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:16px;box-shadow:0 1px 2px rgba(0,0,0,0.05);">
+                            <div style="display:flex;justify-content:space-between;margin-bottom:10px;align-items:center;flex-wrap:wrap;gap:8px;">
+                                <strong style="color:var(--brand-primary);">Self Appraisal — ${data.timestamp?.toDate?data.timestamp.toDate().toLocaleDateString():'—'}</strong>
+                                <span style="background:var(--tint-red);color:var(--brand-accent);padding:3px 12px;border-radius:20px;font-size:0.8rem;font-weight:700;">Overall: ${(data.overallSelfPct||0).toFixed(1)}% (${data.rating}/5)</span>
+                            </div>
+                            ${ctcInfo}
+                            ${kpiHtml || '<p style="color:#6b7280;font-size:0.85rem;">No KPIs recorded.</p>'}
+                        </div>`;
+                });
+
+                mgrSub.forEach(data => {
+                    const kpis = data.kpis || [];
+                    let kpiHtml = '';
+                    kpis.forEach((k, i) => {
+                        kpiHtml += `
+                        <div style="border:1px solid var(--border-color);border-radius:6px;padding:12px;margin-bottom:10px;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:6px;">
+                                <strong style="color:var(--brand-primary);font-size:0.85rem;">${i+1}. ${k.kraName||'KRA '+(i+1)}</strong>
+                                <span style="background:#dcfce7;color:#047857;padding:1px 8px;border-radius:20px;font-weight:700;font-size:0.78rem;">Mgr: ${k.managerAssessment||0}%</span>
+                            </div>
+                            ${k.improvementAreas?`<div style="padding:6px 10px;background:#fff7ed;border-left:3px solid #f97316;border-radius:4px;font-size:0.8rem;margin-bottom:6px;"><strong style="color:#c2410c;">Improvement Areas:</strong> ${k.improvementAreas}</div>`:''}
+                            ${k.managerFeedback?`<div style="padding:6px 10px;background:#f0fdf4;border-left:3px solid #22c55e;border-radius:4px;font-size:0.8rem;"><strong style="color:#15803d;">Narrative:</strong> ${k.managerFeedback}</div>`:''}
+                        </div>`;
+                    });
+                    div.innerHTML += `
+                        <div style="background:#fff;padding:20px;border:1px solid #e5e7eb;border-left:3px solid var(--brand-primary);border-radius:8px;margin-bottom:16px;box-shadow:0 1px 2px rgba(0,0,0,0.05);">
+                            <div style="display:flex;justify-content:space-between;margin-bottom:10px;align-items:center;flex-wrap:wrap;gap:8px;">
+                                <strong style="color:var(--brand-primary);">Manager Review by ${data.reviewerName} — ${data.timestamp?.toDate?data.timestamp.toDate().toLocaleDateString():'—'}</strong>
+                                <span style="background:#dcfce7;color:#047857;padding:3px 12px;border-radius:20px;font-size:0.8rem;font-weight:700;">Overall: ${(data.overallMgrPct||0).toFixed(1)}% (${data.rating}/5)</span>
+                            </div>
+                            ${kpiHtml || '<p style="color:#6b7280;font-size:0.85rem;">No KPI reviews recorded.</p>'}
+                        </div>`;
                 });
             } catch (e) {
                 console.error(e);
-                div.innerHTML = `<div style='padding:20px; color:red; text-align:center;'>Error loading data: ${e.message}</div>`;
+                div.innerHTML = `<div style='padding:20px;color:red;text-align:center;'>Error loading data: ${e.message}</div>`;
             }
         }
 
         // --- ADMIN FUNCTIONS (UPDATED TO FIX INDEX ISSUE) ---
+        // ── ADMIN PERFORMANCE DASHBOARD — grouped by employee ──────────
+        window._adminAppraisalMap = {}; // email → { self, manager }
+
         async function loadAdminData() {
             const tbody = document.getElementById('adminBody');
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:40px; color:#6B7280;">Fetching records...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:40px; color:#6B7280;">Fetching records...</td></tr>';
             window.adminExportData = [];
+            window._adminAppraisalMap = {};
 
             try {
-                // 1. Fetch ALL records (Simple query, no index needed)
-                const q = query(collection(db, "appraisals"));
-                const snap = await getDocs(q);
-                
-                // 2. Filter & Sort in JavaScript
-                const allRecords = [];
-                snap.forEach(doc => {
-                    const data = doc.data();
-                    if(data.status === 'submitted') {
-                        allRecords.push(data);
+                const snap = await getDocs(query(collection(db, "appraisals")));
+                snap.forEach(d => {
+                    const data = d.data();
+                    if (data.status !== 'submitted') return;
+                    const email = data.targetEmail;
+                    if (!window._adminAppraisalMap[email]) {
+                        window._adminAppraisalMap[email] = { self: null, manager: null };
                     }
+                    if (data.type === 'self')    window._adminAppraisalMap[email].self    = data;
+                    if (data.type === 'manager') window._adminAppraisalMap[email].manager = data;
                 });
 
-                // Sort descending
-                allRecords.sort((a, b) => (b.timestamp?.seconds ?? 0) - (a.timestamp?.seconds ?? 0));
-                
-                tbody.innerHTML = "";
-                if(allRecords.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:40px; color:#6B7280;">No records found.</td></tr>';
+                const employees = Object.entries(window._adminAppraisalMap);
+                // Sort by employee name
+                employees.sort((a, b) => (a[1].self?.targetName || a[1].manager?.targetName || a[0]).localeCompare(
+                    b[1].self?.targetName || b[1].manager?.targetName || b[0]));
+
+                tbody.innerHTML = '';
+                if (employees.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:40px; color:#6B7280;">No submitted appraisals found.</td></tr>';
                     return;
                 }
 
-                allRecords.forEach(data => {
-                    const isSelf = data.type === 'self';
-                    
+                const ratingColor = r => ({1:'#b91c1c',2:'#d97706',3:'#047857',4:'#1e40af',5:'#7c3aed'}[r] || '#374151');
+                const statusPill = (status) => {
+                    if (status === 'submitted') return `<span style="background:#d1fae5;color:#047857;padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:600;">Submitted</span>`;
+                    return `<span style="background:#f1f5f9;color:#9ca3af;padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:600;">Pending</span>`;
+                };
+
+                employees.forEach(([email, rec]) => {
+                    const self = rec.self;
+                    const mgr  = rec.manager;
+                    const name = self?.targetName || mgr?.targetName || email;
+                    const dirInfo = DIRECTORY[email] || {};
+                    const desig = dirInfo.designation || dirInfo.desig || '—';
+                    const dept  = dirInfo.department  || dirInfo.dept  || '—';
+                    const selfRating = self ? parseInt(self.rating) : null;
+                    const mgrRating  = mgr  ? parseInt(mgr.rating)  : null;
+                    const finalRating = mgrRating || selfRating;
+
+                    // Export row
+                    const kpis = self?.kpis || mgr?.kpis || [];
                     window.adminExportData.push({
-                        "Date": data.timestamp?.toDate ? data.timestamp.toDate().toLocaleDateString() : '—',
-                        "Type": isSelf ? "Self Appraisal" : "Manager Review",
-                        "Employee Name": data.targetName,
-                        "Employee Email": data.targetEmail,
-                        "Reviewer": isSelf ? "Self" : data.reviewerName,
-                        "Rating": data.rating,
-                        "Accomplishments/Feedback": isSelf ? data.accomplishments : data.feedback,
-                        "Challenges": isSelf ? data.challenges : "N/A"
+                        "Employee Name": name,
+                        "Employee Email": email,
+                        "Designation": desig,
+                        "Department": dept,
+                        "Self Rating": selfRating || '—',
+                        "Self Overall %": self ? (self.overallSelfPct||0).toFixed(1) : '—',
+                        "Manager Rating": mgrRating || '—',
+                        "Manager Overall %": mgr ? (mgr.overallMgrPct||0).toFixed(1) : '—',
+                        "Final Rating": finalRating || '—',
+                        "Reviewer": mgr?.reviewerName || '—'
                     });
 
-                    const row = `
-                        <tr>
-                            <td><span class="badge ${isSelf ? 'badge-self' : 'badge-manager'}">${isSelf ? 'Self' : 'Manager'}</span></td>
+                    const selfCell = self
+                        ? `${statusPill('submitted')}<br><span style="font-weight:700;color:${ratingColor(selfRating)};font-size:1rem;">${selfRating}/5</span> <span style="font-size:0.72rem;color:#6b7280;">(${(self.overallSelfPct||0).toFixed(1)}%)</span>`
+                        : statusPill('pending');
+
+                    const mgrCell = mgr
+                        ? `${statusPill('submitted')}<br><span style="font-weight:700;color:${ratingColor(mgrRating)};font-size:1rem;">${mgrRating}/5</span> <span style="font-size:0.72rem;color:#6b7280;">(${(mgr.overallMgrPct||0).toFixed(1)}%)</span>
+                           <br><span style="font-size:0.7rem;color:#9ca3af;">by ${mgr.reviewerName||'—'}</span>`
+                        : statusPill('pending');
+
+                    const finalCell = finalRating
+                        ? `<span style="font-size:1.25rem;font-weight:800;color:${ratingColor(finalRating)};">${finalRating}</span><span style="font-size:0.8rem;color:#9ca3af;">/5</span>`
+                        : `<span style="color:#d1d5db;">—</span>`;
+
+                    tbody.innerHTML += `
+                        <tr style="cursor:pointer;" onclick="openEmpAppraisalModal('${email.replace(/'/g,"\\'")}')">
                             <td>
-                                <strong style="color:#111827;">${data.targetName}</strong><br>
-                                <span style="font-size:0.75rem; color:#6B7280;">${data.targetEmail}</span>
+                                <strong style="color:#111827;">${name}</strong><br>
+                                <span style="font-size:0.72rem;color:#6b7280;">${email}</span>
                             </td>
-                            <td>${isSelf ? '<span style="color:#9CA3AF;">-</span>' : data.reviewerName}</td>
-                            <td><span style="font-weight:600; color:#51285d;">${data.rating}/5</span></td>
-                            <td style="color:#4B5563; font-size:0.85rem;">
-                                ${isSelf 
-                                    ? `<strong>Wins:</strong> ${data.accomplishments}<br><strong style="display:inline-block; margin-top:4px;">Challenges:</strong> ${data.challenges}`
-                                    : data.feedback
-                                }
+                            <td style="font-size:0.82rem;">
+                                <span style="color:#374151;">${desig}</span><br>
+                                <span style="color:#9ca3af;font-size:0.72rem;">${dept}</span>
                             </td>
-                        </tr>
-                    `;
-                    tbody.innerHTML += row;
+                            <td style="vertical-align:middle;">${selfCell}</td>
+                            <td style="vertical-align:middle;">${mgrCell}</td>
+                            <td style="vertical-align:middle;text-align:center;">${finalCell}</td>
+                            <td style="text-align:center;vertical-align:middle;">
+                                <button onclick="event.stopPropagation();openEmpAppraisalModal('${email.replace(/'/g,"\\'")}');"
+                                    style="background:var(--brand-primary);color:#fff;border:none;padding:6px 14px;border-radius:6px;font-size:0.78rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px;"
+                                    onmouseover="this.style.background='var(--brand-primary-dark)'" onmouseout="this.style.background='var(--brand-primary)'">
+                                    <svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z'/><circle cx='12' cy='12' r='3'/></svg>
+                                    View
+                                </button>
+                            </td>
+                        </tr>`;
                 });
             } catch (e) {
                 console.error(e);
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#B91C1C;">Error: ${e.message}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#B91C1C;">Error: ${e.message}</td></tr>`;
             }
         }
+
+        // ── EMPLOYEE APPRAISAL DETAIL MODAL ───────────────────────────
+        function openEmpAppraisalModal(email) {
+            const rec = window._adminAppraisalMap[email];
+            if (!rec) return;
+            const self = rec.self;
+            const mgr  = rec.manager;
+            const dirInfo = DIRECTORY[email] || {};
+            const empName = self?.targetName || mgr?.targetName || email;
+            const desig = dirInfo.designation || dirInfo.desig || '—';
+            const dept  = dirInfo.department  || dirInfo.dept  || '—';
+
+            // Format Firestore Timestamp or plain date
+            const fmtDate = (ts) => {
+                if (!ts) return '—';
+                try {
+                    const d = ts.toDate ? ts.toDate() : new Date(ts);
+                    return d.toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'}) + ' ' +
+                           d.toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit',hour12:false}) + ':00';
+                } catch { return '—'; }
+            };
+
+            // A single labelled field row — label on top, value below
+            const field = (label, value) => `
+                <div style="padding:10px 14px;border-bottom:1px solid #f0f0f0;">
+                    <div style="font-size:0.72rem;color:#6b7280;margin-bottom:3px;">${label}</div>
+                    <div style="font-size:0.875rem;color:#111827;line-height:1.55;white-space:pre-wrap;">${value || '—'}</div>
+                </div>`;
+
+            // ════════════════════════════════════════════════════
+            // EMPLOYEE SELF ASSESSMENT FORM
+            // ════════════════════════════════════════════════════
+            let selfHtml = '';
+            if (self) {
+                const selfKpis = self.kpis || [];
+
+                // Per-KRA cards — exact fields stored during submission:
+                //   kraName, kpiDescription, weightage, selfAssessment, achievements
+                const selfKraCards = selfKpis.map((k, i) => {
+                    const assessVal = (k.selfAssessment !== undefined && k.weightage)
+                        ? (k.selfAssessment * k.weightage / 100).toFixed(2) : '—';
+                    return `
+                    <div style="border:1px solid #ddd5e8;border-radius:8px;margin-bottom:16px;overflow:hidden;">
+                        <!-- Card header -->
+                        <div style="background:#f3eff5;padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ddd5e8;">
+                            <span style="font-weight:700;color:var(--brand-primary);font-size:0.85rem;">KRA No# ${i+1}</span>
+                            <span style="font-size:0.75rem;color:#6b7280;">Submitted: ${fmtDate(self.timestamp)}</span>
+                        </div>
+                        <!-- Two-column body -->
+                        <div style="display:grid;grid-template-columns:1fr 1fr;">
+                            <!-- LEFT -->
+                            <div style="border-right:1px solid #e5e7eb;">
+                                ${field('Key Performance Indicator (KPI)', k.kpiDescription)}
+                                ${field('KPI Weightage', k.weightage !== undefined ? k.weightage + '%' : '—')}
+                                ${field('Self Assessment (Out of 100%)', k.selfAssessment !== undefined ? k.selfAssessment + '%' : '—')}
+                                ${field('Assessment Value', assessVal)}
+                                ${field('Date & Time of Employee KRA Submission', fmtDate(self.timestamp))}
+                            </div>
+                            <!-- RIGHT -->
+                            <div>
+                                ${field('Key Result Areas (KRA)', k.kraName)}
+                                ${field('Target Achieved', k.achievements)}
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
+
+                selfHtml = `
+                    <!-- ── Self Header ── -->
+                    <div style="background:linear-gradient(90deg,var(--brand-primary) 0%,#6d3580 100%);padding:13px 20px;display:flex;align-items:center;justify-content:space-between;margin-top:20px;border-radius:8px 8px 0 0;">
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.9)' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/><circle cx='12' cy='7' r='4'/></svg>
+                            <span style="color:#fff;font-weight:700;font-size:0.92rem;letter-spacing:0.01em;">Employee Self Assessment Form</span>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:0.68rem;color:rgba(255,255,255,0.65);">Date - Time of Submission</div>
+                            <div style="font-size:0.82rem;color:#fff;font-weight:600;">${fmtDate(self.timestamp)}</div>
+                        </div>
+                    </div>
+                    <!-- ── Self Summary Strip ── -->
+                    <div style="background:#faf8fc;border:1px solid #ddd5e8;border-top:none;padding:12px 20px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;border-radius:0 0 0 0;">
+                        <div><span style="font-size:0.7rem;color:#9ca3af;text-transform:uppercase;font-weight:600;">Overall Self %&nbsp;</span><span style="font-weight:800;color:var(--brand-primary);font-size:1.1rem;">${(self.overallSelfPct||0).toFixed(1)}%</span></div>
+                        <div><span style="font-size:0.7rem;color:#9ca3af;text-transform:uppercase;font-weight:600;">Self Rating&nbsp;</span><span style="font-weight:800;color:#047857;font-size:1.1rem;">${parseFloat(self.rating).toFixed(2)}/5</span></div>
+                        <div><span style="font-size:0.7rem;color:#9ca3af;text-transform:uppercase;font-weight:600;">KRAs Submitted&nbsp;</span><span style="font-weight:700;color:#374151;">${selfKpis.length}</span></div>
+                    </div>
+                    <!-- ── Self KRA Cards ── -->
+                    <div style="border:1px solid #ddd5e8;border-top:none;padding:16px 16px 8px;background:#fff;border-radius:0 0 8px 8px;margin-bottom:8px;">
+                        ${selfKraCards || '<p style="color:#9ca3af;text-align:center;padding:20px 0;font-size:0.85rem;"><em>No KRA entries submitted.</em></p>'}
+                    </div>`;
+            } else {
+                selfHtml = `
+                    <div style="background:#9ca3af;padding:13px 20px;border-radius:8px 8px 0 0;margin-top:20px;">
+                        <span style="color:#fff;font-weight:700;font-size:0.92rem;">Employee Self Assessment Form</span>
+                    </div>
+                    <div style="border:1px solid #e5e7eb;border-top:none;padding:28px;text-align:center;color:#9ca3af;background:#fafafa;border-radius:0 0 8px 8px;margin-bottom:8px;">
+                        <em>Self appraisal not yet submitted.</em>
+                    </div>`;
+            }
+
+            // ════════════════════════════════════════════════════
+            // MANAGER ASSESSMENT FORM
+            // ════════════════════════════════════════════════════
+            let mgrHtml = '';
+            if (mgr) {
+                const mgrKpis = mgr.kpis || [];
+
+                // Per-KRA cards — manager submission adds to the spread self KPI:
+                //   managerAssessment, improvementAreas, managerFeedback
+                const mgrKraCards = mgrKpis.map((k, i) => {
+                    const mgrAssessVal = (k.managerAssessment !== undefined && k.weightage)
+                        ? (k.managerAssessment * k.weightage / 100).toFixed(2) : '—';
+                    return `
+                    <div style="border:1px solid #fad6d4;border-radius:8px;margin-bottom:16px;overflow:hidden;">
+                        <!-- Card header -->
+                        <div style="background:#fff2f1;padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #fad6d4;">
+                            <span style="font-weight:700;color:var(--brand-accent);font-size:0.85rem;">KRA No# ${i+1}</span>
+                            <span style="font-size:0.75rem;color:#6b7280;">Reviewed: ${fmtDate(mgr.timestamp)}</span>
+                        </div>
+                        <!-- Two-column body -->
+                        <div style="display:grid;grid-template-columns:1fr 1fr;">
+                            <!-- LEFT -->
+                            <div style="border-right:1px solid #fde8e8;">
+                                ${field('Key Performance Indicator (KPI)', k.kpiDescription)}
+                                ${field('KRA Weightage', k.weightage !== undefined ? k.weightage + '%' : '—')}
+                                ${field('Improvement Areas', k.improvementAreas)}
+                                ${field('Manager Assessment (Out of 100%)', k.managerAssessment !== undefined ? k.managerAssessment + '%' : '—')}
+                                ${field('Manager Assessment Value', mgrAssessVal)}
+                                ${field('Date - Time of Submission', fmtDate(mgr.timestamp))}
+                            </div>
+                            <!-- RIGHT -->
+                            <div>
+                                ${field('Key Result Areas (KRA)', k.kraName)}
+                                ${field('Target Achieved', k.managerFeedback)}
+                                ${k.selfAssessment !== undefined ? field('Employee Self Assessment', k.selfAssessment + '%') : ''}
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
+
+                mgrHtml = `
+                    <!-- ── Manager Header ── -->
+                    <div style="background:linear-gradient(90deg,#c94a3f 0%,var(--brand-accent) 100%);padding:13px 20px;display:flex;align-items:center;justify-content:space-between;border-radius:8px 8px 0 0;">
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.9)' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2'/><circle cx='9' cy='7' r='4'/><path d='M23 21v-2a4 4 0 0 0-3-3.87'/><path d='M16 3.13a4 4 0 0 1 0 7.75'/></svg>
+                            <div>
+                                <span style="color:#fff;font-weight:700;font-size:0.92rem;">Manager's Assessment Form</span>
+                                <div style="font-size:0.7rem;color:rgba(255,255,255,0.72);">Reviewed by: ${mgr.reviewerName || '—'}</div>
+                            </div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:0.68rem;color:rgba(255,255,255,0.65);">Date - Time of Submission</div>
+                            <div style="font-size:0.82rem;color:#fff;font-weight:600;">${fmtDate(mgr.timestamp)}</div>
+                        </div>
+                    </div>
+                    <!-- ── Manager Summary Strip ── -->
+                    <div style="background:#fff8f8;border:1px solid #fad6d4;border-top:none;padding:12px 20px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
+                        <div><span style="font-size:0.7rem;color:#9ca3af;text-transform:uppercase;font-weight:600;">Overall Manager %&nbsp;</span><span style="font-weight:800;color:var(--brand-accent);font-size:1.1rem;">${(mgr.overallMgrPct||0).toFixed(1)}%</span></div>
+                        <div><span style="font-size:0.7rem;color:#9ca3af;text-transform:uppercase;font-weight:600;">Manager Rating&nbsp;</span><span style="font-weight:800;color:#047857;font-size:1.1rem;">${parseFloat(mgr.rating).toFixed(2)}/5</span></div>
+                        <div><span style="font-size:0.7rem;color:#9ca3af;text-transform:uppercase;font-weight:600;">KRAs Reviewed&nbsp;</span><span style="font-weight:700;color:#374151;">${mgrKpis.length}</span></div>
+                    </div>
+                    <!-- ── Manager KRA Cards ── -->
+                    <div style="border:1px solid #fad6d4;border-top:none;padding:16px 16px 8px;background:#fff;border-radius:0 0 8px 8px;">
+                        ${mgrKraCards || '<p style="color:#9ca3af;text-align:center;padding:20px 0;font-size:0.85rem;"><em>No KRA entries found.</em></p>'}
+                    </div>`;
+            } else {
+                mgrHtml = `
+                    <div style="background:#9ca3af;padding:13px 20px;border-radius:8px 8px 0 0;">
+                        <span style="color:#fff;font-weight:700;font-size:0.92rem;">Manager's Assessment Form</span>
+                    </div>
+                    <div style="border:1px solid #e5e7eb;border-top:none;padding:28px;text-align:center;color:#9ca3af;background:#fafafa;border-radius:0 0 8px 8px;">
+                        <em>Manager review not yet submitted.</em>
+                    </div>`;
+            }
+
+            // Inject into modal
+            document.getElementById('empAppraisalModalTitle').textContent = empName;
+            document.getElementById('empAppraisalModalSubtitle').textContent = `${desig} · ${dept} · ${email}`;
+            document.getElementById('empAppraisalModalBody').innerHTML = selfHtml + mgrHtml;
+            document.getElementById('empAppraisalModal').style.display = 'flex';
+        }
+
+        function closeEmpAppraisalModal() {
+            document.getElementById('empAppraisalModal').style.display = 'none';
+        }
+
+        window.openEmpAppraisalModal  = openEmpAppraisalModal;
+        window.closeEmpAppraisalModal = closeEmpAppraisalModal;
 
         function downloadExcel() {
             if (!window.adminExportData || window.adminExportData.length === 0) {
@@ -2900,7 +3552,6 @@
             if (idx === -1) return;
             const r = window.incrementReportData[idx];
 
-            // Show saving indicator
             const saveEl = document.getElementById(`save_${emailKey}`);
             if (saveEl) { saveEl.innerHTML = `<span style="color:#d97706;">⏳ Saving…</span>`; }
 
@@ -2909,12 +3560,13 @@
                 await setDoc(overrideRef, {
                     email: emailKey,
                     rating: r.rating,
-                    currentCTC: r.currentCTC,
+                    ratingSource: r.ratingSource,
+                    // currentCTC intentionally excluded — sourced from HR records only
                     marketBenchmark: r.marketBenchmark || null,
                     savedBy: currentUser.email,
                     savedAt: Timestamp.now(),
                 });
-                if (saveEl) { saveEl.innerHTML = `<span style="color:#047857;font-size:0.72rem;font-weight:600;">Saved</span>`; }
+                if (saveEl) { saveEl.innerHTML = `<span style="color:#047857;font-size:0.72rem;font-weight:600;">Saved ✓</span>`; }
                 setTimeout(() => { if (saveEl) saveEl.innerHTML = ''; }, 2500);
             } catch (e) {
                 console.error("Save override error", e);
@@ -2929,11 +3581,19 @@
 
             const r = window.incrementReportData[idx];
 
-            // Read current editable values from DOM
-            const newRating  = parseInt(document.getElementById(`rating_${emailKey}`).value) || r.rating;
-            const newCTC     = parseFloat(document.getElementById(`ctc_${emailKey}`).value)   || r.currentCTC;
-            const newMktRaw  = document.getElementById(`mkt_${emailKey}`).value;
-            const newMkt     = newMktRaw !== '' ? parseFloat(newMktRaw) : null;
+            const newRating  = parseInt(document.getElementById(`rating_${emailKey}`)?.value) || r.rating;
+            // CTC is READ-ONLY — always from stored EMP_FINANCIAL_DATA value, never from DOM
+            const newCTC     = r.currentCTC;
+            const newMktRaw  = document.getElementById(`mkt_${emailKey}`)?.value;
+            const newMkt     = (newMktRaw !== undefined && newMktRaw !== '') ? parseFloat(newMktRaw) : null;
+
+            // Detect if admin has overridden a manager-submitted rating
+            const adminOverrodeMgr = r.mgrSubmitted && newRating !== r._mgrRating;
+            const newSource = adminOverrodeMgr
+                ? 'admin_override'
+                : r.mgrSubmitted && newRating === r._mgrRating
+                    ? 'manager'
+                    : r.ratingSource;
 
             // ── COL AA: Eligibility = IF(DOJ < EDATE(31 Mar 2026, -6), "Eligible", "Not Eligible")
             const isEligible = r.eligible; // DOJ-based, does not change with editable inputs
@@ -2965,16 +3625,17 @@
             // ── COL W: Final Increment % = IFERROR((FinalRevisedCTC - CurrentCTC) / CurrentCTC, "")
             const finalIncrementPercent = newCTC > 0 ? (finalRevisedCTC - newCTC) / newCTC : 0;
 
-            // ── COL X: Current Variable After Increment = IFERROR(FinalRevisedCTC * (Variable / CurrentCTC), "")
-            // ── COL Y: Current Fixed After Increment   = IFERROR(FinalRevisedCTC * (FixedCTC / CurrentCTC), "")
-            const _kra = KRA_DATA.find(k => k.empId === r.empId) || {};
-            const _varRatio  = (newCTC > 0 && _kra.variable >= 0) ? _kra.variable / newCTC : 0;
+            // ── COL X: Current Variable After Increment = FinalRevisedCTC * (PLI / CurrentCTC)
+            // ── COL Y: Current Fixed After Increment   = FinalRevisedCTC - VariableAfterIncrement
+            const _pli = r.pli !== undefined ? r.pli : 0;
+            const _varRatio  = newCTC > 0 ? _pli / newCTC : 0;
             const variableAfterIncr = finalRevisedCTC * _varRatio;
             const fixedAfterIncr    = finalRevisedCTC - variableAfterIncr;
 
             // Update stored data
             Object.assign(window.incrementReportData[idx], {
                 rating: newRating,
+                ratingSource: newSource,
                 currentCTC: newCTC,
                 marketBenchmark: newMkt,
                 differencePercent,
@@ -2986,6 +3647,15 @@
                 finalRevisedCTC,
                 finalIncrementPercent,
             });
+
+            // Live-update the source badge below the rating select
+            const badgeEl = document.getElementById(`rsrc_${emailKey}`);
+            if (badgeEl) {
+                if (newSource === 'admin_override')
+                    badgeEl.innerHTML = '<span style="color:#7c3aed;font-size:0.68rem;font-weight:700;background:#ede9fe;padding:1px 5px;border-radius:3px;" title="Admin changed from manager rating">ADM OVR</span>';
+                else if (newSource === 'manager')
+                    badgeEl.innerHTML = '<span style="color:#047857;font-size:0.68rem;font-weight:700;background:#d1fae5;padding:1px 5px;border-radius:3px;">MGR ✓</span>';
+            }
 
             // Update DOM
             const fmt = n => '₹' + (n / 100000).toFixed(1) + 'L';
@@ -3020,7 +3690,7 @@
             safe(`c_finalpct_${emailKey}`, isEligible ? `<span style="font-weight:700;color:${finalIncrementPercent > 0.15 ? '#047857' : '#374151'};">${pct(finalIncrementPercent)}</span>` : '—');
 
             // X: Variable After Increment
-            safe(`c_varafter_${emailKey}`, isEligible && variableAfterIncr > 0 ? fmt(variableAfterIncr) : fmt(_kra.variable || 0));
+            safe(`c_varafter_${emailKey}`, isEligible && variableAfterIncr > 0 ? fmt(variableAfterIncr) : fmt(_pli));
 
             // Y: Fixed After Increment
             safe(`c_fixedafter_${emailKey}`, isEligible ? fmt(fixedAfterIncr) : fmt(newCTC));
@@ -3176,25 +3846,45 @@
                     if (data.email) overrideMap[data.email] = data;
                 });
 
-                // 3. Build rows — overrides win over everything else
+                // 3. Build rows — admin override > manager rating > self rating > KRA default
                 const rows = [];
                 for (const email of Object.keys(EMP_FINANCIAL_DATA)) {
-                    const appraisalRating = ratingMap[email];
+                    const appraisalRating = ratingMap[email];   // { rating, source } — already prioritises manager over self
                     const override        = overrideMap[email];
 
-                    // Priority: admin override > appraisal rating > KRA_DATA default
-                    const kraRow    = KRA_DATA.find(k => k.empId === EMP_FINANCIAL_DATA[email].empId) || {};
-                    const rating    = override?.rating         ?? appraisalRating?.rating ?? kraRow.rating ?? 3;
-                    const currentCTC = override?.currentCTC   ?? EMP_FINANCIAL_DATA[email].currentCTC;
-                    const mktBench  = override?.marketBenchmark ?? EMP_FINANCIAL_DATA[email].marketBenchmark;
+                    // Rating priority on load:
+                    // 1. Admin override saved with ratingSource='admin_override' — admin explicitly changed a submitted rating
+                    // 2. Manager's submitted final rating
+                    // 3. Self-appraisal rating / admin default override
+                    // 4. KRA_DATA default
+                    const kraRow     = KRA_DATA.find(k => k.empId === EMP_FINANCIAL_DATA[email].empId) || {};
+                    const mgrSubmitted = appraisalRating?.source === 'manager';
+                    const adminHasOverridden = override && override.ratingSource === 'admin_override';
 
-                    const ratingSource = override
-                        ? 'override'
-                        : appraisalRating
-                            ? appraisalRating.source
-                            : 'excel_default';
+                    const rating = adminHasOverridden
+                        ? override.rating
+                        : mgrSubmitted
+                            ? appraisalRating.rating
+                            : (override?.rating ?? appraisalRating?.rating ?? kraRow.rating ?? 3);
 
-                    const fin = { ...EMP_FINANCIAL_DATA[email], currentCTC, marketBenchmark: mktBench };
+                    // CTC always from EMP_FINANCIAL_DATA (source of truth) — not editable by admin
+                    const finData    = EMP_FINANCIAL_DATA[email];
+                    const currentCTC = finData.currentCTC;
+                    const fixedCTC   = finData.fixedCTC   || finData.currentCTC;
+                    const pli        = finData.pli        || 0;
+                    const mktBench   = override?.marketBenchmark ?? finData.marketBenchmark;
+
+                    const ratingSource = adminHasOverridden
+                        ? 'admin_override'
+                        : mgrSubmitted
+                            ? 'manager'
+                            : override
+                                ? 'override'
+                            : appraisalRating
+                                ? appraisalRating.source
+                                : 'excel_default';
+
+                    const fin = { ...finData, currentCTC, marketBenchmark: mktBench };
                     const doj = new Date(fin.doj);
 
                     // ── COLUMN Z: Eligibility Category = EDATE(31 Mar 2026, -6) = 30 Sep 2025
@@ -3246,8 +3936,10 @@
                         email,
                         name: dirEntry ? dirEntry.name : fin.designation,
                         ratingSource,
+                        mgrSubmitted,
+                        _mgrRating: mgrSubmitted ? appraisalRating.rating : null, // original manager rating, for override detection
                         hasOverride: !!override,
-                        rating, currentCTC, marketBenchmark: mktBench,
+                        rating, currentCTC, fixedCTC, pli, marketBenchmark: mktBench,
                         eligible: isEligible, eligType, eligFactor: isEligible ? 1.0 : 0,
                         differencePercent, ratingPercent, incrementAmount,
                         revisedCTC, addonPercent, additionalIncrement,
@@ -3304,30 +3996,44 @@
                         ? `<span style="font-weight:700;color:var(--brand-primary);">${r.lastYearRating}</span><br><span style="font-size:0.65rem;color:#6b7280;">FY25-26</span>`
                         : `<span style="color:#9ca3af;font-size:0.72rem;">N/A</span>`;
 
-                    // Rating source badge (icon only, no emoji)
-                    const srcLabel = r.ratingSource === 'override' ? '<span style="color:#1e40af;font-size:0.68rem;font-weight:700;">OVR</span>'
-                                   : r.ratingSource === 'manager'  ? '<span style="color:#047857;font-size:0.68rem;font-weight:700;">MGR</span>'
-                                   : r.ratingSource === 'self'     ? '<span style="color:#d97706;font-size:0.68rem;font-weight:700;">SELF</span>'
-                                   :                                  '<span style="color:#9ca3af;font-size:0.68rem;">DEF</span>';
+                    // Rating source badge
+                    const srcLabel = r.ratingSource === 'admin_override'
+                        ? '<span style="color:#7c3aed;font-size:0.68rem;font-weight:700;background:#ede9fe;padding:1px 5px;border-radius:3px;" title="Admin changed from manager rating">ADM OVR</span>'
+                        : r.ratingSource === 'manager'
+                        ? '<span style="color:#047857;font-size:0.68rem;font-weight:700;background:#d1fae5;padding:1px 5px;border-radius:3px;" title="Manager\'s submitted rating">MGR ✓</span>'
+                        : r.ratingSource === 'override'  ? '<span style="color:#1e40af;font-size:0.68rem;font-weight:700;">OVR</span>'
+                        : r.ratingSource === 'self'      ? '<span style="color:#d97706;font-size:0.68rem;font-weight:700;">SELF</span>'
+                        :                                  '<span style="color:#9ca3af;font-size:0.68rem;">DEF</span>';
 
-                    // Editable rating select
+                    // Rating select — always editable by admin. If manager submitted, show their value
+                    // but allow override (admin has final authority).
                     const ratingSelect = `
-                        <select id="rating_${ek}" onchange="recalcRow('${ek}')" ${isS} ${fS} style="width:100%;padding:4px;border:1px solid #d1d5db;border-radius:4px;font-size:0.8rem;font-family:inherit;background:#fff;cursor:pointer;">
+                        <select id="rating_${ek}" onchange="recalcRow('${ek}')" style="width:100%;padding:4px;border:1px solid #d1d5db;border-radius:4px;font-size:0.8rem;font-family:inherit;background:#fff;cursor:pointer;">
                             ${[1,2,3,4,5].map(v=>`<option value="${v}" ${r.rating==v?'selected':''}>${v}</option>`).join('')}
                         </select>
-                        <div style="font-size:0.65rem;color:#6b7280;margin-top:2px;text-align:center;">${srcLabel}</div>`;
+                        <div id="rsrc_${ek}" style="font-size:0.65rem;color:#6b7280;margin-top:2px;text-align:center;">${srcLabel}</div>`;
 
-                    // Editable inputs
-                    const ctcInput = `<input type="number" id="ctc_${ek}" value="${r.currentCTC}" step="10000" oninput="recalcRow('${ek}')" ${isS} ${fS}>`;
+                    // Current CTC — READ-ONLY display (not editable). Source: EMP_FINANCIAL_DATA.
+                    const ctcDisplay = `
+                        <div style="padding:5px 8px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:4px;font-size:0.8rem;font-weight:600;color:#374151;text-align:right;cursor:default;" title="Sourced from HR records — not editable">
+                            ${fmt(r.currentCTC)}
+                        </div>`;
+
+                    // Market Benchmark — still editable
                     const mktInput = `<input type="number" id="mkt_${ek}" value="${r.marketBenchmark||''}" step="10000" placeholder="—" oninput="recalcRow('${ek}')" ${isS} ${fS}>`;
 
+                    // Fixed CTC and PLI — use row data (EMP_FINANCIAL_DATA fallback already in row)
+                    const fixedCTCVal = r.fixedCTC || kra.fixedCTC || r.currentCTC;
+                    const pliVal      = (r.pli !== undefined) ? r.pli : (kra.variable !== undefined ? kra.variable : 0);
+                    const costToComp  = fixedCTCVal + pliVal;
+
                     // ── COLUMN X: Current Variable After Increment
-                    // =IFERROR(FinalRevisedCTC * (Variable / CurrentCTC), "")
-                    const _varRatio = (r.currentCTC > 0 && kra.variable >= 0) ? kra.variable / r.currentCTC : 0;
+                    // =IFERROR(FinalRevisedCTC * (PLI / CurrentCTC), "")
+                    const _varRatio = (r.currentCTC > 0 && pliVal >= 0) ? pliVal / r.currentCTC : 0;
                     const variableAfterIncr = r.finalRevisedCTC * _varRatio;
 
                     // ── COLUMN Y: Current Fixed After Increment
-                    // =IFERROR(FinalRevisedCTC * (FixedCTC / CurrentCTC), "")
+                    // =IFERROR(FinalRevisedCTC - VariableAfterIncrement, "")
                     const fixedAfterIncr = r.finalRevisedCTC - variableAfterIncr;
                     const eligCatDate = '30-Sep-2025';
 
@@ -3351,17 +4057,17 @@
                         <!-- Rating (editable) -->
                         <td style="min-width:80px;">${ratingSelect}</td>
                         <!-- Fixed CTC (Annual CTC - One Time Earnings) -->
-                        <td style="text-align:right;">${fmt(kra.fixedCTC)}</td>
-                        <!-- Variable (One Time Earnings / Incentive) -->
-                        <td style="text-align:right;">${kra.variable || kra.variable===0 ? fmt(kra.variable) : '—'}</td>
-                        <!-- Cost to Company -->
-                        <td style="text-align:right;">${fmt(kra.ctc)}</td>
+                        <td style="text-align:right;">${fmt(fixedCTCVal)}</td>
+                        <!-- Variable (One Time Earnings / Incentive) = PLI -->
+                        <td style="text-align:right;">${fmt(pliVal)}</td>
+                        <!-- Cost to Company = Fixed + PLI -->
+                        <td style="text-align:right;">${fmt(costToComp)}</td>
                         <!-- Variable2 -->
                         <td style="text-align:right;color:#9ca3af;">0</td>
                         <!-- CTC -->
-                        <td style="text-align:right;">${fmt(kra.ctc)}</td>
-                        <!-- Current CTC (editable) -->
-                        <td style="min-width:120px;">${ctcInput}</td>
+                        <td style="text-align:right;">${fmt(costToComp)}</td>
+                        <!-- Current CTC (read-only — from HR records) -->
+                        <td style="min-width:120px;">${ctcDisplay}</td>
                         <!-- Market Benchmark (editable) -->
                         <td style="min-width:120px;">${mktInput}</td>
                         <!-- Difference % -->
@@ -3839,25 +4545,29 @@
                 "Department":                r.department,
                 "Date of Joining":           r.doj,
                 "Eligibility":               r.eligType || (r.eligible ? "Eligible" : "Not Eligible"),
-                "Eligibility Factor":        r.eligFactor ? (r.eligFactor * 100).toFixed(0) + '%' : '0%',
                 "Last Year Rating (FY25-26)": r.lastYearRating || 'N/A',
                 "Rating":                    r.rating,
                 "Rating Source":             r.ratingSource,
+                "Fixed CTC (₹)":             r.fixedCTC || r.currentCTC,
+                "PLI / Variable (₹)":        r.pli || 0,
                 "Current CTC (₹)":           r.currentCTC,
                 "Market Benchmark (₹)":      r.marketBenchmark || 'N/A',
-                "Market Gap %":              r.eligible ? +(r.differencePercent * 100).toFixed(2) : 0,
+                "Market Gap %":              r.eligible && r.differencePercent != null ? +(r.differencePercent * 100).toFixed(2) : 0,
                 "Base Increment % (Rating)": r.eligible ? +(r.ratingPercent * 100).toFixed(2) : 0,
                 "Base Increment Amount (₹)": r.eligible ? Math.round(r.incrementAmount) : 0,
+                "Revised CTC (₹)":           Math.round(r.revisedCTC),
                 "Addon % (Market Gap)":      r.eligible ? +(r.addonPercent * 100).toFixed(2) : 0,
                 "Addon Amount (₹)":          r.eligible ? Math.round(r.additionalIncrement) : 0,
                 "Total Increment (₹)":       r.eligible ? Math.round(r.incrementAmount + r.additionalIncrement) : 0,
-                "Revised CTC (₹)":           Math.round(r.finalRevisedCTC),
+                "Final Revised CTC (₹)":     Math.round(r.finalRevisedCTC),
                 "Final Increment %":         r.eligible ? +(r.finalIncrementPercent * 100).toFixed(2) : 0,
+                "Fixed After Increment (₹)": r.eligible ? Math.round(r.finalRevisedCTC - (r.finalRevisedCTC * ((r.pli||0) / r.currentCTC))) : r.fixedCTC || r.currentCTC,
+                "PLI After Increment (₹)":   r.eligible ? Math.round(r.finalRevisedCTC * ((r.pli||0) / r.currentCTC)) : r.pli || 0,
             }));
             const wb = XLSX.utils.book_new();
             const ws = XLSX.utils.json_to_sheet(rows);
-            ws['!cols'] = [{wch:8},{wch:25},{wch:30},{wch:35},{wch:25},{wch:14},{wch:12},{wch:7},{wch:14},
-                           {wch:16},{wch:18},{wch:12},{wch:20},{wch:22},{wch:18},{wch:16},{wch:20},{wch:16},{wch:14}];
+            ws['!cols'] = [{wch:8},{wch:25},{wch:30},{wch:30},{wch:22},{wch:14},{wch:14},{wch:14},{wch:8},{wch:14},
+                           {wch:16},{wch:18},{wch:16},{wch:20},{wch:14},{wch:18},{wch:20},{wch:16},{wch:14},{wch:16},{wch:16},{wch:20},{wch:14},{wch:20},{wch:18}];
             XLSX.utils.book_append_sheet(wb, ws, "Increment Report");
             XLSX.writeFile(wb, "Asvi_Increment_Report_FY2025-26.xlsx");
         }
@@ -3872,7 +4582,10 @@
             if (!tbody) return;
             tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:28px;color:#6b7280;">Loading…</td></tr>';
 
-            const reports = Object.entries(DIRECTORY).filter(([e, d]) => d.manager === currentUser.email);
+            const _mgrEmailLower = (currentUser.email || '').toLowerCase();
+            const reports = Object.entries(DIRECTORY).filter(([e, d]) =>
+                d.manager && d.manager.toLowerCase() === _mgrEmailLower
+            );
             if (reports.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:28px;color:#6b7280;">No direct reports found.</td></tr>';
                 return;
@@ -4018,8 +4731,10 @@
         let adminManagerDraftId = null;
 
         function initAdminManagerView() {
-            const email = currentUser.email;
-            const reports = Object.entries(DIRECTORY).filter(([e, d]) => d.manager === email);
+            const emailLower = (currentUser.email || '').toLowerCase();
+            const reports = Object.entries(DIRECTORY).filter(([e, d]) =>
+                d.manager && d.manager.toLowerCase() === emailLower
+            );
             const sel = document.getElementById('adminReporteeSelect');
             if (!sel) return;
             sel.innerHTML = '<option value="">-- Choose Employee --</option>';
@@ -4035,8 +4750,10 @@
             if (!tbody) return;
             tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:28px;color:#6b7280;">Loading…</td></tr>';
 
-            const email = currentUser.email;
-            const reports = Object.entries(DIRECTORY).filter(([e, d]) => d.manager === email);
+            const emailLower = (currentUser.email || '').toLowerCase();
+            const reports = Object.entries(DIRECTORY).filter(([e, d]) =>
+                d.manager && d.manager.toLowerCase() === emailLower
+            );
             if (reports.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:28px;color:#6b7280;">No direct reports found for your account.</td></tr>';
                 return;
@@ -4164,53 +4881,65 @@
         window.loadAdminTeamDashboard = loadAdminTeamDashboard;
         window.initAdminManagerView = initAdminManagerView;
 
+        let _adminLastLoadedEmpKPIs = [];
+        let _adminLastLoadedEmpKPICount = 0;
+        let _adminMgrKpisRef = [];
+
         async function checkAdminManagerDraft() {
             const target = document.getElementById('adminReporteeSelect').value;
             const notice = document.getElementById('adminMgrDraftNotice');
-            const selfView = document.getElementById('adminEmployeeSelfView');
+            _adminLastLoadedEmpKPIs = []; _adminLastLoadedEmpKPICount = 0;
             if (!target) { if (notice) notice.style.display='none'; return; }
 
-            // Load employee's self appraisal for context
-            if (selfView) {
-                try {
-                    const q2 = query(collection(db,'appraisals'), where('targetEmail','==',target), where('type','==','self'), where('status','==','submitted'));
-                    const snap2 = await getDocs(q2);
-                    if (!snap2.empty) {
-                        const sd = snap2.docs[0].data();
-                        selfView.style.display = 'block';
-                        selfView.innerHTML = `<div style="background:var(--tint-purple);border:1px solid rgba(81,40,93,0.15);border-radius:8px;padding:14px 18px;margin-bottom:14px;">
-                            <div style="font-size:0.78rem;font-weight:600;color:var(--brand-primary);margin-bottom:8px;">Employee Self-Appraisal</div>
-                            <div style="font-size:0.82rem;color:#374151;">${sd.feedback||'No feedback provided.'}</div>
-                            <div style="font-size:0.72rem;color:#6b7280;margin-top:6px;">Self Rating: <strong>${sd.rating||'—'}</strong></div>
-                        </div>`;
-                    } else { selfView.innerHTML=''; selfView.style.display='none'; }
-                } catch(_) {}
-            }
+            const kpiSection = document.getElementById('adminManagerKPIReviewContainer');
+            const noKPIMsg = document.getElementById('adminManagerNoKPIMsg');
+            if (kpiSection) kpiSection.style.display = 'none';
+            if (noKPIMsg) noKPIMsg.style.display = 'none';
+            if (notice) { notice.style.display = 'none'; notice.style.color = '#d97706'; }
 
-            // Check for existing manager draft/submit
+            let savedMgrData = null;
             try {
-                const q = query(collection(db,'appraisals'), where('reviewerEmail','==',currentUser.email), where('targetEmail','==',target), where('type','==','manager'));
-                const snap = await getDocs(q);
-                if (!snap.empty) {
-                    adminManagerDraftId = snap.docs[0].id;
-                    const d = snap.docs[0].data();
-                    document.getElementById('adminManagerFeedback').value = d.feedback||'';
-                    document.getElementById('adminManagerRating').value   = d.rating||'';
-                    if (notice) { notice.textContent = d.status==='submitted' ? 'Review already submitted.' : 'Draft loaded.'; notice.style.display='block'; }
-                } else { adminManagerDraftId = null; document.getElementById('adminManagerFeedback').value=''; document.getElementById('adminManagerRating').value=''; if(notice) notice.style.display='none'; }
+                const qm = query(collection(db,'appraisals'), where('reviewerEmail','==',currentUser.email), where('targetEmail','==',target), where('type','==','manager'));
+                const snapM = await getDocs(qm);
+                if (!snapM.empty) {
+                    adminManagerDraftId = snapM.docs[0].id;
+                    savedMgrData = snapM.docs[0].data();
+                    if (savedMgrData.status === 'submitted') {
+                        if (notice) { notice.textContent = 'Review already submitted.'; notice.style.color = 'var(--success-text)'; notice.style.display = 'block'; }
+                    } else {
+                        if (notice) { notice.textContent = 'Draft loaded.'; notice.style.display = 'block'; }
+                    }
+                } else { adminManagerDraftId = null; }
             } catch(e) { console.error(e); }
+
+            await loadEmployeeSelfAppraisal(target, 'adminEmployeeSelfView', 'adminManagerKPIReviewContainer', 'adminManagerNoKPIMsg', 'adminManagerKPIReviewContainer', 'adminMgrOverallPctDisplay', 'adminMgrOverallRatingDisplay', savedMgrData);
+            if (savedMgrData?.kpis) {
+                _adminMgrKpisRef = savedMgrData.kpis;
+                restoreManagerKPIReviewData(savedMgrData.kpis, 'adminManagerKPIReviewCards', 'adminMgrOverallPctDisplay', 'adminMgrOverallRatingDisplay');
+                if (savedMgrData.status === 'submitted') {
+                    document.querySelectorAll('#adminManagerKPIReviewCards input, #adminManagerKPIReviewCards textarea').forEach(el => el.disabled = true);
+                }
+            }
         }
         window.checkAdminManagerDraft = checkAdminManagerDraft;
 
         async function saveAdminManagerDraft() {
             const target = document.getElementById('adminReporteeSelect').value;
-            const feedback = document.getElementById('adminManagerFeedback').value.trim();
-            const rating   = document.getElementById('adminManagerRating').value;
             if (!target) { showAlert('Select an employee first.', 'error'); return; }
-            const payload = { reviewerEmail: currentUser.email, targetEmail: target, type:'manager', feedback, rating: parseInt(rating)||null, status:'draft', updatedAt: Timestamp.now() };
+            const mgrKpis = getManagerKPIReviewData(_adminLastLoadedEmpKPIs, _adminLastLoadedEmpKPICount);
+            let totalW = 0, weighted = 0;
+            mgrKpis.forEach(k => { totalW += (k.weightage||0); weighted += (k.managerAssessment||0)*(k.weightage||0); });
+            const overallPct = totalW > 0 ? weighted/totalW : 0;
+            const overallRating = parseFloat(((overallPct/100)*5).toFixed(2));
+            const payload = {
+                reviewerEmail: currentUser.email, reviewerName: currentUser.name,
+                targetEmail: target, targetName: DIRECTORY[target]?.name||target,
+                type:'manager', kpis: mgrKpis, overallMgrPct: overallPct, rating: overallRating,
+                status:'draft', timestamp: Timestamp.now()
+            };
             try {
                 if (adminManagerDraftId) { await setDoc(doc(db,'appraisals',adminManagerDraftId), payload, {merge:true}); }
-                else { const ref = await addDoc(collection(db,'appraisals'), {...payload, createdAt: Timestamp.now()}); adminManagerDraftId = ref.id; }
+                else { const ref = await addDoc(collection(db,'appraisals'), payload); adminManagerDraftId = ref.id; }
                 showAlert('Draft saved.', 'success');
             } catch(e) { showAlert('Error: '+e.message, 'error'); }
         }
@@ -4218,18 +4947,26 @@
 
         async function submitAdminManagerReview() {
             const target = document.getElementById('adminReporteeSelect').value;
-            const feedback = document.getElementById('adminManagerFeedback').value.trim();
-            const rating   = parseInt(document.getElementById('adminManagerRating').value);
-            if (!target)   { showAlert('Select an employee first.', 'error'); return; }
-            if (!feedback) { showAlert('Feedback is required.', 'error'); return; }
-            if (!rating || rating < 1 || rating > 5) { showAlert('Select a valid rating (1–5).', 'error'); return; }
-            const payload = { reviewerEmail: currentUser.email, targetEmail: target, type:'manager', feedback, rating, status:'submitted', submittedAt: Timestamp.now(), updatedAt: Timestamp.now() };
+            if (!target) { showAlert('Select an employee first.', 'error'); return; }
+            if (_adminLastLoadedEmpKPICount === 0) { showAlert('Employee has not submitted their KPIs yet.', 'error'); return; }
+            const mgrKpis = getManagerKPIReviewData(_adminLastLoadedEmpKPIs, _adminLastLoadedEmpKPICount);
+            let totalW = 0, weighted = 0;
+            mgrKpis.forEach(k => { totalW += (k.weightage||0); weighted += (k.managerAssessment||0)*(k.weightage||0); });
+            const overallPct = totalW > 0 ? weighted/totalW : 0;
+            const overallRating = parseFloat(((overallPct/100)*5).toFixed(2));
+            const payload = {
+                reviewerEmail: currentUser.email, reviewerName: currentUser.name,
+                targetEmail: target, targetName: DIRECTORY[target]?.name||target,
+                type:'manager', kpis: mgrKpis, overallMgrPct: overallPct, rating: overallRating,
+                status:'submitted', timestamp: Timestamp.now()
+            };
             try {
                 if (adminManagerDraftId) { await setDoc(doc(db,'appraisals',adminManagerDraftId), payload, {merge:true}); }
-                else { await addDoc(collection(db,'appraisals'), {...payload, createdAt: Timestamp.now()}); }
+                else { await addDoc(collection(db,'appraisals'), payload); }
                 showAlert(`Review submitted for ${DIRECTORY[target]?.name||target}.`, 'success');
-                logAuditAction(currentUser.email, `Submitted manager review for ${DIRECTORY[target]?.name||target} (Rating: ${rating})`, 'MANAGER_REVIEW_SUBMIT', target);
+                logAuditAction(currentUser.email, `Submitted manager review for ${DIRECTORY[target]?.name||target} (Rating: ${overallRating}/5)`, 'MANAGER_REVIEW_SUBMIT', target);
                 loadAdminTeamDashboard();
+                checkAdminManagerDraft();
             } catch(e) { showAlert('Error: '+e.message, 'error'); }
         }
         window.submitAdminManagerReview = submitAdminManagerReview;
@@ -4806,14 +5543,14 @@
                 // 4️⃣  Audit log
                 logAuditAction(
                     window._currentUser?.email || 'admin',
-                    `Added new employee: ${name} (${email}) — Firebase Auth + Firestore`,
+                    `Added new employee: ${name} (${email})`,
                     'EMP_CREATE', email
                 );
 
                 showAddEmpAlert(`✅ Employee ${name} created successfully! They can now log in with their email and temporary password.`, 'success');
                 document.getElementById('addEmpBtnText').textContent = 'Account Created!';
 
-                showAlert(`Employee "${name}" added to Firebase Auth & Firestore.`, 'success');
+                showAlert(`Employee "${name}" added successfully.`, 'success');
 
                 // Refresh directory if it's visible
                 if (document.getElementById('adminTab7')?.style.display !== 'none') {
@@ -4823,7 +5560,7 @@
             } catch(err) {
                 let msg = err.message;
                 if (err.code === 'auth/email-already-in-use') {
-                    msg = `An account for ${email} already exists in Firebase Auth. Try logging in with that email instead.`;
+                    msg = `An account for ${email} already exists. Try logging in with that email instead.`;
                 } else if (err.code === 'auth/weak-password') {
                     msg = 'Password is too weak. Use at least 8 characters.';
                 } else if (err.code === 'auth/invalid-email') {
@@ -4889,6 +5626,9 @@
                 const srcBadge = r.source === 'portal'
                     ? `<span style="background:var(--tint-purple);color:var(--brand-primary);padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:700;">Portal</span>`
                     : `<span style="background:#f1f5f9;color:#475569;padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:700;">System</span>`;
+                const deleteBtn = `<button onclick="openRemoveEmployeeModal('${r.email}','${r.name.replace(/'/g,"\\'")}','${r.source}')" title="Remove employee" style="background:none;border:none;cursor:pointer;padding:4px;color:#9ca3af;transition:color 0.15s;" onmouseover="this.style.color='var(--brand-accent)'" onmouseout="this.style.color='#9ca3af'">
+                    <svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='3 6 5 6 21 6'/><path d='M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6'/><path d='M10 11v6'/><path d='M14 11v6'/><path d='M9 6V4h6v2'/></svg>
+                </button>`;
                 return `<tr>
                     <td style="color:#6b7280;font-size:0.75rem;">${r.empId}</td>
                     <td style="font-weight:600;">${r.name}</td>
@@ -4898,11 +5638,7 @@
                     <td style="font-size:0.78rem;color:#6b7280;">${mgrName}</td>
                     <td style="font-size:0.78rem;color:#6b7280;">${r.doj}</td>
                     <td style="text-align:center;">${srcBadge}</td>
-                    <td style="text-align:center;">
-                        ${r.source === 'portal' ? `<button onclick="deleteFirestoreEmployee('${r.email}')" title="Remove from portal" style="background:none;border:none;cursor:pointer;padding:4px;color:#9ca3af;" onmouseover="this.style.color='var(--brand-accent)'" onmouseout="this.style.color='#9ca3af'">
-                            <svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='3 6 5 6 21 6'/><path d='M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6'/><path d='M10 11v6'/><path d='M14 11v6'/><path d='M9 6V4h6v2'/></svg>
-                        </button>` : `<span style="color:#d1d5db;font-size:0.72rem;">—</span>`}
-                    </td>
+                    <td style="text-align:center;">${deleteBtn}</td>
                 </tr>`;
             }).join('');
         }
@@ -4916,31 +5652,164 @@
             renderDirectory(filtered);
         }
 
-        async function deleteFirestoreEmployee(email) {
-            if (!confirm(`Remove ${email} from the Firestore employee directory?\n\nNote: Their Firebase Auth account will remain active. To delete Auth users, use the Firebase Console.`)) return;
-            try {
-                // Find Firestore doc by email
-                const snap = await getDocs(query(collection(db, 'employees'), where('email', '==', email)));
-                if (snap.empty) { showAlert('Employee record not found in Firestore.', 'error'); return; }
-                await deleteDoc(snap.docs[0].ref);
-                // Remove from in-memory DIRECTORY
-                if (DIRECTORY[email]?._fromFirestore) delete DIRECTORY[email];
-                if (EMP_FINANCIAL_DATA[email]) delete EMP_FINANCIAL_DATA[email];
-                logAuditAction(window._currentUser?.email || 'admin', `Removed Firestore employee record: ${email}`, 'EMP_DELETE', email);
-                showAlert(`Employee record for ${email} removed.`, 'success');
-                loadEmployeeDirectory();
-            } catch(e) { showAlert('Error: ' + e.message, 'error'); }
+        // ── REMOVE EMPLOYEE MODAL ─────────────────────────────────────────
+        let _removeEmpEmail = '';
+        let _removeEmpSource = '';
+
+        function openRemoveEmployeeModal(email, name, source) {
+            _removeEmpEmail  = email;
+            _removeEmpSource = source;
+            document.getElementById('removeEmpName').textContent  = name;
+            document.getElementById('removeEmpEmail').textContent = email;
+            document.getElementById('removeEmpNote').textContent  = source === 'portal'
+                ? 'This will permanently remove the employee from the portal. Their login credentials will be revoked.'
+                : 'This will remove the employee from the portal. The change persists across sessions.';
+            document.getElementById('removeEmpConfirmInput').value = '';
+            document.getElementById('removeEmpAlert').style.display = 'none';
+            document.getElementById('removeEmpModal').style.display = 'flex';
         }
 
-        window.openAddEmployeeModal   = openAddEmployeeModal;
-        window.closeAddEmployeeModal  = closeAddEmployeeModal;
-        window.toggleEmpPassVisibility= toggleEmpPassVisibility;
-        window.addNewEmployee         = addNewEmployee;
-        window.loadEmployeeDirectory  = loadEmployeeDirectory;
-        window.filterDirectory        = filterDirectory;
-        window.deleteFirestoreEmployee= deleteFirestoreEmployee;
+        function closeRemoveEmployeeModal() {
+            document.getElementById('removeEmpModal').style.display = 'none';
+            _removeEmpEmail = ''; _removeEmpSource = '';
+        }
+
+        async function confirmRemoveEmployee() {
+            const confirmVal = document.getElementById('removeEmpConfirmInput').value.trim().toUpperCase();
+            if (confirmVal !== 'REMOVE') {
+                document.getElementById('removeEmpAlert').textContent = 'Please type REMOVE to confirm.';
+                document.getElementById('removeEmpAlert').style.display = 'block';
+                return;
+            }
+            const email  = _removeEmpEmail;
+            const source = _removeEmpSource;
+            const btn    = document.getElementById('removeEmpConfirmBtn');
+            btn.disabled = true; btn.textContent = 'Removing…';
+
+            try {
+                if (source === 'portal') {
+                    // Portal employee — delete their record from the employees collection
+                    const snap = await getDocs(query(collection(db, 'employees'), where('email', '==', email)));
+                    if (!snap.empty) await deleteDoc(snap.docs[0].ref);
+                } else {
+                    // System employee — write a tombstone into the employees collection
+                    // (reuses a collection the admin already has write access to)
+                    const tombstoneId = email.replace(/[^a-zA-Z0-9]/g, '_') + '_removed';
+                    await setDoc(doc(db, 'employees', tombstoneId), {
+                        email,
+                        removed: true,
+                        removedAt: Timestamp.now(),
+                        removedBy: window._currentUser?.email || 'admin'
+                    });
+                }
+
+                // Remove from in-memory DIRECTORY immediately
+                delete DIRECTORY[email];
+                if (EMP_FINANCIAL_DATA[email]) delete EMP_FINANCIAL_DATA[email];
+
+                logAuditAction(window._currentUser?.email || 'admin',
+                    `Removed employee: ${email}`, 'EMP_DELETE', email);
+                showAlert(`Employee removed successfully.`, 'success');
+                closeRemoveEmployeeModal();
+                loadEmployeeDirectory();
+            } catch(e) {
+                document.getElementById('removeEmpAlert').textContent = 'Unable to remove employee. Please try again.';
+                document.getElementById('removeEmpAlert').style.display = 'block';
+                btn.disabled = false; btn.textContent = 'Remove Employee';
+            }
+        }
+
+        // On admin login, read the employees collection and strip any removed tombstones from DIRECTORY
+        async function loadRemovedEmployees() {
+            try {
+                const snap = await getDocs(collection(db, 'employees'));
+                snap.forEach(d => {
+                    const data = d.data();
+                    if (data.removed === true && data.email) {
+                        delete DIRECTORY[data.email];
+                        if (EMP_FINANCIAL_DATA[data.email]) delete EMP_FINANCIAL_DATA[data.email];
+                    }
+                });
+            } catch(_) {}
+        }
+
+        window.openAddEmployeeModal    = openAddEmployeeModal;
+        window.closeAddEmployeeModal   = closeAddEmployeeModal;
+        window.toggleEmpPassVisibility = toggleEmpPassVisibility;
+        window.addNewEmployee          = addNewEmployee;
+        window.loadEmployeeDirectory   = loadEmployeeDirectory;
+        window.filterDirectory         = filterDirectory;
+        window.openRemoveEmployeeModal = openRemoveEmployeeModal;
+        window.closeRemoveEmployeeModal= closeRemoveEmployeeModal;
+        window.confirmRemoveEmployee   = confirmRemoveEmployee;
 
         function logout() { signOut(auth).then(()=>location.reload()); }
     </script>
+
+    <!-- ── EMPLOYEE APPRAISAL DETAIL MODAL ──────────────────────────── -->
+    <div id="empAppraisalModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:flex-start;justify-content:center;overflow-y:auto;padding:28px 16px;">
+        <div style="background:#fff;border-radius:14px;max-width:960px;width:100%;box-shadow:0 24px 72px rgba(0,0,0,0.28);position:relative;overflow:hidden;">
+            <!-- Top accent bar -->
+            <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--brand-primary),var(--brand-accent));"></div>
+
+            <!-- Modal header -->
+            <div style="padding:22px 28px 16px;border-bottom:1px solid var(--border-color);display:flex;align-items:center;justify-content:space-between;gap:16px;">
+                <div>
+                    <h3 style="margin:0 0 2px;font-size:1.1rem;color:var(--brand-primary);font-weight:800;" id="empAppraisalModalTitle">—</h3>
+                    <p style="margin:0;font-size:0.78rem;color:#6b7280;" id="empAppraisalModalSubtitle">—</p>
+                </div>
+                <button onclick="closeEmpAppraisalModal()"
+                    style="background:#f1f5f9;border:none;width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#6b7280;flex-shrink:0;font-size:1.1rem;transition:background 0.15s;"
+                    onmouseover="this.style.background='#e5e7eb'" onmouseout="this.style.background='#f1f5f9'">✕</button>
+            </div>
+
+            <!-- Modal body — self + manager sections injected here -->
+            <div id="empAppraisalModalBody" style="padding:20px 28px 28px;"></div>
+        </div>
+    </div>
+
+    <!-- ── REMOVE EMPLOYEE MODAL ───────────────────────────────────────── -->
+    <div id="removeEmpModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;padding:20px;">
+        <div style="background:#fff;border-radius:14px;padding:36px;max-width:480px;width:100%;box-shadow:0 24px 72px rgba(0,0,0,0.28);position:relative;overflow:hidden;">
+            <!-- Top danger bar -->
+            <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#b91c1c,#e85046);border-radius:14px 14px 0 0;"></div>
+
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;margin-top:4px;">
+                <div style="width:44px;height:44px;border-radius:50%;background:#fef2f2;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1.5px solid #fecaca;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b91c1c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                </div>
+                <div>
+                    <h3 style="margin:0 0 2px;font-size:1.05rem;color:#111;">Remove Employee</h3>
+                    <p style="margin:0;font-size:0.82rem;color:#6b7280;">This action cannot be undone from the portal.</p>
+                </div>
+            </div>
+
+            <!-- Employee info -->
+            <div style="background:#fafafa;border:1px solid var(--border-color);border-radius:8px;padding:14px 16px;margin-bottom:16px;">
+                <div style="font-weight:700;font-size:0.95rem;color:#111;" id="removeEmpName">—</div>
+                <div style="font-size:0.82rem;color:#6b7280;margin-top:2px;" id="removeEmpEmail">—</div>
+            </div>
+
+            <!-- Note -->
+            <p style="font-size:0.82rem;color:#6b7280;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:10px 14px;margin-bottom:18px;" id="removeEmpNote"></p>
+
+            <!-- Confirmation input -->
+            <div class="input-wrapper" style="margin-bottom:16px;">
+                <label style="color:#b91c1c;font-weight:700;">Type <strong>REMOVE</strong> to confirm</label>
+                <input type="text" id="removeEmpConfirmInput" placeholder="REMOVE" style="border-color:#fca5a5;font-weight:700;letter-spacing:0.08em;">
+            </div>
+
+            <div id="removeEmpAlert" style="display:none;background:#fef2f2;color:#b91c1c;padding:10px 14px;border-radius:6px;font-size:0.84rem;margin-bottom:14px;border:1px solid #fecaca;"></div>
+
+            <div style="display:flex;gap:10px;justify-content:flex-end;">
+                <button onclick="closeRemoveEmployeeModal()" class="btn-secondary">Cancel</button>
+                <button id="removeEmpConfirmBtn" onclick="confirmRemoveEmployee()" style="background:#b91c1c;color:#fff;border:none;padding:9px 20px;border-radius:6px;font-weight:600;cursor:pointer;font-size:0.88rem;font-family:inherit;transition:background 0.15s;" onmouseover="this.style.background='#991b1b'" onmouseout="this.style.background='#b91c1c'">
+                    Remove Employee
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
 </body>
 </html>
