@@ -2487,22 +2487,30 @@
         // Each entry gets an extra `_directManager` field for grouping.
         function getAllSubordinates(hodEmail) {
             const emailLower = (hodEmail || '').toLowerCase();
-            const result = []; // { email, info, depth, directManagerEmail }
+            const result = []; // { email, info, depth, directManagerEmail, branchManagerEmail }
             const visited = new Set();
 
-            function recurse(managerEmail, depth) {
+            // branchManagerEmail = the depth-1 direct report of hodEmail who is the root
+            // of the sub-tree this person belongs to. For depth-1 people it equals their own email.
+            function recurse(managerEmail, depth, branchManagerEmail) {
                 Object.entries(DIRECTORY).forEach(([e, d]) => {
                     if (visited.has(e)) return;
                     if (d.manager && d.manager.toLowerCase() === managerEmail.toLowerCase()) {
                         visited.add(e);
-                        // directManagerEmail = email of the person 1 level above this employee
-                        result.push({ email: e, info: d, depth, directManagerEmail: managerEmail.toLowerCase() });
-                        recurse(e, depth + 1);
+                        const branch = depth === 1 ? e : branchManagerEmail;
+                        result.push({
+                            email: e,
+                            info: d,
+                            depth,
+                            directManagerEmail: managerEmail.toLowerCase(),
+                            branchManagerEmail: branch
+                        });
+                        recurse(e, depth + 1, branch);
                     }
                 });
             }
 
-            recurse(emailLower, 1);
+            recurse(emailLower, 1, null);
             return result;
         }
         window.getAllSubordinates = getAllSubordinates;
@@ -2844,10 +2852,10 @@
                 }
 
                 if (indirectReports.length > 0) {
-                    // Sub-group by their immediate manager
+                    // Sub-group by their branch root manager (top-level direct report of the main manager)
                     const byMgr = {};
                     indirectReports.forEach(s => {
-                        const mgr = s.directManagerEmail;
+                        const mgr = s.branchManagerEmail || s.directManagerEmail;
                         if (!byMgr[mgr]) byMgr[mgr] = [];
                         byMgr[mgr].push(s);
                     });
@@ -5281,9 +5289,8 @@
 
             const allSubs = getAllSubordinates(currentUser.email);
             window._teamDashboardAllSubs = allSubs;
-            const reports = allSubs.map(s => [s.email, s.info, s.depth, s.directManagerEmail]);
 
-            if (reports.length === 0) {
+            if (allSubs.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:28px;color:#6b7280;">No team members found.</td></tr>';
                 if (summaryEl) summaryEl.innerHTML = '';
                 return;
@@ -5293,9 +5300,10 @@
             const filterSel = document.getElementById('teamViewFilter');
             if (filterSel) {
                 const directReports = allSubs.filter(s => s.depth === 1).map(s => s.email);
+                // Sub-managers = direct reports of the top manager who themselves have anyone under them
                 const subManagerEmails = new Set(
-                    allSubs.filter(s => s.depth > 1).map(s => s.directManagerEmail)
-                             .filter(e => directReports.includes(e))
+                    allSubs.filter(s => s.depth > 1).map(s => s.branchManagerEmail)
+                             .filter(e => e && directReports.includes(e))
                 );
                 filterSel.innerHTML = `<option value="all">All Team Members (${allSubs.length})</option>`;
                 const directCount = allSubs.filter(s => s.depth === 1).length;
@@ -5304,7 +5312,7 @@
                 }
                 subManagerEmails.forEach(mgrEmail => {
                     const mgrName = DIRECTORY[mgrEmail]?.name || mgrEmail;
-                    const subCount = allSubs.filter(s => s.depth > 1 && s.directManagerEmail === mgrEmail).length;
+                    const subCount = allSubs.filter(s => s.depth > 1 && s.branchManagerEmail === mgrEmail).length;
                     filterSel.innerHTML += `<option value="sub:${mgrEmail}">Team of ${mgrName} (${subCount})</option>`;
                 });
                 filterSel.value = 'all'; // reset to All on each refresh
@@ -5337,7 +5345,7 @@
                 // Build rows — store HTML + per-row stats separately
                 window._teamDashboardRows = [];
 
-                reports.forEach(([email, info, depth, directManagerEmail]) => {
+                allSubs.forEach(({ email, info, depth, directManagerEmail, branchManagerEmail }) => {
                     const self = selfMap[email];
                     const mgr  = mgrMap[email];
                     const selfRating  = self ? parseInt(self.rating) : null;
@@ -5389,7 +5397,7 @@
                         <td style="text-align:center;">${statusBadge(mgrStatus,  mgrStatus==='submitted'?'Reviewed':mgrStatus==='draft'?'Draft':'Pending')}</td>
                     </tr>`;
 
-                    window._teamDashboardRows.push({ email, depth, directManagerEmail, html: rowHtml, stats: rowStats });
+                    window._teamDashboardRows.push({ email, depth, directManagerEmail, branchManagerEmail, html: rowHtml, stats: rowStats });
                 });
 
                 // Render all rows and summary initially (no filter)
@@ -5425,7 +5433,7 @@
                 filtered = window._teamDashboardRows.filter(r => r.depth === 1);
             } else if (filterVal.startsWith('sub:')) {
                 const subMgrEmail = filterVal.slice(4);
-                filtered = window._teamDashboardRows.filter(r => r.depth > 1 && r.directManagerEmail === subMgrEmail);
+                filtered = window._teamDashboardRows.filter(r => r.depth > 1 && r.branchManagerEmail === subMgrEmail);
             } else {
                 filtered = window._teamDashboardRows;
             }
@@ -5471,7 +5479,7 @@
             if (indirectReports.length > 0) {
                 const byMgr = {};
                 indirectReports.forEach(s => {
-                    const mgr = s.directManagerEmail;
+                    const mgr = s.branchManagerEmail || s.directManagerEmail;
                     if (!byMgr[mgr]) byMgr[mgr] = [];
                     byMgr[mgr].push(s);
                 });
@@ -5510,8 +5518,8 @@
             if (filterSel) {
                 const directEmails = allSubs.filter(s => s.depth === 1).map(s => s.email);
                 const subManagerEmails = new Set(
-                    allSubs.filter(s => s.depth > 1).map(s => s.directManagerEmail)
-                             .filter(e => directEmails.includes(e))
+                    allSubs.filter(s => s.depth > 1).map(s => s.branchManagerEmail)
+                             .filter(e => e && directEmails.includes(e))
                 );
                 filterSel.innerHTML = `<option value="all">All Team Members (${allSubs.length})</option>`;
                 const directCount = allSubs.filter(s => s.depth === 1).length;
@@ -5520,7 +5528,7 @@
                 }
                 subManagerEmails.forEach(mgrEmail => {
                     const mgrName = DIRECTORY[mgrEmail]?.name || mgrEmail;
-                    const subCount = allSubs.filter(s => s.depth > 1 && s.directManagerEmail === mgrEmail).length;
+                    const subCount = allSubs.filter(s => s.depth > 1 && s.branchManagerEmail === mgrEmail).length;
                     filterSel.innerHTML += `<option value="sub:${mgrEmail}">Team of ${mgrName} (${subCount})</option>`;
                 });
                 filterSel.value = 'all';
@@ -5546,7 +5554,7 @@
                     return `<span style="font-weight:700;color:${c[r]||'#374151'};font-size:0.95rem;">${r}</span>`;
                 };
 
-                allSubs.forEach(({ email: emp, info, depth, directManagerEmail }) => {
+                allSubs.forEach(({ email: emp, info, depth, directManagerEmail, branchManagerEmail }) => {
                     const self = selfMap[emp], mgr = mgrMap[emp];
                     const sr = self ? parseInt(self.rating) : null;
                     const mr = mgr  ? parseInt(mgr.rating)  : null;
@@ -5596,7 +5604,7 @@
                         <td style="text-align:center;">${statusBadge(ms, ms==='submitted'?'Reviewed':ms==='draft'?'Draft':'Pending')}</td>
                     </tr>`;
 
-                    window._adminTeamDashboardRows.push({ email: emp, depth, directManagerEmail, html: rowHtml, stats: rowStats });
+                    window._adminTeamDashboardRows.push({ email: emp, depth, directManagerEmail, branchManagerEmail, html: rowHtml, stats: rowStats });
                 });
 
                 tbody.innerHTML = window._adminTeamDashboardRows.map(r => r.html).join('') ||
@@ -5630,7 +5638,7 @@
                 filtered = window._adminTeamDashboardRows.filter(r => r.depth === 1);
             } else if (filterVal.startsWith('sub:')) {
                 const subMgrEmail = filterVal.slice(4);
-                filtered = window._adminTeamDashboardRows.filter(r => r.depth > 1 && r.directManagerEmail === subMgrEmail);
+                filtered = window._adminTeamDashboardRows.filter(r => r.depth > 1 && r.branchManagerEmail === subMgrEmail);
             } else {
                 filtered = window._adminTeamDashboardRows;
             }
