@@ -1773,9 +1773,9 @@
                     <div id="managerKPIReviewContainer" style="display:none;">
                         <div style="font-weight:700;color:var(--brand-primary);font-size:0.9rem;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--brand-primary);">Manager Assessment per KRA / KPI</div>
                         <div id="managerKPIReviewCards"></div>
-                        <div id="managerBtnGroupAfterKRA" class="btn-group">
-                            <button onclick="saveManagerDraft()" class="btn-secondary">Save Draft</button>
-                            <button onclick="submitManagerReview()" class="btn-primary">
+                        <div id="managerKRABtnGroup" class="btn-group" style="margin-top:14px;">
+                            <button onclick="saveManagerKRADraft()" class="btn-secondary">Save Draft</button>
+                            <button onclick="submitManagerKRAReview()" class="btn-primary">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                                 Submit Review
                             </button>
@@ -2564,9 +2564,9 @@
                         <div id="adminManagerKPIReviewContainer" style="display:none;">
                             <div style="font-weight:700;color:var(--brand-primary);font-size:0.9rem;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--brand-primary);">Manager Assessment per KRA / KPI</div>
                             <div id="adminManagerKPIReviewCards"></div>
-                            <div id="adminManagerBtnGroupAfterKRA" class="btn-group">
-                                <button onclick="saveAdminManagerDraft()" class="btn-secondary">Save Draft</button>
-                                <button onclick="submitAdminManagerReview()" class="btn-primary">
+                            <div id="adminManagerKRABtnGroup" class="btn-group" style="margin-top:14px;">
+                                <button onclick="saveAdminManagerKRADraft()" class="btn-secondary">Save Draft</button>
+                                <button onclick="submitAdminManagerKRAReview()" class="btn-primary">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                                     Submit Review
                                 </button>
@@ -3636,6 +3636,8 @@
         window.submitManagerReview = submitManagerReview;
         window.saveSelfDraft = saveSelfDraft;
         window.saveManagerDraft = saveManagerDraft;
+        window.saveManagerKRADraft    = saveManagerKRADraft;
+        window.submitManagerKRAReview = submitManagerKRAReview;
         window.checkManagerDraft = checkManagerDraft;
         window.loadAdminData = loadAdminData;
         window.downloadExcel = downloadExcel;
@@ -4761,6 +4763,66 @@
                 checkManagerDraft();
             } catch (e) { console.error(e); showAlert("Error submitting review: " + e.message, "error"); }
         }
+
+        // ── KRA-only draft/submit (Section 1 buttons — after per-KRA ratings) ──
+        let currentManagerKRADraftId = null;
+
+        async function saveManagerKRADraft() {
+            const target = document.getElementById('reporteeSelect').value;
+            if (!target) return showAlert("Please select an employee first.", "error");
+            const mgrKpis = getManagerKPIReviewData(_lastLoadedEmpKPIs, _lastLoadedEmpKPICount);
+            const payload = {
+                type: "manager_kra", status: "kra_draft",
+                section: "kra",
+                session: window.currentSession || '2025-2026',
+                targetEmail: target,
+                reviewerEmail: currentUser.email,
+                reviewerName: currentUser.name,
+                targetName: DIRECTORY[target]?.name || target,
+                kpis: mgrKpis,
+                timestamp: Timestamp.now()
+            };
+            try {
+                if (currentManagerKRADraftId) {
+                    await updateDoc(doc(db, "appraisals", currentManagerKRADraftId), payload);
+                    showAlert("KRA ratings draft updated.", "info");
+                } else {
+                    const ref = await addDoc(collection(db, "appraisals"), payload);
+                    currentManagerKRADraftId = ref.id;
+                    showAlert("KRA ratings draft saved.", "info");
+                }
+            } catch(e) { console.error("saveManagerKRADraft error:", e); showAlert("Error saving KRA draft: " + e.message, "error"); }
+        }
+
+        async function submitManagerKRAReview() {
+            const target = document.getElementById('reporteeSelect').value;
+            if (!target) return showAlert("Please select an employee first.", "error");
+            if (_lastLoadedEmpKPICount === 0) return showAlert("Cannot submit — employee has not submitted their KPIs yet.", "error");
+            const mgrKpis = getManagerKPIReviewData(_lastLoadedEmpKPIs, _lastLoadedEmpKPICount);
+            const payload = {
+                type: "manager_kra", status: "kra_submitted",
+                section: "kra",
+                session: window.currentSession || '2025-2026',
+                targetEmail: target,
+                reviewerEmail: currentUser.email,
+                reviewerName: currentUser.name,
+                targetName: DIRECTORY[target]?.name || target,
+                kpis: mgrKpis,
+                timestamp: Timestamp.now()
+            };
+            try {
+                if (currentManagerKRADraftId) {
+                    await updateDoc(doc(db, "appraisals", currentManagerKRADraftId), payload);
+                    currentManagerKRADraftId = null;
+                } else {
+                    await addDoc(collection(db, "appraisals"), payload);
+                }
+                showAlert("KRA ratings submitted successfully.", "success");
+                logAuditAction(currentUser.email, `Submitted KRA ratings for ${DIRECTORY[target]?.name||target}`, 'MANAGER_KRA_SUBMIT', target);
+            } catch (e) { console.error(e); showAlert("Error submitting KRA ratings: " + e.message, "error"); }
+        }
+        window.saveManagerKRADraft    = saveManagerKRADraft;
+        window.submitManagerKRAReview = submitManagerKRAReview;
 
         // --- LOAD DATA ---
         async function loadMySubmissions() {
@@ -8494,6 +8556,51 @@
             } catch(e) { showAlert('Error: '+e.message, 'error'); }
         }
         window.submitAdminManagerReview = submitAdminManagerReview;
+
+        // ── Admin KRA-only draft/submit (Section 1 buttons — after per-KRA ratings) ──
+        let adminManagerKRADraftId = null;
+
+        async function saveAdminManagerKRADraft() {
+            const target = document.getElementById('adminReporteeSelect').value;
+            if (!target) { showAlert('Select an employee first.', 'error'); return; }
+            const mgrKpis = getManagerKPIReviewData(_adminLastLoadedEmpKPIs, _adminLastLoadedEmpKPICount);
+            const payload = {
+                reviewerEmail: currentUser.email, reviewerName: currentUser.name,
+                targetEmail: target, targetName: DIRECTORY[target]?.name||target,
+                session: window.currentSession || '2025-2026',
+                type: 'manager_kra', section: 'kra',
+                kpis: mgrKpis,
+                status: 'kra_draft', timestamp: Timestamp.now()
+            };
+            try {
+                if (adminManagerKRADraftId) { await setDoc(doc(db,'appraisals',adminManagerKRADraftId), payload, {merge:true}); }
+                else { const ref = await addDoc(collection(db,'appraisals'), payload); adminManagerKRADraftId = ref.id; }
+                showAlert('KRA ratings draft saved.', 'info');
+            } catch(e) { showAlert('Error: '+e.message, 'error'); }
+        }
+
+        async function submitAdminManagerKRAReview() {
+            const target = document.getElementById('adminReporteeSelect').value;
+            if (!target) { showAlert('Select an employee first.', 'error'); return; }
+            if (_adminLastLoadedEmpKPICount === 0) { showAlert('Employee has not submitted their KPIs yet.', 'error'); return; }
+            const mgrKpis = getManagerKPIReviewData(_adminLastLoadedEmpKPIs, _adminLastLoadedEmpKPICount);
+            const payload = {
+                reviewerEmail: currentUser.email, reviewerName: currentUser.name,
+                targetEmail: target, targetName: DIRECTORY[target]?.name||target,
+                session: window.currentSession || '2025-2026',
+                type: 'manager_kra', section: 'kra',
+                kpis: mgrKpis,
+                status: 'kra_submitted', timestamp: Timestamp.now()
+            };
+            try {
+                if (adminManagerKRADraftId) { await setDoc(doc(db,'appraisals',adminManagerKRADraftId), payload, {merge:true}); adminManagerKRADraftId = null; }
+                else { await addDoc(collection(db,'appraisals'), payload); }
+                showAlert(`KRA ratings submitted for ${DIRECTORY[target]?.name||target}.`, 'success');
+                logAuditAction(currentUser.email, `Submitted KRA ratings for ${DIRECTORY[target]?.name||target}`, 'MANAGER_KRA_SUBMIT', target);
+            } catch(e) { showAlert('Error: '+e.message, 'error'); }
+        }
+        window.saveAdminManagerKRADraft    = saveAdminManagerKRADraft;
+        window.submitAdminManagerKRAReview = submitAdminManagerKRAReview;
 
         // ── CTC OVERRIDE LOGIC ─────────────────────────────────────────────────
         let _ctcOverridePending = null;
