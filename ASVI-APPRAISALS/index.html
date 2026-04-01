@@ -3795,6 +3795,9 @@
             "kapil.bhawariwal@vtion.in": { empId:"056", currentCTC:2700000.0, marketBenchmark:null, doj:"2025-12-03", designation:"Data Scientist", department:"Product & Technology", fixedCTC:2500000.0, pli:200000.0, totalCTC:2700000.0 },
         };
 
+        // Expose on window so modal functions using window.EMP_FINANCIAL_DATA resolve correctly
+        window.EMP_FINANCIAL_DATA = EMP_FINANCIAL_DATA;
+
         // ─── KRA HIKE TABLE (per Appraisal Guidelines) ─────────────────────────
         // KRA Achievement % → Rating band → Hike range
         const KRA_HIKE_TABLE = [
@@ -5707,9 +5710,16 @@
 
                 if (isManagerView) {
                     const fin = EMP_FINANCIAL_DATA[email] || {};
-                    const curFixed   = fin.fixedCTC    || 0;
-                    const curPLI     = fin.pli         || 0;
-                    const curTotal   = fin.totalCTC    || fin.currentCTC || (curFixed + curPLI);
+                    const _rawFixed  = fin.fixedCTC    || 0;
+                    const _rawPLI    = fin.pli         || 0;
+                    const curTotal   = fin.totalCTC    || fin.currentCTC || (_rawFixed + _rawPLI) || 0;
+
+                    // Derive Fixed/PLI split — fall back to 80/20 when breakdown is missing
+                    const DEFAULT_FIXED_RATIO = 0.8;
+                    const DEFAULT_PLI_RATIO   = 0.2;
+                    const hasBreakdown = _rawFixed > 0 || _rawPLI > 0;
+                    const curFixed = _rawFixed > 0 ? _rawFixed : (curTotal > 0 ? Math.round(curTotal * DEFAULT_FIXED_RATIO) : 0);
+                    const curPLI   = _rawPLI   > 0 ? _rawPLI   : (curTotal > 0 ? Math.round(curTotal * DEFAULT_PLI_RATIO)   : 0);
                     const doj        = fin.doj ? new Date(fin.doj) : null;
                     const ELIG_DATE  = typeof ELIGIBILITY_DATE !== 'undefined' ? ELIGIBILITY_DATE : getEligibilityCutoff();
                     const isEligible = doj && doj < ELIG_DATE;
@@ -5810,7 +5820,57 @@
                             : (dispRating ? `Rating ${dispRating}` : '');
                         const badgeText = [kraSource, `Rating ${band.rating}`, band.label].filter(Boolean).join(' · ');
 
-                        salarySuggestionHtml = `
+                        // ── Manager's Decided Salary card (shown if manager set a CTC override) ──
+                        const decidedCTC    = mgr?.revisedCTCOverride || null;
+                        const decidedReason = mgr?.revisedCTCReason   || null;
+                        let decidedCardHtml = '';
+                        if (decidedCTC) {
+                            const fixedRatio = curTotal > 0 ? curFixed / curTotal : 0.8;
+                            const pliRatio   = curTotal > 0 ? curPLI   / curTotal : 0.2;
+                            const revFixed   = Math.round(decidedCTC * fixedRatio);
+                            const revPLI     = Math.round(decidedCTC * pliRatio);
+                            const hikeAmt    = decidedCTC - curTotal;
+                            const hikePct    = curTotal > 0 ? (hikeAmt / curTotal) * 100 : null;
+                            const hColor     = (hikePct === null || hikePct >= 0) ? '#047857' : '#b91c1c';
+                            const hikePctTxt = hikePct !== null ? `${hikePct >= 0 ? '+' : ''}${hikePct.toFixed(1)}%` : 'New hire';
+                            const hikeAmtTxt = curTotal > 0 ? `${hikeAmt >= 0 ? '+' : ''}${fmt(Math.abs(hikeAmt))}` : fmt(decidedCTC);
+
+                            decidedCardHtml = `
+                            <div style="background:var(--bg-card,#fff);border:2px solid #047857;border-radius:12px;padding:18px 20px;margin-top:18px;margin-bottom:4px;">
+                                <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+                                    <svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='#047857' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><polyline points='20 6 9 17 4 12'/></svg>
+                                    <span style="font-weight:700;color:#047857;font-size:0.9rem;">Manager's Decided Salary</span>
+                                    <span style="font-size:0.7rem;font-weight:700;padding:2px 10px;border-radius:20px;background:#d1fae5;color:#047857;margin-left:auto;">Confirmed</span>
+                                </div>
+                                ${curTotal === 0 ? `<div style="margin-bottom:12px;padding:8px 12px;background:#fffbeb;border:1px solid #fde68a;border-radius:7px;font-size:0.75rem;color:#92400e;">⚠️ No prior CTC found in HR records — showing manager-set salary only.</div>` : ''}
+                                <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:stretch;">
+                                    <div style="background:#f9fafb;border-radius:8px;padding:12px 14px;border:1px solid #e5e7eb;">
+                                        <div style="font-size:0.6rem;color:#9ca3af;text-transform:uppercase;font-weight:700;letter-spacing:0.07em;margin-bottom:8px;">Current CTC</div>
+                                        <div style="display:flex;flex-direction:column;gap:5px;">
+                                            <div style="display:flex;justify-content:space-between;"><span style="font-size:0.75rem;color:#6b7280;">Fixed</span><span style="font-size:0.8rem;font-weight:700;color:#374151;">${curTotal > 0 ? fmt(curFixed) : '—'}</span></div>
+                                            <div style="display:flex;justify-content:space-between;"><span style="font-size:0.75rem;color:#6b7280;">PLI</span><span style="font-size:0.8rem;font-weight:700;color:#374151;">${curTotal > 0 ? fmt(curPLI) : '—'}</span></div>
+                                            <div style="border-top:1px solid #e5e7eb;padding-top:5px;margin-top:3px;display:flex;justify-content:space-between;"><span style="font-size:0.75rem;font-weight:700;color:#111;">Total</span><span style="font-size:0.88rem;font-weight:800;color:#6B0F1A;">${curTotal > 0 ? fmt(curTotal) : '—'}</span></div>
+                                        </div>
+                                    </div>
+                                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 14px;gap:3px;">
+                                        <div style="font-size:0.9rem;font-weight:800;color:${hColor};">${hikePctTxt}</div>
+                                        <div style="font-size:0.68rem;color:#9ca3af;">${hikeAmtTxt}</div>
+                                        <svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#9ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style="margin-top:2px;"><line x1='5' y1='12' x2='19' y2='12'/><polyline points='12 5 19 12 12 19'/></svg>
+                                    </div>
+                                    <div style="background:#f0fdf4;border-radius:8px;padding:12px 14px;border:1.5px solid #86efac;">
+                                        <div style="font-size:0.6rem;color:#047857;text-transform:uppercase;font-weight:700;letter-spacing:0.07em;margin-bottom:8px;">Revised CTC</div>
+                                        <div style="display:flex;flex-direction:column;gap:5px;">
+                                            <div style="display:flex;justify-content:space-between;"><span style="font-size:0.75rem;color:#6b7280;">Fixed</span><span style="font-size:0.8rem;font-weight:700;color:#047857;">${fmt(revFixed)}</span></div>
+                                            <div style="display:flex;justify-content:space-between;"><span style="font-size:0.75rem;color:#6b7280;">PLI</span><span style="font-size:0.8rem;font-weight:700;color:#047857;">${fmt(revPLI)}</span></div>
+                                            <div style="border-top:1px solid #bbf7d0;padding-top:5px;margin-top:3px;display:flex;justify-content:space-between;"><span style="font-size:0.75rem;font-weight:700;color:#111;">Total</span><span style="font-size:0.88rem;font-weight:800;color:#047857;">${fmt(decidedCTC)}</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                ${decidedReason ? `<div style="margin-top:12px;padding:10px 14px;background:#fef9ec;border:1px solid #fde68a;border-radius:8px;font-size:0.78rem;color:#92400e;"><strong>Reason:</strong> ${decidedReason}</div>` : ''}
+                            </div>`;
+                        }
+
+                        salarySuggestionHtml = decidedCardHtml + `
                         <div style="margin-top:18px;">
 
                             <!-- ── Green Projection Card (matches mgrCTCProjection style) ── -->
@@ -5858,7 +5918,7 @@
                                         <div style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:rgba(255,255,255,0.5);margin-bottom:12px;">Post-Appraisal CTC</div>
                                         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;">
                                             <span style="font-size:0.82rem;color:rgba(255,255,255,0.72);">Fixed</span>
-                                            <span style="font-size:0.82rem;font-weight:700;color:#6ee7b7;">${curFixed > 0 ? fmt(fixedMin) + ' – ' + fmt(fixedMax) : '—'}</span>
+                                            <span style="font-size:0.82rem;font-weight:700;color:#6ee7b7;">${curFixed > 0 ? fmt(fixedMin) + ' – ' + fmt(fixedMax) : fmt(totalMin) + ' – ' + fmt(totalMax)}</span>
                                         </div>
                                         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;">
                                             <span style="font-size:0.82rem;color:rgba(255,255,255,0.72);">PLI</span>
@@ -5882,8 +5942,8 @@
                                     </div>
                                     <div style="min-width:0;">
                                         <div style="font-size:0.63rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#065f46;margin-bottom:3px;">Suggested Fixed CTC</div>
-                                        <div style="font-size:1.15rem;font-weight:800;color:#15803d;line-height:1.1;">${curFixed > 0 ? fmt(fixedMid) : '—'}</div>
-                                        <div style="font-size:0.7rem;color:#16a34a;margin-top:3px;font-weight:600;">Range: ${curFixed > 0 ? fmt(fixedMin) + ' – ' + fmt(fixedMax) : '—'}</div>
+                                        <div style="font-size:1.15rem;font-weight:800;color:#15803d;line-height:1.1;">${fmt(fixedMid)}</div>
+                                        <div style="font-size:0.7rem;color:#16a34a;margin-top:3px;font-weight:600;">Range: ${fmt(fixedMin)} – ${fmt(fixedMax)}</div>
                                     </div>
                                 </div>
 
@@ -9329,11 +9389,19 @@
             } catch(e) { console.error(e); }
 
             // CTC from HR records
-            const curFixed = fin.fixedCTC || 0;
-            const curPLI   = fin.pli      || 0;
-            const curTotal = fin.totalCTC || fin.currentCTC || (curFixed + curPLI) || 0;
-            const fixedRatio = curTotal > 0 ? curFixed / curTotal : 0;
-            const pliRatio   = curTotal > 0 ? curPLI   / curTotal : 0;
+            const _rawFixed = fin.fixedCTC || 0;
+            const _rawPLI   = fin.pli      || 0;
+            const curTotal  = fin.totalCTC || fin.currentCTC || (_rawFixed + _rawPLI) || 0;
+
+            // Derive Fixed/PLI split — fall back to 80/20 when breakdown is missing
+            const DEFAULT_FIXED_RATIO = 0.8;
+            const DEFAULT_PLI_RATIO   = 0.2;
+            const hasBreakdown = _rawFixed > 0 || _rawPLI > 0;
+            const fixedRatio = hasBreakdown ? _rawFixed / curTotal : DEFAULT_FIXED_RATIO;
+            const pliRatio   = hasBreakdown ? _rawPLI   / curTotal : DEFAULT_PLI_RATIO;
+            // Always ensure Fixed + PLI = Total (using ratio when breakdown absent)
+            const curFixed = _rawFixed > 0 ? _rawFixed : (curTotal > 0 ? Math.round(curTotal * DEFAULT_FIXED_RATIO) : 0);
+            const curPLI   = _rawPLI   > 0 ? _rawPLI   : (curTotal > 0 ? Math.round(curTotal * DEFAULT_PLI_RATIO)   : 0);
 
             // Eligibility
             const doj = fin.doj ? new Date(fin.doj) : null;
@@ -9351,7 +9419,7 @@
             // ── Build HTML ──
             let projectionHTML = '';
 
-            if (!curTotal) {
+            if (!curTotal && !decidedCTC) {
                 projectionHTML = `<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:0.85rem;">No CTC data found for this employee in HR records.</div>`;
             } else if (!isEligible) {
                 projectionHTML = `
@@ -9369,10 +9437,12 @@
                 const hikeLabelPct = `${(inc.minHike*100).toFixed(0)}% – ${(inc.maxHike*100).toFixed(0)}%`;
                 const hikeAmt      = `${fmt(inc.minIncrement)} – ${fmt(inc.maxIncrement)}`;
                 const eligBadge    = `KRA ${achievePct.toFixed(1)}% · Rating ${inc.rating} · ${inc.band?.label || ''}`;
+                // Use effective ratios (already 80/20 default when breakdown missing)
                 const minFixed = fmt(Math.round(inc.minCTC * fixedRatio));
                 const maxFixed = fmt(Math.round(inc.maxCTC * fixedRatio));
-                const minPLI   = fmt(Math.round(inc.minCTC * pliRatio));
-                const maxPLI   = fmt(Math.round(inc.maxCTC * pliRatio));
+                const minPLI   = pliRatio > 0 ? fmt(Math.round(inc.minCTC * pliRatio)) : '—';
+                const maxPLI   = pliRatio > 0 ? fmt(Math.round(inc.maxCTC * pliRatio)) : '—';
+                const minPLIRange = pliRatio > 0 ? `${minPLI} – ${maxPLI}` : '—';
 
                 projectionHTML = `
                 <!-- Green Projection Card -->
@@ -9418,7 +9488,7 @@
                                 </div>
                                 <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
                                     <span style="font-size:0.78rem;color:rgba(255,255,255,0.7);flex-shrink:0;">PLI</span>
-                                    <span style="font-size:0.82rem;font-weight:700;color:#86efac;text-align:right;">${minPLI} – ${maxPLI}</span>
+                                    <span style="font-size:0.82rem;font-weight:700;color:#86efac;text-align:right;">${minPLIRange}</span>
                                 </div>
                                 <div style="border-top:1px solid rgba(255,255,255,0.25);margin-top:4px;padding-top:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;">
                                     <span style="font-size:0.78rem;color:#fff;font-weight:700;flex-shrink:0;">Total</span>
@@ -9461,10 +9531,20 @@
             let decidedHTML = '';
             if (decidedCTC) {
                 const hikeAmt = decidedCTC - curTotal;
-                const hikePct = curTotal > 0 ? ((hikeAmt / curTotal) * 100) : 0;
-                const hColor  = hikePct >= 0 ? '#047857' : '#b91c1c';
-                const newFixed = fmt(Math.round(decidedCTC * fixedRatio));
-                const newPLI   = fmt(Math.round(decidedCTC * pliRatio));
+                const hikePct = curTotal > 0 ? ((hikeAmt / curTotal) * 100) : null;
+                const hColor  = (hikePct === null || hikePct >= 0) ? '#047857' : '#b91c1c';
+                // Always compute Fixed/PLI from ratio (already defaulted to 80/20 if breakdown was missing)
+                const effectiveFixedRatio = fixedRatio > 0 ? fixedRatio : DEFAULT_FIXED_RATIO;
+                const effectivePliRatio   = pliRatio  > 0 ? pliRatio   : DEFAULT_PLI_RATIO;
+                const newFixed = fmt(Math.round(decidedCTC * effectiveFixedRatio));
+                const newPLI   = fmt(Math.round(decidedCTC * effectivePliRatio));
+                const curFixedDisplay = curTotal > 0 ? fmt(curFixed) : '—';
+                const curPLIDisplay   = curTotal > 0 ? fmt(curPLI)   : '—';
+                const curTotalDisplay = curTotal > 0 ? fmt(curTotal)  : '—';
+                const hikePctDisplay  = hikePct !== null ? `${hikePct >= 0 ? '+' : ''}${hikePct.toFixed(1)}%` : 'New hire';
+                const hikeAmtDisplay  = curTotal > 0
+                    ? `${hikeAmt >= 0 ? '+' : ''}${fmt(Math.abs(hikeAmt))}`
+                    : `${fmt(decidedCTC)}`;
                 decidedHTML = `
                 <div style="background:var(--bg-card);border:2px solid #047857;border-radius:12px;padding:18px 20px;">
                     <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
@@ -9472,18 +9552,19 @@
                         <span style="font-weight:700;color:#047857;font-size:0.9rem;">Manager's Decided Salary</span>
                         <span style="font-size:0.7rem;font-weight:700;padding:2px 10px;border-radius:20px;background:#d1fae5;color:#047857;margin-left:auto;">Confirmed</span>
                     </div>
+                    ${curTotal === 0 ? `<div style="margin-bottom:12px;padding:8px 12px;background:#fffbeb;border:1px solid #fde68a;border-radius:7px;font-size:0.75rem;color:#92400e;">⚠️ No prior CTC found in HR records — showing manager-set salary only.</div>` : ''}
                     <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:stretch;">
                         <div style="background:#f9fafb;border-radius:8px;padding:12px 14px;border:1px solid var(--border-color);">
                             <div style="font-size:0.6rem;color:#9ca3af;text-transform:uppercase;font-weight:700;letter-spacing:0.07em;margin-bottom:8px;">Current CTC</div>
                             <div style="display:flex;flex-direction:column;gap:5px;">
-                                <div style="display:flex;justify-content:space-between;"><span style="font-size:0.75rem;color:#6b7280;">Fixed</span><span style="font-size:0.8rem;font-weight:700;color:#374151;">${fmt(curFixed)}</span></div>
-                                <div style="display:flex;justify-content:space-between;"><span style="font-size:0.75rem;color:#6b7280;">PLI</span><span style="font-size:0.8rem;font-weight:700;color:#374151;">${fmt(curPLI)}</span></div>
-                                <div style="border-top:1px solid #e5e7eb;padding-top:5px;margin-top:3px;display:flex;justify-content:space-between;"><span style="font-size:0.75rem;font-weight:700;color:#111;">Total</span><span style="font-size:0.88rem;font-weight:800;color:#6B0F1A;">${fmt(curTotal)}</span></div>
+                                <div style="display:flex;justify-content:space-between;"><span style="font-size:0.75rem;color:#6b7280;">Fixed</span><span style="font-size:0.8rem;font-weight:700;color:#374151;">${curFixedDisplay}</span></div>
+                                <div style="display:flex;justify-content:space-between;"><span style="font-size:0.75rem;color:#6b7280;">PLI</span><span style="font-size:0.8rem;font-weight:700;color:#374151;">${curPLIDisplay}</span></div>
+                                <div style="border-top:1px solid #e5e7eb;padding-top:5px;margin-top:3px;display:flex;justify-content:space-between;"><span style="font-size:0.75rem;font-weight:700;color:#111;">Total</span><span style="font-size:0.88rem;font-weight:800;color:#6B0F1A;">${curTotalDisplay}</span></div>
                             </div>
                         </div>
                         <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 14px;gap:3px;">
-                            <div style="font-size:0.9rem;font-weight:800;color:${hColor};">${hikePct >= 0 ? '+' : ''}${hikePct.toFixed(1)}%</div>
-                            <div style="font-size:0.68rem;color:#9ca3af;">${hikeAmt >= 0 ? '+' : ''}${fmt(Math.abs(hikeAmt))}</div>
+                            <div style="font-size:0.9rem;font-weight:800;color:${hColor};">${hikePctDisplay}</div>
+                            <div style="font-size:0.68rem;color:#9ca3af;">${hikeAmtDisplay}</div>
                             <svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#9ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style="margin-top:2px;"><line x1='5' y1='12' x2='19' y2='12'/><polyline points='12 5 19 12 12 19'/></svg>
                         </div>
                         <div style="background:#f0fdf4;border-radius:8px;padding:12px 14px;border:1.5px solid #86efac;">
