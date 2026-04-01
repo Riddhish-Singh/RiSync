@@ -5044,8 +5044,7 @@
                     currentManagerDraftId = null;
                     notice.innerText = "Layer 2 (Overall) review already submitted.";
                     notice.style.color = "var(--success-text)"; notice.style.display = 'block';
-                    _setOverallLayerStatus('submitted');
-                    // Restore CTC override display if present
+                    // Restore CTC override display if present (must happen BEFORE _setOverallLayerStatus)
                     if (savedMgrData.revisedCTCOverride && savedMgrData.revisedCTCReason) {
                         window._ctcOverrideConfirmed = window._ctcOverrideConfirmed || {};
                         window._ctcOverrideConfirmed['mgr'] = {
@@ -5060,6 +5059,21 @@
                         if (reasonBox)  reasonBox.style.display  = 'block';
                         if (reasonText) reasonText.textContent   = savedMgrData.revisedCTCReason;
                     }
+                    // FIX: call AFTER override is restored so notice can show revised salary
+                    {
+                        const _n = document.getElementById('mgrOverallSubmitNotice');
+                        if (_n && savedMgrData.revisedCTCOverride) {
+                            const _curCTC  = EMP_FINANCIAL_DATA[target]?.currentCTC || 0;
+                            const _hikeAmt = savedMgrData.revisedCTCOverride - _curCTC;
+                            const _hikePct = _curCTC > 0 ? ((_hikeAmt / _curCTC) * 100).toFixed(1) : '—';
+                            _n.innerHTML =
+                                '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px;"><polyline points="20 6 9 17 4 12"/></svg>' +
+                                'Overall assessment submitted &nbsp;|&nbsp; Revised CTC: <strong>' + fmtCurrency(savedMgrData.revisedCTCOverride) + '</strong>' +
+                                ' &nbsp;(+' + _hikePct + '% &nbsp;/&nbsp; +' + fmtCurrency(_hikeAmt) + ')';
+                            _n.style.display = 'flex';
+                        }
+                    }
+                    _setOverallLayerStatus('submitted');
                 } else if (overallDraft) {
                     savedMgrData = overallDraft.data();
                     currentManagerDraftId = overallDraft.id;
@@ -5179,6 +5193,18 @@
                     await addDoc(collection(db, "appraisals"), payload);
                 }
                 _setOverallLayerStatus('submitted');
+                // FIX: show revised salary in the success notice if manager set a CTC override
+                const _submitNotice = document.getElementById('mgrOverallSubmitNotice');
+                if (_submitNotice && payload.revisedCTCOverride) {
+                    const _curCTC  = EMP_FINANCIAL_DATA[target]?.currentCTC || 0;
+                    const _hikeAmt = payload.revisedCTCOverride - _curCTC;
+                    const _hikePct = _curCTC > 0 ? ((_hikeAmt / _curCTC) * 100).toFixed(1) : '—';
+                    _submitNotice.innerHTML =
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px;"><polyline points="20 6 9 17 4 12"/></svg>' +
+                        'Overall assessment submitted &nbsp;|&nbsp; Revised CTC: <strong>' + fmtCurrency(payload.revisedCTCOverride) + '</strong>' +
+                        ' &nbsp;(+' + _hikePct + '% &nbsp;/&nbsp; +' + fmtCurrency(_hikeAmt) + ')';
+                    _submitNotice.style.display = 'flex';
+                }
                 showAlert("Manager overall review submitted.", "success");
                 logAuditAction(currentUser.email, `Submitted manager review for ${DIRECTORY[target]?.name||target} (Rating: ${payload.rating}/5)`, 'MANAGER_REVIEW_SUBMIT', target);
                 checkManagerDraft();
@@ -7552,6 +7578,8 @@
 
             // Detect if admin has overridden a manager-submitted rating
             const adminOverrodeMgr = r.mgrSubmitted && newRating !== r._mgrRating;
+            // Keep manager's CTC override unless admin explicitly changed the rating
+            const _keepMgrOverride = r.mgrCTCOverride && !adminOverrodeMgr;
             const newSource = adminOverrodeMgr
                 ? 'admin_override'
                 : r.mgrSubmitted && newRating === r._mgrRating
@@ -7569,11 +7597,14 @@
             // ── COL Q: Rating% = IFERROR(IF(Not Eligible, 0%, VLOOKUP(Rating, Grid, 2, 0)), "")
             const ratingPercent = isEligible ? rt.annualPct : 0;
 
-            // ── COL R: Increment Amount = IFERROR(CurrentCTC * Rating%, "")
-            const incrementAmount = isEligible ? newCTC * rt.annualPct : 0;
+            // ── COL R: Increment Amount — use manager's override amount if active, else KRA formula
+            const _kraIncrementAmount = isEligible ? newCTC * rt.annualPct : 0;
+            const incrementAmount = (_keepMgrOverride && r.mgrCTCOverride)
+                ? (r.mgrCTCOverride - newCTC)
+                : _kraIncrementAmount;
 
             // ── COL S: Revised CTC = IFERROR(CurrentCTC + IncrementAmount, "")
-            const revisedCTC = newCTC + incrementAmount;
+            const revisedCTC = newCTC + (_keepMgrOverride ? 0 : _kraIncrementAmount);
 
             // ── COL T: Adjusted% = IFERROR(IF(Not Eligible, 0%, IF(Diff%>20%, VLOOKUP(Rating, Grid, 3, 0), "")), "")
             const addonPercent = isEligible && differencePercent !== null && differencePercent > 0.20
@@ -7582,8 +7613,10 @@
             // ── COL U: Additional Increment = IFERROR(Adjusted% * CurrentCTC, "")
             const additionalIncrement = addonPercent * newCTC;
 
-            // ── COL V: Final Revised CTC = IFERROR(RevisedCTC + AdditionalIncrement, "")
-            const finalRevisedCTC = revisedCTC + additionalIncrement;
+            // ── COL V: Final Revised CTC
+            // Priority: if manager submitted an explicit CTC override AND admin hasn't overridden the rating → use manager's value
+            const _kraFinalCTC = revisedCTC + additionalIncrement;
+            const finalRevisedCTC = _keepMgrOverride ? r.mgrCTCOverride : _kraFinalCTC;
 
             // ── COL W: Final Increment % = IFERROR((FinalRevisedCTC - CurrentCTC) / CurrentCTC, "")
             const finalIncrementPercent = newCTC > 0 ? (finalRevisedCTC - newCTC) / newCTC : 0;
@@ -7609,6 +7642,8 @@
                 additionalIncrement,
                 finalRevisedCTC,
                 finalIncrementPercent,
+                // If admin explicitly changed the rating, clear the manager's CTC override so KRA formula takes over
+                mgrCTCOverride: adminOverrodeMgr ? null : r.mgrCTCOverride,
             });
 
             // Live-update the source badge below the rating select
@@ -7634,11 +7669,19 @@
             // Q: Rating %
             safe(`c_basepct_${emailKey}`, isEligible ? `<span style="color:#1e40af;">${pct(ratingPercent)}</span>` : '—');
 
-            // R: Increment Amount
-            safe(`c_incr_${emailKey}`, isEligible ? `<span style="font-weight:600;color:var(--brand-accent);">${fmt(incrementAmount)}</span>` : '—');
+            // R: Increment Amount — show manager's actual increment when override active
+            if (_keepMgrOverride && isEligible) {
+                safe(`c_incr_${emailKey}`, `<strong style="color:#047857;" title="Manager-decided increment">${fmt(incrementAmount)}</strong><div style="font-size:0.62rem;color:#047857;">MGR ✓</div>`);
+            } else {
+                safe(`c_incr_${emailKey}`, isEligible ? `<span style="font-weight:600;color:var(--brand-accent);">${fmt(incrementAmount)}</span>` : '—');
+            }
 
-            // S: Revised CTC
-            safe(`c_revised_${emailKey}`, `<span style="color:#374151;">${isEligible ? fmt(revisedCTC) : fmt(newCTC)}</span>`);
+            // S: Revised CTC — show manager override with badge if still active
+            if (_keepMgrOverride) {
+                safe(`c_revised_${emailKey}`, `<strong style="color:#047857;" title="Manager submitted">${fmt(r.mgrCTCOverride)}</strong><div style="font-size:0.62rem;color:#047857;">MGR ✓</div>`);
+            } else {
+                safe(`c_revised_${emailKey}`, `<span style="color:#374151;">${isEligible ? fmt(revisedCTC) : fmt(newCTC)}</span>`);
+            }
 
             // T: Adjusted %
             safe(`c_addon_${emailKey}`, isEligible && addonPercent > 0 ? `<span style="color:#7c3aed;">${pct(addonPercent)}</span>` : '—');
@@ -7646,8 +7689,12 @@
             // U: Additional Increment
             safe(`c_addlincr_${emailKey}`, isEligible && additionalIncrement > 0 ? fmt(additionalIncrement) : '—');
 
-            // V: Final Revised CTC
-            safe(`c_finalctc_${emailKey}`, `<strong style="color:var(--brand-primary);">${fmt(finalRevisedCTC)}</strong>`);
+            // V: Final Revised CTC — show manager override with badge if still active
+            if (_keepMgrOverride) {
+                safe(`c_finalctc_${emailKey}`, `<strong style="color:#047857;" title="Manager-decided CTC">${fmt(finalRevisedCTC)}</strong><div style="font-size:0.62rem;color:#047857;font-weight:600;">MGR ✓</div>`);
+            } else {
+                safe(`c_finalctc_${emailKey}`, `<strong style="color:var(--brand-primary);">${fmt(finalRevisedCTC)}</strong>`);
+            }
 
             // W: Final Increment %
             safe(`c_finalpct_${emailKey}`, isEligible ? `<span style="font-weight:700;color:${finalIncrementPercent > 0.15 ? '#047857' : '#374151'};">${pct(finalIncrementPercent)}</span>` : '—');
@@ -7776,8 +7823,11 @@
                         ratingMap[email] = {
                             rating: r,
                             source: data.type,
-                            // Store the raw KRA achievement % if manager submitted it
-                            overallMgrPct: data.type === 'manager' ? (data.overallMgrPct ?? null) : null
+                            overallMgrPct: data.type === 'manager' ? (data.overallMgrPct ?? null) : null,
+                            // FIX: capture manager's explicit CTC override from Firestore
+                            revisedCTCOverride: data.type === 'manager' ? (data.revisedCTCOverride ?? null) : null,
+                            revisedCTCReason:   data.type === 'manager' ? (data.revisedCTCReason   ?? null) : null,
+                            revisedCTCHikePct:  data.type === 'manager' ? (data.revisedCTCHikePct  ?? null) : null,
                         };
                     }
                 });
@@ -7908,7 +7958,10 @@
                     const additionalIncrement = 0;
 
                     // ── COLUMN V: Final Revised CTC (mid)
-                    const finalRevisedCTC = revisedCTC;
+                    // FIX: if manager submitted an explicit CTC override, use it (priority: admin > manager override > KRA formula)
+                    const mgrCTCOverride = (!adminHasOverridden && appraisalRating?.revisedCTCOverride)
+                        ? appraisalRating.revisedCTCOverride : null;
+                    const finalRevisedCTC = mgrCTCOverride ? mgrCTCOverride : revisedCTC;
                     const minRevisedCTC   = currentCTC + minIncrement;
                     const maxRevisedCTC   = currentCTC + maxIncrement;
 
@@ -7933,6 +7986,8 @@
                         revisedCTC, addonPercent, additionalIncrement,
                         finalRevisedCTC, minRevisedCTC, maxRevisedCTC,
                         finalIncrementPercent,
+                        mgrCTCOverride,  // FIX: flag so UI can show manager-decided salary
+                        mgrCTCReason: mgrCTCOverride ? (appraisalRating?.revisedCTCReason || null) : null,
                         kraAchievementPct: mgrAchievementPct,
                         kraBandLabel: kraBand?.label || '—',
                         designation: fin.designation, department: fin.department,
@@ -8065,33 +8120,42 @@
                         <td id="c_mktgap_${ek}" style="text-align:center;">
                             ${!r.eligible ? '—' : r.differencePercent === null ? '—' : `<span style="${r.differencePercent > 0.20 ? 'color:#b91c1c;font-weight:700;' : ''}">${pct(r.differencePercent)}</span>`}
                         </td>
-                        <!-- Hike Range % (KRA-formula: Rating %  col Q) -->
+                        <!-- Hike % — show actual hike % from manager override if present, else KRA range -->
                         <td id="c_basepct_${ek}" style="text-align:center;">
-                            ${r.eligible
-                                ? `<span style="font-size:0.72rem;font-weight:700;color:#1e40af;">${(r.minHikePct*100).toFixed(0)}%–${(r.maxHikePct*100).toFixed(0)}%</span>
-                                   <div style="font-size:0.62rem;color:#6b7280;">${r.kraBandLabel||''}</div>`
-                                : '—'}
+                            ${!r.eligible ? '—'
+                                : r.mgrCTCOverride
+                                    ? (() => { const _hp = r.currentCTC > 0 ? ((r.mgrCTCOverride - r.currentCTC) / r.currentCTC * 100).toFixed(1) : '—'; return `<span style="font-size:0.72rem;font-weight:700;color:#047857;">${_hp}%</span><div style="font-size:0.62rem;color:#047857;">MGR ✓</div>`; })()
+                                    : `<span style="font-size:0.72rem;font-weight:700;color:#1e40af;">${(r.minHikePct*100).toFixed(0)}%–${(r.maxHikePct*100).toFixed(0)}%</span>
+                                       <div style="font-size:0.62rem;color:#6b7280;">${r.kraBandLabel||''}</div>`}
                         </td>
-                        <!-- Increment Range (mid shown, tooltip shows range) -->
+                        <!-- Increment Amount — use manager override if present, else KRA range -->
                         <td id="c_incr_${ek}" style="text-align:right;">
-                            ${r.eligible
-                                ? `<span style="font-weight:600;color:var(--brand-accent);" title="Range: ${fmt(r.minIncrement)} – ${fmt(r.maxIncrement)}">${fmt(r.incrementAmount)}</span>
-                                   <div style="font-size:0.62rem;color:#9ca3af;">${fmt(r.minIncrement)}–${fmt(r.maxIncrement)}</div>`
-                                : '—'}
+                            ${!r.eligible ? '—'
+                                : r.mgrCTCOverride
+                                    ? `<strong style="color:#047857;" title="Manager-decided increment">${fmt(r.mgrCTCOverride - r.currentCTC)}</strong>
+                                       <div style="font-size:0.62rem;color:#047857;">MGR ✓</div>`
+                                    : `<span style="font-weight:600;color:var(--brand-accent);" title="Range: ${fmt(r.minIncrement)} – ${fmt(r.maxIncrement)}">${fmt(r.incrementAmount)}</span>
+                                       <div style="font-size:0.62rem;color:#9ca3af;">${fmt(r.minIncrement)}–${fmt(r.maxIncrement)}</div>`}
                         </td>
-                        <!-- Revised CTC (mid) -->
+                        <!-- Revised CTC (mid) — show manager override if present, else KRA formula -->
                         <td id="c_revised_${ek}" style="text-align:right;">
-                            <span style="color:#374151;">${r.eligible ? fmt(r.revisedCTC) : fmt(r.currentCTC)}</span>
+                            ${r.mgrCTCOverride
+                                ? `<strong style="color:#047857;" title="Manager submitted: ${fmt(r.mgrCTCOverride)}">${fmt(r.mgrCTCOverride)}</strong>
+                                   <div style="font-size:0.62rem;color:#047857;">MGR ✓</div>`
+                                : `<span style="color:#374151;">${r.eligible ? fmt(r.revisedCTC) : fmt(r.currentCTC)}</span>`}
                         </td>
                         <!-- Adjusted % (N/A under KRA formula) -->
                         <td id="c_addon_${ek}" style="text-align:center;color:#9ca3af;">—</td>
                         <!-- Additional Increment (N/A under KRA formula) -->
                         <td id="c_addlincr_${ek}" style="text-align:right;color:#9ca3af;">—</td>
-                        <!-- Final Revised CTC Range -->
+                        <!-- Final Revised CTC — uses manager override if present, else KRA formula -->
                         <td id="c_finalctc_${ek}" style="background:var(--tint-purple);text-align:right;">
                             ${r.eligible
-                                ? `<strong style="color:var(--brand-primary);">${fmt(r.finalRevisedCTC)}</strong>
-                                   <div style="font-size:0.62rem;color:#6b7280;">${fmt(r.minRevisedCTC)}–${fmt(r.maxRevisedCTC)}</div>`
+                                ? r.mgrCTCOverride
+                                    ? `<strong style="color:#047857;" title="Manager-decided CTC">${fmt(r.mgrCTCOverride)}</strong>
+                                       <div style="font-size:0.62rem;color:#047857;font-weight:600;">MGR ✓</div>`
+                                    : `<strong style="color:var(--brand-primary);">${fmt(r.finalRevisedCTC)}</strong>
+                                       <div style="font-size:0.62rem;color:#6b7280;">${fmt(r.minRevisedCTC)}–${fmt(r.maxRevisedCTC)}</div>`
                                 : `<strong style="color:#9ca3af;">${fmt(r.currentCTC)}</strong>`}
                         </td>
                         <!-- Final Increment % (mid) -->
@@ -9692,7 +9756,9 @@
 
         // ── CTC OVERRIDE LOGIC ─────────────────────────────────────────────────
         let _ctcOverridePending = null;
-        let _ctcOverrideConfirmed = { mgr: null, admin: null };
+        // FIX: declare on window so buildManagerPayload (which reads window._ctcOverrideConfirmed) sees the same object
+        window._ctcOverrideConfirmed = { mgr: null, admin: null };
+        let _ctcOverrideConfirmed = window._ctcOverrideConfirmed;
 
         /* ── Shared helper: get current CTC data for a tab ─────────── */
         function _getMgrOverrideFinData(tab) {
