@@ -1679,7 +1679,7 @@
                             </div>
                             <div class="input-wrapper" style="margin:0;">
                                 <label>Performance Linked Incentive (PLI) ₹</label>
-                                <input type="number" id="ctcPLI" placeholder="e.g. 200000" oninput="recalcTotalCTC()" min="0" step="1000" style="background:#f8f5fa;font-weight:600;" readonly>
+                                <input type="number" id="ctcPLI" placeholder="e.g. 200000" oninput="recalcTotalCTC()" min="0" step="1000" style="background:#f8f5fa;font-weight:600;">
                             </div>
                             <div class="input-wrapper" style="margin:0;">
                                 <label>Total CTC ₹</label>
@@ -1965,11 +1965,19 @@
                                     </div>
                                     <div>
                                         <label style="font-size:0.72rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;">Actual Hike %</label>
-                                        <div id="mgrCtcOverrideHikePct" style="padding:9px 12px;background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.92rem;font-weight:800;color:#047857;">—</div>
+                                        <input type="number" id="mgrCtcOverrideHikePct" placeholder="e.g. 12.5" step="0.01"
+                                            style="width:100%;padding:9px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.92rem;font-weight:800;color:#047857;font-family:inherit;outline:none;background:#f9fafb;box-sizing:border-box;"
+                                            onfocus="this.style.borderColor='#047857';this.style.background='#fff'"
+                                            onblur="this.style.borderColor='#e5e7eb';this.style.background='#f9fafb'"
+                                            oninput="onMgrHikePctInput(this,'mgr')">
                                     </div>
                                     <div>
-                                        <label style="font-size:0.72rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;">Increment Amount</label>
-                                        <div id="mgrCtcOverrideHikeAmt" style="padding:9px 12px;background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.92rem;font-weight:800;color:#047857;">—</div>
+                                        <label style="font-size:0.72rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;">Increment Amount (₹)</label>
+                                        <input type="number" id="mgrCtcOverrideHikeAmt" placeholder="e.g. 200000" step="1000"
+                                            style="width:100%;padding:9px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.92rem;font-weight:800;color:#047857;font-family:inherit;outline:none;background:#f9fafb;box-sizing:border-box;"
+                                            onfocus="this.style.borderColor='#047857';this.style.background='#fff'"
+                                            onblur="this.style.borderColor='#e5e7eb';this.style.background='#f9fafb'"
+                                            oninput="onMgrIncrementInput(this,'mgr')">
                                     </div>
                                 </div>
                                 <!-- CTC Breakdown: Fixed + PLI = Total -->
@@ -1997,17 +2005,25 @@
                                         <div style="display:flex;align-items:center;padding:0 14px;">
                                             <svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#9ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><line x1='5' y1='12' x2='19' y2='12'/><polyline points='12 5 19 12 12 19'/></svg>
                                         </div>
-                                        <!-- Revised -->
+                                        <!-- Revised — editable Fixed & PLI -->
                                         <div>
-                                            <div style="font-size:0.62rem;color:#047857;text-transform:uppercase;font-weight:700;letter-spacing:0.06em;margin-bottom:8px;">Revised CTC</div>
-                                            <div style="display:flex;flex-direction:column;gap:4px;">
-                                                <div style="display:flex;justify-content:space-between;">
-                                                    <span style="font-size:0.75rem;color:#6b7280;">Fixed</span>
-                                                    <span id="mgrOvrNewFixed" style="font-size:0.78rem;font-weight:700;color:#047857;">—</span>
+                                            <div style="font-size:0.62rem;color:#047857;text-transform:uppercase;font-weight:700;letter-spacing:0.06em;margin-bottom:8px;">Revised CTC <span style="font-size:0.55rem;color:#9ca3af;font-weight:500;text-transform:none;">(edit Fixed or PLI)</span></div>
+                                            <div style="display:flex;flex-direction:column;gap:6px;">
+                                                <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+                                                    <span style="font-size:0.75rem;color:#6b7280;white-space:nowrap;">Fixed</span>
+                                                    <input type="number" id="mgrOvrNewFixed" step="1000" min="0"
+                                                        style="width:110px;padding:4px 7px;border:1.5px solid #d1fae5;border-radius:6px;font-size:0.78rem;font-weight:700;color:#047857;font-family:inherit;outline:none;background:#f0fdf4;text-align:right;"
+                                                        onfocus="this.style.borderColor='#047857';this.style.background='#fff'"
+                                                        onblur="this.style.borderColor='#d1fae5';this.style.background='#f0fdf4'"
+                                                        oninput="onMgrBreakdownInput('mgr')">
                                                 </div>
-                                                <div style="display:flex;justify-content:space-between;">
-                                                    <span style="font-size:0.75rem;color:#6b7280;">PLI</span>
-                                                    <span id="mgrOvrNewPLI" style="font-size:0.78rem;font-weight:700;color:#047857;">—</span>
+                                                <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+                                                    <span style="font-size:0.75rem;color:#6b7280;white-space:nowrap;">PLI</span>
+                                                    <input type="number" id="mgrOvrNewPLI" step="1000" min="0"
+                                                        style="width:110px;padding:4px 7px;border:1.5px solid #d1fae5;border-radius:6px;font-size:0.78rem;font-weight:700;color:#047857;font-family:inherit;outline:none;background:#f0fdf4;text-align:right;"
+                                                        onfocus="this.style.borderColor='#047857';this.style.background='#fff'"
+                                                        onblur="this.style.borderColor='#d1fae5';this.style.background='#f0fdf4'"
+                                                        oninput="onMgrBreakdownInput('mgr')">
                                                 </div>
                                                 <div style="border-top:1px solid #e5e7eb;padding-top:4px;margin-top:2px;display:flex;justify-content:space-between;">
                                                     <span style="font-size:0.75rem;font-weight:700;color:#111;">Total</span>
@@ -2894,11 +2910,19 @@
                                     </div>
                                     <div>
                                         <label style="font-size:0.72rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;">Actual Hike %</label>
-                                        <div id="adminMgrCtcOverrideHikePct" style="padding:9px 12px;background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.92rem;font-weight:800;color:#047857;">—</div>
+                                        <input type="number" id="adminMgrCtcOverrideHikePct" placeholder="e.g. 12.5" step="0.01"
+                                            style="width:100%;padding:9px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.92rem;font-weight:800;color:#047857;font-family:inherit;outline:none;background:#f9fafb;box-sizing:border-box;"
+                                            onfocus="this.style.borderColor='#047857';this.style.background='#fff'"
+                                            onblur="this.style.borderColor='#e5e7eb';this.style.background='#f9fafb'"
+                                            oninput="onMgrHikePctInput(this,'admin')">
                                     </div>
                                     <div>
-                                        <label style="font-size:0.72rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;">Increment Amount</label>
-                                        <div id="adminMgrCtcOverrideHikeAmt" style="padding:9px 12px;background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.92rem;font-weight:800;color:#047857;">—</div>
+                                        <label style="font-size:0.72rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;">Increment Amount (₹)</label>
+                                        <input type="number" id="adminMgrCtcOverrideHikeAmt" placeholder="e.g. 200000" step="1000"
+                                            style="width:100%;padding:9px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.92rem;font-weight:800;color:#047857;font-family:inherit;outline:none;background:#f9fafb;box-sizing:border-box;"
+                                            onfocus="this.style.borderColor='#047857';this.style.background='#fff'"
+                                            onblur="this.style.borderColor='#e5e7eb';this.style.background='#f9fafb'"
+                                            oninput="onMgrIncrementInput(this,'admin')">
                                     </div>
                                 </div>
                                 <!-- CTC Breakdown: Fixed + PLI = Total -->
@@ -2925,15 +2949,23 @@
                                             <svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#9ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><line x1='5' y1='12' x2='19' y2='12'/><polyline points='12 5 19 12 12 19'/></svg>
                                         </div>
                                         <div>
-                                            <div style="font-size:0.62rem;color:#047857;text-transform:uppercase;font-weight:700;letter-spacing:0.06em;margin-bottom:8px;">Revised CTC</div>
-                                            <div style="display:flex;flex-direction:column;gap:4px;">
-                                                <div style="display:flex;justify-content:space-between;">
-                                                    <span style="font-size:0.75rem;color:#6b7280;">Fixed</span>
-                                                    <span id="adminMgrOvrNewFixed" style="font-size:0.78rem;font-weight:700;color:#047857;">—</span>
+                                            <div style="font-size:0.62rem;color:#047857;text-transform:uppercase;font-weight:700;letter-spacing:0.06em;margin-bottom:8px;">Revised CTC <span style="font-size:0.55rem;color:#9ca3af;font-weight:500;text-transform:none;">(edit Fixed or PLI)</span></div>
+                                            <div style="display:flex;flex-direction:column;gap:6px;">
+                                                <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+                                                    <span style="font-size:0.75rem;color:#6b7280;white-space:nowrap;">Fixed</span>
+                                                    <input type="number" id="adminMgrOvrNewFixed" step="1000" min="0"
+                                                        style="width:110px;padding:4px 7px;border:1.5px solid #d1fae5;border-radius:6px;font-size:0.78rem;font-weight:700;color:#047857;font-family:inherit;outline:none;background:#f0fdf4;text-align:right;"
+                                                        onfocus="this.style.borderColor='#047857';this.style.background='#fff'"
+                                                        onblur="this.style.borderColor='#d1fae5';this.style.background='#f0fdf4'"
+                                                        oninput="onMgrBreakdownInput('admin')">
                                                 </div>
-                                                <div style="display:flex;justify-content:space-between;">
-                                                    <span style="font-size:0.75rem;color:#6b7280;">PLI</span>
-                                                    <span id="adminMgrOvrNewPLI" style="font-size:0.78rem;font-weight:700;color:#047857;">—</span>
+                                                <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+                                                    <span style="font-size:0.75rem;color:#6b7280;white-space:nowrap;">PLI</span>
+                                                    <input type="number" id="adminMgrOvrNewPLI" step="1000" min="0"
+                                                        style="width:110px;padding:4px 7px;border:1.5px solid #d1fae5;border-radius:6px;font-size:0.78rem;font-weight:700;color:#047857;font-family:inherit;outline:none;background:#f0fdf4;text-align:right;"
+                                                        onfocus="this.style.borderColor='#047857';this.style.background='#fff'"
+                                                        onblur="this.style.borderColor='#d1fae5';this.style.background='#f0fdf4'"
+                                                        oninput="onMgrBreakdownInput('admin')">
                                                 </div>
                                                 <div style="border-top:1px solid #e5e7eb;padding-top:4px;margin-top:2px;display:flex;justify-content:space-between;">
                                                     <span style="font-size:0.75rem;font-weight:700;color:#111;">Total</span>
@@ -9662,39 +9694,43 @@
         let _ctcOverridePending = null;
         let _ctcOverrideConfirmed = { mgr: null, admin: null };
 
-        function onMgrCtcOverrideInput(input, tab) {
-            const isAdmin     = tab === 'admin';
-            const prefix      = isAdmin ? 'adminMgr' : 'mgr';
+        /* ── Shared helper: get current CTC data for a tab ─────────── */
+        function _getMgrOverrideFinData(tab) {
+            const isAdmin = tab === 'admin';
             const targetEmail = (document.getElementById(isAdmin ? 'adminReporteeSelect' : 'reporteeSelect')?.value || '').trim();
             const fin = EMP_FINANCIAL_DATA[targetEmail];
+            return { fin, isAdmin };
+        }
+
+        /* ── Core: given newCTC, update all three inputs + breakdown ── */
+        function _applyMgrOverrideFromCTC(newCTC, sourceField, tab) {
+            const { fin, isAdmin } = _getMgrOverrideFinData(tab);
             if (!fin) return;
 
-            const newCTC    = parseFloat(input.value);
             const hikePctEl = document.getElementById(isAdmin ? 'adminMgrCtcOverrideHikePct' : 'mgrCtcOverrideHikePct');
             const hikeAmtEl = document.getElementById(isAdmin ? 'adminMgrCtcOverrideHikeAmt' : 'mgrCtcOverrideHikeAmt');
+            const ctcInput  = document.getElementById(isAdmin ? 'adminMgrCtcOverrideInput'   : 'mgrCtcOverrideInput');
             const reasonBox = document.getElementById(isAdmin ? 'adminMgrCtcOverrideReasonBox' : 'mgrCtcOverrideReasonBox');
             const clearBtn  = document.getElementById(isAdmin ? 'adminMgrCtcOverrideClearBtn'  : 'mgrCtcOverrideClearBtn');
             const breakdown = document.getElementById(isAdmin ? 'adminMgrCtcOverrideBreakdown' : 'mgrCtcOverrideBreakdown');
-            const fmt = v => '\u20b9' + Math.round(v).toLocaleString('en-IN');
+            const fmt = v => '₹' + Math.round(v).toLocaleString('en-IN');
 
-            // CTC ratios from HR data
             const curFixed  = fin.fixedCTC  || 0;
             const curPLI    = fin.pli        || 0;
             const curTotal  = fin.totalCTC   || fin.currentCTC || (curFixed + curPLI);
-            const fixedRatio = curTotal > 0 ? curFixed / curTotal : 0;
-            const pliRatio   = curTotal > 0 ? curPLI   / curTotal : 0;
-
-            // Helper to set breakdown cell
+            const fixedRatio = curTotal > 0 ? curFixed / curTotal : 0.8;
+            const pliRatio   = curTotal > 0 ? curPLI   / curTotal : 0.2;
             const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
 
-            // Always fill Current side
+            // Always fill current side
             setEl(isAdmin ? 'adminMgrOvrCurFixed' : 'mgrOvrCurFixed', fmt(curFixed));
             setEl(isAdmin ? 'adminMgrOvrCurPLI'   : 'mgrOvrCurPLI',   fmt(curPLI));
             setEl(isAdmin ? 'adminMgrOvrCurTotal'  : 'mgrOvrCurTotal',  fmt(curTotal));
 
             if (!newCTC || newCTC <= 0) {
-                hikePctEl.textContent = '\u2014'; hikePctEl.style.color = '#047857';
-                hikeAmtEl.textContent = '\u2014'; hikeAmtEl.style.color = '#047857';
+                if (sourceField !== 'ctc' && ctcInput)  ctcInput.value  = '';
+                if (sourceField !== 'hike' && hikePctEl) hikePctEl.value = '';
+                if (sourceField !== 'amt'  && hikeAmtEl) hikeAmtEl.value = '';
                 if (reasonBox) reasonBox.style.display = 'none';
                 if (clearBtn)  clearBtn.style.display  = 'none';
                 if (breakdown) breakdown.style.display = 'none';
@@ -9705,30 +9741,91 @@
             const hikePct = ((newCTC - curTotal) / curTotal) * 100;
             const hikeAmt = newCTC - curTotal;
             const color   = hikeAmt >= 0 ? '#047857' : '#b91c1c';
-            hikePctEl.textContent = hikePct.toFixed(2) + '%';
-            hikePctEl.style.color = color;
-            hikeAmtEl.textContent = fmt(Math.abs(hikeAmt)) + (hikeAmt < 0 ? ' \u25bc' : ' \u25b2');
-            hikeAmtEl.style.color = color;
 
-            // Revised breakdown: proportionally split newCTC using same fixed/PLI ratios
+            if (sourceField !== 'ctc'  && ctcInput)  { ctcInput.value  = Math.round(newCTC); }
+            if (sourceField !== 'hike' && hikePctEl) { hikePctEl.value = hikePct.toFixed(2); hikePctEl.style.color = color; }
+            if (sourceField !== 'amt'  && hikeAmtEl) { hikeAmtEl.value = Math.round(Math.abs(hikeAmt)); hikeAmtEl.style.color = color; }
+
+            // Breakdown revised side
             const newFixed = Math.round(newCTC * fixedRatio);
             const newPLI   = Math.round(newCTC * pliRatio);
-            setEl(isAdmin ? 'adminMgrOvrNewFixed' : 'mgrOvrNewFixed', fmt(newFixed));
-            setEl(isAdmin ? 'adminMgrOvrNewPLI'   : 'mgrOvrNewPLI',   fmt(newPLI));
-            setEl(isAdmin ? 'adminMgrOvrNewTotal'  : 'mgrOvrNewTotal',  fmt(Math.round(newCTC)));
-            // Color revised side
-            ['adminMgrOvrNewFixed','adminMgrOvrNewPLI','adminMgrOvrNewTotal','mgrOvrNewFixed','mgrOvrNewPLI','mgrOvrNewTotal'].forEach(id => {
-                const el = document.getElementById(id); if (el) el.style.color = color;
-            });
+            const fixedEl  = document.getElementById(isAdmin ? 'adminMgrOvrNewFixed' : 'mgrOvrNewFixed');
+            const pliEl    = document.getElementById(isAdmin ? 'adminMgrOvrNewPLI'   : 'mgrOvrNewPLI');
+            if (fixedEl) { fixedEl.value = newFixed; fixedEl.style.color = color; }
+            if (pliEl)   { pliEl.value   = newPLI;   pliEl.style.color   = color; }
+            setEl(isAdmin ? 'adminMgrOvrNewTotal' : 'mgrOvrNewTotal', fmt(Math.round(newCTC)));
+            const totalEl = document.getElementById(isAdmin ? 'adminMgrOvrNewTotal' : 'mgrOvrNewTotal');
+            if (totalEl) totalEl.style.color = color;
+
             if (breakdown) breakdown.style.display = 'block';
 
+            // Trigger reason modal only when CTC changes meaningfully
             const already = _ctcOverrideConfirmed[tab];
             if (!already || Math.round(already.newCTC) !== Math.round(newCTC)) {
                 _ctcOverridePending = { tab, newCTC, currentCTC: curTotal, hikePct, hikeAmt, fmt };
                 openCtcReasonModal(curTotal, newCTC, fmt);
+            } else {
+                if (clearBtn) clearBtn.style.display = 'inline-block';
             }
         }
+
+        function onMgrCtcOverrideInput(input, tab) {
+            const newCTC = parseFloat(input.value);
+            _applyMgrOverrideFromCTC(newCTC, 'ctc', tab);
+        }
         window.onMgrCtcOverrideInput = onMgrCtcOverrideInput;
+
+        function onMgrHikePctInput(input, tab) {
+            const { fin, isAdmin } = _getMgrOverrideFinData(tab);
+            if (!fin) return;
+            const curTotal = fin.totalCTC || fin.currentCTC || ((fin.fixedCTC||0) + (fin.pli||0));
+            const hikePct  = parseFloat(input.value);
+            if (isNaN(hikePct)) { _applyMgrOverrideFromCTC(0, 'hike', tab); return; }
+            const newCTC   = curTotal * (1 + hikePct / 100);
+            _applyMgrOverrideFromCTC(newCTC, 'hike', tab);
+        }
+        window.onMgrHikePctInput = onMgrHikePctInput;
+
+        function onMgrIncrementInput(input, tab) {
+            const { fin, isAdmin } = _getMgrOverrideFinData(tab);
+            if (!fin) return;
+            const curTotal  = fin.totalCTC || fin.currentCTC || ((fin.fixedCTC||0) + (fin.pli||0));
+            const increment = parseFloat(input.value);
+            if (isNaN(increment)) { _applyMgrOverrideFromCTC(0, 'amt', tab); return; }
+            const newCTC    = curTotal + increment;
+            _applyMgrOverrideFromCTC(newCTC, 'amt', tab);
+        }
+        window.onMgrIncrementInput = onMgrIncrementInput;
+
+        function onMgrBreakdownInput(tab) {
+            const isAdmin  = tab === 'admin';
+            const fixedEl  = document.getElementById(isAdmin ? 'adminMgrOvrNewFixed' : 'mgrOvrNewFixed');
+            const pliEl    = document.getElementById(isAdmin ? 'adminMgrOvrNewPLI'   : 'mgrOvrNewPLI');
+            const totalEl  = document.getElementById(isAdmin ? 'adminMgrOvrNewTotal' : 'mgrOvrNewTotal');
+            if (!fixedEl || !pliEl) return;
+            const newFixed = parseFloat(fixedEl.value) || 0;
+            const newPLI   = parseFloat(pliEl.value)   || 0;
+            const newCTC   = newFixed + newPLI;
+            if (totalEl) totalEl.textContent = '₹' + Math.round(newCTC).toLocaleString('en-IN');
+            // Propagate back to top-level inputs without re-triggering modal
+            const ctcInput  = document.getElementById(isAdmin ? 'adminMgrCtcOverrideInput'   : 'mgrCtcOverrideInput');
+            const hikePctEl = document.getElementById(isAdmin ? 'adminMgrCtcOverrideHikePct' : 'mgrCtcOverrideHikePct');
+            const hikeAmtEl = document.getElementById(isAdmin ? 'adminMgrCtcOverrideHikeAmt' : 'mgrCtcOverrideHikeAmt');
+            const { fin }   = _getMgrOverrideFinData(tab);
+            if (!fin) return;
+            const curTotal  = fin.totalCTC || fin.currentCTC || ((fin.fixedCTC||0) + (fin.pli||0));
+            if (ctcInput)  ctcInput.value  = Math.round(newCTC);
+            if (curTotal > 0) {
+                const hikePct = ((newCTC - curTotal) / curTotal) * 100;
+                const hikeAmt = newCTC - curTotal;
+                const color   = hikeAmt >= 0 ? '#047857' : '#b91c1c';
+                if (hikePctEl) { hikePctEl.value = hikePct.toFixed(2); hikePctEl.style.color = color; }
+                if (hikeAmtEl) { hikeAmtEl.value = Math.round(Math.abs(hikeAmt)); hikeAmtEl.style.color = color; }
+            }
+            // Update confirmed override silently
+            _ctcOverrideConfirmed[tab] = { ..._ctcOverrideConfirmed[tab], newCTC };
+        }
+        window.onMgrBreakdownInput = onMgrBreakdownInput;
 
         function openCtcReasonModal(currentCTC, newCTC, fmt) {
             document.getElementById('ctcReasonValCurrent').textContent = fmt(currentCTC);
@@ -9748,8 +9845,10 @@
             const prev = _ctcOverrideConfirmed[tab];
             input.value = prev ? prev.newCTC : '';
             if (!prev) {
-                document.getElementById(isAdmin ? 'adminMgrCtcOverrideHikePct' : 'mgrCtcOverrideHikePct').textContent = '\u2014';
-                document.getElementById(isAdmin ? 'adminMgrCtcOverrideHikeAmt' : 'mgrCtcOverrideHikeAmt').textContent = '\u2014';
+                const hikePctEl = document.getElementById(isAdmin ? 'adminMgrCtcOverrideHikePct' : 'mgrCtcOverrideHikePct');
+                const hikeAmtEl = document.getElementById(isAdmin ? 'adminMgrCtcOverrideHikeAmt' : 'mgrCtcOverrideHikeAmt');
+                if (hikePctEl) hikePctEl.value = '';
+                if (hikeAmtEl) hikeAmtEl.value = '';
             }
             _ctcOverridePending = null;
         }
@@ -9785,10 +9884,12 @@
 
         function clearMgrCtcOverride() {
             _ctcOverrideConfirmed['mgr'] = null;
-            ['mgrCtcOverrideInput','mgrCtcOverrideHikePct','mgrCtcOverrideHikeAmt'].forEach(id => {
+            ['mgrCtcOverrideInput','mgrCtcOverrideHikePct','mgrCtcOverrideHikeAmt','mgrOvrNewFixed','mgrOvrNewPLI'].forEach(id => {
                 const el = document.getElementById(id);
-                if (el) { el.value !== undefined ? (el.value = '') : (el.textContent = '\u2014'); }
+                if (el) el.value = '';
             });
+            const totalEl = document.getElementById('mgrOvrNewTotal');
+            if (totalEl) totalEl.textContent = '—';
             document.getElementById('mgrCtcOverrideReasonBox').style.display   = 'none';
             document.getElementById('mgrCtcOverrideClearBtn').style.display    = 'none';
             document.getElementById('mgrCtcOverrideBreakdown').style.display   = 'none';
@@ -9797,10 +9898,12 @@
 
         function clearAdminMgrCtcOverride() {
             _ctcOverrideConfirmed['admin'] = null;
-            ['adminMgrCtcOverrideInput','adminMgrCtcOverrideHikePct','adminMgrCtcOverrideHikeAmt'].forEach(id => {
+            ['adminMgrCtcOverrideInput','adminMgrCtcOverrideHikePct','adminMgrCtcOverrideHikeAmt','adminMgrOvrNewFixed','adminMgrOvrNewPLI'].forEach(id => {
                 const el = document.getElementById(id);
-                if (el) { el.value !== undefined ? (el.value = '') : (el.textContent = '\u2014'); }
+                if (el) el.value = '';
             });
+            const totalEl = document.getElementById('adminMgrOvrNewTotal');
+            if (totalEl) totalEl.textContent = '—';
             document.getElementById('adminMgrCtcOverrideReasonBox').style.display    = 'none';
             document.getElementById('adminMgrCtcOverrideClearBtn').style.display     = 'none';
             document.getElementById('adminMgrCtcOverrideBreakdown').style.display    = 'none';
