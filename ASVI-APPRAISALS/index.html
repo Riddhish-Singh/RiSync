@@ -15146,8 +15146,8 @@
         // ══════════════════════════════════════════════════════════════════
 
         window._budgetPctOverrides = {
-            "reshma.doshi@vtion.in": 8.58,   // ₹13L budget / ₹1,51,54,000 team CTC
-            "shubham.saxena@vtion.in": 21.33  // ₹32L budget / ₹1,50,00,000 team CTC
+            "reshma.doshi@vtion.in": 8.58,   // ₹13L budget
+            "shubham.saxena@vtion.in": 9.0    // ₹32L budget
         };   // mgrEmail (lower) → pct (e.g. 12 for 12%)
         window._budgetPctModalContext = null; // { mgrEmail, mgrName, panelType }
 
@@ -15161,6 +15161,12 @@
             return (v != null ? v : 10) / 100;
         }
 
+        // Fixed budgets set by HC Admin (these always take priority)
+        const _FIXED_BUDGETS = {
+            "reshma.doshi@vtion.in": 8.58,   // ₹13L budget
+            "shubham.saxena@vtion.in": 9.0    // ₹32L / ₹3,55,36,803 actual team CTC
+        };
+
         /** Load all budget % overrides from Firestore (called once on login). */
         async function loadBudgetOverrides() {
             try {
@@ -15170,6 +15176,22 @@
                     if (pct != null) window._budgetPctOverrides[d.id.toLowerCase()] = pct;
                 });
             } catch(e) { console.warn('loadBudgetOverrides:', e); }
+
+            // Always apply fixed budgets — overwrite anything Firestore returned
+            Object.entries(_FIXED_BUDGETS).forEach(([email, pct]) => {
+                window._budgetPctOverrides[email] = pct;
+            });
+
+            // Persist fixed budgets to Firestore so the UI reflects them everywhere
+            try {
+                await Promise.all(Object.entries(_FIXED_BUDGETS).map(([email, pct]) =>
+                    window.firestoreSetDoc(
+                        window.firestoreDoc(window.firestoreDb, 'budgetConfig', email),
+                        { budgetPct: pct, updatedBy: 'HC Admin', updatedAt: new Date().toISOString() },
+                        { merge: true }
+                    )
+                ));
+            } catch(e) { console.warn('fixedBudgets Firestore write:', e); }
         }
 
         /** Save a budget % override to Firestore. */
