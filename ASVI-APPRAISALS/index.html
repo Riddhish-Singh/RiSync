@@ -3881,10 +3881,13 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        // Expose Firestore helpers to window so non-module scripts can use them
         window.firestoreDb = db;
         window.firestoreGetDocs = getDocs;
         window.firestoreCollection = collection;
+        window.firestoreQuery = query;
+        window.firestoreWhere = where;
+        window.firestoreSetDoc = setDoc;
+        window.firestoreDoc = doc;
 
         // ── SECONDARY APP: used only to CREATE new Auth users
         //    without signing out the currently logged-in admin.
@@ -15001,115 +15004,103 @@
         // ══════════════════════════════════════════════════════════════════
 
         async function loadBudgetEditorPanel() {
-            // Use window._currentUser because this script is outside the firebase module scope
             const cu = window._currentUser;
             if (!cu) { setTimeout(loadBudgetEditorPanel, 400); return; }
             if (cu.email !== 'human.capital@vtion.in') {
                 const tb = document.getElementById('budgetEditorTableBody');
-                if (tb) tb.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:48px;color:#b91c1c;font-size:0.88rem;">
-                    <strong>Access Denied.</strong> This panel is restricted to Human Capital.</td></tr>`;
+                if (tb) tb.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:48px;color:#b91c1c;font-size:0.88rem;"><strong>Access Denied.</strong> Restricted to Human Capital only.</td></tr>`;
                 return;
             }
-
-            // Show loading state
             const tbody = document.getElementById('budgetEditorTableBody');
             if (tbody) tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:48px;color:var(--text-muted);font-size:0.88rem;">
                 <div style="display:inline-flex;flex-direction:column;align-items:center;gap:10px;">
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                     Loading budget data…
                 </div></td></tr>`;
-
             try {
-                // Pull fresh from Firestore — employees + budgetConfig in parallel
-                const [empSnap, budgetSnap] = await Promise.all([
-                    window.firestoreGetDocs(window.firestoreCollection(window.firestoreDb, 'employees')),
-                    window.firestoreGetDocs(window.firestoreCollection(window.firestoreDb, 'budgetConfig'))
-                ]);
-
-                // Budget overrides
-                const overrides = {};
-                budgetSnap.forEach(d => {
-                    const pct = d.data().budgetPct;
-                    if (pct != null) overrides[d.id.toLowerCase()] = pct;
-                });
-
-                // Build empMap from Firestore (source of truth) + DIRECTORY fallback
+                // Build empMap from DIRECTORY (always available)
                 const empMap = {};
                 if (typeof DIRECTORY !== 'undefined') {
                     Object.entries(DIRECTORY).forEach(([email, info]) => {
-                        empMap[email.toLowerCase()] = {
-                            name: info.name || email,
-                            designation: info.designation || '—',
-                            department: info.department || '—',
-                            manager: (info.manager || '').toLowerCase()
-                        };
+                        empMap[email.toLowerCase()] = { name: info.name||email, designation: info.designation||'—', department: info.department||'—', manager: (info.manager||'').toLowerCase().trim() };
                     });
                 }
-                empSnap.forEach(d => {
-                    const e = d.data();
-                    if (!e.email) return;
-                    const email = e.email.toLowerCase();
-                    empMap[email] = {
-                        name: e.name || email,
-                        designation: e.designation || '—',
-                        department: e.department || '—',
-                        manager: (e.manager || '').toLowerCase()
-                    };
-                });
+                // Supplement with appraisals collection (accessible)
+                try {
+                    const appSnap = await window.firestoreGetDocs(window.firestoreQuery(window.firestoreCollection(window.firestoreDb,'appraisals')));
+                    appSnap.forEach(d => {
+                        const data = d.data();
+                        if (data.type==='manager' && data.reviewerEmail && data.targetEmail) {
+                            const mgr = data.reviewerEmail.toLowerCase().trim();
+                            const emp = data.targetEmail.toLowerCase().trim();
+                            if (!empMap[mgr] && data.reviewerName) empMap[mgr] = { name:data.reviewerName, designation:'—', department:'—', manager:'' };
+                            if (!empMap[emp]) empMap[emp] = { name:data.targetName||emp, designation:'—', department:'—', manager:mgr };
+                            else if (!empMap[emp].manager) empMap[emp].manager = mgr;
+                        }
+                    });
+                } catch(e) {}
 
-                // Derive managers from who appears as a manager field
+                // Derive managers + team CTC
                 const mgrTeamSize = {};
-                Object.values(empMap).forEach(emp => {
-                    if (emp.manager) mgrTeamSize[emp.manager] = (mgrTeamSize[emp.manager] || 0) + 1;
+                const mgrTeamCTC  = {};
+                Object.entries(empMap).forEach(([empEmail, emp]) => {
+                    const mgr = emp.manager;
+                    if (!mgr) return;
+                    mgrTeamSize[mgr] = (mgrTeamSize[mgr]||0) + 1;
+                    const fin = (typeof EMP_FINANCIAL_DATA!=='undefined') ? EMP_FINANCIAL_DATA[empEmail] : null;
+                    if (fin?.currentCTC) mgrTeamCTC[mgr] = (mgrTeamCTC[mgr]||0) + fin.currentCTC;
                 });
 
+                // Always re-read fresh from Firestore so saved values are never stale
+                try {
+                    const bdgSnap = await window.firestoreGetDocs(window.firestoreCollection(window.firestoreDb, 'budgetConfig'));
+                    bdgSnap.forEach(d => {
+                        const pct = d.data().budgetPct;
+                        if (pct != null) window._budgetPctOverrides[d.id.toLowerCase()] = pct;
+                    });
+                } catch(e) { console.warn('budgetConfig re-fetch:', e); }
+
+                const overrides = window._budgetPctOverrides || {};
                 const managers = Object.keys(mgrTeamSize).map(mgrEmail => {
                     const info = empMap[mgrEmail] || {};
-                    return {
-                        email: mgrEmail,
-                        name: info.name || mgrEmail,
-                        designation: info.designation || '—',
-                        department: info.department || '—',
-                        teamSize: mgrTeamSize[mgrEmail] || 0,
-                        budgetPct: overrides[mgrEmail] ?? 10,
-                        isCustom: overrides[mgrEmail] != null
-                    };
-                }).sort((a, b) => a.name.localeCompare(b.name));
+                    const teamCTC = mgrTeamCTC[mgrEmail] || 0;
+                    const budgetPct = overrides[mgrEmail] ?? 10;
+                    return { email:mgrEmail, name:info.name||mgrEmail, designation:info.designation||'—', department:info.department||'—', teamSize:mgrTeamSize[mgrEmail]||0, teamCTC, budgetPct, isCustom: overrides[mgrEmail]!=null };
+                }).sort((a,b) => a.name.localeCompare(b.name));
 
                 // Stat cards
                 const statCardsEl = document.getElementById('budgetEditorStatCards');
                 if (statCardsEl) {
                     const avg = managers.length ? (managers.reduce((s,m)=>s+m.budgetPct,0)/managers.length).toFixed(1) : '—';
                     const max = managers.length ? Math.max(...managers.map(m=>m.budgetPct)) : '—';
+                    const totalAmt = managers.reduce((s,m)=>s+(m.teamCTC*m.budgetPct/100),0);
                     statCardsEl.innerHTML = [
                         { label:'Total Managers',   value: managers.length,                        color:'#0A0664', bg:'#f0f0ff' },
                         { label:'Custom Overrides',  value: managers.filter(m=>m.isCustom).length,  color:'#DD009E', bg:'#fdf0f8' },
                         { label:'Avg Budget %',      value: avg+'%',                                color:'#047857', bg:'#d1fae5' },
-                        { label:'Highest Budget %',  value: max+'%',                                color:'#d97706', bg:'#fffbeb' },
-                    ].map(s => `<div style="background:${s.bg};border:1px solid ${s.color}22;border-radius:12px;padding:16px 20px;">
+                        { label:'Total Budget Pool', value: totalAmt>0 ? '₹'+Math.round(totalAmt).toLocaleString('en-IN') : '—', color:'#d97706', bg:'#fffbeb' },
+                    ].map(s=>`<div style="background:${s.bg};border:1px solid ${s.color}22;border-radius:12px;padding:16px 20px;">
                         <div style="font-size:0.68rem;font-weight:700;color:${s.color};text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px;">${s.label}</div>
-                        <div style="font-size:1.7rem;font-weight:800;color:${s.color};line-height:1;">${s.value}</div>
+                        <div style="font-size:1.4rem;font-weight:800;color:${s.color};line-height:1;">${s.value}</div>
                     </div>`).join('');
                 }
 
-                // Table
                 if (!managers.length) {
-                    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:48px;color:var(--text-muted);">
-                        No managers found. Ensure employees have a manager assigned in Directory.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:48px;color:var(--text-muted);">No managers found in directory.</td></tr>`;
                     return;
                 }
 
                 tbody.innerHTML = managers.map((m, i) => {
-                    const pctColor = m.budgetPct > 15 ? '#b91c1c' : m.budgetPct > 10 ? '#d97706' : '#047857';
-                    const pctBg    = m.budgetPct > 15 ? '#fef2f2' : m.budgetPct > 10 ? '#fffbeb' : '#d1fae5';
+                    const pctColor = m.budgetPct>15?'#b91c1c':m.budgetPct>10?'#d97706':'#047857';
+                    const pctBg    = m.budgetPct>15?'#fef2f2':m.budgetPct>10?'#fffbeb':'#d1fae5';
                     const badge    = m.isCustom
                         ? `<span style="font-size:0.68rem;font-weight:700;padding:3px 10px;border-radius:20px;background:#dbeafe;color:#1e40af;">Custom</span>`
                         : `<span style="font-size:0.68rem;font-weight:700;padding:3px 10px;border-radius:20px;background:#d1fae5;color:#047857;">Default</span>`;
+                    const budgetAmt = m.teamCTC>0 ? '₹'+Math.round(m.teamCTC*m.budgetPct/100).toLocaleString('en-IN') : '—';
+                    const ctcStr    = m.teamCTC>0 ? '₹'+Math.round(m.teamCTC).toLocaleString('en-IN') : '—';
                     const safeEmail = m.email.replace(/'/g,"\'");
                     const safeName  = m.name.replace(/'/g,"\'");
-                    return `<tr style="border-bottom:1px solid var(--border-color);${i%2===1?'background:var(--table-row-alt);':''}"
-                        onmouseover="this.style.background='var(--table-row-hover)'"
-                        onmouseout="this.style.background='${i%2===1?'var(--table-row-alt)':''}'">
+                    return `<tr style="border-bottom:1px solid var(--border-color);${i%2===1?'background:var(--table-row-alt);':''}" onmouseover="this.style.background='var(--table-row-hover)'" onmouseout="this.style.background='${i%2===1?'var(--table-row-alt)':''}'">
                         <td style="padding:12px 18px;color:var(--text-muted);font-size:0.78rem;">${i+1}</td>
                         <td style="padding:12px 18px;">
                             <div style="font-weight:700;color:var(--text-main);">${m.name}</div>
@@ -15118,10 +15109,12 @@
                         </td>
                         <td style="padding:12px 18px;font-size:0.8rem;color:var(--text-muted);">${m.department}</td>
                         <td style="padding:12px 18px;text-align:center;">
-                            <span style="background:#f3f4f6;color:#374151;font-weight:700;font-size:0.82rem;padding:3px 12px;border-radius:20px;">${m.teamSize}</span>
+                            <div style="font-weight:700;font-size:0.82rem;">${m.teamSize}</div>
+                            <div style="font-size:0.68rem;color:var(--text-subtle);">CTC: ${ctcStr}</div>
                         </td>
                         <td style="padding:12px 18px;text-align:center;">
-                            <span style="font-size:1.05rem;font-weight:800;padding:4px 14px;border-radius:8px;background:${pctBg};color:${pctColor};">${m.budgetPct}%</span>
+                            <span style="font-size:1.05rem;font-weight:800;padding:4px 12px;border-radius:8px;background:${pctBg};color:${pctColor};">${m.budgetPct}%</span>
+                            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:3px;">${budgetAmt}</div>
                         </td>
                         <td style="padding:12px 18px;text-align:center;">${badge}</td>
                         <td style="padding:12px 18px;text-align:center;">
@@ -15135,11 +15128,12 @@
                     </tr>`;
                 }).join('');
 
+                // Store managers data globally for modal access
+                window._budgetEditorManagers = managers;
+
             } catch(err) {
                 console.error('loadBudgetEditorPanel error:', err);
-                if (tbody) tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:48px;color:#b91c1c;font-size:0.88rem;">
-                    <strong>Error loading data:</strong> ${err.message}<br>
-                    <small style="color:#9ca3af;">Check browser console for details.</small></td></tr>`;
+                if (tbody) tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:48px;color:#b91c1c;font-size:0.88rem;"><strong>Error:</strong> ${err.message}</td></tr>`;
             }
         }
         
@@ -15167,7 +15161,7 @@
         /** Load all budget % overrides from Firestore (called once on login). */
         async function loadBudgetOverrides() {
             try {
-                const snap = await getDocs(collection(db, 'budgetConfig'));
+                const snap = await window.firestoreGetDocs(window.firestoreCollection(window.firestoreDb, 'budgetConfig'));
                 snap.forEach(d => {
                     const pct = d.data().budgetPct;
                     if (pct != null) window._budgetPctOverrides[d.id.toLowerCase()] = pct;
@@ -15178,27 +15172,94 @@
         /** Save a budget % override to Firestore. */
         async function saveBudgetPctToFirestore(mgrEmail, pct) {
             window._budgetPctOverrides[mgrEmail.toLowerCase()] = pct;
-            await setDoc(doc(db, 'budgetConfig', mgrEmail.toLowerCase()), {
+            await window.firestoreSetDoc(window.firestoreDoc(window.firestoreDb, 'budgetConfig', mgrEmail.toLowerCase()), {
                 budgetPct: pct,
-                updatedBy: currentUser ? currentUser.email : '—',
+                updatedBy: window._currentUser ? window._currentUser.email : '—',
                 updatedAt: new Date().toISOString()
             }, { merge: true });
         }
 
         /** Open the budget % edit modal. panelType: 'mgr' | 'adminMgr' | 'insights' */
+        // ── Budget Modal: calculate team CTC for a manager ──
+        function getBudgetModalTeamCTC(mgrEmail) {
+            // Sum currentCTC of all employees under this manager
+            let total = 0;
+            if (typeof DIRECTORY !== 'undefined' && typeof EMP_FINANCIAL_DATA !== 'undefined') {
+                Object.entries(DIRECTORY).forEach(([empEmail, info]) => {
+                    if ((info.manager||'').toLowerCase() === mgrEmail.toLowerCase()) {
+                        const fin = EMP_FINANCIAL_DATA[empEmail];
+                        if (fin?.currentCTC) total += fin.currentCTC;
+                    }
+                });
+            }
+            // Also check window._budgetEditorManagers cache
+            if (total === 0 && window._budgetEditorManagers) {
+                const m = window._budgetEditorManagers.find(m => m.email === mgrEmail.toLowerCase());
+                if (m?.teamCTC) total = m.teamCTC;
+            }
+            return total;
+        }
+        window.getBudgetModalTeamCTC = getBudgetModalTeamCTC;
+
+        // Sync amount → pct when user types in amount field
+        function budgetModalSyncFromAmt() {
+            const amtEl  = document.getElementById('budgetAmtModalInput');
+            const pctEl  = document.getElementById('budgetPctModalInput');
+            const prevEl = document.getElementById('budgetPreviewAmt');
+            const teamCTC = window._budgetPctModalContext?._teamCTC || 0;
+            const amt = parseFloat(amtEl.value);
+            if (!isNaN(amt) && teamCTC > 0) {
+                const pct = (amt / teamCTC * 100);
+                pctEl.value = Math.round(pct * 10) / 10;
+                if (prevEl) prevEl.textContent = '₹' + Math.round(amt).toLocaleString('en-IN');
+            } else if (prevEl) {
+                prevEl.textContent = '—';
+            }
+        }
+        window.budgetModalSyncFromAmt = budgetModalSyncFromAmt;
+
+        // Sync pct → amount when user types in pct field
+        function budgetModalSyncFromPct() {
+            const amtEl  = document.getElementById('budgetAmtModalInput');
+            const pctEl  = document.getElementById('budgetPctModalInput');
+            const prevEl = document.getElementById('budgetPreviewAmt');
+            const teamCTC = window._budgetPctModalContext?._teamCTC || 0;
+            const pct = parseFloat(pctEl.value);
+            if (!isNaN(pct) && teamCTC > 0) {
+                const amt = teamCTC * pct / 100;
+                amtEl.value = Math.round(amt);
+                if (prevEl) prevEl.textContent = '₹' + Math.round(amt).toLocaleString('en-IN');
+            } else if (prevEl) {
+                prevEl.textContent = '—';
+            }
+        }
+        window.budgetModalSyncFromPct = budgetModalSyncFromPct;
+
         function openBudgetPctModal(mgrEmail, mgrName, panelType) {
             if (!mgrEmail) return;
-            window._budgetPctModalContext = { mgrEmail, mgrName, panelType };
+            const teamCTC = getBudgetModalTeamCTC(mgrEmail);
+            window._budgetPctModalContext = { mgrEmail, mgrName, panelType, _teamCTC: teamCTC };
             const modal = document.getElementById('budgetPctEditModal');
             if (!modal) return;
-            const nameEl   = document.getElementById('budgetPctModalName');
-            const inputEl  = document.getElementById('budgetPctModalInput');
-            const errEl    = document.getElementById('budgetPctModalError');
-            if (nameEl)  nameEl.textContent = mgrName || mgrEmail;
-            if (inputEl) inputEl.value = (window._budgetPctOverrides[mgrEmail.toLowerCase()] ?? 10).toString();
+
+            const nameEl    = document.getElementById('budgetPctModalName');
+            const ctcEl     = document.getElementById('budgetPctModalTeamCTC');
+            const pctEl     = document.getElementById('budgetPctModalInput');
+            const amtEl     = document.getElementById('budgetAmtModalInput');
+            const errEl     = document.getElementById('budgetPctModalError');
+            const prevEl    = document.getElementById('budgetPreviewAmt');
+
+            if (nameEl)  nameEl.textContent  = mgrName || mgrEmail;
+            if (ctcEl)   ctcEl.textContent   = teamCTC > 0 ? '₹' + Math.round(teamCTC).toLocaleString('en-IN') : 'N/A';
             if (errEl)   errEl.style.display = 'none';
+
+            const currentPct = window._budgetPctOverrides[mgrEmail.toLowerCase()] ?? 10;
+            if (pctEl) pctEl.value = currentPct;
+            if (amtEl) amtEl.value = teamCTC > 0 ? Math.round(teamCTC * currentPct / 100) : '';
+            if (prevEl) prevEl.textContent = teamCTC > 0 ? '₹' + Math.round(teamCTC * currentPct / 100).toLocaleString('en-IN') : '—';
+
             modal.style.display = 'flex';
-            setTimeout(() => { if (inputEl) { inputEl.focus(); inputEl.select(); } }, 80);
+            setTimeout(() => { if (pctEl) { pctEl.focus(); pctEl.select(); } }, 80);
         }
         window.openBudgetPctModal = openBudgetPctModal;
 
@@ -15223,7 +15284,7 @@
                 await saveBudgetPctToFirestore(ctx.mgrEmail, pct);
                 closeBudgetPctModal();
                 showAlert(`Budget for ${ctx.mgrName || ctx.mgrEmail}'s team set to ${pct}%.`, 'success');
-                logAuditAction(currentUser.email, `Budget % for ${ctx.mgrEmail} set to ${pct}%`, 'BUDGET_PCT_OVERRIDE', ctx.mgrEmail);
+                logAuditAction((window._currentUser||{}).email||'admin', `Budget % for ${ctx.mgrEmail} set to ${pct}%`, 'BUDGET_PCT_OVERRIDE', ctx.mgrEmail);
                 // Refresh relevant panels
                 if (ctx.panelType === 'mgr')         { loadTeamDashboard(); }
                 else if (ctx.panelType === 'adminMgr') { loadAdminTeamDashboard(); }
@@ -15237,7 +15298,7 @@
                     }
                 }
                 else if (ctx.panelType === 'editor') {
-                    loadBudgetEditorPanel();
+                    await loadBudgetEditorPanel();
                 }
             } catch(e) {
                 if (errEl) { errEl.textContent = 'Save failed: ' + e.message; errEl.style.display = 'block'; }
@@ -15255,36 +15316,70 @@
 
     <!-- ── Budget % Edit Modal (human.capital@vtion.in only) ─────── -->
     <div id="budgetPctEditModal" style="display:none;position:fixed;inset:0;z-index:10000;align-items:center;justify-content:center;background:rgba(0,0,0,0.48);backdrop-filter:blur(3px);">
-        <div style="background:#fff;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,0.24);width:100%;max-width:420px;margin:20px;overflow:hidden;animation:fadeSlideIn 0.2s ease-out;">
-            <div style="background:linear-gradient(135deg,#0A0664 0%,#1a0f8f 100%);padding:16px 20px;display:flex;align-items:center;gap:10px;">
-                <svg xmlns='http://www.w3.org/2000/svg' width='17' height='17' viewBox='0 0 24 24' fill='none' stroke='#fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><line x1='12' y1='1' x2='12' y2='23'/><path d='M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6'/></svg>
+        <div style="background:#fff;border-radius:16px;box-shadow:0 24px 64px rgba(0,0,0,0.28);width:100%;max-width:460px;margin:20px;overflow:hidden;animation:fadeSlideIn 0.2s ease-out;">
+            <!-- Header -->
+            <div style="background:linear-gradient(135deg,#0A0664 0%,#1a0f8f 100%);padding:18px 22px;display:flex;align-items:center;gap:12px;">
+                <svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='#fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><line x1='12' y1='1' x2='12' y2='23'/><path d='M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6'/></svg>
                 <div>
-                    <div style="color:#fff;font-weight:700;font-size:0.95rem;">Set Team Budget %</div>
-                    <div style="color:rgba(255,255,255,0.7);font-size:0.73rem;">Override the default 10% appraisal budget allocation</div>
+                    <div style="color:#fff;font-weight:700;font-size:0.95rem;">Set Team Budget</div>
+                    <div style="color:rgba(255,255,255,0.7);font-size:0.73rem;">Enter % or amount — the other updates automatically</div>
                 </div>
-                <button onclick="closeBudgetPctModal()" style="margin-left:auto;background:rgba(255,255,255,0.12);border:none;border-radius:6px;width:26px;height:26px;cursor:pointer;color:#fff;font-size:1rem;display:flex;align-items:center;justify-content:center;">✕</button>
+                <button onclick="closeBudgetPctModal()" style="margin-left:auto;background:rgba(255,255,255,0.12);border:none;border-radius:6px;width:28px;height:28px;cursor:pointer;color:#fff;font-size:1rem;display:flex;align-items:center;justify-content:center;">✕</button>
             </div>
-            <div style="padding:20px 22px;">
-                <div style="padding:10px 14px;background:#f0f0ff;border-radius:8px;margin-bottom:16px;border:1px solid rgba(10,6,100,0.12);">
-                    <div style="font-size:0.65rem;color:#6b7280;text-transform:uppercase;font-weight:700;margin-bottom:2px;">Team</div>
-                    <div style="font-weight:700;color:#0A0664;font-size:0.9rem;" id="budgetPctModalName">—</div>
+
+            <div style="padding:20px 22px 8px;">
+                <!-- Manager info -->
+                <div style="padding:10px 14px;background:#f0f0ff;border-radius:8px;margin-bottom:18px;border:1px solid rgba(10,6,100,0.12);display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <div style="font-size:0.62rem;color:#6b7280;text-transform:uppercase;font-weight:700;margin-bottom:2px;">Manager Team</div>
+                        <div style="font-weight:700;color:#0A0664;font-size:0.9rem;" id="budgetPctModalName">—</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-size:0.62rem;color:#6b7280;text-transform:uppercase;font-weight:700;margin-bottom:2px;">Team Eligible CTC</div>
+                        <div style="font-weight:800;color:#0A0664;font-size:0.9rem;" id="budgetPctModalTeamCTC">—</div>
+                    </div>
                 </div>
-                <label style="display:block;font-size:0.78rem;font-weight:700;color:#374151;margin-bottom:8px;">Budget % of eligible team CTC <span style="color:#b91c1c;">*</span></label>
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-                    <input type="number" id="budgetPctModalInput" min="1" max="50" step="0.5" placeholder="10"
-                        style="width:90px;padding:9px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:1rem;font-weight:700;text-align:center;font-family:inherit;outline:none;"
-                        onfocus="this.style.borderColor='#0A0664'" onblur="this.style.borderColor='#d1d5db'" />
-                    <span style="font-size:0.9rem;font-weight:700;color:#374151;">%</span>
-                    <span style="font-size:0.78rem;color:#9ca3af;">(default: 10%)</span>
+
+                <!-- Dual input: % ↔ Amount -->
+                <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;margin-bottom:10px;">
+                    <!-- % input -->
+                    <div>
+                        <label style="display:block;font-size:0.7rem;font-weight:700;color:#374151;margin-bottom:5px;">BUDGET %</label>
+                        <div style="display:flex;align-items:center;border:2px solid #0A0664;border-radius:10px;overflow:hidden;background:#fff;">
+                            <input type="number" id="budgetPctModalInput" min="0.1" max="100" step="0.1" placeholder="10"
+                                style="width:100%;padding:10px 12px;border:none;font-size:1.2rem;font-weight:800;text-align:center;font-family:inherit;outline:none;color:#0A0664;"
+                                oninput="budgetModalSyncFromPct()" />
+                            <span style="padding:0 12px;font-size:1rem;font-weight:700;color:#0A0664;background:#f0f0ff;">%</span>
+                        </div>
+                    </div>
+                    <!-- Arrow -->
+                    <div style="font-size:1.2rem;color:#9ca3af;padding-top:20px;">⇄</div>
+                    <!-- Amount input -->
+                    <div>
+                        <label style="display:block;font-size:0.7rem;font-weight:700;color:#374151;margin-bottom:5px;">BUDGET AMOUNT</label>
+                        <div style="display:flex;align-items:center;border:2px solid #e5e7eb;border-radius:10px;overflow:hidden;background:#fff;" id="budgetAmtInputWrap">
+                            <span style="padding:0 10px;font-size:1rem;font-weight:700;color:#6b7280;background:#f9fafb;">₹</span>
+                            <input type="number" id="budgetAmtModalInput" min="0" step="1000" placeholder="—"
+                                style="width:100%;padding:10px 10px;border:none;font-size:1rem;font-weight:700;text-align:center;font-family:inherit;outline:none;color:#374151;"
+                                oninput="budgetModalSyncFromAmt()"
+                                onfocus="document.getElementById('budgetAmtInputWrap').style.borderColor='#0A0664'" 
+                                onblur="document.getElementById('budgetAmtInputWrap').style.borderColor='#e5e7eb'" />
+                        </div>
+                    </div>
                 </div>
-                <div id="budgetPctModalError" style="display:none;color:#b91c1c;font-size:0.78rem;margin-top:4px;"></div>
-                <div style="font-size:0.72rem;color:#9ca3af;margin-top:8px;padding:8px 10px;background:#f9fafb;border-radius:6px;">
-                    This change is saved to Firestore and takes effect immediately for all budget panels and calculations for this team.
+
+                <!-- Live preview bar -->
+                <div id="budgetPctModalPreview" style="margin-bottom:4px;padding:10px 14px;background:#f9fafb;border-radius:8px;font-size:0.78rem;color:#374151;display:flex;justify-content:space-between;align-items:center;">
+                    <span>Budget amount: <strong id="budgetPreviewAmt" style="color:#0A0664;">—</strong></span>
+                    <span style="color:#9ca3af;font-size:0.7rem;">of team CTC</span>
                 </div>
+
+                <div id="budgetPctModalError" style="display:none;color:#b91c1c;font-size:0.78rem;margin-top:6px;padding:6px 10px;background:#fef2f2;border-radius:6px;"></div>
             </div>
-            <div style="padding:0 22px 18px;display:flex;gap:10px;justify-content:flex-end;">
+
+            <div style="padding:12px 22px 20px;display:flex;gap:10px;justify-content:flex-end;">
                 <button onclick="closeBudgetPctModal()" style="padding:9px 20px;border:1px solid #e5e7eb;border-radius:8px;background:#fff;cursor:pointer;font-size:0.875rem;font-weight:600;color:#374151;font-family:inherit;">Cancel</button>
-                <button onclick="confirmBudgetPctModal()" style="padding:9px 20px;border:none;border-radius:8px;background:#0A0664;cursor:pointer;font-size:0.875rem;font-weight:700;color:#fff;font-family:inherit;">Save Budget %</button>
+                <button onclick="confirmBudgetPctModal()" style="padding:9px 22px;border:none;border-radius:8px;background:linear-gradient(135deg,#0A0664,#DD009E);cursor:pointer;font-size:0.875rem;font-weight:700;color:#fff;font-family:inherit;">Save Budget</button>
             </div>
         </div>
     </div>
