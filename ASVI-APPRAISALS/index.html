@@ -1807,6 +1807,19 @@
                     </div>
                 </div>
 
+                <!-- ── SUB-MANAGER BUDGET ALLOCATION PANEL ───────────────── -->
+                <div id="subMgrBudgetPanel" style="display:none;margin-bottom:20px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);">
+                    <div style="padding:14px 20px;background:linear-gradient(135deg,#3b1063 0%,#6B0F1A 100%);display:flex;align-items:center;gap:10px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0-3-3.87"/></svg>
+                        <div>
+                            <div style="color:#fff;font-weight:700;font-size:0.95rem;">Sub-Manager Budget Allocation</div>
+                            <div style="color:rgba(255,255,255,0.65);font-size:0.73rem;">Allocate your budget to sub-managers in your team</div>
+                        </div>
+                        <div id="subMgrBudgetRemaining" style="margin-left:auto;padding:4px 14px;border-radius:20px;font-size:0.73rem;font-weight:700;background:rgba(255,255,255,0.18);color:#fff;">—</div>
+                    </div>
+                    <div id="subMgrBudgetBody" style="padding:16px 20px;"></div>
+                </div>
+
                 <!-- ── TEAM DASHBOARD ──────────────────────────────────── -->
                 <div class="section-card" style="margin-bottom:20px;">
                     <div class="section-card-header" style="flex-wrap:wrap;gap:8px;">
@@ -9318,6 +9331,9 @@
                     // Colour the revised CTC differently when over budget
                     const revEl = document.getElementById('mgrTotalRevisedCTC');
                     if (revEl) revEl.style.color = isOverBudget ? '#b91c1c' : '#1e40af';
+
+                    // ── Sub-Manager Budget Allocation Panel ──────────────────
+                    renderSubMgrBudgetPanel(currentUser.email, teamBudgetAllocated, allSubs);
                 }
                 const fmtL = (v) => v >= 100000 ? '₹' + (v / 100000).toFixed(1) + 'L' : '₹' + Math.round(v).toLocaleString('en-IN');
                 const budgetUtilColor = isOverBudget ? '#b91c1c' : budgetUtilizedPct > 80 ? '#d97706' : '#047857';
@@ -9384,6 +9400,134 @@
             }
         }
         window.loadTeamDashboard = loadTeamDashboard;
+
+        // ── Sub-Manager Budget Allocation Panel ──────────────────────────────
+        function renderSubMgrBudgetPanel(managerEmail, managerBudgetAmt, allSubs) {
+            const panel = document.getElementById('subMgrBudgetPanel');
+            const body  = document.getElementById('subMgrBudgetBody');
+            const remainEl = document.getElementById('subMgrBudgetRemaining');
+            if (!panel || !body) return;
+
+            // Find direct reports who are also managers (sub-managers)
+            const directReports = allSubs.filter(s => s.depth === 1).map(s => s.email);
+            const subMgrEmails  = [...new Set(
+                allSubs.filter(s => s.depth > 1).map(s => s.directManagerEmail)
+                         .filter(e => directReports.includes(e))
+            )];
+
+            if (subMgrEmails.length === 0) { panel.style.display = 'none'; return; }
+            panel.style.display = 'block';
+
+            const fmtL = v => v >= 100000 ? '₹' + (v/100000).toFixed(1) + 'L' : '₹' + Math.round(v).toLocaleString('en-IN');
+
+            function refreshRemaining() {
+                const totalAllocated = subMgrEmails.reduce((sum, email) => {
+                    const inp = document.getElementById('subMgrAmt_' + email.replace(/[@.]/g,'_'));
+                    return sum + (parseFloat(inp?.value) * 100000 || 0);
+                }, 0);
+                const remaining = managerBudgetAmt - totalAllocated;
+                if (remainEl) {
+                    remainEl.textContent = `Remaining: ${fmtL(Math.max(0, remaining))} of ${fmtL(managerBudgetAmt)}`;
+                    remainEl.style.background = remaining < 0 ? '#fef2f2' : 'rgba(255,255,255,0.18)';
+                    remainEl.style.color = remaining < 0 ? '#b91c1c' : '#fff';
+                }
+            }
+
+            body.innerHTML = `
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;">
+                    ${subMgrEmails.map(email => {
+                        const name = DIRECTORY[email]?.name || email;
+                        const desig = DIRECTORY[email]?.designation || '';
+                        const currentPct = window._budgetPctOverrides[email.toLowerCase()] ?? 10;
+                        // Compute their team CTC to show current allocated amount
+                        let teamCTC = 0;
+                        allSubs.forEach(s => {
+                            if (s.directManagerEmail?.toLowerCase() === email.toLowerCase() || s.email === email) {
+                                const fin = EMP_FINANCIAL_DATA[s.email];
+                                if (fin?.currentCTC) teamCTC += fin.currentCTC;
+                            }
+                        });
+                        const currentAmt = teamCTC * currentPct;
+                        const currentAmtL = (currentAmt / 100000).toFixed(1);
+                        const safeId = email.replace(/[@.]/g,'_');
+                        return `
+                        <div style="border:1.5px solid var(--border-color);border-radius:10px;padding:14px 16px;background:var(--bg-card-alt);">
+                            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+                                <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#3b1063,#6B0F1A);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:0.85rem;flex-shrink:0;">${name.split(' ').map(w=>w[0]).slice(0,2).join('')}</div>
+                                <div>
+                                    <div style="font-weight:700;font-size:0.88rem;color:var(--text-main);">${name}</div>
+                                    <div style="font-size:0.7rem;color:var(--text-muted);">${desig}</div>
+                                </div>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <label style="font-size:0.72rem;font-weight:700;color:#374151;white-space:nowrap;">Budget (L)</label>
+                                <div style="display:flex;align-items:center;border:2px solid #3b1063;border-radius:8px;overflow:hidden;flex:1;background:#fff;">
+                                    <span style="padding:0 8px;font-size:0.85rem;font-weight:700;color:#3b1063;background:#f5f0ff;">₹</span>
+                                    <input type="number" id="subMgrAmt_${safeId}" min="0" step="0.1" value="${currentAmtL}"
+                                        style="width:100%;padding:7px 8px;border:none;font-size:0.95rem;font-weight:700;text-align:center;font-family:inherit;outline:none;color:#3b1063;"
+                                        oninput="document.getElementById('subMgrAmtL_${safeId}').textContent=parseFloat(this.value).toFixed(1)+'L'; ${''}" 
+                                        oninput="this.closest('div').style.borderColor='#3b1063'; document.getElementById('subMgrAmtDisplay_${safeId}').textContent='₹'+(parseFloat(this.value)||0).toFixed(1)+'L'; window._renderSubMgrRefresh && window._renderSubMgrRefresh();" />
+                                    <span style="padding:0 8px;font-size:0.78rem;color:#6b7280;background:#f9fafb;">L</span>
+                                </div>
+                                <button onclick="saveSubMgrBudget('${email}')" 
+                                    style="padding:7px 14px;border:none;border-radius:8px;background:linear-gradient(135deg,#3b1063,#6B0F1A);color:#fff;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;">
+                                    Save
+                                </button>
+                            </div>
+                            <div style="margin-top:6px;font-size:0.7rem;color:var(--text-muted);">
+                                Current: <span id="subMgrAmtDisplay_${safeId}" style="font-weight:700;color:#3b1063;">₹${currentAmtL}L</span>
+                                &nbsp;·&nbsp; Team CTC: ${fmtL(teamCTC)}
+                            </div>
+                        </div>`;
+                    }).join('')}
+                </div>
+                <div style="margin-top:12px;font-size:0.72rem;color:var(--text-muted);">
+                    💡 Budget saved here applies directly to each sub-manager's team budget allocation.
+                </div>`;
+
+            // Store refresh fn for input events
+            window._renderSubMgrRefresh = refreshRemaining;
+            refreshRemaining();
+        }
+        window.renderSubMgrBudgetPanel = renderSubMgrBudgetPanel;
+
+        async function saveSubMgrBudget(email) {
+            const safeId = email.replace(/[@.]/g,'_');
+            const inp = document.getElementById('subMgrAmt_' + safeId);
+            if (!inp) return;
+            const amtL = parseFloat(inp.value);
+            if (isNaN(amtL) || amtL < 0) { showAlert('Please enter a valid amount.', 'error'); return; }
+
+            // Compute team CTC for this sub-manager to derive %
+            const teamCTC = window._budgetPctOverrides['_teamCTC_' + email.toLowerCase()] || (() => {
+                let total = 0;
+                Object.entries(DIRECTORY).forEach(([e, info]) => {
+                    if ((info.manager||'').toLowerCase() === email.toLowerCase()) {
+                        const fin = EMP_FINANCIAL_DATA[e];
+                        if (fin?.currentCTC) total += fin.currentCTC;
+                    }
+                });
+                return total;
+            })();
+
+            // Use getBudgetModalTeamCTC for accuracy
+            const modalCTC = getBudgetModalTeamCTC(email);
+            const baseCTC = modalCTC || teamCTC;
+
+            const pct = baseCTC > 0 ? (amtL * 100000) / baseCTC * 100 : 10;
+
+            try {
+                await saveBudgetPctToFirestore(email.toLowerCase(), pct);
+                // Update display
+                const dispEl = document.getElementById('subMgrAmtDisplay_' + safeId);
+                if (dispEl) dispEl.textContent = '₹' + amtL.toFixed(1) + 'L';
+                if (window._renderSubMgrRefresh) window._renderSubMgrRefresh();
+                showAlert(`Budget for ${DIRECTORY[email]?.name || email} saved as ₹${amtL.toFixed(1)}L`, 'success');
+            } catch(e) {
+                showAlert('Error saving budget: ' + e.message, 'error');
+            }
+        }
+        window.saveSubMgrBudget = saveSubMgrBudget;
 
         // ── openManagerEmpModal — wrapper for manager zone row click ───────────
         // Fetches the employee's appraisal data from the cached _teamAppraisalData
@@ -15146,8 +15290,10 @@
         // ══════════════════════════════════════════════════════════════════
 
         window._budgetPctOverrides = {
-            "reshma.doshi@vtion.in": 8.58,   // ₹13L budget
-            "shubham.saxena@vtion.in": 9.0    // ₹32L budget
+            "reshma.doshi@vtion.in": 8.58,        // ₹13L budget
+            "shubham.saxena@vtion.in": 9.0,        // ₹32L budget
+            "manoj.dawane@vtion.in": 2.8541,       // ₹23L budget
+            "shailesh.varudkar@vtion.in": 37.5     // ₹3L budget
         };   // mgrEmail (lower) → pct (e.g. 12 for 12%)
         window._budgetPctModalContext = null; // { mgrEmail, mgrName, panelType }
 
@@ -15163,8 +15309,10 @@
 
         // Fixed budgets set by HC Admin (these always take priority)
         const _FIXED_BUDGETS = {
-            "reshma.doshi@vtion.in": 8.58,   // ₹13L budget
-            "shubham.saxena@vtion.in": 9.0    // ₹32L / ₹3,55,36,803 actual team CTC
+            "reshma.doshi@vtion.in": 8.58,        // ₹13L budget
+            "shubham.saxena@vtion.in": 9.0,        // ₹32L budget
+            "manoj.dawane@vtion.in": 2.8541,       // ₹23L budget
+            "shailesh.varudkar@vtion.in": 37.5     // ₹3L budget
         };
 
         /** Load all budget % overrides from Firestore (called once on login). */
