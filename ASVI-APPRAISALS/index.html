@@ -1747,6 +1747,58 @@
 
             <div id="tabManager" class="tab-content" style="display:none;">
 
+                <!-- ── MANAGER BUDGET SUMMARY PANEL ──────────────────────────── -->
+                <div id="mgrBudgetSummaryPanel" style="display:none;margin-bottom:20px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);">
+                    <!-- Header bar -->
+                    <div style="padding:14px 20px;background:linear-gradient(135deg,#0A0664 0%,#1a0f8f 100%);display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><circle cx="12" cy="14" r="2"/></svg>
+                        <div>
+                            <div style="color:#fff;font-weight:700;font-size:0.95rem;">Team Budget Overview</div>
+                            <div id="mgrBudgetSubtitle" style="color:rgba(255,255,255,0.65);font-size:0.73rem;">Appraisal increment budget = 10% of team's eligible CTC</div>
+                        </div>
+                        <div id="mgrBudgetStatusBadge" style="margin-left:auto;padding:4px 14px;border-radius:20px;font-size:0.73rem;font-weight:700;background:rgba(255,255,255,0.18);color:#fff;">—</div>
+                        <button id="mgrBudgetEditBtn" onclick="openBudgetPctModal(currentUser.email, currentUser.name || currentUser.email, 'mgr')" style="display:none;padding:4px 11px;border-radius:6px;border:1.5px solid rgba(255,255,255,0.6);background:rgba(255,255,255,0.12);color:#fff;font-size:0.72rem;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:0.02em;">✏ Edit %</button>
+                    </div>
+                    <!-- Metrics grid -->
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;">
+                        <div style="padding:16px 20px;border-right:1px solid var(--border-color);">
+                            <div style="font-size:0.65rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;letter-spacing:0.06em;margin-bottom:4px;">Budget Allocated</div>
+                            <div id="mgrBudgetAllocated" style="font-size:1.35rem;font-weight:800;color:var(--brand-primary);">—</div>
+                            <div style="font-size:0.67rem;color:var(--text-muted);margin-top:3px;">10% of eligible team CTC</div>
+                        </div>
+                        <div style="padding:16px 20px;border-right:1px solid var(--border-color);">
+                            <div style="font-size:0.65rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;letter-spacing:0.06em;margin-bottom:4px;">Total Current CTC</div>
+                            <div id="mgrTotalCurrentCTC" style="font-size:1.35rem;font-weight:800;color:#374151;">—</div>
+                            <div style="font-size:0.67rem;color:var(--text-muted);margin-top:3px;">All team members combined</div>
+                        </div>
+                        <div style="padding:16px 20px;border-right:1px solid var(--border-color);">
+                            <div style="font-size:0.65rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;letter-spacing:0.06em;margin-bottom:4px;">Revised CTC (Team Total)</div>
+                            <div id="mgrTotalRevisedCTC" style="font-size:1.35rem;font-weight:800;color:#1e40af;">—</div>
+                            <div style="font-size:0.67rem;color:var(--text-muted);margin-top:3px;">After projected increments</div>
+                        </div>
+                        <div style="padding:16px 20px;">
+                            <div id="mgrBudgetUtilLabel" style="font-size:0.65rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;letter-spacing:0.06em;margin-bottom:4px;">Budget Utilized</div>
+                            <div id="mgrBudgetUtilized" style="font-size:1.35rem;font-weight:800;color:#047857;">—</div>
+                            <div id="mgrBudgetUtilPct" style="font-size:0.72rem;font-weight:700;margin-top:4px;display:inline-block;padding:2px 10px;border-radius:20px;background:#d1fae5;color:#047857;">—</div>
+                        </div>
+                    </div>
+                    <!-- Progress bar -->
+                    <div style="padding:4px 20px 10px;">
+                        <div style="background:#f1f5f9;border-radius:6px;height:8px;overflow:hidden;">
+                            <div id="mgrBudgetBar" style="height:100%;border-radius:6px;transition:width 0.5s ease;width:0%;background:var(--brand-primary);"></div>
+                        </div>
+                        <div id="mgrBudgetNote" style="font-size:0.7rem;color:var(--text-muted);margin-top:5px;"></div>
+                    </div>
+                    <!-- Over-budget error banner -->
+                    <div id="mgrBudgetErrorBanner" style="display:none;margin:0 16px 14px;padding:13px 16px;background:#fef2f2;border:1.5px solid #fca5a5;border-radius:8px;align-items:flex-start;gap:12px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b91c1c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        <div>
+                            <div style="font-size:0.85rem;font-weight:700;color:#b91c1c;margin-bottom:3px;">⛔ Budget Limit Exceeded — Revisions Blocked</div>
+                            <div id="mgrBudgetErrorDetail" style="font-size:0.78rem;color:#991b1b;line-height:1.5;">Team increment spend exceeds the allocated budget. Revised CTC submissions are blocked until the total falls within budget.</div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- ── TEAM DASHBOARD ──────────────────────────────────── -->
                 <div class="section-card" style="margin-bottom:20px;">
                     <div class="section-card-header" style="flex-wrap:wrap;gap:8px;">
@@ -2735,106 +2787,185 @@
 
         <!-- TAB M: Manager Zone (shown only when admin is also a manager) -->
         <div id="adminTabM" class="page-panel" style="display:none;">
-            <div class="page-header">
-                <div class="page-header-left">
-                    <h2>Manager Zone</h2>
-                    <p class="subtitle">Review your full team hierarchy — direct reports and their reportees.</p>
-                </div>
-                <div class="page-actions">
-                    <button class="btn-secondary" onclick="loadAdminTeamDashboard()">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.12-3.89"/></svg>
-                        Refresh Team
-                    </button>
-                </div>
-            </div>
 
-            <!-- Team Dashboard -->
-            <div class="section-card" style="margin-bottom:20px;">
-                <div class="section-card-header" style="flex-wrap:wrap;gap:10px;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                    <span class="section-card-title">Team Dashboard</span>
-                    <!-- Filter bar -->
-                    <div id="adminTeamFilterBar" style="display:none;margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
-                        <button id="adminTFbtnAll" onclick="filterAdminTeam('all')"
-                            style="padding:5px 14px;border-radius:20px;border:1.5px solid #6B0F1A;background:#6B0F1A;color:#fff;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;">
-                            All Team
-                        </button>
-                        <button id="adminTFbtnDirect" onclick="filterAdminTeam('direct')"
-                            style="padding:5px 14px;border-radius:20px;border:1.5px solid #e5e7eb;background:#fff;color:#374151;font-size:0.75rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;">
-                            Direct Reports
-                        </button>
-                        <div id="adminTFSubMgrGroup" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
-                            <!-- sub-manager buttons injected dynamically -->
+                <!-- ── ADMIN MANAGER BUDGET SUMMARY PANEL ──────────────────────────── -->
+                <div id="adminMgrBudgetSummaryPanel" style="display:none;margin-bottom:20px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);">
+                    <div style="padding:14px 20px;background:linear-gradient(135deg,#0A0664 0%,#1a0f8f 100%);display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><circle cx="12" cy="14" r="2"/></svg>
+                        <div>
+                            <div style="color:#fff;font-weight:700;font-size:0.95rem;">Team Budget Overview</div>
+                            <div id="adminMgrBudgetSubtitle" style="color:rgba(255,255,255,0.65);font-size:0.73rem;">Appraisal increment budget = 10% of team's eligible CTC</div>
+                        </div>
+                        <div id="adminMgrBudgetStatusBadge" style="margin-left:auto;padding:4px 14px;border-radius:20px;font-size:0.73rem;font-weight:700;background:rgba(255,255,255,0.18);color:#fff;">—</div>
+                        <button id="adminMgrBudgetEditBtn" onclick="(function(){ const e=window._adminViewingMgrEmail||currentUser.email; const n=DIRECTORY[e]?.name||e; openBudgetPctModal(e,n,'adminMgr'); })()" style="display:none;padding:4px 11px;border-radius:6px;border:1.5px solid rgba(255,255,255,0.6);background:rgba(255,255,255,0.12);color:#fff;font-size:0.72rem;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:0.02em;">✏ Edit %</button>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;">
+                        <div style="padding:16px 20px;border-right:1px solid var(--border-color);">
+                            <div style="font-size:0.65rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;letter-spacing:0.06em;margin-bottom:4px;">Budget Allocated</div>
+                            <div id="adminMgrBudgetAllocated" style="font-size:1.35rem;font-weight:800;color:var(--brand-primary);">—</div>
+                            <div style="font-size:0.67rem;color:var(--text-muted);margin-top:3px;">10% of eligible team CTC</div>
+                        </div>
+                        <div style="padding:16px 20px;border-right:1px solid var(--border-color);">
+                            <div style="font-size:0.65rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;letter-spacing:0.06em;margin-bottom:4px;">Total Current CTC</div>
+                            <div id="adminMgrTotalCurrentCTC" style="font-size:1.35rem;font-weight:800;color:#374151;">—</div>
+                            <div style="font-size:0.67rem;color:var(--text-muted);margin-top:3px;">All team members combined</div>
+                        </div>
+                        <div style="padding:16px 20px;border-right:1px solid var(--border-color);">
+                            <div style="font-size:0.65rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;letter-spacing:0.06em;margin-bottom:4px;">Revised CTC (Team Total)</div>
+                            <div id="adminMgrTotalRevisedCTC" style="font-size:1.35rem;font-weight:800;color:#1e40af;">—</div>
+                            <div style="font-size:0.67rem;color:var(--text-muted);margin-top:3px;">After projected increments</div>
+                        </div>
+                        <div style="padding:16px 20px;">
+                            <div id="adminMgrBudgetUtilLabel" style="font-size:0.65rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;letter-spacing:0.06em;margin-bottom:4px;">Budget Utilized</div>
+                            <div id="adminMgrBudgetUtilized" style="font-size:1.35rem;font-weight:800;color:#047857;">—</div>
+                            <div id="adminMgrBudgetUtilPct" style="font-size:0.72rem;font-weight:700;margin-top:4px;display:inline-block;padding:2px 10px;border-radius:20px;background:#d1fae5;color:#047857;">—</div>
+                        </div>
+                    </div>
+                    <div style="padding:4px 20px 10px;">
+                        <div style="background:#f1f5f9;border-radius:6px;height:8px;overflow:hidden;">
+                            <div id="adminMgrBudgetBar" style="height:100%;border-radius:6px;transition:width 0.5s ease;width:0%;background:var(--brand-primary);"></div>
+                        </div>
+                        <div id="adminMgrBudgetNote" style="font-size:0.7rem;color:var(--text-muted);margin-top:5px;"></div>
+                    </div>
+                    <div id="adminMgrBudgetErrorBanner" style="display:none;margin:0 16px 14px;padding:13px 16px;background:#fef2f2;border:1.5px solid #fca5a5;border-radius:8px;align-items:flex-start;gap:12px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b91c1c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        <div>
+                            <div style="font-size:0.85rem;font-weight:700;color:#b91c1c;margin-bottom:3px;">⛔ Budget Limit Exceeded — Revisions Blocked</div>
+                            <div id="adminMgrBudgetErrorDetail" style="font-size:0.78rem;color:#991b1b;line-height:1.5;">Team increment spend exceeds the allocated budget. Revised CTC submissions are blocked until the total falls within budget.</div>
                         </div>
                     </div>
                 </div>
-                <div class="section-card-body" style="padding:0;">
-                    <div id="adminTeamDashboardSummary" style="display:flex;gap:0;border-bottom:1px solid var(--border-color);"></div>
-                    <div class="table-responsive">
-                        <table id="adminTeamDashboardTable" style="font-size:0.82rem;">
-                            <thead>
-                                <tr>
-                                    <th style="width:180px;">Name</th>
-                                    <th style="width:160px;">Designation</th>
-                                    <th style="width:110px;">Department</th>
-                                    <th style="width:130px;">Reports To</th>
-                                    <th style="width:90px;text-align:center;">Self Rating</th>
-                                    <th style="width:90px;text-align:center;">Manager Rating</th>
-                                    <th style="width:90px;text-align:center;">Final Rating</th>
-                                    <th style="width:110px;text-align:center;">Self Status</th>
-                                    <th style="width:110px;text-align:center;">Review Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="adminTeamDashboardBody">
-                                <tr><td colspan="9" style="text-align:center;padding:32px;color:#6b7280;">Click Refresh to load team data.</td></tr>
-                            </tbody>
-                        </table>
+
+                <!-- ── TEAM DASHBOARD ──────────────────────────────────── -->
+                <div class="section-card" style="margin-bottom:20px;">
+                    <div class="section-card-header" style="flex-wrap:wrap;gap:8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                        <span class="section-card-title">Team Dashboard</span>
+                        <div style="display:flex;align-items:center;gap:8px;margin-left:auto;">
+                            <div style="display:flex;align-items:center;gap:6px;background:#f5f6f7;border:1px solid var(--border-color);border-radius:8px;padding:4px 10px;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                                <select id="adminTeamViewFilter" onchange="applyAdminTeamDashboardFilter()" style="border:none;background:transparent;font-size:0.8rem;color:var(--text-main);font-family:inherit;outline:none;cursor:pointer;min-width:160px;">
+                                    <option value="all">All Team Members</option>
+                                </select>
+                            </div>
+                            <button onclick="loadAdminTeamDashboard()" class="btn-secondary" style="font-size:0.78rem;padding:5px 12px;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.12-3.89"/></svg>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div class="section-card-body" style="padding:0;">
+                        <div id="adminTeamDashboardSummary" style="display:flex;gap:0;border-bottom:1px solid var(--border-color);"></div>
+                        <div class="table-responsive">
+                            <table id="adminTeamDashboardTable" style="font-size:0.82rem;">
+                                <thead>
+                                    <tr>
+                                        <th style="width:180px;">Name</th>
+                                        <th style="width:160px;">Designation</th>
+                                        <th style="width:110px;">Department</th>
+                                        <th style="width:130px;">Reports To</th>
+                                        <th style="width:90px;text-align:center;">Self Rating</th>
+                                        <th style="width:90px;text-align:center;">Manager Rating</th>
+                                        <th style="width:90px;text-align:center;">Final Rating</th>
+                                        <th style="width:110px;text-align:center;">Self Status</th>
+                                        <th style="width:110px;text-align:center;">Review Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adminTeamDashboardBody">
+                                    <tr><td colspan="9" style="text-align:center;padding:32px;color:#6b7280;">Click Refresh to load team data.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Review Form -->
-            <div class="section-card">
-                <div class="section-card-header">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                    <span class="section-card-title">Write Review</span>
-                    <span id="adminMgrReviewSelectedChip" style="display:none;margin-left:10px;padding:3px 12px;background:var(--tint-purple);color:var(--brand-primary);font-size:0.75rem;font-weight:700;border-radius:20px;border:1px solid var(--brand-primary);"></span>
-                </div>
-                <div class="section-card-body">
+                <!-- ── INDIVIDUAL REVIEW ───────────────────────────────── -->
+                <div class="section-card">
+                    <div class="section-card-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        <span class="section-card-title">Write Manager Review</span>
+                        <span id="adminMgrReviewSelectedChip" style="display:none;margin-left:10px;padding:3px 12px;background:var(--tint-purple);color:var(--brand-primary);font-size:0.75rem;font-weight:700;border-radius:20px;border:1px solid var(--brand-primary);"></span>
+                    </div>
+                    <div class="section-card-body">
                     <div id="adminMgrDraftNotice" class="draft-notice" style="display:none;">Draft loaded for this employee.</div>
                     <div class="form-grid">
-                        <div class="input-wrapper">
-                            <label>Select Team Member</label>
-                            <select id="adminReporteeSelect" onchange="checkAdminManagerDraft()">
-                                <option value="">-- Choose Employee --</option>
-                            </select>
+                    <div class="input-wrapper">
+                        <label>Select Team Member</label>
+                        <select id="adminReporteeSelect" onchange="checkAdminManagerDraft()">
+                            <option value="">-- Choose Employee --</option>
+                        </select>
+                    </div>
+
+                    <div id="adminEmployeeCTCView" style="display:none;margin-bottom:16px;">
+                        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:14px 16px;background:#f8f5fa;border-radius:8px;border:1px solid rgba(81,40,93,0.12);">
+                            <div><span style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Fixed CTC</span><br><strong id="adminMgrViewFixedCTC" style="color:var(--brand-primary);">—</strong></div>
+                            <div><span style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">PLI</span><br><strong id="adminMgrViewPLI" style="color:var(--brand-primary);">—</strong></div>
+                            <div><span style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Total CTC</span><br><strong id="adminMgrViewTotalCTC" style="color:var(--brand-primary);">—</strong></div>
                         </div>
-                        <!-- CTC display -->
-                        <div id="adminEmployeeCTCView" style="display:none;margin-bottom:16px;">
-                            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:14px 16px;background:#f8f5fa;border-radius:8px;border:1px solid rgba(81,40,93,0.12);">
-                                <div><span style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Fixed CTC</span><br><strong id="adminMgrViewFixedCTC" style="color:var(--brand-primary);">—</strong></div>
-                                <div><span style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">PLI</span><br><strong id="adminMgrViewPLI" style="color:var(--brand-primary);">—</strong></div>
-                                <div><span style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Total CTC</span><br><strong id="adminMgrViewTotalCTC" style="color:var(--brand-primary);">—</strong></div>
+                    </div>
+
+                    <div id="adminEmployeeSelfView" style="display:none;"></div>
+
+                    <div id="adminManagerKPIReviewContainer" style="display:none;">
+
+                        <!-- LAYER 1 — KRA / KPI Assessment -->
+                        <div style="border:1.5px solid var(--border-color);border-radius:10px;padding:18px 20px;margin-bottom:18px;background:var(--bg-card);">
+                            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--brand-primary);">
+                                <div style="width:26px;height:26px;border-radius:50%;background:var(--brand-primary);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    <span style="color:#fff;font-weight:800;font-size:0.72rem;">1</span>
+                                </div>
+                                <div>
+                                    <div style="font-weight:700;color:var(--brand-primary);font-size:0.9rem;line-height:1.2;">Manager Assessment per KRA / KPI</div>
+                                    <div style="font-size:0.72rem;color:var(--text-muted);margin-top:1px;">Rate each KRA and provide per-KPI narrative feedback</div>
+                                </div>
+                                <span id="adminMgrKRAStatusBadge" style="margin-left:auto;display:none;font-size:0.7rem;font-weight:700;padding:3px 10px;border-radius:20px;"></span>
                             </div>
-                        </div>
-                        <div id="adminEmployeeSelfView" style="display:none;"></div>
-                        <div id="adminManagerKPIReviewContainer" style="display:none;">
-                            <div style="font-weight:700;color:var(--brand-primary);font-size:0.9rem;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--brand-primary);">Manager Assessment per KRA / KPI</div>
+
                             <div id="adminManagerKPIReviewCards"></div>
-                            <div id="adminManagerKRABtnGroup" class="btn-group" style="margin-top:14px;">
-                                <button onclick="saveAdminManagerKRADraft()" class="btn-secondary">Save Draft</button>
-                                <button onclick="submitAdminManagerKRAReview()" class="btn-primary">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                                    Submit Review
-                                </button>
+
+                            <div style="margin-top:16px;padding:14px 16px;background:var(--bg-card-alt);border-radius:8px;border:1px solid var(--border-color);">
+                                <div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;">Layer 1 Actions — KRA / KPI</div>
+                                <div id="adminManagerKRABtnGroup" class="btn-group" style="margin:0;">
+                                    <button onclick="saveAdminManagerKRADraft()" class="btn-secondary" style="display:flex;align-items:center;gap:6px;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                                        Save KRA Draft
+                                    </button>
+                                    <button onclick="submitAdminManagerKRAReview()" class="btn-primary" style="display:flex;align-items:center;gap:6px;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                        Submit KRA Review
+                                    </button>
+                                </div>
+                                <div id="adminMgrKRADraftNotice" style="display:none;margin-top:8px;font-size:0.78rem;color:var(--warn-text);font-weight:600;padding:6px 10px;background:var(--warn-bg);border-radius:6px;border:1px solid rgba(146,64,14,0.2);">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                    KRA draft saved — not yet submitted
+                                </div>
+                                <div id="adminMgrKRASubmitNotice" style="display:none;margin-top:8px;font-size:0.78rem;color:var(--success-text);font-weight:600;padding:6px 10px;background:var(--success-bg);border-radius:6px;border:1px solid rgba(4,120,87,0.2);">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px;"><polyline points="20 6 9 17 4 12"/></svg>
+                                    KRA / KPI review submitted successfully
+                                </div>
                             </div>
-                            <div style="background:var(--tint-purple);border-radius:8px;padding:16px;margin-top:16px;border:1px solid rgba(81,40,93,0.15);">
+                        </div>
+
+                        <!-- LAYER 2 — Overall Assessment -->
+                        <div style="border:1.5px solid var(--border-color);border-radius:10px;padding:18px 20px;background:var(--bg-card);">
+                            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--brand-accent);">
+                                <div style="width:26px;height:26px;border-radius:50%;background:var(--brand-accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    <span style="color:#fff;font-weight:800;font-size:0.72rem;">2</span>
+                                </div>
+                                <div>
+                                    <div style="font-weight:700;color:var(--brand-accent);font-size:0.9rem;line-height:1.2;">Manager Overall Assessment</div>
+                                    <div style="font-size:0.72rem;color:var(--text-muted);margin-top:1px;">Aggregate score, CTC projection, and final remarks</div>
+                                </div>
+                                <span id="adminMgrOverallStatusBadge" style="margin-left:auto;display:none;font-size:0.7rem;font-weight:700;padding:3px 10px;border-radius:20px;"></span>
+                            </div>
+
+                            <div style="background:var(--tint-purple);border-radius:8px;padding:16px;border:1px solid rgba(81,40,93,0.15);">
                                 <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-                                    <strong style="color:var(--brand-primary);">Manager Overall Assessment</strong>
+                                    <strong style="color:var(--brand-primary);">Weighted Overall Score</strong>
                                     <span style="font-size:0.82rem;color:var(--text-muted);">Weighted avg: <strong id="adminMgrOverallPctDisplay">—</strong> &nbsp;|&nbsp; Rating out of 5: <strong id="adminMgrOverallRatingDisplay">—</strong></span>
                                 </div>
                             </div>
-                            <!-- CTC Hike Projection Panel (Admin) -->
+
                             <div id="adminMgrCTCProjection" style="display:none;margin-top:14px;">
                                 <div style="background:linear-gradient(135deg,#0f4c35 0%,#047857 100%);border-radius:10px;padding:18px 20px;">
                                     <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
@@ -2842,7 +2973,6 @@
                                         <span style="color:#fff;font-weight:700;font-size:0.88rem;letter-spacing:0.01em;">Projected CTC After Appraisal</span>
                                         <span id="adminMgrCtcEligBadge" style="font-size:0.68rem;font-weight:700;padding:2px 9px;border-radius:20px;background:rgba(255,255,255,0.18);color:#fff;margin-left:auto;"></span>
                                     </div>
-                                    <!-- ── Current CTC breakdown (Admin) ── -->
                                     <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:stretch;">
                                         <div style="background:rgba(255,255,255,0.1);border-radius:8px;padding:14px 16px;">
                                             <div style="font-size:0.62rem;color:rgba(255,255,255,0.6);text-transform:uppercase;font-weight:700;letter-spacing:0.07em;margin-bottom:10px;">Current CTC</div>
@@ -2885,114 +3015,132 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div id="adminMgrCtcIneligMsg" style="display:none;margin-top:10px;padding:8px 12px;background:rgba(255,255,255,0.1);border-radius:6px;font-size:0.78rem;color:rgba(255,255,255,0.8);">⚠️ Not eligible for increment (joined after <span class="session-cutoff-label">30 Sep 2025</span>). CTC unchanged.</div>
+                                    <div id="adminMgrCtcIneligMsg" style="display:none;margin-top:10px;padding:8px 12px;background:rgba(255,255,255,0.1);border-radius:6px;font-size:0.78rem;color:rgba(255,255,255,0.8);">&#9888;&#65039; Not eligible for increment (joined after <span class="session-cutoff-label">30 Sep 2025</span>). CTC unchanged.</div>
                                 </div>
                             </div>
-                        </div>
-                        <!-- ── Revised CTC Override Panel (Admin Manager) ── -->
-                        <div id="adminMgrCtcOverridePanel" style="display:none;margin-top:10px;">
-                            <div style="background:#fff;border:1.5px dashed #6B0F1A;border-radius:10px;padding:16px 18px;">
-                                <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-                                    <svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='#6B0F1A' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7'/><path d='M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z'/></svg>
-                                    <span style="font-weight:700;color:#6B0F1A;font-size:0.88rem;">Manager Revised CTC</span>
-                                    <span style="font-size:0.72rem;color:#9ca3af;margin-left:4px;">Override the KRA projection if needed</span>
-                                    <button onclick="clearAdminMgrCtcOverride()" id="adminMgrCtcOverrideClearBtn" style="display:none;margin-left:auto;font-size:0.72rem;color:#b91c1c;background:none;border:none;cursor:pointer;font-weight:600;padding:2px 8px;border-radius:4px;border:1px solid #fca5a5;" title="Clear override">✕ Clear</button>
-                                </div>
-                                <!-- Input row -->
-                                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;align-items:end;margin-bottom:14px;">
-                                    <div>
-                                        <label style="font-size:0.72rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;">New Revised CTC (₹)</label>
-                                        <input type="number" id="adminMgrCtcOverrideInput" placeholder="Enter revised CTC" min="0"
-                                            style="width:100%;padding:9px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:0.92rem;font-weight:700;font-family:inherit;outline:none;color:#111;"
-                                            onfocus="this.style.borderColor='#6B0F1A'"
-                                            onblur="this.style.borderColor='#d1d5db'"
-                                            oninput="onMgrCtcOverrideInput(this,'admin')">
+
+                            <div id="adminMgrCtcOverridePanel" style="display:none;margin-top:10px;">
+                                <div style="background:#fff;border:1.5px dashed #6B0F1A;border-radius:10px;padding:16px 18px;">
+                                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+                                        <svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='#6B0F1A' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7'/><path d='M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z'/></svg>
+                                        <span style="font-weight:700;color:#6B0F1A;font-size:0.88rem;">Manager Revised CTC</span>
+                                        <span style="font-size:0.72rem;color:#9ca3af;margin-left:4px;">Override the KRA projection if needed</span>
+                                        <button onclick="clearAdminMgrCtcOverride()" id="adminMgrCtcOverrideClearBtn" style="display:none;margin-left:auto;font-size:0.72rem;color:#b91c1c;background:none;border:none;cursor:pointer;font-weight:600;padding:2px 8px;border-radius:4px;border:1px solid #fca5a5;" title="Clear override">&#x2715; Clear</button>
                                     </div>
-                                    <div>
-                                        <label style="font-size:0.72rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;">Actual Hike %</label>
-                                        <input type="number" id="adminMgrCtcOverrideHikePct" placeholder="e.g. 12.5" step="0.01"
-                                            style="width:100%;padding:9px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.92rem;font-weight:800;color:#047857;font-family:inherit;outline:none;background:#f9fafb;box-sizing:border-box;"
-                                            onfocus="this.style.borderColor='#047857';this.style.background='#fff'"
-                                            onblur="this.style.borderColor='#e5e7eb';this.style.background='#f9fafb'"
-                                            oninput="onMgrHikePctInput(this,'admin')">
-                                    </div>
-                                    <div>
-                                        <label style="font-size:0.72rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;">Increment Amount (₹)</label>
-                                        <input type="number" id="adminMgrCtcOverrideHikeAmt" placeholder="e.g. 200000" step="1000"
-                                            style="width:100%;padding:9px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.92rem;font-weight:800;color:#047857;font-family:inherit;outline:none;background:#f9fafb;box-sizing:border-box;"
-                                            onfocus="this.style.borderColor='#047857';this.style.background='#fff'"
-                                            onblur="this.style.borderColor='#e5e7eb';this.style.background='#f9fafb'"
-                                            oninput="onMgrIncrementInput(this,'admin')">
-                                    </div>
-                                </div>
-                                <!-- CTC Breakdown: Fixed + PLI = Total -->
-                                <div id="adminMgrCtcOverrideBreakdown" style="display:none;">
-                                    <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:stretch;background:#f8f5fa;border-radius:8px;padding:12px 14px;border:1px solid rgba(107,15,26,0.1);">
+                                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;align-items:end;margin-bottom:14px;">
                                         <div>
-                                            <div style="font-size:0.62rem;color:#9ca3af;text-transform:uppercase;font-weight:700;letter-spacing:0.06em;margin-bottom:8px;">Current CTC</div>
-                                            <div style="display:flex;flex-direction:column;gap:4px;">
-                                                <div style="display:flex;justify-content:space-between;">
-                                                    <span style="font-size:0.75rem;color:#6b7280;">Fixed</span>
-                                                    <span id="adminMgrOvrCurFixed" style="font-size:0.78rem;font-weight:700;color:#374151;">—</span>
+                                            <label style="font-size:0.72rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;">New Revised CTC (&#8377;)</label>
+                                            <input type="number" id="adminMgrCtcOverrideInput" placeholder="Enter revised CTC" min="0"
+                                                style="width:100%;padding:9px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:0.92rem;font-weight:700;font-family:inherit;outline:none;color:#111;"
+                                                onfocus="this.style.borderColor='#6B0F1A'"
+                                                onblur="this.style.borderColor='#d1d5db'"
+                                                oninput="onMgrCtcOverrideInput(this,'admin')">
+                                        </div>
+                                        <div>
+                                            <label style="font-size:0.72rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;">Actual Hike %</label>
+                                            <input type="number" id="adminMgrCtcOverrideHikePct" placeholder="e.g. 12.5" step="0.01"
+                                                style="width:100%;padding:9px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.92rem;font-weight:800;color:#047857;font-family:inherit;outline:none;background:#f9fafb;box-sizing:border-box;"
+                                                onfocus="this.style.borderColor='#047857';this.style.background='#fff'"
+                                                onblur="this.style.borderColor='#e5e7eb';this.style.background='#f9fafb'"
+                                                oninput="onMgrHikePctInput(this,'admin')">
+                                        </div>
+                                        <div>
+                                            <label style="font-size:0.72rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;">Increment Amount (&#8377;)</label>
+                                            <input type="number" id="adminMgrCtcOverrideHikeAmt" placeholder="e.g. 200000" step="1000"
+                                                style="width:100%;padding:9px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.92rem;font-weight:800;color:#047857;font-family:inherit;outline:none;background:#f9fafb;box-sizing:border-box;"
+                                                onfocus="this.style.borderColor='#047857';this.style.background='#fff'"
+                                                onblur="this.style.borderColor='#e5e7eb';this.style.background='#f9fafb'"
+                                                oninput="onMgrIncrementInput(this,'admin')">
+                                        </div>
+                                    </div>
+                                    <div id="adminMgrCtcOverrideBreakdown" style="display:none;">
+                                        <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:stretch;background:#f8f5fa;border-radius:8px;padding:12px 14px;border:1px solid rgba(107,15,26,0.1);">
+                                            <div>
+                                                <div style="font-size:0.62rem;color:#9ca3af;text-transform:uppercase;font-weight:700;letter-spacing:0.06em;margin-bottom:8px;">Current CTC</div>
+                                                <div style="display:flex;flex-direction:column;gap:4px;">
+                                                    <div style="display:flex;justify-content:space-between;">
+                                                        <span style="font-size:0.75rem;color:#6b7280;">Fixed</span>
+                                                        <span id="adminMgrOvrCurFixed" style="font-size:0.78rem;font-weight:700;color:#374151;">—</span>
+                                                    </div>
+                                                    <div style="display:flex;justify-content:space-between;">
+                                                        <span style="font-size:0.75rem;color:#6b7280;">PLI</span>
+                                                        <span id="adminMgrOvrCurPLI" style="font-size:0.78rem;font-weight:700;color:#374151;">—</span>
+                                                    </div>
+                                                    <div style="border-top:1px solid #e5e7eb;padding-top:4px;margin-top:2px;display:flex;justify-content:space-between;">
+                                                        <span style="font-size:0.75rem;font-weight:700;color:#111;">Total</span>
+                                                        <span id="adminMgrOvrCurTotal" style="font-size:0.82rem;font-weight:800;color:#6B0F1A;">—</span>
+                                                    </div>
                                                 </div>
-                                                <div style="display:flex;justify-content:space-between;">
-                                                    <span style="font-size:0.75rem;color:#6b7280;">PLI</span>
-                                                    <span id="adminMgrOvrCurPLI" style="font-size:0.78rem;font-weight:700;color:#374151;">—</span>
-                                                </div>
-                                                <div style="border-top:1px solid #e5e7eb;padding-top:4px;margin-top:2px;display:flex;justify-content:space-between;">
-                                                    <span style="font-size:0.75rem;font-weight:700;color:#111;">Total</span>
-                                                    <span id="adminMgrOvrCurTotal" style="font-size:0.82rem;font-weight:800;color:#6B0F1A;">—</span>
+                                            </div>
+                                            <div style="display:flex;align-items:center;padding:0 14px;">
+                                                <svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#9ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><line x1='5' y1='12' x2='19' y2='12'/><polyline points='12 5 19 12 12 19'/></svg>
+                                            </div>
+                                            <div>
+                                                <div style="font-size:0.62rem;color:#047857;text-transform:uppercase;font-weight:700;letter-spacing:0.06em;margin-bottom:8px;">Revised CTC <span style="font-size:0.55rem;color:#9ca3af;font-weight:500;text-transform:none;">(edit Fixed or PLI)</span></div>
+                                                <div style="display:flex;flex-direction:column;gap:6px;">
+                                                    <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+                                                        <span style="font-size:0.75rem;color:#6b7280;white-space:nowrap;">Fixed</span>
+                                                        <input type="number" id="adminMgrOvrNewFixed" step="1000" min="0"
+                                                            style="width:110px;padding:4px 7px;border:1.5px solid #d1fae5;border-radius:6px;font-size:0.78rem;font-weight:700;color:#047857;font-family:inherit;outline:none;background:#f0fdf4;text-align:right;"
+                                                            onfocus="this.style.borderColor='#047857';this.style.background='#fff'"
+                                                            onblur="this.style.borderColor='#d1fae5';this.style.background='#f0fdf4'"
+                                                            oninput="onMgrBreakdownInput('admin')">
+                                                    </div>
+                                                    <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+                                                        <span style="font-size:0.75rem;color:#6b7280;white-space:nowrap;">PLI</span>
+                                                        <input type="number" id="adminMgrOvrNewPLI" step="1000" min="0"
+                                                            style="width:110px;padding:4px 7px;border:1.5px solid #d1fae5;border-radius:6px;font-size:0.78rem;font-weight:700;color:#047857;font-family:inherit;outline:none;background:#f0fdf4;text-align:right;"
+                                                            onfocus="this.style.borderColor='#047857';this.style.background='#fff'"
+                                                            onblur="this.style.borderColor='#d1fae5';this.style.background='#f0fdf4'"
+                                                            oninput="onMgrBreakdownInput('admin')">
+                                                    </div>
+                                                    <div style="border-top:1px solid #e5e7eb;padding-top:4px;margin-top:2px;display:flex;justify-content:space-between;">
+                                                        <span style="font-size:0.75rem;font-weight:700;color:#111;">Total</span>
+                                                        <span id="adminMgrOvrNewTotal" style="font-size:0.82rem;font-weight:800;color:#047857;">—</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div style="display:flex;align-items:center;padding:0 14px;">
-                                            <svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#9ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><line x1='5' y1='12' x2='19' y2='12'/><polyline points='12 5 19 12 12 19'/></svg>
-                                        </div>
-                                        <div>
-                                            <div style="font-size:0.62rem;color:#047857;text-transform:uppercase;font-weight:700;letter-spacing:0.06em;margin-bottom:8px;">Revised CTC <span style="font-size:0.55rem;color:#9ca3af;font-weight:500;text-transform:none;">(edit Fixed or PLI)</span></div>
-                                            <div style="display:flex;flex-direction:column;gap:6px;">
-                                                <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
-                                                    <span style="font-size:0.75rem;color:#6b7280;white-space:nowrap;">Fixed</span>
-                                                    <input type="number" id="adminMgrOvrNewFixed" step="1000" min="0"
-                                                        style="width:110px;padding:4px 7px;border:1.5px solid #d1fae5;border-radius:6px;font-size:0.78rem;font-weight:700;color:#047857;font-family:inherit;outline:none;background:#f0fdf4;text-align:right;"
-                                                        onfocus="this.style.borderColor='#047857';this.style.background='#fff'"
-                                                        onblur="this.style.borderColor='#d1fae5';this.style.background='#f0fdf4'"
-                                                        oninput="onMgrBreakdownInput('admin')">
-                                                </div>
-                                                <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
-                                                    <span style="font-size:0.75rem;color:#6b7280;white-space:nowrap;">PLI</span>
-                                                    <input type="number" id="adminMgrOvrNewPLI" step="1000" min="0"
-                                                        style="width:110px;padding:4px 7px;border:1.5px solid #d1fae5;border-radius:6px;font-size:0.78rem;font-weight:700;color:#047857;font-family:inherit;outline:none;background:#f0fdf4;text-align:right;"
-                                                        onfocus="this.style.borderColor='#047857';this.style.background='#fff'"
-                                                        onblur="this.style.borderColor='#d1fae5';this.style.background='#f0fdf4'"
-                                                        oninput="onMgrBreakdownInput('admin')">
-                                                </div>
-                                                <div style="border-top:1px solid #e5e7eb;padding-top:4px;margin-top:2px;display:flex;justify-content:space-between;">
-                                                    <span style="font-size:0.75rem;font-weight:700;color:#111;">Total</span>
-                                                    <span id="adminMgrOvrNewTotal" style="font-size:0.82rem;font-weight:800;color:#047857;">—</span>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    </div>
+                                    <div id="adminMgrCtcOverrideReasonBox" style="display:none;margin-top:10px;padding:8px 12px;background:#fef9ec;border:1px solid #fde68a;border-radius:6px;font-size:0.78rem;color:#92400e;">
+                                        <strong>Reason:</strong> <span id="adminMgrCtcOverrideReasonText"></span>
                                     </div>
                                 </div>
-                                <div id="adminMgrCtcOverrideReasonBox" style="display:none;margin-top:10px;padding:8px 12px;background:#fef9ec;border:1px solid #fde68a;border-radius:6px;font-size:0.78rem;color:#92400e;">
-                                    <strong>Reason:</strong> <span id="adminMgrCtcOverrideReasonText"></span>
+                            </div>
+
+                            <!-- Layer 2 action bar -->
+                            <div style="margin-top:16px;padding:14px 16px;background:var(--tint-red);border-radius:8px;border:1px solid rgba(221,0,158,0.15);">
+                                <div style="font-size:0.72rem;font-weight:700;color:var(--brand-accent);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;">Layer 2 Actions — Overall Assessment</div>
+                                <div id="adminManagerBtnGroup" class="btn-group" style="margin:0;">
+                                    <button onclick="saveAdminManagerDraft()" class="btn-secondary" style="display:flex;align-items:center;gap:6px;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                                        Save Overall Draft
+                                    </button>
+                                    <button onclick="submitAdminManagerReview()" style="background:var(--brand-accent);color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:0.875rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;transition:background 0.15s;" onmouseover="this.style.background='var(--brand-accent-hover)'" onmouseout="this.style.background='var(--brand-accent)'">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                        Submit Overall Review
+                                    </button>
+                                </div>
+                                <div id="adminMgrOverallDraftNotice" style="display:none;margin-top:8px;font-size:0.78rem;color:var(--warn-text);font-weight:600;padding:6px 10px;background:var(--warn-bg);border-radius:6px;border:1px solid rgba(146,64,14,0.2);">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                    Overall assessment draft saved — not yet submitted
+                                </div>
+                                <div id="adminMgrOverallSubmitNotice" style="display:none;margin-top:8px;font-size:0.78rem;color:var(--success-text);font-weight:600;padding:6px 10px;background:var(--success-bg);border-radius:6px;border:1px solid rgba(4,120,87,0.2);">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px;"><polyline points="20 6 9 17 4 12"/></svg>
+                                    Overall assessment submitted successfully
                                 </div>
                             </div>
-                        </div>
-                        <div id="adminManagerNoKPIMsg" style="display:none;padding:16px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;color:#92400e;font-size:0.85rem;">
-                            ⚠️ This employee has not submitted their self-appraisal yet or has no KPIs defined.
-                        </div>
-                        <div class="btn-group">
-                            <button onclick="saveAdminManagerDraft()" class="btn-secondary">Save Draft</button>
-                            <button onclick="submitAdminManagerReview()" class="btn-primary">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                                Submit Review
-                            </button>
-                        </div>
+
+                        </div><!-- /layer-2 -->
+                    </div><!-- /adminManagerKPIReviewContainer -->
+
+                    <div id="adminManagerNoKPIMsg" style="display:none;padding:16px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;color:#92400e;font-size:0.85rem;">
+                        &#9888;&#65039; This employee has not submitted their self-appraisal yet or has no KPIs defined.
                     </div>
-                </div>
-            </div>
+                    </div><!-- /form-grid -->
+                    </div><!-- /section-card-body -->
+                </div><!-- /section-card -->
+
         </div><!-- /adminTabM -->
 
         <!-- ══ ADMIN TAB 7: Employee Directory ═══════════════════════════ -->
@@ -4213,6 +4361,7 @@
                     loadAdminData();
                     loadProfilePic(email);
                     loadNotifications();
+                    loadBudgetOverrides();
                     initSessionSelector();
                     // Load Firestore employees first, THEN check if admin is also a manager
                     Promise.all([
@@ -4242,6 +4391,7 @@
                     initEmployeeView();
                     loadProfilePic(email);
                     loadNotifications();
+                    loadBudgetOverrides();
                     initSessionSelector();
                     logAuditAction(email, 'Employee login - accessed portal', 'LOGIN_EMP');
                 }
@@ -5188,6 +5338,50 @@
             if (!target) return showAlert("Please select an employee first.", "error");
             if (_lastLoadedEmpKPICount === 0) return showAlert("Cannot submit — employee has not submitted their KPIs yet.", "error");
             const payload = buildManagerPayload(target, 'submitted', _lastLoadedEmpKPIs, _lastLoadedEmpKPICount);
+
+            // ── BUDGET VALIDATION ─────────────────────────────────────────
+            if (window._teamBudgetData) {
+                const { allocated, used } = window._teamBudgetData;
+                const fmtBudget = (v) => v >= 100000 ? '₹' + (v/100000).toFixed(1) + 'L' : '₹' + Math.round(v).toLocaleString('en-IN');
+                const curEmpFin = EMP_FINANCIAL_DATA[target] || {};
+                const curEmpCTC = curEmpFin.currentCTC || 0;
+
+                // Compute formula-based increment for this employee using actual payload rating
+                const actualRating = payload.rating || finalRating; // use submitted rating, not a default
+                const curIncCalc = actualRating ? calculateIncrement(target, actualRating) : null;
+                const formulaIncrement = curIncCalc
+                    ? Math.max(0, (curIncCalc.incrementAmount || 0) + (curIncCalc.additionalIncrement || 0))
+                    : 0;
+
+                // Compute override increment if manager set a revised CTC
+                let overrideIncrement = formulaIncrement; // default = formula
+                if (payload.revisedCTCOverride) {
+                    overrideIncrement = payload.revisedCTCOverride - curEmpCTC;
+                }
+
+                // New total budget used = existing total - this emp's formula + this emp's final increment
+                const newTotalUsed = used - formulaIncrement + overrideIncrement;
+
+                if (allocated > 0 && newTotalUsed > allocated) {
+                    const excess = newTotalUsed - allocated;
+                    showAlert(
+                        `⛔ Budget Exceeded — Submission Blocked!\n\n` +
+                        `This revised CTC would push the team's total increment spend to ${fmtBudget(newTotalUsed)}, ` +
+                        `exceeding the allocated budget of ${fmtBudget(allocated)} by ${fmtBudget(excess)}.\n\n` +
+                        `Please reduce the revised CTC or the increment to stay within budget.`,
+                        "error"
+                    );
+                    // Flash the budget panel
+                    const panel = document.getElementById('mgrBudgetSummaryPanel');
+                    if (panel) {
+                        panel.style.outline = '2.5px solid #b91c1c';
+                        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        setTimeout(() => { panel.style.outline = ''; }, 3000);
+                    }
+                    return; // BLOCK SUBMISSION
+                }
+            }
+            // ── END BUDGET VALIDATION ─────────────────────────────────────
             try {
                 if (currentManagerDraftId) {
                     await updateDoc(doc(db, "appraisals", currentManagerDraftId), payload);
@@ -6918,7 +7112,7 @@
 
             const map = {};
             rows.forEach(r => {
-                if (!map[r.mgrName]) map[r.mgrName] = { dept:r.department, r3:0,r4:0,r5:0, total:0, eligCount:0, incrSum:0, incrAmtSum:0, ctcSum:0, members:[] };
+                if (!map[r.mgrName]) map[r.mgrName] = { dept:r.department, mgrEmail:r.mgrEmail||'', r3:0,r4:0,r5:0, total:0, eligCount:0, incrSum:0, incrAmtSum:0, ctcSum:0, members:[] };
                 const m = map[r.mgrName];
                 if (r.rating===3) m.r3++; else if (r.rating===4) m.r4++; else if (r.rating===5) m.r5++;
                 m.total++;
@@ -6931,8 +7125,14 @@
 
             el.innerHTML = managers.map(([mgrName, m], idx) => {
                 const avgIncr   = m.eligCount ? (m.incrSum/m.eligCount*100).toFixed(1) : 0;
-                const budget    = m.ctcSum * 0.10;
+                const _mPct     = getBudgetPct(m.mgrEmail);
+                const budget    = m.ctcSum * _mPct;
                 const utilPct   = budget > 0 ? Math.round(m.incrAmtSum / budget * 100) : 0;
+                const budgetPctLabel = (_mPct * 100).toFixed(1) + '%';
+                const isHC      = currentUser && currentUser.email === 'human.capital@vtion.in';
+                const editBtnHtml = isHC && m.mgrEmail
+                    ? `<button onclick="openBudgetPctModal('${m.mgrEmail.replace(/'/g,"\\'")}','${mgrName.replace(/'/g,"\\'")}','insights')" style="padding:2px 8px;border-radius:5px;border:1.5px solid #d1d5db;background:#f9fafb;color:#374151;font-size:0.65rem;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:0.02em;" title="Edit budget % for ${mgrName}">✏ ${budgetPctLabel}</button>`
+                    : `<span style="font-size:0.68rem;color:#9ca3af;">${budgetPctLabel}</span>`;
                 const r5pct     = m.total ? Math.round(m.r5/m.total*100) : 0;
                 const isInflated= r5pct >= 70;
                 const utilColor = utilPct > 100 ? '#b91c1c' : utilPct > 80 ? '#d97706' : '#047857';
@@ -6974,7 +7174,10 @@
                         <!-- Budget bar -->
                         <div style="margin-bottom:10px;">
                             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                                <span style="font-size:0.7rem;font-weight:600;color:#6b7280;">Budget utilisation</span>
+                                <div style="display:flex;align-items:center;gap:6px;">
+                                    <span style="font-size:0.7rem;font-weight:600;color:#6b7280;">Budget utilisation</span>
+                                    ${editBtnHtml}
+                                </div>
                                 <span style="font-size:0.72rem;font-weight:700;color:${utilColor};background:${utilBg};padding:1px 8px;border-radius:20px;">${utilPct}%</span>
                             </div>
                             <div style="height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden;">
@@ -8753,7 +8956,10 @@
 
                 subManagerEmails.forEach(mgrEmail => {
                     const mgrName = DIRECTORY[mgrEmail]?.name || mgrEmail;
-                    const subCount = allSubs.filter(s => s.depth > 1 && s.directManagerEmail === mgrEmail).length;
+                    // Full subtree: the sub-manager themselves + all their descendants
+                    const subTreeRows = allSubs.map(s => ({ email: s.email, directManagerEmail: s.directManagerEmail }));
+                    const subTree = getSubTree(mgrEmail, subTreeRows);
+                    const subCount = 1 + subTree.size; // +1 for the sub-manager themselves
                     filterSel.innerHTML += `<option value="sub:${mgrEmail}">Team of ${mgrName} (${subCount})</option>`;
                 });
             }
@@ -8788,6 +8994,8 @@
                 let submitted = 0, reviewed = 0, pending = 0;
                 const ratingDist = {1:0,2:0,3:0,4:0,5:0};
                 let teamEligibleCTC = 0, teamTotalIncrement = 0, incrementPctSum = 0, incrementPctCount = 0;
+                let teamAllCurrentCTC = 0; // ALL team members (eligible + ineligible)
+                let notEligibleCount = 0;
 
                 // Build rows and store for filtering
                 window._teamDashboardRows = [];
@@ -8806,12 +9014,35 @@
                     if (finalRating) ratingDist[finalRating] = (ratingDist[finalRating] || 0) + 1;
                     const fin = EMP_FINANCIAL_DATA[email] || {};
 
-                    const incCalc = calculateIncrement(email, finalRating || 3);
-                    if (incCalc && incCalc.eligible) {
-                        teamEligibleCTC   += fin.currentCTC || 0;
-                        teamTotalIncrement += incCalc.incrementAmount + incCalc.additionalIncrement;
-                        incrementPctSum   += incCalc.finalIncrementPercent * 100;
-                        incrementPctCount++;
+                    teamAllCurrentCTC += fin.currentCTC || 0; // always accumulate
+
+                    // Determine eligibility upfront for row styling + stats
+                    const eligCheck = calculateIncrement(email, finalRating || 3);
+                    const isEligible = eligCheck ? eligCheck.eligible : true; // default true if no fin data
+                    if (!isEligible) notEligibleCount++;
+
+                    // ── Only count employees with an ACTUAL confirmed rating ──
+                    // Never default to 3 — that produces fabricated numbers.
+                    if (finalRating) {
+                        const incCalc = calculateIncrement(email, finalRating);
+                        if (incCalc && incCalc.eligible) {
+                            teamEligibleCTC += fin.currentCTC || 0;
+
+                            // Use manager's actual submitted override CTC if it exists,
+                            // otherwise fall back to the formula-based increment.
+                            let actualIncrement;
+                            if (mgr && mgr.status === 'submitted' && mgr.revisedCTCOverride) {
+                                actualIncrement = mgr.revisedCTCOverride - (fin.currentCTC || 0);
+                            } else {
+                                actualIncrement = (incCalc.incrementAmount || 0) + (incCalc.additionalIncrement || 0);
+                            }
+                            // Guard against negative increments (e.g. bad data)
+                            actualIncrement = Math.max(0, actualIncrement);
+
+                            teamTotalIncrement += actualIncrement;
+                            incrementPctSum   += incCalc.finalIncrementPercent * 100;
+                            incrementPctCount++;
+                        }
                     }
 
                     const directMgrName = depth > 1
@@ -8827,9 +9058,15 @@
                         ? `<div style="${_avStyle}"><img src="${_teamPic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.style.display='none';this.parentElement.textContent='${_initials}'"></div>`
                         : `<div style="${_avStyle}">${_initials}</div>`;
 
-                    const rowHtml = `<tr style="cursor:pointer;transition:background 0.12s;"
-                        onmouseover="this.style.background='var(--table-row-hover)'"
-                        onmouseout="this.style.background=''"
+                    // Ineligible row: amber-tinted background + left border accent + badge
+                    const rowBg        = isEligible ? '' : 'background:#fffbeb;';
+                    const rowBorder    = isEligible ? '' : 'border-left:3px solid #f59e0b;';
+                    const ineligBadge  = isEligible ? '' :
+                        `<span style="display:inline-block;margin-left:6px;font-size:0.6rem;font-weight:700;color:#92400e;background:#fef3c7;border:1px solid #fde68a;padding:1px 6px;border-radius:10px;vertical-align:middle;white-space:nowrap;">Not Eligible</span>`;
+
+                    const rowHtml = `<tr style="cursor:pointer;transition:background 0.12s;${rowBg}${rowBorder}"
+                        onmouseover="this.style.background='${isEligible ? 'var(--table-row-hover)' : '#fef9e7'}'"
+                        onmouseout="this.style.background='${isEligible ? '' : '#fffbeb'}'"
                         onclick="openManagerEmpModal('${email.replace(/'/g, "\'")}')" >
                         <td>
                             <div style="display:flex;align-items:center;gap:10px;">
@@ -8838,7 +9075,7 @@
                                     <div class="tdh-name-trigger" data-email="${email}"
                                          style="font-weight:600;color:#111827;font-size:0.875rem;cursor:pointer;border-bottom:1.5px dashed #c4b5fd;display:inline-block;"
                                          onmouseenter="showDecisionCockpit('${email}', this);event.stopPropagation();"
-                                         onmouseleave="scheduleHideDecisionCockpit()">${info.name}</div>
+                                         onmouseleave="scheduleHideDecisionCockpit()">${info.name}</div>${ineligBadge}
                                     <div style="font-size:0.68rem;color:#9ca3af;">${email}</div>
                                 </div>
                             </div>
@@ -8852,7 +9089,10 @@
                         <td style="text-align:center;">${statusBadge(selfStatus, selfStatus === 'submitted' ? 'Submitted' : selfStatus === 'draft' ? 'Draft' : 'Pending')}</td>
                         <td style="text-align:center;">
                             <div style="display:flex;align-items:center;justify-content:center;gap:8px;">
-                                ${statusBadge(mgrStatus, mgrStatus === 'submitted' ? 'Reviewed' : mgrStatus === 'draft' ? 'Draft' : 'Pending')}
+                                ${isEligible
+                                    ? statusBadge(mgrStatus, mgrStatus === 'submitted' ? 'Reviewed' : mgrStatus === 'draft' ? 'Draft' : 'Pending')
+                                    : `<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:20px;font-size:0.72rem;font-weight:600;">Not Eligible</span>`
+                                }
                                 <span onclick="event.stopPropagation();openManagerEmpModal('${email.replace(/'/g,"\'")}');"
                                     title="View Details &amp; Salary Suggestion"
                                     style="display:inline-flex;align-items:center;gap:4px;font-size:0.68rem;font-weight:700;color:#4f46e5;padding:2px 9px;border-radius:20px;border:1px solid #c7d2fe;background:#f0f0ff;cursor:pointer;white-space:nowrap;transition:all 0.15s;"
@@ -8864,7 +9104,7 @@
                         </td>
                     </tr>`;
 
-                    window._teamDashboardRows.push({ email, depth, directManagerEmail, html: rowHtml });
+                    window._teamDashboardRows.push({ email, depth, directManagerEmail, isEligible, html: rowHtml });
                 });
 
                 // Render all rows initially
@@ -8872,12 +9112,101 @@
                     '<tr><td colspan="9" style="text-align:center;padding:28px;color:#6b7280;">No data.</td></tr>';
 
                 // Compute budget summary
-                const teamBudgetAllocated = teamEligibleCTC * 0.10;
+                const _mgrBudgetPct    = getBudgetPct(currentUser.email);
+                const teamBudgetAllocated = teamEligibleCTC * _mgrBudgetPct;
                 const avgIncrementPct     = incrementPctCount > 0 ? (incrementPctSum / incrementPctCount) : 0;
                 const budgetUtilizedPct   = teamBudgetAllocated > 0 ? (teamTotalIncrement / teamBudgetAllocated) * 100 : 0;
                 const isOverBudget        = budgetUtilizedPct > 100;
-                // Store for decision cockpit
-                window._teamBudgetData = { allocated: teamBudgetAllocated, used: teamTotalIncrement, utilizedPct: budgetUtilizedPct, teamSize: allSubs.length };
+                const teamTotalRevisedCTC = teamAllCurrentCTC + teamTotalIncrement;
+                // Store for decision cockpit + budget validation
+                window._teamBudgetData = {
+                    allocated: teamBudgetAllocated,
+                    used: teamTotalIncrement,
+                    utilizedPct: budgetUtilizedPct,
+                    teamSize: allSubs.length,
+                    allCurrentCTC: teamAllCurrentCTC,
+                    revisedCTC: teamTotalRevisedCTC
+                };
+
+                // ── Populate Manager Budget Summary Panel ──────────────
+                const budgetPanel = document.getElementById('mgrBudgetSummaryPanel');
+                if (budgetPanel && allSubs.length > 0) {
+                    budgetPanel.style.display = 'block';
+                    // Update subtitle with live budget %
+                    const subtitleEl = document.getElementById('mgrBudgetSubtitle');
+                    if (subtitleEl) subtitleEl.textContent = `Appraisal increment budget = ${(_mgrBudgetPct*100).toFixed(1)}% of team's eligible CTC`;
+                    // Show edit button only for human.capital@vtion.in
+                    const editBtn = document.getElementById('mgrBudgetEditBtn');
+                    if (editBtn) editBtn.style.display = currentUser.email === 'human.capital@vtion.in' ? 'inline-block' : 'none';
+                    const fmtC = (v) => {
+                        if (v >= 10000000) return '₹' + (v/10000000).toFixed(2) + 'Cr';
+                        if (v >= 100000)   return '₹' + (v/100000).toFixed(1) + 'L';
+                        return '₹' + Math.round(v).toLocaleString('en-IN');
+                    };
+                    const setEl = (id, html, prop) => {
+                        const el = document.getElementById(id);
+                        if (!el) return;
+                        if (prop === 'text') el.textContent = html;
+                        else el.innerHTML = html;
+                    };
+
+                    setEl('mgrBudgetAllocated',   fmtC(teamBudgetAllocated), 'text');
+                    setEl('mgrTotalCurrentCTC',   fmtC(teamAllCurrentCTC), 'text');
+                    setEl('mgrTotalRevisedCTC',   fmtC(teamTotalRevisedCTC), 'text');
+                    setEl('mgrBudgetUtilized',    fmtC(teamTotalIncrement), 'text');
+
+                    const utilColor = isOverBudget ? '#b91c1c' : budgetUtilizedPct > 80 ? '#d97706' : '#047857';
+                    const utilBg    = isOverBudget ? '#fee2e2' : budgetUtilizedPct > 80 ? '#fef3c7' : '#d1fae5';
+                    const utilLabel = isOverBudget ? '⚠ OVER BUDGET' : budgetUtilizedPct > 80 ? '⚠ Near Limit' : '✓ Within Budget';
+
+                    const pctEl = document.getElementById('mgrBudgetUtilPct');
+                    if (pctEl) {
+                        pctEl.textContent = `${budgetUtilizedPct.toFixed(1)}% utilized  •  ${utilLabel}`;
+                        pctEl.style.background = utilBg;
+                        pctEl.style.color = utilColor;
+                    }
+
+                    const utilEl = document.getElementById('mgrBudgetUtilized');
+                    if (utilEl) utilEl.style.color = utilColor;
+
+                    const barEl = document.getElementById('mgrBudgetBar');
+                    if (barEl) {
+                        barEl.style.width = Math.min(budgetUtilizedPct, 100) + '%';
+                        barEl.style.background = isOverBudget ? '#b91c1c' : budgetUtilizedPct > 80 ? '#d97706' : 'var(--brand-primary)';
+                    }
+
+                    const noteEl = document.getElementById('mgrBudgetNote');
+                    if (noteEl) {
+                        const remaining = teamBudgetAllocated - teamTotalIncrement;
+                        noteEl.textContent = isOverBudget
+                            ? `⚠ Increment spend (${fmtC(teamTotalIncrement)}) exceeds the ${fmtC(teamBudgetAllocated)} budget by ${fmtC(Math.abs(remaining))}. Revised CTC submissions are blocked.`
+                            : `Remaining headroom: ${fmtC(remaining)} of ${fmtC(teamBudgetAllocated)} available.`;
+                        noteEl.style.color = isOverBudget ? '#b91c1c' : '#6b7280';
+                        noteEl.style.fontWeight = isOverBudget ? '600' : '400';
+                    }
+
+                    const statusBadgeEl = document.getElementById('mgrBudgetStatusBadge');
+                    if (statusBadgeEl) {
+                        statusBadgeEl.textContent = isOverBudget ? `⛔ Over Budget (${budgetUtilizedPct.toFixed(0)}%)` : budgetUtilizedPct > 80 ? `⚠ Near Limit (${budgetUtilizedPct.toFixed(0)}%)` : `✓ On Track (${budgetUtilizedPct.toFixed(0)}%)`;
+                        statusBadgeEl.style.background = isOverBudget ? '#fef2f2' : budgetUtilizedPct > 80 ? '#fef3c7' : 'rgba(255,255,255,0.18)';
+                        statusBadgeEl.style.color = isOverBudget ? '#b91c1c' : budgetUtilizedPct > 80 ? '#92400e' : '#fff';
+                    }
+
+                    const errBanner = document.getElementById('mgrBudgetErrorBanner');
+                    if (errBanner) {
+                        errBanner.style.display = isOverBudget ? 'flex' : 'none';
+                        if (isOverBudget) {
+                            const excessAmt = teamTotalIncrement - teamBudgetAllocated;
+                            const errDetail = document.getElementById('mgrBudgetErrorDetail');
+                            if (errDetail) errDetail.textContent =
+                                `The projected increment spend of ${fmtC(teamTotalIncrement)} exceeds the allocated budget of ${fmtC(teamBudgetAllocated)} by ${fmtC(excessAmt)} (${(budgetUtilizedPct - 100).toFixed(1)}% over). Submitting a revised CTC is blocked until the team's total increment falls within budget. Please reduce ratings or revised CTC amounts.`;
+                        }
+                    }
+
+                    // Colour the revised CTC differently when over budget
+                    const revEl = document.getElementById('mgrTotalRevisedCTC');
+                    if (revEl) revEl.style.color = isOverBudget ? '#b91c1c' : '#1e40af';
+                }
                 const fmtL = (v) => v >= 100000 ? '₹' + (v / 100000).toFixed(1) + 'L' : '₹' + Math.round(v).toLocaleString('en-IN');
                 const budgetUtilColor = isOverBudget ? '#b91c1c' : budgetUtilizedPct > 80 ? '#d97706' : '#047857';
 
@@ -8914,6 +9243,11 @@
                         <div style="${metricStyle}">
                             <div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Pending Review</div>
                             <div style="font-size:1.5rem;font-weight:800;color:#d97706;">${pending}</div>
+                        </div>
+                        <div style="flex:1;padding:14px 18px;text-align:center;border-right:1px solid var(--border-color);min-width:0;${notEligibleCount > 0 ? 'background:#fffbeb;' : ''}">
+                            <div style="font-size:0.68rem;text-transform:uppercase;color:${notEligibleCount > 0 ? '#92400e' : 'var(--text-muted)'};margin-bottom:3px;">Not Eligible</div>
+                            <div style="font-size:1.5rem;font-weight:800;color:${notEligibleCount > 0 ? '#d97706' : 'var(--text-muted)'};">${notEligibleCount}</div>
+                            <div style="font-size:0.63rem;color:#92400e;margin-top:1px;">${notEligibleCount > 0 ? 'joined after cutoff' : 'all eligible'}</div>
                         </div>
                         <div style="${metricStyle}${isOverBudget ? 'border-top:2px solid #fca5a5;' : ''}">
                             <div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Budget Allocated</div>
@@ -8991,17 +9325,23 @@
 
             const filterSel = document.getElementById('teamViewFilter');
             const filterVal = filterSel ? filterSel.value : 'all';
+            const allRows   = window._teamDashboardRows;
 
             let filtered;
             if (filterVal === 'all') {
-                filtered = window._teamDashboardRows;
+                filtered = allRows;
             } else if (filterVal === 'direct') {
-                filtered = window._teamDashboardRows.filter(r => r.depth === 1);
+                filtered = allRows.filter(r => r.depth === 1);
             } else if (filterVal.startsWith('sub:')) {
-                const subMgrEmail = filterVal.slice(4);
-                filtered = window._teamDashboardRows.filter(r => r.depth > 1 && r.directManagerEmail === subMgrEmail);
+                const subMgrEmail = filterVal.slice(4).toLowerCase();
+                // Collect the full sub-tree under the chosen sub-manager
+                const subTree = getSubTree(subMgrEmail, allRows);
+                // Include the sub-manager themselves AND every descendant
+                filtered = allRows.filter(r =>
+                    r.email.toLowerCase() === subMgrEmail || subTree.has(r.email)
+                );
             } else {
-                filtered = window._teamDashboardRows;
+                filtered = allRows;
             }
 
             if (filtered.length === 0) {
@@ -9009,8 +9349,139 @@
             } else {
                 tbody.innerHTML = filtered.map(r => r.html).join('');
             }
+
+            // ── Re-compute summary stats for the filtered subset ──────────
+            _recomputeTeamDashboardSummary(filtered);
         }
         window.applyTeamDashboardFilter = applyTeamDashboardFilter;
+
+        /**
+         * Recompute the summary strip above the team dashboard table
+         * based on a filtered subset of rows (same shape as _teamDashboardRows).
+         */
+        function _recomputeTeamDashboardSummary(filteredRows) {
+            const summaryEl = document.getElementById('teamDashboardSummary');
+            if (!summaryEl) return;
+
+            const appraisalData = window._teamAppraisalData || { selfMap: {}, mgrMap: {} };
+            const { selfMap, mgrMap } = appraisalData;
+
+            let submitted = 0, reviewed = 0, pending = 0;
+            const ratingDist = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+            let teamEligibleCTC = 0, teamTotalIncrement = 0;
+            let incrementPctSum = 0, incrementPctCount = 0;
+            let teamAllCurrentCTC = 0;
+            let notEligibleCount = 0;
+
+            filteredRows.forEach(row => {
+                const email = row.email;
+                const self  = selfMap[email];
+                const mgr   = mgrMap[email];
+                const selfRating  = self ? parseInt(self.rating) : null;
+                const mgrRating   = mgr  ? parseInt(mgr.rating)  : null;
+                const finalRating = mgrRating || selfRating;
+                const selfStatus  = self?.status || 'pending';
+                const mgrStatus   = mgr?.status  || 'pending';
+
+                if (selfStatus === 'submitted') submitted++;
+                if (mgrStatus  === 'submitted') reviewed++;
+                else if (selfStatus === 'submitted') pending++;
+                if (finalRating) ratingDist[finalRating] = (ratingDist[finalRating] || 0) + 1;
+
+                const fin = EMP_FINANCIAL_DATA[email] || {};
+                teamAllCurrentCTC += fin.currentCTC || 0;
+
+                // Use stored isEligible flag from row data if available, else check fresh
+                const isEligible = row.isEligible !== undefined
+                    ? row.isEligible
+                    : (() => { const c = calculateIncrement(email, 3); return c ? c.eligible : true; })();
+                if (!isEligible) notEligibleCount++;
+
+                if (finalRating) {
+                    const incCalc = calculateIncrement(email, finalRating);
+                    if (incCalc && incCalc.eligible) {
+                        teamEligibleCTC += fin.currentCTC || 0;
+                        let actualIncrement;
+                        if (mgr && mgr.status === 'submitted' && mgr.revisedCTCOverride) {
+                            actualIncrement = mgr.revisedCTCOverride - (fin.currentCTC || 0);
+                        } else {
+                            actualIncrement = (incCalc.incrementAmount || 0) + (incCalc.additionalIncrement || 0);
+                        }
+                        actualIncrement = Math.max(0, actualIncrement);
+                        teamTotalIncrement += actualIncrement;
+                        incrementPctSum    += incCalc.finalIncrementPercent * 100;
+                        incrementPctCount++;
+                    }
+                }
+            });
+
+            const teamBudgetAllocated = teamEligibleCTC * 0.10;
+            const avgIncrementPct     = incrementPctCount > 0 ? (incrementPctSum / incrementPctCount) : 0;
+            const budgetUtilizedPct   = teamBudgetAllocated > 0 ? (teamTotalIncrement / teamBudgetAllocated) * 100 : 0;
+            const isOverBudget        = budgetUtilizedPct > 100;
+
+            const fmtL = (v) => v >= 10000000 ? '₹' + (v/10000000).toFixed(2) + 'Cr'
+                               : v >= 100000   ? '₹' + (v/100000).toFixed(1) + 'L'
+                               : '₹' + Math.round(v).toLocaleString('en-IN');
+            const budgetUtilColor = isOverBudget ? '#b91c1c' : budgetUtilizedPct > 80 ? '#d97706' : '#047857';
+            const ratingColors = { 1:'#b91c1c', 2:'#d97706', 3:'#047857', 4:'#1e40af', 5:'#7c3aed' };
+            const ratingDots = [1,2,3,4,5].map(r =>
+                `<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.72rem;font-weight:600;color:${ratingColors[r]};margin:0 4px;">
+                    <span style="width:8px;height:8px;border-radius:50%;background:${ratingColors[r]};display:inline-block;"></span>${r}:${ratingDist[r]||0}
+                </span>`).join('');
+
+            const metricStyle = 'flex:1;padding:14px 18px;text-align:center;border-right:1px solid var(--border-color);min-width:0;';
+            const overBudgetBanner = isOverBudget ? `
+                <div style="background:#fef2f2;border:1.5px solid #fca5a5;border-radius:8px;padding:10px 18px;margin:12px 16px 0;display:flex;align-items:center;gap:10px;">
+                    <svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='#b91c1c' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'/><line x1='12' y1='9' x2='12' y2='13'/><line x1='12' y1='17' x2='12.01' y2='17'/></svg>
+                    <div>
+                        <div style="font-size:0.82rem;font-weight:700;color:#b91c1c;">⚠ Over Budget Alert</div>
+                        <div style="font-size:0.74rem;color:#b91c1c;">Team increment spend of ${fmtL(teamTotalIncrement)} exceeds the allocated budget of ${fmtL(teamBudgetAllocated)} by ${fmtL(teamTotalIncrement - teamBudgetAllocated)} (${(budgetUtilizedPct - 100).toFixed(1)}% over). Please review ratings.</div>
+                    </div>
+                </div>` : '';
+
+            summaryEl.style.flexWrap = 'wrap';
+            summaryEl.innerHTML = `
+                <div style="${metricStyle}">
+                    <div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Team Size</div>
+                    <div style="font-size:1.5rem;font-weight:800;color:var(--brand-primary);">${filteredRows.length}</div>
+                </div>
+                <div style="${metricStyle}">
+                    <div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Self Submitted</div>
+                    <div style="font-size:1.5rem;font-weight:800;color:#047857;">${submitted}</div>
+                </div>
+                <div style="${metricStyle}">
+                    <div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Manager Reviewed</div>
+                    <div style="font-size:1.5rem;font-weight:800;color:#1e40af;">${reviewed}</div>
+                </div>
+                <div style="${metricStyle}">
+                    <div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Pending Review</div>
+                    <div style="font-size:1.5rem;font-weight:800;color:#d97706;">${pending}</div>
+                </div>
+                <div style="flex:1;padding:14px 18px;text-align:center;border-right:1px solid var(--border-color);min-width:0;${notEligibleCount > 0 ? 'background:#fffbeb;' : ''}">
+                    <div style="font-size:0.68rem;text-transform:uppercase;color:${notEligibleCount > 0 ? '#92400e' : 'var(--text-muted)'};margin-bottom:3px;">Not Eligible</div>
+                    <div style="font-size:1.5rem;font-weight:800;color:${notEligibleCount > 0 ? '#d97706' : 'var(--text-muted)'};">${notEligibleCount}</div>
+                    <div style="font-size:0.63rem;color:#92400e;margin-top:1px;">${notEligibleCount > 0 ? 'joined after cutoff' : 'all eligible'}</div>
+                </div>
+                <div style="${metricStyle}${isOverBudget ? 'border-top:2px solid #fca5a5;' : ''}">
+                    <div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Budget Allocated</div>
+                    <div style="font-size:1.2rem;font-weight:800;color:var(--brand-primary);">${fmtL(teamBudgetAllocated)}</div>
+                    <div style="font-size:0.63rem;color:var(--text-muted);margin-top:1px;">10% of eligible CTC</div>
+                </div>
+                <div style="${metricStyle}">
+                    <div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">Avg Increment %</div>
+                    <div style="font-size:1.5rem;font-weight:800;color:#1e40af;">${avgIncrementPct.toFixed(1)}%</div>
+                    <div style="font-size:0.63rem;color:var(--text-muted);margin-top:1px;">eligible members</div>
+                </div>
+                <div style="${metricStyle}${isOverBudget ? 'background:#fef2f2;border-top:2px solid #fca5a5;' : ''}border-right:none;">
+                    <div style="font-size:0.68rem;text-transform:uppercase;color:${isOverBudget?'#b91c1c':'var(--text-muted)'};margin-bottom:3px;">${isOverBudget ? '⚠ Budget Used' : 'Budget Used'}</div>
+                    <div style="font-size:1.2rem;font-weight:800;color:${budgetUtilColor};">${fmtL(teamTotalIncrement)}</div>
+                    <div style="font-size:0.72rem;font-weight:700;color:${budgetUtilColor};margin-top:2px;padding:1px 8px;border-radius:20px;display:inline-block;background:${isOverBudget?'#fee2e2':budgetUtilizedPct>80?'#fef3c7':'#d1fae5'};">${budgetUtilizedPct.toFixed(0)}% of budget</div>
+                </div>
+                ${overBudgetBanner ? `<div style="width:100%;padding:0 0 8px 0;">${overBudgetBanner}</div>` : ''}
+                <div style="width:100%;padding:10px 18px 12px;border-top:1px solid var(--border-color);"><div style="font-size:0.68rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">Rating Distribution</div><div>${ratingDots}</div></div>`;
+        }
+        window._recomputeTeamDashboardSummary = _recomputeTeamDashboardSummary;
 
         // ═══════════════════════════════════════════════════════════════
         // ADMIN-MANAGER ZONE (admin who also manages a team)
@@ -9070,6 +9541,8 @@
             const filterBar = document.getElementById('adminTeamFilterBar');
             if (!tbody) return;
             tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:28px;color:#6b7280;">Loading…</td></tr>';
+            // Default budget context to current user (reset on each full reload)
+            window._adminViewingMgrEmail = currentUser ? currentUser.email : '';
 
             const allSubs = getAllSubordinates(currentUser.email);
             if (allSubs.length === 0) {
@@ -9158,29 +9631,29 @@
                     };
                 });
 
-                // ── Build sub-manager filter buttons ──
-                const subManagers = window._adminTeamRows.filter(r =>
-                    r.depth === 1 &&
-                    window._adminTeamRows.some(sub => sub.directManagerEmail === r.email)
-                );
-                const subMgrGroup = document.getElementById('adminTFSubMgrGroup');
-                if (subMgrGroup) {
-                    subMgrGroup.innerHTML = subManagers.length ? subManagers.map(r => {
-                        const nm = (DIRECTORY[r.email]?.name || r.email).split(' ')[0];
-                        const safeId = r.email.replace(/[^a-z0-9]/gi,'_');
-                        return `<button id="adminTFbtnSub_${safeId}"
-                            onclick="filterAdminTeam('submgr','${r.email}')"
-                            style="padding:5px 14px;border-radius:20px;border:1.5px solid #e5e7eb;background:#fff;color:#374151;font-size:0.75rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;"
-                            title="Team of ${DIRECTORY[r.email]?.name||r.email}">
-                            ${nm}'s Team
-                        </button>`;
-                    }).join('') : '';
+                // ── Populate admin team view filter dropdown (same pattern as normal manager zone) ──
+                const adminFilterSel = document.getElementById('adminTeamViewFilter');
+                if (adminFilterSel) {
+                    const directEmails2 = window._adminTeamRows.filter(r => r.depth === 1).map(r => r.email);
+                    const directCount2  = directEmails2.length;
+                    adminFilterSel.innerHTML = `<option value="all">All Team Members (${allSubs.length})</option>`;
+                    if (directCount2 > 0) {
+                        adminFilterSel.innerHTML += `<option value="direct">My Direct Reports (${directCount2})</option>`;
+                    }
+                    const subMgrEmails2 = new Set(
+                        window._adminTeamRows.filter(r => r.depth > 1).map(r => r.directManagerEmail)
+                                             .filter(e => directEmails2.includes(e))
+                    );
+                    subMgrEmails2.forEach(mgrEmail => {
+                        const mgrName   = DIRECTORY[mgrEmail]?.name || mgrEmail;
+                        const subTree2  = getSubTree(mgrEmail, window._adminTeamRows);
+                        const subCount2 = 1 + subTree2.size;
+                        adminFilterSel.innerHTML += `<option value="sub:${mgrEmail}">Team of ${mgrName} (${subCount2})</option>`;
+                    });
                 }
-                if (filterBar) filterBar.style.display = 'flex';
 
                 // Render all rows & summary
                 renderAdminTeamRows(window._adminTeamRows, summaryEl, allSubs.length);
-                setAdminTeamFilterActive('all');
 
             } catch(e) {
                 document.getElementById('adminTeamDashboardBody').innerHTML =
@@ -9201,11 +9674,12 @@
             if (!summaryEl) return;
             let submitted=0, reviewed=0, pending=0, ratingDist={1:0,2:0,3:0,4:0,5:0};
             let teamEligibleCTC=0, teamTotalIncrement=0, incrementPctSum=0, incrementPctCount=0;
-            let eligibleCount=0, notEligibleCount=0;
+            let eligibleCount=0, notEligibleCount=0, teamAllCurrentCTC=0;
             rows.forEach(r => {
                 if (r.submitted) submitted++;
                 if (r.reviewed)  reviewed++; else if (r.submitted) pending++;
                 if (r.finalRating) ratingDist[r.finalRating]=(ratingDist[r.finalRating]||0)+1;
+                teamAllCurrentCTC += r.currentCTC || 0;
                 if (r.eligible) {
                     eligibleCount++;
                     teamEligibleCTC   += r.currentCTC;
@@ -9217,10 +9691,87 @@
                 }
             });
 
-            const teamBudgetAllocated = teamEligibleCTC * 0.10;
+            // Determine which manager's budget % to use:
+            // If filtered to a sub-manager's team, use their %; otherwise use currentUser's %
+            const _adminViewMgrEmail  = window._adminViewingMgrEmail || (currentUser ? currentUser.email : '');
+            const _adminBudgetPct     = getBudgetPct(_adminViewMgrEmail);
+            const teamBudgetAllocated = teamEligibleCTC * _adminBudgetPct;
+            const teamTotalRevisedCTC = teamAllCurrentCTC + teamTotalIncrement;
             const avgIncrementPct     = incrementPctCount > 0 ? incrementPctSum / incrementPctCount : 0;
             const budgetUtilizedPct   = teamBudgetAllocated > 0 ? (teamTotalIncrement / teamBudgetAllocated) * 100 : 0;
             const isOverBudget        = budgetUtilizedPct > 100;
+
+            // ── Populate Admin Manager Budget Summary Panel (mirrors normal manager zone) ──
+            const adminBudgetPanel = document.getElementById('adminMgrBudgetSummaryPanel');
+            if (adminBudgetPanel && rows.length > 0) {
+                adminBudgetPanel.style.display = 'block';
+                // Update subtitle with live budget %
+                const adminSubEl = document.getElementById('adminMgrBudgetSubtitle');
+                if (adminSubEl) adminSubEl.textContent = `Appraisal increment budget = ${(_adminBudgetPct*100).toFixed(1)}% of team's eligible CTC`;
+                // Show edit button only for human.capital@vtion.in
+                const adminEditBtn = document.getElementById('adminMgrBudgetEditBtn');
+                if (adminEditBtn) adminEditBtn.style.display = currentUser && currentUser.email === 'human.capital@vtion.in' ? 'inline-block' : 'none';
+                const fmtC = (v) => {
+                    if (v >= 10000000) return '\u20b9' + (v/10000000).toFixed(2) + 'Cr';
+                    if (v >= 100000)   return '\u20b9' + (v/100000).toFixed(1) + 'L';
+                    return '\u20b9' + Math.round(v).toLocaleString('en-IN');
+                };
+                const setEl = (id, val, prop) => {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    if (prop === 'text') el.textContent = val; else el.innerHTML = val;
+                };
+                setEl('adminMgrBudgetAllocated',   fmtC(teamBudgetAllocated), 'text');
+                setEl('adminMgrTotalCurrentCTC',   fmtC(teamAllCurrentCTC), 'text');
+                setEl('adminMgrTotalRevisedCTC',   fmtC(teamTotalRevisedCTC), 'text');
+                setEl('adminMgrBudgetUtilized',    fmtC(teamTotalIncrement), 'text');
+
+                const utilColor = isOverBudget ? '#b91c1c' : budgetUtilizedPct > 80 ? '#d97706' : '#047857';
+                const utilBg    = isOverBudget ? '#fee2e2' : budgetUtilizedPct > 80 ? '#fef3c7' : '#d1fae5';
+                const utilLabel = isOverBudget ? '\u26a0 OVER BUDGET' : budgetUtilizedPct > 80 ? '\u26a0 Near Limit' : '\u2713 Within Budget';
+
+                const pctEl = document.getElementById('adminMgrBudgetUtilPct');
+                if (pctEl) {
+                    pctEl.textContent = `${budgetUtilizedPct.toFixed(1)}% utilized  \u2022  ${utilLabel}`;
+                    pctEl.style.background = utilBg;
+                    pctEl.style.color = utilColor;
+                }
+                const utilEl = document.getElementById('adminMgrBudgetUtilized');
+                if (utilEl) utilEl.style.color = utilColor;
+
+                const barEl = document.getElementById('adminMgrBudgetBar');
+                if (barEl) {
+                    barEl.style.width = Math.min(budgetUtilizedPct, 100) + '%';
+                    barEl.style.background = isOverBudget ? '#b91c1c' : budgetUtilizedPct > 80 ? '#d97706' : 'var(--brand-primary)';
+                }
+                const noteEl = document.getElementById('adminMgrBudgetNote');
+                if (noteEl) {
+                    const remaining = teamBudgetAllocated - teamTotalIncrement;
+                    noteEl.textContent = isOverBudget
+                        ? `\u26a0 Increment spend (${fmtC(teamTotalIncrement)}) exceeds the ${fmtC(teamBudgetAllocated)} budget by ${fmtC(Math.abs(remaining))}. Revised CTC submissions are blocked.`
+                        : `Remaining headroom: ${fmtC(remaining)} of ${fmtC(teamBudgetAllocated)} available.`;
+                    noteEl.style.color = isOverBudget ? '#b91c1c' : '#6b7280';
+                    noteEl.style.fontWeight = isOverBudget ? '600' : '400';
+                }
+                const statusBadgeEl = document.getElementById('adminMgrBudgetStatusBadge');
+                if (statusBadgeEl) {
+                    statusBadgeEl.textContent = isOverBudget ? `\u26d4 Over Budget (${budgetUtilizedPct.toFixed(0)}%)` : budgetUtilizedPct > 80 ? `\u26a0 Near Limit (${budgetUtilizedPct.toFixed(0)}%)` : `\u2713 On Track (${budgetUtilizedPct.toFixed(0)}%)`;
+                    statusBadgeEl.style.background = isOverBudget ? '#fef2f2' : budgetUtilizedPct > 80 ? '#fef3c7' : 'rgba(255,255,255,0.18)';
+                    statusBadgeEl.style.color = isOverBudget ? '#b91c1c' : budgetUtilizedPct > 80 ? '#92400e' : '#fff';
+                }
+                const errBanner = document.getElementById('adminMgrBudgetErrorBanner');
+                if (errBanner) {
+                    errBanner.style.display = isOverBudget ? 'flex' : 'none';
+                    if (isOverBudget) {
+                        const excessAmt = teamTotalIncrement - teamBudgetAllocated;
+                        const errDetail = document.getElementById('adminMgrBudgetErrorDetail');
+                        if (errDetail) errDetail.textContent =
+                            `The projected increment spend of ${fmtC(teamTotalIncrement)} exceeds the allocated budget of ${fmtC(teamBudgetAllocated)} by ${fmtC(excessAmt)} (${(budgetUtilizedPct - 100).toFixed(1)}% over). Submitting a revised CTC is blocked until the team's total increment falls within budget. Please reduce ratings or revised CTC amounts.`;
+                    }
+                }
+                const revEl = document.getElementById('adminMgrTotalRevisedCTC');
+                if (revEl) revEl.style.color = isOverBudget ? '#b91c1c' : '#1e40af';
+            }
             const fmtL = v => v >= 100000 ? '\u20b9' + (v/100000).toFixed(1) + 'L' : '\u20b9' + Math.round(v).toLocaleString('en-IN');
             const budgetUtilColor = isOverBudget ? '#b91c1c' : budgetUtilizedPct > 80 ? '#d97706' : '#047857';
             const rc = {1:'#b91c1c',2:'#d97706',3:'#047857',4:'#1e40af',5:'#7c3aed'};
@@ -9278,6 +9829,10 @@
 
         function filterAdminTeam(type, subMgrEmail) {
             window._adminTeamFilter = type;
+            // Track which manager's budget context is being viewed
+            window._adminViewingMgrEmail = (type === 'submgr' && subMgrEmail)
+                ? subMgrEmail
+                : (currentUser ? currentUser.email : '');
             const allRows = window._adminTeamRows || [];
             let filtered;
             if (type === 'direct') {
@@ -9313,6 +9868,32 @@
             }
         }
         window.setAdminTeamFilterActive = setAdminTeamFilterActive;
+
+        // ── Admin team dashboard dropdown filter (mirrors applyTeamDashboardFilter) ──
+        function applyAdminTeamDashboardFilter() {
+            const filterSel = document.getElementById('adminTeamViewFilter');
+            const filterVal = filterSel ? filterSel.value : 'all';
+            const allRows   = window._adminTeamRows || [];
+            let filtered;
+            if (filterVal === 'all') {
+                window._adminViewingMgrEmail = currentUser ? currentUser.email : '';
+                filtered = allRows;
+            } else if (filterVal === 'direct') {
+                window._adminViewingMgrEmail = currentUser ? currentUser.email : '';
+                filtered = allRows.filter(r => r.depth === 1);
+            } else if (filterVal.startsWith('sub:')) {
+                const subMgrEmail = filterVal.slice(4).toLowerCase();
+                window._adminViewingMgrEmail = subMgrEmail;
+                const subTree = getSubTree(subMgrEmail, allRows);
+                filtered = allRows.filter(r => r.email === subMgrEmail || subTree.has(r.email));
+            } else {
+                window._adminViewingMgrEmail = currentUser ? currentUser.email : '';
+                filtered = allRows;
+            }
+            const summaryEl = document.getElementById('adminTeamDashboardSummary');
+            renderAdminTeamRows(filtered, summaryEl, allRows.length);
+        }
+        window.applyAdminTeamDashboardFilter = applyAdminTeamDashboardFilter;
 
                 window.loadAdminTeamDashboard = loadAdminTeamDashboard;
         window.initAdminManagerView = initAdminManagerView;
@@ -10010,6 +10591,47 @@
             if (!_ctcOverridePending) return;
             const { tab, newCTC, hikePct, hikeAmt } = _ctcOverridePending;
             _ctcOverrideConfirmed[tab] = { newCTC, reason, hikePct, hikeAmt };
+
+            // ── LIVE BUDGET WARNING after confirming override ──────────────
+            if (tab === 'mgr' && window._teamBudgetData) {
+                const { allocated, used } = window._teamBudgetData;
+                const target = document.getElementById('reporteeSelect')?.value;
+                if (target && allocated > 0) {
+                    const curEmpCTC = EMP_FINANCIAL_DATA[target]?.currentCTC || 0;
+                    const overrideIncrement = newCTC - curEmpCTC;
+                    // Derive rating from the CTC projection panel display (mgrOverallPctDisplay drives rating)
+                    // Best effort: read the actual projected CTC to back-calculate increment
+                    const mgrCtcNewEl = document.getElementById('mgrCtcNew');
+                    const projectedFormulaNewCTC = mgrCtcNewEl ? parseFloat((mgrCtcNewEl.textContent || '').replace(/[^0-9.]/g,'')) * (mgrCtcNewEl.textContent.includes('L') ? 100000 : mgrCtcNewEl.textContent.includes('Cr') ? 10000000 : 1) : 0;
+                    const formulaIncrement = projectedFormulaNewCTC > curEmpCTC
+                        ? projectedFormulaNewCTC - curEmpCTC
+                        : 0;
+                    const projectedTotal = used - formulaIncrement + overrideIncrement;
+                    const fmtB = (v) => v >= 100000 ? '₹' + (v/100000).toFixed(1) + 'L' : '₹' + Math.round(v).toLocaleString('en-IN');
+                    if (projectedTotal > allocated) {
+                        const excess = projectedTotal - allocated;
+                        // Show inline warning in the override panel
+                        const overrideBreakdown = document.getElementById('mgrCtcOverrideBreakdown');
+                        let warnEl = document.getElementById('mgrBudgetOverrideWarn');
+                        if (!warnEl) {
+                            warnEl = document.createElement('div');
+                            warnEl.id = 'mgrBudgetOverrideWarn';
+                            warnEl.style.cssText = 'margin-top:10px;padding:10px 14px;background:#fef2f2;border:1.5px solid #fca5a5;border-radius:8px;font-size:0.78rem;color:#b91c1c;font-weight:600;display:flex;align-items:flex-start;gap:8px;';
+                            warnEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b91c1c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span id="mgrBudgetOverrideWarnText"></span>`;
+                            if (overrideBreakdown && overrideBreakdown.parentNode) {
+                                overrideBreakdown.parentNode.insertBefore(warnEl, overrideBreakdown.nextSibling);
+                            }
+                        }
+                        const warnText = document.getElementById('mgrBudgetOverrideWarnText');
+                        if (warnText) warnText.textContent = `⛔ Budget Alert: This override projects total team increment spend at ${fmtB(projectedTotal)}, exceeding the ${fmtB(allocated)} budget by ${fmtB(excess)}. Submission will be blocked.`;
+                        warnEl.style.display = 'flex';
+                    } else {
+                        const warnEl = document.getElementById('mgrBudgetOverrideWarn');
+                        if (warnEl) warnEl.style.display = 'none';
+                    }
+                }
+            }
+            // ── END LIVE BUDGET WARNING ────────────────────────────────────
             const isAdmin  = tab === 'admin';
             const reasonBox  = document.getElementById(isAdmin ? 'adminMgrCtcOverrideReasonBox' : 'mgrCtcOverrideReasonBox');
             const reasonText = document.getElementById(isAdmin ? 'adminMgrCtcOverrideReasonText' : 'mgrCtcOverrideReasonText');
@@ -14264,9 +14886,145 @@
             // Uncomment below to use sample data for testing
             // initSampleBudgetData();
         });
+
+        // ══════════════════════════════════════════════════════════════════
+        //  BUDGET % OVERRIDE SYSTEM  (edit rights: human.capital@vtion.in)
+        // ══════════════════════════════════════════════════════════════════
+
+        window._budgetPctOverrides = {};   // mgrEmail (lower) → pct (e.g. 12 for 12%)
+        window._budgetPctModalContext = null; // { mgrEmail, mgrName, panelType }
+
+        /**
+         * Returns the decimal budget fraction for a manager's team.
+         * Defaults to 0.10 (10%) if no override has been set.
+         */
+        function getBudgetPct(mgrEmail) {
+            if (!mgrEmail) return 0.10;
+            const v = window._budgetPctOverrides[(mgrEmail).toLowerCase()];
+            return (v != null ? v : 10) / 100;
+        }
+
+        /** Load all budget % overrides from Firestore (called once on login). */
+        async function loadBudgetOverrides() {
+            try {
+                const snap = await getDocs(collection(db, 'budgetConfig'));
+                snap.forEach(d => {
+                    const pct = d.data().budgetPct;
+                    if (pct != null) window._budgetPctOverrides[d.id.toLowerCase()] = pct;
+                });
+            } catch(e) { console.warn('loadBudgetOverrides:', e); }
+        }
+
+        /** Save a budget % override to Firestore. */
+        async function saveBudgetPctToFirestore(mgrEmail, pct) {
+            window._budgetPctOverrides[mgrEmail.toLowerCase()] = pct;
+            await setDoc(doc(db, 'budgetConfig', mgrEmail.toLowerCase()), {
+                budgetPct: pct,
+                updatedBy: currentUser ? currentUser.email : '—',
+                updatedAt: new Date().toISOString()
+            }, { merge: true });
+        }
+
+        /** Open the budget % edit modal. panelType: 'mgr' | 'adminMgr' | 'insights' */
+        function openBudgetPctModal(mgrEmail, mgrName, panelType) {
+            if (!mgrEmail) return;
+            window._budgetPctModalContext = { mgrEmail, mgrName, panelType };
+            const modal = document.getElementById('budgetPctEditModal');
+            if (!modal) return;
+            const nameEl   = document.getElementById('budgetPctModalName');
+            const inputEl  = document.getElementById('budgetPctModalInput');
+            const errEl    = document.getElementById('budgetPctModalError');
+            if (nameEl)  nameEl.textContent = mgrName || mgrEmail;
+            if (inputEl) inputEl.value = (window._budgetPctOverrides[mgrEmail.toLowerCase()] ?? 10).toString();
+            if (errEl)   errEl.style.display = 'none';
+            modal.style.display = 'flex';
+            setTimeout(() => { if (inputEl) { inputEl.focus(); inputEl.select(); } }, 80);
+        }
+        window.openBudgetPctModal = openBudgetPctModal;
+
+        function closeBudgetPctModal() {
+            const modal = document.getElementById('budgetPctEditModal');
+            if (modal) modal.style.display = 'none';
+            window._budgetPctModalContext = null;
+        }
+        window.closeBudgetPctModal = closeBudgetPctModal;
+
+        async function confirmBudgetPctModal() {
+            const ctx    = window._budgetPctModalContext;
+            const inputEl= document.getElementById('budgetPctModalInput');
+            const errEl  = document.getElementById('budgetPctModalError');
+            if (!ctx || !inputEl) return;
+            const pct = parseFloat(inputEl.value);
+            if (isNaN(pct) || pct < 1 || pct > 50) {
+                if (errEl) { errEl.textContent = 'Enter a value between 1% and 50%.'; errEl.style.display = 'block'; }
+                return;
+            }
+            try {
+                await saveBudgetPctToFirestore(ctx.mgrEmail, pct);
+                closeBudgetPctModal();
+                showAlert(`Budget for ${ctx.mgrName || ctx.mgrEmail}'s team set to ${pct}%.`, 'success');
+                logAuditAction(currentUser.email, `Budget % for ${ctx.mgrEmail} set to ${pct}%`, 'BUDGET_PCT_OVERRIDE', ctx.mgrEmail);
+                // Refresh relevant panels
+                if (ctx.panelType === 'mgr')         { loadTeamDashboard(); }
+                else if (ctx.panelType === 'adminMgr') { loadAdminTeamDashboard(); }
+                else if (ctx.panelType === 'insights') {
+                    // Re-render budget analytics if visible
+                    if (typeof _renderBudgetKPIs === 'function' && window._bdgFilteredRows?.length) {
+                        _renderBudgetKPIs(window._bdgFilteredRows);
+                        _renderBudgetCharts(window._bdgFilteredRows);
+                        _renderBudgetEmpTable(window._bdgFilteredRows);
+                        _renderBudgetInsights(window._bdgFilteredRows);
+                    }
+                }
+            } catch(e) {
+                if (errEl) { errEl.textContent = 'Save failed: ' + e.message; errEl.style.display = 'block'; }
+            }
+        }
+        window.confirmBudgetPctModal = confirmBudgetPctModal;
+
+        // Allow Enter key to confirm
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Enter' && document.getElementById('budgetPctEditModal')?.style.display === 'flex') {
+                confirmBudgetPctModal();
+            }
+        });
     </script>
 
-    <!-- ── CTC Override Reason Modal ────────────────────────────── -->
+    <!-- ── Budget % Edit Modal (human.capital@vtion.in only) ─────── -->
+    <div id="budgetPctEditModal" style="display:none;position:fixed;inset:0;z-index:10000;align-items:center;justify-content:center;background:rgba(0,0,0,0.48);backdrop-filter:blur(3px);">
+        <div style="background:#fff;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,0.24);width:100%;max-width:420px;margin:20px;overflow:hidden;animation:fadeSlideIn 0.2s ease-out;">
+            <div style="background:linear-gradient(135deg,#0A0664 0%,#1a0f8f 100%);padding:16px 20px;display:flex;align-items:center;gap:10px;">
+                <svg xmlns='http://www.w3.org/2000/svg' width='17' height='17' viewBox='0 0 24 24' fill='none' stroke='#fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><line x1='12' y1='1' x2='12' y2='23'/><path d='M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6'/></svg>
+                <div>
+                    <div style="color:#fff;font-weight:700;font-size:0.95rem;">Set Team Budget %</div>
+                    <div style="color:rgba(255,255,255,0.7);font-size:0.73rem;">Override the default 10% appraisal budget allocation</div>
+                </div>
+                <button onclick="closeBudgetPctModal()" style="margin-left:auto;background:rgba(255,255,255,0.12);border:none;border-radius:6px;width:26px;height:26px;cursor:pointer;color:#fff;font-size:1rem;display:flex;align-items:center;justify-content:center;">✕</button>
+            </div>
+            <div style="padding:20px 22px;">
+                <div style="padding:10px 14px;background:#f0f0ff;border-radius:8px;margin-bottom:16px;border:1px solid rgba(10,6,100,0.12);">
+                    <div style="font-size:0.65rem;color:#6b7280;text-transform:uppercase;font-weight:700;margin-bottom:2px;">Team</div>
+                    <div style="font-weight:700;color:#0A0664;font-size:0.9rem;" id="budgetPctModalName">—</div>
+                </div>
+                <label style="display:block;font-size:0.78rem;font-weight:700;color:#374151;margin-bottom:8px;">Budget % of eligible team CTC <span style="color:#b91c1c;">*</span></label>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                    <input type="number" id="budgetPctModalInput" min="1" max="50" step="0.5" placeholder="10"
+                        style="width:90px;padding:9px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:1rem;font-weight:700;text-align:center;font-family:inherit;outline:none;"
+                        onfocus="this.style.borderColor='#0A0664'" onblur="this.style.borderColor='#d1d5db'" />
+                    <span style="font-size:0.9rem;font-weight:700;color:#374151;">%</span>
+                    <span style="font-size:0.78rem;color:#9ca3af;">(default: 10%)</span>
+                </div>
+                <div id="budgetPctModalError" style="display:none;color:#b91c1c;font-size:0.78rem;margin-top:4px;"></div>
+                <div style="font-size:0.72rem;color:#9ca3af;margin-top:8px;padding:8px 10px;background:#f9fafb;border-radius:6px;">
+                    This change is saved to Firestore and takes effect immediately for all budget panels and calculations for this team.
+                </div>
+            </div>
+            <div style="padding:0 22px 18px;display:flex;gap:10px;justify-content:flex-end;">
+                <button onclick="closeBudgetPctModal()" style="padding:9px 20px;border:1px solid #e5e7eb;border-radius:8px;background:#fff;cursor:pointer;font-size:0.875rem;font-weight:600;color:#374151;font-family:inherit;">Cancel</button>
+                <button onclick="confirmBudgetPctModal()" style="padding:9px 20px;border:none;border-radius:8px;background:#0A0664;cursor:pointer;font-size:0.875rem;font-weight:700;color:#fff;font-family:inherit;">Save Budget %</button>
+            </div>
+        </div>
+    </div>
     <div id="ctcReasonModal" style="display:none;position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);backdrop-filter:blur(2px);">
         <div style="background:#fff;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,0.22);width:100%;max-width:480px;margin:20px;overflow:hidden;animation:fadeSlideIn 0.22s ease-out;">
             <div style="background:linear-gradient(135deg,#6B0F1A 0%,#a01525 100%);padding:18px 22px;display:flex;align-items:center;gap:10px;">
