@@ -2067,7 +2067,7 @@
                                         </div>
                                         <!-- Revised — editable Fixed & PLI -->
                                         <div>
-                                            <div style="font-size:0.62rem;color:#047857;text-transform:uppercase;font-weight:700;letter-spacing:0.06em;margin-bottom:8px;">Revised CTC <span style="font-size:0.55rem;color:#9ca3af;font-weight:500;text-transform:none;">(edit Fixed or PLI)</span></div>
+                                            <div style="font-size:0.62rem;color:#047857;text-transform:uppercase;font-weight:700;letter-spacing:0.06em;margin-bottom:8px;">Revised CTC <span style="font-size:0.55rem;color:#9ca3af;font-weight:500;text-transform:none;">(edit Fixed or PLI — % = hike on component)</span></div>
                                             <div style="display:flex;flex-direction:column;gap:6px;">
                                                 <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
                                                     <span style="font-size:0.75rem;color:#6b7280;white-space:nowrap;">Fixed</span>
@@ -3104,7 +3104,7 @@
                                                 <svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#9ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><line x1='5' y1='12' x2='19' y2='12'/><polyline points='12 5 19 12 12 19'/></svg>
                                             </div>
                                             <div>
-                                                <div style="font-size:0.62rem;color:#047857;text-transform:uppercase;font-weight:700;letter-spacing:0.06em;margin-bottom:8px;">Revised CTC <span style="font-size:0.55rem;color:#9ca3af;font-weight:500;text-transform:none;">(edit Fixed or PLI)</span></div>
+                                                <div style="font-size:0.62rem;color:#047857;text-transform:uppercase;font-weight:700;letter-spacing:0.06em;margin-bottom:8px;">Revised CTC <span style="font-size:0.55rem;color:#9ca3af;font-weight:500;text-transform:none;">(edit Fixed or PLI — % = hike on component)</span></div>
                                                 <div style="display:flex;flex-direction:column;gap:6px;">
                                                     <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
                                                         <span style="font-size:0.75rem;color:#6b7280;white-space:nowrap;">Fixed</span>
@@ -10636,11 +10636,11 @@
             setEl(isAdmin ? 'adminMgrOvrNewTotal' : 'mgrOvrNewTotal', fmt(Math.round(newCTC)));
             const totalEl = document.getElementById(isAdmin ? 'adminMgrOvrNewTotal' : 'mgrOvrNewTotal');
             if (totalEl) totalEl.style.color = color;
-            // Sync % fields
+            // Sync % fields — show hike % per component (how much Fixed/PLI grew vs current)
             const fixedPctEl = document.getElementById(isAdmin ? 'adminMgrOvrNewFixedPct' : 'mgrOvrNewFixedPct');
             const pliPctEl   = document.getElementById(isAdmin ? 'adminMgrOvrNewPLIPct'   : 'mgrOvrNewPLIPct');
-            if (fixedPctEl && curTotal > 0) fixedPctEl.value = ((newFixed / curTotal) * 100).toFixed(2);
-            if (pliPctEl   && curTotal > 0) pliPctEl.value   = ((newPLI   / curTotal) * 100).toFixed(2);
+            if (fixedPctEl) fixedPctEl.value = curFixed > 0 ? (((newFixed - curFixed) / curFixed) * 100).toFixed(2) : '0.00';
+            if (pliPctEl)   pliPctEl.value   = curPLI   > 0 ? (((newPLI   - curPLI)   / curPLI)   * 100).toFixed(2) : '0.00';
 
             if (breakdown) breakdown.style.display = 'block';
 
@@ -10706,11 +10706,13 @@
                 const color   = hikeAmt >= 0 ? '#047857' : '#b91c1c';
                 if (hikePctEl) { hikePctEl.value = hikePct.toFixed(2); hikePctEl.style.color = color; }
                 if (hikeAmtEl) { hikeAmtEl.value = Math.round(Math.abs(hikeAmt)); hikeAmtEl.style.color = color; }
-                // Sync % fields
+                // Sync % fields — hike % per component
                 const fixedPctEl = document.getElementById(isAdmin ? 'adminMgrOvrNewFixedPct' : 'mgrOvrNewFixedPct');
                 const pliPctEl   = document.getElementById(isAdmin ? 'adminMgrOvrNewPLIPct'   : 'mgrOvrNewPLIPct');
-                if (fixedPctEl) fixedPctEl.value = ((newFixed / curTotal) * 100).toFixed(2);
-                if (pliPctEl)   pliPctEl.value   = ((newPLI   / curTotal) * 100).toFixed(2);
+                const curFixed   = fin.fixedCTC || 0;
+                const curPLI     = fin.pli       || 0;
+                if (fixedPctEl) fixedPctEl.value = curFixed > 0 ? (((newFixed - curFixed) / curFixed) * 100).toFixed(2) : '0.00';
+                if (pliPctEl)   pliPctEl.value   = curPLI   > 0 ? (((newPLI   - curPLI)   / curPLI)   * 100).toFixed(2) : '0.00';
             }
             // Update confirmed override silently
             _ctcOverrideConfirmed[tab] = { ..._ctcOverrideConfirmed[tab], newCTC };
@@ -10743,7 +10745,9 @@
             const isAdmin = tab === 'admin';
             const { fin } = _getMgrOverrideFinData(tab);
             if (!fin) return;
-            const curTotal = fin.totalCTC || fin.currentCTC || ((fin.fixedCTC||0) + (fin.pli||0));
+            const curFixed   = fin.fixedCTC || 0;
+            const curPLI     = fin.pli       || 0;
+            const curTotal   = fin.totalCTC || fin.currentCTC || (curFixed + curPLI);
             if (!curTotal) return;
 
             const fixedPctEl = document.getElementById(isAdmin ? 'adminMgrOvrNewFixedPct' : 'mgrOvrNewFixedPct');
@@ -10752,11 +10756,18 @@
             const pliEl      = document.getElementById(isAdmin ? 'adminMgrOvrNewPLI'      : 'mgrOvrNewPLI');
             const totalEl    = document.getElementById(isAdmin ? 'adminMgrOvrNewTotal'    : 'mgrOvrNewTotal');
 
-            const fixedPct = parseFloat(fixedPctEl?.value) || 0;
-            const pliPct   = parseFloat(pliPctEl?.value)   || 0;
+            // % is hike % of the current component value; use current amount for the untouched field
+            const fixedPct = parseFloat(fixedPctEl?.value);
+            const pliPct   = parseFloat(pliPctEl?.value);
 
-            const newFixed = Math.round(curTotal * fixedPct / 100);
-            const newPLI   = Math.round(curTotal * pliPct   / 100);
+            const newFixed = field === 'fixed' && !isNaN(fixedPct)
+                ? Math.round(curFixed * (1 + fixedPct / 100))
+                : (parseFloat(fixedEl?.value) || curFixed);
+
+            const newPLI   = field === 'pli' && !isNaN(pliPct)
+                ? Math.round(curPLI * (1 + pliPct / 100))
+                : (parseFloat(pliEl?.value) || curPLI);
+
             const newCTC   = newFixed + newPLI;
 
             if (fixedEl) fixedEl.value = newFixed;
@@ -10769,14 +10780,19 @@
             const hikeAmtEl = document.getElementById(isAdmin ? 'adminMgrCtcOverrideHikeAmt' : 'mgrCtcOverrideHikeAmt');
             if (ctcInput) ctcInput.value = Math.round(newCTC);
             if (curTotal > 0) {
-                const hikePct = ((newCTC - curTotal) / curTotal) * 100;
+                const totalHikePct = ((newCTC - curTotal) / curTotal) * 100;
                 const hikeAmt = newCTC - curTotal;
                 const color   = hikeAmt >= 0 ? '#047857' : '#b91c1c';
-                if (hikePctEl) { hikePctEl.value = hikePct.toFixed(2); hikePctEl.style.color = color; }
+                if (hikePctEl) { hikePctEl.value = totalHikePct.toFixed(2); hikePctEl.style.color = color; }
                 if (hikeAmtEl) { hikeAmtEl.value = Math.round(Math.abs(hikeAmt)); hikeAmtEl.style.color = color; }
                 if (fixedEl) fixedEl.style.color = color;
                 if (pliEl)   pliEl.style.color   = color;
                 if (totalEl) totalEl.style.color  = color;
+                // Keep the OTHER % field in sync with its amount
+                if (field === 'fixed' && curPLI > 0 && pliPctEl)
+                    pliPctEl.value = (((newPLI - curPLI) / curPLI) * 100).toFixed(2);
+                if (field === 'pli' && curFixed > 0 && fixedPctEl)
+                    fixedPctEl.value = (((newFixed - curFixed) / curFixed) * 100).toFixed(2);
             }
             _ctcOverrideConfirmed[tab] = { ..._ctcOverrideConfirmed[tab], newCTC };
         }
