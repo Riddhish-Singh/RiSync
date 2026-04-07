@@ -3950,7 +3950,6 @@
         const DIRECTORY = {
             // HR Admin account
             "human.capital@vtion.in": { name:"Snigdha Tripathi", designation:"HR Manager", department:"Human Resources", manager:"manoj.dawane@vtion.in" },
-            "riju.chaudhuri@vtion.in": { name:"Riju Chaudhuri", designation:"", department:"", manager:"" },
             "manoj.dawane@vtion.in": { name:"Manoj Dawane", designation:"Founder & CEO", department:"Business & Strategy", manager:"" },
             "shubham.saxena@vtion.in": { name:"Shubham Saxena", designation:"Head - Product & Technology", department:"Product & Technology", manager:"manoj.dawane@vtion.in" },
             "shailesh.varudkar@vtion.in": { name:"Shailesh Varudkar", designation:"Chief Operating Officer and DPO", department:"Business & Strategy", manager:"manoj.dawane@vtion.in" },
@@ -4090,6 +4089,7 @@
             "pulkit.bharadwaj@vtion.in": { empId:"049", currentCTC:1400000.0, marketBenchmark:null, doj:"2025-05-01", designation:"Power BI Developer", department:"Product & Technology", fixedCTC:1350000.0, pli:50000.0, totalCTC:1400000.0 },
             "abhishek.mohite@vtion.in": { empId:"052", currentCTC:1450000.0, marketBenchmark:null, doj:"2025-07-21", designation:"Developer", department:"Product & Technology", fixedCTC:1400000.0, pli:50000.0, totalCTC:1450000.0 },
             "divya.bansal@vtion.in": { empId:"053", currentCTC:1600000.0, marketBenchmark:null, doj:"2025-08-04", designation:"Executive- Digital Marketing", department:"Sales", fixedCTC:1500000.0, pli:100000.0, totalCTC:1600000.0 },
+            "riju.chaudhuri@vtion.in": { empId:"054", currentCTC:3000000.0, marketBenchmark:null, doj:"2025-11-17", designation:"Client Engagement Lead", department:"Sales", fixedCTC:2500000.0, pli:500000.0, totalCTC:3000000.0 },
             "gautam.agrawal@vtion.in": { empId:"055", currentCTC:900000.0, marketBenchmark:null, doj:"2025-11-24", designation:"Power BI Developer", department:"Product & Technology", fixedCTC:800000.0, pli:100000.0, totalCTC:900000.0 },
             "kapil.bhawariwal@vtion.in": { empId:"056", currentCTC:2700000.0, marketBenchmark:null, doj:"2025-12-03", designation:"Data Scientist", department:"Product & Technology", fixedCTC:2500000.0, pli:200000.0, totalCTC:2700000.0 },
         };
@@ -4437,7 +4437,21 @@
             const btnText = document.getElementById('btnText');
 
             if (!email || !pass) return showAlert("Please enter your credentials.", "error");
-            if (!DIRECTORY[email]) { try { await loadEmployeesFromFirestore(); } catch(e){} }
+
+            // Await Firestore employee load before checking the directory.
+            // Without this, admin-panel-created accounts (not hardcoded in DIRECTORY)
+            // are rejected with "Access Denied" before their Firestore record merges.
+            if (!window._firestoreEmployeesLoaded) {
+                btn.disabled = true;
+                btnText.style.visibility = "hidden";
+                spinner.style.display = "block";
+                await loadEmployeesFromFirestore();
+                window._firestoreEmployeesLoaded = true;
+                btn.disabled = false;
+                btnText.style.visibility = "visible";
+                spinner.style.display = "none";
+            }
+
             if (!DIRECTORY[email]) return showAlert("Access Denied: Email not in directory.", "error");
 
             btn.disabled = true;
@@ -4554,8 +4568,29 @@
                     document.getElementById('sidebarAdmin').style.display = 'none';
                     if (contentArea) contentArea.classList.add('with-sidebar');
                     // Load Firestore-added employees first so the manager zone
-                    // correctly includes any employee added via the admin portal
+                    // correctly includes any employee added via the admin portal.
+                    // IMPORTANT: For Firestore-only users (e.g. admin-panel-created accounts
+                    // not in the hardcoded DIRECTORY), currentUser.name is undefined until
+                    // loadEmployeesFromFirestore() merges their record. Re-build currentUser
+                    // and refresh the UI (avatar, sidebar name) AFTER the load completes.
                     loadEmployeesFromFirestore().then(() => {
+                        // Re-build currentUser from the now-populated DIRECTORY
+                        currentUser = { ...DIRECTORY[email], email };
+                        window._currentUser = currentUser;
+
+                        // Refresh topbar avatar initials and tooltip with the correct name
+                        const avatarElPost = document.getElementById('userAvatar');
+                        if (avatarElPost) {
+                            const initials = currentUser.name
+                                ? currentUser.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
+                                : 'U';
+                            avatarElPost.textContent = initials;
+                            avatarElPost.title = (currentUser.name || 'User') + ' — click to change photo';
+                        }
+                        // Refresh sidebar name display
+                        const navNameEl = document.getElementById('navUserName');
+                        if (navNameEl) navNameEl.innerText = currentUser.name || '';
+
                         initEmployeeView();
                     });
                     loadProfilePic(email);
@@ -4628,6 +4663,35 @@
                 if (ctcPLIEl)   ctcPLIEl.value   = pli   || '';
                 if (ctcTotalEl) ctcTotalEl.value  = total || '';
             }
+            // ── Eligibility check: disable self-appraisal UI for ineligible employees ──
+            const _dojRaw = fin?.doj ? new Date(fin.doj) : null;
+            const _isIneligible = _dojRaw && (_dojRaw >= ELIGIBILITY_DATE);
+            if (_isIneligible) {
+                const { cutoffLabel } = getSessionCutoffs();
+                // Show ineligibility banner above the KPI section
+                const kpiSection = document.querySelector('#tabSelf .section-card:last-of-type');
+                if (kpiSection) {
+                    const notice = document.createElement('div');
+                    notice.id = 'selfAppraisalIneligibleNotice';
+                    notice.style.cssText = 'display:flex;align-items:flex-start;gap:14px;padding:14px 18px;background:#fef2f2;border:1.5px solid #fca5a5;border-radius:10px;margin-bottom:16px;';
+                    notice.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#b91c1c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <div>
+                            <div style="font-weight:700;font-size:0.9rem;color:#b91c1c;">Not Eligible for This Appraisal Cycle</div>
+                            <div style="font-size:0.82rem;color:#7f1d1d;margin-top:3px;line-height:1.5;">Your date of joining does not meet the eligibility cutoff of <strong>${cutoffLabel}</strong>. Self-appraisal submission is disabled for this cycle.</div>
+                        </div>`;
+                    kpiSection.insertAdjacentElement('beforebegin', notice);
+                }
+                // Disable all inputs and buttons inside the self-appraisal tab
+                const submitBtn = document.querySelector('#selfBtnGroup .btn-primary');
+                const draftBtn  = document.querySelector('#selfBtnGroup .btn-secondary');
+                const addKpiBtn = document.querySelector('#addKpiArea button');
+                [submitBtn, draftBtn, addKpiBtn].forEach(btn => {
+                    if (btn) { btn.disabled = true; btn.style.opacity = '0.4'; btn.style.cursor = 'not-allowed'; btn.title = `Not eligible — must have joined before ${cutoffLabel}`; }
+                });
+            }
+            // ─────────────────────────────────────────────────────────────────────────
+
             const allSubs = getAllSubordinates(currentUser.email);
             if(allSubs.length > 0) {
                 document.getElementById('managerTabBtn').style.display = 'block';
@@ -4951,6 +5015,17 @@
         }
 
         async function submitSelfAppraisal() {
+            // ── Eligibility gate: block ineligible employees ──────────────
+            const _fin = EMP_FINANCIAL_DATA[currentUser?.email];
+            if (_fin?.doj) {
+                const _doj = new Date(_fin.doj);
+                if (_doj >= ELIGIBILITY_DATE) {
+                    const { cutoffLabel } = getSessionCutoffs();
+                    showAlert(`You are not eligible for this appraisal cycle. Only employees who joined before ${cutoffLabel} can submit a self-appraisal.`, "error");
+                    return;
+                }
+            }
+            // ─────────────────────────────────────────────────────────────
             const kpis = getKPICards();
             if (kpis.length === 0) return showAlert("Please add at least one KRA/KPI.", "error");
             const totalW = kpis.reduce((s,k)=>s+k.weightage,0);
@@ -6539,8 +6614,6 @@
                     department:           finData.department,
                     doj:                  finData.doj,
                     empId:                finData.empId,
-                    mgrCTCOverride:       (!adminHasOverridden && mgrDoc?.revisedCTCOverride) ? mgrDoc.revisedCTCOverride : null,
-                    mgrCTCReason:         (!adminHasOverridden && mgrDoc?.revisedCTCOverride) ? (mgrDoc?.revisedCTCReason || null) : null,
                 });
             }
 
@@ -6974,12 +7047,8 @@
                         <div style="margin-top:2px;">${kraLine}</div>
                     </td>
                     <td style="padding:9px 14px;text-align:right;font-size:0.82rem;">${FMT_L(r.currentCTC)}</td>
-                    <td style="padding:9px 14px;text-align:right;font-weight:700;color:${r.eligible?(r.finalIncrementPercent>0.12?'#047857':'#374151'):'#9ca3af'};">
-                        ${r.eligible?PCT(r.finalIncrementPercent):'—'}
-                        ${r.mgrCTCOverride ? '<div style="font-size:0.6rem;color:#047857;font-weight:600;">MGR ✓</div>' : ''}
-                        ${r.mgrCTCReason ? `<div title="${r.mgrCTCReason.replace(/"/g,'&quot;')}" style="font-size:0.6rem;color:#92400e;background:#fef9ec;border:1px solid #fde68a;border-radius:4px;padding:1px 5px;margin-top:2px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:help;">📝 ${r.mgrCTCReason}</div>` : ''}
-                    </td>
-                    <td style="padding:9px 14px;text-align:right;font-size:0.82rem;">${r.eligible?FMT_L(r.mgrCTCOverride ? r.mgrCTCOverride - r.currentCTC : r.incrementAmount):'—'}</td>
+                    <td style="padding:9px 14px;text-align:right;font-weight:700;color:${r.eligible?(r.finalIncrementPercent>0.12?'#047857':'#374151'):'#9ca3af'};">${r.eligible?PCT(r.finalIncrementPercent):'—'}</td>
+                    <td style="padding:9px 14px;text-align:right;font-size:0.82rem;">${r.eligible?FMT_L(r.incrementAmount):'—'}</td>
                     <td style="padding:9px 14px;text-align:center;">
                         <span style="font-size:0.68rem;font-weight:700;padding:2px 8px;border-radius:20px;background:${r.eligible?'#d1fae5':'#fee2e2'};color:${r.eligible?'#047857':'#b91c1c'};">${r.eligType}</span>
                     </td>
@@ -8563,7 +8632,7 @@
                         <td id="c_basepct_${ek}" style="text-align:center;">
                             ${!r.eligible ? '—'
                                 : r.mgrCTCOverride
-                                    ? (() => { const _hp = r.currentCTC > 0 ? ((r.mgrCTCOverride - r.currentCTC) / r.currentCTC * 100).toFixed(1) : '—'; return `<span style="font-size:0.72rem;font-weight:700;color:#047857;">${_hp}%</span><div style="font-size:0.62rem;color:#047857;">MGR ✓</div>${r.mgrCTCReason ? `<div title="${r.mgrCTCReason.replace(/"/g,'&quot;')}" style="font-size:0.6rem;color:#92400e;background:#fef9ec;border:1px solid #fde68a;border-radius:4px;padding:1px 5px;margin-top:3px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:help;">📝 ${r.mgrCTCReason}</div>` : ''}`; })()
+                                    ? (() => { const _hp = r.currentCTC > 0 ? ((r.mgrCTCOverride - r.currentCTC) / r.currentCTC * 100).toFixed(1) : '—'; return `<span style="font-size:0.72rem;font-weight:700;color:#047857;">${_hp}%</span><div style="font-size:0.62rem;color:#047857;">MGR ✓</div>`; })()
                                     : `<span style="font-size:0.72rem;font-weight:700;color:#1e40af;">${(r.minHikePct*100).toFixed(0)}%–${(r.maxHikePct*100).toFixed(0)}%</span>
                                        <div style="font-size:0.62rem;color:#6b7280;">${r.kraBandLabel||''}</div>`}
                         </td>
@@ -8571,7 +8640,7 @@
                         <td id="c_incr_${ek}" style="text-align:right;">
                             ${!r.eligible ? '—'
                                 : r.mgrCTCOverride
-                                    ? `<strong style="color:#047857;" title="${r.mgrCTCReason ? 'Manager reason: ' + r.mgrCTCReason.replace(/"/g,'&quot;') : 'Manager-decided increment'}">${fmt(r.mgrCTCOverride - r.currentCTC)}</strong>
+                                    ? `<strong style="color:#047857;" title="Manager-decided increment">${fmt(r.mgrCTCOverride - r.currentCTC)}</strong>
                                        <div style="font-size:0.62rem;color:#047857;">MGR ✓</div>`
                                     : `<span style="font-weight:600;color:var(--brand-accent);" title="Range: ${fmt(r.minIncrement)} – ${fmt(r.maxIncrement)}">${fmt(r.incrementAmount)}</span>
                                        <div style="font-size:0.62rem;color:#9ca3af;">${fmt(r.minIncrement)}–${fmt(r.maxIncrement)}</div>`}
@@ -8580,8 +8649,7 @@
                         <td id="c_revised_${ek}" style="text-align:right;">
                             ${r.mgrCTCOverride
                                 ? `<strong style="color:#047857;" title="Manager submitted: ${fmt(r.mgrCTCOverride)}">${fmt(r.mgrCTCOverride)}</strong>
-                                   <div style="font-size:0.62rem;color:#047857;">MGR ✓</div>
-                                   ${r.mgrCTCReason ? `<div title="${r.mgrCTCReason.replace(/"/g,'&quot;')}" style="font-size:0.6rem;color:#92400e;background:#fef9ec;border:1px solid #fde68a;border-radius:4px;padding:1px 5px;margin-top:3px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:help;">📝 ${r.mgrCTCReason}</div>` : ''}`
+                                   <div style="font-size:0.62rem;color:#047857;">MGR ✓</div>`
                                 : `<span style="color:#374151;">${r.eligible ? fmt(r.revisedCTC) : fmt(r.currentCTC)}</span>`}
                         </td>
                         <!-- Adjusted % (N/A under KRA formula) -->
@@ -8592,9 +8660,8 @@
                         <td id="c_finalctc_${ek}" style="background:var(--tint-purple);text-align:right;">
                             ${r.eligible
                                 ? r.mgrCTCOverride
-                                    ? `<strong style="color:#047857;" title="${r.mgrCTCReason ? 'Manager reason: ' + r.mgrCTCReason.replace(/"/g,'&quot;') : 'Manager-decided CTC'}">${fmt(r.mgrCTCOverride)}</strong>
-                                       <div style="font-size:0.62rem;color:#047857;font-weight:600;">MGR ✓</div>
-                                       ${r.mgrCTCReason ? `<div title="${r.mgrCTCReason.replace(/"/g,'&quot;')}" style="font-size:0.6rem;color:#92400e;background:#fef9ec;border:1px solid #fde68a;border-radius:4px;padding:1px 5px;margin-top:3px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:help;">📝 ${r.mgrCTCReason}</div>` : ''}`
+                                    ? `<strong style="color:#047857;" title="Manager-decided CTC">${fmt(r.mgrCTCOverride)}</strong>
+                                       <div style="font-size:0.62rem;color:#047857;font-weight:600;">MGR ✓</div>`
                                     : `<strong style="color:var(--brand-primary);">${fmt(r.finalRevisedCTC)}</strong>
                                        <div style="font-size:0.62rem;color:#6b7280;">${fmt(r.minRevisedCTC)}–${fmt(r.maxRevisedCTC)}</div>`
                                 : `<strong style="color:#9ca3af;">${fmt(r.currentCTC)}</strong>`}
@@ -11372,7 +11439,6 @@
                 snap.forEach(d => {
                     const emp = d.data();
                     if (!emp.email) return;
-                    if (emp.removed === true) return;
                     const email = emp.email.toLowerCase();
                     // Merge into DIRECTORY if not already there
                     if (!DIRECTORY[email]) {
@@ -15623,7 +15689,6 @@
                     <button type="button" class="reason-chip" onclick="selectReasonChip(this,'Role promotion or expanded responsibilities')">Promotion / Role change</button>
                     <button type="button" class="reason-chip" onclick="selectReasonChip(this,'Budget constraint — reducing hike')">Budget constraint</button>
                     <button type="button" class="reason-chip" onclick="selectReasonChip(this,'HR policy override')">HR policy override</button>
-                    <button type="button" class="reason-chip" onclick="selectReasonChip(this,'High potential (HiPo)')">High potential (HiPo)</button>
                 </div>
                 <textarea id="ctcReasonTextarea" rows="3" placeholder="Or describe your reason here…"
                     style="width:100%;padding:10px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:0.85rem;font-family:inherit;resize:vertical;outline:none;box-sizing:border-box;"
