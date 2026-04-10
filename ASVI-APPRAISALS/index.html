@@ -4017,6 +4017,16 @@
         // Expose on window so modal functions using window.EMP_FINANCIAL_DATA resolve correctly
         window.EMP_FINANCIAL_DATA = EMP_FINANCIAL_DATA;
 
+        // ─── CUSTOM RATING ROUND (.5–.9 → ceil, .1–.4 → floor) ─────────────────
+        // Rule: 1.5–1.9 → 2, but 1.1–1.4 → 1 (standard banker-style cutoff at .5)
+        function customRound(val) {
+            const n = parseFloat(val);
+            if (isNaN(n)) return n;
+            const floor = Math.floor(n);
+            const decimal = n - floor;
+            return decimal >= 0.5 ? floor + 1 : floor;
+        }
+
         // ─── KRA HIKE TABLE (per Appraisal Guidelines) ─────────────────────────
         // KRA Achievement % → Rating band → Hike range
         const KRA_HIKE_TABLE = [
@@ -4749,7 +4759,8 @@
             const overallEl = document.getElementById('overallSelfRatingDisplay');
             if (overallEl) {
                 if (totalWeight > 0) {
-                    const r5 = ((overallPct/100)*5).toFixed(2);
+                    const r5Raw2 = (overallPct/100)*5;
+                    const r5 = Math.round(r5Raw2);
                     overallEl.textContent = `${overallPct}% (${r5}/5)`;
                 } else {
                     overallEl.textContent = '—';
@@ -5026,7 +5037,7 @@
                 const avgPct = (weighted / totalW).toFixed(1);
                 r5Raw        = (avgPct / 100) * 5;
                 pctEl.textContent    = `${avgPct}%`;
-                ratingEl.textContent = `${r5Raw.toFixed(2)}/5`;
+                ratingEl.textContent = `${Math.round(r5Raw)}/5`;
             } else {
                 pctEl.textContent    = '—';
                 ratingEl.textContent = '—';
@@ -5213,7 +5224,7 @@
                                         ${empDept?`<div style="font-size:0.7rem;color:rgba(255,255,255,0.5);">${empDept}</div>`:''}
                                     </div>
                                 </div>
-                                <span style="background:rgba(255,255,255,0.15);color:#fff;padding:4px 14px;border-radius:20px;font-weight:700;font-size:0.82rem;border:1px solid rgba(255,255,255,0.2);">Self: ${(data.overallSelfPct||0).toFixed(1)}% (${data.rating}/5)</span>
+                                <span style="background:rgba(255,255,255,0.15);color:#fff;padding:4px 14px;border-radius:20px;font-weight:700;font-size:0.82rem;border:1px solid rgba(255,255,255,0.2);">Self: ${(data.overallSelfPct||0).toFixed(1)}% (${customRound(data.rating)}/5)</span>
                             </div>
                         </div>
                     `;
@@ -5696,7 +5707,7 @@
                         <div style="background:#fff;padding:20px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:16px;box-shadow:0 1px 2px rgba(0,0,0,0.05);">
                             <div style="display:flex;justify-content:space-between;margin-bottom:10px;align-items:center;flex-wrap:wrap;gap:8px;">
                                 <strong style="color:var(--brand-primary);">Self Appraisal — ${data.timestamp?.toDate?data.timestamp.toDate().toLocaleDateString():'—'}</strong>
-                                <span style="background:var(--tint-red);color:var(--brand-accent);padding:3px 12px;border-radius:20px;font-size:0.8rem;font-weight:700;">Overall: ${(data.overallSelfPct||0).toFixed(1)}% (${data.rating}/5)</span>
+                                <span style="background:var(--tint-red);color:var(--brand-accent);padding:3px 12px;border-radius:20px;font-size:0.8rem;font-weight:700;">Overall: ${(data.overallSelfPct||0).toFixed(1)}% (${customRound(data.rating)}/5)</span>
                             </div>
                             ${ctcInfo}
                             ${kpiHtml || '<p style="color:#6b7280;font-size:0.85rem;">No KPIs recorded.</p>'}
@@ -5721,7 +5732,7 @@
                         <div style="background:#fff;padding:20px;border:1px solid #e5e7eb;border-left:3px solid var(--brand-primary);border-radius:8px;margin-bottom:16px;box-shadow:0 1px 2px rgba(0,0,0,0.05);">
                             <div style="display:flex;justify-content:space-between;margin-bottom:10px;align-items:center;flex-wrap:wrap;gap:8px;">
                                 <strong style="color:var(--brand-primary);">Manager Review by ${data.reviewerName} — ${data.timestamp?.toDate?data.timestamp.toDate().toLocaleDateString():'—'}</strong>
-                                <span style="background:#dcfce7;color:#047857;padding:3px 12px;border-radius:20px;font-size:0.8rem;font-weight:700;">Overall: ${(data.overallMgrPct||0).toFixed(1)}% (${data.rating}/5)</span>
+                                <span style="background:#dcfce7;color:#047857;padding:3px 12px;border-radius:20px;font-size:0.8rem;font-weight:700;">Overall: ${(data.overallMgrPct||0).toFixed(1)}% (${customRound(data.rating)}/5)</span>
                             </div>
                             ${kpiHtml || '<p style="color:#6b7280;font-size:0.85rem;">No KPI reviews recorded.</p>'}
                         </div>`;
@@ -5803,8 +5814,8 @@
                     const dirInfo = DIRECTORY[email] || {};
                     const desig = dirInfo.designation || dirInfo.desig || '—';
                     const dept  = dirInfo.department  || dirInfo.dept  || '—';
-                    const selfRating = self ? parseInt(self.rating) : null;
-                    const mgrRating = mgr  ? parseInt(mgr.rating)  : null;
+                    const selfRating = self ? customRound(self.rating) : null;
+                    const mgrRating = mgr  ? customRound(mgr.rating)  : null;
                     const finalRating = mgrRating || selfRating;
 
                     // Stat tracking
@@ -5855,11 +5866,11 @@
                             : `<span class="badge-pending">Pending</span>`;
 
                         const selfCircle = selfRating
-                            ? `<div class="rating-circle self-r">${parseFloat(selfRating).toFixed(1)}</div>`
+                            ? `<div class="rating-circle self-r">${customRound(selfRating)}</div>`
                             : `<div class="rating-circle none-r">—</div>`;
 
                         const mgrCircle = finalRating && mgr
-                            ? `<div class="rating-circle mgr-r">${parseFloat(finalRating).toFixed(1)}</div>`
+                            ? `<div class="rating-circle mgr-r">${customRound(finalRating)}</div>`
                             : `<div class="rating-circle none-r">—</div>`;
 
                         const avatarHtml = teamPic
@@ -5998,7 +6009,7 @@
                     <!-- ── Self Summary Strip ── -->
                     <div style="background:#faf8fc;border:1px solid #ddd5e8;border-top:none;padding:12px 20px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;border-radius:0 0 0 0;">
                         <div><span style="font-size:0.7rem;color:#9ca3af;text-transform:uppercase;font-weight:600;">Overall Self %&nbsp;</span><span style="font-weight:800;color:var(--brand-primary);font-size:1.1rem;">${(self.overallSelfPct||0).toFixed(1)}%</span></div>
-                        <div><span style="font-size:0.7rem;color:#9ca3af;text-transform:uppercase;font-weight:600;">Self Rating&nbsp;</span><span style="font-weight:800;color:#047857;font-size:1.1rem;">${parseFloat(self.rating).toFixed(2)}/5</span></div>
+                        <div><span style="font-size:0.7rem;color:#9ca3af;text-transform:uppercase;font-weight:600;">Self Rating&nbsp;</span><span style="font-weight:800;color:#047857;font-size:1.1rem;">${customRound(self.rating)}/5</span></div>
                         <div><span style="font-size:0.7rem;color:#9ca3af;text-transform:uppercase;font-weight:600;">KRAs Submitted&nbsp;</span><span style="font-weight:700;color:#374151;">${selfKpis.length}</span></div>
                     </div>
                     <!-- ── Self KRA Cards ── -->
@@ -6073,7 +6084,7 @@
                     <!-- ── Manager Summary Strip ── -->
                     <div style="background:#fff8f8;border:1px solid #fad6d4;border-top:none;padding:12px 20px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
                         <div><span style="font-size:0.7rem;color:#9ca3af;text-transform:uppercase;font-weight:600;">Overall Manager %&nbsp;</span><span style="font-weight:800;color:var(--brand-accent);font-size:1.1rem;">${(mgr.overallMgrPct||0).toFixed(1)}%</span></div>
-                        <div><span style="font-size:0.7rem;color:#9ca3af;text-transform:uppercase;font-weight:600;">Manager Rating&nbsp;</span><span style="font-weight:800;color:#047857;font-size:1.1rem;">${parseFloat(mgr.rating).toFixed(2)}/5</span></div>
+                        <div><span style="font-size:0.7rem;color:#9ca3af;text-transform:uppercase;font-weight:600;">Manager Rating&nbsp;</span><span style="font-weight:800;color:#047857;font-size:1.1rem;">${customRound(mgr.rating)}/5</span></div>
                         <div><span style="font-size:0.7rem;color:#9ca3af;text-transform:uppercase;font-weight:600;">KRAs Reviewed&nbsp;</span><span style="font-weight:700;color:#374151;">${mgrKpis.length}</span></div>
                     </div>
                     <!-- ── Manager KRA Cards ── -->
@@ -6149,7 +6160,7 @@
                     const ratingLabels = { 1:'Poor', 2:'Below Average', 3:'Developing', 4:'Performer', 5:'Top Performer' };
                     const ratingColors = { 1:'#b91c1c', 2:'#d97706', 3:'#0369a1', 4:'#047857', 5:'#7c3aed' };
                     const ratingBgs    = { 1:'#fef2f2', 2:'#fffbeb', 3:'#eff6ff', 4:'#f0fdf4', 5:'#f5f3ff' };
-                    const dispRating   = usedRating > 0 ? Math.round(usedRating) : null;
+                    const dispRating   = usedRating > 0 ? customRound(usedRating) : null;
                     const rCol  = dispRating ? (ratingColors[dispRating] || '#374151') : '#6b7280';
                     const rBg   = dispRating ? (ratingBgs[dispRating]   || '#f9fafb') : '#f9fafb';
                     const rLbl  = dispRating ? (ratingLabels[dispRating]|| 'Rating ' + dispRating) : '—';
@@ -9172,8 +9183,8 @@
                 reports.forEach(([email, info, depth, directManagerEmail]) => {
                     const self = selfMap[email];
                     const mgr  = mgrMap[email];
-                    const selfRating = self ? parseInt(self.rating) : null;
-                    const mgrRating  = mgr  ? parseInt(mgr.rating)  : null;
+                    const selfRating = self ? customRound(self.rating) : null;
+                    const mgrRating  = mgr  ? customRound(mgr.rating)  : null;
                     const finalRating = mgrRating || selfRating;
                     const selfStatus = self?.status || 'pending';
                     const mgrStatus  = mgr?.status  || 'pending';
@@ -9549,8 +9560,8 @@
                 const email = row.email;
                 const self  = selfMap[email];
                 const mgr   = mgrMap[email];
-                const selfRating  = self ? parseInt(self.rating) : null;
-                const mgrRating   = mgr  ? parseInt(mgr.rating)  : null;
+                const selfRating  = self ? customRound(self.rating) : null;
+                const mgrRating   = mgr  ? customRound(mgr.rating)  : null;
                 const finalRating = mgrRating || selfRating;
                 const selfStatus  = self?.status || 'pending';
                 const mgrStatus   = mgr?.status  || 'pending';
@@ -9745,8 +9756,8 @@
                 // Build full rows array
                 window._adminTeamRows = allSubs.filter(s => s.email !== 'human.capital@vtion.in').map(({ email: emp, info, depth, directManagerEmail }) => {
                     const self = selfMap[emp], mgr = mgrMap[emp];
-                    const sr = self ? parseInt(self.rating) : null;
-                    const mr = mgr  ? parseInt(mgr.rating)  : null;
+                    const sr = self ? customRound(self.rating) : null;
+                    const mr = mgr  ? customRound(mgr.rating)  : null;
                     const fr = mr || sr;
                     const ss = self?.status||'pending', ms = mgr?.status||'pending';
                     const fin = EMP_FINANCIAL_DATA[emp]||{};
