@@ -1862,9 +1862,18 @@
                     <div class="form-grid">
                     <div class="input-wrapper">
                         <label>Select Team Member</label>
-                        <select id="reporteeSelect" onchange="checkManagerDraft()">
+                        <select id="reporteeSelect" onchange="checkManagerDraft(); _showSkipLevelBadge()">
                             <option value="">-- Choose Employee --</option>
                         </select>
+                    </div>
+
+                    <!-- Permission scope badge — shown when an employee is selected -->
+                    <div id="permScopeBadge" style="display:none;padding:8px 13px;border-radius:8px;font-size:0.78rem;font-weight:600;align-items:center;gap:7px;margin-top:-8px;"></div>
+
+                    <!-- Skip-level rating info banner (shown when main manager rates indirect report) -->
+                    <div id="skipLevelBanner" style="display:none;padding:10px 14px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;font-size:0.82rem;color:#1e40af;display:none;align-items:center;gap:8px;">
+                        <svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><line x1='12' y1='8' x2='12' y2='12'/><line x1='12' y1='16' x2='12.01' y2='16'/></svg>
+                        <span id="skipLevelBannerText">You are rating a skip-level report.</span>
                     </div>
                     
                     <!-- Employee CTC (read-only display) -->
@@ -3977,6 +3986,40 @@
         }
         window.getAllSubordinates = getAllSubordinates;
 
+        // ─── PERMISSION SYSTEM ────────────────────────────────────────────────────
+        // canManagerRate(managerEmail, targetEmail)
+        // Returns true only if targetEmail appears anywhere in the manager's
+        // reporting hierarchy (depth ≥ 1), i.e.:
+        //   • direct reports (depth 1), OR
+        //   • members of a sub-team led by any direct-report manager (depth > 1)
+        // This deliberately excludes employees from other chains — even if they
+        // share a department — to prevent cross-team rating.
+        function canManagerRate(managerEmail, targetEmail) {
+            if (!managerEmail || !targetEmail) return false;
+            const mgr = managerEmail.toLowerCase().trim();
+            const tgt = targetEmail.toLowerCase().trim();
+            // A manager cannot rate themselves
+            if (mgr === tgt) return false;
+            const subs = getAllSubordinates(mgr);
+            return subs.some(s => s.email.toLowerCase() === tgt);
+        }
+        window.canManagerRate = canManagerRate;
+
+        // getPermissionScopeLabel(managerEmail, targetEmail)
+        // Returns a human-readable scope label for audit/UI purposes.
+        function getPermissionScopeLabel(managerEmail, targetEmail) {
+            const mgr = (managerEmail || '').toLowerCase().trim();
+            const tgt = (targetEmail  || '').toLowerCase().trim();
+            const subs = getAllSubordinates(mgr);
+            const sub = subs.find(s => s.email.toLowerCase() === tgt);
+            if (!sub) return 'Unauthorized';
+            if (sub.depth === 1) return 'Direct Report';
+            const intermediateName = DIRECTORY[sub.directManagerEmail]?.name || sub.directManagerEmail;
+            return `Team of ${intermediateName} (skip-level)`;
+        }
+        window.getPermissionScopeLabel = getPermissionScopeLabel;
+        // ─────────────────────────────────────────────────────────────────────────
+
         // ─── EMPLOYEE FINANCIAL DATA (sourced from Employee_View.xls) ───
         const EMP_FINANCIAL_DATA = {
             "manoj.dawane@vtion.in": { empId:"001", currentCTC:5000000.0, marketBenchmark:null, doj:"2018-01-01", designation:"Founder & CEO", department:"Business & Strategy", fixedCTC:4200000.0, pli:800000.0, totalCTC:5000000.0 },
@@ -4202,6 +4245,10 @@
             }
         }
         window.checkAndShowAdminManagerZone = checkAndShowAdminManagerZone;
+
+        // Export permission helpers so they can be called from inline HTML if needed
+        window.canManagerRate          = canManagerRate;
+        window.getPermissionScopeLabel = getPermissionScopeLabel;
 
         // --- AUTH ---
         // ── Forgot password / Magic link flow ────────────────────────
@@ -4640,7 +4687,8 @@
                     directReports.forEach(({ email: e, info: d }) => {
                         const opt = document.createElement('option');
                         opt.value = e;
-                        opt.innerText = d.name + (d.designation ? ' · ' + d.designation : '');
+                        opt.dataset.permScope = 'direct';
+                        opt.innerText = d.name + (d.designation ? ' · ' + d.designation : '') + ' [Direct]';
                         grp.appendChild(opt);
                     });
                     select.appendChild(grp);
@@ -4661,7 +4709,9 @@
                         subs.forEach(({ email: e, info: d }) => {
                             const opt = document.createElement('option');
                             opt.value = e;
-                            opt.innerText = d.name + (d.designation ? ' · ' + d.designation : '');
+                            opt.dataset.permScope = 'indirect';
+                            opt.dataset.permVia   = mgrName;
+                            opt.innerText = d.name + (d.designation ? ' · ' + d.designation : '') + ` [via ${mgrName}]`;
                             grp.appendChild(opt);
                         });
                         select.appendChild(grp);
@@ -5336,6 +5386,17 @@
         // --- DRAFTS & SUBMISSIONS: MANAGER ---
         async function checkManagerDraft() {
             const target = document.getElementById('reporteeSelect').value;
+            // ── PERMISSION GATE ───────────────────────────────────────────
+            if (target && !canManagerRate(currentUser.email, target)) {
+                showAlert(
+                    `Access Denied — you are not authorised to review ${DIRECTORY[target]?.name || target}. ` +
+                    `You can only rate employees within your direct reporting hierarchy.`,
+                    'error'
+                );
+                document.getElementById('reporteeSelect').value = '';
+                return;
+            }
+            // ─────────────────────────────────────────────────────────────
             _lastLoadedEmpKPIs = []; _lastLoadedEmpKPICount = 0;
 
             const notice = document.getElementById('managerDraftNotice');
@@ -5475,6 +5536,45 @@
             }
         }
 
+        // Shows/hides the skip-level info banner when a manager selects a reportee
+        function _showSkipLevelBadge() {
+            const target = document.getElementById('reporteeSelect')?.value;
+            const banner = document.getElementById('skipLevelBanner');
+            if (!banner) return;
+            if (!target) { banner.style.display = 'none'; return; }
+
+            // ── PERMISSION: reject unauthorised selections immediately ────
+            if (!canManagerRate(currentUser.email, target)) {
+                banner.style.display = 'flex';
+                banner.style.background = '#fef2f2';
+                banner.style.borderColor = '#fca5a5';
+                banner.style.color = '#b91c1c';
+                document.getElementById('skipLevelBannerText').textContent =
+                    `⛔ Access Denied — ${DIRECTORY[target]?.name || target} is outside your reporting hierarchy. You cannot rate this employee.`;
+                return;
+            }
+            // ─────────────────────────────────────────────────────────────
+
+            // Reset banner colours back to default
+            banner.style.background = '';
+            banner.style.borderColor = '';
+            banner.style.color = '';
+
+            // Look up depth from the cached subordinate list
+            const allSubs = window._allSubsCache || getAllSubordinates(currentUser.email);
+            window._allSubsCache = allSubs;
+            const sub = allSubs.find(s => s.email === target);
+            if (sub && sub.depth > 1) {
+                const directMgrName = DIRECTORY[sub.directManagerEmail]?.name || sub.directManagerEmail;
+                document.getElementById('skipLevelBannerText').textContent =
+                    `Skip-level review — ${DIRECTORY[target]?.name || target} reports directly to ${directMgrName}. Your rating will be saved as the reviewing manager.`;
+                banner.style.display = 'flex';
+            } else {
+                banner.style.display = 'none';
+            }
+        }
+        window._showSkipLevelBadge = _showSkipLevelBadge;
+
         function buildManagerPayload(target, status, kpis, kpiCount) {
             const mgrKpis = getManagerKPIReviewData(kpis, kpiCount);
             let totalW = 0, weighted = 0;
@@ -5483,6 +5583,10 @@
             const overallRating = parseFloat(((overallPct/100)*5).toFixed(2));
             // Include CTC override if the manager provided one with a reason
             const override = window._ctcOverrideConfirmed?.['mgr'];
+            // Determine if this is a skip-level rating and capture direct manager info
+            const allSubs = window._allSubsCache || getAllSubordinates(currentUser.email);
+            window._allSubsCache = allSubs;
+            const sub = allSubs.find(s => s.email === target);
             return {
                 type: "manager", status,
                 session: window.currentSession || '2025-2026',
@@ -5490,6 +5594,9 @@
                 reviewerEmail: currentUser.email,
                 reviewerName: currentUser.name,
                 targetName: DIRECTORY[target]?.name || target,
+                // Skip-level metadata: who is the direct manager, and how deep is this rating
+                directManagerEmail: sub ? sub.directManagerEmail : (DIRECTORY[target]?.manager || null),
+                ratingDepth: sub ? sub.depth : 1,
                 kpis: mgrKpis,
                 overallMgrPct: overallPct,
                 rating: overallRating,
@@ -5503,6 +5610,11 @@
         async function saveManagerDraft() {
             const target = document.getElementById('reporteeSelect').value;
             if (!target) return showAlert("Please select an employee first.", "error");
+            // ── PERMISSION GATE ───────────────────────────────────────────
+            if (!canManagerRate(currentUser.email, target)) {
+                return showAlert(`Access Denied — you are not authorised to rate ${DIRECTORY[target]?.name || target}.`, 'error');
+            }
+            // ─────────────────────────────────────────────────────────────
             const payload = buildManagerPayload(target, 'draft', _lastLoadedEmpKPIs, _lastLoadedEmpKPICount);
             const notice = document.getElementById('managerDraftNotice');
             try {
@@ -5527,6 +5639,11 @@
         async function submitManagerReview() {
             const target = document.getElementById('reporteeSelect').value;
             if (!target) return showAlert("Please select an employee first.", "error");
+            // ── PERMISSION GATE ───────────────────────────────────────────
+            if (!canManagerRate(currentUser.email, target)) {
+                return showAlert(`Access Denied — you are not authorised to submit a rating for ${DIRECTORY[target]?.name || target}. Only employees within your direct reporting hierarchy can be rated by you.`, 'error');
+            }
+            // ─────────────────────────────────────────────────────────────
             if (_lastLoadedEmpKPICount === 0) return showAlert("Cannot submit — employee has not submitted their KPIs yet.", "error");
             const payload = buildManagerPayload(target, 'submitted', _lastLoadedEmpKPIs, _lastLoadedEmpKPICount);
 
@@ -5605,7 +5722,13 @@
         async function saveManagerKRADraft() {
             const target = document.getElementById('reporteeSelect').value;
             if (!target) return showAlert("Please select an employee first.", "error");
+            // ── PERMISSION GATE ───────────────────────────────────────────
+            if (!canManagerRate(currentUser.email, target)) {
+                return showAlert(`Access Denied — you are not authorised to rate ${DIRECTORY[target]?.name || target}.`, 'error');
+            }
+            // ─────────────────────────────────────────────────────────────
             const mgrKpis = getManagerKPIReviewData(_lastLoadedEmpKPIs, _lastLoadedEmpKPICount);
+            const _subKRA1 = (window._allSubsCache || getAllSubordinates(currentUser.email)).find(s => s.email === target);
             const payload = {
                 type: "manager_kra", status: "kra_draft",
                 section: "kra",
@@ -5614,6 +5737,8 @@
                 reviewerEmail: currentUser.email,
                 reviewerName: currentUser.name,
                 targetName: DIRECTORY[target]?.name || target,
+                directManagerEmail: _subKRA1 ? _subKRA1.directManagerEmail : (DIRECTORY[target]?.manager || null),
+                ratingDepth: _subKRA1 ? _subKRA1.depth : 1,
                 kpis: mgrKpis,
                 timestamp: Timestamp.now()
             };
@@ -5634,8 +5759,14 @@
         async function submitManagerKRAReview() {
             const target = document.getElementById('reporteeSelect').value;
             if (!target) return showAlert("Please select an employee first.", "error");
+            // ── PERMISSION GATE ───────────────────────────────────────────
+            if (!canManagerRate(currentUser.email, target)) {
+                return showAlert(`Access Denied — you are not authorised to submit KRA ratings for ${DIRECTORY[target]?.name || target}.`, 'error');
+            }
+            // ─────────────────────────────────────────────────────────────
             if (_lastLoadedEmpKPICount === 0) return showAlert("Cannot submit — employee has not submitted their KPIs yet.", "error");
             const mgrKpis = getManagerKPIReviewData(_lastLoadedEmpKPIs, _lastLoadedEmpKPICount);
+            const _subKRA2 = (window._allSubsCache || getAllSubordinates(currentUser.email)).find(s => s.email === target);
             const payload = {
                 type: "manager_kra", status: "kra_submitted",
                 section: "kra",
@@ -5644,6 +5775,8 @@
                 reviewerEmail: currentUser.email,
                 reviewerName: currentUser.name,
                 targetName: DIRECTORY[target]?.name || target,
+                directManagerEmail: _subKRA2 ? _subKRA2.directManagerEmail : (DIRECTORY[target]?.manager || null),
+                ratingDepth: _subKRA2 ? _subKRA2.depth : 1,
                 kpis: mgrKpis,
                 timestamp: Timestamp.now()
             };
@@ -9462,6 +9595,15 @@
         // the full view including the Salary Suggestion panel.
         async function openManagerEmpModal(email) {
             if (!email) return;
+            // ── PERMISSION GATE ───────────────────────────────────────────
+            if (currentUser && !canManagerRate(currentUser.email, email)) {
+                showAlert(
+                    `Access Denied — ${DIRECTORY[email]?.name || email} is not part of your reporting hierarchy and cannot be reviewed by you.`,
+                    'error'
+                );
+                return;
+            }
+            // ─────────────────────────────────────────────────────────────
             // Ensure _adminAppraisalMap exists
             window._adminAppraisalMap = window._adminAppraisalMap || {};
 
@@ -9686,7 +9828,8 @@
                 directReports.forEach(({ email: e, info: d }) => {
                     const opt = document.createElement('option');
                     opt.value = e;
-                    opt.innerText = d.name + (d.designation ? ' · ' + d.designation : '');
+                    opt.dataset.permScope = 'direct';
+                    opt.innerText = d.name + (d.designation ? ' · ' + d.designation : '') + ' [Direct]';
                     grp.appendChild(opt);
                 });
                 sel.appendChild(grp);
@@ -9706,7 +9849,9 @@
                     subs.forEach(({ email: e, info: d }) => {
                         const opt = document.createElement('option');
                         opt.value = e;
-                        opt.innerText = d.name + (d.designation ? ' · ' + d.designation : '');
+                        opt.dataset.permScope = 'indirect';
+                        opt.dataset.permVia   = mgrName;
+                        opt.innerText = d.name + (d.designation ? ' · ' + d.designation : '') + ` [via ${mgrName}]`;
                         grp.appendChild(opt);
                     });
                     sel.appendChild(grp);
@@ -10463,6 +10608,17 @@
 
         async function checkAdminManagerDraft() {
             const target = document.getElementById('adminReporteeSelect').value;
+            // ── PERMISSION GATE ───────────────────────────────────────────
+            if (target && !canManagerRate(currentUser.email, target)) {
+                showAlert(
+                    `Access Denied — ${DIRECTORY[target]?.name || target} is not within your reporting hierarchy. ` +
+                    `Only employees who report to you (directly or through a sub-manager) can be rated.`,
+                    'error'
+                );
+                document.getElementById('adminReporteeSelect').value = '';
+                return;
+            }
+            // ─────────────────────────────────────────────────────────────
             const notice = document.getElementById('adminMgrDraftNotice');
             _adminLastLoadedEmpKPIs = []; _adminLastLoadedEmpKPICount = 0;
             const _adminProjPanel = document.getElementById('adminMgrCTCProjection');
@@ -10575,6 +10731,12 @@
         async function saveAdminManagerDraft() {
             const target = document.getElementById('adminReporteeSelect').value;
             if (!target) { showAlert('Select an employee first.', 'error'); return; }
+            // ── PERMISSION GATE ───────────────────────────────────────────
+            if (!canManagerRate(currentUser.email, target)) {
+                showAlert(`Access Denied — you are not authorised to rate ${DIRECTORY[target]?.name || target}. This employee is outside your reporting hierarchy.`, 'error');
+                return;
+            }
+            // ─────────────────────────────────────────────────────────────
             const mgrKpis = getManagerKPIReviewData(_adminLastLoadedEmpKPIs, _adminLastLoadedEmpKPICount);
             let totalW = 0, weighted = 0;
             mgrKpis.forEach(k => { totalW += (k.weightage||0); weighted += (k.managerAssessment||0)*(k.weightage||0); });
@@ -10602,6 +10764,12 @@
         async function submitAdminManagerReview() {
             const target = document.getElementById('adminReporteeSelect').value;
             if (!target) { showAlert('Select an employee first.', 'error'); return; }
+            // ── PERMISSION GATE ───────────────────────────────────────────
+            if (!canManagerRate(currentUser.email, target)) {
+                showAlert(`Access Denied — you are not authorised to submit a rating for ${DIRECTORY[target]?.name || target}. This employee is outside your reporting hierarchy.`, 'error');
+                return;
+            }
+            // ─────────────────────────────────────────────────────────────
             if (_adminLastLoadedEmpKPICount === 0) { showAlert('Employee has not submitted their KPIs yet.', 'error'); return; }
             const mgrKpis = getManagerKPIReviewData(_adminLastLoadedEmpKPIs, _adminLastLoadedEmpKPICount);
             let totalW = 0, weighted = 0;
@@ -10632,6 +10800,12 @@
         async function saveAdminManagerKRADraft() {
             const target = document.getElementById('adminReporteeSelect').value;
             if (!target) { showAlert('Select an employee first.', 'error'); return; }
+            // ── PERMISSION GATE ───────────────────────────────────────────
+            if (!canManagerRate(currentUser.email, target)) {
+                showAlert(`Access Denied — you are not authorised to rate ${DIRECTORY[target]?.name || target}.`, 'error');
+                return;
+            }
+            // ─────────────────────────────────────────────────────────────
             const mgrKpis = getManagerKPIReviewData(_adminLastLoadedEmpKPIs, _adminLastLoadedEmpKPICount);
             const payload = {
                 reviewerEmail: currentUser.email, reviewerName: currentUser.name,
@@ -10651,6 +10825,12 @@
         async function submitAdminManagerKRAReview() {
             const target = document.getElementById('adminReporteeSelect').value;
             if (!target) { showAlert('Select an employee first.', 'error'); return; }
+            // ── PERMISSION GATE ───────────────────────────────────────────
+            if (!canManagerRate(currentUser.email, target)) {
+                showAlert(`Access Denied — you are not authorised to submit KRA ratings for ${DIRECTORY[target]?.name || target}.`, 'error');
+                return;
+            }
+            // ─────────────────────────────────────────────────────────────
             if (_adminLastLoadedEmpKPICount === 0) { showAlert('Employee has not submitted their KPIs yet.', 'error'); return; }
             const mgrKpis = getManagerKPIReviewData(_adminLastLoadedEmpKPIs, _adminLastLoadedEmpKPICount);
             const payload = {
