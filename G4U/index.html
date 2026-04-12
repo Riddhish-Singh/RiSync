@@ -1907,8 +1907,152 @@
     }
     html.dark .pix-panel-sep { background: rgba(255,255,255,0.08); }
   </style>
+
+  <!-- ══════════════════════════════════════════════════════════
+       🔔 FIREBASE CLOUD MESSAGING (FCM) — Pioneer I Xpress
+       ══════════════════════════════════════════════════════════ -->
+  <!-- Firebase v10 Modular SDK (compat build for CDN use) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
+
+  <style>
+    /* ── FCM NOTIFICATION PERMISSION BANNER ── */
+    #pix-fcm-banner {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(120px);
+      z-index: 99990;
+      width: calc(100% - 32px); max-width: 440px;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18), 0 0 0 1px rgba(255,60,120,0.12);
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 20px;
+      transition: transform 0.55s cubic-bezier(.2,.9,.2,1), opacity 0.4s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+    html.dark #pix-fcm-banner { background: #1a0d12; }
+    #pix-fcm-banner.pix-fcm-show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1; pointer-events: all;
+    }
+    #pix-fcm-banner.pix-fcm-hide {
+      transform: translateX(-50%) translateY(140px);
+      opacity: 0; pointer-events: none;
+    }
+    .pix-fcm-icon {
+      width: 48px; height: 48px; border-radius: 14px; flex-shrink: 0;
+      background: linear-gradient(135deg, #FF3C78, #c41755);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      box-shadow: 0 8px 20px rgba(255,60,120,0.3);
+    }
+    .pix-fcm-text { flex: 1; min-width: 0; }
+    .pix-fcm-title {
+      font-family: 'Montserrat', sans-serif; font-weight: 800;
+      font-size: 0.88rem; color: #1d0b14; margin-bottom: 2px;
+    }
+    html.dark .pix-fcm-title { color: #f5e6eb; }
+    .pix-fcm-sub {
+      font-family: 'Poppins', sans-serif; font-size: 0.72rem;
+      color: #999; line-height: 1.4;
+    }
+    .pix-fcm-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+    .pix-fcm-allow {
+      padding: 8px 16px; border-radius: 10px; border: none; cursor: pointer;
+      background: linear-gradient(135deg, #FF3C78, #c41755);
+      color: #fff; font-family: 'Poppins', sans-serif;
+      font-size: 0.78rem; font-weight: 700;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 14px rgba(255,60,120,0.35);
+    }
+    .pix-fcm-allow:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(255,60,120,0.45); }
+    .pix-fcm-deny {
+      padding: 6px 16px; border-radius: 10px; border: 1.5px solid rgba(196,23,85,0.15); cursor: pointer;
+      background: transparent; color: #aaa;
+      font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .pix-fcm-deny:hover { color: #FF3C78; border-color: rgba(255,60,120,0.3); }
+
+    /* ── FCM RICH FOREGROUND TOAST ── */
+    #pix-fcm-toast {
+      position: fixed; top: 20px; right: 20px; z-index: 99991;
+      width: 340px; max-width: calc(100vw - 40px);
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.18), 0 0 0 1px rgba(255,60,120,0.1);
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 14px 16px;
+      transform: translateX(380px);
+      transition: transform 0.45s cubic-bezier(.2,.9,.2,1), opacity 0.3s ease;
+      opacity: 0; pointer-events: none;
+    }
+    html.dark #pix-fcm-toast { background: #1a0d12; }
+    #pix-fcm-toast.pix-fcm-toast-show {
+      transform: translateX(0); opacity: 1; pointer-events: all;
+    }
+    #pix-fcm-toast.pix-fcm-toast-hide {
+      transform: translateX(380px); opacity: 0; pointer-events: none;
+    }
+    .pix-fcm-toast-icon {
+      width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+      background: linear-gradient(135deg, #FF3C78, #c41755);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+    }
+    .pix-fcm-toast-body { flex: 1; min-width: 0; }
+    .pix-fcm-toast-title {
+      font-family: 'Montserrat', sans-serif; font-weight: 800;
+      font-size: 0.84rem; color: #1d0b14; margin-bottom: 3px;
+    }
+    html.dark .pix-fcm-toast-title { color: #f5e6eb; }
+    .pix-fcm-toast-body-text {
+      font-family: 'Poppins', sans-serif; font-size: 0.75rem;
+      color: #777; line-height: 1.45;
+    }
+    .pix-fcm-toast-close {
+      background: none; border: none; cursor: pointer;
+      color: #bbb; font-size: 1rem; padding: 2px; flex-shrink: 0;
+      transition: color 0.2s;
+    }
+    .pix-fcm-toast-close:hover { color: #FF3C78; }
+    .pix-fcm-toast-img {
+      width: 48px; height: 48px; border-radius: 8px; object-fit: cover; flex-shrink: 0;
+    }
+    .pix-fcm-badge {
+      font-family: 'Poppins', sans-serif; font-size: 0.62rem; font-weight: 700;
+      background: linear-gradient(135deg, #FF3C78, #c41755);
+      color: #fff; padding: 2px 8px; border-radius: 99px;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      display: inline-block; margin-bottom: 4px;
+    }
+  </style>
 </head>
 <body class="antialiased">
+
+  <!-- ══ FCM NOTIFICATION PERMISSION BANNER ══ -->
+  <div id="pix-fcm-banner" role="dialog" aria-label="Enable push notifications">
+    <div class="pix-fcm-icon">🔔</div>
+    <div class="pix-fcm-text">
+      <div class="pix-fcm-title">Stay in the loop!</div>
+      <div class="pix-fcm-sub">Get instant alerts on flash sales, order updates &amp; new arrivals.</div>
+    </div>
+    <div class="pix-fcm-actions">
+      <button class="pix-fcm-allow" id="pix-fcm-allow-btn" onclick="pixFCMRequestPermission()">Allow</button>
+      <button class="pix-fcm-deny"  id="pix-fcm-deny-btn"  onclick="pixFCMDismissBanner()">Not now</button>
+    </div>
+  </div>
+
+  <!-- ══ FCM FOREGROUND NOTIFICATION TOAST ══ -->
+  <div id="pix-fcm-toast" role="alert" aria-live="polite">
+    <div class="pix-fcm-toast-icon" id="pix-fcm-toast-icon">🛍️</div>
+    <div class="pix-fcm-toast-body">
+      <div class="pix-fcm-badge">Notification</div>
+      <div class="pix-fcm-toast-title"  id="pix-fcm-toast-title">New message</div>
+      <div class="pix-fcm-toast-body-text" id="pix-fcm-toast-body">You have a new notification.</div>
+    </div>
+    <button class="pix-fcm-toast-close" onclick="pixFCMHideToast()" aria-label="Close">✕</button>
+  </div>
 
   <div id="announcement-bar" style="background:var(--brand-primary);color:white;overflow:hidden;">
     <div class="ann-marquee-track" id="annMarqueeTrack">
@@ -15270,6 +15414,315 @@ textarea.pa-inp{resize:vertical;min-height:64px;line-height:1.5}
     console.log('[PIX Porter v1] ✅ Delivery integration loaded.');
   });
 
+})();
+</script>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     🔔 FIREBASE CLOUD MESSAGING — Pioneer I Xpress
+     ══════════════════════════════════════════════════════════════════════════
+     SETUP CHECKLIST (only 1 thing left to do):
+     ─────────────────────────────────────────────────────────
+     1. Replace 'YOUR_VAPID_PUBLIC_KEY' below with your Web Push certificate key.
+        Get it from: Firebase Console → Project Settings → Cloud Messaging
+        → Web configuration → Web Push certificates → Generate key pair → copy it.
+     ✅ Firebase config  — already filled in
+     ✅ Service worker   — inlined inside this file (no separate .js file needed)
+     ══════════════════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+
+  /* ── 1. FIREBASE PROJECT CONFIG ────────────────────────────────────── */
+  var PIX_FIREBASE_CONFIG = {
+    apiKey            : 'AIzaSyAYP6k7oUtaZwoBETAgLR35KJ88eTvhxac',
+    authDomain        : 'g4u-7231d.firebaseapp.com',
+    projectId         : 'g4u-7231d',
+    storageBucket     : 'g4u-7231d.firebasestorage.app',
+    messagingSenderId : '269559053821',
+    appId             : '1:269559053821:web:f3f7ab6bc78234f33b6d94',
+    measurementId     : 'G-4NCBGTEV0M'
+  };
+
+  /* ── 2. VAPID KEY (Web Push Certificate) ───────────────────────────── */
+  var PIX_VAPID_KEY = 'BNc_fhmlsyC9ipFRhwFVE5X6HaL7dWSAw20vD6EbFxVx4aMyeOqWAbq-7a5meL3sY6re5TcjbcbjwENAM4ixEEc';
+
+  /* ── 3. STORAGE KEY for FCM token ──────────────────────────────────── */
+  var FCM_TOKEN_KEY = 'PIX_FCM_TOKEN';
+
+  /* ── 4. BANNER DELAY (ms after page load) ──────────────────────────── */
+  var BANNER_DELAY = 4000;
+
+  /* ═══════════════════════════════════════════════════════════════════ */
+  /*  INTERNAL STATE                                                     */
+  /* ═══════════════════════════════════════════════════════════════════ */
+  var _app       = null;
+  var _messaging = null;
+  var _fcmToken  = null;
+  var _toastTimer = null;
+
+  /* ═══════════════════════════════════════════════════════════════════ */
+  /*  INIT                                                               */
+  /* ═══════════════════════════════════════════════════════════════════ */
+  function pixFCMInit() {
+    // Guard: only run if Firebase SDK loaded and config is filled
+    if (typeof firebase === 'undefined') {
+      console.warn('[PIX FCM] Firebase SDK not loaded.');
+      return;
+    }
+    if (PIX_FIREBASE_CONFIG.apiKey === 'YOUR_API_KEY') {
+      console.warn('[PIX FCM] ⚠️  Please replace PIX_FIREBASE_CONFIG with your real Firebase project config.');
+      return;
+    }
+
+    try {
+      _app       = firebase.initializeApp(PIX_FIREBASE_CONFIG);
+      _messaging = firebase.messaging(_app);
+      console.log('[PIX FCM] ✅ Firebase initialised.');
+    } catch (err) {
+      console.error('[PIX FCM] Init error:', err);
+      return;
+    }
+
+    // ── Inline Service Worker (no separate file needed) ──────────────
+    // The SW script is defined here as a string, turned into a Blob URL,
+    // and registered — so the entire FCM setup lives in this single HTML file.
+    if ('serviceWorker' in navigator) {
+      var PIX_SW_SCRIPT = [
+        "importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');",
+        "importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');",
+        "firebase.initializeApp({",
+        "  apiKey:'AIzaSyAYP6k7oUtaZwoBETAgLR35KJ88eTvhxac',",
+        "  authDomain:'g4u-7231d.firebaseapp.com',",
+        "  projectId:'g4u-7231d',",
+        "  storageBucket:'g4u-7231d.firebasestorage.app',",
+        "  messagingSenderId:'269559053821',",
+        "  appId:'1:269559053821:web:f3f7ab6bc78234f33b6d94'",
+        "});",
+        "const messaging = firebase.messaging();",
+
+        // Background message handler
+        "messaging.onBackgroundMessage(function(payload){",
+        "  var n=payload.notification||{}, d=payload.data||{};",
+        "  var title=n.title||d.title||'Pioneer I Xpress';",
+        "  var body=n.body||d.body||'You have a new notification.';",
+        "  var icon=n.icon||d.icon||'/pix-icon-192.png';",
+        "  var image=n.image||d.image||undefined;",
+        "  var url=d.click_action||'/';",
+        "  self.registration.showNotification(title,{",
+        "    body:body, icon:icon, image:image,",
+        "    vibrate:[200,100,200],",
+        "    tag:'pix-notification', renotify:true,",
+        "    data:{url:url},",
+        "    actions:[",
+        "      {action:'open',title:'🛍️ Shop Now'},",
+        "      {action:'dismiss',title:'Dismiss'}",
+        "    ]",
+        "  });",
+        "});",
+
+        // Notification click handler
+        "self.addEventListener('notificationclick',function(e){",
+        "  e.notification.close();",
+        "  if(e.action==='dismiss') return;",
+        "  var url=(e.notification.data&&e.notification.data.url)?e.notification.data.url:'/';",
+        "  e.waitUntil(",
+        "    clients.matchAll({type:'window',includeUncontrolled:true}).then(function(list){",
+        "      for(var i=0;i<list.length;i++){",
+        "        var c=list[i];",
+        "        if('focus' in c){ c.focus(); return c.navigate(url); }",
+        "      }",
+        "      if(clients.openWindow) return clients.openWindow(url);",
+        "    })",
+        "  );",
+        "});"
+      ].join('\n');
+
+      try {
+        var swBlob = new Blob([PIX_SW_SCRIPT], { type: 'application/javascript' });
+        var swUrl  = URL.createObjectURL(swBlob);
+        navigator.serviceWorker.register(swUrl)
+          .then(function (reg) {
+            console.log('[PIX FCM] Inline service worker registered ✅');
+            _messaging.useServiceWorker(reg);
+          })
+          .catch(function (err) {
+            console.warn('[PIX FCM] SW registration failed:', err);
+          });
+      } catch(e) {
+        console.warn('[PIX FCM] Blob SW not supported:', e);
+      }
+    }
+
+    // ── Handle foreground messages ────────────────────────────────────
+    _messaging.onMessage(function (payload) {
+      console.log('[PIX FCM] Foreground message received:', payload);
+      var n     = payload.notification || {};
+      var data  = payload.data          || {};
+      var title = n.title || data.title || 'Pioneer I Xpress';
+      var body  = n.body  || data.body  || 'You have a new notification.';
+      var icon  = n.icon  || data.icon  || '🛍️';
+      var image = n.image || data.image || null;
+      pixFCMShowToast(title, body, icon, image, data.click_action || null);
+    });
+
+    // ── Retrieve stored token or decide to show banner ─────────────────
+    _fcmToken = localStorage.getItem(FCM_TOKEN_KEY);
+    if (_fcmToken) {
+      console.log('[PIX FCM] Existing FCM token found.');
+      // Token already exists — silently refresh in background
+      pixFCMGetToken();
+    } else {
+      // Only show banner if user hasn't already denied
+      var denied = localStorage.getItem('PIX_FCM_DENIED');
+      if (!denied && Notification.permission !== 'denied') {
+        setTimeout(pixFCMShowBanner, BANNER_DELAY);
+      }
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════ */
+  /*  TOKEN RETRIEVAL                                                    */
+  /* ═══════════════════════════════════════════════════════════════════ */
+  function pixFCMGetToken() {
+    if (!_messaging) return;
+    _messaging.getToken({ vapidKey: PIX_VAPID_KEY })
+      .then(function (token) {
+        if (token) {
+          _fcmToken = token;
+          localStorage.setItem(FCM_TOKEN_KEY, token);
+          console.log('[PIX FCM] FCM Token:', token);
+          // ▶ TODO: Send this token to your backend / Firestore to target this user
+          // pixFCMSendTokenToServer(token);
+          pixFCMShowToast(
+            '🎉 Notifications enabled!',
+            'You\'ll now get alerts on flash sales, order updates & new arrivals.',
+            '🔔', null, null
+          );
+        } else {
+          console.warn('[PIX FCM] No token. Permission may not be granted.');
+        }
+      })
+      .catch(function (err) {
+        console.error('[PIX FCM] getToken error:', err);
+      });
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════ */
+  /*  SEND TOKEN TO YOUR BACKEND (stub — implement as needed)           */
+  /* ═══════════════════════════════════════════════════════════════════ */
+  // function pixFCMSendTokenToServer(token) {
+  //   fetch('/api/fcm-token', {
+  //     method : 'POST',
+  //     headers: { 'Content-Type': 'application/json' },
+  //     body   : JSON.stringify({ token: token })
+  //   });
+  // }
+
+  /* ═══════════════════════════════════════════════════════════════════ */
+  /*  PERMISSION REQUEST                                                 */
+  /* ═══════════════════════════════════════════════════════════════════ */
+  window.pixFCMRequestPermission = function () {
+    pixFCMDismissBanner();
+    Notification.requestPermission().then(function (permission) {
+      if (permission === 'granted') {
+        console.log('[PIX FCM] Permission granted.');
+        pixFCMGetToken();
+      } else {
+        console.warn('[PIX FCM] Permission denied by user.');
+        localStorage.setItem('PIX_FCM_DENIED', '1');
+      }
+    });
+  };
+
+  /* ═══════════════════════════════════════════════════════════════════ */
+  /*  BANNER HELPERS                                                     */
+  /* ═══════════════════════════════════════════════════════════════════ */
+  function pixFCMShowBanner() {
+    var el = document.getElementById('pix-fcm-banner');
+    if (!el) return;
+    el.classList.remove('pix-fcm-hide');
+    // Force reflow before adding show class
+    void el.offsetHeight;
+    el.classList.add('pix-fcm-show');
+  }
+
+  window.pixFCMDismissBanner = function () {
+    var el = document.getElementById('pix-fcm-banner');
+    if (!el) return;
+    el.classList.remove('pix-fcm-show');
+    el.classList.add('pix-fcm-hide');
+  };
+
+  /* ═══════════════════════════════════════════════════════════════════ */
+  /*  FOREGROUND TOAST                                                   */
+  /* ═══════════════════════════════════════════════════════════════════ */
+  window.pixFCMShowToast = function (title, body, icon, imgSrc, clickAction) {
+    var el        = document.getElementById('pix-fcm-toast');
+    var titleEl   = document.getElementById('pix-fcm-toast-title');
+    var bodyEl    = document.getElementById('pix-fcm-toast-body');
+    var iconEl    = document.getElementById('pix-fcm-toast-icon');
+    if (!el) return;
+
+    // Populate
+    if (titleEl) titleEl.textContent = title || 'Pioneer I Xpress';
+    if (bodyEl)  bodyEl.textContent  = body  || '';
+    if (iconEl) {
+      if (imgSrc) {
+        iconEl.innerHTML = '<img class="pix-fcm-toast-img" src="' + imgSrc + '" alt="notification image">';
+      } else {
+        iconEl.innerHTML = icon || '🛍️';
+      }
+    }
+
+    // Click action
+    if (clickAction) {
+      el.style.cursor = 'pointer';
+      el.onclick = function () { window.location.href = clickAction; };
+    } else {
+      el.style.cursor = 'default';
+      el.onclick = null;
+    }
+
+    // Show
+    el.classList.remove('pix-fcm-toast-hide');
+    void el.offsetHeight;
+    el.classList.add('pix-fcm-toast-show');
+
+    // Auto-dismiss after 5s
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(window.pixFCMHideToast, 5000);
+  };
+
+  window.pixFCMHideToast = function () {
+    var el = document.getElementById('pix-fcm-toast');
+    if (!el) return;
+    el.classList.remove('pix-fcm-toast-show');
+    el.classList.add('pix-fcm-toast-hide');
+  };
+
+  /* ═══════════════════════════════════════════════════════════════════ */
+  /*  PUBLIC API — expose on window for use anywhere in the page       */
+  /* ═══════════════════════════════════════════════════════════════════ */
+  window.PIX_FCM = {
+    /** Get the current FCM registration token (null if not yet retrieved) */
+    getToken      : function () { return _fcmToken; },
+    /** Manually show the permission banner */
+    showBanner    : pixFCMShowBanner,
+    /** Show a custom foreground notification toast */
+    notify        : window.pixFCMShowToast,
+    /** Request permission programmatically from anywhere on the page */
+    requestPermission: window.pixFCMRequestPermission
+  };
+
+  /* ── BOOT ──────────────────────────────────────────────────────── */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', pixFCMInit);
+  } else {
+    pixFCMInit();
+  }
+
+  console.log('[PIX FCM v1] 🔔 FCM module loaded.');
 })();
 </script>
 
