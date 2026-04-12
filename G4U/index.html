@@ -15465,20 +15465,23 @@ textarea.pa-inp{resize:vertical;min-height:64px;line-height:1.5}
   /*  INIT                                                               */
   /* ═══════════════════════════════════════════════════════════════════ */
   function pixFCMInit() {
-    // Guard: only run if Firebase SDK loaded and config is filled
+    // Guard: Firebase compat SDK must be present
     if (typeof firebase === 'undefined') {
-      console.warn('[PIX FCM] Firebase SDK not loaded.');
-      return;
-    }
-    if (PIX_FIREBASE_CONFIG.apiKey === 'YOUR_API_KEY') {
-      console.warn('[PIX FCM] ⚠️  Please replace PIX_FIREBASE_CONFIG with your real Firebase project config.');
+      console.warn('[PIX FCM] Firebase compat SDK not loaded.');
       return;
     }
 
     try {
-      _app       = firebase.initializeApp(PIX_FIREBASE_CONFIG);
+      // ── FIX 1: Don't double-initialise ─────────────────────────────
+      // The page already calls initializeApp() in the modular Firebase block.
+      // Compat SDK shares the same app registry — reuse the existing app if
+      // it exists, otherwise initialise fresh.
+      _app = firebase.apps.length
+        ? firebase.app()                          // reuse existing [DEFAULT] app
+        : firebase.initializeApp(PIX_FIREBASE_CONFIG); // first load
+
       _messaging = firebase.messaging(_app);
-      console.log('[PIX FCM] ✅ Firebase initialised.');
+      console.log('[PIX FCM] ✅ Firebase messaging initialised (app reused:', firebase.apps.length > 0, ')');
     } catch (err) {
       console.error('[PIX FCM] Init error:', err);
       return;
@@ -15569,9 +15572,8 @@ textarea.pa-inp{resize:vertical;min-height:64px;line-height:1.5}
     // ── Retrieve stored token or decide to show banner ─────────────────
     _fcmToken = localStorage.getItem(FCM_TOKEN_KEY);
     if (_fcmToken) {
-      console.log('[PIX FCM] Existing FCM token found.');
-      // Token already exists — silently refresh in background
-      pixFCMGetToken();
+      console.log('[PIX FCM] Existing FCM token found — refreshing silently.');
+      pixFCMGetToken(/* silent = */ true);
     } else {
       // Only show banner if user hasn't already denied
       var denied = localStorage.getItem('PIX_FCM_DENIED');
@@ -15582,25 +15584,35 @@ textarea.pa-inp{resize:vertical;min-height:64px;line-height:1.5}
   }
 
   /* ═══════════════════════════════════════════════════════════════════ */
-  /*  TOKEN RETRIEVAL                                                    */
+  /*  TOKEN RETRIEVAL + FIRESTORE SAVE (FIX 2 + FIX 3)                 */
   /* ═══════════════════════════════════════════════════════════════════ */
-  function pixFCMGetToken() {
+  function pixFCMGetToken(silent) {
     if (!_messaging) return;
     _messaging.getToken({ vapidKey: PIX_VAPID_KEY })
       .then(function (token) {
-        if (token) {
-          _fcmToken = token;
-          localStorage.setItem(FCM_TOKEN_KEY, token);
-          console.log('[PIX FCM] FCM Token:', token);
-          // ▶ TODO: Send this token to your backend / Firestore to target this user
-          // pixFCMSendTokenToServer(token);
+        if (!token) {
+          console.warn('[PIX FCM] No token returned — permission may not be granted.');
+          return;
+        }
+
+        var isNew = (token !== _fcmToken);
+        _fcmToken = token;
+        localStorage.setItem(FCM_TOKEN_KEY, token);
+        console.log('[PIX FCM] FCM token' + (isNew ? ' (new/refreshed)' : ' (unchanged)') + ':', token);
+
+        // ── FIX 2: Save token to Firestore ───────────────────────────
+        // Waits for the auth module to expose the current user, then saves
+        // the token to Firestore under fcm_tokens/{token} so your backend
+        // (or Firebase console) can target this device.
+        pixFCMSaveTokenToFirestore(token);
+
+        // Only show the "enabled" toast when freshly granted (not on silent refresh)
+        if (!silent || isNew) {
           pixFCMShowToast(
             '🎉 Notifications enabled!',
             'You\'ll now get alerts on flash sales, order updates & new arrivals.',
             '🔔', null, null
           );
-        } else {
-          console.warn('[PIX FCM] No token. Permission may not be granted.');
         }
       })
       .catch(function (err) {
@@ -15609,15 +15621,93 @@ textarea.pa-inp{resize:vertical;min-height:64px;line-height:1.5}
   }
 
   /* ═══════════════════════════════════════════════════════════════════ */
-  /*  SEND TOKEN TO YOUR BACKEND (stub — implement as needed)           */
+  /*  SAVE FCM TOKEN TO FIRESTORE                                        */
+  /*  Collection: fcm_tokens                                             */
+  /*  Document ID: the token itself (ensures uniqueness per device)      */
+  /*  Fields: token, uid (if logged in), createdAt, userAgent            */
   /* ═══════════════════════════════════════════════════════════════════ */
-  // function pixFCMSendTokenToServer(token) {
-  //   fetch('/api/fcm-token', {
-  //     method : 'POST',
-  //     headers: { 'Content-Type': 'application/json' },
-  //     body   : JSON.stringify({ token: token })
-  //   });
-  // }
+  function pixFCMSaveTokenToFirestore(token) {
+    // window._db is the Firestore instance set up by the existing Firebase block
+    var db = window._db;
+    if (!db) {
+      console.warn('[PIX FCM] Firestore (_db) not ready yet — will retry in 2s.');
+      setTimeout(function () { pixFCMSaveTokenToFirestore(token); }, 2000);
+      return;
+    }
+
+    // Get the current logged-in user UID if available
+    var uid = (window._auth && window._auth.currentUser)
+      ? window._auth.currentUser.uid
+      : null;
+
+    // Use Firestore modular API (already imported in the page's Firebase block)
+    // We reference it via window._db which is the Firestore instance
+    var tokenDoc = {
+      token      : token,
+      uid        : uid,
+      userAgent  : navigator.userAgent,
+      platform   : navigator.platform || 'web',
+      updatedAt  : new Date().toISOString(),
+      createdAt  : localStorage.getItem('PIX_FCM_CREATED') || new Date().toISOString()
+    };
+
+    // Mark creation time once
+    if (!localStorage.getItem('PIX_FCM_CREATED')) {
+      localStorage.setItem('PIX_FCM_CREATED', tokenDoc.createdAt);
+    }
+
+    // Use the Firestore REST API so we don't need to re-import modular SDK here
+    var projectId = 'g4u-7231d';
+    var encodedToken = encodeURIComponent(token);
+    var firestoreUrl = 'https://firestore.googleapis.com/v1/projects/' + projectId +
+      '/databases/(default)/documents/fcm_tokens/' + encodedToken;
+
+    // Build Firestore REST body
+    var fields = {};
+    Object.keys(tokenDoc).forEach(function (k) {
+      var v = tokenDoc[k];
+      if (v === null) { fields[k] = { nullValue: null }; }
+      else            { fields[k] = { stringValue: String(v) }; }
+    });
+
+    fetch(firestoreUrl, {
+      method : 'PATCH', // creates or overwrites
+      headers: { 'Content-Type': 'application/json' },
+      body   : JSON.stringify({ fields: fields })
+    })
+    .then(function (r) {
+      if (r.ok) {
+        console.log('[PIX FCM] ✅ Token saved to Firestore → fcm_tokens/' + token.slice(0,20) + '…');
+      } else {
+        return r.text().then(function(t){ console.warn('[PIX FCM] Firestore save failed:', t); });
+      }
+    })
+    .catch(function (err) {
+      console.warn('[PIX FCM] Firestore save error:', err);
+    });
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════ */
+  /*  FIX 3: RE-SAVE TOKEN WHEN USER LOGS IN (links token → uid)        */
+  /* ═══════════════════════════════════════════════════════════════════ */
+  // Watch for auth state changes — when a user signs in, update the
+  // Firestore token record with their UID so you can target them by account.
+  (function pixFCMWatchAuth() {
+    var attempts = 0;
+    var interval = setInterval(function () {
+      attempts++;
+      if (window._auth && typeof firebase !== 'undefined') {
+        clearInterval(interval);
+        firebase.auth(_app).onAuthStateChanged(function (user) {
+          if (user && _fcmToken) {
+            console.log('[PIX FCM] User signed in — updating token with UID:', user.uid);
+            pixFCMSaveTokenToFirestore(_fcmToken);
+          }
+        });
+      }
+      if (attempts > 20) clearInterval(interval); // give up after ~10s
+    }, 500);
+  })();
 
   /* ═══════════════════════════════════════════════════════════════════ */
   /*  PERMISSION REQUEST                                                 */
@@ -15627,7 +15717,7 @@ textarea.pa-inp{resize:vertical;min-height:64px;line-height:1.5}
     Notification.requestPermission().then(function (permission) {
       if (permission === 'granted') {
         console.log('[PIX FCM] Permission granted.');
-        pixFCMGetToken();
+        pixFCMGetToken(false);
       } else {
         console.warn('[PIX FCM] Permission denied by user.');
         localStorage.setItem('PIX_FCM_DENIED', '1');
