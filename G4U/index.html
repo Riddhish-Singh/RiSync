@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -47,6 +46,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Montserrat:wght@400;700;800;900&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -1686,6 +1686,88 @@
   #checkout .input { border-radius: 10px; font-size: 0.9rem; }
   #checkout h3 { letter-spacing: -0.02em; }
 
+  /* ── PORTER DELIVERY INTEGRATION STYLES ── */
+  .porter-section {
+    margin-top: 20px;
+    border-top: 1.5px solid rgba(196,23,85,0.08);
+    padding-top: 18px;
+  }
+  .porter-section-title {
+    font-size: 0.78rem; font-weight: 700; letter-spacing: 0.07em;
+    text-transform: uppercase; color: var(--text-secondary);
+    margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .porter-section-title::before {
+    content: '🚚'; font-size: 1rem;
+  }
+  .porter-options {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;
+  }
+  @media (max-width: 480px) { .porter-options { grid-template-columns: 1fr; } }
+  .porter-option {
+    border: 2px solid rgba(196,23,85,0.12);
+    border-radius: 14px; padding: 14px 16px;
+    cursor: pointer; position: relative;
+    transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+    background: var(--surface-primary);
+  }
+  html.dark .porter-option { border-color: rgba(255,255,255,0.1); }
+  .porter-option:hover { border-color: rgba(255,60,120,0.3); }
+  .porter-option.selected {
+    border-color: var(--brand-primary);
+    background: rgba(255,60,120,0.04);
+    box-shadow: 0 0 0 3px rgba(255,60,120,0.12);
+  }
+  .porter-option input[type="radio"] { display: none; }
+  .porter-option-label {
+    font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 0.88rem;
+    color: var(--text-primary); margin-bottom: 2px;
+  }
+  .porter-option-sub {
+    font-size: 0.73rem; color: var(--text-secondary); margin-bottom: 6px;
+  }
+  .porter-option-price {
+    font-family: 'Montserrat', sans-serif; font-weight: 900;
+    font-size: 1rem; color: var(--brand-primary);
+  }
+  .porter-option-eta {
+    font-size: 0.68rem; font-weight: 600; color: var(--text-secondary);
+    margin-top: 2px;
+  }
+  .porter-option-badge {
+    position: absolute; top: 10px; right: 10px;
+    background: var(--brand-primary); color: white;
+    font-size: 0.6rem; font-weight: 800; letter-spacing: 0.08em;
+    text-transform: uppercase; padding: 3px 8px; border-radius: 999px;
+  }
+  .porter-check {
+    position: absolute; top: 10px; right: 10px;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--brand-primary); color: white;
+    display: none; align-items: center; justify-content: center;
+    font-size: 0.75rem;
+  }
+  .porter-option.selected .porter-check { display: flex; }
+  .porter-option.selected .porter-option-badge { display: none; }
+  .porter-quote-status {
+    font-size: 0.78rem; color: var(--text-secondary);
+    padding: 8px 12px; border-radius: 10px;
+    background: rgba(196,23,85,0.04); border: 1px solid rgba(196,23,85,0.08);
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 10px;
+  }
+  .porter-spinner {
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 2px solid rgba(255,60,120,0.2);
+    border-top-color: var(--brand-primary);
+    animation: porterSpin 0.7s linear infinite; flex-shrink: 0;
+  }
+  @keyframes porterSpin { to { transform: rotate(360deg); } }
+  .porter-quote-status.error { background: rgba(231,76,60,0.06); border-color: rgba(231,76,60,0.15); color: #c0392b; }
+  .porter-quote-status.success { background: rgba(46,204,113,0.06); border-color: rgba(46,204,113,0.18); color: #27ae60; }
+  html.dark .porter-quote-status.success { color: #2ecc71; }
+  html.dark .porter-quote-status.error { color: #e74c3c; }
+
   /* Address book professional */
   #addrBookList .addr-card { transition: border-color 0.2s, box-shadow 0.2s; }
   #addrBookList .addr-card:hover { box-shadow: 0 4px 14px rgba(196,23,85,0.08); }
@@ -3098,7 +3180,48 @@
                     <div class="flex justify-between font-bold text-base mt-2 pt-2 border-t" style="border-color: rgba(128,128,128,0.2);"><strong data-i18n="total">Total</strong><strong id="coTot">₹0</strong></div>
                 </div>
                 <div class="field mb-4"><label class="text-sm font-medium">Coupon Code</label><input class="input" id="coupon" placeholder="PIX10"></div>
-                <div class="flex flex-col gap-3">
+
+                <!-- ═══ PORTER DELIVERY SECTION ═══ -->
+                <div class="porter-section" id="porterSection">
+                  <div class="porter-section-title">Delivery Method</div>
+
+                  <!-- Quote status indicator -->
+                  <div id="porterStatus" class="porter-quote-status" style="display:none;">
+                    <span class="porter-spinner" id="porterSpinner"></span>
+                    <span id="porterStatusText">Fetching delivery quotes…</span>
+                  </div>
+
+                  <!-- Delivery options -->
+                  <div class="porter-options" id="porterOptions">
+                    <!-- Standard option (always available) -->
+                    <label class="porter-option selected" id="opt-standard" onclick="selectPorterOption('standard')">
+                      <input type="radio" name="deliveryMethod" value="standard" checked>
+                      <div class="porter-option-label">🚛 Standard</div>
+                      <div class="porter-option-sub">Regular courier delivery</div>
+                      <div class="porter-option-price" id="std-price">₹99</div>
+                      <div class="porter-option-eta">3–6 business days</div>
+                      <div class="porter-check">✓</div>
+                    </label>
+
+                    <!-- Porter Express option -->
+                    <label class="porter-option" id="opt-porter" onclick="selectPorterOption('porter')" style="display:none;">
+                      <input type="radio" name="deliveryMethod" value="porter">
+                      <div class="porter-option-badge">EXPRESS</div>
+                      <div class="porter-option-label">⚡ Porter Express</div>
+                      <div class="porter-option-sub">Same-day / next-day</div>
+                      <div class="porter-option-price" id="porter-price">—</div>
+                      <div class="porter-option-eta" id="porter-eta">Calculating…</div>
+                      <div class="porter-check">✓</div>
+                    </label>
+                  </div>
+
+                  <div id="porterNote" style="font-size:0.73rem;color:var(--text-secondary);margin-bottom:4px;display:none;">
+                    📍 Porter express available for your area. Enter your address to get a quote.
+                  </div>
+                </div>
+                <!-- ═══ END PORTER SECTION ═══ -->
+
+                <div class="flex flex-col gap-3" style="margin-top:16px;">
                     <button class="w-full font-bold py-3.5 px-5 rounded-xl disabled:opacity-40 transition-all hover:shadow-lg flex items-center justify-center gap-2" id="pay" disabled style="background:linear-gradient(135deg,var(--brand-primary),var(--brand-secondary));color:white">
                       <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                       Confirm &amp; Pay
@@ -4544,7 +4667,6 @@
         desc:"Yoshi's World slogan tee. Good quality material— great for every 1-2 year kid!."},
 		
       // Beauty Products
-      // Beauty Products
       {id:'bp1', title:'Rose Hip Face Serum 30ml', price:799, cat:'beauty', rating:4.9, stock:40, img:'data:image/jpeg;base64,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', desc:'Cold-pressed rosehip oil serum. Rich in Vitamin C & E. Reduces dark spots.'},
       {id:'bp2', title:'Charcoal Detox Face Mask', price:399, cat:'beauty', rating:4.7, stock:65, img:'data:image/jpeg;base64,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', desc:'Deep pore cleansing charcoal mask. Removes blackheads & impurities.'},
       {id:'bp3', title:'Argan Hair Oil 100ml', price:649, cat:'beauty', rating:4.8, stock:50, img:'data:image/jpeg;base64,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', desc:'100% pure Moroccan argan oil. Tames frizz, adds shine. No parabens.'},
@@ -5197,7 +5319,20 @@
         }
         const sub = state.cart.reduce((a, i) => a + i.qty * i.price, 0);
         const freeShipThreshold = state.currency === 'USD' ? CX.FREE_SHIP_USD / CX.USD_RATE : CX.FREE_SHIP_INR;
-        const ship = sub > 0 && sub < freeShipThreshold ? 99 : 0;
+
+        // ── Porter delivery: use dynamic shipping cost if set ──────────────
+        let ship;
+        if (window.PORTER_STATE && window.PORTER_STATE.selectedMethod === 'porter' && window.PORTER_STATE.porterFee != null) {
+          ship = window.PORTER_STATE.porterFee;
+        } else if (window.PORTER_STATE && window.PORTER_STATE.selectedMethod === 'standard') {
+          ship = sub > 0 && sub < freeShipThreshold ? 99 : 0;
+          // Update standard option display price
+          const stdPriceEl = document.getElementById('std-price');
+          if (stdPriceEl) stdPriceEl.textContent = ship === 0 ? 'FREE' : fmt(ship);
+        } else {
+          ship = sub > 0 && sub < freeShipThreshold ? 99 : 0;
+        }
+
         const disc = ($('#coupon').value.trim().toUpperCase() === 'PIX10') ? Math.round(0.10 * (sub + ship)) : 0;
         // ⚠️ SECURITY: In production, coupon validation MUST happen server-side.
         // Never rely on client-side checks for discounts — users can bypass them.
@@ -5404,123 +5539,192 @@
             const customerAddr  = document.getElementById('address')?.value?.trim() || '';
             const orderItems = state.cart.map(ci => {
               const p = PRODUCTS.find(x => x.id === ci.id);
-              return { id: ci.id, name: p ? p.name : ci.id, qty: ci.qty, price: p ? p.price : 0 };
+              return { id: ci.id, name: p ? p.title : ci.id, qty: ci.qty, price: p ? p.price : 0 };
             });
-            const orderTotal = orderItems.reduce((s, i) => s + i.price * i.qty, 0);
-            const orderObj = {
-              customer: customerName,
-              phone:    customerPhone,
-              email:    customerEmail,
-              address:  customerAddr,
-              items:    orderItems,
-              total:    orderTotal,
-              status:   'Paid',
-              notified: false,
-              createdAt: window.serverTimestamp ? window.serverTimestamp() : new Date()
-            };
 
-            // ── 1. Save order to Firestore ──────────────────────────────────
-            let orderId = 'ORD-' + Date.now();
-            try {
-              if (window.db && window.addDoc && window.collection) {
-                const ref = await window.addDoc(window.collection(window.db, 'orders'), orderObj);
-                orderId = ref.id;
-              }
-            } catch(e) { console.warn('Order save error:', e); }
+            // ── Apply coupon discount ───────────────────────────────────────
+            const couponCode = ($('#coupon')?.value || '').trim().toUpperCase();
+            const subtotal   = state.cart.reduce((s, ci) => {
+              const p = PRODUCTS.find(x => x.id === ci.id);
+              return s + (p ? p.price : 0) * ci.qty;
+            }, 0);
+            // ── Porter: use selected delivery method shipping cost ──────────
+            let shipping;
+            if (window.PORTER_STATE && window.PORTER_STATE.selectedMethod === 'porter' && window.PORTER_STATE.porterFee != null) {
+              shipping = window.PORTER_STATE.porterFee;
+            } else {
+              shipping = subtotal >= CX.FREE_SHIP_INR ? 0 : (CX.SHIPPING_INR || 99);
+            }
+            const discount   = couponCode === 'PIX10' ? Math.round(subtotal * 0.1) : 0;
+            const orderTotal = subtotal + shipping - discount;
 
-            toast('Payment successful! 🎉 Order placed. Thank you!');
+            // ── Launch Razorpay ─────────────────────────────────────────────
+            const payBtn = $('#pay');
+            payBtn.disabled = true;
+            payBtn.innerHTML = '<svg class="animate-spin" style="animation:spin 1s linear infinite;display:inline-block;vertical-align:middle;margin-right:6px;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Opening Payment…';
 
-            // ── 2. Admin in-app notification badge ─────────────────────────
-            try {
-              window._PIX_newOrderCount = (window._PIX_newOrderCount || 0) + 1;
-              const nb  = document.getElementById('admNotifBadge');
-              const ntb = document.getElementById('admNotifTabBadge');
-              const cnt = window._PIX_newOrderCount;
-              if (nb)  { nb.textContent  = cnt; nb.style.display  = 'flex'; }
-              if (ntb) { ntb.textContent = cnt; ntb.style.display = 'inline'; }
-            } catch(e) {}
+            // ── NOTE: Replace with your live Razorpay Key ID ─────────────
+            // Get your key from https://dashboard.razorpay.com/app/keys
+            const RAZORPAY_KEY_ID = 'rzp_test_YourKeyHere'; // ← REPLACE THIS
 
-            // ── 3. Send Email to Admin via FormSubmit.co ───────────────────
-            (async () => {
-              try {
-                const _db = window.db || window._db;
-                const ns = _db && window.getDoc && window.doc
-                  ? ((await window.getDoc(window.doc(_db, 'siteContent', 'notificationSettings'))).data() || {})
-                  : {};
-                const adminEmail = ns.admin_email || 'gurunanak.garments2023@gmail.com';
-                const adminWA    = ns.admin_whatsapp || '916280096796';
+            const rzpOptions = {
+              key:         RAZORPAY_KEY_ID,
+              amount:      orderTotal * 100,          // Razorpay expects paise
+              currency:    'INR',
+              name:        'Pioneer I Xpress',
+              description: `Order of ${orderItems.length} item${orderItems.length !== 1 ? 's' : ''}`,
+              image:       'https://risync.in/G4U/candle.png',
+              prefill: {
+                name:    customerName,
+                email:   customerEmail,
+                contact: customerPhone,
+              },
+              notes: {
+                address: customerAddr,
+                items:   orderItems.map(i => `${i.name} x${i.qty}`).join(', ')
+              },
+              theme: { color: '#FF3C78' },
 
-                const itemsStr = orderItems.map(i => `${i.name} x${i.qty} — ₹${(i.price * i.qty).toLocaleString('en-IN')}`).join('\n');
+              // ── Payment successful ──────────────────────────────────────
+              handler: async function(response) {
+                const razorpayPaymentId = response.razorpay_payment_id;
 
-                // ── FormSubmit.co AJAX POST ──────────────────────────────────
+                const orderObj = {
+                  customer: customerName,
+                  phone:    customerPhone,
+                  email:    customerEmail,
+                  address:  customerAddr,
+                  items:    orderItems,
+                  total:    orderTotal,
+                  discount,
+                  shipping,
+                  coupon:   couponCode || null,
+                  status:   'Paid',
+                  paymentId: razorpayPaymentId,
+                  paymentMethod: 'Razorpay',
+                  notified: false,
+                  createdAt: window.serverTimestamp ? window.serverTimestamp() : new Date()
+                };
+
+                // ── 1. Save order to Firestore ──────────────────────────────
+                let orderId = 'ORD-' + Date.now();
                 try {
-                  const res = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(adminEmail)}`, {
-                    method:  'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify({
-                      _subject:        `🛍️ New Order #${orderId} — Pioneer I Xpress`,
-                      _template:       'table',
-                      _captcha:        'false',
-                      'Order ID':      orderId,
-                      'Customer Name': customerName,
-                      'Phone':         customerPhone,
-                      'Email':         customerEmail,
-                      'Address':       customerAddr,
-                      'Items':         itemsStr,
-                      'Total':         '₹' + orderTotal.toLocaleString('en-IN'),
-                      'Date':          new Date().toLocaleString('en-IN'),
-                    })
-                  });
-                  const result = await res.json();
-                  if (result.success === 'true' || result.success === true) {
-                    console.log('📧 Admin order email sent via FormSubmit.co');
-                  } else {
-                    console.warn('FormSubmit.co response:', result);
+                  if (window.db && window.addDoc && window.collection) {
+                    const ref = await window.addDoc(window.collection(window.db, 'orders'), orderObj);
+                    orderId = ref.id;
                   }
-                } catch(mailErr) {
-                  console.warn('FormSubmit email error:', mailErr);
+                } catch(e) { console.warn('Order save error:', e); }
+
+                toast('Payment successful! 🎉 Order placed. Thank you!');
+
+                // ── 2. Admin in-app notification badge ───────────────────────
+                try {
+                  window._PIX_newOrderCount = (window._PIX_newOrderCount || 0) + 1;
+                  const nb  = document.getElementById('admNotifBadge');
+                  const ntb = document.getElementById('admNotifTabBadge');
+                  const cnt = window._PIX_newOrderCount;
+                  if (nb)  { nb.textContent  = cnt; nb.style.display  = 'flex'; }
+                  if (ntb) { ntb.textContent = cnt; ntb.style.display = 'inline'; }
+                } catch(e) {}
+
+                // ── 3. Send Email + WhatsApp to Admin ────────────────────────
+                (async () => {
+                  try {
+                    const _db = window.db || window._db;
+                    const ns = _db && window.getDoc && window.doc
+                      ? ((await window.getDoc(window.doc(_db, 'siteContent', 'notificationSettings'))).data() || {})
+                      : {};
+                    const adminEmail = ns.admin_email || 'gurunanak.garments2023@gmail.com';
+                    const adminWA    = ns.admin_whatsapp || '916280096796';
+                    const itemsStr = orderItems.map(i => `${i.name} x${i.qty} — ₹${(i.price * i.qty).toLocaleString('en-IN')}`).join('\n');
+
+                    // FormSubmit.co AJAX POST
+                    try {
+                      const res = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(adminEmail)}`, {
+                        method:  'POST',
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                        body: JSON.stringify({
+                          _subject:        `🛍️ New Order #${orderId} — Pioneer I Xpress`,
+                          _template:       'table',
+                          _captcha:        'false',
+                          'Order ID':      orderId,
+                          'Customer Name': customerName,
+                          'Phone':         customerPhone,
+                          'Email':         customerEmail,
+                          'Address':       customerAddr,
+                          'Items':         itemsStr,
+                          'Total':         '₹' + orderTotal.toLocaleString('en-IN'),
+                          'Payment ID':    razorpayPaymentId,
+                          'Date':          new Date().toLocaleString('en-IN'),
+                        })
+                      });
+                      const result = await res.json();
+                      if (result.success === 'true' || result.success === true) {
+                        console.log('📧 Admin order email sent via FormSubmit.co');
+                      } else {
+                        console.warn('FormSubmit.co response:', result);
+                      }
+                    } catch(mailErr) { console.warn('FormSubmit email error:', mailErr); }
+
+                    // WhatsApp to Admin
+                    const waMsg = `🛍️ *New Order — Pioneer I Xpress*\n\n` +
+                      `📋 Order ID: ${orderId}\n` +
+                      `💳 Payment ID: ${razorpayPaymentId}\n` +
+                      `👤 Customer: ${customerName}\n` +
+                      `📞 Phone: ${customerPhone}\n` +
+                      `📧 Email: ${customerEmail}\n` +
+                      `🏠 Address: ${customerAddr}\n\n` +
+                      `🛒 Items:\n${itemsStr}\n\n` +
+                      `💰 Total: ₹${orderTotal.toLocaleString('en-IN')}\n` +
+                      `🕒 ${new Date().toLocaleString('en-IN')}`;
+                    const waNum = adminWA.replace(/\D/g, '');
+                    setTimeout(() => {
+                      window.open('https://wa.me/' + waNum + '?text=' + encodeURIComponent(waMsg), '_blank');
+                    }, 600);
+                  } catch(e) { console.warn('Notification error:', e); }
+                })();
+
+                // ── 4. Post-payment cart & UI cleanup ────────────────────────
+                state.cart.forEach(cartItem => {
+                  const prod = PRODUCTS.find(p => p.id === cartItem.id);
+                  if (prod) prod.stock = Math.max(0, prod.stock - cartItem.qty);
+                });
+                const customProds = JSON.parse(localStorage.getItem('PIX_customProducts') || '[]');
+                customProds.forEach((cp, idx) => {
+                  const updated = PRODUCTS.find(p => p.id === cp.id);
+                  if (updated) customProds[idx].stock = updated.stock;
+                });
+                localStorage.setItem('PIX_customProducts', JSON.stringify(customProds));
+                const purchasedIds = state.cart.map(item => item.id);
+                state.purchased = [...new Set([...purchasedIds, ...state.purchased])];
+                state.cart = [];
+                save();
+                $('#cart-reminder-section').classList.add('hidden');
+                rerenderAll();
+                $('#checkoutForm').reset();
+                $('#checkout').classList.add('hidden');
+                document.getElementById('savedAddrWrap').classList.add('hidden');
+                document.getElementById('checkoutForm').style.display = '';
+                window.location.hash = '#home';
+              }, // end handler
+
+              // ── Payment dialog dismissed/closed ──────────────────────────
+              modal: {
+                ondismiss: function() {
+                  payBtn.disabled = false;
+                  payBtn.innerHTML = '<svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Confirm &amp; Pay';
+                  toast('Payment cancelled.', false);
                 }
+              }
+            }; // end rzpOptions
 
-                // ── 4. Send WhatsApp to Admin ───────────────────────────────
-                const waMsg = `🛍️ *New Order — Pioneer I Xpress*\n\n` +
-                  `📋 Order ID: ${orderId}\n` +
-                  `👤 Customer: ${customerName}\n` +
-                  `📞 Phone: ${customerPhone}\n` +
-                  `📧 Email: ${customerEmail}\n` +
-                  `🏠 Address: ${customerAddr}\n\n` +
-                  `🛒 Items:\n${itemsStr}\n\n` +
-                  `💰 Total: ₹${orderTotal.toLocaleString('en-IN')}\n` +
-                  `🕒 ${new Date().toLocaleString('en-IN')}`;
-                const waNum = adminWA.replace(/\D/g, '');
-                setTimeout(() => {
-                  window.open('https://wa.me/' + waNum + '?text=' + encodeURIComponent(waMsg), '_blank');
-                }, 600);
-
-              } catch(e) { console.warn('Notification error:', e); }
-            })();
-
-            state.cart.forEach(cartItem => {
-              const prod = PRODUCTS.find(p => p.id === cartItem.id);
-              if (prod) prod.stock = Math.max(0, prod.stock - cartItem.qty);
+            const rzp = new Razorpay(rzpOptions);
+            rzp.on('payment.failed', function(response) {
+              payBtn.disabled = false;
+              payBtn.innerHTML = '<svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Confirm &amp; Pay';
+              toast('Payment failed: ' + (response.error?.description || 'Please try again.'), false);
             });
-            const customProds = JSON.parse(localStorage.getItem('PIX_customProducts') || '[]');
-            customProds.forEach((cp, idx) => {
-              const updated = PRODUCTS.find(p => p.id === cp.id);
-              if (updated) customProds[idx].stock = updated.stock;
-            });
-            localStorage.setItem('PIX_customProducts', JSON.stringify(customProds));
-            const purchasedIds = state.cart.map(item => item.id);
-            state.purchased = [...new Set([...purchasedIds, ...state.purchased])];
-            state.cart = [];
-            save();
-            $('#cart-reminder-section').classList.add('hidden');
-            rerenderAll();
-            $('#checkoutForm').reset();
-            $('#checkout').classList.add('hidden');
-            // Reset saved-address picker state
-            document.getElementById('savedAddrWrap').classList.add('hidden');
-            document.getElementById('checkoutForm').style.display = '';
-            window.location.hash = '#home';
+            rzp.open();
         });
 
         // ===== CUSTOM PRODUCT SUBMISSION (Others category) — saved to Firebase ===================
@@ -5963,6 +6167,9 @@
     .adm-input { padding: 7px 10px; border-radius: 8px; border: 1.5px solid rgba(196,23,85,0.12); background: var(--bg-primary); font-size: 0.8rem; width: 90px; outline: none; color: var(--text-primary); }
     html.dark .adm-input { border-color: rgba(255,255,255,0.12); }
     .adm-input:focus { border-color: var(--brand-primary); }
+    @media (max-width: 640px) {
+      .adm-compose-grid { grid-template-columns: 1fr !important; }
+    }
     .adm-pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 700; }
     .adm-filter-btn { padding: 6px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: 1.5px solid rgba(196,23,85,0.1); background: var(--bg-primary); color: var(--text-secondary); transition: all 0.15s; }
     .adm-filter-btn.active { border-color: var(--brand-primary); color: var(--brand-primary); background: rgba(198,167,94,0.08); }
@@ -7139,8 +7346,168 @@ document.addEventListener('DOMContentLoaded', () => {
     // Fetch recent orders (last 20)
     const recentOrders = (_admOrders || []).slice(0, 20);
 
+    // Fetch FCM subscriber count & sent notifications from Firestore
+    let subscriberCount = 0, cartAbandonerCount = 0, sentNotifs = [];
+    try {
+      const _db = window.db || window._db;
+      if (_db && window.getDocs && window.collection) {
+        const tokSnap = await window.getDocs(window.collection(_db, 'fcmTokens'));
+        subscriberCount = tokSnap.size;
+        tokSnap.forEach(d => { if ((d.data().cart||[]).length > 0) cartAbandonerCount++; });
+        const qSnap = await window.getDocs(window.collection(_db, 'pushQueue'));
+        qSnap.forEach(d => sentNotifs.push({ id: d.id, ...d.data() }));
+        sentNotifs.sort((a,b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
+        sentNotifs = sentNotifs.slice(0, 10);
+      }
+    } catch(e) {}
+
     content.innerHTML = `
-      <div style="max-width:780px;margin:0 auto">
+      <div style="max-width:860px;margin:0 auto">
+
+        <!-- COMPOSE PUSH NOTIFICATION -->
+        <div class="adm-card mb-6" style="border:2px solid rgba(255,60,120,0.18);background:linear-gradient(135deg,rgba(255,60,120,0.03) 0%,rgba(198,167,94,0.03) 100%)">
+          <div class="flex items-center gap-3 mb-5">
+            <div style="width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--brand-primary),#c41755);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0">📢</div>
+            <div>
+              <div class="font-bold text-base">Compose Push Notification</div>
+              <div class="text-xs" style="color:var(--text-secondary)">Send instant push notifications to your subscribers — even when browser is closed</div>
+            </div>
+          </div>
+
+          <!-- Subscriber Stats Row -->
+          <div class="flex gap-3 flex-wrap mb-5">
+            <div style="flex:1;min-width:120px;background:rgba(99,102,241,0.08);border:1.5px solid rgba(99,102,241,0.2);border-radius:12px;padding:12px 16px;text-align:center">
+              <div style="font-size:1.6rem;font-weight:900;color:#6366f1">${subscriberCount}</div>
+              <div style="font-size:0.7rem;font-weight:600;color:var(--text-secondary);margin-top:2px">📱 Total Subscribers</div>
+            </div>
+            <div style="flex:1;min-width:120px;background:rgba(245,158,11,0.08);border:1.5px solid rgba(245,158,11,0.2);border-radius:12px;padding:12px 16px;text-align:center">
+              <div style="font-size:1.6rem;font-weight:900;color:#d97706">${cartAbandonerCount}</div>
+              <div style="font-size:0.7rem;font-weight:600;color:var(--text-secondary);margin-top:2px">🛒 Cart Abandoners</div>
+            </div>
+            <div style="flex:1;min-width:120px;background:rgba(16,185,129,0.08);border:1.5px solid rgba(16,185,129,0.2);border-radius:12px;padding:12px 16px;text-align:center">
+              <div style="font-size:1.6rem;font-weight:900;color:#10b981">${sentNotifs.length}</div>
+              <div style="font-size:0.7rem;font-weight:600;color:var(--text-secondary);margin-top:2px">📨 Sent (All Time)</div>
+            </div>
+          </div>
+
+          <!-- Compose Form: 2 cols -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+            <!-- Left: Fields -->
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div>
+                <label style="font-size:0.72rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:6px">Title *</label>
+                <input id="pnTitle" type="text" maxlength="65" placeholder="e.g. 🎉 Flash Sale — 30% OFF Today!"
+                  oninput="admUpdatePushPreview()"
+                  style="width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid rgba(196,23,85,0.15);background:var(--bg-primary);font-size:0.88rem;outline:none;color:var(--text-primary);box-sizing:border-box">
+                <div style="font-size:0.68rem;color:var(--text-secondary);margin-top:3px;text-align:right"><span id="pnTitleLen">0</span>/65</div>
+              </div>
+              <div>
+                <label style="font-size:0.72rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:6px">Message Body *</label>
+                <textarea id="pnBody" rows="3" maxlength="180" placeholder="Your favourite items are waiting. Shop now and save big!"
+                  oninput="admUpdatePushPreview()"
+                  style="width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid rgba(196,23,85,0.15);background:var(--bg-primary);font-size:0.85rem;outline:none;color:var(--text-primary);resize:vertical;box-sizing:border-box;font-family:inherit"></textarea>
+                <div style="font-size:0.68rem;color:var(--text-secondary);margin-top:3px;text-align:right"><span id="pnBodyLen">0</span>/180</div>
+              </div>
+              <div>
+                <label style="font-size:0.72rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:6px">Image URL <span style="font-weight:400;text-transform:none">(optional)</span></label>
+                <input id="pnImage" type="url" placeholder="https://your-site.com/banner.jpg"
+                  oninput="admUpdatePushPreview()"
+                  style="width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid rgba(196,23,85,0.15);background:var(--bg-primary);font-size:0.85rem;outline:none;color:var(--text-primary);box-sizing:border-box">
+              </div>
+              <div>
+                <label style="font-size:0.72rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:6px">Target Audience</label>
+                <select id="pnTarget" style="width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid rgba(196,23,85,0.15);background:var(--bg-primary);font-size:0.85rem;outline:none;color:var(--text-primary);cursor:pointer">
+                  <option value="all">📱 All Subscribers (${subscriberCount})</option>
+                  <option value="cart">🛒 Cart Abandoners Only (${cartAbandonerCount})</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:0.72rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:6px">Click URL</label>
+                <input id="pnUrl" type="url" value="https://g4u-7231d.web.app/"
+                  style="width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid rgba(196,23,85,0.15);background:var(--bg-primary);font-size:0.85rem;outline:none;color:var(--text-primary);box-sizing:border-box">
+              </div>
+            </div>
+
+            <!-- Right: Live Preview -->
+            <div>
+              <label style="font-size:0.72rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:10px">Live Preview</label>
+              <!-- Desktop mockup -->
+              <div style="background:#1e1e2e;border-radius:14px;padding:14px;margin-bottom:12px">
+                <div style="font-size:0.62rem;font-weight:600;color:rgba(255,255,255,0.35);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.08em">🖥️ Desktop</div>
+                <div style="background:#2d2d3d;border-radius:10px;padding:12px;display:flex;gap:10px;align-items:flex-start">
+                  <div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#FF3C78,#c41755);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem">🛍️</div>
+                  <div style="flex:1;min-width:0">
+                    <div id="pnPreviewTitle" style="font-size:0.82rem;font-weight:700;color:white;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Your notification title</div>
+                    <div id="pnPreviewBody" style="font-size:0.75rem;color:rgba(255,255,255,0.65);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">Your message body will appear here…</div>
+                    <div style="font-size:0.65rem;color:rgba(255,255,255,0.3);margin-top:4px">Pioneer I Xpress • now</div>
+                  </div>
+                </div>
+                <div id="pnPreviewImgWrap" style="display:none;margin-top:8px;border-radius:8px;overflow:hidden;max-height:80px">
+                  <img id="pnPreviewImg" src="" alt="" style="width:100%;height:80px;object-fit:cover">
+                </div>
+              </div>
+              <!-- Phone mockup -->
+              <div style="background:#000;border-radius:14px;padding:12px;border:3px solid #333">
+                <div style="font-size:0.62rem;font-weight:600;color:rgba(255,255,255,0.3);margin-bottom:8px;text-align:center">📱 Mobile</div>
+                <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:10px 12px">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                    <div style="width:18px;height:18px;border-radius:4px;background:linear-gradient(135deg,#FF3C78,#c41755);flex-shrink:0"></div>
+                    <span style="font-size:0.68rem;font-weight:700;color:white">Pioneer I Xpress</span>
+                    <span style="font-size:0.62rem;color:rgba(255,255,255,0.4);margin-left:auto">now</span>
+                  </div>
+                  <div id="pnPreviewTitleMob" style="font-size:0.78rem;font-weight:700;color:white;margin-bottom:2px">Your notification title</div>
+                  <div id="pnPreviewBodyMob" style="font-size:0.72rem;color:rgba(255,255,255,0.7);line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">Your message body will appear here…</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Send Row -->
+          <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(196,23,85,0.1);display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <button id="pnSendBtn" onclick="admSendPushNotif()"
+              style="padding:11px 28px;border-radius:12px;background:linear-gradient(135deg,var(--brand-primary),#c41755);color:white;font-weight:800;font-size:0.92rem;border:none;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 6px 20px rgba(255,60,120,0.3);transition:transform 0.15s,box-shadow 0.15s"
+              onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 10px 28px rgba(255,60,120,0.4)'"
+              onmouseout="this.style.transform='';this.style.boxShadow='0 6px 20px rgba(255,60,120,0.3)'">
+              <span style="font-size:1.1rem">📢</span> Send Notification
+            </button>
+            <button onclick="admClearPushForm()"
+              style="padding:11px 20px;border-radius:12px;background:rgba(196,23,85,0.07);color:var(--text-secondary);font-weight:700;font-size:0.85rem;border:1.5px solid rgba(196,23,85,0.1);cursor:pointer">
+              ✕ Clear
+            </button>
+            <div id="pnSendStatus" style="font-size:0.82rem;font-weight:600;display:none"></div>
+          </div>
+        </div>
+
+        <!-- SENT HISTORY -->
+        <div class="adm-card mb-6">
+          <div class="flex items-center gap-2 mb-4">
+            <span style="font-size:1.3rem">📨</span>
+            <div class="font-bold">Notification History</div>
+            <span style="margin-left:auto;font-size:0.72rem;color:var(--text-secondary)">Last 10 sent</span>
+          </div>
+          <div id="admPushHistory">
+            ${sentNotifs.length === 0
+              ? '<div style="text-align:center;padding:24px;color:var(--text-secondary);font-size:0.85rem">No notifications sent yet. Compose your first one above ☝️</div>'
+              : sentNotifs.map(n => {
+                  const d = n.createdAt?.toDate ? n.createdAt.toDate() : (n.createdAt ? new Date(n.createdAt) : new Date());
+                  const sc = n.status==='sent'?'#16a34a':n.status==='failed'?'#dc2626':'#d97706';
+                  const sl = n.status==='sent'?'✅ Sent':n.status==='failed'?'❌ Failed':'⏳ Queued';
+                  const tl = n.target==='cart'?'🛒 Cart only':'📱 All';
+                  return '<div style="padding:12px;border-radius:10px;background:var(--bg-primary);margin-bottom:8px;display:flex;gap:12px;align-items:flex-start">'
+                    +'<div style="width:38px;height:38px;border-radius:10px;background:rgba(99,102,241,0.1);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.2rem">📢</div>'
+                    +'<div style="flex:1;min-width:0">'
+                    +'<div style="font-weight:700;font-size:0.85rem;color:var(--text-primary)">'+(n.title||'—')+'</div>'
+                    +'<div style="font-size:0.75rem;color:var(--text-secondary);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(n.body||'')+'</div>'
+                    +'<div style="font-size:0.68rem;color:var(--text-secondary);margin-top:4px">'+d.toLocaleString('en-IN')+' · '+tl+'</div>'
+                    +'</div>'
+                    +'<span style="font-size:0.72rem;font-weight:700;color:'+sc+';white-space:nowrap;padding:3px 10px;border-radius:999px;background:'+sc+'18">'+sl+'</span>'
+                    +'</div>';
+                }).join('')
+            }
+          </div>
+        </div>
+
         <!-- New Order Alerts -->
         <div class="adm-card mb-6">
           <div class="flex items-center gap-3 mb-4">
@@ -7272,6 +7639,129 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(()=>{ if(status)status.style.display='none'; },3500);
       }
     } catch(e) { if(status){status.textContent='❌ Error: '+e.message;status.style.color='#dc2626';status.style.display='block';} }
+  };
+
+  // ── Live preview updater for Compose Push form ────────────────────────────
+  window.admUpdatePushPreview = function() {
+    const title = document.getElementById('pnTitle')?.value || '';
+    const body  = document.getElementById('pnBody')?.value  || '';
+    const img   = document.getElementById('pnImage')?.value || '';
+
+    // char counters
+    const tl = document.getElementById('pnTitleLen');
+    const bl = document.getElementById('pnBodyLen');
+    if (tl) tl.textContent = title.length;
+    if (bl) bl.textContent = body.length;
+
+    // desktop preview
+    const pt = document.getElementById('pnPreviewTitle');
+    const pb = document.getElementById('pnPreviewBody');
+    if (pt) pt.textContent = title || 'Your notification title';
+    if (pb) pb.textContent = body  || 'Your message body will appear here…';
+
+    // mobile preview
+    const ptm = document.getElementById('pnPreviewTitleMob');
+    const pbm = document.getElementById('pnPreviewBodyMob');
+    if (ptm) ptm.textContent = title || 'Your notification title';
+    if (pbm) pbm.textContent = body  || 'Your message body will appear here…';
+
+    // image preview
+    const imgWrap = document.getElementById('pnPreviewImgWrap');
+    const imgEl   = document.getElementById('pnPreviewImg');
+    if (imgWrap && imgEl) {
+      if (img && img.startsWith('http')) {
+        imgEl.src = img;
+        imgWrap.style.display = 'block';
+      } else {
+        imgWrap.style.display = 'none';
+      }
+    }
+  };
+
+  // ── Clear compose form ────────────────────────────────────────────────────
+  window.admClearPushForm = function() {
+    ['pnTitle','pnBody','pnImage'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    const urlEl = document.getElementById('pnUrl');
+    if (urlEl) urlEl.value = 'https://g4u-7231d.web.app/';
+    const tgt = document.getElementById('pnTarget');
+    if (tgt) tgt.selectedIndex = 0;
+    window.admUpdatePushPreview();
+    const st = document.getElementById('pnSendStatus');
+    if (st) st.style.display = 'none';
+  };
+
+  // ── Send Push Notification (saves to Firestore pushQueue → Cloud Fn picks up)
+  window.admSendPushNotif = async function() {
+    const title  = (document.getElementById('pnTitle')?.value || '').trim();
+    const body   = (document.getElementById('pnBody')?.value  || '').trim();
+    const image  = (document.getElementById('pnImage')?.value || '').trim();
+    const target = document.getElementById('pnTarget')?.value || 'all';
+    const url    = (document.getElementById('pnUrl')?.value   || '').trim() || 'https://g4u-7231d.web.app/';
+    const btn    = document.getElementById('pnSendBtn');
+    const status = document.getElementById('pnSendStatus');
+
+    // Validation
+    if (!title) { _pnStatus('⚠️ Please enter a notification title.', '#d97706'); return; }
+    if (!body)  { _pnStatus('⚠️ Please enter a message body.',       '#d97706'); return; }
+
+    // Disable button while sending
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span style="font-size:1.1rem">⏳</span> Queuing…'; }
+    _pnStatus('', '');
+
+    try {
+      const _db = window.db || window._db;
+      if (!_db || !window.addDoc || !window.collection) {
+        throw new Error('Firestore not ready. Please wait a moment and try again.');
+      }
+
+      // Write to pushQueue collection — Cloud Function processes this
+      const docRef = await window.addDoc(window.collection(_db, 'pushQueue'), {
+        title,
+        body,
+        image:     image || null,
+        target,          // 'all' or 'cart'
+        url,
+        status:    'pending',
+        createdAt: new Date(),
+        sentBy:    (window._currentUser?.email) || 'admin'
+      });
+
+      _pnStatus('✅ Notification queued! Cloud Function will send it to ' + (target === 'cart' ? 'cart abandoners' : 'all subscribers') + ' shortly.', '#16a34a');
+
+      // Optimistically add to history list
+      const histEl = document.getElementById('admPushHistory');
+      if (histEl) {
+        const oldEmpty = histEl.querySelector('div[style*="text-align:center"]');
+        if (oldEmpty) oldEmpty.remove();
+        const newRow = document.createElement('div');
+        newRow.style.cssText = 'padding:12px;border-radius:10px;background:var(--bg-primary);margin-bottom:8px;display:flex;gap:12px;align-items:flex-start';
+        newRow.innerHTML = '<div style="width:38px;height:38px;border-radius:10px;background:rgba(99,102,241,0.1);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.2rem">📢</div>'
+          + '<div style="flex:1;min-width:0">'
+          + '<div style="font-weight:700;font-size:0.85rem;color:var(--text-primary)">'+title+'</div>'
+          + '<div style="font-size:0.75rem;color:var(--text-secondary);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+body+'</div>'
+          + '<div style="font-size:0.68rem;color:var(--text-secondary);margin-top:4px">'+new Date().toLocaleString('en-IN')+' · '+(target==='cart'?'🛒 Cart only':'📱 All')+'</div>'
+          + '</div>'
+          + '<span style="font-size:0.72rem;font-weight:700;color:#d97706;white-space:nowrap;padding:3px 10px;border-radius:999px;background:#d9770618">⏳ Queued</span>';
+        histEl.insertBefore(newRow, histEl.firstChild);
+      }
+
+      // Clear form after success
+      setTimeout(() => { window.admClearPushForm(); if(btn){btn.disabled=false;btn.innerHTML='<span style="font-size:1.1rem">📢</span> Send Notification';} }, 2000);
+
+    } catch(e) {
+      _pnStatus('❌ Error: ' + e.message, '#dc2626');
+      if (btn) { btn.disabled = false; btn.innerHTML = '<span style="font-size:1.1rem">📢</span> Send Notification'; }
+    }
+
+    function _pnStatus(msg, color) {
+      if (!status) return;
+      status.textContent = msg;
+      status.style.color = color;
+      status.style.display = msg ? 'block' : 'none';
+    }
   };
 
   // ── Real-time Firestore listener: notify admin of new orders ─────────────
@@ -13727,6 +14217,1058 @@ if (window.firebaseReady) {
     }
   };
   window.saveEditorChanges = window.pixEditorSave;
+
+})();
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     🔔 PIX SMART NOTIFY  —  Pioneer I Xpress
+     ───────────────────────────────────────────────────────────────────
+     ✅ Every visitor who allows = subscriber (tracked in localStorage)
+     ✅ Notification fires on EVERY page visit (immediately)
+     ✅ Background 6 PM notification via Service Worker (tab closed)
+     ✅ Cart customers  → cart items shown in notification
+     ✅ Non-cart users  → "new arrivals" notification
+     ✅ Admin panel at  /#pix-admin  — invisible to customers
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<!-- ══ PIX ADMIN PANEL STYLES (invisible div — customers see nothing) ══ -->
+<style>
+#pix-adm{display:none;position:fixed;inset:0;z-index:2147483647;background:rgba(6,2,8,.97);backdrop-filter:blur(22px);overflow-y:auto;padding:36px 18px 60px;font-family:'Poppins',sans-serif;color:#f0dde8}
+#pix-adm.pix-adm-open{display:block}
+.pa-wrap{max-width:680px;margin:0 auto}
+.pa-hdr{display:flex;align-items:center;gap:13px;margin-bottom:24px}
+.pa-logo{width:48px;height:48px;background:linear-gradient(135deg,#FF3C78,#c41755);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.35rem;flex-shrink:0}
+.pa-hdr h1{font-family:'Montserrat',sans-serif;font-size:1.3rem;font-weight:900;background:linear-gradient(135deg,#FF3C78,#ff8cb0);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.pa-hdr p{font-size:.72rem;color:#7a5060;margin-top:2px}
+.pa-close{margin-left:auto;background:rgba(255,255,255,.06);border:none;color:#7a5060;width:36px;height:36px;border-radius:10px;cursor:pointer;font-size:.95rem;transition:background .2s,color .2s}
+.pa-close:hover{background:rgba(255,60,120,.15);color:#FF3C78}
+.pa-tip{background:rgba(255,210,51,.05);border:1px solid rgba(255,210,51,.15);border-radius:13px;padding:13px 17px;display:flex;gap:10px;align-items:flex-start;margin-bottom:20px}
+.pa-tip p{font-size:.74rem;color:#c0a070;line-height:1.6}
+.pa-tip code{background:rgba(255,210,51,.1);padding:1px 6px;border-radius:4px;font-family:monospace;font-size:.85em;color:#FFD233}
+
+/* Stats grid */
+.pa-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:22px}
+@media(max-width:540px){.pa-stats{grid-template-columns:repeat(2,1fr)}}
+.pa-stat{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:14px;text-align:center}
+.pa-stat .n{font-family:'Montserrat',sans-serif;font-size:1.45rem;font-weight:900;color:#FF3C78;line-height:1}
+.pa-stat .n.green{color:#25D366}
+.pa-stat .n.amber{color:#FFD233}
+.pa-stat .n.blue{color:#5B9BE6}
+.pa-stat .l{font-size:.65rem;color:#6a4555;margin-top:5px;line-height:1.3}
+
+/* Cards */
+.pa-card{background:#110810;border:1px solid rgba(255,60,120,.13);border-radius:18px;overflow:hidden;margin-bottom:14px}
+.pa-card-hd{padding:16px 20px;display:flex;align-items:center;gap:11px;border-bottom:1px solid rgba(255,255,255,.05)}
+.pa-card-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0}
+.ico-cart{background:rgba(255,60,120,.14)}
+.ico-visit{background:rgba(91,155,230,.14);color:#5B9BE6}
+.ico-sched{background:rgba(255,200,50,.1);color:#FFD233}
+.pa-card-hd h3{font-size:.9rem;font-weight:700;color:#f0dde8}
+.pa-card-hd p{font-size:.7rem;color:#6a4555;margin-top:2px}
+.pa-card-bd{padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+
+/* Fields */
+.pa-field{display:flex;flex-direction:column;gap:5px}
+.pa-field label{font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#FF3C78}
+.pa-field label.blue{color:#5B9BE6}
+.pa-inp{padding:11px 14px;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);border-radius:10px;font-family:'Poppins',sans-serif;font-size:.84rem;color:#f0dde8;outline:none;width:100%;transition:border-color .2s,box-shadow .2s}
+.pa-inp:focus{border-color:#FF3C78;box-shadow:0 0 0 3px rgba(255,60,120,.12);background:rgba(255,255,255,.06)}
+.pa-inp.blue:focus{border-color:#5B9BE6;box-shadow:0 0 0 3px rgba(91,155,230,.12)}
+.pa-inp::placeholder{color:#3a1828}
+textarea.pa-inp{resize:vertical;min-height:64px;line-height:1.5}
+
+/* Freq buttons */
+.pa-freq{display:flex;gap:7px}
+.pa-freq-btn{flex:1;padding:9px 3px;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);border-radius:9px;font-family:'Poppins',sans-serif;font-size:.71rem;font-weight:600;color:#6a4555;cursor:pointer;text-align:center;transition:all .2s}
+.pa-freq-btn.pa-fa{background:rgba(255,60,120,.14);border-color:#FF3C78;color:#FF3C78}
+.pa-freq-btn.pa-fa.blue{background:rgba(91,155,230,.14);border-color:#5B9BE6;color:#5B9BE6}
+
+/* Toggle */
+.pa-toggle-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.pa-toggle-row .tl h4{font-size:.84rem;font-weight:600;color:#f0dde8}
+.pa-toggle-row .tl p{font-size:.69rem;color:#6a4555;margin-top:2px}
+.pa-tog{position:relative;width:46px;height:25px;flex-shrink:0}
+.pa-tog input{opacity:0;width:0;height:0}
+.pa-tog-track{position:absolute;inset:0;background:rgba(255,255,255,.1);border-radius:99px;cursor:pointer;transition:background .3s}
+.pa-tog-track::before{content:'';position:absolute;width:17px;height:17px;left:4px;top:4px;background:#fff;border-radius:50%;transition:transform .3s cubic-bezier(.2,.9,.2,1)}
+.pa-tog input:checked+.pa-tog-track{background:#FF3C78}
+.pa-tog input:checked+.pa-tog-track::before{transform:translateX(21px)}
+.pa-divider{height:1px;background:rgba(255,255,255,.05)}
+
+/* Preview */
+.pa-preview{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:12px 14px}
+.pa-preview::before{content:'🔔 LIVE PREVIEW';display:block;font-size:.58rem;font-weight:700;letter-spacing:.1em;color:#4a2535;margin-bottom:8px}
+.pa-notif-mock{display:flex;align-items:flex-start;gap:10px}
+.pa-notif-ico{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#FF3C78,#c41755);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0}
+.pa-notif-title{font-size:.78rem;font-weight:700;color:#f0dde8;line-height:1.3}
+.pa-notif-body{font-size:.7rem;color:#6a4555;margin-top:3px;line-height:1.4}
+
+/* Subscriber list */
+.pa-sub-list{max-height:180px;overflow-y:auto;display:flex;flex-direction:column;gap:7px}
+.pa-sub-item{display:flex;align-items:center;gap:10px;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px}
+.pa-sub-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.pa-sub-dot.cart{background:#FF3C78}
+.pa-sub-dot.visit{background:#5B9BE6}
+.pa-sub-info{flex:1}
+.pa-sub-info .name{font-size:.78rem;font-weight:600;color:#f0dde8}
+.pa-sub-info .meta{font-size:.67rem;color:#6a4555;margin-top:2px}
+.pa-sub-badge{font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:99px}
+.pa-sub-badge.cart{background:rgba(255,60,120,.15);color:#FF3C78}
+.pa-sub-badge.visit{background:rgba(91,155,230,.15);color:#5B9BE6}
+.pa-empty{font-size:.76rem;color:#5a3545;text-align:center;padding:20px 0}
+
+/* Actions */
+.pa-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.pa-btn-save{flex:1;padding:13px 22px;background:linear-gradient(135deg,#FF3C78,#c41755);color:#fff;border:none;border-radius:12px;font-family:'Poppins',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:0 8px 24px rgba(255,60,120,.3);display:flex;align-items:center;justify-content:center;gap:8px}
+.pa-btn-save:hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(255,60,120,.4)}
+.pa-btn-test{padding:13px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#a08090;border-radius:12px;font-family:'Poppins',sans-serif;font-size:.81rem;font-weight:600;cursor:pointer;transition:background .2s,color .2s;display:flex;align-items:center;gap:7px}
+.pa-btn-test:hover{background:rgba(255,255,255,.09);color:#f0dde8}
+@media(max-width:500px){.pa-actions{flex-direction:column}.pa-btn-test{justify-content:center}}
+
+/* Toast */
+#pa-toast{position:fixed;bottom:24px;right:24px;background:#140a10;border:1px solid rgba(255,255,255,.1);border-radius:13px;padding:13px 17px;display:flex;align-items:center;gap:11px;box-shadow:0 20px 60px rgba(0,0,0,.5);transform:translateY(100px);opacity:0;transition:transform .4s cubic-bezier(.2,.9,.2,1),opacity .4s;z-index:2147483647;max-width:310px}
+#pa-toast.show{transform:translateY(0);opacity:1}
+#pa-toast .ti{font-size:1.2rem;flex-shrink:0}
+#pa-toast h4{font-size:.82rem;font-weight:700;color:#f0dde8}
+#pa-toast p{font-size:.7rem;color:#7a5060;margin-top:2px}
+</style>
+
+<!-- ══ HIDDEN ADMIN PANEL (customers see nothing) ══════════════════ -->
+<div id="pix-adm">
+  <div class="pa-wrap">
+
+    <div class="pa-hdr">
+      <div class="pa-logo">🔔</div>
+      <div>
+        <h1>PIX Smart Notify</h1>
+        <p>Pioneer I Xpress — Admin Panel (hidden from customers)</p>
+      </div>
+      <button class="pa-close" onclick="pixAdmClose()">✕</button>
+    </div>
+
+    <div class="pa-tip">
+      <span style="font-size:1rem;flex-shrink:0;margin-top:1px">🔑</span>
+      <p>Open this panel anytime at <code>https://pioneeri.in/#pix-admin</code> — customers never see it.
+      Stats update every 3 seconds live from browser data.</p>
+    </div>
+
+    <!-- LIVE STATS -->
+    <div class="pa-stats">
+      <div class="pa-stat">
+        <div class="n green" id="pa-stat-subs">—</div>
+        <div class="l">Total Subscribers<br>(this device)</div>
+      </div>
+      <div class="pa-stat">
+        <div class="n amber" id="pa-stat-visits">—</div>
+        <div class="l">Total Site Visits<br>(this device)</div>
+      </div>
+      <div class="pa-stat">
+        <div class="n" id="pa-stat-cart">—</div>
+        <div class="l">Cart Items<br>(live count)</div>
+      </div>
+      <div class="pa-stat">
+        <div class="n blue" id="pa-stat-perm">—</div>
+        <div class="l">Push Permission<br>(this browser)</div>
+      </div>
+    </div>
+
+    <!-- SUBSCRIBER LOG -->
+    <div class="pa-card">
+      <div class="pa-card-hd">
+        <div class="pa-card-ico ico-cart">👥</div>
+        <div>
+          <h3>Subscriber Log</h3>
+          <p>Everyone who allowed notifications from this device — newest first</p>
+        </div>
+      </div>
+      <div class="pa-card-bd">
+        <div class="pa-sub-list" id="pa-sub-list">
+          <div class="pa-empty">No subscribers yet on this device</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CART NOTIFICATION -->
+    <div class="pa-card">
+      <div class="pa-card-hd">
+        <div class="pa-card-ico ico-cart">🛒</div>
+        <div>
+          <h3>Cart Visitor Notification</h3>
+          <p>Fires on every visit when cart has items</p>
+        </div>
+      </div>
+      <div class="pa-card-bd">
+        <div class="pa-field">
+          <label>Title</label>
+          <input class="pa-inp" id="pa-cart-title" type="text" oninput="pixAdmSyncPreview()"
+            value="🛒 Your cart is waiting for you!">
+        </div>
+        <div class="pa-field">
+          <label>Message <span style="color:#5a3545;font-size:.65rem;text-transform:none;letter-spacing:0">(use {count} {total} for live values)</span></label>
+          <textarea class="pa-inp" id="pa-cart-body" oninput="pixAdmSyncPreview()">You left {count} item(s) worth ₹{total} at Pioneer I Xpress. Complete your order!</textarea>
+        </div>
+        <div class="pa-preview">
+          <div class="pa-notif-mock">
+            <div class="pa-notif-ico">🛍️</div>
+            <div>
+              <div class="pa-notif-title" id="pa-cart-prev-title">🛒 Your cart is waiting for you!</div>
+              <div class="pa-notif-body" id="pa-cart-prev-body">You left 2 item(s) worth ₹999 at Pioneer I Xpress. Complete your order!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISITOR NOTIFICATION -->
+    <div class="pa-card">
+      <div class="pa-card-hd">
+        <div class="pa-card-ico ico-visit">👀</div>
+        <div>
+          <h3>Visitor Notification</h3>
+          <p>Fires on every visit when cart is empty</p>
+        </div>
+      </div>
+      <div class="pa-card-bd">
+        <div class="pa-field">
+          <label class="blue">Title</label>
+          <input class="pa-inp blue" id="pa-visit-title" type="text" oninput="pixAdmSyncPreview()"
+            value="✨ Welcome back to Pioneer I Xpress!">
+        </div>
+        <div class="pa-field">
+          <label class="blue">Message</label>
+          <textarea class="pa-inp blue" id="pa-visit-body" oninput="pixAdmSyncPreview()">Discover our latest candles, beauty products & more. Free delivery over ₹1,999!</textarea>
+        </div>
+        <div class="pa-preview">
+          <div class="pa-notif-mock">
+            <div class="pa-notif-ico" style="background:linear-gradient(135deg,#5B9BE6,#0078D4)">✨</div>
+            <div>
+              <div class="pa-notif-title" id="pa-visit-prev-title">✨ Welcome back to Pioneer I Xpress!</div>
+              <div class="pa-notif-body" id="pa-visit-prev-body">Discover our latest candles, beauty products & more. Free delivery over ₹1,999!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCHEDULE & BEHAVIOUR -->
+    <div class="pa-card">
+      <div class="pa-card-hd">
+        <div class="pa-card-ico ico-sched">⚙️</div>
+        <div>
+          <h3>Behaviour Settings</h3>
+          <p>Control when and how notifications fire</p>
+        </div>
+      </div>
+      <div class="pa-card-bd">
+        <div class="pa-toggle-row">
+          <div class="tl">
+            <h4>Fire notification on every visit</h4>
+            <p>Sends immediately when visitor opens the site (if permitted)</p>
+          </div>
+          <label class="pa-tog"><input type="checkbox" id="pa-on-visit" checked><span class="pa-tog-track"></span></label>
+        </div>
+        <div class="pa-divider"></div>
+        <div class="pa-toggle-row">
+          <div class="tl">
+            <h4>Also fire at 6 PM (background)</h4>
+            <p>Service Worker wakes up at 6 PM even when tab is closed</p>
+          </div>
+          <label class="pa-tog"><input type="checkbox" id="pa-6pm" checked><span class="pa-tog-track"></span></label>
+        </div>
+        <div class="pa-divider"></div>
+        <div class="pa-toggle-row">
+          <div class="tl">
+            <h4>Ask permission from all visitors</h4>
+            <p>Prompt appears 4 seconds after landing — everyone becomes a subscriber</p>
+          </div>
+          <label class="pa-tog"><input type="checkbox" id="pa-ask-all" checked><span class="pa-tog-track"></span></label>
+        </div>
+        <div class="pa-divider"></div>
+        <div class="pa-toggle-row">
+          <div class="tl">
+            <h4>Do Not Disturb (10 PM – 8 AM)</h4>
+            <p>Suppresses notifications during late night hours</p>
+          </div>
+          <label class="pa-tog"><input type="checkbox" id="pa-dnd" checked><span class="pa-tog-track"></span></label>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="pa-actions">
+      <button class="pa-btn-save" onclick="pixAdmSave()">💾 Save & Apply</button>
+      <button class="pa-btn-test" onclick="pixAdmTest('cart')">🛒 Test Cart Notif</button>
+      <button class="pa-btn-test" onclick="pixAdmTest('visit')">👀 Test Visitor Notif</button>
+    </div>
+
+  </div>
+</div>
+<div id="pa-toast"><span class="ti" id="pa-ti"></span><div><h4 id="pa-tt"></h4><p id="pa-tm"></p></div></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   PIX SMART NOTIFY  v3  —  Pioneer I Xpress
+   ✅ Notification on EVERY visit (immediate)
+   ✅ Background 6 PM SW notification (tab closed)
+   ✅ Everyone who visits + allows = subscriber (logged in localStorage)
+   ✅ Real cart data from window.state
+   ✅ Admin at /#pix-admin — 100% hidden from customers
+   ═══════════════════════════════════════════════════════════════════ */
+(function PIXSmartNotify() {
+  if (!('Notification' in window)) return;
+
+  /* ── Keys ───────────────────────────────────────────────────────── */
+  const K = {
+    cfg:   'pixCfg',       // admin config
+    subs:  'pixSubs',      // subscriber log []
+    state: 'pixState',     // { lc, lv } last notif timestamps
+    visits:'pixVisits',    // total visit counter
+    cart:  'PIX_sw_cart',  // persisted cart
+  };
+
+  const ICON = 'https://risync.in/G4U/candle.png';
+
+  /* ── Load config ────────────────────────────────────────────────── */
+  function getCfg() {
+    try { return JSON.parse(localStorage.getItem(K.cfg) || 'null') || {}; } catch(e) { return {}; }
+  }
+  function cfg(key, def) { var c=getCfg(); return (c[key] !== undefined) ? c[key] : def; }
+
+  /* ── Visit counter ──────────────────────────────────────────────── */
+  var visits = parseInt(localStorage.getItem(K.visits) || '0') + 1;
+  localStorage.setItem(K.visits, visits);
+
+  /* ── Cart helpers ───────────────────────────────────────────────── */
+  function getCart() {
+    // Try live state first, fall back to persisted
+    if (window.state && window.state.cart && window.state.cart.length)
+      return window.state.cart;
+    try { return JSON.parse(localStorage.getItem(K.cart) || '[]'); } catch(e) { return []; }
+  }
+  function persistCart(cart) {
+    try {
+      localStorage.setItem(K.cart, JSON.stringify(
+        (cart||[]).map(function(i){ return {
+          id: i.id, title: i.title, price: i.price,
+          qty: i.qty||1, img: (i.imgs&&i.imgs[0])||i.img||''
+        }; })
+      ));
+    } catch(e){}
+  }
+
+  /* ── Subscriber log ─────────────────────────────────────────────── */
+  function getSubs() {
+    try { return JSON.parse(localStorage.getItem(K.subs) || '[]'); } catch(e) { return []; }
+  }
+  function addSub() {
+    var subs = getSubs();
+    var now  = new Date().toISOString();
+    // Only add if no entry in last 24h from same session
+    if (!subs.length || (new Date() - new Date(subs[0].t)) > 86400000) {
+      subs.unshift({ t: now, ua: navigator.userAgent.slice(0,40), perm: 'granted' });
+      if (subs.length > 50) subs = subs.slice(0, 50);
+      localStorage.setItem(K.subs, JSON.stringify(subs));
+    }
+  }
+
+  /* ── DND check ──────────────────────────────────────────────────── */
+  function isDND() {
+    if (!cfg('dnd', true)) return false;
+    var h = new Date().getHours();
+    return (h >= 22 || h < 8);
+  }
+
+  /* ── Build notification content ─────────────────────────────────── */
+  function buildNotif(forceType) {
+    var cart    = getCart();
+    var hasCart = cart.length > 0;
+    var type    = forceType || (hasCart ? 'cart' : 'visit');
+
+    if (type === 'cart' && hasCart) {
+      var count = cart.reduce(function(s,i){ return s+(i.qty||1); }, 0);
+      var total = cart.reduce(function(s,i){ return s+(i.price*(i.qty||1)); }, 0);
+      var titleTpl = cfg('cartTitle', '🛒 Your cart is waiting for you!');
+      var bodyTpl  = cfg('cartBody',  'You left {count} item(s) worth ₹{total} at Pioneer I Xpress. Complete your order!');
+      var t = titleTpl.replace('{count}', count).replace('{total}', total.toLocaleString('en-IN'));
+      var b = bodyTpl .replace('{count}', count).replace('{total}', total.toLocaleString('en-IN'));
+      // Append top 2 items
+      var lines = cart.slice(0,2).map(function(i){
+        return '• ' + i.title + ' ×' + (i.qty||1) + ' — ₹' + (i.price*(i.qty||1)).toLocaleString('en-IN');
+      });
+      if (cart.length > 2) lines.push('…and ' + (cart.length-2) + ' more');
+      return { title: t, body: b + '\n' + lines.join('\n'), isCart: true };
+    } else {
+      return {
+        title:  cfg('visitTitle', '✨ Welcome back to Pioneer I Xpress!'),
+        body:   cfg('visitBody',  'Discover our latest candles, beauty products & more. Free delivery over ₹1,999!'),
+        isCart: false
+      };
+    }
+  }
+
+  /* ── Fire in-tab notification ───────────────────────────────────── */
+  function fireNotif(forceType) {
+    if (Notification.permission !== 'granted') return;
+    if (isDND()) return;
+    var n = buildNotif(forceType);
+    var notif = new Notification(n.title, {
+      body: n.body, icon: ICON, badge: ICON,
+      tag: 'pix-visit', renotify: true
+    });
+    notif.onclick = function() {
+      window.focus(); notif.close();
+      if (n.isCart && typeof window.openCart === 'function') window.openCart();
+    };
+    console.log('[PIXNotify] Notification fired:', n.title);
+  }
+
+  /* ── ON EVERY VISIT: fire notification ─────────────────────────── */
+  if (Notification.permission === 'granted' && cfg('onVisit', true)) {
+    // Wait 1.5s for window.state to populate
+    setTimeout(function() { fireNotif(); }, 1500);
+  }
+
+  /* ── Ask ALL visitors for permission (4s after landing) ─────────── */
+  if (Notification.permission === 'default' && cfg('askAll', true)) {
+    setTimeout(function() {
+      Notification.requestPermission().then(function(result) {
+        if (result === 'granted') {
+          addSub();
+          console.log('[PIXNotify] Permission granted — subscriber added ✅');
+          setTimeout(function() { fireNotif(); }, 800);
+          syncToSW();
+        }
+      }).catch(function(){});
+    }, 4000);
+  }
+
+  /* ── 6 PM background Service Worker ─────────────────────────────── */
+  var swReg = null;
+  var SW_SRC = '' +
+    'const C="pix-v3";const HOUR=18;' +
+    'self.addEventListener("install",()=>self.skipWaiting());' +
+    'self.addEventListener("activate",e=>e.waitUntil(clients.claim()));' +
+    'self.addEventListener("message",async ev=>{' +
+    '  if(!ev.data||ev.data.type!=="PIX_D")return;' +
+    '  const c=await caches.open(C);await c.put("d",new Response(JSON.stringify(ev.data.p)));' +
+    '});' +
+    'self.addEventListener("periodicsync",ev=>{if(ev.tag==="pix6pm")ev.waitUntil(fire6pm());});' +
+    'let _t=0;self.addEventListener("fetch",()=>{const n=Date.now();if(n-_t<60000)return;_t=n;fire6pm().catch(()=>{});});' +
+    'self.addEventListener("notificationclick",ev=>{' +
+    '  ev.notification.close();if(ev.action==="dismiss")return;' +
+    '  ev.waitUntil(clients.matchAll({type:"window",includeUncontrolled:true}).then(list=>{' +
+    '    for(const c of list)if(c.url.includes(self.location.origin)&&"focus"in c)return c.focus();' +
+    '    if(clients.openWindow)return clients.openWindow(self.location.origin);' +
+    '  }));' +
+    '});' +
+    'async function fire6pm(){' +
+    '  const c=await caches.open(C);const r=await c.match("d");if(!r)return;' +
+    '  const d=await r.json();' +
+    '  if(!d.en6pm)return;' +
+    '  const now=new Date();const h=now.getHours();' +
+    '  if(d.dnd&&(h>=22||h<8))return;' +
+    '  if(h<HOUR)return;' +
+    '  const key=d.cartLen>0?"lc":"lv";' +
+    '  const last=d[key];' +
+    '  if(last){const diff=(now-new Date(last))/86400000;if(diff<1)return;}' +
+    '  const title=d.cartLen>0?d.ct:d.vt;' +
+    '  const body=d.cartLen>0?d.cb:d.vb;' +
+    '  await self.registration.showNotification(title,{' +
+    '    body,icon:d.icon,badge:d.icon,tag:"pix-6pm",renotify:true,' +
+    '    actions:[{action:"open",title:d.cartLen>0?"🛍️ Go to Cart":"🛍️ Shop Now"},{action:"dismiss",title:"Later"}]' +
+    '  });' +
+    '  d[key]=now.toISOString();' +
+    '  await c.put("d",new Response(JSON.stringify(d)));' +
+    '}';
+
+  if ('serviceWorker' in navigator) {
+    try {
+      var blob = new Blob([SW_SRC], { type: 'application/javascript' });
+      navigator.serviceWorker.register(URL.createObjectURL(blob), { scope: '/' })
+        .then(function(reg) {
+          swReg = reg;
+          if ('periodicSync' in reg) {
+            navigator.permissions.query({ name: 'periodic-background-sync' })
+              .then(function(p) {
+                if (p.state === 'granted')
+                  reg.periodicSync.register('pix6pm', { minInterval: 3600000 });
+              }).catch(function(){});
+          }
+        }).catch(function(){});
+    } catch(e) {}
+  }
+
+  /* ── Sync data to SW ────────────────────────────────────────────── */
+  function syncToSW() {
+    if (!swReg || !swReg.active) return;
+    var cart   = getCart();
+    var st     = {};
+    try { st = JSON.parse(localStorage.getItem(K.state) || '{}'); } catch(e){}
+    var nb = buildNotif();
+    swReg.active.postMessage({ type: 'PIX_D', p: {
+      cartLen: cart.length,
+      ct: cfg('cartTitle', '🛒 Your cart is waiting for you!'),
+      cb: nb.isCart ? nb.body : cfg('cartBody', 'Complete your order at Pioneer I Xpress!'),
+      vt: cfg('visitTitle', '✨ Welcome back to Pioneer I Xpress!'),
+      vb: cfg('visitBody',  'Discover our latest products. Free delivery over ₹1,999!'),
+      lc: st.lc || null, lv: st.lv || null,
+      icon: ICON, dnd: cfg('dnd', true), en6pm: cfg('enable6pm', true)
+    }});
+  }
+
+  /* ── Also fire at 6 PM if tab is open ──────────────────────────── */
+  function inTab6pmCheck() {
+    if (!cfg('enable6pm', true)) return;
+    if (Notification.permission !== 'granted') return;
+    if (isDND()) return;
+    var h = new Date().getHours();
+    if (h < 18) return;
+    var st = {};
+    try { st = JSON.parse(localStorage.getItem(K.state)||'{}'); } catch(e){}
+    var cart = getCart();
+    var key  = cart.length > 0 ? 'lc' : 'lv';
+    var last = st[key];
+    if (last && (new Date() - new Date(last)) < 86400000) return;
+    fireNotif();
+    st[key] = new Date().toISOString();
+    try { localStorage.setItem(K.state, JSON.stringify(st)); } catch(e){}
+  }
+  setInterval(inTab6pmCheck, 60000);
+
+  /* ── Patch addToCart so cart persists immediately ───────────────── */
+  function patchAddToCart() {
+    var _orig = window.addToCart;
+    if (typeof _orig !== 'function') { setTimeout(patchAddToCart, 500); return; }
+    window.addToCart = function(id, qty) {
+      _orig.call(this, id, qty);
+      setTimeout(function() {
+        var cart = (window.state && window.state.cart) || [];
+        persistCart(cart);
+        if (Notification.permission === 'granted') syncToSW();
+      }, 200);
+    };
+  }
+  patchAddToCart();
+
+  /* ── Keep SW fresh every 30s ────────────────────────────────────── */
+  setInterval(function() {
+    var cart = (window.state && window.state.cart) || [];
+    persistCart(cart);
+    if (Notification.permission === 'granted') syncToSW();
+  }, 30000);
+  setTimeout(syncToSW, 3000);
+
+  /* ── Secret admin panel at /#pix-admin ──────────────────────────── */
+  function checkHash() {
+    if (location.hash === '#pix-admin') {
+      history.replaceState(null, '', location.pathname);
+      var el = document.getElementById('pix-adm');
+      if (el) {
+        el.classList.add('pix-adm-open');
+        pixAdmLoadCfg();
+        pixAdmRefreshStats();
+      }
+    }
+  }
+  window.addEventListener('hashchange', checkHash);
+  checkHash();
+
+  /* ══ ADMIN PANEL LOGIC ═══════════════════════════════════════════ */
+  var _admFreq = { cart: 1, visit: 2 };
+
+  window.pixAdmClose = function() {
+    document.getElementById('pix-adm').classList.remove('pix-adm-open');
+  };
+
+  window.pixAdmLoadCfg = function() {
+    var c = getCfg();
+    if (c.cartTitle)   document.getElementById('pa-cart-title').value  = c.cartTitle;
+    if (c.cartBody)    document.getElementById('pa-cart-body').value   = c.cartBody;
+    if (c.visitTitle)  document.getElementById('pa-visit-title').value = c.visitTitle;
+    if (c.visitBody)   document.getElementById('pa-visit-body').value  = c.visitBody;
+    document.getElementById('pa-on-visit').checked = cfg('onVisit',  true);
+    document.getElementById('pa-6pm').checked      = cfg('enable6pm', true);
+    document.getElementById('pa-ask-all').checked  = cfg('askAll',   true);
+    document.getElementById('pa-dnd').checked      = cfg('dnd',      true);
+    pixAdmSyncPreview();
+  };
+
+  window.pixAdmSyncPreview = function() {
+    function s(src, dst) {
+      var e = document.getElementById(src), d = document.getElementById(dst);
+      if (e && d) d.textContent = e.value;
+    }
+    s('pa-cart-title','pa-cart-prev-title');
+    s('pa-cart-body', 'pa-cart-prev-body');
+    s('pa-visit-title','pa-visit-prev-title');
+    s('pa-visit-body', 'pa-visit-prev-body');
+  };
+
+  window.pixAdmRefreshStats = function() {
+    // Subscribers
+    var subs = getSubs();
+    document.getElementById('pa-stat-subs').textContent  = subs.length;
+    document.getElementById('pa-stat-visits').textContent= localStorage.getItem(K.visits) || '0';
+
+    // Cart — poll window.state
+    var cart = getCart();
+    document.getElementById('pa-stat-cart').textContent  = cart.length || '0';
+
+    // Permission
+    var perm = Notification.permission;
+    var permEl = document.getElementById('pa-stat-perm');
+    permEl.textContent = perm === 'granted' ? '✅' : perm === 'denied' ? '❌' : '⏳';
+    permEl.className   = 'n ' + (perm==='granted'?'green':perm==='denied'?'':'amber');
+
+    // Subscriber list
+    var listEl = document.getElementById('pa-sub-list');
+    if (subs.length === 0) {
+      listEl.innerHTML = '<div class="pa-empty">No subscribers yet — visitors who click Allow appear here</div>';
+    } else {
+      listEl.innerHTML = subs.map(function(s) {
+        var hasC = s.cart && s.cart > 0;
+        var d    = new Date(s.t);
+        var dateStr = d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) + ' ' +
+                      d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+        return '<div class="pa-sub-item">' +
+          '<div class="pa-sub-dot ' + (hasC?'cart':'visit') + '"></div>' +
+          '<div class="pa-sub-info">' +
+            '<div class="name">Subscriber #' + (subs.indexOf(s)+1) + '</div>' +
+            '<div class="meta">' + dateStr + ' · ' + s.ua + '</div>' +
+          '</div>' +
+          '<span class="pa-sub-badge ' + (hasC?'cart':'visit') + '">' + (hasC?'🛒 Had Cart':'👀 Visitor') + '</span>' +
+        '</div>';
+      }).join('');
+    }
+  };
+  setInterval(function() {
+    if (document.getElementById('pix-adm').classList.contains('pix-adm-open'))
+      pixAdmRefreshStats();
+  }, 3000);
+
+  window.pixAdmSave = function() {
+    var c = {
+      cartTitle:  document.getElementById('pa-cart-title').value.trim(),
+      cartBody:   document.getElementById('pa-cart-body').value.trim(),
+      visitTitle: document.getElementById('pa-visit-title').value.trim(),
+      visitBody:  document.getElementById('pa-visit-body').value.trim(),
+      onVisit:    document.getElementById('pa-on-visit').checked,
+      enable6pm:  document.getElementById('pa-6pm').checked,
+      askAll:     document.getElementById('pa-ask-all').checked,
+      dnd:        document.getElementById('pa-dnd').checked,
+    };
+    localStorage.setItem(K.cfg, JSON.stringify(c));
+    paToast('✅','Saved & Applied','Configuration updated. Notification behaviour changes on next visit.');
+    syncToSW();
+  };
+
+  window.pixAdmTest = async function(type) {
+    if (Notification.permission === 'denied') {
+      paToast('❌','Blocked','Reset notification permission in browser site settings.'); return;
+    }
+    if (Notification.permission !== 'granted') {
+      var r = await Notification.requestPermission();
+      if (r !== 'granted') { paToast('⚠️','Denied','Allow notifications first.'); return; }
+      addSub();
+    }
+    fireNotif(type);
+    paToast('🔔','Test fired!','Check your browser notifications now.');
+  };
+
+  function paToast(icon, title, msg) {
+    document.getElementById('pa-ti').textContent = icon;
+    document.getElementById('pa-tt').textContent = title;
+    document.getElementById('pa-tm').textContent = msg;
+    var t = document.getElementById('pa-toast');
+    t.classList.add('show');
+    setTimeout(function(){ t.classList.remove('show'); }, 4500);
+  }
+
+  console.log('[PIXSmartNotify v3] ✅ Live — visits:' + visits + ' perm:' + Notification.permission);
+})();
+</script>
+
+<!-- ══════════════════════════════════════════════════════════
+     🚚 PORTER DELIVERY INTEGRATION — Pioneer I Xpress
+     ══════════════════════════════════════════════════════════
+     Porter API docs: https://developer.porter.in/docs
+     Replace PORTER_API_KEY below with your actual API key.
+     Get it at: https://dashboard.porter.in → Settings → API Keys
+     ══════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+
+  /* ── CONFIG ──────────────────────────────────────────────────────── */
+  var PORTER_API_KEY  = 'YOUR_PORTER_API_KEY_HERE'; // ← Replace with your Porter API key
+  var PORTER_API_BASE = 'https://pfe-apigw-uat.porter.in'; // UAT (sandbox) endpoint
+  // For production use: 'https://api.porter.in'
+
+  /* Store pickup location coordinates (your warehouse / shop address).
+     Update these to your actual store coordinates. */
+  var PICKUP_LAT  = 30.9010;  // Example: Ludhiana, Punjab
+  var PICKUP_LNG  = 75.8573;
+  var PICKUP_ADDRESS = 'Pioneer I Xpress, Ludhiana, Punjab 141001';
+
+  /* Vehicle type to use for Porter express deliveries */
+  var VEHICLE_TYPE = '2 Wheelers'; // Options: '2 Wheelers', 'Porter Mini', 'Porter Truck'
+
+  /* ── STATE ───────────────────────────────────────────────────────── */
+  window.PORTER_STATE = {
+    selectedMethod : 'standard',
+    porterFee      : null,
+    porterETA      : null,
+    quoteId        : null,
+    dropLat        : null,
+    dropLng        : null,
+    isFetching     : false,
+    lastAddress    : ''
+  };
+
+  /* ── HELPERS ─────────────────────────────────────────────────────── */
+  function fmt(n) {
+    if (n === 0) return 'FREE';
+    return '₹' + n.toLocaleString('en-IN');
+  }
+
+  function setStatus(msg, type) {
+    var el = document.getElementById('porterStatus');
+    var txtEl = document.getElementById('porterStatusText');
+    var spinner = document.getElementById('porterSpinner');
+    if (!el || !txtEl) return;
+    el.style.display = msg ? 'flex' : 'none';
+    el.className = 'porter-quote-status' + (type ? ' ' + type : '');
+    txtEl.textContent = msg || '';
+    if (spinner) spinner.style.display = type === 'loading' ? 'block' : 'none';
+  }
+
+  function showPorterOption(fee, eta, quoteId) {
+    var optEl   = document.getElementById('opt-porter');
+    var priceEl = document.getElementById('porter-price');
+    var etaEl   = document.getElementById('porter-eta');
+    var noteEl  = document.getElementById('porterNote');
+    if (!optEl) return;
+    optEl.style.display = 'block';
+    if (priceEl) priceEl.textContent = fmt(fee);
+    if (etaEl)   etaEl.textContent   = eta || 'Same / Next day';
+    if (noteEl)  noteEl.style.display = 'block';
+    window.PORTER_STATE.porterFee  = fee;
+    window.PORTER_STATE.porterETA  = eta;
+    window.PORTER_STATE.quoteId    = quoteId || null;
+  }
+
+  function hidePorterOption() {
+    var optEl  = document.getElementById('opt-porter');
+    var noteEl = document.getElementById('porterNote');
+    if (optEl)  optEl.style.display  = 'none';
+    if (noteEl) noteEl.style.display = 'none';
+    // If Porter was selected, fall back to standard
+    if (window.PORTER_STATE.selectedMethod === 'porter') {
+      selectPorterOption('standard');
+    }
+  }
+
+  /* ── GEOCODE address → lat/lng using OpenStreetMap Nominatim (free) ── */
+  function geocodeAddress(address, callback) {
+    var encoded = encodeURIComponent(address + ', India');
+    var url = 'https://nominatim.openstreetmap.org/search?q=' + encoded + '&format=json&limit=1&countrycodes=in';
+    fetch(url, { headers: { 'Accept-Language': 'en' } })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data && data.length > 0) {
+          callback(null, { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) });
+        } else {
+          callback(new Error('Address not found'));
+        }
+      })
+      .catch(function (e) { callback(e); });
+  }
+
+  /* ── FETCH PORTER QUOTE ──────────────────────────────────────────── */
+  function fetchPorterQuote(dropLat, dropLng) {
+    /* Porter quote endpoint:
+       POST /v1/orders/get_quote
+       Docs: https://developer.porter.in/docs/get-quote */
+    var payload = {
+      pickup_details: {
+        lat: PICKUP_LAT,
+        lng: PICKUP_LNG
+      },
+      drop_details: {
+        lat: dropLat,
+        lng: dropLng
+      },
+      customer: {
+        mobile: { country_code: '+91', number: '9999999999' } // placeholder
+      }
+    };
+
+    return fetch(PORTER_API_BASE + '/v1/orders/get_quote', {
+      method  : 'POST',
+      headers : {
+        'Content-Type'  : 'application/json',
+        'x-api-key'     : PORTER_API_KEY
+      },
+      body: JSON.stringify(payload)
+    })
+    .then(function (r) {
+      if (!r.ok) throw new Error('Porter API error: ' + r.status);
+      return r.json();
+    });
+  }
+
+  /* ── PARSE PORTER QUOTE RESPONSE ────────────────────────────────── */
+  function parsePorterQuote(data) {
+    /* Response shape (Porter API):
+       { vehicles: [ { type: '2 Wheelers', fare: { minor_amount: 4900, currency: 'INR' }, eta: { ... } }, ... ] } */
+    if (!data || !data.vehicles || !data.vehicles.length) return null;
+
+    // Prefer the configured vehicle type, else use the first available
+    var vehicle = data.vehicles.find(function (v) {
+      return v.type && v.type.toLowerCase().indexOf(VEHICLE_TYPE.toLowerCase().split(' ')[0]) !== -1;
+    }) || data.vehicles[0];
+
+    if (!vehicle || !vehicle.fare) return null;
+
+    var amountPaise = vehicle.fare.minor_amount || 0;
+    var fee = Math.round(amountPaise / 100); // convert paise → rupees
+
+    // Build ETA string
+    var etaStr = '';
+    try {
+      var pickupMins = vehicle.eta && vehicle.eta.pickup && vehicle.eta.pickup.time
+        ? Math.round(vehicle.eta.pickup.time / 60) : null;
+      if (pickupMins !== null) {
+        etaStr = 'Pickup in ~' + pickupMins + ' min';
+      } else {
+        etaStr = 'Express delivery';
+      }
+    } catch (e) { etaStr = 'Express delivery'; }
+
+    return { fee: fee, eta: etaStr, vehicleType: vehicle.type };
+  }
+
+  /* ── MAIN: trigger quote fetch after address input ──────────────── */
+  var _quoteTimer = null;
+
+  function triggerPorterQuote(address) {
+    if (!address || address.length < 8) return;
+    if (address === window.PORTER_STATE.lastAddress) return;
+    window.PORTER_STATE.lastAddress = address;
+
+    clearTimeout(_quoteTimer);
+    _quoteTimer = setTimeout(function () {
+      if (window.PORTER_STATE.isFetching) return;
+      window.PORTER_STATE.isFetching = true;
+
+      setStatus('Getting Porter express quote…', 'loading');
+
+      geocodeAddress(address, function (geoErr, coords) {
+        if (geoErr || !coords) {
+          window.PORTER_STATE.isFetching = false;
+          setStatus('Could not locate address for express delivery.', 'error');
+          setTimeout(function () { setStatus(''); }, 4000);
+          hidePorterOption();
+          return;
+        }
+
+        window.PORTER_STATE.dropLat = coords.lat;
+        window.PORTER_STATE.dropLng = coords.lng;
+
+        fetchPorterQuote(coords.lat, coords.lng)
+          .then(function (data) {
+            window.PORTER_STATE.isFetching = false;
+            var parsed = parsePorterQuote(data);
+            if (!parsed) {
+              setStatus('Porter express not available for this area.', 'error');
+              setTimeout(function () { setStatus(''); }, 4000);
+              hidePorterOption();
+              return;
+            }
+            setStatus('✓ Porter express available for your area!', 'success');
+            setTimeout(function () { setStatus(''); }, 3500);
+            showPorterOption(parsed.fee, parsed.eta, data.quote_id);
+            // Re-render checkout totals
+            if (typeof renderCheckout === 'function') renderCheckout();
+          })
+          .catch(function (err) {
+            window.PORTER_STATE.isFetching = false;
+            console.warn('[Porter] Quote fetch failed:', err.message);
+            /* Graceful fallback: hide express option, standard still works */
+            setStatus('');
+            hidePorterOption();
+          });
+      });
+    }, 900); // debounce 900ms after user stops typing
+  }
+
+  /* ── DELIVERY METHOD SELECTION ───────────────────────────────────── */
+  window.selectPorterOption = function (method) {
+    window.PORTER_STATE.selectedMethod = method;
+
+    var stdEl    = document.getElementById('opt-standard');
+    var porterEl = document.getElementById('opt-porter');
+
+    if (stdEl)    stdEl.classList.toggle('selected',    method === 'standard');
+    if (porterEl) porterEl.classList.toggle('selected', method === 'porter');
+
+    // Re-render checkout totals with new shipping cost
+    if (typeof renderCheckout === 'function') renderCheckout();
+  };
+
+  /* ── ATTACH TO ADDRESS INPUT ─────────────────────────────────────── */
+  function attachAddressListener() {
+    var addrInput = document.getElementById('address');
+    if (!addrInput) { setTimeout(attachAddressListener, 500); return; }
+
+    // Trigger on input (debounced)
+    addrInput.addEventListener('input', function () {
+      var val = addrInput.value.trim();
+      triggerPorterQuote(val);
+    });
+
+    // Also trigger when address is auto-filled from saved addresses / locate button
+    // We observe the value via a MutationObserver on the input
+    var mo = new MutationObserver(function () {
+      var val = addrInput.value.trim();
+      if (val && val !== window.PORTER_STATE.lastAddress) triggerPorterQuote(val);
+    });
+    mo.observe(addrInput, { attributes: true, attributeFilter: ['value'] });
+
+    // Poll for programmatic fills (e.g. Locate button, saved address picker)
+    var _lastPoll = '';
+    setInterval(function () {
+      var val = addrInput.value.trim();
+      if (val && val !== _lastPoll && val !== window.PORTER_STATE.lastAddress) {
+        _lastPoll = val;
+        triggerPorterQuote(val);
+      }
+    }, 1200);
+  }
+
+  /* ── ALSO ATTACH TO coupon input so totals update ───────────────── */
+  function attachCouponListener() {
+    var couponInput = document.getElementById('coupon');
+    if (!couponInput) return;
+    couponInput.addEventListener('input', function () {
+      if (typeof renderCheckout === 'function') renderCheckout();
+    });
+  }
+
+  /* ── PORTER ORDER CREATION (called after Razorpay success) ──────── */
+  /* Porter requires a separate order creation call if you want them to
+     dispatch a rider. Call this from your Razorpay success handler.
+     POST /v1/orders/create  — see Porter docs for full payload.        */
+  window.createPorterOrder = function (razorpayOrderId, customerDetails) {
+    if (window.PORTER_STATE.selectedMethod !== 'porter') return Promise.resolve(null);
+    if (!window.PORTER_STATE.dropLat || !window.PORTER_STATE.dropLng) return Promise.resolve(null);
+
+    var payload = {
+      request_id    : 'PIX-' + Date.now(),
+      delivery_instructions: { instructions_list: [{ type: 'text', description: 'Handle with care' }] },
+      pickup_details: {
+        address: {
+          apartment_address : PICKUP_ADDRESS,
+          street_address1   : 'Pioneer I Xpress Store',
+          city              : 'Ludhiana',
+          state             : 'Punjab',
+          pincode           : '141001',
+          country           : 'India',
+          lat               : PICKUP_LAT,
+          lng               : PICKUP_LNG
+        },
+        contact: {
+          name   : 'Pioneer I Xpress',
+          mobile : { country_code: '+91', number: '6280096796' }
+        }
+      },
+      drop_details: {
+        address: {
+          apartment_address : customerDetails.address || '',
+          street_address1   : customerDetails.address || '',
+          city              : 'India',
+          state             : 'India',
+          pincode           : '',
+          country           : 'India',
+          lat               : window.PORTER_STATE.dropLat,
+          lng               : window.PORTER_STATE.dropLng
+        },
+        contact: {
+          name   : customerDetails.name || 'Customer',
+          mobile : { country_code: '+91', number: (customerDetails.phone || '9999999999').replace(/[^0-9]/g, '').slice(-10) }
+        }
+      },
+      invoice_amount  : customerDetails.orderTotal || 0,
+      payment_details : { type: 'prepaid' } // order is already paid via Razorpay
+    };
+
+    return fetch(PORTER_API_BASE + '/v1/orders/create', {
+      method  : 'POST',
+      headers : {
+        'Content-Type' : 'application/json',
+        'x-api-key'    : PORTER_API_KEY
+      },
+      body: JSON.stringify(payload)
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      console.log('[Porter] Order created:', data);
+      return data;
+    })
+    .catch(function (err) {
+      console.error('[Porter] Order creation failed:', err);
+      return null;
+    });
+  };
+
+  /* ── PATCH RAZORPAY SUCCESS HANDLER to create Porter order ─────── */
+  /* We hook into the global Razorpay handler by patching window after
+     the DOM is ready. The main script stores handler logic inline,
+     so we watch for payment success via a custom event approach.      */
+  document.addEventListener('PIX_ORDER_SUCCESS', function (e) {
+    var d = e.detail || {};
+    if (window.PORTER_STATE.selectedMethod !== 'porter') return;
+    window.createPorterOrder(d.razorpayOrderId, {
+      name       : d.customerName,
+      phone      : d.customerPhone,
+      address    : d.customerAddr,
+      orderTotal : d.orderTotal
+    }).then(function (result) {
+      if (result && result.order_id) {
+        console.log('[Porter] Rider dispatched. Porter Order ID:', result.order_id);
+      }
+    });
+  });
+
+  /* ── INIT ────────────────────────────────────────────────────────── */
+  document.addEventListener('DOMContentLoaded', function () {
+    attachAddressListener();
+    attachCouponListener();
+
+    /* Reset Porter state whenever checkout section opens */
+    var toCheckoutBtn = document.getElementById('toCheckout');
+    if (toCheckoutBtn) {
+      toCheckoutBtn.addEventListener('click', function () {
+        setTimeout(function () {
+          // Re-init standard option display
+          var stdPriceEl = document.getElementById('std-price');
+          if (stdPriceEl) {
+            var sub = (window.state && window.state.cart)
+              ? window.state.cart.reduce(function (a, i) { return a + i.qty * i.price; }, 0) : 0;
+            stdPriceEl.textContent = sub >= 1999 ? 'FREE' : '₹99';
+          }
+          // Trigger quote if address already filled
+          var addrInput = document.getElementById('address');
+          if (addrInput && addrInput.value.trim().length > 8) {
+            triggerPorterQuote(addrInput.value.trim());
+          }
+        }, 400);
+      });
+    }
+
+    console.log('[PIX Porter v1] ✅ Delivery integration loaded.');
+  });
 
 })();
 </script>
