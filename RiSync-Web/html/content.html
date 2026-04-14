@@ -1,155 +1,207 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
   <title>RiSync Dashboard</title>
-  
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Nunito+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container-low": "#eff4ff",
+            "outline-variant": "#c7c5d4",
+            "surface-container": "#e6eeff",
+            "error": "#ba1a1a",
+            "on-error": "#ffffff",
+            "inverse-surface": "#233144",
+            "surface-bright": "#f8f9ff",
+            "on-primary-container": "#9da1ff",
+            "on-secondary": "#ffffff",
+            "on-secondary-fixed-variant": "#005137",
+            "on-tertiary-fixed": "#2f1500",
+            "tertiary": "#422000",
+            "inverse-primary": "#c0c1ff",
+            "surface": "#f8f9ff",
+            "on-secondary-container": "#00714e",
+            "tertiary-fixed": "#ffdcc3",
+            "on-primary-fixed": "#04006d",
+            "primary": "#15157d",
+            "tertiary-fixed-dim": "#ffb77d",
+            "secondary-fixed-dim": "#68dba9",
+            "on-tertiary": "#ffffff",
+            "on-error-container": "#93000a",
+            "tertiary-container": "#623200",
+            "on-primary": "#ffffff",
+            "on-surface-variant": "#464652",
+            "background": "#f8f9ff",
+            "on-background": "#0d1c2e",
+            "on-secondary-fixed": "#002114",
+            "on-primary-fixed-variant": "#373a9b",
+            "on-tertiary-container": "#f99028",
+            "surface-container-highest": "#d5e3fc",
+            "surface-container-high": "#dce9ff",
+            "primary-fixed": "#e1e0ff",
+            "error-container": "#ffdad6",
+            "surface-variant": "#d5e3fc",
+            "inverse-on-surface": "#eaf1ff",
+            "on-surface": "#0d1c2e",
+            "secondary-fixed": "#85f8c4",
+            "surface-tint": "#4f54b4",
+            "primary-container": "#2e3192",
+            "primary-fixed-dim": "#c0c1ff",
+            "secondary-container": "#82f5c1",
+            "outline": "#777683",
+            "on-tertiary-fixed-variant": "#6e3900",
+            "surface-container-lowest": "#ffffff",
+            "surface-dim": "#ccdbf3",
+            "secondary": "#006c4a"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "1.5rem",
+            "full": "9999px"
+          },
+          "fontFamily": {
+            "headline": ["Manrope", "sans-serif"],
+            "body": ["Inter", "sans-serif"],
+            "label": ["Inter", "sans-serif"]
+          }
+        }
+      }
+    }
+  </script>
   <style>
-    /* --- KIDSPRENEURSHIP THEME --- */
-    :root {
-      --primary-color: #6B3EC8;
-      --primary-dark: #4A228F;
-      --primary-light: #EDE8FF;
-      --primary-mid: #8B5CF6;
-      --accent-orange: #FF7426;
-      --accent-yellow: #FFB800;
-      --accent-teal: #00B8A9;
-      --success-green: #22C55E;
-      --danger-red: #EF4444;
-      --sidebar-bg: #1E0A45;
-      --sidebar-item-hover: rgba(255,255,255,0.1);
-      --sidebar-item-active: rgba(255,255,255,0.18);
-      --light-gray: #F4F0FF;
-      --medium-gray: #D8D0F0;
-      --dark-gray: #4A3F6B;
-      --text-primary: #1A0D3C;
-      --text-secondary: #7660A8;
-      --white: #ffffff;
-      --border-color: #E2D9F7;
-      --shadow-light: 0 2px 8px rgba(107, 62, 200, 0.08);
-      --shadow-medium: 0 4px 16px rgba(107, 62, 200, 0.14);
-      --shadow-heavy: 0 8px 32px rgba(107, 62, 200, 0.18);
-      --border-radius: 16px;
-      --border-radius-sm: 10px;
-      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
     body {
-      font-family: 'Nunito Sans', 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: var(--light-gray);
-      min-height: 100vh;
-      overflow: hidden;
-      color: var(--text-primary);
-      line-height: 1.6;
+      font-family: 'Inter', sans-serif;
+      background-color: #f8f9ff;
+      color: #0d1c2e;
+    }
+    .editorial-header {
+      font-family: 'Manrope', sans-serif;
+      letter-spacing: -0.02em;
+    }
+    .btn-primary-gradient {
+      background: linear-gradient(15deg, #15157d, #2e3192);
     }
 
-    .main-wrapper {
-      display: flex;
-      height: 100vh;
+    /* ---- Sidebar mobile ---- */
+    @media (max-width: 1024px) {
+      #sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+      #sidebar.open { transform: translateX(0); }
+      .main-wrapper { margin-left: 0 !important; }
+      .menu-toggle { display: flex !important; }
+      .top-bar { left: 0 !important; }
     }
-
-    .content-container {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
+    .menu-toggle { display: none; }
+    .overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(13, 28, 46, 0.45);
+      z-index: 40;
+      backdrop-filter: blur(2px);
     }
+    .main-wrapper.sidebar-open .overlay { display: block; }
 
-    /* --- HEADER / TOP BAR --- */
-    header.top-bar {
-      background-color: var(--white);
-      color: var(--text-primary);
+    /* ---- Language dropdown ---- */
+    .language-dropdown-container {
+      position: relative;
+      cursor: pointer;
+      user-select: none;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      width: 130px;
+      z-index: 10;
+      color: #0d1c2e;
+    }
+    .selected-language {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 32px;
-      position: fixed;
-      top: 0;
-      left: 280px;
-      right: 0;
-      height: 70px;
-      border-bottom: 2px solid var(--border-color);
-      box-shadow: var(--shadow-light);
-      z-index: 99;
-      transition: left 0.3s ease;
-    }
-
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 24px;
-    }
-
-    .menu-toggle {
-      display: none;
-      font-size: 24px;
-      cursor: pointer;
-      color: var(--text-primary);
-    }
-
-    .header-title h3 {
-      margin: 0;
-      font-size: 20px;
-      font-weight: 800;
-      color: var(--text-primary);
-      font-family: 'Nunito', sans-serif;
-    }
-
-    .header-title small {
-      color: var(--primary-color);
-      font-size: 12px;
-      display: block;
-      margin-top: 2px;
+      padding: 7px 12px;
+      background: #eff4ff;
+      border-radius: 10px;
+      border: 1.5px solid #c7c5d4;
+      transition: all 0.2s;
+      color: #15157d;
       font-weight: 600;
     }
-
-    .settings-container {
-      position: relative;
-      display: flex;
-      align-items: center;
-      gap: 24px;
+    .selected-language:hover {
+      background: #e6eeff;
+      border-color: #15157d;
     }
-
-    .settings-icon {
-      font-size: 24px;
+    .selected-language .dropdown-arrow {
+      font-size: 18px;
+      transition: transform 0.3s ease;
+    }
+    .language-dropdown-container.active .selected-language .dropdown-arrow {
+      transform: rotate(180deg);
+    }
+    .language-dropdown-list {
+      position: absolute;
+      top: 110%;
+      left: 0;
+      width: 220px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(21,21,125,0.12);
+      padding: 4px;
+      max-height: 320px;
+      overflow-y: auto;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: all 0.2s;
+      border: 1.5px solid #c7c5d4;
+      scrollbar-width: thin;
+      scrollbar-color: #e6eeff transparent;
+    }
+    .language-dropdown-container.active .language-dropdown-list {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    .language-dropdown-list li {
+      list-style: none;
+      padding: 9px 12px;
+      border-radius: 7px;
       cursor: pointer;
-      color: var(--text-secondary);
-      transition: var(--transition);
+      transition: all 0.2s;
+      font-size: 13px;
+      font-weight: 600;
     }
-    .settings-icon:hover {
-      color: var(--primary-color);
+    .language-dropdown-list li:hover {
+      background: #eff4ff;
+      color: #15157d;
     }
 
+    /* ---- Settings dropdown ---- */
     .settings-menu {
       visibility: hidden;
       opacity: 0;
       position: absolute;
-      top: 60px;
+      top: 50px;
       right: 0;
-      background: var(--white);
-      border-radius: var(--border-radius);
-      padding: 8px;
-      box-shadow: var(--shadow-heavy);
+      background: #fff;
+      border-radius: 14px;
+      padding: 6px;
+      box-shadow: 0 8px 32px rgba(21,21,125,0.14);
       z-index: 100;
-      min-width: 210px;
-      transform: translateY(-10px) scale(0.95);
-      transition: var(--transition);
-      border: 1.5px solid var(--border-color);
+      min-width: 200px;
+      transform: translateY(-8px) scale(0.96);
+      transition: all 0.2s;
+      border: 1.5px solid #c7c5d4;
     }
     .settings-menu.active {
       visibility: visible;
@@ -158,1007 +210,544 @@
     }
     .settings-menu button {
       background-color: transparent;
-      color: var(--text-primary);
+      color: #0d1c2e;
       border: none;
-      padding: 11px 14px;
+      padding: 10px 14px;
       cursor: pointer;
       border-radius: 10px;
       width: 100%;
       text-align: left;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
-      font-family: 'Nunito Sans', sans-serif;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      transition: var(--transition);
-    }
-    .settings-menu button:hover {
-      background-color: var(--primary-light);
-      color: var(--primary-color);
-    }
-    .settings-menu button:last-child:hover {
-      background-color: #FEE2E2;
-      color: var(--danger-red);
-    }
-
-    .profile-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      object-fit: cover;
-      cursor: pointer;
-      border: 2.5px solid var(--primary-color);
-      transition: var(--transition);
-      box-shadow: 0 0 0 3px var(--primary-light);
-    }
-    .profile-icon:hover {
-      box-shadow: 0 0 0 4px rgba(107, 62, 200, 0.25);
-    }
-
-    /* --- SIDEBAR / NAVIGATION --- */
-    nav.sidebar {
-      background: linear-gradient(180deg, #1E0A45 0%, #2D1066 60%, #3A1880 100%);
-      color: rgba(255,255,255,0.85);
-      padding: 20px 0;
-      width: 280px;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      flex-shrink: 0;
-      z-index: 100;
-      transition: transform 0.3s ease;
-      border-right: none;
-      overflow-y: auto;
-      position: relative;
-    }
-    nav.sidebar::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-image: radial-gradient(circle at 20% 20%, rgba(139,92,246,0.15) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 80%, rgba(107,62,200,0.1) 0%, transparent 50%);
-      pointer-events: none;
-    }
-    .sidebar.open {
-      transform: translateX(0);
-    }
-    .logo-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px 16px 24px;
-      text-align: center;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      margin-bottom: 16px;
-      flex-shrink: 0;
-      position: relative;
-    }
-    .logo-container h2 {
-      margin: 0;
-      font-size: 26px;
-      font-weight: 900;
-      font-family: 'Nunito', sans-serif;
-      color: #ffffff;
-      letter-spacing: -0.5px;
-    }
-    .logo-container h2 span {
-      color: var(--accent-yellow);
-    }
-    .logo-container p {
-      font-size: 11px;
-      color: rgba(255,255,255,0.5);
-      margin: 6px 0 0 0;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-    }
-
-    .nav-menu {
-      flex-grow: 1;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      padding: 0 4px;
-    }
-
-    .nav-menu::-webkit-scrollbar {
-        width: 4px;
-    }
-    .nav-menu::-webkit-scrollbar-track {
-        background: transparent;
-    }
-    .nav-menu::-webkit-scrollbar-thumb {
-        background-color: rgba(255,255,255,0.2);
-        border-radius: 3px;
-    }
-    .nav-menu::-webkit-scrollbar-thumb:hover {
-        background-color: rgba(255,255,255,0.35);
-    }
-
-    .search-box {
+      font-family: 'Inter', sans-serif;
       display: flex;
       align-items: center;
       gap: 10px;
-      background-color: rgba(255,255,255,0.08);
-      border-radius: 10px;
-      padding: 10px 14px;
-      margin: 0 12px 16px;
-      border: 1px solid rgba(255,255,255,0.12);
-      transition: var(--transition);
+      transition: all 0.2s;
     }
-    .search-box:focus-within {
-      background-color: rgba(255,255,255,0.14);
-      border-color: rgba(255,255,255,0.25);
+    .settings-menu button:hover {
+      background-color: #eff4ff;
+      color: #15157d;
     }
-    .search-box i {
-      color: rgba(255,255,255,0.5);
-      font-size: 14px;
-    }
-    .search-box input {
-      background-color: transparent;
-      border: none;
-      color: rgba(255,255,255,0.9);
-      font-size: 13px;
-      width: 100%;
-      outline: none;
-      font-family: 'Nunito Sans', sans-serif;
-    }
-    .search-box input::placeholder {
-      color: rgba(255,255,255,0.4);
+    .settings-menu button:last-child:hover {
+      background-color: #ffdad6;
+      color: #ba1a1a;
     }
 
-    .nav-button {
-      background-color: transparent;
-      color: rgba(255,255,255,0.65);
-      border: none;
-      padding: 11px 16px;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 600;
-      font-family: 'Nunito Sans', sans-serif;
-      cursor: pointer;
+    /* ---- To-do list ---- */
+    .todo-list { list-style: none; padding: 0; margin: 0; }
+    .todo-list li {
       display: flex;
       align-items: center;
-      gap: 12px;
-      text-align: left;
-      transition: var(--transition);
-      flex-shrink: 0;
-      text-decoration: none;
-      margin: 0 8px;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #e6eeff;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
     }
-    .nav-button:hover {
-      background-color: rgba(255,255,255,0.1);
-      color: #ffffff;
-    }
-    .nav-button.active {
-      background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1));
-      color: #ffffff;
-      font-weight: 700;
-      border-left: 3px solid var(--accent-yellow);
-      padding-left: 13px;
-    }
-    .nav-button i {
-      width: 20px;
-      text-align: center;
-      font-size: 16px;
-      opacity: 0.85;
-    }
-
-    /* --- MAIN CONTENT AREA --- */
-    main.content-area {
-      flex-grow: 1;
-      padding: 40px 40px;
-      overflow-y: auto;
-      margin-top: 70px;
-      animation: fadeIn 0.5s ease-out;
-      background-color: var(--light-gray);
-      background-image: 
-        radial-gradient(circle at 10% 10%, rgba(107,62,200,0.05) 0%, transparent 40%),
-        radial-gradient(circle at 90% 90%, rgba(255,116,38,0.04) 0%, transparent 40%);
-    }
-
-    .dashboard-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-        gap: 24px;
-    }
-    .card {
-        background-color: var(--white);
-        border: 1.5px solid var(--border-color);
-        border-radius: var(--border-radius);
-        padding: 28px;
-        box-shadow: var(--shadow-light);
-        transition: var(--transition);
-        animation: popIn 0.5s ease-out backwards;
-        position: relative;
-        overflow: hidden;
-    }
-    .card::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, var(--primary-color), var(--primary-mid));
-        border-radius: var(--border-radius) var(--border-radius) 0 0;
-    }
-    .card:nth-child(2)::before { background: linear-gradient(90deg, var(--accent-orange), var(--accent-yellow)); }
-    .card:nth-child(3)::before { background: linear-gradient(90deg, var(--accent-teal), #00E5D1); }
-    .card:nth-child(4)::before { background: linear-gradient(90deg, #FF61AB, #C850C0); }
-    .card:hover {
-        box-shadow: var(--shadow-medium);
-        transform: translateY(-2px);
-    }
-    .card-header {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 16px;
-    }
-    .card-header i {
-        font-size: 22px;
-        color: var(--primary-color);
-        background: var(--primary-light);
-        width: 44px;
-        height: 44px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 12px;
-        flex-shrink: 0;
-    }
-    .card:nth-child(2) .card-header i { color: var(--accent-orange); background: #FFF3EB; }
-    .card:nth-child(3) .card-header i { color: var(--accent-teal); background: #E6FAF8; }
-    .card:nth-child(4) .card-header i { color: #C850C0; background: #FCE8FB; }
-    .card-header h4 {
-        margin: 0;
-        font-size: 17px;
-        font-weight: 800;
-        color: var(--text-primary);
-        font-family: 'Nunito', sans-serif;
-    }
-    .card p {
-        color: var(--text-secondary);
-        font-size: 14px;
-        margin: 0;
-        line-height: 1.7;
-    }
-    .card ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-    .card li {
-        padding: 10px 0;
-        border-bottom: 1px solid var(--border-color);
-        font-size: 14px;
-    }
-    .card li:last-child {
-        border-bottom: none;
-    }
-
-    .progress-bar-container {
-        width: 100%;
-        background-color: var(--light-gray);
-        border-radius: 999px;
-        overflow: hidden;
-        margin: 16px 0 8px 0;
-        height: 10px;
-    }
-    .progress-bar {
-        height: 100%;
-        width: 0%;
-        background: linear-gradient(90deg, var(--accent-teal), #00E5D1);
-        transition: width 0.5s ease-in-out;
-        border-radius: 999px;
-    }
-    .progress-text {
-        text-align: right;
-        margin-top: 8px;
-        font-weight: 700;
-        color: var(--accent-teal);
-        font-size: 14px;
-        font-family: 'Nunito', sans-serif;
-    }
-
-    .todo-list-container {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-    .todo-input-group {
-        display: flex;
-        gap: 8px;
-    }
-    .todo-input-group input {
-        flex-grow: 1;
-        padding: 10px 14px;
-        border: 1.5px solid var(--border-color);
-        border-radius: 10px;
-        font-size: 14px;
-        font-family: 'Nunito Sans', sans-serif;
-        transition: var(--transition);
-        color: var(--text-primary);
-    }
-    .todo-input-group input:focus {
-        outline: none;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 3px rgba(107, 62, 200, 0.12);
-    }
-    .todo-input-group button {
-        background: linear-gradient(135deg, var(--accent-orange), var(--accent-yellow));
-        color: var(--white);
-        border: none;
-        border-radius: 10px;
-        padding: 10px 16px;
-        cursor: pointer;
-        transition: var(--transition);
-        font-weight: 700;
-        font-size: 14px;
-        box-shadow: 0 2px 8px rgba(255,116,38,0.3);
-    }
-    .todo-input-group button:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(255,116,38,0.4);
-    }
-    .todo-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-    .todo-list li {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 12px 0;
-        border-bottom: 1px solid var(--border-color);
-        font-size: 14px;
-    }
-    .todo-list li:last-child {
-        border-bottom: none;
-    }
-    .todo-list li.completed {
-        text-decoration: line-through;
-        color: var(--text-secondary);
+    .todo-list li:last-child { border-bottom: none; }
+    .todo-list li.completed span {
+      text-decoration: line-through;
+      color: #777683;
     }
     .todo-list .remove-btn {
-        background: none;
-        border: none;
-        color: var(--danger-red);
-        cursor: pointer;
-        font-size: 16px;
-        transition: var(--transition);
-        padding: 4px 8px;
-        border-radius: 6px;
-    }
-    .todo-list .remove-btn:hover {
-        background: #FEE2E2;
-        color: #DC2626;
-    }
-
-    .floating-buttons {
-      position: fixed;
-      bottom: 32px;
-      right: 32px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      z-index: 999;
-    }
-    .floating-button {
-      background: linear-gradient(135deg, var(--primary-color), var(--primary-mid));
-      color: var(--white);
+      background: none;
       border: none;
-      border-radius: 50%;
-      width: 56px;
-      height: 56px;
-      font-size: 22px;
+      color: #ba1a1a;
       cursor: pointer;
-      box-shadow: 0 4px 16px rgba(107, 62, 200, 0.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: var(--transition);
+      font-size: 18px;
+      padding: 2px 8px;
+      border-radius: 6px;
+      transition: all 0.2s;
+      line-height: 1;
     }
-    .floating-button:hover {
-      transform: scale(1.1) translateY(-2px);
-      box-shadow: 0 8px 24px rgba(107, 62, 200, 0.5);
+    .todo-list .remove-btn:hover { background: #ffdad6; }
+
+    /* ---- Progress bar ---- */
+    .progress-bar-container {
+      width: 100%;
+      background: #e6eeff;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 16px 0 8px;
+      height: 8px;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #006c4a, #68dba9);
+      transition: width 0.5s ease-in-out;
+      border-radius: 999px;
+      box-shadow: 0 0 10px rgba(0,108,74,0.25);
     }
 
-    #mic-btn.active {
-      background: linear-gradient(135deg, var(--accent-orange), var(--accent-yellow));
-      animation: micPulse 1s infinite;
-      box-shadow: 0 4px 16px rgba(255, 116, 38, 0.5);
-    }
-
-    @keyframes micPulse {
-      0% {
-        transform: scale(1);
-        box-shadow: 0 4px 16px rgba(255, 116, 38, 0.4);
-      }
-      50% {
-        transform: scale(1.1);
-        box-shadow: 0 8px 28px rgba(255, 116, 38, 0.6);
-      }
-      100% {
-        transform: scale(1);
-        box-shadow: 0 4px 16px rgba(255, 116, 38, 0.4);
-      }
-    }
-
+    /* ---- Chatbot popup ---- */
     #chatbot-popup {
       position: fixed;
       bottom: 120px;
       right: 32px;
-      width: 340px;
-      background: linear-gradient(135deg, #ffffff 0%, #F4F0FF 100%);
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow-heavy);
+      width: 320px;
+      background: #fff;
+      border-radius: 1.5rem;
+      box-shadow: 0 12px 42px rgba(21,21,125,0.14);
       padding: 24px;
       z-index: 1000;
       display: none;
       flex-direction: column;
-      gap: 16px;
-      transform: scale(0.8);
+      gap: 14px;
+      border: 1.5px solid #c7c5d4;
+      transform: scale(0.85);
       opacity: 0;
-      transition: var(--transition);
-      border: 1.5px solid var(--border-color);
+      transition: all 0.25s;
     }
-
     #chatbot-popup.active {
       display: flex;
       transform: scale(1);
       opacity: 1;
     }
 
-    #chatbot-popup h5 {
-      margin: 0;
-      font-size: 17px;
-      font-weight: 800;
-      color: var(--text-primary);
-      font-family: 'Nunito', sans-serif;
-    }
-
-    #chatbot-popup p {
-      margin: 0;
-      color: var(--text-secondary);
-      font-size: 14px;
-    }
-
-    #chatbot-popup .chatbot-buttons {
-      display: flex;
-      gap: 8px;
-    }
-
-    #chatbot-popup button {
-      background: linear-gradient(135deg, var(--primary-color), var(--primary-mid));
-      color: var(--white);
-      border: none;
-      border-radius: 10px;
-      padding: 10px 16px;
-      font-size: 13px;
-      cursor: pointer;
-      flex-grow: 1;
-      transition: var(--transition);
-      font-weight: 700;
-      font-family: 'Nunito Sans', sans-serif;
-      box-shadow: 0 2px 8px rgba(107,62,200,0.3);
-    }
-
-    #chatbot-popup button:last-child {
-      background: transparent;
-      color: var(--text-secondary);
-      border: 1.5px solid var(--border-color);
-      box-shadow: none;
-    }
-
-    #chatbot-popup button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 14px rgba(107,62,200,0.35);
-    }
-    #chatbot-popup button:last-child:hover {
-      background: var(--light-gray);
-      box-shadow: none;
-    }
-
+    /* ---- Ribot settings popup ---- */
     #ribot-settings-popup {
       position: fixed;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%) scale(0.8);
+      transform: translate(-50%, -50%) scale(0.85);
       width: 440px;
       max-width: 90vw;
-      background: linear-gradient(135deg, #ffffff 0%, #F4F0FF 100%);
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow-heavy);
+      background: #fff;
+      border-radius: 1.5rem;
+      box-shadow: 0 16px 48px rgba(21,21,125,0.18);
       padding: 32px;
       z-index: 1001;
       display: none;
       flex-direction: column;
-      gap: 24px;
+      gap: 20px;
       opacity: 0;
-      transition: var(--transition);
-      border: 1.5px solid var(--border-color);
+      transition: all 0.25s;
+      border: 1.5px solid #c7c5d4;
     }
-
     #ribot-settings-popup.active {
       display: flex;
       transform: translate(-50%, -50%) scale(1);
       opacity: 1;
     }
-
-    #ribot-settings-popup .popup-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1.5px solid var(--border-color);
-        padding-bottom: 16px;
-        margin-bottom: 0;
-    }
-
-    #ribot-settings-popup h4 {
-        margin: 0;
-        font-size: 20px;
-        font-weight: 800;
-        color: var(--text-primary);
-        font-family: 'Nunito', sans-serif;
-    }
-
-    #ribot-settings-popup .close-btn {
-        background: var(--light-gray);
-        border: none;
-        font-size: 20px;
-        color: var(--text-secondary);
-        cursor: pointer;
-        transition: var(--transition);
-        padding: 0;
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    #ribot-settings-popup .close-btn:hover {
-        background: var(--primary-light);
-        color: var(--primary-color);
-    }
-
-    .ribot-options {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-    .ribot-options button {
-        background-color: var(--white);
-        color: var(--text-primary);
-        border: 1.5px solid var(--border-color);
-        border-radius: 10px;
-        padding: 13px 16px;
-        font-size: 14px;
-        cursor: pointer;
-        text-align: left;
-        transition: var(--transition);
-        font-weight: 600;
-        font-family: 'Nunito Sans', sans-serif;
-    }
-    .ribot-options button:hover {
-        background-color: var(--primary-light);
-        border-color: var(--primary-color);
-        color: var(--primary-color);
-        transform: translateX(4px);
-    }
-
-    .ribot-response {
-        padding: 16px;
-        background: linear-gradient(135deg, var(--primary-light), #fff);
-        border-left: 4px solid var(--primary-color);
-        border-radius: 10px;
-        color: var(--text-primary);
-        font-size: 14px;
-        line-height: 1.7;
-    }
-
-    .language-dropdown-container {
-        position: relative;
-        cursor: pointer;
-        user-select: none;
-        font-size: 13px;
-        font-weight: 700;
-        font-family: 'Nunito Sans', sans-serif;
-        width: 130px;
-        z-index: 10;
-        color: var(--text-primary);
-    }
-    .selected-language {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 8px 12px;
-        background: var(--primary-light);
-        border-radius: 10px;
-        border: 1.5px solid var(--border-color);
-        transition: var(--transition);
-        color: var(--primary-color);
-    }
-    .selected-language:hover {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
-        color: #ffffff;
-    }
-    .selected-language .dropdown-arrow {
-        transition: transform 0.3s ease;
-        font-size: 11px;
-    }
-    .language-dropdown-container.active .selected-language .dropdown-arrow {
-        transform: rotate(180deg);
-    }
-
-    .language-dropdown-list {
-        position: absolute;
-        top: 110%;
-        left: 0;
-        width: 220px;
-        background: var(--white);
-        border-radius: 10px;
-        box-shadow: var(--shadow-heavy);
-        padding: 4px;
-        max-height: 320px;
-        overflow-y: auto;
-        opacity: 0;
-        visibility: hidden;
-        transform: translateY(-8px);
-        transition: var(--transition);
-        border: 1.5px solid var(--border-color);
-        scrollbar-width: thin;
-        scrollbar-color: var(--primary-light) transparent;
-    }
-    .language-dropdown-container.active .language-dropdown-list {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
-    }
-    .language-dropdown-list li {
-        list-style: none;
-        padding: 9px 12px;
-        border-radius: 7px;
-        cursor: pointer;
-        transition: var(--transition);
-        font-size: 13px;
-        font-weight: 600;
-    }
-    .language-dropdown-list li:hover {
-        background-color: var(--primary-light);
-        color: var(--primary-color);
-    }
-
-    /* --- WELCOME BANNER --- */
-    .welcome-banner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-mid) 60%, #A78BFA 100%);
-      border-radius: var(--border-radius);
-      padding: 28px 36px;
-      margin-bottom: 28px;
-      color: #fff;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 6px 24px rgba(107, 62, 200, 0.35);
-    }
-    .welcome-banner::before {
-      content: '';
-      position: absolute;
-      top: -40px; right: -40px;
-      width: 200px; height: 200px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.07);
-    }
-    .welcome-banner::after {
-      content: '';
-      position: absolute;
-      bottom: -60px; right: 120px;
-      width: 180px; height: 180px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.05);
-    }
-    .welcome-sub {
-      font-size: 13px;
+    .ribot-options { display: flex; flex-direction: column; gap: 8px; }
+    .ribot-option-btn {
+      background: #f8f9ff;
+      color: #0d1c2e;
+      border: 1.5px solid #c7c5d4;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s;
       font-weight: 600;
-      opacity: 0.8;
-      margin: 0 0 6px 0;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+      font-family: 'Inter', sans-serif;
     }
-    .welcome-heading {
-      font-family: 'Nunito', sans-serif;
-      font-size: 28px;
-      font-weight: 900;
-      margin: 0;
-      color: #fff;
+    .ribot-option-btn:hover {
+      background: #eff4ff;
+      border-color: #15157d;
+      color: #15157d;
+      transform: translateX(4px);
     }
-    .welcome-badges {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      position: relative;
-      z-index: 1;
-    }
-    .badge-pill {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 9px 18px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 700;
-      font-family: 'Nunito', sans-serif;
-      backdrop-filter: blur(8px);
-    }
-    .badge-purple {
-      background: rgba(255,255,255,0.18);
-      color: #fff;
-      border: 1.5px solid rgba(255,255,255,0.3);
-    }
-    .badge-orange {
-      background: var(--accent-yellow);
-      color: var(--text-primary);
+    .ribot-response {
+      padding: 16px;
+      background: #eff4ff;
+      border-left: 4px solid #15157d;
+      border-radius: 10px;
+      color: #0d1c2e;
+      font-size: 14px;
+      line-height: 1.7;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+    /* ---- Mic active animation ---- */
+    #mic-btn.active {
+      background: linear-gradient(135deg, #f99028, #ffb77d) !important;
+      animation: micPulse 1s infinite;
+      box-shadow: 0 4px 20px rgba(249,144,40,0.5) !important;
     }
-    @keyframes popIn {
-      from { opacity: 0; transform: translateY(12px) scale(0.97); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-    @keyframes backgroundAnimate {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+    @keyframes micPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
     }
 
-    .card:nth-child(1) { animation-delay: 0.1s; }
-    .card:nth-child(2) { animation-delay: 0.2s; }
-    .card:nth-child(3) { animation-delay: 0.3s; }
-    .card:nth-child(4) { animation-delay: 0.4s; }
-
-    @media (max-width: 992px) {
-      nav.sidebar {
-        position: fixed;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        transform: translateX(-100%);
-        z-index: 100;
-      }
-      nav.sidebar.open {
-        transform: translateX(0);
-      }
-      header.top-bar {
-        left: 0;
-      }
-      .menu-toggle {
-        display: block;
-      }
-      .overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(30, 10, 69, 0.6);
-        z-index: 99;
-        display: none;
-      }
-    }
-
-    @media (max-width: 768px) {
-      header.top-bar {
-        padding: 0 20px;
-      }
-      .header-title h3 {
-        font-size: 18px;
-      }
-      .settings-container {
-        gap: 14px;
-      }
-      .profile-icon {
-        width: 36px;
-        height: 36px;
-      }
-      main.content-area {
-        padding: 28px 20px;
-      }
-      .welcome-banner {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 16px;
-        padding: 24px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      header.top-bar {
-        padding: 0 14px;
-      }
-      .header-title {
-        display: none;
-      }
-      main.content-area {
-        padding: 20px 14px;
-      }
-      .floating-buttons {
-        bottom: 20px;
-        right: 20px;
-        gap: 10px;
-      }
-      .floating-button {
-        width: 48px;
-        height: 48px;
-        font-size: 18px;
-      }
-      .dashboard-grid {
-        grid-template-columns: 1fr;
-      }
-      .welcome-heading {
-        font-size: 22px;
-      }
-    }
-
+    /* ---- Profile image ---- */
     .profile-upload { display: none; }
+    #profileIcon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      cursor: pointer;
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 2px #15157d;
+      transition: all 0.2s;
+    }
+    #profileIcon:hover { box-shadow: 0 0 0 3px #c0c1ff; }
+
+    /* ---- Page fade in ---- */
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    .content-area { animation: fadeIn 0.4s ease-out; }
   </style>
 </head>
-<body>
-  <div class="main-wrapper">
-    <div class="overlay" id="overlay"></div>
-    
-    <nav class="sidebar" id="sidebar">
-      <div class="logo-container">
-        <h2>Ri<span>Sync</span></h2>
-        <p>Learning Platform</p>
+<body class="flex min-h-screen">
+
+  <!-- Mobile overlay -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside id="sidebar" class="h-screen w-64 fixed left-0 top-0 bg-slate-50 flex flex-col py-6 px-4 gap-4 z-50">
+    <!-- Logo -->
+    <div class="mb-6 px-2 flex items-center gap-3">
+      <img src="https://risync.in/RiSync-Web/assets/logo.png" alt="RiSync Logo" class="w-10 h-10 rounded-xl object-contain flex-shrink-0"/>
+      <div>
+        <h1 class="text-lg font-black text-indigo-900 leading-none">RiSync</h1>
+        <p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mt-1">Learning Platform</p>
       </div>
-      <div class="nav-menu">
-        <div class="search-box">
-          <i class="fas fa-search"></i>
-          <input type="text" id="searchInput" placeholder="Search...">
-        </div>
-        <a href="RiSync-CHAT.html" class="nav-button"><i class="fas fa-comments"></i> Chat</a>
-        <a href="monitor.html" class="nav-button"><i class="fas fa-monitor"></i> Monitor</a>
-        <a href="books.html" class="nav-button"><i class="fas fa-book"></i> Books</a>
-        <a href="https://risync.in/RiSync-Web/html/ricall.html?schedule=true" class="nav-button"><i class="fas fa-calendar"></i> Schedule</a>
-        <a href="calendar.html" class="nav-button"><i class="fas fa-calendar-alt"></i> Calendar</a>
-        <a href="database.html" class="nav-button"><i class="fas fa-database"></i> Database</a>
-        <a href="subjects.html" class="nav-button"><i class="fas fa-book-open"></i> Subjects</a>
-        <a href="ncert.html" class="nav-button"><i class="fas fa-book"></i> NCERT</a>
-        <a href="whiteboard.html" class="nav-button"><i class="fas fa-chalkboard"></i> Whiteboard</a>
-        <a href="calculator.html" class="nav-button"><i class="fas fa-calculator"></i> Calculator</a>
-        <a href="gpt.html" class="nav-button"><i class="fas fa-robot"></i> AI Assistant</a>
-        <a href="https://cse.google.com/cse?cx=21639bebac7284493" class="nav-button"><i class="fas fa-search"></i> Search</a>
-        <a href="leaderboard.html" class="nav-button"><i class="fas fa-trophy"></i> Leaderboard</a>
-        <a href="ppt.html" class="nav-button"><i class="fas fa-file-powerpoint"></i> Presentations</a>
-        <a href="design.html" class="nav-button"><i class="fas fa-laptop-code"></i> Design</a>
-      </div>
-    </nav>
-    
-    <div class="content-container">
-      <header class="top-bar">
-        <div class="header-left">
-          <div class="menu-toggle" id="menuToggle">
-            <i class="fas fa-bars"></i>
-          </div>
-          <div class="header-title">
-            <h3 id="welcome-message" data-i18n="welcome">Welcome back</h3>
-            <small id="displayBranch"></small>
-          </div>
-        </div>
-        <div class="settings-container">
-          <div class="language-dropdown-container" id="language-dropdown-container">
-            <div class="selected-language" id="selected-language">
-              <span>English</span>
-              <i class="fas fa-chevron-down dropdown-arrow"></i>
-            </div>
-            <ul class="language-dropdown-list" id="language-dropdown-list"></ul>
-          </div>
-          <input type="file" id="profileUpload" class="profile-upload" accept=".png, .jpg" />
-          <img src="https://placehold.co/40x40/6B3EC8/ffffff?text=U" alt="Profile" class="profile-icon" id="profileIcon" />
-          <i class="fas fa-cog settings-icon" id="settingsIcon"></i>
-          <div class="settings-menu" id="settingsMenu">
-            <button id="profileBtn"><i class="fas fa-user"></i> Profile</button>
-            <button id="ribotSettingsBtn"><i class="fas fa-question-circle"></i> Help & Support</button>
-            <button id="logoutButton"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
-          </div>
-        </div>
-      </header>
-  
-      <main class="content-area">
-        <!-- Welcome Banner -->
-        <div class="welcome-banner">
-          <div class="welcome-text">
-            <p class="welcome-sub">Ready to learn something new today?</p>
-            <h2 class="welcome-heading">Welcome back! 🚀</h2>
-          </div>
-          <div class="welcome-badges">
-            <div class="badge-pill badge-purple"><i class="fas fa-fire"></i> 7-Day Streak</div>
-            <div class="badge-pill badge-orange"><i class="fas fa-star"></i> Top Learner</div>
-          </div>
-        </div>
-        <div class="dashboard-grid">
-          <div class="card">
-            <div class="card-header">
-              <i class="fas fa-lightning-bolt"></i>
-              <h4>Quick Access</h4>
-            </div>
-            <p>Jump back into your learning journey with quick links to your favorite resources.</p>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <i class="fas fa-check-circle"></i>
-              <h4>Tasks & Goals</h4>
-            </div>
-            <div class="todo-list-container">
-              <div class="todo-input-group">
-                <input type="text" id="todo-input" data-i18n-placeholder="add-task-placeholder" placeholder="Add a new task...">
-                <button id="add-todo-btn"><i class="fas fa-plus"></i></button>
-              </div>
-              <ul class="todo-list" id="todo-list"></ul>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <i class="fas fa-trending-up"></i>
-              <h4>Learning Progress</h4>
-            </div>
-            <p>Track your course completion</p>
-            <div class="progress-bar-container">
-              <div class="progress-bar" id="progress-bar" style="width: 0%;"></div>
-            </div>
-            <div class="progress-text" id="progress-text">0% Complete</div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <i class="fas fa-lightbulb"></i>
-              <h4>Pro Tip</h4>
-            </div>
-            <p>Collaborate with peers using the Whiteboard feature to solve complex problems together in real-time!</p>
-          </div>
-        </div>
-      </main>
     </div>
+
+    <!-- Search inside sidebar -->
+    <div class="relative px-1 mb-2">
+      <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+      <input id="searchInput" type="text" placeholder="Search menu..."
+        class="w-full bg-white border border-slate-200 rounded-xl py-2 pl-9 pr-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"/>
+    </div>
+
+    <!-- Nav links -->
+    <nav class="nav-menu flex-1 space-y-1 overflow-y-auto pr-1" style="scrollbar-width:thin;scrollbar-color:#e6eeff transparent;">
+      <a href="content.html" class="nav-button flex items-center gap-3 px-4 py-3 text-indigo-900 font-bold bg-white rounded-xl shadow-sm transition-all duration-200">
+        <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">dashboard</span>
+        <span class="text-sm font-medium">Dashboard</span>
+      </a>
+      <a href="RiSync-CHAT.html" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">chat</span>
+        <span class="text-sm font-medium">Chat</span>
+      </a>
+      <a href="monitor.html" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">monitor</span>
+        <span class="text-sm font-medium">Monitor</span>
+      </a>
+      <a href="books.html" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">menu_book</span>
+        <span class="text-sm font-medium">Books</span>
+      </a>
+      <a href="https://risync.in/RiSync-Web/html/ricall.html?schedule=true" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">schedule</span>
+        <span class="text-sm font-medium">Schedule</span>
+      </a>
+      <a href="calendar.html" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">calendar_month</span>
+        <span class="text-sm font-medium">Calendar</span>
+      </a>
+      <a href="database.html" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">storage</span>
+        <span class="text-sm font-medium">Database</span>
+      </a>
+      <a href="subjects.html" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">subject</span>
+        <span class="text-sm font-medium">Subjects</span>
+      </a>
+      <a href="NCERT.html" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">library_books</span>
+        <span class="text-sm font-medium">NCERT</span>
+      </a>
+      <a href="whiteboard.html" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">draw</span>
+        <span class="text-sm font-medium">Whiteboard</span>
+      </a>
+      <a href="calculator.html" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">calculate</span>
+        <span class="text-sm font-medium">Calculator</span>
+      </a>
+      <a href="gpt.html" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">smart_toy</span>
+        <span class="text-sm font-medium">AI Assistant</span>
+      </a>
+      <a href="https://cse.google.com/cse?cx=21639bebac7284493" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">search</span>
+        <span class="text-sm font-medium">Search</span>
+      </a>
+      <a href="leaderboard.html" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">emoji_events</span>
+        <span class="text-sm font-medium">Leaderboard</span>
+      </a>
+      <a href="ppt.html" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">slideshow</span>
+        <span class="text-sm font-medium">Presentations</span>
+      </a>
+      <a href="design.html" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">laptop_mac</span>
+        <span class="text-sm font-medium">Design</span>
+      </a>
+    </nav>
+
+    <!-- Bottom actions -->
+    <div class="mt-auto space-y-2 border-t border-slate-100 pt-4">
+      <a id="ribotSettingsBtn" href="#" class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 transition-colors rounded-xl">
+        <span class="material-symbols-outlined">help</span>
+        <span class="text-sm font-medium">Help & Support</span>
+      </a>
+      <button id="logoutButton" class="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-error transition-colors rounded-xl text-left">
+        <span class="material-symbols-outlined">logout</span>
+        <span class="text-sm font-medium">Sign Out</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN AREA ===== -->
+  <div class="main-wrapper flex flex-col flex-1 ml-64 min-h-screen">
+
+    <!-- Top Bar -->
+    <header class="top-bar flex justify-between items-center w-full px-8 h-16 sticky top-0 z-40 bg-slate-50/90 backdrop-blur-xl shadow-[0_12px_42px_rgba(0,0,0,0.06)]">
+      <div class="flex items-center gap-4 flex-1">
+        <!-- Mobile menu toggle -->
+        <button class="menu-toggle p-2 text-slate-500 hover:bg-slate-200/50 rounded-lg transition-all" id="menuToggle">
+          <span class="material-symbols-outlined">menu</span>
+        </button>
+        <!-- Page title (mobile) + search (desktop) -->
+        <div class="relative w-full max-w-md">
+          <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+          <input class="w-full bg-slate-100/60 border-none rounded-xl py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+            placeholder="Search resources, courses, or notes..." type="text"/>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <!-- Language dropdown -->
+        <div class="language-dropdown-container" id="language-dropdown-container">
+          <div class="selected-language" id="selected-language">
+            <span>English</span>
+            <span class="material-symbols-outlined dropdown-arrow">expand_more</span>
+          </div>
+          <ul class="language-dropdown-list" id="language-dropdown-list"></ul>
+        </div>
+        <button class="p-2 text-slate-500 hover:bg-slate-200/50 rounded-lg transition-all relative">
+          <span class="material-symbols-outlined">notifications</span>
+          <span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+        </button>
+        <div class="relative">
+          <button class="p-2 text-slate-500 hover:bg-slate-200/50 rounded-lg transition-all" id="settingsIcon">
+            <span class="material-symbols-outlined">settings</span>
+          </button>
+          <div class="settings-menu" id="settingsMenu">
+            <button id="profileBtn"><span class="material-symbols-outlined text-sm">person</span> Profile</button>
+            <button id="ribotSettingsMenuBtn"><span class="material-symbols-outlined text-sm">help</span> Help & Support</button>
+            <button id="logoutButtonMenu"><span class="material-symbols-outlined text-sm">logout</span> Sign Out</button>
+          </div>
+        </div>
+        <div class="h-8 w-[1px] bg-slate-200 mx-1"></div>
+        <div class="flex items-center gap-2 hover:bg-slate-100 p-1 pr-3 rounded-full transition-colors cursor-pointer">
+          <input type="file" id="profileUpload" class="profile-upload" accept=".png,.jpg"/>
+          <img src="https://placehold.co/40x40/15157d/ffffff?text=U" alt="Profile" id="profileIcon"/>
+          <span class="text-sm font-bold text-indigo-900" id="welcome-message">Welcome back</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ===== CONTENT AREA ===== -->
+    <main class="content-area flex-1 p-8 space-y-8">
+
+      <!-- Welcome Hero Banner -->
+      <section class="relative overflow-hidden rounded-xl bg-primary-container p-10 text-on-primary min-h-[220px] flex flex-col justify-center">
+        <div class="absolute right-0 top-0 w-2/5 h-full opacity-20 pointer-events-none">
+          <div class="absolute inset-0 bg-gradient-to-l from-primary-container to-transparent z-10"></div>
+        </div>
+        <div class="relative z-10 max-w-2xl">
+          <div class="flex items-center gap-3 mb-3 flex-wrap">
+            <span class="px-3 py-1 rounded-full bg-secondary text-white text-[10px] font-bold uppercase tracking-widest">
+              Ready to Learn
+            </span>
+            <div class="flex items-center gap-1 text-secondary-fixed">
+              <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1;">local_fire_department</span>
+              <span class="text-xs font-bold">7-Day Streak</span>
+            </div>
+            <span class="px-3 py-1 rounded-full bg-on-tertiary-container/90 text-white text-[10px] font-bold uppercase tracking-widest">
+              ⭐ Top Learner
+            </span>
+          </div>
+          <h2 class="editorial-header text-4xl md:text-5xl font-extrabold mb-3">Welcome back! 🚀</h2>
+          <p class="text-primary-fixed/80 text-base max-w-lg leading-relaxed">Ready to learn something new today? Jump back in and continue your journey.</p>
+          <p class="text-[11px] uppercase tracking-widest text-primary-fixed/50 mt-2 font-bold" id="displayBranch"></p>
+        </div>
+      </section>
+
+      <!-- Bento Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-6">
+
+        <!-- Quick Access (col 4) -->
+        <div class="xl:col-span-4 space-y-4">
+          <h3 class="editorial-header text-xl font-bold text-indigo-900">Quick Access</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <a href="RiSync-CHAT.html" class="bg-surface-container-lowest p-5 rounded-xl shadow-[0_12px_42px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-transform group text-left block">
+              <div class="w-11 h-11 rounded-lg bg-surface-container-low flex items-center justify-center text-primary mb-3 group-hover:bg-primary group-hover:text-white transition-colors">
+                <span class="material-symbols-outlined">chat</span>
+              </div>
+              <span class="font-bold text-sm block text-on-surface">Chat</span>
+              <span class="text-[10px] text-slate-400">Peer Collaboration</span>
+            </a>
+            <a href="gpt.html" class="bg-surface-container-lowest p-5 rounded-xl shadow-[0_12px_42px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-transform group text-left block">
+              <div class="w-11 h-11 rounded-lg bg-surface-container-low flex items-center justify-center text-primary mb-3 group-hover:bg-primary group-hover:text-white transition-colors">
+                <span class="material-symbols-outlined">smart_toy</span>
+              </div>
+              <span class="font-bold text-sm block text-on-surface">AI Assistant</span>
+              <span class="text-[10px] text-slate-400">Ask anything</span>
+            </a>
+            <a href="whiteboard.html" class="bg-surface-container-lowest p-5 rounded-xl shadow-[0_12px_42px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-transform group text-left block">
+              <div class="w-11 h-11 rounded-lg bg-surface-container-low flex items-center justify-center text-primary mb-3 group-hover:bg-primary group-hover:text-white transition-colors">
+                <span class="material-symbols-outlined">draw</span>
+              </div>
+              <span class="font-bold text-sm block text-on-surface">Whiteboard</span>
+              <span class="text-[10px] text-slate-400">Real-time solving</span>
+            </a>
+            <a href="leaderboard.html" class="bg-surface-container-lowest p-5 rounded-xl shadow-[0_12px_42px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-transform group text-left block">
+              <div class="w-11 h-11 rounded-lg bg-surface-container-low flex items-center justify-center text-primary mb-3 group-hover:bg-primary group-hover:text-white transition-colors">
+                <span class="material-symbols-outlined">emoji_events</span>
+              </div>
+              <span class="font-bold text-sm block text-on-surface">Leaderboard</span>
+              <span class="text-[10px] text-slate-400">Your rank</span>
+            </a>
+          </div>
+          <!-- Pro Tip -->
+          <div class="bg-tertiary-container p-6 rounded-xl relative overflow-hidden">
+            <span class="material-symbols-outlined absolute -right-4 -bottom-4 text-7xl text-on-tertiary-container/10">lightbulb</span>
+            <div class="flex items-center gap-2 mb-2">
+              <span class="material-symbols-outlined text-on-tertiary-container">tips_and_updates</span>
+              <span class="font-bold text-xs uppercase tracking-widest text-on-tertiary-container">Pro Tip</span>
+            </div>
+            <p class="text-on-tertiary-fixed text-sm font-medium leading-relaxed">
+              Collaborate with peers using the Whiteboard feature to solve complex problems together in real-time!
+            </p>
+          </div>
+        </div>
+
+        <!-- Tasks & Goals (col 4) -->
+        <div class="xl:col-span-4 space-y-4">
+          <h3 class="editorial-header text-xl font-bold text-indigo-900">Tasks & Goals</h3>
+          <div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_12px_42px_rgba(0,0,0,0.06)] space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-50">
+              <span class="text-xs font-bold uppercase tracking-widest text-slate-400">Your To-Do List</span>
+            </div>
+            <!-- Add task -->
+            <div class="flex gap-2">
+              <input type="text" id="todo-input" placeholder="Add a new task..."
+                class="flex-1 bg-surface-bright border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all"/>
+              <button id="add-todo-btn" class="btn-primary-gradient text-white px-3 py-2 rounded-xl font-bold text-sm flex items-center gap-1 shadow-md hover:-translate-y-0.5 transition-transform">
+                <span class="material-symbols-outlined text-sm">add</span>
+              </button>
+            </div>
+            <ul class="todo-list" id="todo-list"></ul>
+            <button class="w-full py-3 text-slate-400 text-sm font-medium border-2 border-dashed border-slate-100 rounded-xl hover:border-primary/20 hover:text-primary transition-all flex items-center justify-center gap-2">
+              <span class="material-symbols-outlined">add_circle</span>
+              Add New Task
+            </button>
+          </div>
+        </div>
+
+        <!-- Learning Progress (col 4) -->
+        <div class="xl:col-span-4 space-y-4">
+          <h3 class="editorial-header text-xl font-bold text-indigo-900">Learning Progress</h3>
+          <div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_12px_42px_rgba(0,0,0,0.06)] space-y-4">
+            <div class="flex items-center gap-3">
+              <div class="w-16 h-16 flex-shrink-0 relative">
+                <svg class="w-full h-full -rotate-90" viewBox="0 0 64 64">
+                  <circle class="text-surface-container" cx="32" cy="32" fill="transparent" r="27" stroke="currentColor" stroke-width="6"></circle>
+                  <circle class="text-secondary transition-all duration-500" cx="32" cy="32" fill="transparent" r="27"
+                    stroke="currentColor" stroke-dasharray="169.6" stroke-dashoffset="169.6" stroke-width="6" id="progress-circle"></circle>
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                  <span class="text-xs font-black editorial-header" id="progress-percent">0%</span>
+                </div>
+              </div>
+              <div>
+                <p class="font-bold text-on-surface text-sm">Course Completion</p>
+                <p class="text-xs text-on-surface-variant">Track your overall progress</p>
+              </div>
+            </div>
+            <div class="space-y-1">
+              <div class="flex justify-between text-xs font-bold">
+                <span>Overall Progress</span>
+                <span class="text-secondary" id="progress-text">0% Complete</span>
+              </div>
+              <div class="progress-bar-container">
+                <div class="progress-bar" id="progress-bar"></div>
+              </div>
+            </div>
+            <div class="pt-2 border-t border-slate-50 space-y-2">
+              <div class="flex items-center justify-between p-3 bg-surface-bright rounded-xl">
+                <div class="flex items-center gap-3">
+                  <span class="material-symbols-outlined text-primary text-sm">library_books</span>
+                  <span class="text-sm font-medium">NCERT Textbooks</span>
+                </div>
+                <a href="ncert.html" class="text-xs font-bold text-primary hover:underline">Open →</a>
+              </div>
+              <div class="flex items-center justify-between p-3 bg-surface-bright rounded-xl">
+                <div class="flex items-center gap-3">
+                  <span class="material-symbols-outlined text-primary text-sm">subject</span>
+                  <span class="text-sm font-medium">My Subjects</span>
+                </div>
+                <a href="subjects.html" class="text-xs font-bold text-primary hover:underline">Open →</a>
+              </div>
+            </div>
+            <div class="flex gap-3 pt-1">
+              <a href="subjects.html" class="btn-primary-gradient px-5 py-2 rounded-xl text-white text-sm font-bold shadow-lg shadow-primary/10">Resume Learning</a>
+              <a href="leaderboard.html" class="bg-surface-container px-5 py-2 rounded-xl text-primary text-sm font-bold hover:bg-surface-container-high transition-colors">Leaderboard</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
   </div>
 
+  <!-- ===== AUDIO ===== -->
   <audio id="bg-music" loop preload="none">
     <source src="../assets/logo.mp3" type="audio/mpeg">
-    Your browser does not support the audio element.
   </audio>
 
-  <div class="floating-buttons">
-    <button id="music-btn" class="floating-button" title="Toggle Music">
-      <i id="music-icon" class="fas fa-volume-up"></i>
+  <!-- ===== FLOATING BUTTONS ===== -->
+  <div class="fixed bottom-8 right-8 flex flex-col gap-3 z-50">
+    <button id="music-btn" title="Toggle Music"
+      class="w-12 h-12 btn-primary-gradient text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform">
+      <span class="material-symbols-outlined text-sm" id="music-icon">volume_up</span>
     </button>
-    <button id="mic-btn" class="floating-button" title="Voice Command">
-      <i id="mic-icon" class="fas fa-microphone"></i>
+    <button id="mic-btn" title="Voice Command"
+      class="w-14 h-14 btn-primary-gradient text-white rounded-full shadow-2xl flex items-center justify-center group hover:w-48 transition-all duration-300 overflow-hidden">
+      <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;" id="mic-icon">mic</span>
+      <span class="font-bold text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity ml-0 group-hover:ml-2">Voice Command</span>
     </button>
   </div>
 
+  <!-- ===== CHATBOT POPUP ===== -->
   <div id="chatbot-popup">
-    <h5>Hello! 👋</h5>
-    <p>Would you like some guidance to get started?</p>
-    <div class="chatbot-buttons">
-      <button id="startAssistanceBtn">Yes, help me</button>
-      <button id="hideChatbotBtn">Not now</button>
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 border border-slate-100 shadow-sm">
+        <img src="https://risync.in/RiSync-Web/assets/logo.png" alt="RiSync" class="w-full h-full object-contain"/>
+      </div>
+      <div>
+        <h5 class="font-black text-indigo-900 text-base editorial-header">Hello! 👋</h5>
+        <p class="text-xs text-on-surface-variant">Your RiSync assistant</p>
+      </div>
+    </div>
+    <p class="text-sm text-on-surface-variant leading-relaxed">Would you like some guidance to get started?</p>
+    <div class="flex gap-2">
+      <button id="startAssistanceBtn" class="btn-primary-gradient text-white rounded-xl px-4 py-2 text-sm font-bold flex-1 shadow-md hover:-translate-y-0.5 transition-transform">Yes, help me</button>
+      <button id="hideChatbotBtn" class="bg-surface-container text-on-surface-variant rounded-xl px-4 py-2 text-sm font-bold hover:bg-surface-container-high transition-colors">Not now</button>
     </div>
   </div>
-  
+
+  <!-- ===== RIBOT SETTINGS POPUP ===== -->
   <div id="ribot-settings-popup">
-    <div class="popup-header">
-      <h4>Help & Support</h4>
-      <button class="close-btn" id="closeRibotSettingsBtn">&times;</button>
+    <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 bg-primary rounded-xl flex items-center justify-center">
+          <span class="material-symbols-outlined text-white text-sm">help</span>
+        </div>
+        <h4 class="editorial-header text-xl font-bold text-indigo-900">Help & Support</h4>
+      </div>
+      <button class="w-8 h-8 bg-surface-container rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors text-lg font-bold" id="closeRibotSettingsBtn">&times;</button>
     </div>
-    <div class="ribot-intro">
-      <p>Choose a topic to learn more:</p>
+    <div>
+      <p class="text-sm text-on-surface-variant mb-3 font-medium">Choose a topic to learn more:</p>
       <div class="ribot-options">
         <button class="ribot-option-btn" data-option="help">What is RiSync?</button>
         <button class="ribot-option-btn" data-option="features">Key Features</button>
@@ -1166,23 +755,24 @@
         <button class="ribot-option-btn" data-option="voice">Voice Commands</button>
       </div>
     </div>
-    <div id="ribot-response-area" class="ribot-response" style="display: none;">
+    <div id="ribot-response-area" class="ribot-response" style="display:none;">
       <p id="ribot-response-text"></p>
     </div>
   </div>
 
+  <!-- ===== FIREBASE MODULE SCRIPT (unchanged) ===== -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
-    import { getDatabase, ref, set, push, onDisconnect, serverTimestamp } 
+    import { getDatabase, ref, set, push, onDisconnect, serverTimestamp }
     from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBWAwm_TDtD1qXDtjxJu0jrDP45c3p1Bxg",
         authDomain: "risync-risync.firebaseapp.com",
-        databaseURL: "https://risync-risync-default-rtdb.firebaseio.com/", 
+        databaseURL: "https://risync-risync-default-rtdb.firebaseio.com/",
         projectId: "risync-risync",
         storageBucket: "risync-risync.firebasestorage.app",
         messagingSenderId: "195106250121",
@@ -1200,9 +790,7 @@
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        console.log("User Logged In:", user.email);
         currentUser = user;
-
         const USER_ID = user.uid;
         const statusRef = ref(rtdb, `monitoring/${USER_ID}/status`);
         const logsRef = ref(rtdb, `monitoring/${USER_ID}/logs`);
@@ -1216,26 +804,16 @@
         onDisconnect(statusRef).update({ state: 'offline', last_seen: serverTimestamp() });
 
         function log(action, details) {
-            push(logsRef, {
-                action: action,
-                details: details,
-                timestamp: serverTimestamp()
-            });
+            push(logsRef, { action, details, timestamp: serverTimestamp() });
             const lsData = JSON.parse(localStorage.getItem('risync_logs') || "[]");
             lsData.push({ action, details, time: Date.now() });
             localStorage.setItem('risync_logs', JSON.stringify(lsData.slice(-50)));
         }
-
         log("PAGE_VIEW", "Opened Content Page");
 
         document.addEventListener("visibilitychange", () => {
-            const isVisible = !document.hidden;
-            statusRef.update({ tab_visible: isVisible });
-            if (document.hidden) {
-                log("TAB_HIDDEN", "User switched tabs");
-            } else {
-                log("TAB_FOCUS", "User returned to content");
-            }
+            statusRef.update({ tab_visible: !document.hidden });
+            log(document.hidden ? "TAB_HIDDEN" : "TAB_FOCUS", document.hidden ? "User switched tabs" : "User returned");
         });
 
         let maxScroll = 0;
@@ -1244,9 +822,7 @@
             if (scrollPercent > maxScroll + 10) {
                 maxScroll = scrollPercent;
                 statusRef.update({ scroll_depth: maxScroll });
-                if(maxScroll % 25 === 0) {
-                   log("READING_PROGRESS", `Scrolled to ${maxScroll}%`);
-                }
+                if (maxScroll % 25 === 0) log("READING_PROGRESS", `Scrolled to ${maxScroll}%`);
             }
         });
 
@@ -1260,41 +836,23 @@
 
         const docRef = doc(db, "users", user.uid);
         const docSnap = await getDoc(docRef);
-
         if (docSnap.exists()) {
           const userData = docSnap.data();
           const welcomeMsg = document.getElementById('welcome-message');
-          welcomeMsg.textContent = `Welcome to RiSync, ${userData.fullname || "User"}`;
-          
-          if(userData.branch) {
-            document.getElementById('displayBranch').innerText = userData.branch;
-          }
-          
-          if(userData.todos) {
-             renderTodos(userData.todos);
-          }
-          if(userData.progress !== undefined) {
-             updateProgressUI(userData.progress);
-          } else {
-             updateProgressUI(0);
-          }
+          if (welcomeMsg) welcomeMsg.textContent = userData.fullname || "Welcome back";
+          if (userData.branch) document.getElementById('displayBranch').innerText = userData.branch;
+          if (userData.todos) renderTodos(userData.todos);
+          updateProgressUI(userData.progress !== undefined ? userData.progress : 0);
         }
       } else {
-        console.log("No user logged in, redirecting...");
         window.location.href = "signin.html";
       }
     });
 
     const logoutBtn = document.getElementById('logoutButton');
-    if(logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-            signOut(auth).then(() => {
-                window.location.href = "signin.html";
-            }).catch((error) => {
-                console.error("Logout Error:", error);
-            });
-        });
-    }
+    if (logoutBtn) logoutBtn.addEventListener('click', () => signOut(auth).then(() => window.location.href = "signin.html"));
+    const logoutBtnMenu = document.getElementById('logoutButtonMenu');
+    if (logoutBtnMenu) logoutBtnMenu.addEventListener('click', () => signOut(auth).then(() => window.location.href = "signin.html"));
 
     const todoInput = document.getElementById('todo-input');
     const addTodoBtn = document.getElementById('add-todo-btn');
@@ -1305,10 +863,7 @@
     function getCurrentTodos() {
       const todos = [];
       todoList.querySelectorAll('li').forEach(li => {
-        todos.push({
-          text: li.querySelector('span').textContent,
-          completed: li.classList.contains('completed')
-        });
+        todos.push({ text: li.querySelector('span').textContent, completed: li.classList.contains('completed') });
       });
       return todos;
     }
@@ -1316,83 +871,61 @@
     async function saveTodosToFirestore() {
         if (!currentUser) return;
         const todos = getCurrentTodos();
-        
         const totalTasks = todos.length;
         const completedTasks = todos.filter(t => t.completed).length;
         const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-
         try {
-            await updateDoc(doc(db, "users", currentUser.uid), {
-                todos: todos,
-                progress: progress
-            });
+            await updateDoc(doc(db, "users", currentUser.uid), { todos, progress });
             updateProgressUI(progress);
-        } catch (e) {
-            console.error("Error saving todos:", e);
-        }
+        } catch (e) { console.error("Error saving todos:", e); }
     }
 
     function updateProgressUI(progress) {
         progressBar.style.width = `${progress}%`;
         progressText.textContent = `${progress}% Complete`;
+        const el = document.getElementById('progress-percent');
+        if (el) el.textContent = `${progress}%`;
+        const circle = document.getElementById('progress-circle');
+        if (circle) {
+            const circumference = 169.6;
+            circle.style.strokeDashoffset = circumference - (progress / 100) * circumference;
+        }
     }
 
     function renderTodos(todos) {
         todoList.innerHTML = '';
         todos.forEach(todo => addTodoToDOM(todo.text, todo.completed, false));
     }
-    
+
     function addTodoToDOM(task, isCompleted = false, shouldSave = true) {
       const li = document.createElement('li');
       const span = document.createElement('span');
       span.textContent = task;
       li.appendChild(span);
-
       const removeBtn = document.createElement('button');
       removeBtn.classList.add('remove-btn');
       removeBtn.innerHTML = '&times;';
-      removeBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        li.remove();
-        saveTodosToFirestore();
-      });
-
+      removeBtn.addEventListener('click', (e) => { e.stopPropagation(); li.remove(); saveTodosToFirestore(); });
       li.appendChild(removeBtn);
-
-      if (isCompleted) {
-        li.classList.add('completed');
-      }
-
-      li.addEventListener('click', () => {
-        li.classList.toggle('completed');
-        saveTodosToFirestore();
-      });
-
+      if (isCompleted) li.classList.add('completed');
+      li.addEventListener('click', () => { li.classList.toggle('completed'); saveTodosToFirestore(); });
       todoList.appendChild(li);
-      if(shouldSave) {
-          saveTodosToFirestore();
-      }
+      if (shouldSave) saveTodosToFirestore();
     }
 
     addTodoBtn.addEventListener('click', () => {
         const task = todoInput.value.trim();
-        if (task) {
-            addTodoToDOM(task, false, true);
-            todoInput.value = '';
-        }
+        if (task) { addTodoToDOM(task, false, true); todoInput.value = ''; }
     });
-
-    todoInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            addTodoBtn.click();
-        }
-    });
+    todoInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addTodoBtn.click(); });
 
     window.risyncAuth = auth;
     window.risyncDb = db;
   </script>
 
+  <!-- ===== NON-MODULE SCRIPT ===== -->
   <script>
+    // Sidebar toggle
     const menuToggle = document.querySelector('.menu-toggle');
     const sidebar = document.getElementById('sidebar');
     const mainWrapper = document.querySelector('.main-wrapper');
@@ -1402,333 +935,146 @@
       sidebar.classList.toggle('open');
       mainWrapper.classList.toggle('sidebar-open');
     }
+    if (menuToggle) menuToggle.addEventListener('click', toggleMenu);
+    if (overlay) overlay.addEventListener('click', toggleMenu);
 
-    menuToggle.addEventListener('click', toggleMenu);
-    if(overlay) overlay.addEventListener('click', toggleMenu);
-
+    // Settings dropdown
     const settingsIcon = document.getElementById('settingsIcon');
     const settingsMenu = document.getElementById('settingsMenu');
-
-    settingsIcon.addEventListener('click', (e) => {
-      e.stopPropagation();
-      settingsMenu.classList.toggle('active');
-    });
-
+    settingsIcon.addEventListener('click', (e) => { e.stopPropagation(); settingsMenu.classList.toggle('active'); });
     document.addEventListener('click', (e) => {
-      if (!settingsMenu.contains(e.target) && e.target !== settingsIcon) {
-        settingsMenu.classList.remove('active');
-      }
+      if (!settingsMenu.contains(e.target) && e.target !== settingsIcon) settingsMenu.classList.remove('active');
     });
 
+    // Profile image
     const profileIcon = document.getElementById('profileIcon');
     const profileUpload = document.getElementById('profileUpload');
-
     function loadProfileImage() {
-      const storedImage = localStorage.getItem('profileImage');
-      if (storedImage) {
-        profileIcon.src = storedImage;
-      }
+      const stored = localStorage.getItem('profileImage');
+      if (stored) profileIcon.src = stored;
     }
-
-    profileIcon.addEventListener('click', () => {
-      profileUpload.click();
-    });
-
+    profileIcon.addEventListener('click', () => profileUpload.click());
     profileUpload.addEventListener('change', (event) => {
       const file = event.target.files[0];
       if (file) {
         const reader = new FileReader();
-        reader.onload = (e) => {
-          profileIcon.src = e.target.result;
-          localStorage.setItem('profileImage', e.target.result);
-        };
+        reader.onload = (e) => { profileIcon.src = e.target.result; localStorage.setItem('profileImage', e.target.result); };
         reader.readAsDataURL(file);
       }
     });
 
+    // Nav search filter
     const searchInput = document.getElementById('searchInput');
     const navButtons = document.querySelectorAll('.nav-menu .nav-button');
-
-    if(searchInput) {
-        searchInput.addEventListener('keyup', (event) => {
-            const searchTerm = event.target.value.toLowerCase();
-            navButtons.forEach(button => {
-            const buttonText = button.textContent.toLowerCase();
-            if (buttonText.includes(searchTerm)) {
-                button.style.display = 'flex';
-            } else {
-                button.style.display = 'none';
-            }
-            });
+    if (searchInput) {
+      searchInput.addEventListener('keyup', (event) => {
+        const term = event.target.value.toLowerCase();
+        navButtons.forEach(btn => {
+          btn.style.display = btn.textContent.toLowerCase().includes(term) ? 'flex' : 'none';
         });
+      });
     }
 
+    // Music toggle — updated to use Material Symbols textContent
     const musicBtn = document.getElementById('music-btn');
     const musicIcon = document.getElementById('music-icon');
     const bgMusic = document.getElementById('bg-music');
     let isPlaying = false;
 
+    function setMusicIcon(playing) {
+      musicIcon.textContent = playing ? 'volume_off' : 'volume_up';
+    }
+
     musicBtn.addEventListener('click', () => {
       if (isPlaying) {
         bgMusic.pause();
-        musicIcon.classList.remove('fa-volume-mute');
-        musicIcon.classList.add('fa-volume-up');
+        setMusicIcon(false);
       } else {
-        bgMusic.play().catch(error => {
-          console.log("Autoplay prevented.");
-        });
-        musicIcon.classList.remove('fa-volume-up');
-        musicIcon.classList.add('fa-volume-mute');
+        bgMusic.play().catch(() => {});
+        setMusicIcon(true);
       }
       isPlaying = !isPlaying;
     });
 
-    // ===== VOICE COMMAND HANDLER =====
+    // Voice commands
     let isListening = false;
     const micBtn = document.getElementById('mic-btn');
 
     micBtn.addEventListener('click', () => {
-      if (!isListening) {
-        startVoiceRecognition();
-      } else {
-        stopVoiceRecognition();
-      }
+      if (!isListening) startVoiceRecognition();
+      else stopVoiceRecognition();
     });
 
     function startVoiceRecognition() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      
-      if (!SpeechRecognition) {
-        alert('❌ Speech Recognition not supported in your browser.\n\nTry Chrome, Firefox, or Edge.');
-        return;
-      }
-
+      if (!SpeechRecognition) { alert('Speech Recognition not supported. Try Chrome or Edge.'); return; }
       const recognition = new SpeechRecognition();
       recognition.continuous = false;
       recognition.interimResults = true;
       recognition.lang = 'en-US';
-
       micBtn.classList.add('active');
       isListening = true;
-      micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
-
-      recognition.onstart = () => {
-        console.log('🎤 Listening...');
-        micBtn.style.boxShadow = 'var(--box-shadow-medium), var(--box-glow-orange)';
-      };
-
       recognition.onresult = (event) => {
         let transcript = '';
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          transcript += event.results[i][0].transcript;
-        }
-        
-        if (event.isFinal) {
-          console.log('📝 You said:', transcript);
-          processVoiceCommand(transcript.toLowerCase());
-        }
+        for (let i = event.resultIndex; i < event.results.length; i++) transcript += event.results[i][0].transcript;
+        if (event.results[event.results.length - 1].isFinal) processVoiceCommand(transcript.toLowerCase());
       };
-
       recognition.onerror = (event) => {
-        console.error('🔴 Voice error:', event.error);
-        if (event.error === 'network') {
-          showVoiceAlert('❌ Network Error', 'Please check your internet connection');
-        } else if (event.error === 'no-speech') {
-          showVoiceAlert('🔇 No Speech Detected', 'Please speak again');
-        } else {
-          showVoiceAlert('❌ Error', event.error);
-        }
+        showVoiceAlert('Error', event.error);
+        micBtn.classList.remove('active'); isListening = false;
       };
-
-      recognition.onend = () => {
-        micBtn.classList.remove('active');
-        isListening = false;
-        micBtn.style.boxShadow = '';
-      };
-
-      try {
-        recognition.start();
-      } catch (e) {
-        console.log('Recognition already started');
-      }
+      recognition.onend = () => { micBtn.classList.remove('active'); isListening = false; };
+      try { recognition.start(); } catch(e) {}
     }
 
-    function stopVoiceRecognition() {
-      isListening = false;
-      micBtn.classList.remove('active');
-    }
+    function stopVoiceRecognition() { isListening = false; micBtn.classList.remove('active'); }
 
     function showVoiceAlert(title, message) {
       const popup = document.createElement('div');
-      popup.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: white;
-        padding: 15px 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        z-index: 10000;
-        max-width: 300px;
-      `;
+      popup.style.cssText = 'position:fixed;top:20px;right:20px;background:white;padding:14px 18px;border-radius:12px;box-shadow:0 4px 20px rgba(21,21,125,0.15);z-index:10000;max-width:300px;font-family:Inter,sans-serif;font-size:13px;border:1.5px solid #c7c5d4;';
       popup.innerHTML = `<strong>${title}</strong><br>${message}`;
       document.body.appendChild(popup);
       setTimeout(() => popup.remove(), 3000);
     }
 
     function processVoiceCommand(command) {
-      console.log('🎙️ Processing command:', command);
-
-      // Navigation commands
       const navCommands = {
-        'chat': 'RiSync-CHAT.html',
-        'peer chat': 'RiSync-CHAT.html',
-        'monitor': 'monitor.html',
-        'parent monitor': 'monitor.html',
-        'books': 'books.html',
-        'calendar': 'calendar.html',
-        'database': 'database.html',
-        'subjects': 'subjects.html',
-        'ncert': 'ncert.html',
-        'whiteboard': 'whiteboard.html',
-        'white board': 'whiteboard.html',
-        'calculator': 'calculator.html',
-        'bot': 'gpt.html',
-        'chat bot': 'gpt.html',
-        'leaderboard': 'leaderboard.html',
-        'ppt': 'ppt.html',
-        'design': 'design.html',
-        'website': 'design.html'
+        'chat': 'RiSync-CHAT.html', 'monitor': 'monitor.html', 'books': 'books.html',
+        'calendar': 'calendar.html', 'database': 'database.html', 'subjects': 'subjects.html',
+        'ncert': 'ncert.html', 'whiteboard': 'whiteboard.html', 'calculator': 'calculator.html',
+        'bot': 'gpt.html', 'leaderboard': 'leaderboard.html', 'ppt': 'ppt.html', 'design': 'design.html'
       };
-
-      // Check for navigation commands
       for (let [key, url] of Object.entries(navCommands)) {
-        if (command.includes(key)) {
-          console.log('🚀 Navigating to:', url);
-          showVoiceAlert('🎯 Navigating', `Opening ${key}...`);
-          window.location.href = url;
-          return;
-        }
+        if (command.includes(key)) { showVoiceAlert('Navigating', `Opening ${key}…`); window.location.href = url; return; }
       }
-
-      // Action commands
-      if (command.includes('ribot') || command.includes('help')) {
-        showVoiceAlert('🤖 RiBot Settings', 'Opening RiBot assistance...');
-        document.getElementById('ribotSettingsBtn').click();
-        return;
-      }
-
-      if (command.includes('profile')) {
-        showVoiceAlert('👤 Profile', 'Opening profile settings...');
-        document.getElementById('profileBtn').click();
-        return;
-      }
-
-      if (command.includes('music') || command.includes('audio')) {
-        if (isPlaying) {
-          showVoiceAlert('🔇 Music Off', 'Turning off music...');
-          bgMusic.pause();
-          musicIcon.classList.remove('fa-volume-mute');
-          musicIcon.classList.add('fa-volume-up');
-          isPlaying = false;
-        } else {
-          showVoiceAlert('🎵 Music On', 'Playing music...');
-          bgMusic.play().catch(e => console.log('Play failed:', e));
-          musicIcon.classList.remove('fa-volume-up');
-          musicIcon.classList.add('fa-volume-mute');
-          isPlaying = true;
-        }
-        return;
-      }
-
+      if (command.includes('ribot') || command.includes('help')) { document.getElementById('ribotSettingsBtn').click(); return; }
+      if (command.includes('profile')) { document.getElementById('profileBtn').click(); return; }
+      if (command.includes('music') || command.includes('audio')) { musicBtn.click(); return; }
       if (command.includes('logout') || command.includes('sign out')) {
-        if (confirm('🚪 Are you sure you want to logout?')) {
-          document.getElementById('logoutButton').click();
-        }
+        if (confirm('Are you sure you want to logout?')) document.getElementById('logoutButton').click();
         return;
       }
-
-      if (command.includes('progress') || command.includes('how') || command.includes('complete')) {
-        const progressText = document.getElementById('progress-text').textContent;
-        showVoiceAlert('📊 Your Progress', progressText);
-        const synth = window.speechSynthesis;
-        const utterance = new SpeechSynthesisUtterance(`Your current ${progressText}`);
-        synth.speak(utterance);
+      if (command.includes('progress')) {
+        const pt = document.getElementById('progress-text').textContent;
+        showVoiceAlert('Your Progress', pt);
+        window.speechSynthesis.speak(new SpeechSynthesisUtterance(`Your current ${pt}`));
         return;
       }
-
       if (command.includes('add task') || command.includes('new task')) {
-        showVoiceAlert('✏️ Add Task', 'Please type your task in the input box');
+        showVoiceAlert('Add Task', 'Please type your task in the input box');
         document.getElementById('todo-input').focus();
         return;
       }
-
-      if (command.includes('language') || command.includes('english') || command.includes('hindi')) {
-        if (command.includes('hindi')) {
-          document.getElementById('selected-language').click();
-          setTimeout(() => {
-            const hiBtn = Array.from(document.querySelectorAll('.language-dropdown-list li')).find(li => li.textContent.includes('हिन्दी'));
-            if (hiBtn) hiBtn.click();
-          }, 200);
-          showVoiceAlert('🌐 Language', 'Changed to हिन्दी');
-        } else {
-          document.getElementById('selected-language').click();
-          setTimeout(() => {
-            const enBtn = Array.from(document.querySelectorAll('.language-dropdown-list li')).find(li => li.textContent.includes('English'));
-            if (enBtn) enBtn.click();
-          }, 200);
-          showVoiceAlert('🌐 Language', 'Changed to English');
-        }
-        return;
-      }
-
-      // Help command
-      if (command.includes('what') || command.includes('commands') || command.includes('help')) {
-        const helpText = `
-        🎙️ Available Voice Commands:
-
-        Navigation:
-        • "Go to Chat" / "Chat"
-        • "Open Calendar" / "Calendar"
-        • "Database" / "Subjects"
-        • "NCERT" / "Whiteboard"
-        • "Calculator" / "Chat Bot"
-        • "Leaderboard" / "PPT"
-        • "Design" / "Monitor"
-
-        Actions:
-        • "RiBot Help" / "Help"
-        • "Profile" / "Edit Profile"
-        • "Music On/Off"
-        • "Progress" / "How am I doing"
-        • "Add Task"
-        • "Language Hindi/English"
-        • "Logout" / "Sign out"
-        `;
-        
-        showVoiceAlert('🎤 Voice Commands Help', 'See console for full list');
-        console.log(helpText);
-        
-        const synth = window.speechSynthesis;
-        const utterance = new SpeechSynthesisUtterance("Available commands: Navigate to Chat, Calendar, Database, Subjects, NCERT, Whiteboard, Calculator, Chat Bot, Leaderboard, PPT or Design. You can also ask for help, open RiBot, check your progress, toggle music, change language, or logout.");
-        synth.speak(utterance);
-        return;
-      }
-
-      // No command matched
-      showVoiceAlert('❓ Command Not Recognized', `"${command}"\n\nSay "help" for available commands`);
-      const synth = window.speechSynthesis;
-      const utterance = new SpeechSynthesisUtterance("Command not recognized. Say help for available commands.");
-      synth.speak(utterance);
+      showVoiceAlert('Not Recognized', `"${command}" — say "help" for commands`);
     }
 
-    // ===== CHATBOT & RIBOT POPUPS =====
+    // Chatbot & RiBot popups
     const chatbotPopup = document.getElementById('chatbot-popup');
     const startAssistanceBtn = document.getElementById('startAssistanceBtn');
     const hideChatbotBtn = document.getElementById('hideChatbotBtn');
-    
-    const profileBtn = document.getElementById('profileBtn');
     const ribotSettingsBtn = document.getElementById('ribotSettingsBtn');
+    const ribotSettingsMenuBtn = document.getElementById('ribotSettingsMenuBtn');
+    const profileBtn = document.getElementById('profileBtn');
     const ribotSettingsPopup = document.getElementById('ribot-settings-popup');
     const closeRibotSettingsBtn = document.getElementById('closeRibotSettingsBtn');
     const ribotResponseArea = document.getElementById('ribot-response-area');
@@ -1741,11 +1087,8 @@
 
     hideChatbotBtn.addEventListener('click', hideChatbotPopup);
     closeRibotSettingsBtn.addEventListener('click', hideRibotSettings);
-    
-    ribotSettingsBtn.addEventListener('click', () => {
-        settingsMenu.classList.remove('active');
-        showRibotSettings();
-    });
+    ribotSettingsBtn.addEventListener('click', (e) => { e.preventDefault(); settingsMenu.classList.remove('active'); showRibotSettings(); });
+    if (ribotSettingsMenuBtn) ribotSettingsMenuBtn.addEventListener('click', () => { settingsMenu.classList.remove('active'); showRibotSettings(); });
 
     profileBtn.addEventListener('click', () => {
         settingsMenu.classList.remove('active');
@@ -1758,9 +1101,9 @@
 
     const ribotAnswers = {
         "help": "RiSync is an all-in-one educational platform designed to help you organize your studies, collaborate with peers, and access learning resources all in one place.",
-        "features": "Key features include Peer Chat for collaboration, Calendar for scheduling, Whiteboard for real-time problem solving, Database for resources, NCERT textbooks, Calculator, Chat Bot AI assistant, and more!",
-        "contact": "Contact support at support@risync.com or visit the help section. You can also use the Chat feature to reach out to other students and mentors.",
-        "voice": "Say 'Go to Chat', 'Open Calendar', 'Show Progress', 'RiBot Help', 'Toggle Music', 'Change Language', or any feature name to navigate instantly!"
+        "features": "Key features include Peer Chat for collaboration, Calendar for scheduling, Whiteboard for real-time problem solving, Database for resources, NCERT textbooks, Calculator, AI assistant, and more!",
+        "contact": "Contact support at support@risync.com or visit the help section. You can also use the Chat feature to reach out to students and mentors.",
+        "voice": "Say 'Go to Chat', 'Open Calendar', 'Show Progress', 'RiBot Help', 'Toggle Music', or any feature name to navigate instantly!"
     };
 
     document.querySelectorAll('.ribot-option-btn').forEach(btn => {
@@ -1775,79 +1118,71 @@
         showRibotSettings();
         hideChatbotPopup();
         const synth = window.speechSynthesis;
-        const utterance = new SpeechSynthesisUtterance("Welcome! I am RiBot. I am happy to assist you. Please choose an option from the menu, or say help for voice commands.");
-        synth.speak(utterance);
+        synth.speak(new SpeechSynthesisUtterance("Welcome! I am RiBot. Choose an option from the menu."));
     });
 
     document.addEventListener('DOMContentLoaded', () => {
       loadProfileImage();
-      // Show chatbot after 3 seconds
-      setTimeout(() => {
-        showChatbotPopup();
-      }, 3000);
+      setTimeout(showChatbotPopup, 3000);
     });
 
     // =============================================
-    // FULL-PAGE TRANSLATION ENGINE (Google Translate — Free, No API Key)
+    // FULL-PAGE TRANSLATION ENGINE
     // =============================================
-
     const ALL_LANGUAGES = [
-      { code: 'en',    name: 'English',               native: 'English' },
-      { code: 'hi',    name: 'Hindi',                 native: 'हिन्दी' },
-      { code: 'bn',    name: 'Bengali',               native: 'বাংলা' },
-      { code: 'te',    name: 'Telugu',                native: 'తెలుగు' },
-      { code: 'mr',    name: 'Marathi',               native: 'मराठी' },
-      { code: 'ta',    name: 'Tamil',                 native: 'தமிழ்' },
-      { code: 'gu',    name: 'Gujarati',              native: 'ગુજરાતી' },
-      { code: 'kn',    name: 'Kannada',               native: 'ಕನ್ನಡ' },
-      { code: 'ml',    name: 'Malayalam',             native: 'മലയാളം' },
-      { code: 'pa',    name: 'Punjabi',               native: 'ਪੰਜਾਬੀ' },
-      { code: 'or',    name: 'Odia',                  native: 'ଓଡ଼ିଆ' },
-      { code: 'ur',    name: 'Urdu',                  native: 'اردو' },
-      { code: 'as',    name: 'Assamese',              native: 'অসমীয়া' },
-      { code: 'ne',    name: 'Nepali',                native: 'नेपाली' },
-      { code: 'si',    name: 'Sinhala',               native: 'සිංහල' },
-      { code: 'zh-CN', name: 'Chinese (Simplified)',  native: '简体中文' },
+      { code: 'en', name: 'English', native: 'English' },
+      { code: 'hi', name: 'Hindi', native: 'हिन्दी' },
+      { code: 'bn', name: 'Bengali', native: 'বাংলা' },
+      { code: 'te', name: 'Telugu', native: 'తెలుగు' },
+      { code: 'mr', name: 'Marathi', native: 'मराठी' },
+      { code: 'ta', name: 'Tamil', native: 'தமிழ்' },
+      { code: 'gu', name: 'Gujarati', native: 'ગુજરાતી' },
+      { code: 'kn', name: 'Kannada', native: 'ಕನ್ನಡ' },
+      { code: 'ml', name: 'Malayalam', native: 'മലയാളം' },
+      { code: 'pa', name: 'Punjabi', native: 'ਪੰਜਾਬੀ' },
+      { code: 'or', name: 'Odia', native: 'ଓଡ଼ିଆ' },
+      { code: 'ur', name: 'Urdu', native: 'اردو' },
+      { code: 'as', name: 'Assamese', native: 'অসমীয়া' },
+      { code: 'ne', name: 'Nepali', native: 'नेपाली' },
+      { code: 'si', name: 'Sinhala', native: 'සිංහල' },
+      { code: 'zh-CN', name: 'Chinese (Simplified)', native: '简体中文' },
       { code: 'zh-TW', name: 'Chinese (Traditional)', native: '繁體中文' },
-      { code: 'ja',    name: 'Japanese',              native: '日本語' },
-      { code: 'ko',    name: 'Korean',                native: '한국어' },
-      { code: 'ar',    name: 'Arabic',                native: 'العربية' },
-      { code: 'fa',    name: 'Persian',               native: 'فارسی' },
-      { code: 'ru',    name: 'Russian',               native: 'Русский' },
-      { code: 'fr',    name: 'French',                native: 'Français' },
-      { code: 'de',    name: 'German',                native: 'Deutsch' },
-      { code: 'es',    name: 'Spanish',               native: 'Español' },
-      { code: 'pt',    name: 'Portuguese',            native: 'Português' },
-      { code: 'it',    name: 'Italian',               native: 'Italiano' },
-      { code: 'nl',    name: 'Dutch',                 native: 'Nederlands' },
-      { code: 'pl',    name: 'Polish',                native: 'Polski' },
-      { code: 'tr',    name: 'Turkish',               native: 'Türkçe' },
-      { code: 'vi',    name: 'Vietnamese',            native: 'Tiếng Việt' },
-      { code: 'th',    name: 'Thai',                  native: 'ภาษาไทย' },
-      { code: 'id',    name: 'Indonesian',            native: 'Bahasa Indonesia' },
-      { code: 'ms',    name: 'Malay',                 native: 'Bahasa Melayu' },
-      { code: 'sw',    name: 'Swahili',               native: 'Kiswahili' },
-      { code: 'uk',    name: 'Ukrainian',             native: 'Українська' },
-      { code: 'he',    name: 'Hebrew',                native: 'עברית' },
-      { code: 'el',    name: 'Greek',                 native: 'Ελληνικά' },
-      { code: 'cs',    name: 'Czech',                 native: 'Čeština' },
-      { code: 'ro',    name: 'Romanian',              native: 'Română' },
-      { code: 'hu',    name: 'Hungarian',             native: 'Magyar' },
-      { code: 'sv',    name: 'Swedish',               native: 'Svenska' },
-      { code: 'no',    name: 'Norwegian',             native: 'Norsk' },
-      { code: 'fi',    name: 'Finnish',               native: 'Suomi' },
-      { code: 'da',    name: 'Danish',                native: 'Dansk' },
-      { code: 'fil',   name: 'Filipino',              native: 'Filipino' },
+      { code: 'ja', name: 'Japanese', native: '日本語' },
+      { code: 'ko', name: 'Korean', native: '한국어' },
+      { code: 'ar', name: 'Arabic', native: 'العربية' },
+      { code: 'fa', name: 'Persian', native: 'فارسی' },
+      { code: 'ru', name: 'Russian', native: 'Русский' },
+      { code: 'fr', name: 'French', native: 'Français' },
+      { code: 'de', name: 'German', native: 'Deutsch' },
+      { code: 'es', name: 'Spanish', native: 'Español' },
+      { code: 'pt', name: 'Portuguese', native: 'Português' },
+      { code: 'it', name: 'Italian', native: 'Italiano' },
+      { code: 'nl', name: 'Dutch', native: 'Nederlands' },
+      { code: 'pl', name: 'Polish', native: 'Polski' },
+      { code: 'tr', name: 'Turkish', native: 'Türkçe' },
+      { code: 'vi', name: 'Vietnamese', native: 'Tiếng Việt' },
+      { code: 'th', name: 'Thai', native: 'ภาษาไทย' },
+      { code: 'id', name: 'Indonesian', native: 'Bahasa Indonesia' },
+      { code: 'ms', name: 'Malay', native: 'Bahasa Melayu' },
+      { code: 'sw', name: 'Swahili', native: 'Kiswahili' },
+      { code: 'uk', name: 'Ukrainian', native: 'Українська' },
+      { code: 'he', name: 'Hebrew', native: 'עברית' },
+      { code: 'el', name: 'Greek', native: 'Ελληνικά' },
+      { code: 'cs', name: 'Czech', native: 'Čeština' },
+      { code: 'ro', name: 'Romanian', native: 'Română' },
+      { code: 'hu', name: 'Hungarian', native: 'Magyar' },
+      { code: 'sv', name: 'Swedish', native: 'Svenska' },
+      { code: 'no', name: 'Norwegian', native: 'Norsk' },
+      { code: 'fi', name: 'Finnish', native: 'Suomi' },
+      { code: 'da', name: 'Danish', native: 'Dansk' },
+      { code: 'fil', name: 'Filipino', native: 'Filipino' },
     ];
 
     const RTL_LANGS = new Set(['ar', 'he', 'ur', 'fa']);
     const translationCache = {};
-
-    // Tags whose children we don't touch
     const SKIP_TAGS = new Set(['SCRIPT','STYLE','NOSCRIPT','META','LINK','OPTION','SELECT']);
     const SKIP_IDS  = new Set(['language-dropdown-list','language-dropdown-container','translate-overlay']);
 
-    // Collect all live text nodes + placeholders from the page
     function collectNodes() {
       const nodes = [];
       function walk(node) {
@@ -1855,28 +1190,22 @@
         if (node.nodeType === Node.ELEMENT_NODE) {
           if (SKIP_TAGS.has(node.tagName)) return;
           if (node.id && SKIP_IDS.has(node.id)) return;
-          if (node.tagName === 'INPUT' && node.placeholder) {
-            nodes.push({ type: 'placeholder', el: node });
-          }
+          if (node.tagName === 'INPUT' && node.placeholder) nodes.push({ type: 'placeholder', el: node });
           for (const child of node.childNodes) walk(child);
         } else if (node.nodeType === Node.TEXT_NODE) {
           const t = node.textContent.trim();
-          // Skip empty, pure numbers, percentages, single chars
-          if (t.length > 1 && !/^[\d%.,]+$/.test(t)) {
-            nodes.push({ type: 'text', node });
-          }
+          if (t.length > 1 && !/^[\d%.,]+$/.test(t)) nodes.push({ type: 'text', node });
         }
       }
       walk(document.body);
       return nodes;
     }
 
-    // Snapshot English originals once at boot
     let snapshot = null;
     function takeSnapshot() {
       if (snapshot) return;
       snapshot = collectNodes().map(item => {
-        if (item.type === 'text')        return { ...item, original: item.node.textContent };
+        if (item.type === 'text') return { ...item, original: item.node.textContent };
         if (item.type === 'placeholder') return { ...item, original: item.el.placeholder };
       });
     }
@@ -1885,62 +1214,41 @@
       if (!snapshot) return;
       snapshot.forEach(item => {
         try {
-          if (item.type === 'text')        item.node.textContent = item.original;
-          if (item.type === 'placeholder') item.el.placeholder   = item.original;
+          if (item.type === 'text') item.node.textContent = item.original;
+          if (item.type === 'placeholder') item.el.placeholder = item.original;
         } catch(e) {}
       });
     }
 
-    // Translate a single string via Google Translate (unofficial, free)
     async function gtranslate(text, targetLang) {
       const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${encodeURIComponent(targetLang)}&dt=t&q=${encodeURIComponent(text)}`;
-      const res  = await fetch(url);
+      const res = await fetch(url);
       if (!res.ok) throw new Error('GT error ' + res.status);
       const data = await res.json();
-      // data[0] is array of [translated, original, ...] chunks
       return data[0].map(chunk => chunk[0]).join('');
     }
 
-    // Translate an array of strings — batched as one joined request for speed
     async function translateBatch(strings, targetLang) {
-      // Join with a unique separator that won't appear in real text
       const SEP = ' |||RISYNC||| ';
       const joined = strings.join(SEP);
       const result = await gtranslate(joined, targetLang);
-      // Split back — Google preserves the separator text mostly intact
-      // but let's do a flexible split
       const parts = result.split(/\s*\|\|\|RISYNC\|\|\|\s*/);
-      // Pad if Google merged some segments
       while (parts.length < strings.length) parts.push('');
       return parts.slice(0, strings.length);
     }
 
-    // Loading overlay
     function showOverlay(langName) {
       let ov = document.getElementById('translate-overlay');
       if (!ov) {
         ov = document.createElement('div');
         ov.id = 'translate-overlay';
-        ov.style.cssText = [
-          'position:fixed;inset:0;z-index:99999',
-          'background:rgba(30,10,69,0.85)',
-          'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px',
-          'color:#fff;font-family:Nunito,sans-serif;backdrop-filter:blur(8px)',
-          'transition:opacity .3s'
-        ].join(';');
-        ov.innerHTML = `
-          <div style="width:54px;height:54px;border-radius:50%;
-            border:4px solid rgba(255,255,255,0.15);border-top-color:#FFB800;
-            animation:_spin .8s linear infinite"></div>
-          <div id="_ov_msg" style="font-size:20px;font-weight:800">Translating…</div>
-          <div id="_ov_sub" style="font-size:13px;opacity:.55">Please wait</div>
-          <style>@keyframes _spin{to{transform:rotate(360deg)}}</style>`;
+        ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(21,21,125,0.8);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;color:#fff;font-family:Inter,sans-serif;backdrop-filter:blur(8px);transition:opacity .3s';
+        ov.innerHTML = `<div style="width:54px;height:54px;border-radius:50%;border:4px solid rgba(255,255,255,0.2);border-top-color:#c0c1ff;animation:_spin .8s linear infinite"></div><div id="_ov_msg" style="font-size:20px;font-weight:800">Translating…</div><div id="_ov_sub" style="font-size:13px;opacity:.55">Please wait</div><style>@keyframes _spin{to{transform:rotate(360deg)}}</style>`;
         document.body.appendChild(ov);
       }
       document.getElementById('_ov_msg').textContent = `Translating to ${langName}…`;
-      document.getElementById('_ov_sub').textContent  = 'Powered by Google Translate 🌐';
-      ov.style.opacity = '1';
-      ov.style.display = 'flex';
+      document.getElementById('_ov_sub').textContent = 'Powered by Google Translate 🌐';
+      ov.style.opacity = '1'; ov.style.display = 'flex';
     }
 
     function hideOverlay() {
@@ -1950,81 +1258,52 @@
       setTimeout(() => ov.style.display = 'none', 300);
     }
 
-    // Main
     async function translatePageTo(langCode, langName) {
-      // Always restore English first so we always translate from clean source
       restoreEnglish();
       document.documentElement.dir = RTL_LANGS.has(langCode) ? 'rtl' : 'ltr';
-
       if (langCode === 'en') return;
-
-      // Serve from cache
-      if (translationCache[langCode]) {
-        applyMap(translationCache[langCode]);
-        return;
-      }
-
+      if (translationCache[langCode]) { applyMap(translationCache[langCode]); return; }
       showOverlay(langName);
-
       try {
-        const items   = collectNodes();
-        const strings = items.map(item =>
-          item.type === 'text' ? item.node.textContent.trim() : item.el.placeholder
-        );
-
-        // Deduplicate to reduce API calls
+        const items = collectNodes();
+        const strings = items.map(item => item.type === 'text' ? item.node.textContent.trim() : item.el.placeholder);
         const unique = [...new Set(strings.filter(s => s.length > 1))];
-
-        // Translate in chunks of 40 strings
-        const CHUNK = 40;
-        const map = {};
-
+        const CHUNK = 40; const map = {};
         for (let i = 0; i < unique.length; i += CHUNK) {
-          const chunk  = unique.slice(i, i + CHUNK);
+          const chunk = unique.slice(i, i + CHUNK);
           const result = await translateBatch(chunk, langCode);
           chunk.forEach((orig, j) => { map[orig] = result[j] || orig; });
         }
-
         translationCache[langCode] = map;
         applyMap(map);
-
       } catch (err) {
         console.error('Translation error:', err);
         hideOverlay();
-        alert('Translation failed. Check your internet connection and try again.');
+        alert('Translation failed. Check your internet connection.');
         return;
       }
-
       hideOverlay();
     }
 
     function applyMap(map) {
       collectNodes().forEach(item => {
         try {
-          if (item.type === 'text') {
-            const k = item.node.textContent.trim();
-            if (map[k]) item.node.textContent = map[k];
-          } else if (item.type === 'placeholder') {
-            const k = item.el.placeholder;
-            if (map[k]) item.el.placeholder = map[k];
-          }
+          if (item.type === 'text') { const k = item.node.textContent.trim(); if (map[k]) item.node.textContent = map[k]; }
+          else if (item.type === 'placeholder') { const k = item.el.placeholder; if (map[k]) item.el.placeholder = map[k]; }
         } catch(e) {}
       });
     }
 
-    // ---- Build dropdown ----
-    const languageListEl   = document.getElementById('language-dropdown-list');
-    const selectedLangEl   = document.getElementById('selected-language');
-    const languageContainer= document.getElementById('language-dropdown-container');
-    let   currentLangCode  = 'en';
+    const languageListEl    = document.getElementById('language-dropdown-list');
+    const selectedLangEl    = document.getElementById('selected-language');
+    const languageContainer = document.getElementById('language-dropdown-container');
+    let currentLangCode = 'en';
 
     function populateLanguages() {
       languageListEl.innerHTML = '';
       ALL_LANGUAGES.forEach(lang => {
         const li = document.createElement('li');
-        li.innerHTML = `
-          <span style="font-weight:700">${lang.native}</span>
-          <span style="opacity:.5;font-size:11px;margin-left:6px">${lang.name}</span>`;
+        li.innerHTML = `<span style="font-weight:700">${lang.native}</span><span style="opacity:.5;font-size:11px;margin-left:6px">${lang.name}</span>`;
         li.style.cssText = 'display:flex;align-items:center;justify-content:space-between';
         li.addEventListener('click', async () => {
           languageContainer.classList.remove('active');
