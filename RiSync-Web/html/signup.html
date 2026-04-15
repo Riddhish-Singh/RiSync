@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>RiSync | Secure Access</title>
+  <title>RiSync | Create Account</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -15,53 +15,31 @@
           colors: {
             "on-primary-container": "#14007e",
             "on-secondary": "#003047",
-            "secondary-fixed-dim": "#81ccff",
-            "tertiary-fixed-dim": "#6cc3eb",
             "on-surface": "#dee5ff",
-            "tertiary-fixed": "#7bd1fa",
             "secondary": "#34b5fa",
             "primary-container": "#9795ff",
             "surface-dim": "#060e20",
-            "on-tertiary-fixed-variant": "#004f69",
-            "inverse-on-surface": "#4d556b",
-            "on-tertiary-container": "#00465d",
-            "error-dim": "#d73357",
             "outline-variant": "#40485d",
             "primary-fixed": "#9795ff",
-            "tertiary-container": "#7bd1fa",
             "tertiary": "#9bddff",
-            "inverse-surface": "#faf8ff",
             "primary-fixed-dim": "#8885ff",
             "error": "#ff6e84",
-            "secondary-fixed": "#a4d8ff",
             "surface": "#060e20",
-            "on-error": "#490013",
             "surface-variant": "#192540",
-            "on-tertiary-fixed": "#003041",
-            "on-tertiary": "#004f69",
             "on-primary-fixed": "#000000",
             "surface-container": "#0f1930",
-            "secondary-dim": "#17a8ec",
-            "tertiary-dim": "#6cc3eb",
-            "on-secondary-fixed": "#003853",
             "surface-container-high": "#141f38",
             "surface-container-highest": "#192540",
-            "on-primary-fixed-variant": "#1a0099",
             "on-primary": "#1c00a0",
-            "on-error-container": "#ffb2b9",
             "background": "#060e20",
             "primary-dim": "#645efb",
             "secondary-container": "#006591",
             "surface-container-lowest": "#000000",
-            "error-container": "#a70138",
             "surface-bright": "#1f2b49",
             "on-secondary-container": "#f3f8ff",
             "surface-container-low": "#091328",
             "primary": "#a7a5ff",
             "outline": "#6d758c",
-            "surface-tint": "#a7a5ff",
-            "inverse-primary": "#4e45e4",
-            "on-secondary-fixed-variant": "#00567c",
             "on-background": "#dee5ff",
             "on-surface-variant": "#a3aac4"
           },
@@ -93,10 +71,19 @@
     .kinetic-bg {
       background: radial-gradient(circle at 0% 0%, #0f1930 0%, #060e20 100%);
     }
-    input:focus {
+    input:focus, select:focus {
       outline: none;
       box-shadow: 0 0 0 1px #a7a5ff15;
     }
+    /* Custom select arrow */
+    select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236d758c' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      cursor: pointer;
+    }
+    select option { background: #0f1930; color: #dee5ff; }
     @keyframes scanning {
       0%   { transform: translateX(-100%); }
       50%  { transform: translateX(300%); }
@@ -110,6 +97,10 @@
       80%       { transform: translateX(4px); }
     }
     .shake { animation: shake 0.4s ease; }
+    /* Scrollbar inside card */
+    .card-scroll::-webkit-scrollbar { width: 4px; }
+    .card-scroll::-webkit-scrollbar-track { background: transparent; }
+    .card-scroll::-webkit-scrollbar-thumb { background: #40485d; border-radius: 4px; }
   </style>
 </head>
 <body class="bg-background text-on-background font-body min-h-screen flex flex-col overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
@@ -117,16 +108,16 @@
   <!-- ── Top Bar ── -->
   <header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 py-4 bg-transparent backdrop-blur-md">
     <div class="flex items-center gap-4">
-      <a href="../index.html"
+      <a href="signin.html"
          class="text-[#a7a5ff] active:scale-95 transition-transform p-2 hover:bg-white/5 rounded-full duration-300">
         <span class="material-symbols-outlined">arrow_back</span>
       </a>
       <span class="text-2xl font-black text-[#a7a5ff] tracking-tighter font-headline">RiSync</span>
     </div>
     <div class="flex items-center gap-6">
-      <a href="signup.html"
+      <a href="signin.html"
          class="font-headline text-lg font-bold tracking-wider text-[#a3aac4] hover:text-[#34b5fa] hover:bg-white/5 transition-all duration-300 cursor-pointer px-3 py-1 rounded-full">
-        Sign Up
+        Sign In
       </a>
       <button class="text-[#a7a5ff] active:scale-95 p-2 hover:bg-white/5 rounded-full transition-all duration-300">
         <span class="material-symbols-outlined">help_outline</span>
@@ -135,153 +126,206 @@
   </header>
 
   <!-- ── Main ── -->
-  <main class="flex-grow kinetic-bg flex items-center justify-center px-4 relative pt-20 pb-20">
+  <main class="flex-grow kinetic-bg flex items-center justify-center px-4 relative pt-24 pb-24">
 
     <!-- Atmospheric blobs -->
     <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 blur-[120px] rounded-full pointer-events-none"></div>
     <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/10 blur-[120px] rounded-full pointer-events-none"></div>
 
-    <div class="grid lg:grid-cols-2 gap-12 max-w-6xl w-full items-center">
+    <div class="grid lg:grid-cols-2 gap-12 max-w-6xl w-full items-start">
 
-      <!-- Editorial Left -->
-      <div class="hidden lg:flex flex-col space-y-6 text-left">
+      <!-- ── Editorial Left ── -->
+      <div class="hidden lg:flex flex-col space-y-6 text-left pt-4">
         <h1 class="font-headline text-7xl font-black text-on-surface leading-tight tracking-tighter">
-          Secure. <br/>
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">Seamless.</span><br/>
-          Synchronized.
+          Create.<br/>
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">Connect.</span><br/>
+          Explore.
         </h1>
         <p class="text-on-surface-variant text-xl max-w-md font-light leading-relaxed">
-          Access the RiSync portal. Your identity is verified, your data is protected. Welcome to the future of young storytelling.
+          Join the RiSync portal. Select your school branch, tell us your class, and unlock a world of stories made just for young readers like you.
         </p>
-        <div class="pt-8 flex items-center gap-4">
-          <!-- Avatar stack -->
-          <div class="flex -space-x-3">
-            <div class="w-10 h-10 rounded-full border-2 border-background bg-surface-container-high flex items-center justify-center overflow-hidden">
-              <span class="material-symbols-outlined text-primary text-xl" style="font-variation-settings:'FILL' 1;">face</span>
+
+        <!-- Steps -->
+        <div class="pt-4 space-y-5">
+          <div class="flex items-start gap-4">
+            <div class="w-9 h-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span class="text-xs font-black text-primary">01</span>
             </div>
-            <div class="w-10 h-10 rounded-full border-2 border-background bg-surface-container-high flex items-center justify-center overflow-hidden">
-              <span class="material-symbols-outlined text-secondary text-xl" style="font-variation-settings:'FILL' 1;">face_3</span>
-            </div>
-            <div class="w-10 h-10 rounded-full border-2 border-background bg-surface-container-high flex items-center justify-center overflow-hidden">
-              <span class="material-symbols-outlined text-tertiary text-xl" style="font-variation-settings:'FILL' 1;">face_6</span>
+            <div>
+              <p class="font-bold text-on-surface text-sm">Fill in your details</p>
+              <p class="text-on-surface-variant text-xs mt-0.5">Name, school branch, and class.</p>
             </div>
           </div>
-          <span class="text-sm font-label text-outline tracking-wide uppercase">Trusted by young readers</span>
+          <div class="flex items-start gap-4">
+            <div class="w-9 h-9 rounded-full bg-secondary/10 border border-secondary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span class="text-xs font-black text-secondary">02</span>
+            </div>
+            <div>
+              <p class="font-bold text-on-surface text-sm">Verify your email</p>
+              <p class="text-on-surface-variant text-xs mt-0.5">We check your domain can receive mail live.</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-4">
+            <div class="w-9 h-9 rounded-full bg-tertiary/10 border border-tertiary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span class="text-xs font-black text-tertiary">03</span>
+            </div>
+            <div>
+              <p class="font-bold text-on-surface text-sm">Unlock the portal</p>
+              <p class="text-on-surface-variant text-xs mt-0.5">Access books, tools & more in one click.</p>
+            </div>
+          </div>
         </div>
-        <!-- Feature chips -->
+
+        <!-- Chips -->
         <div class="flex flex-wrap gap-3 pt-2">
           <span class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-secondary border border-secondary/20 bg-secondary/5 px-3 py-1.5 rounded-full">
             <span class="material-symbols-outlined text-[14px]" style="font-variation-settings:'FILL' 1;">verified</span>
-            Firebase Auth
+            Live MX Check
           </span>
           <span class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-primary border border-primary/20 bg-primary/5 px-3 py-1.5 rounded-full">
             <span class="material-symbols-outlined text-[14px]" style="font-variation-settings:'FILL' 1;">lock</span>
-            Encrypted
+            Firebase Secured
           </span>
           <span class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-tertiary border border-tertiary/20 bg-tertiary/5 px-3 py-1.5 rounded-full">
-            <span class="material-symbols-outlined text-[14px]" style="font-variation-settings:'FILL' 1;">auto_stories</span>
-            RiSync Portal
+            <span class="material-symbols-outlined text-[14px]" style="font-variation-settings:'FILL' 1;">school</span>
+            School Verified
           </span>
         </div>
       </div>
 
-      <!-- Sign-In Card -->
-      <div class="w-full max-w-md mx-auto lg:mr-0 glass-card p-10 rounded-xl shadow-2xl relative overflow-hidden border border-outline-variant/15" id="signInCard">
+      <!-- ── Sign-Up Card ── -->
+      <div class="w-full max-w-md mx-auto lg:mr-0 glass-card rounded-xl shadow-2xl relative overflow-hidden border border-outline-variant/15" id="signupCard">
 
-        <!-- Scanning progress bar -->
+        <!-- Scanning bar -->
         <div class="absolute top-0 left-0 w-full h-[2px] bg-white/5">
           <div class="h-full bg-gradient-to-r from-transparent via-tertiary to-transparent w-1/3 animate-[scanning_3s_infinite] translate-x-[-100%]"></div>
         </div>
 
-        <!-- Card header -->
-        <div class="text-center mb-10">
-          <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-surface-container-highest mb-6 border border-outline-variant/20">
-            <span class="material-symbols-outlined text-primary text-3xl">lock</span>
-          </div>
-          <h2 class="font-headline text-3xl font-bold text-on-surface tracking-tight">RiSync Sign-In</h2>
-          <p class="font-label text-sm text-on-surface-variant mt-2">Initialize your security protocol</p>
-        </div>
+        <!-- Scrollable inner -->
+        <div class="card-scroll overflow-y-auto max-h-[calc(100vh-140px)] p-10">
 
-        <!-- Form -->
-        <form id="signinForm" class="space-y-6">
-
-          <!-- Email -->
-          <div class="space-y-2">
-            <label class="font-label text-sm font-medium text-on-surface-variant ml-1" for="email">Email Address</label>
-            <div class="relative">
-              <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-lg">alternate_email</span>
-              <input
-                id="email" name="email" type="email" placeholder="name@example.com"
-                autocomplete="username" required
-                class="w-full bg-surface-container-highest border border-outline-variant/20 rounded-md py-3.5 pl-12 pr-4 text-on-surface placeholder:text-outline/50 transition-all focus:bg-surface-bright focus:border-primary-dim/30"/>
+          <!-- Header -->
+          <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-surface-container-highest mb-6 border border-outline-variant/20">
+              <span class="material-symbols-outlined text-primary text-3xl">person_add</span>
             </div>
-            <p id="emailError" class="text-xs text-error ml-1 min-h-[16px]"></p>
+            <h2 class="font-headline text-3xl font-bold text-on-surface tracking-tight">Create Account</h2>
+            <p class="font-label text-sm text-on-surface-variant mt-2">Initialize your RiSync identity</p>
           </div>
 
-          <!-- Password -->
-          <div class="space-y-2">
-            <div class="flex justify-between items-center ml-1">
-              <label class="font-label text-sm font-medium text-on-surface-variant" for="password">Password</label>
-              <a class="text-xs text-primary hover:text-secondary transition-colors font-medium" href="#">Forgot Access Key?</a>
-            </div>
-            <div class="relative">
-              <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-lg">shield_lock</span>
-              <input
-                id="password" name="password" type="password" placeholder="••••••••••••"
-                autocomplete="current-password" required
-                class="w-full bg-surface-container-highest border border-outline-variant/20 rounded-md py-3.5 pl-12 pr-4 text-on-surface placeholder:text-outline/50 transition-all focus:bg-surface-bright focus:border-primary-dim/30"/>
-            </div>
-            <p id="passwordError" class="text-xs text-error ml-1 min-h-[16px]"></p>
-          </div>
+          <!-- Form -->
+          <form id="signupForm" novalidate class="space-y-5">
 
-          <!-- Show password toggle -->
-          <div class="flex items-center justify-between py-2">
-            <label class="flex items-center gap-3 cursor-pointer group">
-              <div class="relative flex items-center">
-                <input id="showPassword" type="checkbox"
-                  class="peer appearance-none w-5 h-5 rounded bg-surface-container-highest border border-outline-variant/20 checked:bg-secondary checked:border-secondary transition-all cursor-pointer"/>
-                <span class="material-symbols-outlined absolute text-on-secondary text-[14px] opacity-0 peer-checked:opacity-100 left-1/2 -translate-x-1/2 pointer-events-none"
-                      style="font-variation-settings:'FILL' 1;">check</span>
+            <!-- Full Name -->
+            <div class="space-y-2">
+              <label class="font-label text-sm font-medium text-on-surface-variant ml-1" for="fullname">Full Name</label>
+              <div class="relative">
+                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-lg">badge</span>
+                <input id="fullname" type="text" placeholder="Your full name"
+                  autocomplete="name" required
+                  class="w-full bg-surface-container-highest border border-outline-variant/20 rounded-md py-3.5 pl-12 pr-4 text-on-surface placeholder:text-outline/50 transition-all focus:bg-surface-bright focus:border-primary-dim/30"/>
               </div>
-              <span class="text-sm text-on-surface-variant group-hover:text-on-surface transition-colors select-none">Show Password</span>
-            </label>
-            <div class="h-px bg-outline-variant/20 flex-grow mx-4"></div>
-            <span class="text-[10px] uppercase tracking-[0.15em] text-outline/40 font-bold">Encrypted</span>
-          </div>
+            </div>
 
-          <!-- Submit -->
-          <button type="submit" id="submitBtn"
-            class="w-full bg-gradient-to-r from-primary to-secondary py-4 rounded-full text-on-primary-fixed font-headline font-bold text-lg hover:shadow-[0_0_20px_rgba(167,165,255,0.3)] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2">
-            <span id="btnText">Sign In to RiSync</span>
-            <span id="btnSpinner" class="material-symbols-outlined text-xl hidden animate-spin">progress_activity</span>
-          </button>
-        </form>
+            <!-- Branch -->
+            <div class="space-y-2">
+              <label class="font-label text-sm font-medium text-on-surface-variant ml-1" for="branch">School Branch</label>
+              <div class="relative">
+                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-lg">location_city</span>
+                <select id="branch" required
+                  class="w-full bg-surface-container-highest border border-outline-variant/20 rounded-md py-3.5 pl-12 pr-10 text-on-surface transition-all focus:bg-surface-bright focus:border-primary-dim/30">
+                  <option value="" disabled selected>Select your branch</option>
+                  <option value="DCM Senior Secondary School, Ferozepur Cantt, Punjab">DCM Senior Secondary School, Ferozepur Cantt, Punjab</option>
+                  <option value="Dass & Brown World School, Ferozepur Cantt, Punjab">Dass &amp; Brown World School, Ferozepur Cantt, Punjab</option>
+                  <option value="DCM International School, Ferozepur City, Punjab">DCM International School, Ferozepur City, Punjab</option>
+                  <option value="DCM Senior Secondary School, Ambala Cantt, Haryana">DCM Senior Secondary School, Ambala Cantt, Haryana</option>
+                  <option value="DCM Presidency School, Ludhiana, Punjab">DCM Presidency School, Ludhiana, Punjab</option>
+                  <option value="DCM Presidency Elementary Campus, Ludhiana, Punjab">DCM Presidency Elementary Campus, Ludhiana, Punjab</option>
+                  <option value="DCM Young Entrepreneurs School, Ludhiana, Punjab">DCM Young Entrepreneurs School, Ludhiana, Punjab</option>
+                  <option value="DCM Land of Gods School, Solan, Himachal Pradesh">DCM Land of Gods School, Solan, Himachal Pradesh</option>
+                  <option value="Dass & Brown Experiential Learning School, Panchkula, Haryana">Dass &amp; Brown Experiential Learning School, Panchkula, Haryana</option>
+                </select>
+              </div>
+            </div>
 
-        <!-- Footer links -->
-        <div class="mt-10 flex flex-col items-center gap-4">
-          <p class="text-sm text-on-surface-variant">
-            New to RiSync? <a class="text-primary font-bold hover:text-secondary transition-colors" href="signup.html">Create your account</a>
-          </p>
-          <div class="flex gap-4 w-full">
-            <!-- Google sign-in placeholder (wire up if needed) -->
-            <button id="googleBtn"
-              class="flex-1 bg-surface-container-low border border-outline-variant/15 py-3 rounded-md flex items-center justify-center gap-2 text-sm font-medium hover:bg-surface-container transition-colors active:scale-95">
-              <svg class="w-4 h-4 opacity-70" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-              </svg>
-              <span class="text-outline">Google</span>
+            <!-- Class -->
+            <div class="space-y-2">
+              <label class="font-label text-sm font-medium text-on-surface-variant ml-1" for="class">Class</label>
+              <div class="relative">
+                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-lg">menu_book</span>
+                <select id="class" required
+                  class="w-full bg-surface-container-highest border border-outline-variant/20 rounded-md py-3.5 pl-12 pr-10 text-on-surface transition-all focus:bg-surface-bright focus:border-primary-dim/30">
+                  <option value="" disabled selected>Select your class</option>
+                  <option value="1">Class 1</option><option value="2">Class 2</option>
+                  <option value="3">Class 3</option><option value="4">Class 4</option>
+                  <option value="5">Class 5</option><option value="6">Class 6</option>
+                  <option value="7">Class 7</option><option value="8">Class 8</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div class="space-y-2">
+              <label class="font-label text-sm font-medium text-on-surface-variant ml-1" for="email">Email Address</label>
+              <div class="relative">
+                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-lg">alternate_email</span>
+                <input id="email" type="email" placeholder="name@example.com"
+                  autocomplete="email" required
+                  class="w-full bg-surface-container-highest border border-outline-variant/20 rounded-md py-3.5 pl-12 pr-10 text-on-surface placeholder:text-outline/50 transition-all focus:bg-surface-bright focus:border-primary-dim/30"/>
+                <!-- Validation icon slot -->
+                <span id="emailIcon" class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-lg hidden"></span>
+              </div>
+              <p id="emailStatus" class="text-xs ml-1 min-h-[16px]"></p>
+            </div>
+
+            <!-- Password -->
+            <div class="space-y-2">
+              <label class="font-label text-sm font-medium text-on-surface-variant ml-1" for="password">Password</label>
+              <div class="relative">
+                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-lg">shield_lock</span>
+                <input id="password" type="password" placeholder="Min. 6 characters"
+                  autocomplete="new-password" required minlength="6"
+                  class="w-full bg-surface-container-highest border border-outline-variant/20 rounded-md py-3.5 pl-12 pr-4 text-on-surface placeholder:text-outline/50 transition-all focus:bg-surface-bright focus:border-primary-dim/30"/>
+              </div>
+            </div>
+
+            <!-- Show password -->
+            <div class="flex items-center justify-between py-1">
+              <label class="flex items-center gap-3 cursor-pointer group">
+                <div class="relative flex items-center">
+                  <input id="showPassword" type="checkbox"
+                    class="peer appearance-none w-5 h-5 rounded bg-surface-container-highest border border-outline-variant/20 checked:bg-secondary checked:border-secondary transition-all cursor-pointer"/>
+                  <span class="material-symbols-outlined absolute text-on-secondary text-[14px] opacity-0 peer-checked:opacity-100 left-1/2 -translate-x-1/2 pointer-events-none"
+                        style="font-variation-settings:'FILL' 1;">check</span>
+                </div>
+                <span class="text-sm text-on-surface-variant group-hover:text-on-surface transition-colors select-none">Show Password</span>
+              </label>
+              <div class="h-px bg-outline-variant/20 flex-grow mx-4"></div>
+              <span class="text-[10px] uppercase tracking-[0.15em] text-outline/40 font-bold">Encrypted</span>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" id="signupBtn"
+              class="w-full bg-gradient-to-r from-primary to-secondary py-4 rounded-full text-on-primary-fixed font-headline font-bold text-lg hover:shadow-[0_0_20px_rgba(167,165,255,0.3)] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2">
+              <span id="btnText">Create Account</span>
+              <span id="btnSpinner" class="material-symbols-outlined text-xl hidden animate-spin">progress_activity</span>
             </button>
+
+          </form>
+
+          <!-- Footer links -->
+          <div class="mt-8 flex flex-col items-center gap-4">
+            <p class="text-sm text-on-surface-variant">
+              Already have an account? <a class="text-primary font-bold hover:text-secondary transition-colors" href="signin.html">Sign In</a>
+            </p>
             <a href="../index.html"
-               class="flex-1 bg-surface-container-low border border-outline-variant/15 py-3 rounded-md flex items-center justify-center gap-2 text-sm font-medium hover:bg-surface-container transition-colors active:scale-95">
+               class="w-full bg-surface-container-low border border-outline-variant/15 py-3 rounded-md flex items-center justify-center gap-2 text-sm font-medium hover:bg-surface-container transition-colors active:scale-95">
               <span class="material-symbols-outlined text-outline text-lg">home</span>
-              <span class="text-outline">Main Page</span>
+              <span class="text-outline">Back to Main Page</span>
             </a>
           </div>
-        </div>
 
+        </div><!-- /scroll -->
       </div><!-- /card -->
     </div>
   </main>
@@ -301,12 +345,14 @@
     </div>
   </footer>
 
-  <!-- ── Firebase Auth Script ── -->
+  <!-- ── Firebase Script ── -->
   <script type="module">
-    import { initializeApp }             from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-    import { getAnalytics }              from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
-    import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged }
-                                         from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+    import { initializeApp }    from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+    import { getAnalytics }     from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
+    import { getAuth, createUserWithEmailAndPassword, updateProfile, onAuthStateChanged }
+                                from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc }
+                                from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey:            "AIzaSyBWAwm_TDtD1qXDtjxJu0jrDP45c3p1Bxg",
@@ -318,9 +364,10 @@
       measurementId:     "G-D5WSLQ706Z"
     };
 
-    const app       = initializeApp(firebaseConfig);
+    const app  = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
-    const auth      = getAuth(app);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
 
     // If already logged in, skip this page entirely
     onAuthStateChanged(auth, (user) => {
@@ -338,87 +385,156 @@
       }));
     }
 
-    // DOM refs
-    const form          = document.getElementById('signinForm');
-    const emailInput    = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const showPwd       = document.getElementById('showPassword');
-    const emailError    = document.getElementById('emailError');
-    const passwordError = document.getElementById('passwordError');
-    const submitBtn     = document.getElementById('submitBtn');
-    const btnText       = document.getElementById('btnText');
-    const btnSpinner    = document.getElementById('btnSpinner');
-    const googleBtn     = document.getElementById('googleBtn');
+    /* ── Utilities ── */
+    function debounce(fn, delay = 500) {
+      let t;
+      return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), delay); };
+    }
 
-    // Show / hide password
-    showPwd.addEventListener('change', () => {
-      passwordInput.type = showPwd.checked ? 'text' : 'password';
-    });
+    async function fetchWithTimeout(resource, options = {}) {
+      const { timeout = 6000 } = options;
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeout);
+      try {
+        const response = await fetch(resource, { ...options, signal: controller.signal });
+        return response;
+      } finally { clearTimeout(id); }
+    }
 
-    // Loading state helpers
+    function isEmailFormatValid(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    async function hasMXRecord(domain) {
+      try {
+        const res = await fetchWithTimeout(`https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=MX`, { timeout: 6000 });
+        if (!res.ok) return false;
+        const data = await res.json();
+        return Array.isArray(data.Answer) && data.Answer.length > 0;
+      } catch { return true; }
+    }
+
+    async function isEmailDomainValid(email) {
+      if (!isEmailFormatValid(email)) return false;
+      const domain = email.split("@")[1].toLowerCase();
+      const lastDot = domain.lastIndexOf(".");
+      if (lastDot === -1 || domain.length - lastDot - 1 < 2) return false;
+      return await hasMXRecord(domain);
+    }
+
+    /* ── DOM refs ── */
+    const emailInput  = document.getElementById("email");
+    const emailStatus = document.getElementById("emailStatus");
+    const emailIcon   = document.getElementById("emailIcon");
+    const signupBtn   = document.getElementById("signupBtn");
+    const btnText     = document.getElementById("btnText");
+    const btnSpinner  = document.getElementById("btnSpinner");
+
+    /* ── Email status UI ── */
+    function showEmailStatus(msg, ok) {
+      emailStatus.textContent = msg;
+      emailStatus.className = "text-xs ml-1 min-h-[16px] " + (ok ? "text-emerald-400" : "text-error");
+      emailInput.classList.toggle("border-emerald-400/40", ok);
+      emailInput.classList.toggle("border-error/40", !ok);
+      emailIcon.textContent = ok ? "check_circle" : "cancel";
+      emailIcon.className = "material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-lg " + (ok ? "text-emerald-400" : "text-error");
+    }
+    function clearEmailStatus() {
+      emailStatus.textContent = "";
+      emailStatus.className = "text-xs ml-1 min-h-[16px]";
+      emailInput.classList.remove("border-emerald-400/40", "border-error/40");
+      emailIcon.className = "material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-lg hidden";
+    }
+
+    /* ── Loading helpers ── */
     function setLoading(on) {
-      submitBtn.disabled = on;
-      btnText.textContent = on ? 'Signing in…' : 'Sign In to RiSync';
-      btnSpinner.classList.toggle('hidden', !on);
+      signupBtn.disabled = on;
+      btnText.textContent = on ? "Creating Account…" : "Create Account";
+      btnSpinner.classList.toggle("hidden", !on);
     }
 
-    // Shake card on error
+    /* ── Shake card ── */
     function shakeCard() {
-      const card = document.getElementById('signInCard');
-      card.classList.add('shake');
-      card.addEventListener('animationend', () => card.classList.remove('shake'), { once: true });
+      const card = document.getElementById("signupCard");
+      card.classList.add("shake");
+      card.addEventListener("animationend", () => card.classList.remove("shake"), { once: true });
     }
 
-    // Map Firebase error codes → human messages
-    function handleFirebaseError(error) {
-      emailError.textContent = '';
-      passwordError.textContent = '';
-      switch (error.code) {
-        case 'auth/invalid-email':
-          emailError.textContent = 'Please enter a valid email address.'; break;
-        case 'auth/user-not-found':
-          emailError.textContent = 'No account found with this email.'; break;
-        case 'auth/wrong-password':
-          passwordError.textContent = 'Incorrect password.'; break;
-        case 'auth/too-many-requests':
-          emailError.textContent = 'Too many failed attempts. Please try again later.'; break;
-        case 'auth/invalid-credential':
-          passwordError.textContent = 'Incorrect email or password.'; break;
-        default:
-          emailError.textContent = 'Sign-in failed. Please check your connection.';
+    /* ── Live email validation ── */
+    emailInput.addEventListener("input", debounce(async () => {
+      const email = emailInput.value.trim().toLowerCase();
+      if (!email) { clearEmailStatus(); signupBtn.disabled = false; return; }
+      if (!isEmailFormatValid(email)) {
+        showEmailStatus("That doesn't look like an email. Try name@school.edu.in", false);
+        signupBtn.disabled = true; return;
       }
-      shakeCard();
-    }
+      signupBtn.disabled = true;
+      showEmailStatus("Checking domain…", false);
+      const ok = await isEmailDomainValid(email);
+      if (ok) { showEmailStatus("Domain can receive emails ✓", true); signupBtn.disabled = false; }
+      else    { showEmailStatus("This domain can't receive mail. Try your school email.", false); signupBtn.disabled = true; }
+    }, 600));
 
-    // Email / Password sign-in
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      emailError.textContent = '';
-      passwordError.textContent = '';
-      setLoading(true);
-      try {
-        const cred = await signInWithEmailAndPassword(auth, emailInput.value.trim(), passwordInput.value);
-        saveSession(cred.user);
-        window.location.href = 'content.html';
-      } catch (err) {
-        console.error(err);
-        handleFirebaseError(err);
-      } finally {
-        setLoading(false);
+    /* ── Show password ── */
+    document.getElementById("showPassword").addEventListener("change", function () {
+      document.getElementById("password").type = this.checked ? "text" : "password";
+    });
+
+    /* ── Pre-select class from URL ── */
+    document.addEventListener("DOMContentLoaded", () => {
+      const params = new URLSearchParams(window.location.search);
+      const sel = params.get("class");
+      if (sel) {
+        const opt = document.querySelector(`#class option[value="${sel}"]`);
+        if (opt) opt.selected = true;
       }
     });
 
-    // Google sign-in
-    googleBtn.addEventListener('click', async () => {
-      const provider = new GoogleAuthProvider();
+    /* ── Form submission ── */
+    document.getElementById("signupForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const fullname  = document.getElementById("fullname").value.trim();
+      const branch    = document.getElementById("branch").value;
+      const userClass = document.getElementById("class").value;
+      const email     = emailInput.value.trim().toLowerCase();
+      const password  = document.getElementById("password").value;
+
+      if (!fullname || !branch || !userClass || !email || !password) {
+        alert("Please fill in all fields."); return;
+      }
+      if (password.length < 6) {
+        alert("Password must be at least 6 characters."); return;
+      }
+
+      setLoading(true);
+
+      const mxOk = await isEmailDomainValid(email);
+      if (!mxOk) {
+        showEmailStatus("This email domain isn't valid.", false);
+        setLoading(false); shakeCard(); return;
+      }
+
       try {
-        const cred = await signInWithPopup(auth, provider);
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(cred.user, { displayName: fullname });
+        await setDoc(doc(db, "users", cred.user.uid), {
+          fullname, branch, class: userClass, email,
+          createdAt: new Date().toISOString()
+        });
         saveSession(cred.user);
-        window.location.href = 'content.html';
+        window.location.href = "content.html";
       } catch (err) {
         console.error(err);
-        emailError.textContent = 'Google sign-in failed. Please try again.';
+        setLoading(false);
         shakeCard();
+        if (err.code === "auth/email-already-in-use") {
+          showEmailStatus("This email is already registered. Sign in instead.", false);
+        } else if (err.code === "auth/weak-password") {
+          alert("Password is too weak. Please use a stronger one.");
+        } else {
+          alert("Error creating account: " + err.message);
+        }
       }
     });
   </script>
