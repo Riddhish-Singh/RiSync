@@ -946,6 +946,8 @@ function saveState() {
   historyIndex++;
   updateUndoRedoButtons();
   autoSave();
+  // Trigger real-time Firestore sync
+  if (typeof window.onSlidesChanged === 'function') window.onSlidesChanged();
   // Update slide count label
   const lbl = document.getElementById('slideCountLabel');
   if (lbl) lbl.textContent = `Slide ${currentSlideIndex + 1} of ${slides.length}`;
@@ -1903,7 +1905,7 @@ saveAllPptxBtn.addEventListener('click', () => {
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-analytics.js";
   import {
     getFirestore,
-    doc, getDoc, setDoc, serverTimestamp
+    doc, getDoc, setDoc, onSnapshot, serverTimestamp
   } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
   // ── Auth app ──────────────────────────────────────────────────────────
@@ -1933,10 +1935,8 @@ saveAllPptxBtn.addEventListener('click', () => {
   // ── Auth guard ────────────────────────────────────────────────────────
   const auth = getAuth(authApp);
   onAuthStateChanged(auth, (user) => {
-    // Allow access if loading a shared link (view/remix modes)
     const params = new URLSearchParams(window.location.search);
-    const shareMode = params.get('mode');
-    const pptId    = params.get('ppt');
+    const pptId  = params.get('ppt');
 
     if (!user && !pptId) {
       window.location.href = "signin.html";
@@ -1959,13 +1959,12 @@ saveAllPptxBtn.addEventListener('click', () => {
 
   // ── Open share modal ──────────────────────────────────────────────────
   window.openShareModal = async function () {
-    const modal = document.getElementById('shareModal');
-    const loading = document.getElementById('shareLoading');
+    const modal    = document.getElementById('shareModal');
+    const loading  = document.getElementById('shareLoading');
     const linksDiv = document.getElementById('shareLinks');
     const errorDiv = document.getElementById('shareError');
     const subtitle = document.getElementById('shareSubtitle');
 
-    // Reset modal state
     modal.style.display = 'flex';
     loading.style.display = 'block';
     linksDiv.style.display = 'none';
@@ -1973,14 +1972,12 @@ saveAllPptxBtn.addEventListener('click', () => {
     subtitle.textContent = 'Saving and generating links…';
 
     try {
-      // Check if we already have a share ID for this session
       let pptId = window._currentShareId;
       if (!pptId) {
         pptId = genId(20);
         window._currentShareId = pptId;
       }
 
-      // Save slides to Firestore
       const slidesData = JSON.parse(JSON.stringify(window.slides || []));
       await setDoc(doc(db, 'presentations', pptId), {
         slides: slidesData,
@@ -1989,19 +1986,17 @@ saveAllPptxBtn.addEventListener('click', () => {
         title: document.title || 'Untitled Presentation'
       }, { merge: true });
 
-      // Build the 3 links
       const base = window.location.href.split('?')[0];
-      const editLink  = `${base}?ppt=${pptId}&mode=edit`;
-      const viewLink  = `${base}?ppt=${pptId}&mode=view`;
-      const remixLink = `${base}?ppt=${pptId}&mode=remix`;
-
-      document.getElementById('linkEdit').value  = editLink;
-      document.getElementById('linkView').value  = viewLink;
-      document.getElementById('linkRemix').value = remixLink;
+      document.getElementById('linkEdit').value  = `${base}?ppt=${pptId}&mode=edit`;
+      document.getElementById('linkView').value  = `${base}?ppt=${pptId}&mode=view`;
+      document.getElementById('linkRemix').value = `${base}?ppt=${pptId}&mode=remix`;
 
       subtitle.textContent = 'Share one of the links below';
       loading.style.display = 'none';
       linksDiv.style.display = 'block';
+
+      // Start real-time sync for the owner after sharing
+      startRealtimeSync(pptId, 'owner');
 
     } catch (err) {
       console.error('Share error:', err);
@@ -2023,10 +2018,80 @@ saveAllPptxBtn.addEventListener('click', () => {
     });
   };
 
+  // ── Auto-save to Firestore (debounced 1.5s) ───────────────────────────
+  // Called by saveState() in the main script whenever slides change
+  let _autoSaveTimer = null;
+  window.onSlidesChanged = function () {
+    const pptId = window._currentShareId;
+    if (!pptId) return; // not in a shared session, nothing to sync
+
+    clearTimeout(_autoSaveTimer);
+    _autoSaveTimer = setTimeout(async () => {
+      try {
+        window._isSavingToFirestore = true;
+        await setDoc(doc(db, 'presentations', pptId), {
+          slides: JSON.parse(JSON.stringify(window.slides || [])),
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+        console.log('[RiSync] Auto-saved to Firestore');
+      } catch (e) {
+        console.error('[RiSync] Auto-save failed:', e);
+      } finally {
+        window._isSavingToFirestore = false;
+      }
+    }, 1500);
+  };
+
+  // ── Real-time listener: reflects editor changes to owner/viewers ───────
+  function startRealtimeSync(pptId, role) {
+    // Unsubscribe any existing listener first
+    if (window._realtimeUnsub) {
+      window._realtimeUnsub();
+      window._realtimeUnsub = null;
+    }
+
+    window._realtimeUnsub = onSnapshot(
+      doc(db, 'presentations', pptId),
+      (snap) => {
+        if (!snap.exists()) return;
+        // Don't process our own writes — avoids feedback loop
+        if (window._isSavingToFirestore) return;
+
+        const incoming = snap.data();
+        if (!Array.isArray(incoming.slides)) return;
+
+        // Apply incoming slides to the editor
+        window.slides = incoming.slides;
+        window.currentSlideIndex = Math.min(
+          window.currentSlideIndex || 0,
+          incoming.slides.length - 1
+        );
+        if (typeof window.renderSlide === 'function') window.renderSlide();
+
+        // Show a subtle live-update indicator
+        showSyncPulse();
+      },
+      (err) => {
+        console.error('[RiSync] onSnapshot error:', err);
+      }
+    );
+
+    console.log(`[RiSync] Real-time sync active (role: ${role}) for ppt: ${pptId}`);
+  }
+
+  // ── Subtle "synced" pulse in the status bar ───────────────────────────
+  function showSyncPulse() {
+    const bar = document.querySelector('footer .flex.items-center.gap-5 span:first-child');
+    if (!bar) return;
+    const orig = bar.innerHTML;
+    bar.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" style="margin-right:4px;"></span>Live update received';
+    setTimeout(() => { bar.innerHTML = orig; }, 2500);
+  }
+
   // ── Load from shared link on page load ────────────────────────────────
   window.addEventListener('load', async () => {
-    const params   = new URLSearchParams(window.location.search);
-    const pptId    = params.get('ppt');
+    const params    = new URLSearchParams(window.location.search);
+    const pptId     = params.get('ppt');
     const shareMode = params.get('mode'); // edit | view | remix
 
     if (!pptId) return;
@@ -2047,8 +2112,8 @@ saveAllPptxBtn.addEventListener('click', () => {
           if (typeof window.renderSlide === 'function') window.renderSlide();
           if (typeof window.saveState === 'function') window.saveState();
 
+          // ── View Only ────────────────────────────────────────────────
           if (shareMode === 'view') {
-            // View-only: lock the UI
             document.body.classList.add('view-only');
             const banner = document.createElement('div');
             banner.className = 'share-view-banner';
@@ -2057,23 +2122,31 @@ saveAllPptxBtn.addEventListener('click', () => {
             document.querySelectorAll('header button').forEach(b => {
               if (b.id !== 'shareBtn') b.style.pointerEvents = 'none';
             });
+            // Real-time: viewers see edits live
+            startRealtimeSync(pptId, 'viewer');
+
+          // ── Remix ────────────────────────────────────────────────────
           } else if (shareMode === 'remix') {
-            // Remix: clear share ID so they get a fresh copy when they share
-            window._currentShareId = null;
+            window._currentShareId = null; // fresh copy on next share
             const banner = document.createElement('div');
             banner.className = 'share-view-banner';
             banner.style.background = 'linear-gradient(90deg,#7f2017,#a43b2f)';
             banner.innerHTML = '<span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;margin-right:6px;">shuffle</span>Remixed copy — Your changes are saved separately';
             document.body.prepend(banner);
+            // No real-time sync for remix — it's an independent copy
+
+          // ── Edit ─────────────────────────────────────────────────────
           } else if (shareMode === 'edit') {
-            // Edit: keep share ID so saves overwrite the same doc
-            window._currentShareId = pptId;
+            window._currentShareId = pptId; // saves overwrite same doc
             const banner = document.createElement('div');
             banner.className = 'share-view-banner';
             banner.style.background = 'linear-gradient(90deg,#525e7f,#3a4666)';
-            banner.innerHTML = '<span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;margin-right:6px;">edit</span>Shared Editable — Changes you share will update the original link';
+            banner.innerHTML = '<span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;margin-right:6px;">edit</span>Shared Editable — Your changes sync to the owner in real-time';
             document.body.prepend(banner);
+            // Real-time: editor changes push to Firestore via onSlidesChanged,
+            // and owner's onSnapshot picks them up instantly
           }
+
         }, 300);
       }
     } catch (err) {
