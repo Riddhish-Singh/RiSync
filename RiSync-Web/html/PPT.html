@@ -325,6 +325,58 @@
   /* No scrollbar on ribbon */
   #ribbonContent::-webkit-scrollbar { display: none; }
   #ribbonContent { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* ── Presence: live cursor labels on slide ── */
+  .collab-cursor {
+    position: absolute;
+    pointer-events: none;
+    z-index: 99999;
+    transition: left 0.12s, top 0.12s;
+  }
+  .collab-cursor-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  }
+  .collab-cursor-label {
+    position: absolute;
+    top: 14px; left: 4px;
+    font-size: 10px; font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    padding: 2px 7px;
+    border-radius: 20px;
+    color: white;
+    white-space: nowrap;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+  /* ── Presence: avatar pills in header ── */
+  .collab-avatar {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 2px solid white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800;
+    color: white;
+    font-family: 'Inter', sans-serif;
+    margin-left: -6px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    position: relative;
+    cursor: default;
+    transition: transform 0.15s;
+  }
+  .collab-avatar:hover { transform: scale(1.15); z-index: 10; }
+  .collab-avatar:first-child { margin-left: 0; }
+  .collab-avatar[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    top: 34px; left: 50%; transform: translateX(-50%);
+    background: #191c1e; color: white;
+    font-size: 10px; padding: 3px 8px; border-radius: 6px;
+    white-space: nowrap; pointer-events: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+
 </style>
 </head>
 
@@ -1896,68 +1948,91 @@ saveAllPptxBtn.addEventListener('click', () => {
 </script>
 
 <script type="module">
-  // ── Firebase risync-risync (auth) ──────────────────────────────────────
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+  // ════════════════════════════════════════════════════════════════
+  //  RiSync – Firebase module  (auth + Firestore + presence)
+  // ════════════════════════════════════════════════════════════════
+
+  import { initializeApp }          from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
 
-  // ── Firebase risync-ppt (share / presentations Firestore) ─────────────
   import { initializeApp as initializeApp2 } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-analytics.js";
+  import { getAnalytics }           from "https://www.gstatic.com/firebasejs/12.12.0/firebase-analytics.js";
   import {
     getFirestore,
-    doc, getDoc, setDoc, onSnapshot, serverTimestamp
+    doc, collection,
+    getDoc, setDoc, deleteDoc,
+    onSnapshot, serverTimestamp
   } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
-  // ── Auth app ──────────────────────────────────────────────────────────
+  // ── Apps ─────────────────────────────────────────────────────────
   const authApp = initializeApp({
-    apiKey: "AIzaSyBWAwm_TDtD1qXDtjxJu0jrDP45c3p1Bxg",
-    authDomain: "risync-risync.firebaseapp.com",
-    projectId: "risync-risync",
-    storageBucket: "risync-risync.firebasestorage.app",
+    apiKey:            "AIzaSyBWAwm_TDtD1qXDtjxJu0jrDP45c3p1Bxg",
+    authDomain:        "risync-risync.firebaseapp.com",
+    projectId:         "risync-risync",
+    storageBucket:     "risync-risync.firebasestorage.app",
     messagingSenderId: "195106250121",
-    appId: "1:195106250121:web:57b23c5b94d5771995d558"
+    appId:             "1:195106250121:web:57b23c5b94d5771995d558"
   });
 
-  // ── PPT app ───────────────────────────────────────────────────────────
   const pptApp = initializeApp2({
-    apiKey: "AIzaSyBiK0kQqJJhZZm8gq8aIZiGMyZtplPMoEk",
-    authDomain: "risync-ppt.firebaseapp.com",
-    projectId: "risync-ppt",
-    storageBucket: "risync-ppt.firebasestorage.app",
+    apiKey:            "AIzaSyBiK0kQqJJhZZm8gq8aIZiGMyZtplPMoEk",
+    authDomain:        "risync-ppt.firebaseapp.com",
+    projectId:         "risync-ppt",
+    storageBucket:     "risync-ppt.firebasestorage.app",
     messagingSenderId: "884748984340",
-    appId: "1:884748984340:web:ee8fd62a13d97e27c5c701",
-    measurementId: "G-7QZRF8KK4G"
+    appId:             "1:884748984340:web:ee8fd62a13d97e27c5c701",
+    measurementId:     "G-7QZRF8KK4G"
   }, "ppt");
 
   getAnalytics(pptApp);
-  const db = getFirestore(pptApp);
-
-  // ── Auth guard ────────────────────────────────────────────────────────
+  const db   = getFirestore(pptApp);
   const auth = getAuth(authApp);
-  onAuthStateChanged(auth, (user) => {
-    const params = new URLSearchParams(window.location.search);
-    const pptId  = params.get('ppt');
-
-    if (!user && !pptId) {
-      window.location.href = "signin.html";
-      return;
-    }
-    if (user) {
-      console.log("RiSync User Verified:", user.email);
-      if (typeof onUserLoad === "function") onUserLoad(user);
-    }
-  });
 
   window.risyncAuth = auth;
   window.risyncDb   = db;
 
-  // ── Helper: generate random ID ────────────────────────────────────────
-  function genId(len = 20) {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    return Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+  // ── Presence palette ─────────────────────────────────────────────
+  const COLORS = [
+    '#E53935','#8E24AA','#1E88E5','#00897B',
+    '#F4511E','#6D4C41','#039BE5','#43A047',
+    '#FB8C00','#3949AB','#00ACC1','#7CB342'
+  ];
+  function pickColor(uid) {
+    let h = 0;
+    for (let i = 0; i < uid.length; i++) h = (h * 31 + uid.charCodeAt(i)) >>> 0;
+    return COLORS[h % COLORS.length];
   }
 
-  // ── Open share modal ──────────────────────────────────────────────────
+  // ── Session ID (unique per tab) ───────────────────────────────────
+  const SESSION_ID = Math.random().toString(36).slice(2) + Date.now().toString(36);
+
+  // ── Current user info (filled once auth resolves) ─────────────────
+  let _myName  = 'Guest';
+  let _myColor = COLORS[0];
+  let _myRole  = 'viewer';
+
+  // ── Auth guard ────────────────────────────────────────────────────
+  onAuthStateChanged(auth, (user) => {
+    const params = new URLSearchParams(window.location.search);
+    const pptId  = params.get('ppt');
+    if (!user && !pptId) { window.location.href = 'signin.html'; return; }
+    if (user) {
+      _myName  = user.displayName || user.email.split('@')[0];
+      _myColor = pickColor(user.uid);
+      console.log('[RiSync] Verified:', user.email);
+      if (typeof onUserLoad === 'function') onUserLoad(user);
+    }
+  });
+
+  // ── Helpers ───────────────────────────────────────────────────────
+  function genId(len = 20) {
+    const c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    return Array.from({ length: len }, () => c[Math.floor(Math.random() * c.length)]).join('');
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  SHARE MODAL
+  // ════════════════════════════════════════════════════════════════
   window.openShareModal = async function () {
     const modal    = document.getElementById('shareModal');
     const loading  = document.getElementById('shareLoading');
@@ -1973,17 +2048,13 @@ saveAllPptxBtn.addEventListener('click', () => {
 
     try {
       let pptId = window._currentShareId;
-      if (!pptId) {
-        pptId = genId(20);
-        window._currentShareId = pptId;
-      }
+      if (!pptId) { pptId = genId(20); window._currentShareId = pptId; }
 
-      const slidesData = JSON.parse(JSON.stringify(window.slides || []));
       await setDoc(doc(db, 'presentations', pptId), {
-        slides: slidesData,
+        slides:    JSON.parse(JSON.stringify(window.slides || [])),
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-        title: document.title || 'Untitled Presentation'
+        title:     document.title || 'Untitled Presentation'
       }, { merge: true });
 
       const base = window.location.href.split('?')[0];
@@ -1995,11 +2066,14 @@ saveAllPptxBtn.addEventListener('click', () => {
       loading.style.display = 'none';
       linksDiv.style.display = 'block';
 
-      // Start real-time sync for the owner after sharing
-      startRealtimeSync(pptId, 'owner');
+      // Owner joins presence + starts full bidirectional sync
+      _myRole = 'owner';
+      joinPresence(pptId);
+      startSlidesSync(pptId);
+      listenPresence(pptId);
 
     } catch (err) {
-      console.error('Share error:', err);
+      console.error('[RiSync] Share error:', err);
       loading.style.display = 'none';
       document.getElementById('shareErrorMsg').textContent = err.message || 'Unknown error';
       errorDiv.style.display = 'block';
@@ -2007,7 +2081,6 @@ saveAllPptxBtn.addEventListener('click', () => {
     }
   };
 
-  // ── Copy link helper ──────────────────────────────────────────────────
   window.copyShareLink = function (inputId, btnId) {
     const input = document.getElementById(inputId);
     const btn   = document.getElementById(btnId);
@@ -2018,142 +2091,276 @@ saveAllPptxBtn.addEventListener('click', () => {
     });
   };
 
-  // ── Auto-save to Firestore (debounced 1.5s) ───────────────────────────
-  // Called by saveState() in the main script whenever slides change
-  let _autoSaveTimer = null;
+  // ════════════════════════════════════════════════════════════════
+  //  SLIDES AUTO-SAVE  (called by saveState in main script)
+  // ════════════════════════════════════════════════════════════════
+  let _saveTimer = null;
   window.onSlidesChanged = function () {
     const pptId = window._currentShareId;
-    if (!pptId) return; // not in a shared session, nothing to sync
-
-    clearTimeout(_autoSaveTimer);
-    _autoSaveTimer = setTimeout(async () => {
+    if (!pptId) return;
+    clearTimeout(_saveTimer);
+    _saveTimer = setTimeout(async () => {
       try {
         window._isSavingToFirestore = true;
         await setDoc(doc(db, 'presentations', pptId), {
-          slides: JSON.parse(JSON.stringify(window.slides || [])),
+          slides:    JSON.parse(JSON.stringify(window.slides || [])),
           updatedAt: serverTimestamp()
         }, { merge: true });
-        console.log('[RiSync] Auto-saved to Firestore');
+        console.log('[RiSync] Slides saved');
       } catch (e) {
-        console.error('[RiSync] Auto-save failed:', e);
+        console.error('[RiSync] Save failed:', e);
       } finally {
         window._isSavingToFirestore = false;
       }
-    }, 1500);
+    }, 1200);
   };
 
-  // ── Real-time listener: reflects editor changes to owner/viewers ───────
-  function startRealtimeSync(pptId, role) {
-    // Unsubscribe any existing listener first
-    if (window._realtimeUnsub) {
-      window._realtimeUnsub();
-      window._realtimeUnsub = null;
-    }
-
-    window._realtimeUnsub = onSnapshot(
-      doc(db, 'presentations', pptId),
-      (snap) => {
-        if (!snap.exists()) return;
-        // Don't process our own writes — avoids feedback loop
-        if (window._isSavingToFirestore) return;
-
-        const incoming = snap.data();
-        if (!Array.isArray(incoming.slides)) return;
-
-        // Apply incoming slides to the editor
-        window.slides = incoming.slides;
-        window.currentSlideIndex = Math.min(
-          window.currentSlideIndex || 0,
-          incoming.slides.length - 1
-        );
-        if (typeof window.renderSlide === 'function') window.renderSlide();
-
-        // Show a subtle live-update indicator
-        showSyncPulse();
-      },
-      (err) => {
-        console.error('[RiSync] onSnapshot error:', err);
-      }
-    );
-
-    console.log(`[RiSync] Real-time sync active (role: ${role}) for ppt: ${pptId}`);
+  // ════════════════════════════════════════════════════════════════
+  //  SLIDES REALTIME LISTENER
+  // ════════════════════════════════════════════════════════════════
+  function startSlidesSync(pptId) {
+    if (window._slideUnsub) { window._slideUnsub(); window._slideUnsub = null; }
+    window._slideUnsub = onSnapshot(doc(db, 'presentations', pptId), (snap) => {
+      if (!snap.exists() || window._isSavingToFirestore) return;
+      const data = snap.data();
+      if (!Array.isArray(data.slides)) return;
+      window.slides = data.slides;
+      window.currentSlideIndex = Math.min(window.currentSlideIndex || 0, data.slides.length - 1);
+      if (typeof window.renderSlide === 'function') window.renderSlide();
+      showSyncPulse();
+    }, err => console.error('[RiSync] slides onSnapshot:', err));
   }
 
-  // ── Subtle "synced" pulse in the status bar ───────────────────────────
   function showSyncPulse() {
     const bar = document.querySelector('footer .flex.items-center.gap-5 span:first-child');
     if (!bar) return;
     const orig = bar.innerHTML;
-    bar.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" style="margin-right:4px;"></span>Live update received';
-    setTimeout(() => { bar.innerHTML = orig; }, 2500);
+    bar.innerHTML = '<span style="width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block;margin-right:4px;"></span>Live update';
+    setTimeout(() => { bar.innerHTML = orig; }, 2000);
   }
 
-  // ── Load from shared link on page load ────────────────────────────────
+  // ════════════════════════════════════════════════════════════════
+  //  PRESENCE  – who is here + cursor positions
+  // ════════════════════════════════════════════════════════════════
+  let _presenceRef = null;
+  let _cursorTimer = null;
+  let _presenceUnsub = null;
+
+  async function joinPresence(pptId) {
+    _presenceRef = doc(db, 'presentations', pptId, 'presence', SESSION_ID);
+    await setDoc(_presenceRef, {
+      name:     _myName,
+      color:    _myColor,
+      role:     _myRole,
+      cursorX:  -1,
+      cursorY:  -1,
+      lastSeen: serverTimestamp()
+    });
+
+    // Heartbeat every 20s (keeps presence alive)
+    const heartbeat = setInterval(async () => {
+      try { await setDoc(_presenceRef, { lastSeen: serverTimestamp() }, { merge: true }); }
+      catch(e) {}
+    }, 20000);
+
+    // Track own cursor on the slide canvas
+    const slideEl = document.getElementById('slide');
+    if (slideEl) {
+      slideEl.addEventListener('mousemove', e => {
+        const rect = slideEl.getBoundingClientRect();
+        const x = Math.round(e.clientX - rect.left);
+        const y = Math.round(e.clientY - rect.top);
+        clearTimeout(_cursorTimer);
+        _cursorTimer = setTimeout(async () => {
+          try {
+            await setDoc(_presenceRef, { cursorX: x, cursorY: y, lastSeen: serverTimestamp() }, { merge: true });
+          } catch(e) {}
+        }, 60);
+      });
+      slideEl.addEventListener('mouseleave', async () => {
+        try { await setDoc(_presenceRef, { cursorX: -1, cursorY: -1 }, { merge: true }); } catch(e) {}
+      });
+    }
+
+    // Remove presence on tab close
+    window.addEventListener('beforeunload', () => {
+      deleteDoc(_presenceRef).catch(() => {});
+    });
+
+    window.addEventListener('pagehide', () => {
+      deleteDoc(_presenceRef).catch(() => {});
+    });
+  }
+
+  function listenPresence(pptId) {
+    if (_presenceUnsub) { _presenceUnsub(); _presenceUnsub = null; }
+
+    const presenceCol = collection(db, 'presentations', pptId, 'presence');
+    _presenceUnsub = onSnapshot(presenceCol, (snap) => {
+      const users = [];
+      const now = Date.now();
+      snap.forEach(d => {
+        if (d.id === SESSION_ID) return; // skip self
+        const p = d.data();
+        // Only show users active in the last 40s
+        const lastSeen = p.lastSeen?.toMillis?.() || 0;
+        if (now - lastSeen > 40000) return;
+        users.push({ id: d.id, ...p });
+      });
+
+      renderPresenceAvatars(users);
+      renderPresenceCursors(users);
+    }, err => console.error('[RiSync] presence onSnapshot:', err));
+  }
+
+  // ── Avatar pills in the header ────────────────────────────────────
+  function renderPresenceAvatars(users) {
+    const container = document.getElementById('activeUsers');
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (users.length === 0) return;
+
+    // "N people here" label
+    const label = document.createElement('span');
+    label.style.cssText = 'font-size:10px;font-weight:600;color:#6b7280;margin-right:4px;white-space:nowrap;';
+    label.textContent = users.length === 1 ? '1 editing' : `${users.length} editing`;
+    container.appendChild(label);
+
+    users.slice(0, 5).forEach(u => {
+      const av = document.createElement('div');
+      av.className = 'collab-avatar';
+      av.style.background = u.color;
+      av.title = `${u.name} (${u.role})`;
+      av.textContent = (u.name || '?')[0].toUpperCase();
+      container.appendChild(av);
+    });
+
+    if (users.length > 5) {
+      const more = document.createElement('div');
+      more.className = 'collab-avatar';
+      more.style.cssText = `background:#6b7280;margin-left:-6px;`;
+      more.textContent = `+${users.length - 5}`;
+      container.appendChild(more);
+    }
+  }
+
+  // ── Cursor dots on the slide canvas ───────────────────────────────
+  const _cursorEls = {};
+
+  function renderPresenceCursors(users) {
+    const slideEl = document.getElementById('slide');
+    if (!slideEl) return;
+
+    const activeIds = new Set(users.map(u => u.id));
+
+    // Remove stale cursors
+    for (const id in _cursorEls) {
+      if (!activeIds.has(id)) {
+        _cursorEls[id].remove();
+        delete _cursorEls[id];
+      }
+    }
+
+    users.forEach(u => {
+      if (u.cursorX < 0 || u.cursorY < 0) {
+        // Off-slide — hide
+        if (_cursorEls[u.id]) _cursorEls[u.id].style.display = 'none';
+        return;
+      }
+
+      let el = _cursorEls[u.id];
+      if (!el) {
+        el = document.createElement('div');
+        el.className = 'collab-cursor';
+        el.innerHTML = `
+          <div class="collab-cursor-dot" style="background:${u.color};"></div>
+          <div class="collab-cursor-label" style="background:${u.color};">${escHtml(u.name)}</div>
+        `;
+        slideEl.appendChild(el);
+        _cursorEls[u.id] = el;
+      }
+
+      el.style.display = 'block';
+      el.style.left = u.cursorX + 'px';
+      el.style.top  = u.cursorY + 'px';
+    });
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  LOAD FROM SHARED LINK
+  // ════════════════════════════════════════════════════════════════
   window.addEventListener('load', async () => {
     const params    = new URLSearchParams(window.location.search);
     const pptId     = params.get('ppt');
-    const shareMode = params.get('mode'); // edit | view | remix
+    const shareMode = params.get('mode');
 
     if (!pptId) return;
 
     try {
       const snap = await getDoc(doc(db, 'presentations', pptId));
-      if (!snap.exists()) {
-        alert('Presentation not found or link has expired.');
-        return;
-      }
+      if (!snap.exists()) { alert('Presentation not found or link has expired.'); return; }
 
       const data = snap.data();
-      if (Array.isArray(data.slides)) {
-        // Wait for the main script's load handler to run first
-        setTimeout(() => {
-          window.slides = data.slides;
-          window.currentSlideIndex = 0;
-          if (typeof window.renderSlide === 'function') window.renderSlide();
-          if (typeof window.saveState === 'function') window.saveState();
+      if (!Array.isArray(data.slides)) return;
 
-          // ── View Only ────────────────────────────────────────────────
-          if (shareMode === 'view') {
-            document.body.classList.add('view-only');
-            const banner = document.createElement('div');
-            banner.className = 'share-view-banner';
-            banner.innerHTML = '<span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;margin-right:6px;">visibility</span>View Only — You cannot edit this presentation';
-            document.body.prepend(banner);
-            document.querySelectorAll('header button').forEach(b => {
-              if (b.id !== 'shareBtn') b.style.pointerEvents = 'none';
-            });
-            // Real-time: viewers see edits live
-            startRealtimeSync(pptId, 'viewer');
+      setTimeout(async () => {
+        window.slides = data.slides;
+        window.currentSlideIndex = 0;
+        if (typeof window.renderSlide === 'function') window.renderSlide();
+        if (typeof window.saveState   === 'function') window.saveState();
 
-          // ── Remix ────────────────────────────────────────────────────
-          } else if (shareMode === 'remix') {
-            window._currentShareId = null; // fresh copy on next share
-            const banner = document.createElement('div');
-            banner.className = 'share-view-banner';
-            banner.style.background = 'linear-gradient(90deg,#7f2017,#a43b2f)';
-            banner.innerHTML = '<span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;margin-right:6px;">shuffle</span>Remixed copy — Your changes are saved separately';
-            document.body.prepend(banner);
-            // No real-time sync for remix — it's an independent copy
+        // ── View Only ────────────────────────────────────────────
+        if (shareMode === 'view') {
+          _myRole = 'viewer';
+          document.body.classList.add('view-only');
+          addBanner('visibility', 'View Only — You cannot edit this presentation', '');
+          document.querySelectorAll('header button').forEach(b => {
+            if (b.id !== 'shareBtn') b.style.pointerEvents = 'none';
+          });
+          await joinPresence(pptId);
+          startSlidesSync(pptId);   // viewers see edits live
+          listenPresence(pptId);
 
-          // ── Edit ─────────────────────────────────────────────────────
-          } else if (shareMode === 'edit') {
-            window._currentShareId = pptId; // saves overwrite same doc
-            const banner = document.createElement('div');
-            banner.className = 'share-view-banner';
-            banner.style.background = 'linear-gradient(90deg,#525e7f,#3a4666)';
-            banner.innerHTML = '<span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;margin-right:6px;">edit</span>Shared Editable — Your changes sync to the owner in real-time';
-            document.body.prepend(banner);
-            // Real-time: editor changes push to Firestore via onSlidesChanged,
-            // and owner's onSnapshot picks them up instantly
-          }
+        // ── Remix ────────────────────────────────────────────────
+        } else if (shareMode === 'remix') {
+          _myRole = 'remixer';
+          window._currentShareId = null;
+          addBanner('shuffle', 'Remixed copy — Your changes are saved separately',
+            'linear-gradient(90deg,#7f2017,#a43b2f)');
+          // No shared presence for remix — it's an independent copy
 
-        }, 300);
-      }
+        // ── Edit ─────────────────────────────────────────────────
+        } else if (shareMode === 'edit') {
+          _myRole = 'editor';
+          window._currentShareId = pptId;
+          addBanner('edit', 'Shared Editable — Your changes sync in real-time',
+            'linear-gradient(90deg,#525e7f,#3a4666)');
+          await joinPresence(pptId);
+          startSlidesSync(pptId);   // editor receives owner changes live
+          listenPresence(pptId);
+          // onSlidesChanged() pushes editor's changes back to Firestore
+        }
+
+      }, 300);
+
     } catch (err) {
-      console.error('Failed to load shared presentation:', err);
-      alert('Failed to load shared presentation: ' + err.message);
+      console.error('[RiSync] Load error:', err);
+      alert('Failed to load presentation: ' + err.message);
     }
   });
+
+  function addBanner(icon, text, bg) {
+    const banner = document.createElement('div');
+    banner.className = 'share-view-banner';
+    if (bg) banner.style.background = bg;
+    banner.innerHTML = `<span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;margin-right:6px;">${icon}</span>${text}`;
+    document.body.prepend(banner);
+  }
 </script>
 </body>
 </html>
