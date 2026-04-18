@@ -437,6 +437,32 @@
       0%{transform:translateY(-10px) rotate(0deg);opacity:1}
       100%{transform:translateY(100vh) rotate(720deg);opacity:0}
     }
+    /* Level Select Grid */
+    .me-level-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem;
+      flex: 1;
+    }
+    @media (max-width: 600px) { .me-level-grid { grid-template-columns: repeat(2, 1fr); } }
+    .me-level-card {
+      background: rgba(200,169,110,0.07); border: 1px solid rgba(212,148,42,0.3);
+      border-radius: 6px; padding: 1rem 0.75rem; text-align: center;
+      transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+    }
+    .me-level-card:hover { background: rgba(212,148,42,0.12); transform: translateY(-2px); }
+    .me-lc-icon  { font-size: 1.8rem; }
+    .me-lc-num   { font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; }
+    .me-lc-title { font-family: 'Cinzel', serif; font-size: 0.72rem; color: var(--me-parchment-light); line-height: 1.3; }
+    .me-lc-stars { font-size: 0.9rem; letter-spacing: 0.1rem; min-height: 1.2em; }
+    .me-lc-pct   { font-family: 'Courier New', monospace; font-size: 0.7rem; }
+    .me-total-stars-bar { margin-top: 0.4rem; }
+    /* Level progress dots */
+    .me-level-dots {
+      display: flex; align-items: center; justify-content: center;
+      gap: 6px; padding: 6px 1rem; background: rgba(0,0,0,0.2);
+      border-bottom: 1px solid rgba(212,148,42,0.15);
+    }
+    /* Level briefing icon */
+    .me-level-icon-big { font-size: 4rem; margin-bottom: 0.8rem; animation: me-bounce 1s ease infinite alternate; }
   </style>
 </head>
 <body class="min-h-screen p-6 md:p-10">
@@ -4405,13 +4431,10 @@
     // MISSION EXPLORER GAME  –  SST Ch 1: Locating Places on Earth
     // ════════════════════════════════════════════════════════════
     function renderMissionExplorerGame() {
-      // Override the card padding so the game fills edge-to-edge
       const cardWrap = elements.matchingGrid.closest('.bg-surface-container-lowest');
       if (cardWrap) cardWrap.style.padding = '0';
-
       document.getElementById('game-title').textContent = '🧭 Mission: Lost Explorer';
       document.getElementById('game-subtitle').textContent = 'SST Ch 1 · Locating Places on the Earth';
-
       elements.matchingGrid.style.display = 'block';
       elements.matchingGrid.innerHTML = `
       <div class="me-wrap" id="me-wrap">
@@ -4429,42 +4452,65 @@
             <p class="me-game-subtitle">Locating Places on the Earth</p>
             <div class="me-story-box">
               Your exploration vessel has crashed somewhere on Earth. 🌍
-              A rescue team is waiting — but they need YOU to decode their coordinate clues
-              to reach the escape location. Use your knowledge of <strong>latitudes, longitudes
-              &amp; the grid system</strong> to find your way back to safety!
+              Complete <strong>6 Levels</strong> of coordinate challenges to decode your rescue location.
+              Master <strong>latitudes, longitudes, hemispheres &amp; time zones</strong> to reach safety!
             </div>
             <div class="me-clue-list">
-              <div class="me-clue-pill">📡 6 Coordinate Clues</div>
+              <div class="me-clue-pill">🎯 6 Levels</div>
+              <div class="me-clue-pill">📡 18+ Clues</div>
               <div class="me-clue-pill">🗺️ Live World Map</div>
-              <div class="me-clue-pill">📻 Radio Transmissions</div>
               <div class="me-clue-pill">⭐ Earn Stars</div>
             </div>
-            <button class="me-btn-primary" onclick="me_startGame()">⚡ Begin Mission</button>
+            <button class="me-btn-primary" onclick="me_showLevelSelect()">⚡ Begin Mission</button>
+          </div>
+        </div>
+
+        <!-- ── LEVEL SELECT SCREEN ── -->
+        <div class="me-screen" id="me-level-select">
+          <div style="padding:1.5rem;flex:1;display:flex;flex-direction:column;">
+            <div style="text-align:center;margin-bottom:1.2rem;">
+              <p class="me-game-subtitle" style="margin-bottom:0.3rem;">MISSION CONTROL</p>
+              <h2 class="me-game-title" style="font-size:clamp(1.2rem,3vw,1.8rem);">Choose Your Level</h2>
+              <div class="me-total-stars-bar" id="me-total-stars-bar"></div>
+            </div>
+            <div class="me-level-grid" id="me-level-grid"></div>
+            <div style="text-align:center;margin-top:1.2rem;">
+              <button class="me-btn-next" style="max-width:200px;" onclick="me_showScreen('me-intro')">← Back to Intro</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── LEVEL BRIEFING SCREEN ── -->
+        <div class="me-screen" id="me-briefing">
+          <div class="me-intro-inner" style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;">
+            <div class="me-level-icon-big" id="me-brief-icon">🌐</div>
+            <div class="me-chapter-badge" id="me-brief-badge">Level 1 of 6</div>
+            <h2 class="me-game-title" id="me-brief-title">The Reference Lines</h2>
+            <p class="me-game-subtitle" id="me-brief-sub">Master the Equator &amp; Prime Meridian</p>
+            <div class="me-story-box" id="me-brief-story"></div>
+            <div class="me-clue-list" id="me-brief-pills"></div>
+            <button class="me-btn-primary" onclick="me_startLevel()">📡 Start Level</button>
           </div>
         </div>
 
         <!-- ── GAME SCREEN ── -->
         <div class="me-screen" id="me-game" style="min-height:520px;">
           <div class="me-game-header">
-            <div class="me-game-logo">🧭 Lost Explorer</div>
+            <div class="me-game-logo" id="me-level-badge-hdr">🧭 Level 1</div>
             <div class="me-signal-bar-wrap">
               <div class="me-signal-label">
-                <span>🛰️ Rescue Signal</span><span id="me-signal-pct">0%</span>
+                <span>🛰️ Signal</span><span id="me-signal-pct">0%</span>
               </div>
               <div class="me-signal-track"><div class="me-signal-fill" id="me-signal-fill"></div></div>
             </div>
-            <div class="me-q-counter" id="me-q-counter">Clue 1 / 6</div>
+            <div class="me-q-counter" id="me-q-counter">Clue 1 / 3</div>
           </div>
+          <!-- Level progress dots -->
+          <div class="me-level-dots" id="me-level-dots"></div>
           <div class="me-game-body">
-            <!-- MAP PANEL -->
             <div class="me-map-panel" id="me-map-panel">
               <svg viewBox="0 0 400 280" xmlns="http://www.w3.org/2000/svg" id="me-world-svg">
-                <defs>
-                  <filter id="me-glow">
-                    <feGaussianBlur stdDeviation="2" result="blur"/>
-                    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                  </filter>
-                </defs>
+                <defs><filter id="me-glow"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
                 <rect width="400" height="280" fill="#1e3a52"/>
                 <g stroke="rgba(220,190,120,0.18)" stroke-width="0.6" fill="none">
                   <line x1="0" y1="23" x2="400" y2="23"/><line x1="0" y1="58" x2="400" y2="58"/>
@@ -4479,7 +4525,6 @@
                   <line x1="255" y1="0" x2="255" y2="280"/><line x1="310" y1="0" x2="310" y2="280"/>
                   <line x1="365" y1="0" x2="365" y2="280"/><line x1="400" y1="0" x2="400" y2="280"/>
                 </g>
-                <!-- Land masses -->
                 <path d="M 20,50 L 80,45 L 100,60 L 110,90 L 100,120 L 80,130 L 60,140 L 45,160 L 35,150 L 25,120 L 15,80 Z" fill="#4a7c6a" stroke="rgba(0,0,0,0.3)" stroke-width="0.5"/>
                 <path d="M 65,165 L 85,155 L 100,165 L 105,190 L 100,220 L 85,240 L 70,235 L 60,210 L 58,185 Z" fill="#4a7c6a" stroke="rgba(0,0,0,0.3)" stroke-width="0.5"/>
                 <path d="M 185,55 L 215,50 L 230,60 L 225,80 L 210,90 L 195,88 L 180,75 Z" fill="#4a7c6a" stroke="rgba(0,0,0,0.3)" stroke-width="0.5"/>
@@ -4489,13 +4534,12 @@
                 <path d="M 305,170 L 350,165 L 365,175 L 368,200 L 355,215 L 330,220 L 308,205 L 300,185 Z" fill="#4a7c6a" stroke="rgba(0,0,0,0.3)" stroke-width="0.5"/>
                 <path d="M 130,28 L 155,25 L 165,38 L 158,52 L 140,55 L 125,45 Z" fill="#3a6052" stroke="rgba(0,0,0,0.3)" stroke-width="0.5"/>
                 <rect x="0" y="258" width="400" height="22" fill="#3a6052" opacity="0.7"/>
-                <!-- Reference lines -->
-                <line id="me-line-equator"   x1="0" y1="140" x2="400" y2="140" stroke="rgba(255,200,50,0.5)" stroke-width="1.5" stroke-dasharray="6,3"/>
-                <line id="me-line-prime"     x1="200" y1="0" x2="200" y2="280" stroke="rgba(255,200,50,0.5)" stroke-width="1.5" stroke-dasharray="6,3"/>
-                <line id="me-line-toc"       x1="0" y1="109" x2="400" y2="109" stroke="rgba(255,150,50,0.4)" stroke-width="1.2" stroke-dasharray="4,4"/>
-                <line id="me-line-tocap"     x1="0" y1="171" x2="400" y2="171" stroke="rgba(255,150,50,0.4)" stroke-width="1.2" stroke-dasharray="4,4"/>
-                <line id="me-line-arctic"    x1="0" y1="62"  x2="400" y2="62"  stroke="rgba(100,200,255,0.4)" stroke-width="1.2" stroke-dasharray="3,5"/>
-                <line id="me-line-antarctic" x1="0" y1="218" x2="400" y2="218" stroke="rgba(100,200,255,0.4)" stroke-width="1.2" stroke-dasharray="3,5"/>
+                <line id="me-line-equator"   x1="0" y1="140" x2="400" y2="140" stroke="rgba(255,200,50,0.5)"   stroke-width="1.5" stroke-dasharray="6,3"/>
+                <line id="me-line-prime"     x1="200" y1="0" x2="200" y2="280" stroke="rgba(255,200,50,0.5)"   stroke-width="1.5" stroke-dasharray="6,3"/>
+                <line id="me-line-toc"       x1="0" y1="109" x2="400" y2="109" stroke="rgba(255,150,50,0.4)"   stroke-width="1.2" stroke-dasharray="4,4"/>
+                <line id="me-line-tocap"     x1="0" y1="171" x2="400" y2="171" stroke="rgba(255,150,50,0.4)"   stroke-width="1.2" stroke-dasharray="4,4"/>
+                <line id="me-line-arctic"    x1="0" y1="62"  x2="400" y2="62"  stroke="rgba(100,200,255,0.4)"  stroke-width="1.2" stroke-dasharray="3,5"/>
+                <line id="me-line-antarctic" x1="0" y1="218" x2="400" y2="218" stroke="rgba(100,200,255,0.4)"  stroke-width="1.2" stroke-dasharray="3,5"/>
                 <g font-family="'Courier New',monospace" fill="rgba(220,190,120,0.7)" font-size="7">
                   <text x="3" y="138">Equator 0°</text>
                   <text x="3" y="107">Tropic of Cancer 23.5°N</text>
@@ -4518,7 +4562,6 @@
               </svg>
               <div class="me-map-tooltip" id="me-map-tooltip">🗺️ World Grid Map · Latitude &amp; Longitude</div>
             </div>
-            <!-- CLUE PANEL -->
             <div class="me-clue-panel">
               <div class="me-radio-header">
                 <div class="me-radio-dot"></div>
@@ -4535,20 +4578,42 @@
           </div>
         </div>
 
-        <!-- ── WIN SCREEN ── -->
+        <!-- ── LEVEL COMPLETE SCREEN ── -->
+        <div class="me-screen" id="me-level-complete">
+          <div class="me-end-inner">
+            <div class="me-trophy-icon" id="me-lc-icon">🎯</div>
+            <h2 class="me-win-title" id="me-lc-title">Level Complete!</h2>
+            <p class="me-win-sub" id="me-lc-sub">Well done, Explorer!</p>
+            <div class="me-stars-wrap" id="me-lc-stars">⭐⭐⭐</div>
+            <div class="me-score-card">
+              <div class="me-score-row"><span class="me-label">Level</span><span class="me-val" id="me-lc-level">1 of 6</span></div>
+              <div class="me-score-row"><span class="me-label">Correct</span><span class="me-val" id="me-lc-correct">3 / 3</span></div>
+              <div class="me-score-row"><span class="me-label">Signal Boost</span><span class="me-val" id="me-lc-signal">100%</span></div>
+            </div>
+            <div style="display:flex;gap:0.8rem;margin-top:1rem;flex-wrap:wrap;justify-content:center;">
+              <button class="me-btn-next" style="flex:1;min-width:130px;" onclick="me_showLevelSelect()">📋 Level Map</button>
+              <button class="me-btn-primary" id="me-lc-next-btn" onclick="me_goNextLevel()">→ Next Level</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── WIN SCREEN (All 6 Levels Done) ── -->
         <div class="me-screen" id="me-win">
           <div class="me-end-inner">
             <div class="me-trophy-icon">🏆</div>
-            <h2 class="me-win-title">RESCUED!</h2>
-            <p class="me-win-sub">Mission Complete · You navigated Earth's Grid</p>
-            <div class="me-coord-clue-card">📍 Final Location: 28.6°N, 77.2°E → New Delhi, India</div>
+            <h2 class="me-win-title">MISSION COMPLETE!</h2>
+            <p class="me-win-sub">All 6 Levels Conquered · Master Navigator!</p>
+            <div class="me-coord-clue-card">📍 Final Rescue: 28.6°N, 77.2°E → New Delhi, India</div>
             <div class="me-score-card">
-              <div class="me-score-row"><span class="me-label">Correct Answers</span><span class="me-val" id="me-correct-count">0 / 6</span></div>
-              <div class="me-score-row"><span class="me-label">Rescue Signal</span><span class="me-val" id="me-final-signal">100%</span></div>
-              <div class="me-score-row"><span class="me-label">Explorer Rank</span><span class="me-val" id="me-rank-label">🗺️ Master Navigator</span></div>
+              <div class="me-score-row"><span class="me-label">Levels Completed</span><span class="me-val" id="me-win-levels">6 / 6</span></div>
+              <div class="me-score-row"><span class="me-label">Total Correct</span><span class="me-val" id="me-win-correct">0</span></div>
+              <div class="me-score-row"><span class="me-label">Total Stars</span><span class="me-val" id="me-win-stars">⭐⭐⭐</span></div>
+              <div class="me-score-row"><span class="me-label">Master Rank</span><span class="me-val" id="me-win-rank">🗺️ Grand Navigator</span></div>
             </div>
-            <div class="me-stars-wrap" id="me-stars-wrap">⭐⭐⭐</div>
-            <button class="me-btn-primary" onclick="me_startGame()" style="margin-top:1rem;">🔄 New Mission</button>
+            <div style="display:flex;gap:0.8rem;margin-top:1rem;flex-wrap:wrap;justify-content:center;">
+              <button class="me-btn-next" style="flex:1;min-width:130px;" onclick="me_resetAll();me_showScreen('me-intro')">🔄 Play Again</button>
+              <button class="me-btn-primary" onclick="me_showLevelSelect()">📋 Level Map</button>
+            </div>
           </div>
         </div>
 
@@ -4557,141 +4622,386 @@
           <div class="me-end-inner">
             <div style="font-size:3.5rem;margin-bottom:0.8rem;">📻</div>
             <h2 class="me-win-title" style="color:#e07070;">SIGNAL LOST</h2>
-            <p class="me-win-sub">Too many wrong answers — but every explorer learns!</p>
+            <p class="me-win-sub">Too many wrong answers — study and retry!</p>
             <div class="me-score-card">
-              <div class="me-score-row"><span class="me-label">Correct Answers</span><span class="me-val" id="me-go-correct">0 / 6</span></div>
-              <div class="me-score-row"><span class="me-label">Tip</span><span class="me-val" style="font-size:0.75rem;color:#e8d5a3;text-align:right;">Revisit Ch 1 &amp; try again!</span></div>
+              <div class="me-score-row"><span class="me-label">Level</span><span class="me-val" id="me-go-level">1</span></div>
+              <div class="me-score-row"><span class="me-label">Correct</span><span class="me-val" id="me-go-correct">0 / 3</span></div>
+              <div class="me-score-row"><span class="me-label">Tip</span><span class="me-val" style="font-size:0.72rem;color:#e8d5a3;text-align:right;">Re-read Ch 1 &amp; try again!</span></div>
             </div>
-            <button class="me-btn-primary" onclick="me_startGame()" style="margin-top:1.5rem;">🔄 Try Again</button>
+            <div style="display:flex;gap:0.8rem;margin-top:1rem;flex-wrap:wrap;justify-content:center;">
+              <button class="me-btn-next" style="flex:1;min-width:130px;" onclick="me_showLevelSelect()">📋 Level Map</button>
+              <button class="me-btn-primary" onclick="me_startLevel()">🔄 Retry Level</button>
+            </div>
           </div>
         </div>
 
       </div><!-- end me-wrap -->
       `;
+
+      // Build level select after DOM is ready
+      me_resetAll();
+      me_buildLevelSelect();
     } // end renderMissionExplorerGame
 
-    // ── Mission Explorer: game data ──
-    const ME_CLUES = [
-      { id:1,
-        transmission: `📡 <strong>Clue 1 received:</strong><br><br>"Explorer, we've detected a major imaginary circle dividing Earth into <strong>Northern</strong> and <strong>Southern</strong> Hemispheres. Its coordinate is <span class='me-coord-badge'>0° Latitude</span>. Head towards it. What is this famous line called?"`,
-        options: ['Prime Meridian','Tropic of Cancer','The Equator','Arctic Circle'],
-        answer: 'The Equator',
-        correct_feedback: '✅ Correct! The Equator (0° Latitude) divides Earth into the Northern and Southern Hemispheres.',
-        incorrect_feedback: '❌ The correct answer is <strong>The Equator</strong> — it sits at 0° Latitude and splits Earth into two hemispheres.',
-        highlight:'equator', mapNote:'Equator highlighted: 0° Latitude', markerX:200, markerY:140 },
-      { id:2,
-        transmission: `📡 <strong>Clue 2 received:</strong><br><br>"Signal coming from <span class='me-coord-badge'>0° Longitude</span>! This reference meridian divides Earth into <strong>Eastern</strong> and <strong>Western</strong> Hemispheres. It passes through a famous observatory in England. What city does it pass through?"`,
-        options: ['New Delhi','Greenwich','Paris','New York'],
-        answer: 'Greenwich',
-        correct_feedback: '✅ Correct! The Prime Meridian (0° Longitude) passes through Greenwich, near London, England.',
-        incorrect_feedback: '❌ The correct answer is <strong>Greenwich</strong>! The Prime Meridian was established at the Royal Observatory in Greenwich, England.',
-        highlight:'prime', mapNote:'Prime Meridian highlighted: 0° Longitude', markerX:200, markerY:70 },
-      { id:3,
-        transmission: `📡 <strong>Clue 3 received:</strong><br><br>"You're near <span class='me-coord-badge'>23.5°N</span>! This parallel marks where the Sun shines directly overhead on the <strong>Summer Solstice</strong> (June 21). What is this important line called?"`,
-        options: ['Tropic of Capricorn','Arctic Circle','The Equator','Tropic of Cancer'],
-        answer: 'Tropic of Cancer',
-        correct_feedback: '✅ Excellent! The Tropic of Cancer is at 23.5°N — the Sun is directly overhead here on June 21.',
-        incorrect_feedback: '❌ The answer is <strong>Tropic of Cancer</strong> at 23.5°N. (Tropic of Capricorn is at 23.5°S!)',
-        highlight:'toc', mapNote:'Tropic of Cancer: 23.5°N', markerX:280, markerY:109 },
-      { id:4,
-        transmission: `📡 <strong>Clue 4 received:</strong><br><br>"Rescue beacon is in <strong>India</strong>! India lies approximately between <span class='me-coord-badge'>8°N – 37°N</span> and <span class='me-coord-badge'>68°E – 97°E</span>. Since it is East of the Prime Meridian — which <strong>hemisphere</strong> (East–West) does it lie in?"`,
-        options: ['Western Hemisphere','Eastern Hemisphere','Northern Hemisphere','Southern Hemisphere'],
-        answer: 'Eastern Hemisphere',
-        correct_feedback: "✅ Right! India's longitudes (68°E–97°E) are east of the Prime Meridian → Eastern Hemisphere.",
-        incorrect_feedback: "❌ The answer is <strong>Eastern Hemisphere</strong>. India's longitudes (68°E to 97°E) are east of the Prime Meridian.",
-        highlight:'india', mapNote:'India: 8°N–37°N, 68°E–97°E → Eastern Hemisphere', markerX:285, markerY:120 },
-      { id:5,
-        transmission: `📡 <strong>Clue 5 received:</strong><br><br>"Time check! Earth rotates <span class='me-coord-badge'>360°</span> in <span class='me-coord-badge'>24 hours</span>. So every <strong>15° of longitude</strong> = how many hours of time difference?"`,
-        options: ['2 hours','15 hours','1 hour','30 minutes'],
-        answer: '1 hour',
-        correct_feedback: "✅ Perfect! 360° ÷ 24h = 15°/hour. Every 15° of longitude = 1 hour. India's IST (82.5°E) is 5 hrs 30 min ahead of GMT!",
-        incorrect_feedback: "❌ The answer is <strong>1 hour</strong>. 360° ÷ 24h = 15°/hour. India (82.5°E) is 5 hrs 30 min ahead of GMT!",
-        highlight:'prime', mapNote:'Time Zone Rule: 15° longitude = 1 hour', markerX:295, markerY:112 },
-      { id:6,
-        transmission: `📡 <strong>Final Clue!</strong><br><br>"RESCUE TEAM IS AT: <span class='me-coord-badge'>28.6°N, 77.2°E</span>! This is the capital of India, in the Northern and Eastern Hemispheres. Which city IS the rescue team at?"`,
-        options: ['Mumbai','New Delhi','Kolkata','Chennai'],
-        answer: 'New Delhi',
-        correct_feedback: '🎉 RESCUED! New Delhi is at 28.6°N, 77.2°E — the capital of India. You decoded all coordinate clues!',
-        incorrect_feedback: '❌ The coordinates 28.6°N, 77.2°E point to <strong>New Delhi</strong> — the capital of India! Mumbai ≈19°N, Kolkata ≈22.5°N, Chennai ≈13°N.',
-        highlight:'india', mapNote:'New Delhi: 28.6°N, 77.2°E 📍', markerX:286, markerY:100 }
+    // ═══════════════════════════════════════════════════════════
+    //  MISSION EXPLORER · 6 LEVELS DATA
+    // ═══════════════════════════════════════════════════════════
+    const ME_LEVELS = [
+      {
+        id: 1, icon: '🌐', color: '#d4942a',
+        title: 'The Reference Lines',
+        sub: 'Master the Equator & Prime Meridian',
+        story: 'Your first signal comes from the most important imaginary lines on Earth. Decode the <strong>Equator</strong> and the <strong>Prime Meridian</strong> to begin your rescue journey.',
+        pills: ['0° Latitude', '0° Longitude', 'Hemispheres'],
+        clues: [
+          { transmission: `📡 <strong>Clue 1 — Level 1:</strong><br><br>
+            "The great circle at <span class='me-coord-badge'>0° Latitude</span> that divides Earth into the <strong>Northern</strong> and <strong>Southern</strong> Hemispheres. Name it!"`,
+            options: ['Prime Meridian','Arctic Circle','The Equator','Tropic of Cancer'],
+            answer: 'The Equator',
+            correct_feedback: '✅ Correct! The Equator (0° Latitude) divides Earth into two equal halves — Northern and Southern Hemispheres.',
+            incorrect_feedback: '❌ It\'s <strong>The Equator</strong> — at 0° Latitude, it circles the entire globe, equidistant from both poles.',
+            highlight:'equator', mapNote:'Equator: 0° Latitude', markerX:200, markerY:140 },
+          { transmission: `📡 <strong>Clue 2 — Level 1:</strong><br><br>
+            "The vertical line at <span class='me-coord-badge'>0° Longitude</span> that divides Earth into the <strong>Eastern</strong> and <strong>Western</strong> Hemispheres. It passes through Greenwich, England. Name it!"`,
+            options: ['The Equator','Tropic of Cancer','International Date Line','The Prime Meridian'],
+            answer: 'The Prime Meridian',
+            correct_feedback: '✅ Correct! The Prime Meridian (0° Longitude) runs from pole to pole through Greenwich, UK — it\'s the start point for measuring East/West.',
+            incorrect_feedback: '❌ It\'s <strong>The Prime Meridian</strong> — vertical, 0° Longitude, through Greenwich, England.',
+            highlight:'prime', mapNote:'Prime Meridian: 0° Longitude', markerX:200, markerY:60 },
+          { transmission: `📡 <strong>Clue 3 — Level 1:</strong><br><br>
+            "Lines running <strong>parallel to the Equator</strong> (horizontal) are called ___. Lines running from <strong>pole to pole</strong> (vertical) are called ___. Pick the correct pair!"`,
+            options: ['Longitudes & Latitudes','Meridians & Parallels','Parallels & Meridians','Isobars & Isotherms'],
+            answer: 'Parallels & Meridians',
+            correct_feedback: '✅ Perfect! Latitudes are called <strong>Parallels</strong> (they run parallel to the Equator). Longitudes are called <strong>Meridians</strong> (they run pole to pole).',
+            incorrect_feedback: '❌ Answer: <strong>Parallels & Meridians</strong>. Latitudes = Parallels. Longitudes = Meridians.',
+            highlight:'equator', mapNote:'Parallels (lat) & Meridians (lon)', markerX:200, markerY:140 }
+        ]
+      },
+      {
+        id: 2, icon: '☀️', color: '#e07040',
+        title: 'Tropics & Polar Circles',
+        sub: 'Discover the Special Parallels of Latitude',
+        story: 'Four special parallels mark the Sun\'s extreme positions and the polar regions. Identify the <strong>Tropic of Cancer</strong>, <strong>Tropic of Capricorn</strong>, and the <strong>Arctic Circle</strong> to boost the rescue signal.',
+        pills: ['23.5°N', '23.5°S', '66.5°N'],
+        clues: [
+          { transmission: `📡 <strong>Clue 1 — Level 2:</strong><br><br>
+            "At <span class='me-coord-badge'>23.5°N</span>, the Sun is directly overhead on the <strong>Summer Solstice</strong> (June 21). This line also passes through India. What is it called?"`,
+            options: ['Tropic of Capricorn','Arctic Circle','The Equator','Tropic of Cancer'],
+            answer: 'Tropic of Cancer',
+            correct_feedback: '✅ Excellent! The Tropic of Cancer at 23.5°N is the northernmost point where the Sun is directly overhead — on the Summer Solstice (June 21).',
+            incorrect_feedback: '❌ It\'s the <strong>Tropic of Cancer</strong> at 23.5°N. Note: Tropic of Capricorn is at 23.5°S (Southern Hemisphere).',
+            highlight:'toc', mapNote:'Tropic of Cancer: 23.5°N', markerX:280, markerY:109 },
+          { transmission: `📡 <strong>Clue 2 — Level 2:</strong><br><br>
+            "At <span class='me-coord-badge'>23.5°S</span>, the Sun shines directly overhead on the <strong>Winter Solstice</strong> (December 22). This line lies in the Southern Hemisphere. Name it!"`,
+            options: ['Tropic of Cancer','Antarctic Circle','The Equator','Tropic of Capricorn'],
+            answer: 'Tropic of Capricorn',
+            correct_feedback: '✅ Correct! The Tropic of Capricorn at 23.5°S marks the southernmost point of direct overhead sunshine (December 22).',
+            incorrect_feedback: '❌ It\'s the <strong>Tropic of Capricorn</strong> at 23.5°S — the southern equivalent of the Tropic of Cancer.',
+            highlight:'tocap', mapNote:'Tropic of Capricorn: 23.5°S', markerX:220, markerY:171 },
+          { transmission: `📡 <strong>Clue 3 — Level 2:</strong><br><br>
+            "At <span class='me-coord-badge'>66.5°N</span>, there are days when the Sun never sets (Midnight Sun) and days when it never rises (Polar Night). This boundary of the polar region is called?"`,
+            options: ['Tropic of Cancer','Antarctic Circle','The Equator','Arctic Circle'],
+            answer: 'Arctic Circle',
+            correct_feedback: '✅ Right! The Arctic Circle at 66.5°N marks the boundary of the polar region. Within it, the Sun can stay above/below the horizon for 24 hours!',
+            incorrect_feedback: '❌ It\'s the <strong>Arctic Circle</strong> at 66.5°N. The Antarctic Circle (66.5°S) is its southern counterpart.',
+            highlight:'arctic', mapNote:'Arctic Circle: 66.5°N', markerX:200, markerY:62 }
+        ]
+      },
+      {
+        id: 3, icon: '🌍', color: '#2d6b9a',
+        title: 'Hemispheres',
+        sub: 'Navigate the Four Hemispheres of Earth',
+        story: 'Earth is divided into four hemispheres by the Equator and Prime Meridian. Decode which hemisphere each clue location belongs to — this is how the rescue team is tracking your position!',
+        pills: ['N & S Hemispheres', 'E & W Hemispheres', 'Quadrants'],
+        clues: [
+          { transmission: `📡 <strong>Clue 1 — Level 3:</strong><br><br>
+            "A location has latitude <span class='me-coord-badge'>35°N</span>. 'N' means north of the Equator. Which hemisphere (North/South) does it lie in?"`,
+            options: ['Southern Hemisphere','Equatorial Zone','Northern Hemisphere','Polar Region'],
+            answer: 'Northern Hemisphere',
+            correct_feedback: '✅ Correct! Any location with a North (N) latitude lies in the <strong>Northern Hemisphere</strong> — above the Equator (0°).',
+            incorrect_feedback: '❌ <strong>Northern Hemisphere</strong>. N latitude = north of the Equator = Northern Hemisphere.',
+            highlight:'equator', mapNote:'35°N → Northern Hemisphere', markerX:200, markerY:93 },
+          { transmission: `📡 <strong>Clue 2 — Level 3:</strong><br><br>
+            "A location has longitude <span class='me-coord-badge'>45°W</span>. 'W' means west of the Prime Meridian. Which hemisphere (East/West) does it lie in?"`,
+            options: ['Eastern Hemisphere','Northern Hemisphere','Prime Zone','Western Hemisphere'],
+            answer: 'Western Hemisphere',
+            correct_feedback: '✅ Right! Any location with a West (W) longitude lies in the <strong>Western Hemisphere</strong> — west of the Prime Meridian (0°).',
+            incorrect_feedback: '❌ <strong>Western Hemisphere</strong>. W longitude = west of the Prime Meridian = Western Hemisphere.',
+            highlight:'prime', mapNote:'45°W → Western Hemisphere', markerX:155, markerY:140 },
+          { transmission: `📡 <strong>Clue 3 — Level 3:</strong><br><br>
+            "A city has coordinates <span class='me-coord-badge'>22°S, 43°W</span>. Which TWO hemispheres does it lie in simultaneously?"`,
+            options: ['Northern & Eastern','Northern & Western','Southern & Eastern','Southern & Western'],
+            answer: 'Southern & Western',
+            correct_feedback: '✅ Brilliant! 22°S = Southern Hemisphere; 43°W = Western Hemisphere. This is actually Rio de Janeiro, Brazil!',
+            incorrect_feedback: '❌ <strong>Southern & Western</strong>. S latitude → Southern; W longitude → Western Hemisphere. (This is Rio de Janeiro!)',
+            highlight:'prime', mapNote:'22°S, 43°W → Southern & Western', markerX:80, markerY:165 }
+        ]
+      },
+      {
+        id: 4, icon: '🇮🇳', color: '#2d6b4a',
+        title: 'India on the Map',
+        sub: "Locate India's Position on the Globe",
+        story: "The rescue signal is narrowing down to <strong>India</strong>! Decode India's exact position — its latitude range, longitude range, and which important parallel passes through it.",
+        pills: ["8°N–37°N", "68°E–97°E", 'Tropic of Cancer'],
+        clues: [
+          { transmission: `📡 <strong>Clue 1 — Level 4:</strong><br><br>
+            "India's southern tip (Kanyakumari) is at about <span class='me-coord-badge'>8°N</span> and its northernmost point is at about <span class='me-coord-badge'>37°N</span>. What is India's approximate latitude range?"`,
+            options: ['0°N – 20°N','20°N – 40°N','8°N – 37°N','5°S – 37°N'],
+            answer: '8°N – 37°N',
+            correct_feedback: "✅ Correct! India extends from approximately 8°N (Kanyakumari, Tamil Nadu) to 37°N (northernmost J&K). It's entirely in the Northern Hemisphere.",
+            incorrect_feedback: '❌ India spans <strong>8°N – 37°N</strong>. From Kanyakumari in the south to the northernmost peaks of J&K.',
+            highlight:'toc', mapNote:'India: 8°N to 37°N latitude', markerX:285, markerY:120 },
+          { transmission: `📡 <strong>Clue 2 — Level 4:</strong><br><br>
+            "India's westernmost point (Gujarat) is at about <span class='me-coord-badge'>68°E</span> and its easternmost point (Arunachal Pradesh) is at about <span class='me-coord-badge'>97°E</span>. What is India's longitude range?"`,
+            options: ['55°E – 80°E','80°E – 100°E','68°E – 97°E','60°E – 90°E'],
+            answer: '68°E – 97°E',
+            correct_feedback: "✅ Right! India's longitudes span 68°E to 97°E — all east of the Prime Meridian, confirming India is in the <strong>Eastern Hemisphere</strong>.",
+            incorrect_feedback: '❌ India spans <strong>68°E – 97°E</strong>. All East longitude, so India is fully in the Eastern Hemisphere.',
+            highlight:'india', mapNote:'India: 68°E to 97°E longitude', markerX:285, markerY:130 },
+          { transmission: `📡 <strong>Clue 3 — Level 4:</strong><br><br>
+            "Which important <strong>Tropic</strong> passes through the middle of India, dividing it into tropical and sub-tropical zones?"`,
+            options: ['Tropic of Capricorn','Antarctic Circle','The Equator','Tropic of Cancer'],
+            answer: 'Tropic of Cancer',
+            correct_feedback: '✅ Exactly! The Tropic of Cancer (23.5°N) passes through the middle of India — through Gujarat, Rajasthan, MP, Chhattisgarh, Jharkhand, WB, and Tripura.',
+            incorrect_feedback: '❌ The <strong>Tropic of Cancer (23.5°N)</strong> passes through India, dividing it into tropical (south) and sub-tropical (north) zones.',
+            highlight:'toc', mapNote:'Tropic of Cancer passes through India!', markerX:285, markerY:109 }
+        ]
+      },
+      {
+        id: 5, icon: '⏰', color: '#6b2d8a',
+        title: 'Time Zones',
+        sub: "Decode Earth's Time Zone System",
+        story: "The rescue team's watch shows a different time than yours! To synchronize your communication, decode the <strong>Time Zone system</strong> — how longitude controls time across the globe.",
+        pills: ["360° ÷ 24h = 15°", "IST = GMT+5:30", '82.5°E'],
+        clues: [
+          { transmission: `📡 <strong>Clue 1 — Level 5:</strong><br><br>
+            "Earth rotates <span class='me-coord-badge'>360°</span> in <span class='me-coord-badge'>24 hours</span>. So how many degrees of longitude does Earth rotate in <strong>1 hour</strong>?"`,
+            options: ['30°','24°','10°','15°'],
+            answer: '15°',
+            correct_feedback: '✅ Perfect! 360° ÷ 24 hours = <strong>15° per hour</strong>. This is the basis of all time zones — every 15° east means 1 hour ahead of Greenwich.',
+            incorrect_feedback: '❌ The answer is <strong>15°</strong>. 360° ÷ 24 = 15°. Every 15° of longitude = 1 hour of time difference.',
+            highlight:'prime', mapNote:'360° ÷ 24h = 15° per hour', markerX:200, markerY:140 },
+          { transmission: `📡 <strong>Clue 2 — Level 5:</strong><br><br>
+            "India's Standard Time (IST) is based on the longitude <span class='me-coord-badge'>82.5°E</span>. If 15° = 1 hour, how many hours and minutes AHEAD of GMT (0°) is IST?"`,
+            options: ['4 hours 30 min','6 hours','5 hours','5 hours 30 min'],
+            answer: '5 hours 30 min',
+            correct_feedback: '✅ Right! 82.5° ÷ 15 = 5.5 hours = <strong>5 hours 30 minutes</strong> ahead of GMT. IST is GMT+5:30.',
+            incorrect_feedback: '❌ <strong>5 hours 30 min</strong>. 82.5°E ÷ 15°/hr = 5.5 hrs = 5h 30m. IST = GMT + 5:30.',
+            highlight:'prime', mapNote:'IST: 82.5°E = GMT + 5h 30m', markerX:295, markerY:112 },
+          { transmission: `📡 <strong>Clue 3 — Level 5:</strong><br><br>
+            "A city at <span class='me-coord-badge'>90°E</span> longitude is <strong>____ hours</strong> ahead of Greenwich (0°). Calculate: 90 ÷ 15 = ?"`,
+            options: ['5 hours','8 hours','6 hours','4 hours'],
+            answer: '6 hours',
+            correct_feedback: '✅ Correct! 90°E ÷ 15 = <strong>6 hours</strong> ahead of GMT. This is close to Bangladesh/Myanmar time (BST = GMT+6).',
+            incorrect_feedback: '❌ <strong>6 hours</strong>. 90 ÷ 15 = 6. A city at 90°E is 6 hours ahead of Greenwich.',
+            highlight:'india', mapNote:'90°E ÷ 15 = 6 hours ahead of GMT', markerX:310, markerY:130 }
+        ]
+      },
+      {
+        id: 6, icon: '🏆', color: '#c0392b',
+        title: 'Final Mission: Coordinate Master',
+        sub: 'Decode Coordinates & Reach the Rescue Team',
+        story: "This is it, Explorer! Use EVERYTHING you\'ve learned — latitudes, longitudes, tropics, and time zones — to decode the <strong>final coordinate clues</strong> and reach the rescue team. Good luck!",
+        pills: ['All Skills', '4 Clues', 'Final Rescue'],
+        clues: [
+          { transmission: `📡 <strong>Final Mission Clue 1:</strong><br><br>
+            "Location signal: <span class='me-coord-badge'>19°N, 73°E</span>. This city on India's west coast is India's financial capital and most populous city. Identify it!"`,
+            options: ['Chennai','Kolkata','New Delhi','Mumbai'],
+            answer: 'Mumbai',
+            correct_feedback: '✅ Mumbai! At 19°N, 73°E — on the west coast (Arabian Sea), India\'s financial capital. 19°N = Northern Hemisphere; 73°E = Eastern Hemisphere.',
+            incorrect_feedback: '❌ <strong>Mumbai</strong> at 19°N, 73°E — on the west coast of India, the financial capital. (Chennai ≈13°N; Kolkata ≈22°N; Delhi ≈28°N)',
+            highlight:'india', mapNote:'Mumbai: 19°N, 73°E', markerX:278, markerY:128 },
+          { transmission: `📡 <strong>Final Mission Clue 2:</strong><br><br>
+            "New signal at <span class='me-coord-badge'>13°N, 80°E</span>. This is a major city on India's southeast coast (Bay of Bengal) and was the first capital of British India. Identify it!"`,
+            options: ['Mumbai','New Delhi','Kolkata','Chennai'],
+            answer: 'Chennai',
+            correct_feedback: '✅ Chennai! At 13°N, 80°E — on the southeastern Coromandel Coast. It was formerly called Madras.',
+            incorrect_feedback: '❌ <strong>Chennai</strong> at 13°N, 80°E — on the southeast coast (Bay of Bengal). Formerly called Madras.',
+            highlight:'india', mapNote:'Chennai: 13°N, 80°E', markerX:283, markerY:136 },
+          { transmission: `📡 <strong>Final Mission Clue 3:</strong><br><br>
+            "Signal locked to <span class='me-coord-badge'>22.5°N, 88.3°E</span>. This is India's cultural capital and the city of poets, thinkers, and Rabindranath Tagore. Identify it!"`,
+            options: ['Mumbai','Chennai','New Delhi','Kolkata'],
+            answer: 'Kolkata',
+            correct_feedback: '✅ Kolkata! At 22.5°N, 88.3°E — on the eastern coast, near the Bay of Bengal. It was the British Indian capital until 1911.',
+            incorrect_feedback: '❌ <strong>Kolkata</strong> at 22.5°N, 88.3°E — India\'s cultural capital on the eastern coast.',
+            highlight:'india', mapNote:'Kolkata: 22.5°N, 88.3°E', markerX:295, markerY:121 },
+          { transmission: `📡 <strong>FINAL CLUE — RESCUE LOCATION:</strong><br><br>
+            "RESCUE TEAM IS AT: <span class='me-coord-badge'>28.6°N, 77.2°E</span>! Capital of India. Located in the Northern and Eastern Hemispheres. Near the Tropic of Cancer. This is your FINAL destination — identify it!"`,
+            options: ['Mumbai','Kolkata','Chennai','New Delhi'],
+            answer: 'New Delhi',
+            correct_feedback: '🎉 RESCUED! New Delhi at 28.6°N, 77.2°E — the capital of India. You decoded all coordinate clues across all 6 levels. Mission Accomplished!',
+            incorrect_feedback: '❌ <strong>New Delhi</strong> at 28.6°N, 77.2°E — the capital of India! Mumbai≈19°N, Kolkata≈22.5°N, Chennai≈13°N.',
+            highlight:'india', mapNote:'New Delhi: 28.6°N, 77.2°E 🏁', markerX:286, markerY:100 }
+        ]
+      }
     ];
 
-    let me_currentClue = 0, me_correctCount = 0, me_answered = false;
+    // ═══════════════════════════════════════════════════════════
+    //  MISSION EXPLORER · STATE & CORE FUNCTIONS
+    // ═══════════════════════════════════════════════════════════
+    let me_state = {
+      currentLevelIdx: 0,
+      currentClue: 0,
+      correctCount: 0,
+      answered: false,
+      levelResults: [] // {correct, total, stars} per level
+    };
+
+    function me_resetAll() {
+      me_state = { currentLevelIdx:0, currentClue:0, correctCount:0, answered:false, levelResults:[] };
+    }
 
     function me_showScreen(id) {
       document.querySelectorAll('#me-wrap .me-screen').forEach(s => s.classList.remove('active'));
       const el = document.getElementById(id);
-      if (el) { el.classList.add('active', 'me-fade-enter'); setTimeout(() => el.classList.remove('me-fade-enter'), 500); }
+      if (el) { el.classList.add('active','me-fade-enter'); setTimeout(()=>el.classList.remove('me-fade-enter'),500); }
     }
 
-    function me_startGame() {
-      me_currentClue = 0; me_correctCount = 0; me_answered = false;
+    // ── Level Select ──
+    function me_showLevelSelect() {
+      me_buildLevelSelect();
+      me_showScreen('me-level-select');
+    }
+
+    function me_buildLevelSelect() {
+      const grid = document.getElementById('me-level-grid');
+      const starsBar = document.getElementById('me-total-stars-bar');
+      if (!grid) return;
+      const totalStars = me_state.levelResults.reduce((s,r)=>s+(r?r.stars:0),0);
+      const maxStars   = ME_LEVELS.length * 3;
+      if (starsBar) starsBar.innerHTML = `<span style="font-family:'Cinzel',serif;font-size:0.75rem;color:var(--me-gold);">Total Stars: ${totalStars} / ${maxStars} ${'⭐'.repeat(Math.min(totalStars,maxStars))}</span>`;
+      grid.innerHTML = ME_LEVELS.map((lv,i) => {
+        const result   = me_state.levelResults[i];
+        const done     = !!result;
+        const unlocked = i === 0 || !!me_state.levelResults[i-1];
+        const stars    = done ? '⭐'.repeat(result.stars) : (unlocked ? '' : '🔒');
+        const pct      = done ? Math.round((result.correct/result.total)*100)+'%' : (unlocked ? 'Ready' : 'Locked');
+        const opacity  = unlocked ? '1' : '0.5';
+        const cursor   = unlocked ? 'pointer' : 'default';
+        const borderClr = done ? 'rgba(212,148,42,0.7)' : (unlocked ? 'rgba(212,148,42,0.3)' : 'rgba(100,100,100,0.3)');
+        return `<div class="me-level-card" style="opacity:${opacity};cursor:${cursor};border-color:${borderClr};"
+          ${unlocked ? `onclick="me_openLevel(${i})"` : ''}>
+          <div class="me-lc-icon" style="color:${lv.color};">${lv.icon}</div>
+          <div class="me-lc-num" style="color:var(--me-gold-bright);">Level ${i+1}</div>
+          <div class="me-lc-title">${lv.title}</div>
+          <div class="me-lc-stars">${stars || (unlocked ? '· · ·' : '🔒')}</div>
+          <div class="me-lc-pct" style="color:${done?'#a8f0c8':'var(--me-parchment-dark)'};">${pct}</div>
+        </div>`;
+      }).join('');
+    }
+
+    function me_openLevel(idx) {
+      const unlocked = idx === 0 || !!me_state.levelResults[idx-1];
+      if (!unlocked) return;
+      me_state.currentLevelIdx = idx;
+      // Show briefing
+      const lv = ME_LEVELS[idx];
+      const setEl = (id,v,html)=>{ const e=document.getElementById(id); if(e){ if(html)e.innerHTML=v; else e.textContent=v; }};
+      setEl('me-brief-icon', lv.icon);
+      setEl('me-brief-badge', `Level ${idx+1} of ${ME_LEVELS.length}`);
+      setEl('me-brief-title', lv.title);
+      setEl('me-brief-sub', lv.sub);
+      setEl('me-brief-story', lv.story, true);
+      const pills = document.getElementById('me-brief-pills');
+      if (pills) pills.innerHTML = lv.pills.map(p=>`<div class="me-clue-pill">${p}</div>`).join('');
+      me_showScreen('me-briefing');
+    }
+
+    function me_startLevel() {
+      const lv = ME_LEVELS[me_state.currentLevelIdx];
+      me_state.currentClue  = 0;
+      me_state.correctCount = 0;
+      me_state.answered     = false;
+      // Update header
+      const hdr = document.getElementById('me-level-badge-hdr');
+      if (hdr) hdr.textContent = lv.icon + ' Level ' + (me_state.currentLevelIdx+1);
+      // Draw level dots
+      me_buildLevelDots();
       me_showScreen('me-game');
-      me_loadClue(0); me_updateSignal();
+      me_loadClue(0);
+      me_updateSignal();
     }
 
+    function me_buildLevelDots() {
+      const wrap = document.getElementById('me-level-dots');
+      if (!wrap) return;
+      wrap.innerHTML = ME_LEVELS.map((lv,i) => {
+        const done = !!me_state.levelResults[i];
+        const active = i === me_state.currentLevelIdx;
+        const unlocked = i===0||!!me_state.levelResults[i-1];
+        const color = active ? 'var(--me-gold-bright)' : (done ? 'var(--me-success-glow)' : (unlocked ? 'rgba(212,148,42,0.4)' : 'rgba(100,100,100,0.3)'));
+        const size = active ? '10px' : '8px';
+        return `<div title="Level ${i+1}" style="width:${size};height:${size};border-radius:50%;background:${color};flex-shrink:0;transition:all 0.3s;"></div>`;
+      }).join('');
+    }
+
+    // ── Clue Loading ──
     function me_loadClue(index) {
-      me_answered = false;
-      const clue = ME_CLUES[index];
-      const qEl = document.getElementById('me-q-counter');
-      const rtEl = document.getElementById('me-round-tag');
-      const ctEl = document.getElementById('me-clue-text');
-      const ttEl = document.getElementById('me-map-tooltip');
-      if (qEl)  qEl.textContent  = 'Clue ' + (index+1) + ' / ' + ME_CLUES.length;
-      if (rtEl) rtEl.textContent = 'Clue ' + (index+1);
-      if (ctEl) ctEl.innerHTML   = clue.transmission;
-      if (ttEl) ttEl.textContent = '🗺️ ' + clue.mapNote;
+      me_state.answered = false;
+      const lv   = ME_LEVELS[me_state.currentLevelIdx];
+      const clue = lv.clues[index];
+      const total = lv.clues.length;
+      const setEl = (id,v,html)=>{ const e=document.getElementById(id); if(e){ if(html)e.innerHTML=v; else e.textContent=v; }};
+      setEl('me-q-counter', `Clue ${index+1} / ${total}`);
+      setEl('me-round-tag', `Clue ${index+1}`);
+      setEl('me-clue-text', clue.transmission, true);
+      setEl('me-map-tooltip', '🗺️ ' + clue.mapNote);
       const grid = document.getElementById('me-options-grid');
       if (grid) {
         grid.innerHTML = '';
         const letters = ['A','B','C','D'];
-        const opts = [...clue.options].sort(() => Math.random() - 0.5);
-        opts.forEach((opt, i) => {
+        const opts = [...clue.options].sort(()=>Math.random()-0.5);
+        opts.forEach((opt,i)=>{
           const btn = document.createElement('button');
           btn.className = 'me-option-btn';
           btn.textContent = opt;
           btn.setAttribute('data-letter', letters[i]);
-          btn.onclick = () => me_selectAnswer(opt, clue, btn);
+          btn.onclick = ()=>me_selectAnswer(opt, clue, btn);
           grid.appendChild(btn);
         });
       }
       const fb = document.getElementById('me-feedback-bar');
-      if (fb) { fb.className = 'me-feedback-bar'; fb.innerHTML = ''; }
+      if (fb) { fb.className='me-feedback-bar'; fb.innerHTML=''; }
       const nw = document.getElementById('me-next-wrap');
       if (nw) nw.classList.remove('visible');
       me_highlightMap(clue.highlight, clue.markerX, clue.markerY);
     }
 
     function me_selectAnswer(chosen, clue, btn) {
-      if (me_answered) return;
-      me_answered = true;
+      if (me_state.answered) return;
+      me_state.answered = true;
       const allBtns = document.querySelectorAll('#me-options-grid .me-option-btn');
-      allBtns.forEach(b => b.classList.add('disabled'));
+      allBtns.forEach(b=>b.classList.add('disabled'));
       const fb = document.getElementById('me-feedback-bar');
       if (chosen === clue.answer) {
-        btn.classList.add('correct'); me_correctCount++;
-        if (fb) { fb.className = 'me-feedback-bar correct'; fb.innerHTML = clue.correct_feedback; }
+        btn.classList.add('correct');
+        me_state.correctCount++;
+        if (fb) { fb.className='me-feedback-bar correct'; fb.innerHTML=clue.correct_feedback; }
       } else {
         btn.classList.add('incorrect');
-        if (fb) { fb.className = 'me-feedback-bar incorrect'; fb.innerHTML = clue.incorrect_feedback; }
-        allBtns.forEach(b => { if (b.textContent === clue.answer) b.classList.add('correct'); });
+        if (fb) { fb.className='me-feedback-bar incorrect'; fb.innerHTML=clue.incorrect_feedback; }
+        allBtns.forEach(b=>{ if (b.textContent===clue.answer) b.classList.add('correct'); });
       }
       me_updateSignal();
       const nw = document.getElementById('me-next-wrap');
+      const lv = ME_LEVELS[me_state.currentLevelIdx];
       if (nw) {
-        nw.querySelector('button').textContent = me_currentClue < ME_CLUES.length - 1 ? '📡 Next Transmission →' : '🏁 See Results';
+        const isLast = me_state.currentClue >= lv.clues.length - 1;
+        nw.querySelector('button').textContent = isLast ? '🏁 See Level Results' : '📡 Next Transmission →';
         nw.classList.add('visible');
       }
     }
 
     function me_nextClue() {
-      me_currentClue++;
-      if (me_currentClue >= ME_CLUES.length) me_endGame();
-      else me_loadClue(me_currentClue);
+      me_state.currentClue++;
+      const lv = ME_LEVELS[me_state.currentLevelIdx];
+      if (me_state.currentClue >= lv.clues.length) me_endLevel();
+      else me_loadClue(me_state.currentClue);
     }
 
     function me_updateSignal() {
-      const pct = Math.round((me_correctCount / ME_CLUES.length) * 100);
+      const lv  = ME_LEVELS[me_state.currentLevelIdx];
+      const pct = Math.round((me_state.correctCount / lv.clues.length) * 100);
       const fill = document.getElementById('me-signal-fill');
       const pctEl = document.getElementById('me-signal-pct');
       if (fill)  fill.style.width = pct + '%';
@@ -4699,47 +5009,94 @@
     }
 
     function me_highlightMap(type, mx, my) {
-      ['equator','prime','toc','tocap','arctic','antarctic'].forEach(id => {
-        const el = document.getElementById('me-line-' + id);
-        if (el) { el.style.stroke = ''; el.style.strokeWidth = ''; el.classList.remove('me-highlight-line'); }
+      ['equator','prime','toc','tocap','arctic','antarctic'].forEach(id=>{
+        const el = document.getElementById('me-line-'+id);
+        if (el) { el.style.stroke=''; el.style.strokeWidth=''; el.classList.remove('me-highlight-line'); }
       });
-      const lineMap = {
-        equator: { id:'me-line-equator', color:'rgba(255,220,50,0.9)', w:'2.5' },
-        prime:   { id:'me-line-prime',   color:'rgba(255,220,50,0.9)', w:'2.5' },
-        toc:     { id:'me-line-toc',     color:'rgba(255,140,50,0.95)',w:'2.5' },
-        tocap:   { id:'me-line-tocap',   color:'rgba(255,140,50,0.95)',w:'2.5' },
-        arctic:  { id:'me-line-arctic',  color:'rgba(100,200,255,0.95)',w:'2.5' },
-        india:   { id: null }
+      const map = {
+        equator:{id:'me-line-equator',color:'rgba(255,220,50,0.9)',w:'2.5'},
+        prime:  {id:'me-line-prime',  color:'rgba(255,220,50,0.9)',w:'2.5'},
+        toc:    {id:'me-line-toc',    color:'rgba(255,140,50,0.95)',w:'2.5'},
+        tocap:  {id:'me-line-tocap',  color:'rgba(255,140,50,0.95)',w:'2.5'},
+        arctic: {id:'me-line-arctic', color:'rgba(100,200,255,0.95)',w:'2.5'},
+        india:  {id:null}
       };
-      const cfg = lineMap[type];
+      const cfg = map[type];
       if (cfg && cfg.id) {
         const el = document.getElementById(cfg.id);
-        if (el) { el.style.stroke = cfg.color; el.style.strokeWidth = cfg.w; el.classList.add('me-highlight-line'); }
+        if (el) { el.style.stroke=cfg.color; el.style.strokeWidth=cfg.w; el.classList.add('me-highlight-line'); }
       }
-      const marker = document.getElementById('me-loc-marker');
-      const mInner = document.getElementById('me-loc-marker-inner');
-      if (marker) { marker.setAttribute('cx', mx); marker.setAttribute('cy', my); marker.setAttribute('opacity','1'); }
-      if (mInner) { mInner.setAttribute('cx', mx); mInner.setAttribute('cy', my); mInner.setAttribute('opacity','1'); }
+      const mk  = document.getElementById('me-loc-marker');
+      const mki = document.getElementById('me-loc-marker-inner');
+      if (mk)  { mk.setAttribute('cx',mx); mk.setAttribute('cy',my); mk.setAttribute('opacity','1'); }
+      if (mki) { mki.setAttribute('cx',mx); mki.setAttribute('cy',my); mki.setAttribute('opacity','1'); }
     }
 
-    function me_endGame() {
-      const pct = Math.round((me_correctCount / ME_CLUES.length) * 100);
-      const setEl = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
-      setEl('me-correct-count', me_correctCount + ' / ' + ME_CLUES.length);
-      setEl('me-final-signal', pct + '%');
-      setEl('me-go-correct', me_correctCount + ' / ' + ME_CLUES.length);
-      let rank, stars;
-      if (me_correctCount === 6)      { rank = '🗺️ Master Navigator'; stars = '⭐⭐⭐'; }
-      else if (me_correctCount >= 4)  { rank = '🧭 Skilled Explorer';  stars = '⭐⭐'; }
-      else if (me_correctCount >= 2)  { rank = '📡 Junior Surveyor';   stars = '⭐'; }
-      else                            { rank = '📻 Lost Traveller';    stars = ''; }
-      setEl('me-rank-label', rank); setEl('me-stars-wrap', stars);
-      if (me_correctCount >= 3) {
-        me_showScreen('me-win');
-        if (me_correctCount >= 5) me_launchConfetti();
-      } else {
-        me_showScreen('me-gameover');
+    // ── Level End ──
+    function me_endLevel() {
+      const lv    = ME_LEVELS[me_state.currentLevelIdx];
+      const total = lv.clues.length;
+      const pct   = Math.round((me_state.correctCount/total)*100);
+      const pass  = me_state.correctCount >= Math.ceil(total/2);
+      let stars = 0;
+      if (me_state.correctCount === total) stars = 3;
+      else if (me_state.correctCount >= Math.ceil(total*0.67)) stars = 2;
+      else if (pass) stars = 1;
+      // Save result (keep best)
+      const prev = me_state.levelResults[me_state.currentLevelIdx];
+      if (!prev || stars > prev.stars) {
+        me_state.levelResults[me_state.currentLevelIdx] = { correct: me_state.correctCount, total, stars };
       }
+      if (!pass) {
+        // Fail
+        const setEl=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+        setEl('me-go-level', `${me_state.currentLevelIdx+1}`);
+        setEl('me-go-correct', `${me_state.correctCount} / ${total}`);
+        me_showScreen('me-gameover');
+        return;
+      }
+      // Level complete screen
+      const icons   = ['🎯','🌟','🗺️','🇮🇳','⏰','🏆'];
+      const setEl   = (id,v,html)=>{const e=document.getElementById(id);if(e){if(html)e.innerHTML=v;else e.textContent=v;}};
+      setEl('me-lc-icon',   icons[me_state.currentLevelIdx]);
+      setEl('me-lc-title',  pass ? 'Level ' + (me_state.currentLevelIdx+1) + ' Complete!' : 'Level Failed');
+      setEl('me-lc-sub',    lv.title);
+      setEl('me-lc-stars',  '⭐'.repeat(stars) + (stars<3?'☆'.repeat(3-stars):''));
+      setEl('me-lc-level',  `${me_state.currentLevelIdx+1} of ${ME_LEVELS.length}`);
+      setEl('me-lc-correct',`${me_state.correctCount} / ${total}`);
+      setEl('me-lc-signal', `${pct}%`);
+      const nextBtn = document.getElementById('me-lc-next-btn');
+      const isLast  = me_state.currentLevelIdx >= ME_LEVELS.length - 1;
+      if (nextBtn) {
+        if (isLast) { nextBtn.textContent = '🏆 Mission Complete!'; nextBtn.onclick = me_showMasterWin; }
+        else        { nextBtn.textContent = '→ Next Level';         nextBtn.onclick = me_goNextLevel; }
+      }
+      me_showScreen('me-level-complete');
+      if (stars === 3) me_launchConfetti();
+    }
+
+    function me_goNextLevel() {
+      const nextIdx = me_state.currentLevelIdx + 1;
+      if (nextIdx >= ME_LEVELS.length) { me_showMasterWin(); return; }
+      me_openLevel(nextIdx);
+    }
+
+    function me_showMasterWin() {
+      const totalCorrect = me_state.levelResults.reduce((s,r)=>s+(r?r.correct:0),0);
+      const totalStars   = me_state.levelResults.reduce((s,r)=>s+(r?r.stars:0),0);
+      const maxStars     = ME_LEVELS.length * 3;
+      let rank;
+      if (totalStars >= maxStars)      rank = '🌟 Grand Master Navigator';
+      else if (totalStars >= maxStars*0.8) rank = '🗺️ Expert Explorer';
+      else if (totalStars >= maxStars*0.6) rank = '🧭 Skilled Surveyor';
+      else                             rank = '📡 Junior Cartographer';
+      const setEl=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+      setEl('me-win-levels',  ME_LEVELS.length + ' / ' + ME_LEVELS.length);
+      setEl('me-win-correct', totalCorrect);
+      setEl('me-win-stars',   '⭐'.repeat(totalStars) + ' (' + totalStars + '/' + maxStars + ')');
+      setEl('me-win-rank',    rank);
+      me_showScreen('me-win');
+      me_launchConfetti();
     }
 
     function me_launchConfetti() {
@@ -4749,7 +5106,7 @@
         p.className = 'me-confetti-piece';
         p.style.cssText = `left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;animation-duration:${2+Math.random()*3}s;animation-delay:${Math.random()*1.5}s;`;
         document.body.appendChild(p);
-        p.addEventListener('animationend', () => p.remove());
+        p.addEventListener('animationend', ()=>p.remove());
       }
     }
     // ── End Mission Explorer ──
