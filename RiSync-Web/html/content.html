@@ -673,6 +673,8 @@
                 <div class="progress-bar" id="progress-bar"></div>
               </div>
             </div>
+            <!-- NCERT Subject Quick Stats -->
+            <div id="ncert-subject-stats" class="space-y-2 pt-1"></div>
             <div class="pt-2 border-t border-slate-50 space-y-2">
               <div class="flex items-center justify-between p-3 bg-surface-bright rounded-xl">
                 <div class="flex items-center gap-3">
@@ -690,12 +692,27 @@
               </div>
             </div>
             <div class="flex gap-3 pt-1">
-              <a href="subjects.html" class="btn-primary-gradient px-5 py-2 rounded-xl text-white text-sm font-bold shadow-lg shadow-primary/10">Resume Learning</a>
+              <a href="ncert.html" class="btn-primary-gradient px-5 py-2 rounded-xl text-white text-sm font-bold shadow-lg shadow-primary/10">Resume Learning</a>
               <a href="leaderboard.html" class="bg-surface-container px-5 py-2 rounded-xl text-primary text-sm font-bold hover:bg-surface-container-high transition-colors">Leaderboard</a>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- ===== NCERT CLASS 6 SUBJECTS SECTION ===== -->
+      <section class="space-y-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="editorial-header text-2xl font-bold text-indigo-900">Class 6 NCERT Subjects</h3>
+            <p class="text-sm text-on-surface-variant mt-0.5">Aligned with NCERT &amp; NEP 2020 — tap a subject to explore chapters</p>
+          </div>
+          <a href="ncert.html" class="btn-primary-gradient text-white text-sm font-bold px-5 py-2.5 rounded-xl shadow-md hover:-translate-y-0.5 transition-transform flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">open_in_new</span> Open NCERT
+          </a>
+        </div>
+        <div id="ncert-subjects-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5"></div>
+      </section>
+
     </main>
   </div>
 
@@ -1324,6 +1341,189 @@
 
     takeSnapshot();
     populateLanguages();
+  </script>
+
+  <!-- ===== NCERT SUBJECTS RENDERING SCRIPT ===== -->
+  <script>
+    const ncertSubjects = [
+      {
+        key: 'mathematics',
+        icon: 'calculate',
+        title: 'Mathematics',
+        bookTitle: 'Ganita Prakash',
+        description: 'Explore numbers, algebra, and geometry with interactive lessons.',
+        accent: { bg: '#eff4ff', border: '#c0c1ff', icon: '#15157d', badge: '#2e3192', badgeText: '#fff' },
+        chapters: [
+          { num:1,  title:'Patterns in Mathematics',         url:'ncert.html' },
+          { num:2,  title:'Lines and Angles',                url:'ncert.html' },
+          { num:3,  title:'Number Play',                     url:'ncert.html' },
+          { num:4,  title:'Data Handling and Presentation',  url:'ncert.html' },
+          { num:5,  title:'Prime Time',                      url:'ncert.html' },
+          { num:6,  title:'Perimeter and Area',              url:'ncert.html' },
+          { num:7,  title:'Fractions',                       url:'ncert.html' },
+          { num:8,  title:'Playing with Constructions',      url:'ncert.html' },
+          { num:9,  title:'Symmetry',                        url:'ncert.html' },
+          { num:10, title:'The Other Side of Zero',          url:'ncert.html' },
+        ]
+      },
+      {
+        key: 'science',
+        icon: 'science',
+        title: 'Science',
+        bookTitle: 'Curiosity',
+        description: 'Discover the natural world through observation and experimentation.',
+        accent: { bg: '#e6faf5', border: '#68dba9', icon: '#006c4a', badge: '#006c4a', badgeText: '#fff' },
+        chapters: [
+          { num:1,  title:'Food: Where Does It Come From?',             url:'ncert.html' },
+          { num:2,  title:'Sorting Materials into Groups',               url:'ncert.html' },
+          { num:3,  title:'Components of Food',                          url:'ncert.html' },
+          { num:4,  title:'Fibre to Fabric',                             url:'ncert.html' },
+          { num:5,  title:'Separation of Substances',                    url:'ncert.html' },
+          { num:6,  title:'Changes Around Us',                           url:'ncert.html' },
+          { num:7,  title:'Getting to Know Plants',                      url:'ncert.html' },
+          { num:8,  title:'Body Movements',                              url:'ncert.html' },
+          { num:9,  title:'Living Organisms and Their Surroundings',     url:'ncert.html' },
+          { num:10, title:'Motion and Measurement of Distances',         url:'ncert.html' },
+          { num:11, title:'Light, Shadows and Reflections',              url:'ncert.html' },
+          { num:12, title:'Electricity and Circuits',                    url:'ncert.html' },
+        ]
+      },
+      {
+        key: 'social_science',
+        icon: 'public',
+        title: 'Social Science',
+        bookTitle: 'Exploring Society: India and Beyond',
+        description: 'Understand history, geography, civics and social structures.',
+        accent: { bg: '#fff3eb', border: '#ffdcc3', icon: '#623200', badge: '#623200', badgeText: '#f99028' },
+        chapters: [
+          { num:1,  title:'Locating Places on the Earth',                                           url:'ncert.html' },
+          { num:2,  title:'Oceans and Continents',                                                  url:'ncert.html' },
+          { num:3,  title:'Landforms and Life',                                                     url:'ncert.html' },
+          { num:4,  title:'Timeline and Sources of History',                                        url:'ncert.html' },
+          { num:5,  title:'India, That Is Bharat',                                                  url:'ncert.html' },
+          { num:6,  title:'The Beginnings of Indian Civilisation',                                  url:'ncert.html' },
+          { num:7,  title:"India's Cultural Roots",                                                 url:'ncert.html' },
+          { num:8,  title:'Unity in Diversity',                                                     url:'ncert.html' },
+          { num:9,  title:'Family and Community',                                                   url:'ncert.html' },
+          { num:10, title:'Grassroots Democracy – Part 1: Governance',                              url:'ncert.html' },
+          { num:11, title:'Grassroots Democracy – Part 2: Local Government in Rural Areas',        url:'ncert.html' },
+          { num:12, title:'Grassroots Democracy – Part 3: Local Government in Urban Areas',        url:'ncert.html' },
+          { num:13, title:'The Value of Work',                                                      url:'ncert.html' },
+          { num:14, title:'Economic Activities Around Us',                                          url:'ncert.html' },
+        ]
+      },
+      {
+        key: 'english',
+        icon: 'menu_book',
+        title: 'English',
+        bookTitle: 'Poorvi',
+        description: 'Explore stories, poems, and language skills through the NCERT Poorvi textbook.',
+        accent: { bg: '#f0f0ff', border: '#c0c1ff', icon: '#15157d', badge: '#15157d', badgeText: '#fff' },
+        chapters: [
+          { num:1, title:'A Bottle of Dew',       url:'ncert.html' },
+          { num:2, title:'The Kite',               url:'ncert.html' },
+          { num:3, title:'Rama to the Rescue',     url:'ncert.html' },
+          { num:4, title:'The Giving Tree',        url:'ncert.html' },
+          { num:5, title:'Colours of the Rainbow', url:'ncert.html' },
+        ]
+      },
+      {
+        key: 'hindi',
+        icon: 'translate',
+        title: 'Hindi',
+        bookTitle: 'वसंत / Vasant',
+        description: 'Learn the fundamentals of Hindi grammar, vocabulary, and sentence formation.',
+        accent: { bg: '#fdeaea', border: '#ffdad6', icon: '#ba1a1a', badge: '#ba1a1a', badgeText: '#fff' },
+        chapters: [
+          { num:1, title:'संज्ञा (Nouns)',        url:'ncert.html' },
+          { num:2, title:'सर्वनाम (Pronouns)',    url:'ncert.html' },
+          { num:3, title:'क्रिया (Verbs)',        url:'ncert.html' },
+          { num:4, title:'विशेषण (Adjectives)',   url:'ncert.html' },
+          { num:5, title:'वाक्य रचना (Sentence Structure)', url:'ncert.html' },
+        ]
+      }
+    ];
+
+    // ---- Render quick stats in the progress widget ----
+    function renderSubjectStats() {
+      const container = document.getElementById('ncert-subject-stats');
+      if (!container) return;
+      container.innerHTML = ncertSubjects.map(s => `
+        <div class="flex items-center justify-between text-xs py-1.5 border-b border-slate-50 last:border-0">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm" style="color:${s.accent.icon}">${s.icon}</span>
+            <span class="font-semibold text-on-surface">${s.title}</span>
+          </div>
+          <span class="font-bold" style="color:${s.accent.icon}">${s.chapters.length} ch</span>
+        </div>
+      `).join('');
+    }
+
+    // ---- Render full subject cards ----
+    function renderNCERTSubjects() {
+      const grid = document.getElementById('ncert-subjects-grid');
+      if (!grid) return;
+
+      ncertSubjects.forEach((subj, si) => {
+        const card = document.createElement('div');
+        card.className = 'bg-surface-container-lowest rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.06)] overflow-hidden border';
+        card.style.borderColor = subj.accent.border;
+
+        const chaptersHTML = subj.chapters.map(ch => `
+          <a href="${ch.url}" class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors group border-b border-slate-50 last:border-0">
+            <span class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-extrabold flex-shrink-0"
+              style="background:${subj.accent.badge};color:${subj.accent.badgeText}">${ch.num}</span>
+            <span class="text-sm text-on-surface font-medium group-hover:text-primary transition-colors leading-snug">${ch.title}</span>
+            <span class="material-symbols-outlined text-sm text-slate-300 group-hover:text-primary ml-auto flex-shrink-0 transition-colors">chevron_right</span>
+          </a>
+        `).join('');
+
+        card.innerHTML = `
+          <!-- Card Header -->
+          <div class="p-5 cursor-pointer select-none" onclick="toggleNCERTCard(${si})" style="background:${subj.accent.bg}">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style="background:${subj.accent.badge}">
+                  <span class="material-symbols-outlined text-white">${subj.icon}</span>
+                </div>
+                <div>
+                  <h4 class="editorial-header text-base font-extrabold text-indigo-900 leading-tight">${subj.title}</h4>
+                  <p class="text-[10px] uppercase tracking-widest font-bold mt-0.5" style="color:${subj.accent.icon}">${subj.bookTitle}</p>
+                </div>
+              </div>
+              <div class="flex flex-col items-end gap-1 flex-shrink-0">
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:${subj.accent.badge};color:${subj.accent.badgeText}">${subj.chapters.length} Chapters</span>
+                <span class="material-symbols-outlined text-sm transition-transform duration-200" id="ncert-chevron-${si}" style="color:${subj.accent.icon}">expand_more</span>
+              </div>
+            </div>
+            <p class="text-xs text-on-surface-variant mt-3 leading-relaxed">${subj.description}</p>
+          </div>
+          <!-- Chapter List (collapsed by default) -->
+          <div id="ncert-chapters-${si}" class="hidden">
+            <div class="px-4 py-2.5 flex items-center justify-between bg-surface-bright border-b" style="border-color:${subj.accent.border}">
+              <span class="text-[10px] uppercase tracking-widest font-bold" style="color:${subj.accent.icon}">All Chapters</span>
+              <a href="ncert.html" class="text-[10px] font-bold hover:underline" style="color:${subj.accent.icon}">Open Subject →</a>
+            </div>
+            <div class="max-h-64 overflow-y-auto">
+              ${chaptersHTML}
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function toggleNCERTCard(index) {
+      const list = document.getElementById('ncert-chapters-' + index);
+      const chevron = document.getElementById('ncert-chevron-' + index);
+      const isHidden = list.classList.contains('hidden');
+      list.classList.toggle('hidden', !isHidden);
+      chevron.style.transform = isHidden ? 'rotate(180deg)' : '';
+    }
+
+    renderSubjectStats();
+    renderNCERTSubjects();
   </script>
 </body>
 </html>
