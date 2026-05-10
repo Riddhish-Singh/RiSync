@@ -859,7 +859,70 @@
           if (welcomeMsg) welcomeMsg.textContent = userData.fullname || "Welcome back";
           if (userData.branch) document.getElementById('displayBranch').innerText = userData.branch;
           if (userData.todos) renderTodos(userData.todos);
-          updateProgressUI(userData.progress !== undefined ? userData.progress : 0);
+
+          // Read NCERT progress — prefer root-doc fields (written by updated NCERT.html),
+          // fall back to computing from the subcollection for users who haven't opened NCERT yet.
+          console.log('[RiSync] userData keys:', Object.keys(userData));
+          console.log('[RiSync] ncertProgress raw:', userData.ncertProgress, '| totalPoints raw:', userData.ncertTotalPoints);
+          if (typeof userData.ncertProgress === 'number') {
+            // Fast path: fields already written by NCERT.html
+            updateProgressUI(userData.ncertProgress);
+            renderSubjectStats({
+              ncertPoints:   userData.ncertTotalPoints       || 0,
+              ncertQuizzes:  userData.ncertQuizzesAttempted  || 0,
+              ncertSubjDone: userData.ncertCompletedSubjects || 0,
+              ncertAvg:      userData.ncertAverageScore      || 0,
+              ncertProgress: userData.ncertProgress          || 0,
+              ncertTotal:    userData.ncertTotalLessons       || 0
+            });
+          } else {
+            // Fallback: compute from subcollection (pre-update data)
+            try {
+              const classNum  = userData.class || userData.grade || userData.className || '6';
+              console.log('[RiSync] Fetching subcollection for class:', classNum, '| uid:', user.uid);
+              const ncertRef  = doc(db, 'users', user.uid, 'ncert', `class${classNum}progress`);
+              const ncertSnap = await getDoc(ncertRef);
+              console.log('[RiSync] Subcollection exists:', ncertSnap.exists());
+              if (ncertSnap.exists()) {
+                console.log('[RiSync] Subcollection data keys:', Object.keys(ncertSnap.data()));
+                console.log('[RiSync] performance:', JSON.stringify(ncertSnap.data().performance).substring(0, 200));
+                const ncertData    = ncertSnap.data();
+                const performance  = ncertData.performance || {};
+                const subjects     = typeof ncertSubjects !== 'undefined' ? ncertSubjects : [];
+                const totalLessons = subjects.reduce((sum, s) => sum + s.chapters.length, 0) || 1;
+                let completedQuizzes = 0, totalScore = 0, completedSubjects = 0;
+                for (const subjectKey in performance) {
+                  let allDone = true;
+                  for (const lessonIdx in performance[subjectKey]) {
+                    const perf = performance[subjectKey][lessonIdx];
+                    if (perf && typeof perf.score === 'number' && !isNaN(perf.score)) {
+                      completedQuizzes++;
+                      totalScore += perf.score;
+                    } else if (!perf) { allDone = false; }
+                  }
+                  if (allDone) completedSubjects++;
+                }
+                const avg      = completedQuizzes > 0 ? totalScore / completedQuizzes : 0;
+                const progress = Math.round((completedQuizzes / totalLessons) * 100);
+                updateProgressUI(progress);
+                renderSubjectStats({
+                  ncertPoints:   ncertData.totalPoints || 0,
+                  ncertQuizzes:  completedQuizzes,
+                  ncertSubjDone: completedSubjects,
+                  ncertAvg:      avg,
+                  ncertProgress: progress,
+                  ncertTotal:    totalLessons
+                });
+              } else {
+                updateProgressUI(0);
+                renderSubjectStats({});
+              }
+            } catch (e) {
+              console.warn('NCERT progress fallback failed:', e);
+              updateProgressUI(0);
+              renderSubjectStats({});
+            }
+          }
         }
       } else {
         window.location.href = "signin.html";
@@ -1445,18 +1508,47 @@
     ];
 
     // ---- Render quick stats in the progress widget ----
-    function renderSubjectStats() {
+    function renderSubjectStats(stats) {
       const container = document.getElementById('ncert-subject-stats');
       if (!container) return;
-      container.innerHTML = ncertSubjects.map(s => `
-        <div class="flex items-center justify-between text-xs py-1.5 border-b border-slate-50 last:border-0">
-          <div class="flex items-center gap-2">
-            <span class="material-symbols-outlined text-sm" style="color:${s.accent.icon}">${s.icon}</span>
-            <span class="font-semibold text-on-surface">${s.title}</span>
+      const s = stats || {};
+      const points   = s.ncertPoints   || 0;
+      const quizzes  = s.ncertQuizzes  || 0;
+      const subjDone = s.ncertSubjDone || 0;
+      const avg      = s.ncertAvg      || 0;
+      const pct      = s.ncertProgress || 0;
+      const total    = s.ncertTotal    || 0;
+      container.innerHTML = `
+        <!-- Live stats grid -->
+        <div class="grid grid-cols-2 gap-2 pb-3 border-b border-slate-100">
+          <div class="bg-surface-bright rounded-lg p-2.5 text-center">
+            <p class="text-lg font-extrabold editorial-header text-primary leading-none">${points}</p>
+            <p class="text-[10px] text-on-surface-variant font-medium mt-0.5">Points Earned</p>
           </div>
-          <span class="font-bold" style="color:${s.accent.icon}">${s.chapters.length} ch</span>
+          <div class="bg-surface-bright rounded-lg p-2.5 text-center">
+            <p class="text-lg font-extrabold editorial-header text-secondary leading-none">${quizzes}${total ? '<span class="text-xs font-medium text-on-surface-variant">/' + total + '</span>' : ''}</p>
+            <p class="text-[10px] text-on-surface-variant font-medium mt-0.5">Quizzes Done</p>
+          </div>
+          <div class="bg-surface-bright rounded-lg p-2.5 text-center">
+            <p class="text-lg font-extrabold editorial-header text-on-tertiary-container leading-none">${subjDone}</p>
+            <p class="text-[10px] text-on-surface-variant font-medium mt-0.5">Subjects Done</p>
+          </div>
+          <div class="bg-surface-bright rounded-lg p-2.5 text-center">
+            <p class="text-lg font-extrabold editorial-header text-primary leading-none">${avg > 0 ? avg.toFixed(1) + '%' : '—'}</p>
+            <p class="text-[10px] text-on-surface-variant font-medium mt-0.5">Avg Score</p>
+          </div>
         </div>
-      `).join('');
+        <!-- Subject chapter counts -->
+        ${ncertSubjects.map(subj => `
+          <div class="flex items-center justify-between text-xs py-1.5 border-b border-slate-50 last:border-0">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-sm" style="color:${subj.accent.icon}">${subj.icon}</span>
+              <span class="font-semibold text-on-surface">${subj.title}</span>
+            </div>
+            <span class="font-bold" style="color:${subj.accent.icon}">${subj.chapters.length} ch</span>
+          </div>
+        `).join('')}
+      `;
     }
 
     // ---- Render full subject cards ----
