@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>RiSync | Class 6 NCERT Learning Platform</title>
+  <title>RiSync | NCERT Learning Platform</title>
   <link href="https://fonts.googleapis.com" rel="preconnect"/>
   <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet"/>
@@ -470,6 +470,17 @@
   <!-- ===== PAGE WRAPPER ===== -->
   <div class="max-w-6xl mx-auto space-y-8">
 
+    <!-- ===== CLASS LOADING OVERLAY ===== -->
+    <div id="class-loading-overlay" class="fixed inset-0 z-[2000] flex items-center justify-center bg-background/95 backdrop-blur-sm">
+      <div class="text-center space-y-4">
+        <div class="w-16 h-16 mx-auto rounded-2xl bg-primary-container flex items-center justify-center shadow-lg">
+          <span class="material-symbols-outlined text-3xl text-primary animate-spin" style="animation:spin 1s linear infinite">autorenew</span>
+        </div>
+        <p class="editorial-header text-lg font-bold text-indigo-900">Loading your class…</p>
+        <p class="text-sm text-on-surface-variant" id="class-loading-msg">Checking your profile</p>
+      </div>
+    </div>
+
     <!-- ===== HEADER ===== -->
     <header class="flex flex-col sm:flex-row items-center justify-between gap-4 py-2">
       <a href="../index.html" class="flex items-center gap-3">
@@ -480,7 +491,7 @@
         </div>
       </a>
       <div class="text-center sm:text-right">
-        <h2 class="editorial-header text-2xl font-extrabold text-indigo-900">Class 6 Learning Platform</h2>
+        <h2 id="class-header-title" class="editorial-header text-2xl font-extrabold text-indigo-900">NCERT Learning Platform</h2>
         <p class="text-sm text-on-surface-variant mt-0.5">Aligned with NCERT &amp; NEP 2020</p>
       </div>
     </header>
@@ -758,7 +769,16 @@
 
   <!-- ===== MAIN APP SCRIPT ===== -->
   <script>
-    const courseData = {
+    // Active class (set after Firestore lookup)
+    let activeClass = '6';
+    let courseData = {}; // Will be set dynamically based on student's class
+
+    // ALL_COURSE_DATA is defined externally in class-data.js equivalent
+    // For Class 6 we use the rich content below; other classes have stub content
+    const ALL_COURSE_DATA = {};
+
+    // Will be populated below with Class 6 full content
+    const CLASS6_DATA = {
       'mathematics': {
         icon: 'calculate',
         title: 'Mathematics',
@@ -3710,15 +3730,3372 @@
         ]
       }
     };
+    // Assign Class 6 full content
+    ALL_COURSE_DATA['6'] = CLASS6_DATA;
+
+    ALL_COURSE_DATA['1'] = {
+  "mathematics": {
+    "icon": "calculate",
+    "title": "Mathematics",
+    "bookTitle": "Math Magic – 1",
+    "description": "Learn numbers, shapes, and simple counting.",
+    "chapters": [
+      {
+        "id": "c1_m_c1",
+        "title": "Shapes and Space",
+        "lessons": [
+          {
+            "id": "c1_m_l1",
+            "title": "Shapes and Space",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/aemh1dd.pdf"
+          }
+        ]
+      },
+      {
+        "id": "c1_m_c2",
+        "title": "Numbers 1 to 9",
+        "lessons": [
+          {
+            "id": "c1_m_l2",
+            "title": "Numbers 1 to 9",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/aemh1dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c1_m_l1",
+        "title": "Shapes and Space",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/aemh1dd.pdf",
+        "content": [
+          "We see shapes everywhere around us. A ball is round, a book is a rectangle, and a bangle is a circle.",
+          "We can sort objects by their shapes. Round objects like balls and coins can roll, while flat objects like books cannot."
+        ],
+        "long_answers": [
+          {
+            "question": "Name five objects with circular shape you see around you.",
+            "answer": "Ball, coin, bangle, wheel, clock face."
+          },
+          {
+            "question": "What is the difference between a flat shape and a solid shape?",
+            "answer": "Flat shapes have only length and width (2D) like a square on paper, while solid shapes have length, width, and depth (3D) like a box."
+          }
+        ],
+        "exam_tips": [
+          "Shapes are everywhere — practise naming them from real objects.",
+          "Remember: round things roll, flat things slide."
+        ],
+        "quiz": [
+          {
+            "question": "What shape is a ball?",
+            "options": [
+              "Square",
+              "Circle",
+              "Triangle",
+              "Rectangle"
+            ],
+            "answer": "Circle",
+            "explanation": "A ball is perfectly round, so its cross-section is a circle."
+          },
+          {
+            "question": "Which of these can roll?",
+            "options": [
+              "Book",
+              "Pencil box",
+              "Ball",
+              "Notebook"
+            ],
+            "answer": "Ball",
+            "explanation": "A ball has a curved surface all around, so it rolls easily."
+          },
+          {
+            "question": "How many sides does a triangle have?",
+            "options": [
+              "2",
+              "3",
+              "4",
+              "5"
+            ],
+            "answer": "3",
+            "explanation": "Triangle comes from \"tri\" meaning three."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "Name two objects that are round.",
+            "answer": "Ball, coin."
+          },
+          {
+            "question": "Can a book roll? Why?",
+            "answer": "No, a book is flat and cannot roll."
+          }
+        ]
+      },
+      {
+        "id": "c1_m_l2",
+        "title": "Numbers 1 to 9",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/aemh1dd.pdf",
+        "content": [
+          "We count objects using numbers. 1 apple, 2 mangoes, 3 bananas — each number tells us how many.",
+          "We write numbers using digits: 1, 2, 3, 4, 5, 6, 7, 8, 9. We can arrange them from smallest to biggest."
+        ],
+        "long_answers": [
+          {
+            "question": "Write the numbers 1 to 9 in words.",
+            "answer": "One, Two, Three, Four, Five, Six, Seven, Eight, Nine."
+          },
+          {
+            "question": "Which number comes after 7?",
+            "answer": "8 comes after 7."
+          }
+        ],
+        "exam_tips": [
+          "Practise writing numbers by counting real objects.",
+          "Remember: 9 is the largest single-digit number."
+        ],
+        "quiz": [
+          {
+            "question": "How many legs does a cow have?",
+            "options": [
+              "2",
+              "3",
+              "4",
+              "6"
+            ],
+            "answer": "4",
+            "explanation": "A cow has four legs."
+          },
+          {
+            "question": "What comes after 5?",
+            "options": [
+              "4",
+              "6",
+              "7",
+              "3"
+            ],
+            "answer": "6",
+            "explanation": "When we count forward: 4, 5, 6."
+          },
+          {
+            "question": "Which is the smallest number here?",
+            "options": [
+              "9",
+              "3",
+              "7",
+              "5"
+            ],
+            "answer": "3",
+            "explanation": "3 is less than all others here."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "Count and write: How many fingers on one hand?",
+            "answer": "5"
+          },
+          {
+            "question": "Write the number that comes before 8.",
+            "answer": "7"
+          }
+        ]
+      }
+    ]
+  },
+  "english": {
+    "icon": "menu_book",
+    "title": "English",
+    "bookTitle": "Marigold – 1",
+    "description": "Stories and poems for Class 1.",
+    "chapters": [
+      {
+        "id": "c1_e_c1",
+        "title": "A Happy Child",
+        "lessons": [
+          {
+            "id": "c1_e_l1",
+            "title": "A Happy Child",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/aerh1dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c1_e_l1",
+        "title": "A Happy Child",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/aerh1dd.pdf",
+        "content": [
+          "The poem \"A Happy Child\" tells us how a child feels happy in nature — playing under the sky and among flowers.",
+          "The child says the sky is his father, the earth is his mother, and he is happy with everyone around him."
+        ],
+        "long_answers": [
+          {
+            "question": "Why is the child happy in the poem?",
+            "answer": "The child is happy because nature — the sky, earth, sun, and moon — is all around, like a big loving family."
+          },
+          {
+            "question": "What does the child compare the sky to?",
+            "answer": "The child compares the sky to a father."
+          }
+        ],
+        "exam_tips": [
+          "Read the poem aloud to understand its rhythm.",
+          "Learn the new words and their meanings."
+        ],
+        "quiz": [
+          {
+            "question": "In the poem, who is the child's father?",
+            "options": [
+              "Sun",
+              "Earth",
+              "Sky",
+              "Moon"
+            ],
+            "answer": "Sky",
+            "explanation": "The poem says \"Three little trees are my family\" and the sky is the father."
+          },
+          {
+            "question": "What does the child like to do?",
+            "options": [
+              "Sleep",
+              "Play",
+              "Study",
+              "Cook"
+            ],
+            "answer": "Play",
+            "explanation": "The child is happy playing in nature."
+          },
+          {
+            "question": "What feeling does the poem express?",
+            "options": [
+              "Sadness",
+              "Happiness",
+              "Anger",
+              "Fear"
+            ],
+            "answer": "Happiness",
+            "explanation": "The title itself is \"A Happy Child\"."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "Name two things in nature mentioned in the poem.",
+            "answer": "Sky and Earth."
+          },
+          {
+            "question": "What is the poem about?",
+            "answer": "A child who is happy living in nature."
+          }
+        ]
+      }
+    ]
+  }
+};
+
+    ALL_COURSE_DATA['2'] = {
+  "mathematics": {
+    "icon": "calculate",
+    "title": "Mathematics",
+    "bookTitle": "Math Magic – 2",
+    "description": "Fun with counting, shapes, and measurement.",
+    "chapters": [
+      {
+        "id": "c2_m_c1",
+        "title": "What is Long, What is Short?",
+        "lessons": [
+          {
+            "id": "c2_m_l1",
+            "title": "What is Long, What is Short?",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/bemh2dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c2_m_l1",
+        "title": "What is Long, What is Short?",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/bemh2dd.pdf",
+        "content": [
+          "We can compare the lengths of objects. A pencil may be longer or shorter than a crayon.",
+          "We measure length using hands, feet, or rulers. A metre scale is used for measuring longer things."
+        ],
+        "long_answers": [
+          {
+            "question": "How do we compare two lengths without a ruler?",
+            "answer": "We can place objects side by side and see which one is longer or shorter."
+          },
+          {
+            "question": "What unit do we use to measure the length of a room?",
+            "answer": "We use metres to measure the length of a room."
+          }
+        ],
+        "exam_tips": [
+          "Always start measurement from zero on a ruler.",
+          "Estimate before measuring — it builds number sense."
+        ],
+        "quiz": [
+          {
+            "question": "Which is longer — a pencil or a cricket bat?",
+            "options": [
+              "Pencil",
+              "Cricket bat",
+              "Both equal",
+              "Cannot say"
+            ],
+            "answer": "Cricket bat",
+            "explanation": "A cricket bat is much longer than a pencil."
+          },
+          {
+            "question": "What do we use to measure length?",
+            "options": [
+              "Clock",
+              "Ruler",
+              "Weighing scale",
+              "Thermometer"
+            ],
+            "answer": "Ruler",
+            "explanation": "A ruler is the tool used to measure length."
+          },
+          {
+            "question": "What does \"shorter\" mean?",
+            "options": [
+              "Bigger",
+              "Less length",
+              "More length",
+              "Heavier"
+            ],
+            "answer": "Less length",
+            "explanation": "\"Shorter\" means less length."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "Name one tool used to measure length.",
+            "answer": "Ruler or metre scale."
+          },
+          {
+            "question": "If a table is 1 metre wide, is it longer or shorter than 50 cm?",
+            "answer": "Longer — 1 metre = 100 cm, which is more than 50 cm."
+          }
+        ]
+      }
+    ]
+  },
+  "english": {
+    "icon": "menu_book",
+    "title": "English",
+    "bookTitle": "Marigold – 2",
+    "description": "Stories and rhymes for Class 2.",
+    "chapters": [
+      {
+        "id": "c2_e_c1",
+        "title": "First Day at School",
+        "lessons": [
+          {
+            "id": "c2_e_l1",
+            "title": "First Day at School",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/berh2dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c2_e_l1",
+        "title": "First Day at School",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/berh2dd.pdf",
+        "content": [
+          "The story is about a child who goes to school for the first time and feels nervous but then makes friends.",
+          "The child meets a kind teacher and learns that school is a fun place to learn and play."
+        ],
+        "long_answers": [
+          {
+            "question": "How did the child feel on the first day?",
+            "answer": "The child felt nervous and a little scared on the first day of school."
+          },
+          {
+            "question": "What made the child feel better?",
+            "answer": "Making new friends and meeting a kind teacher made the child feel better."
+          }
+        ],
+        "exam_tips": [
+          "Think about your own first day at school.",
+          "New words: nervous, kind, teacher, friends."
+        ],
+        "quiz": [
+          {
+            "question": "How did the child feel on the first day?",
+            "options": [
+              "Happy",
+              "Nervous",
+              "Angry",
+              "Sleepy"
+            ],
+            "answer": "Nervous",
+            "explanation": "First days are often scary — the child felt nervous."
+          },
+          {
+            "question": "Who helped the child settle in?",
+            "options": [
+              "Principal",
+              "Guard",
+              "Kind teacher",
+              "Parent"
+            ],
+            "answer": "Kind teacher",
+            "explanation": "The kind teacher made the child feel welcome."
+          },
+          {
+            "question": "What does \"nervous\" mean?",
+            "options": [
+              "Excited",
+              "Worried",
+              "Happy",
+              "Tired"
+            ],
+            "answer": "Worried",
+            "explanation": "\"Nervous\" means feeling worried or a little scared."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "What did the child find at school?",
+            "answer": "New friends and a kind teacher."
+          },
+          {
+            "question": "Why is school important?",
+            "answer": "School is where we learn and make friends."
+          }
+        ]
+      }
+    ]
+  },
+  "evs": {
+    "icon": "eco",
+    "title": "EVS",
+    "bookTitle": "Looking Around – 2",
+    "description": "Explore the world of plants and animals.",
+    "chapters": [
+      {
+        "id": "c2_ev_c1",
+        "title": "Getting to Know Plants",
+        "lessons": [
+          {
+            "id": "c2_ev_l1",
+            "title": "Getting to Know Plants",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/bevs2dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c2_ev_l1",
+        "title": "Getting to Know Plants",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/bevs2dd.pdf",
+        "content": [
+          "Plants are living things. They have roots, stems, leaves, flowers, and fruits.",
+          "Roots hold the plant in soil and absorb water. Leaves make food using sunlight. Flowers produce seeds."
+        ],
+        "long_answers": [
+          {
+            "question": "What are the main parts of a plant?",
+            "answer": "The main parts are roots, stem, leaves, flowers, and fruits."
+          },
+          {
+            "question": "What is the function of roots?",
+            "answer": "Roots hold the plant in the ground and absorb water and minerals."
+          }
+        ],
+        "exam_tips": [
+          "Observe a plant at home and label its parts.",
+          "Remember: leaves make food — they are the kitchen of the plant."
+        ],
+        "quiz": [
+          {
+            "question": "Which part of the plant absorbs water?",
+            "options": [
+              "Leaf",
+              "Stem",
+              "Root",
+              "Flower"
+            ],
+            "answer": "Root",
+            "explanation": "Roots absorb water and minerals from the soil."
+          },
+          {
+            "question": "What do leaves use to make food?",
+            "options": [
+              "Rain",
+              "Sunlight",
+              "Wind",
+              "Soil"
+            ],
+            "answer": "Sunlight",
+            "explanation": "Leaves use sunlight in photosynthesis to make food."
+          },
+          {
+            "question": "What grows from a flower?",
+            "options": [
+              "Root",
+              "Leaf",
+              "Fruit",
+              "Stem"
+            ],
+            "answer": "Fruit",
+            "explanation": "Flowers develop into fruits after pollination."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "Why do plants need roots?",
+            "answer": "To hold in soil and absorb water."
+          },
+          {
+            "question": "Name two things leaves need to make food.",
+            "answer": "Sunlight and water (carbon dioxide from air)."
+          }
+        ]
+      }
+    ]
+  }
+};
+
+    ALL_COURSE_DATA['3'] = {
+  "mathematics": {
+    "icon": "calculate",
+    "title": "Mathematics",
+    "bookTitle": "Math Magic – 3",
+    "description": "Numbers, shapes, and patterns for Class 3.",
+    "chapters": [
+      {
+        "id": "c3_m_c1",
+        "title": "Fun with Numbers",
+        "lessons": [
+          {
+            "id": "c3_m_l1",
+            "title": "Fun with Numbers",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/cemh3dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c3_m_l1",
+        "title": "Fun with Numbers",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/cemh3dd.pdf",
+        "content": [
+          "Numbers go beyond 9. After 9 comes 10, then 11, and so on. We use tens and ones to understand bigger numbers.",
+          "A 2-digit number has tens and ones. For example, 23 means 2 tens and 3 ones."
+        ],
+        "long_answers": [
+          {
+            "question": "What does the number 47 mean in terms of tens and ones?",
+            "answer": "47 means 4 tens and 7 ones. So 40 + 7 = 47."
+          },
+          {
+            "question": "Write the number that comes just before 100.",
+            "answer": "99 comes just before 100."
+          }
+        ],
+        "exam_tips": [
+          "Use beads or blocks to understand tens and ones.",
+          "The largest 2-digit number is 99."
+        ],
+        "quiz": [
+          {
+            "question": "What is 3 tens and 5 ones?",
+            "options": [
+              "35",
+              "53",
+              "30",
+              "5"
+            ],
+            "answer": "35",
+            "explanation": "3 tens = 30, plus 5 ones = 35."
+          },
+          {
+            "question": "Which is the largest 2-digit number?",
+            "options": [
+              "99",
+              "100",
+              "89",
+              "98"
+            ],
+            "answer": "99",
+            "explanation": "99 is the largest number with only 2 digits."
+          },
+          {
+            "question": "How many tens in 60?",
+            "options": [
+              "6",
+              "60",
+              "600",
+              "16"
+            ],
+            "answer": "6",
+            "explanation": "60 = 6 × 10, so there are 6 tens."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "Write 5 tens and 8 ones as a number.",
+            "answer": "58"
+          },
+          {
+            "question": "What comes after 99?",
+            "answer": "100"
+          }
+        ]
+      }
+    ]
+  },
+  "evs": {
+    "icon": "eco",
+    "title": "EVS",
+    "bookTitle": "Looking Around – 3",
+    "description": "Discover animals, plants, and our surroundings.",
+    "chapters": [
+      {
+        "id": "c3_ev_c1",
+        "title": "Poonam's Day Out",
+        "lessons": [
+          {
+            "id": "c3_ev_l1",
+            "title": "Poonam's Day Out",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/cevs3dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c3_ev_l1",
+        "title": "Poonam's Day Out",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/cevs3dd.pdf",
+        "content": [
+          "Poonam goes for a walk and sees many animals — a frog, a snail, a caterpillar, a dragonfly, and a butterfly.",
+          "She learns that animals live in different places: frogs near water, birds in trees, ants underground."
+        ],
+        "long_answers": [
+          {
+            "question": "Name three animals Poonam saw during her walk.",
+            "answer": "Frog, snail, caterpillar (also dragonfly and butterfly)."
+          },
+          {
+            "question": "Where does a frog usually live?",
+            "answer": "A frog lives near water — ponds, rivers, or wet areas."
+          }
+        ],
+        "exam_tips": [
+          "Different animals live in different habitats.",
+          "Insects have 6 legs; spiders have 8."
+        ],
+        "quiz": [
+          {
+            "question": "How many legs does a butterfly have?",
+            "options": [
+              "4",
+              "6",
+              "8",
+              "2"
+            ],
+            "answer": "6",
+            "explanation": "Butterflies are insects and all insects have 6 legs."
+          },
+          {
+            "question": "Where does a frog like to live?",
+            "options": [
+              "Desert",
+              "Near water",
+              "On mountains",
+              "Underground"
+            ],
+            "answer": "Near water",
+            "explanation": "Frogs need moist environments near water."
+          },
+          {
+            "question": "What does a caterpillar turn into?",
+            "options": [
+              "Moth",
+              "Frog",
+              "Butterfly",
+              "Spider"
+            ],
+            "answer": "Butterfly",
+            "explanation": "Caterpillars undergo metamorphosis to become butterflies."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "Why do animals live in different habitats?",
+            "answer": "Different animals are adapted to different environments."
+          },
+          {
+            "question": "Name one insect seen in Poonam's walk.",
+            "answer": "Dragonfly / caterpillar / butterfly."
+          }
+        ]
+      }
+    ]
+  }
+};
+
+    ALL_COURSE_DATA['4'] = {
+  "mathematics": {
+    "icon": "calculate",
+    "title": "Mathematics",
+    "bookTitle": "Math Magic – 4",
+    "description": "Shapes, multiplication, and measurement.",
+    "chapters": [
+      {
+        "id": "c4_m_c1",
+        "title": "Building with Bricks",
+        "lessons": [
+          {
+            "id": "c4_m_l1",
+            "title": "Building with Bricks",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/demh4dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c4_m_l1",
+        "title": "Building with Bricks",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/demh4dd.pdf",
+        "content": [
+          "Bricks have flat faces. When we stack bricks we are building with cuboid shapes.",
+          "We can make patterns with bricks — alternate colours or rows create designs. Area is the space covered on a surface."
+        ],
+        "long_answers": [
+          {
+            "question": "What shape is a brick?",
+            "answer": "A brick is a cuboid — it has 6 flat rectangular faces."
+          },
+          {
+            "question": "How is area different from perimeter?",
+            "answer": "Area is the space inside a shape, while perimeter is the total length around the shape."
+          }
+        ],
+        "exam_tips": [
+          "A face of a brick is a rectangle.",
+          "Area = length × breadth for a rectangle."
+        ],
+        "quiz": [
+          {
+            "question": "A brick is an example of which shape?",
+            "options": [
+              "Sphere",
+              "Cube",
+              "Cuboid",
+              "Cylinder"
+            ],
+            "answer": "Cuboid",
+            "explanation": "A brick has unequal length, width, and height — it is a cuboid."
+          },
+          {
+            "question": "How many faces does a brick have?",
+            "options": [
+              "4",
+              "5",
+              "6",
+              "8"
+            ],
+            "answer": "6",
+            "explanation": "A cuboid has exactly 6 faces."
+          },
+          {
+            "question": "What is the area of a rectangle 4 cm long and 3 cm wide?",
+            "options": [
+              "7 sq cm",
+              "12 sq cm",
+              "14 sq cm",
+              "10 sq cm"
+            ],
+            "answer": "12 sq cm",
+            "explanation": "Area = 4 × 3 = 12 sq cm."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "Name the shape of a brick.",
+            "answer": "Cuboid."
+          },
+          {
+            "question": "Find the area of a floor 5 m × 4 m.",
+            "answer": "20 sq m."
+          }
+        ]
+      }
+    ]
+  },
+  "evs": {
+    "icon": "eco",
+    "title": "EVS",
+    "bookTitle": "Looking Around – 4",
+    "description": "Our environment, food, and how we live.",
+    "chapters": [
+      {
+        "id": "c4_ev_c1",
+        "title": "Going to School",
+        "lessons": [
+          {
+            "id": "c4_ev_l1",
+            "title": "Going to School",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/devs4dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c4_ev_l1",
+        "title": "Going to School",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/devs4dd.pdf",
+        "content": [
+          "Children in different parts of India go to school in different ways — on foot, by boat, by trolley, or by horse.",
+          "Some children cross mountains or rivers to reach school. Their hard work shows how important education is."
+        ],
+        "long_answers": [
+          {
+            "question": "Name two special ways some children travel to school.",
+            "answer": "By boat (in flood-prone areas), by trolley over a river, or on horseback in hilly regions."
+          },
+          {
+            "question": "Why is education important even if it is far away?",
+            "answer": "Education opens opportunities and helps people improve their lives."
+          }
+        ],
+        "exam_tips": [
+          "India has diverse geography — different regions have different transport challenges.",
+          "Appreciate that many children work hard just to attend school."
+        ],
+        "quiz": [
+          {
+            "question": "How do children in hilly areas sometimes reach school?",
+            "options": [
+              "Bus",
+              "Boat",
+              "On horse or foot",
+              "Metro"
+            ],
+            "answer": "On horse or foot",
+            "explanation": "In hilly terrains, children often walk or ride horses to school."
+          },
+          {
+            "question": "Why do some children travel by boat to school?",
+            "options": [
+              "They like boats",
+              "Their village is surrounded by water",
+              "Roads are too long",
+              "For fun"
+            ],
+            "answer": "Their village is surrounded by water",
+            "explanation": "Flood-prone or island areas use boats for transport."
+          },
+          {
+            "question": "What does the lesson teach us?",
+            "options": [
+              "School is boring",
+              "Hard work for education is valuable",
+              "Travel is fun",
+              "Geography is not important"
+            ],
+            "answer": "Hard work for education is valuable",
+            "explanation": "The lesson highlights the efforts children make to get an education."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "Name one state where children travel by boat to school.",
+            "answer": "Kerala / Assam (flood-prone or backwater regions)."
+          },
+          {
+            "question": "What should we feel about going to school?",
+            "answer": "Grateful and motivated, because many children face hardships to attend school."
+          }
+        ]
+      }
+    ]
+  }
+};
+
+    ALL_COURSE_DATA['5'] = {
+  "mathematics": {
+    "icon": "calculate",
+    "title": "Mathematics",
+    "bookTitle": "Math Magic – 5",
+    "description": "Large numbers, fractions, and geometry.",
+    "chapters": [
+      {
+        "id": "c5_m_c1",
+        "title": "The Fish Tale",
+        "lessons": [
+          {
+            "id": "c5_m_l1",
+            "title": "The Fish Tale",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/eemh5dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c5_m_l1",
+        "title": "The Fish Tale",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/eemh5dd.pdf",
+        "content": [
+          "Fishermen catch thousands of fish every day. This story helps us understand large numbers through fish catch data.",
+          "Large numbers go beyond hundreds — we have thousands, ten-thousands, and lakhs. 1 lakh = 1,00,000."
+        ],
+        "long_answers": [
+          {
+            "question": "How many zeros are in one lakh?",
+            "answer": "One lakh (1,00,000) has 5 zeros."
+          },
+          {
+            "question": "Write 25,400 in words.",
+            "answer": "Twenty-five thousand and four hundred."
+          }
+        ],
+        "exam_tips": [
+          "In India we use the Indian number system: ones, tens, hundreds, thousands, ten-thousands, lakhs.",
+          "1 lakh = 100 thousands."
+        ],
+        "quiz": [
+          {
+            "question": "How many thousands make one lakh?",
+            "options": [
+              "10",
+              "100",
+              "1000",
+              "10000"
+            ],
+            "answer": "100",
+            "explanation": "1 lakh = 1,00,000 = 100 × 1,000."
+          },
+          {
+            "question": "Which is greater?",
+            "options": [
+              "99,999",
+              "1,00,000",
+              "Both equal",
+              "Cannot compare"
+            ],
+            "answer": "1,00,000",
+            "explanation": "1,00,000 is one more than 99,999."
+          },
+          {
+            "question": "10,000 + 5,000 = ?",
+            "options": [
+              "15,000",
+              "150,000",
+              "1,500",
+              "105,000"
+            ],
+            "answer": "15,000",
+            "explanation": "Simply add: 10,000 + 5,000 = 15,000."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "Write 3 lakhs in digits.",
+            "answer": "3,00,000"
+          },
+          {
+            "question": "What comes after 99,999?",
+            "answer": "1,00,000 (one lakh)."
+          }
+        ]
+      }
+    ]
+  },
+  "evs": {
+    "icon": "eco",
+    "title": "EVS",
+    "bookTitle": "Looking Around – 5",
+    "description": "Animals, ecosystems, and our planet.",
+    "chapters": [
+      {
+        "id": "c5_ev_c1",
+        "title": "Super Senses",
+        "lessons": [
+          {
+            "id": "c5_ev_l1",
+            "title": "Super Senses",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/eevs5dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c5_ev_l1",
+        "title": "Super Senses",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/eevs5dd.pdf",
+        "content": [
+          "Animals have extraordinary senses that help them survive. Dogs can smell 1000 times better than humans.",
+          "Bats use echolocation — they send sound waves and listen to echoes — to navigate in the dark. Eagles have very sharp eyesight."
+        ],
+        "long_answers": [
+          {
+            "question": "What is echolocation?",
+            "answer": "Echolocation is the ability to find objects by sending out sound waves and listening to the echoes that bounce back."
+          },
+          {
+            "question": "Which animal has the best sense of smell?",
+            "answer": "Dogs have an exceptionally strong sense of smell, about 1000 times stronger than humans."
+          }
+        ],
+        "exam_tips": [
+          "Animals use their senses for finding food, avoiding danger, and communicating.",
+          "Bats are not blind — they use echolocation."
+        ],
+        "quiz": [
+          {
+            "question": "Which animal uses echolocation?",
+            "options": [
+              "Dog",
+              "Eagle",
+              "Bat",
+              "Cat"
+            ],
+            "answer": "Bat",
+            "explanation": "Bats emit ultrasonic sounds and use echoes to navigate."
+          },
+          {
+            "question": "Which animal has the sharpest eyesight?",
+            "options": [
+              "Dog",
+              "Bat",
+              "Eagle",
+              "Rat"
+            ],
+            "answer": "Eagle",
+            "explanation": "Eagles can spot prey from great heights with their powerful eyesight."
+          },
+          {
+            "question": "What do animals use their senses for?",
+            "options": [
+              "Only eating",
+              "Only mating",
+              "Survival — food, safety, communication",
+              "Only sleeping"
+            ],
+            "answer": "Survival — food, safety, communication",
+            "explanation": "Senses help animals survive in many ways."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "Name two animals with special senses.",
+            "answer": "Bat (echolocation), eagle (sharp sight)."
+          },
+          {
+            "question": "Why do animals need sharp senses?",
+            "answer": "To find food, detect predators, and communicate."
+          }
+        ]
+      }
+    ]
+  }
+};
+
+    ALL_COURSE_DATA['7'] = {
+  "mathematics": {
+    "icon": "calculate",
+    "title": "Mathematics",
+    "bookTitle": "Mathematics – Textbook for Class VII",
+    "description": "Integers, fractions, data handling and geometry.",
+    "chapters": [
+      {
+        "id": "c7_m_c1",
+        "title": "Integers",
+        "lessons": [
+          {
+            "id": "c7_m_l1",
+            "title": "Integers",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/gemh1dd.pdf"
+          }
+        ]
+      },
+      {
+        "id": "c7_m_c2",
+        "title": "Simple Equations",
+        "lessons": [
+          {
+            "id": "c7_m_l2",
+            "title": "Simple Equations",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/gemh4dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c7_m_l1",
+        "title": "Integers",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/gemh1dd.pdf",
+        "content": [
+          "Integers include positive numbers, negative numbers, and zero. They are used to represent quantities below zero — like temperature or depth.",
+          "On a number line, positive integers are to the right of zero and negative integers are to the left. The further right, the larger the number."
+        ],
+        "long_answers": [
+          {
+            "question": "What are integers?",
+            "answer": "Integers are whole numbers that include positive numbers (1, 2, 3...), negative numbers (-1, -2, -3...) and zero."
+          },
+          {
+            "question": "Which is greater: -5 or -2?",
+            "answer": "-2 is greater than -5 because on the number line -2 is to the right of -5."
+          }
+        ],
+        "exam_tips": [
+          "Negative numbers are less than zero — useful for temperature below freezing, depths below sea level.",
+          "Adding a negative number is the same as subtracting."
+        ],
+        "quiz": [
+          {
+            "question": "Which is the smallest integer?",
+            "options": [
+              "0",
+              "-1",
+              "There is no smallest",
+              "1"
+            ],
+            "answer": "There is no smallest",
+            "explanation": "Integers go on infinitely in the negative direction."
+          },
+          {
+            "question": "What is (-3) + 5?",
+            "options": [
+              "2",
+              "-2",
+              "8",
+              "-8"
+            ],
+            "answer": "2",
+            "explanation": "-3 + 5 = 2. Moving 5 steps right from -3 on number line."
+          },
+          {
+            "question": "What is (-7) - (-3)?",
+            "options": [
+              "−10",
+              "−4",
+              "10",
+              "4"
+            ],
+            "answer": "-4",
+            "explanation": "-7 - (-3) = -7 + 3 = -4."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "Write all integers between -3 and 3.",
+            "answer": "-2, -1, 0, 1, 2"
+          },
+          {
+            "question": "The temperature in Shimla is -5°C and in Delhi is 12°C. What is the difference?",
+            "answer": "12 - (-5) = 17°C."
+          }
+        ]
+      },
+      {
+        "id": "c7_m_l2",
+        "title": "Simple Equations",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/gemh4dd.pdf",
+        "content": [
+          "An equation is a mathematical statement with an equal sign. For example: x + 5 = 12.",
+          "To solve an equation, we find the value of the unknown variable. Whatever we do to one side, we do to the other side too."
+        ],
+        "long_answers": [
+          {
+            "question": "Solve: x + 7 = 15",
+            "answer": "x = 15 - 7 = 8"
+          },
+          {
+            "question": "What is the golden rule of solving equations?",
+            "answer": "Whatever operation you do to one side of the equation, you must do the same to the other side."
+          }
+        ],
+        "exam_tips": [
+          "Think of an equation as a balance scale — both sides must remain equal.",
+          "Use inverse operations: addition ↔ subtraction, multiplication ↔ division."
+        ],
+        "quiz": [
+          {
+            "question": "Solve: y - 4 = 10",
+            "options": [
+              "y=6",
+              "y=14",
+              "y=40",
+              "y=4"
+            ],
+            "answer": "y=14",
+            "explanation": "Add 4 to both sides: y = 10 + 4 = 14."
+          },
+          {
+            "question": "Solve: 3x = 18",
+            "options": [
+              "x=6",
+              "x=21",
+              "x=15",
+              "x=54"
+            ],
+            "answer": "x=6",
+            "explanation": "Divide both sides by 3: x = 18/3 = 6."
+          },
+          {
+            "question": "Which is a valid equation?",
+            "options": [
+              "x + 5",
+              "3 = 3",
+              "x + 5 = 12",
+              "12"
+            ],
+            "answer": "x + 5 = 12",
+            "explanation": "An equation must have an equal sign with expressions on both sides."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "What is a variable?",
+            "answer": "A variable is an unknown quantity represented by a letter like x, y, or z."
+          },
+          {
+            "question": "Solve: 2y + 1 = 9",
+            "answer": "2y = 8, so y = 4."
+          }
+        ]
+      }
+    ]
+  },
+  "science": {
+    "icon": "science",
+    "title": "Science",
+    "bookTitle": "Science – Textbook for Class VII",
+    "description": "Biology, physics, and chemistry for Class 7.",
+    "chapters": [
+      {
+        "id": "c7_s_c1",
+        "title": "Nutrition in Plants",
+        "lessons": [
+          {
+            "id": "c7_s_l1",
+            "title": "Nutrition in Plants",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/gesc1dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c7_s_l1",
+        "title": "Nutrition in Plants",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/gesc1dd.pdf",
+        "content": [
+          "Plants make their own food through photosynthesis. They use sunlight, carbon dioxide, and water to produce glucose.",
+          "Chlorophyll in leaves captures sunlight. The process: 6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂. Oxygen is released as a byproduct."
+        ],
+        "long_answers": [
+          {
+            "question": "What is photosynthesis?",
+            "answer": "Photosynthesis is the process by which plants make food using sunlight, water, and carbon dioxide, releasing oxygen."
+          },
+          {
+            "question": "What is the role of chlorophyll?",
+            "answer": "Chlorophyll is the green pigment that absorbs sunlight energy needed for photosynthesis."
+          }
+        ],
+        "exam_tips": [
+          "Plants are called producers because they make their own food.",
+          "Stomata are tiny pores on leaves through which CO₂ enters and O₂ exits."
+        ],
+        "quiz": [
+          {
+            "question": "What gas do plants take in during photosynthesis?",
+            "options": [
+              "O₂",
+              "N₂",
+              "CO₂",
+              "H₂"
+            ],
+            "answer": "CO₂",
+            "explanation": "Plants absorb carbon dioxide from air for photosynthesis."
+          },
+          {
+            "question": "What is released during photosynthesis?",
+            "options": [
+              "CO₂",
+              "N₂",
+              "O₂",
+              "H₂O"
+            ],
+            "answer": "O₂",
+            "explanation": "Oxygen is the byproduct of photosynthesis."
+          },
+          {
+            "question": "Which part of the plant carries out photosynthesis?",
+            "options": [
+              "Root",
+              "Stem",
+              "Leaf",
+              "Flower"
+            ],
+            "answer": "Leaf",
+            "explanation": "Leaves contain chlorophyll and are the main site of photosynthesis."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "Why are plants called autotrophs?",
+            "answer": "Because they can make their own food using sunlight (auto = self, troph = feeding)."
+          },
+          {
+            "question": "What would happen if there were no chlorophyll in leaves?",
+            "answer": "Photosynthesis could not occur, so the plant would not be able to make food and would die."
+          }
+        ]
+      }
+    ]
+  },
+  "social_science": {
+    "icon": "public",
+    "title": "Social Science",
+    "bookTitle": "Our Pasts – II, Our Environment, Social and Political Life – II",
+    "description": "History, geography, and civics for Class 7.",
+    "chapters": [
+      {
+        "id": "c7_ss_c1",
+        "title": "Tracing Changes through a Thousand Years",
+        "lessons": [
+          {
+            "id": "c7_ss_l1",
+            "title": "Tracing Changes through a Thousand Years",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/gess1dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c7_ss_l1",
+        "title": "Tracing Changes through a Thousand Years",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/gess1dd.pdf",
+        "content": [
+          "Historians study the past using sources like manuscripts, inscriptions, and monuments.",
+          "Over the last 1000 years, India changed greatly — new religions, rulers, languages, and technologies arrived."
+        ],
+        "long_answers": [
+          {
+            "question": "What are historical sources?",
+            "answer": "Historical sources are materials that help us know about the past — manuscripts, inscriptions, coins, monuments, and oral traditions."
+          },
+          {
+            "question": "What major changes happened in India over the last 1000 years?",
+            "answer": "Changes included new rulers (Delhi Sultanate, Mughals), spread of Islam, new languages, new crops and technologies."
+          }
+        ],
+        "exam_tips": [
+          "Maps are primary sources — but old maps had inaccuracies.",
+          "Manuscripts were hand-written and often copied by scribes."
+        ],
+        "quiz": [
+          {
+            "question": "What do historians use to study the past?",
+            "options": [
+              "Newspapers",
+              "Inscriptions, manuscripts, monuments",
+              "Television",
+              "Internet"
+            ],
+            "answer": "Inscriptions, manuscripts, monuments",
+            "explanation": "Historians use primary sources like these to reconstruct the past."
+          },
+          {
+            "question": "What is a manuscript?",
+            "options": [
+              "A printed book",
+              "A hand-written document",
+              "A sculpture",
+              "A map"
+            ],
+            "answer": "A hand-written document",
+            "explanation": "Before printing, texts were written by hand — these are manuscripts."
+          },
+          {
+            "question": "Which empire ruled India from Delhi around 1200 CE?",
+            "options": [
+              "Mughal",
+              "British",
+              "Delhi Sultanate",
+              "Maratha"
+            ],
+            "answer": "Delhi Sultanate",
+            "explanation": "The Delhi Sultanate was established after Muhammad of Ghor's conquest around 1192 CE."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "Why is it difficult to study history from a thousand years ago?",
+            "answer": "Sources from that time are incomplete, damaged, or biased; languages have changed and many documents are lost."
+          },
+          {
+            "question": "Name two types of historical sources.",
+            "answer": "Manuscripts and inscriptions."
+          }
+        ]
+      }
+    ]
+  },
+  "english": {
+    "icon": "menu_book",
+    "title": "English",
+    "bookTitle": "Honeycomb – Class VII",
+    "description": "Literature and language skills for Class 7.",
+    "chapters": [
+      {
+        "id": "c7_e_c1",
+        "title": "Three Questions",
+        "lessons": [
+          {
+            "id": "c7_e_l1",
+            "title": "Three Questions",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/geeh1dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c7_e_l1",
+        "title": "Three Questions",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/geeh1dd.pdf",
+        "content": [
+          "A king wonders: What is the best time to do things? Who are the most important people? What is the most important thing to do?",
+          "A hermit teaches him: the most important time is NOW, the most important person is the one you are with, and the most important thing is to do good to that person."
+        ],
+        "long_answers": [
+          {
+            "question": "What are the three questions the king asks?",
+            "answer": "1. What is the right time? 2. Who are the most important people? 3. What is the most important thing to do?"
+          },
+          {
+            "question": "What lesson does the king learn from the hermit?",
+            "answer": "The present moment is the most important time; the person you are with is the most important person; doing good to others is the most important task."
+          }
+        ],
+        "exam_tips": [
+          "The story is by Leo Tolstoy.",
+          "Theme: live in the present and help those around you."
+        ],
+        "quiz": [
+          {
+            "question": "Who wrote \"Three Questions\"?",
+            "options": [
+              "Premchand",
+              "Leo Tolstoy",
+              "Rabindranath Tagore",
+              "R.K. Narayan"
+            ],
+            "answer": "Leo Tolstoy",
+            "explanation": "Three Questions is a short story by the Russian author Leo Tolstoy."
+          },
+          {
+            "question": "What did the hermit teach the king?",
+            "options": [
+              "War tactics",
+              "The importance of the present moment",
+              "How to be rich",
+              "Magic spells"
+            ],
+            "answer": "The importance of the present moment",
+            "explanation": "The hermit's lesson was to value the NOW."
+          },
+          {
+            "question": "Who is the most important person according to the hermit?",
+            "options": [
+              "The king",
+              "The minister",
+              "The one you are with right now",
+              "The richest person"
+            ],
+            "answer": "The one you are with right now",
+            "explanation": "Pay full attention to whoever you are currently with."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "What is the moral of \"Three Questions\"?",
+            "answer": "The present moment, the person before you, and doing good are the most important things in life."
+          },
+          {
+            "question": "Why did the king visit the hermit?",
+            "answer": "To get answers to his three important questions about time, people, and actions."
+          }
+        ]
+      }
+    ]
+  }
+};
+
+    ALL_COURSE_DATA['8'] = {
+  "mathematics": {
+    "icon": "calculate",
+    "title": "Mathematics",
+    "bookTitle": "Mathematics – Textbook for Class VIII",
+    "description": "Algebra, geometry, and data handling.",
+    "chapters": [
+      {
+        "id": "c8_m_c1",
+        "title": "Rational Numbers",
+        "lessons": [
+          {
+            "id": "c8_m_l1",
+            "title": "Rational Numbers",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/hemh1dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c8_m_l1",
+        "title": "Rational Numbers",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/hemh1dd.pdf",
+        "content": [
+          "Rational numbers are numbers that can be written as p/q, where p and q are integers and q ≠ 0.",
+          "All integers and fractions are rational numbers. Examples: 3/4, -2/5, 7, 0."
+        ],
+        "long_answers": [
+          {
+            "question": "What is a rational number?",
+            "answer": "A number that can be expressed as p/q where p and q are integers and q is not zero."
+          },
+          {
+            "question": "Is 0 a rational number?",
+            "answer": "Yes, 0 = 0/1, which is in p/q form."
+          }
+        ],
+        "exam_tips": [
+          "Every integer is a rational number.",
+          "Rational numbers can be positive, negative, or zero."
+        ],
+        "quiz": [
+          {
+            "question": "Which is NOT a rational number?",
+            "options": [
+              "1/2",
+              "-3/4",
+              "√2",
+              "0"
+            ],
+            "answer": "√2",
+            "explanation": "√2 cannot be expressed as p/q in simplest form — it is irrational."
+          },
+          {
+            "question": "What is 1/2 + 1/3?",
+            "options": [
+              "2/5",
+              "5/6",
+              "2/6",
+              "1/6"
+            ],
+            "answer": "5/6",
+            "explanation": "LCM of 2 and 3 is 6: 3/6 + 2/6 = 5/6."
+          },
+          {
+            "question": "Which property says a + b = b + a?",
+            "options": [
+              "Associative",
+              "Commutative",
+              "Distributive",
+              "Closure"
+            ],
+            "answer": "Commutative",
+            "explanation": "Commutative property: order does not change the sum."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "Find a rational number between 1/3 and 1/2.",
+            "answer": "5/12 (average: (1/3 + 1/2)/2 = (2/6 + 3/6)/2 = 5/12)"
+          },
+          {
+            "question": "Is -7 a rational number? Why?",
+            "answer": "Yes, -7 = -7/1, which is in the form p/q."
+          }
+        ]
+      }
+    ]
+  },
+  "science": {
+    "icon": "science",
+    "title": "Science",
+    "bookTitle": "Science – Textbook for Class VIII",
+    "description": "Physics, chemistry, and biology for Class 8.",
+    "chapters": [
+      {
+        "id": "c8_s_c1",
+        "title": "Crop Production and Management",
+        "lessons": [
+          {
+            "id": "c8_s_l1",
+            "title": "Crop Production and Management",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/hesc1dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c8_s_l1",
+        "title": "Crop Production and Management",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/hesc1dd.pdf",
+        "content": [
+          "Crops are plants grown on a large scale for food. Kharif crops (rice, maize) are grown in summer; rabi crops (wheat, gram) in winter.",
+          "Agriculture involves ploughing, sowing, irrigation, adding manure, and harvesting. Modern tools like tractors and threshers help farmers."
+        ],
+        "long_answers": [
+          {
+            "question": "What is the difference between kharif and rabi crops?",
+            "answer": "Kharif crops are sown in June-July (monsoon) and harvested in Sep-Oct. Rabi crops are sown in Oct-Nov and harvested in March-April."
+          },
+          {
+            "question": "Why is irrigation important?",
+            "answer": "Crops need regular water supply. Irrigation provides water to fields in areas with insufficient rain."
+          }
+        ],
+        "exam_tips": [
+          "Manure is organic; fertiliser is chemical.",
+          "Weeds compete with crops for nutrients — weeding is essential."
+        ],
+        "quiz": [
+          {
+            "question": "Which crop is a kharif crop?",
+            "options": [
+              "Wheat",
+              "Gram",
+              "Rice",
+              "Mustard"
+            ],
+            "answer": "Rice",
+            "explanation": "Rice is grown in the kharif (summer/monsoon) season."
+          },
+          {
+            "question": "What is threshing?",
+            "options": [
+              "Watering crops",
+              "Separating grain from chaff",
+              "Ploughing soil",
+              "Removing weeds"
+            ],
+            "answer": "Separating grain from chaff",
+            "explanation": "Threshing separates the edible grain from the stalk and husk."
+          },
+          {
+            "question": "What is organic manure made from?",
+            "options": [
+              "Chemicals",
+              "Animal dung and plant matter",
+              "Rocks",
+              "Plastic"
+            ],
+            "answer": "Animal dung and plant matter",
+            "explanation": "Manure is made by decomposing organic material."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "Name two rabi crops.",
+            "answer": "Wheat and gram (chickpea)."
+          },
+          {
+            "question": "What is irrigation? Name two methods.",
+            "answer": "Irrigation is artificially supplying water to crops. Methods: canal irrigation, drip irrigation."
+          }
+        ]
+      }
+    ]
+  },
+  "social_science": {
+    "icon": "public",
+    "title": "Social Science",
+    "bookTitle": "Our Pasts – III, Resources & Development, Social & Political Life – III",
+    "description": "History, geography, and civics for Class 8.",
+    "chapters": [
+      {
+        "id": "c8_ss_c1",
+        "title": "How, When and Where",
+        "lessons": [
+          {
+            "id": "c8_ss_l1",
+            "title": "How, When and Where",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/hess1dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c8_ss_l1",
+        "title": "How, When and Where",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/hess1dd.pdf",
+        "content": [
+          "History is about studying how the world was in the past. We ask: when did events happen, where, and why?",
+          "The British divided Indian history into three periods: Hindu, Muslim, and British — a classification now considered flawed because it oversimplified complex events."
+        ],
+        "long_answers": [
+          {
+            "question": "Why do historians study the past?",
+            "answer": "To understand how societies, cultures, and polities developed; to learn from successes and mistakes of the past."
+          },
+          {
+            "question": "What is the problem with dividing history into Hindu, Muslim, and British periods?",
+            "answer": "It reduces complex history to religion, ignores other communities, and suggests periods were uniform — which is inaccurate."
+          }
+        ],
+        "exam_tips": [
+          "Dates are important but context matters more.",
+          "Colonial records reflect the British perspective — we must read them critically."
+        ],
+        "quiz": [
+          {
+            "question": "Who divided Indian history into ancient, medieval, and modern?",
+            "options": [
+              "Indian historians",
+              "British historians",
+              "Mughal scholars",
+              "Maratha rulers"
+            ],
+            "answer": "British historians",
+            "explanation": "British historians like James Mill created this periodisation."
+          },
+          {
+            "question": "What kind of sources help us understand colonial history?",
+            "options": [
+              "Cave paintings",
+              "British surveys, reports, and census data",
+              "Stone-age tools",
+              "Vedic texts"
+            ],
+            "answer": "British surveys, reports, and census data",
+            "explanation": "The British kept detailed administrative records."
+          },
+          {
+            "question": "Why is history not just about dates?",
+            "options": [
+              "Dates are wrong",
+              "Dates tell us when but not why or how",
+              "Dates are opinions",
+              "History has no dates"
+            ],
+            "answer": "Dates tell us when but not why or how",
+            "explanation": "Context, cause, and consequence matter as much as dates."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "What does a historian do?",
+            "answer": "A historian researches and analyses sources to reconstruct and interpret the past."
+          },
+          {
+            "question": "Why should we read colonial sources critically?",
+            "answer": "Because they were written from the British perspective and may be biased against Indians."
+          }
+        ]
+      }
+    ]
+  },
+  "english": {
+    "icon": "menu_book",
+    "title": "English",
+    "bookTitle": "Honeydew – Class VIII",
+    "description": "Literature and writing skills for Class 8.",
+    "chapters": [
+      {
+        "id": "c8_e_c1",
+        "title": "The Best Christmas Present in the World",
+        "lessons": [
+          {
+            "id": "c8_e_l1",
+            "title": "The Best Christmas Present in the World",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/heeh1dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c8_e_l1",
+        "title": "The Best Christmas Present in the World",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/heeh1dd.pdf",
+        "content": [
+          "A narrator buys an old desk and finds a letter inside from a WWI soldier to his wife, describing his longing for home.",
+          "The soldier writes about a Christmas truce — German and British soldiers playing football together in No Man's Land."
+        ],
+        "long_answers": [
+          {
+            "question": "What did the narrator find inside the old desk?",
+            "answer": "A letter from a World War I soldier named Jim Macpherson, written to his wife Connie on Christmas 1914."
+          },
+          {
+            "question": "What was the Christmas truce?",
+            "answer": "On Christmas Day 1914, German and British soldiers stopped fighting and came out into No Man's Land to greet each other and even play football."
+          }
+        ],
+        "exam_tips": [
+          "The story is based on the actual Christmas Truce of 1914.",
+          "Theme: humanity and peace can overcome war."
+        ],
+        "quiz": [
+          {
+            "question": "Who wrote the letter found in the desk?",
+            "options": [
+              "The narrator",
+              "Jim Macpherson",
+              "Connie",
+              "A German soldier"
+            ],
+            "answer": "Jim Macpherson",
+            "explanation": "The letter was written by soldier Jim Macpherson to his wife."
+          },
+          {
+            "question": "What sport did soldiers play during the truce?",
+            "options": [
+              "Cricket",
+              "Rugby",
+              "Football",
+              "Basketball"
+            ],
+            "answer": "Football",
+            "explanation": "German and British soldiers played football together on Christmas Day."
+          },
+          {
+            "question": "What is the theme of the story?",
+            "options": [
+              "War is good",
+              "Peace and humanity transcend war",
+              "Christmas gifts are important",
+              "Old desks are valuable"
+            ],
+            "answer": "Peace and humanity transcend war",
+            "explanation": "The story shows how human connection survived even in war."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "What does the Christmas truce tell us about soldiers?",
+            "answer": "That even in war, soldiers retained their humanity, longing for peace and fellowship."
+          },
+          {
+            "question": "Why is the story called \"The Best Christmas Present in the World\"?",
+            "answer": "The letter (and the hope of reunion) was the best gift Jim could imagine for his wife."
+          }
+        ]
+      }
+    ]
+  }
+};
+
+    ALL_COURSE_DATA['9'] = {
+  "mathematics": {
+    "icon": "calculate",
+    "title": "Mathematics",
+    "bookTitle": "Mathematics – Class IX",
+    "description": "Number systems, coordinate geometry, and statistics.",
+    "chapters": [
+      {
+        "id": "c9_m_c1",
+        "title": "Number Systems",
+        "lessons": [
+          {
+            "id": "c9_m_l1",
+            "title": "Number Systems",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/iemh1dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c9_m_l1",
+        "title": "Number Systems",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/iemh1dd.pdf",
+        "content": [
+          "The real number system includes natural numbers, whole numbers, integers, rational numbers, and irrational numbers.",
+          "Irrational numbers cannot be expressed as p/q. Examples: √2, √3, π. Together, rational and irrational numbers form real numbers."
+        ],
+        "long_answers": [
+          {
+            "question": "What are irrational numbers?",
+            "answer": "Numbers that cannot be written as p/q (fraction of integers) — their decimal expansion is non-terminating and non-repeating. Examples: √2, π."
+          },
+          {
+            "question": "Is √4 rational or irrational?",
+            "answer": "√4 = 2, which is a natural number, so it is rational."
+          }
+        ],
+        "exam_tips": [
+          "Every rational number has a terminating or repeating decimal.",
+          "Irrational decimals go on forever without repeating."
+        ],
+        "quiz": [
+          {
+            "question": "Which of these is irrational?",
+            "options": [
+              "√4",
+              "√9",
+              "√2",
+              "4/2"
+            ],
+            "answer": "√2",
+            "explanation": "√2 ≈ 1.41421... — non-terminating, non-repeating."
+          },
+          {
+            "question": "What is the value of π approximately?",
+            "options": [
+              "3.14",
+              "22/7 exactly",
+              "3.0",
+              "4"
+            ],
+            "answer": "3.14",
+            "explanation": "π ≈ 3.14159... (22/7 is only an approximation)."
+          },
+          {
+            "question": "Real numbers include:",
+            "options": [
+              "Only integers",
+              "Only fractions",
+              "Rational and irrational numbers",
+              "Only natural numbers"
+            ],
+            "answer": "Rational and irrational numbers",
+            "explanation": "The set of real numbers = rational ∪ irrational."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "Represent √2 on a number line.",
+            "answer": "Draw a right triangle with legs 1, 1; the hypotenuse = √2. Use compass to mark √2 on number line."
+          },
+          {
+            "question": "Is 0.333... (repeating) rational?",
+            "answer": "Yes — 0.333... = 1/3, which is p/q form."
+          }
+        ]
+      }
+    ]
+  },
+  "science": {
+    "icon": "science",
+    "title": "Science",
+    "bookTitle": "Science – Class IX",
+    "description": "Physics, chemistry, and biology.",
+    "chapters": [
+      {
+        "id": "c9_s_c1",
+        "title": "Motion",
+        "lessons": [
+          {
+            "id": "c9_s_l1",
+            "title": "Motion",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/iesc1dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c9_s_l1",
+        "title": "Motion",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/iesc1dd.pdf",
+        "content": [
+          "Motion is a change in position of an object with time. Distance is total path length; displacement is straight-line change in position.",
+          "Speed = Distance/Time. Velocity = Displacement/Time. Acceleration = Change in velocity/Time."
+        ],
+        "long_answers": [
+          {
+            "question": "What is the difference between speed and velocity?",
+            "answer": "Speed is the rate of change of distance (scalar); velocity is rate of change of displacement (vector — has direction)."
+          },
+          {
+            "question": "A car travels 60 km in 2 hours. What is its speed?",
+            "answer": "Speed = 60/2 = 30 km/h."
+          }
+        ],
+        "exam_tips": [
+          "Distance is scalar; displacement is vector.",
+          "Uniform motion: constant speed; non-uniform: varying speed."
+        ],
+        "quiz": [
+          {
+            "question": "What is the unit of acceleration?",
+            "options": [
+              "m/s",
+              "km/h",
+              "m/s²",
+              "kg"
+            ],
+            "answer": "m/s²",
+            "explanation": "Acceleration = change in velocity/time = (m/s)/s = m/s²."
+          },
+          {
+            "question": "A body at rest has what velocity?",
+            "options": [
+              "10 m/s",
+              "−1 m/s",
+              "0 m/s",
+              "∞"
+            ],
+            "answer": "0 m/s",
+            "explanation": "At rest means no movement, so velocity is zero."
+          },
+          {
+            "question": "What does a straight horizontal line on a distance-time graph indicate?",
+            "options": [
+              "Acceleration",
+              "Uniform speed",
+              "Rest",
+              "Deceleration"
+            ],
+            "answer": "Rest",
+            "explanation": "A horizontal line means distance is not changing — the object is stationary."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "Define acceleration.",
+            "answer": "Acceleration is the rate of change of velocity. a = (v−u)/t. Unit: m/s²."
+          },
+          {
+            "question": "A train accelerates from 0 to 72 km/h in 10 s. Find acceleration.",
+            "answer": "u=0, v=72 km/h=20 m/s, t=10 s; a=(20-0)/10 = 2 m/s²."
+          }
+        ]
+      }
+    ]
+  },
+  "social_science": {
+    "icon": "public",
+    "title": "Social Science",
+    "bookTitle": "Democratic Politics I, Contemporary India I, India and the World",
+    "description": "History, geography, economics, and civics.",
+    "chapters": [
+      {
+        "id": "c9_ss_c1",
+        "title": "The French Revolution",
+        "lessons": [
+          {
+            "id": "c9_ss_l1",
+            "title": "The French Revolution",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/jess1dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c9_ss_l1",
+        "title": "The French Revolution",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/jess1dd.pdf",
+        "content": [
+          "The French Revolution (1789) overthrew the monarchy and established a republic. It was caused by inequality, taxes, and food shortages.",
+          "The Three Estates: First (clergy), Second (nobility), Third (everyone else). The Third Estate bore the tax burden while the First two were exempt."
+        ],
+        "long_answers": [
+          {
+            "question": "What were the main causes of the French Revolution?",
+            "answer": "Social inequality (Three Estates system), heavy taxes on commoners, food shortages, influence of Enlightenment ideas of liberty and equality."
+          },
+          {
+            "question": "What happened on 14 July 1789?",
+            "answer": "The people of Paris stormed the Bastille prison — a symbol of royal tyranny — marking a turning point in the Revolution."
+          }
+        ],
+        "exam_tips": [
+          "Liberty, Equality, Fraternity — the motto of the French Revolution.",
+          "\"The Social Contract\" by Rousseau influenced revolutionary ideas."
+        ],
+        "quiz": [
+          {
+            "question": "In which year did the French Revolution begin?",
+            "options": [
+              "1776",
+              "1789",
+              "1804",
+              "1815"
+            ],
+            "answer": "1789",
+            "explanation": "The Revolution began in 1789 with the Estates-General and the storming of the Bastille."
+          },
+          {
+            "question": "What was the Bastille?",
+            "options": [
+              "A palace",
+              "A prison",
+              "A church",
+              "A market"
+            ],
+            "answer": "A prison",
+            "explanation": "The Bastille was a royal prison whose storming on July 14 became a symbol of the Revolution."
+          },
+          {
+            "question": "What was the motto of the French Revolution?",
+            "options": [
+              "Truth, Justice, Peace",
+              "Liberty, Equality, Fraternity",
+              "Work, Order, Fatherland",
+              "God, King, Country"
+            ],
+            "answer": "Liberty, Equality, Fraternity",
+            "explanation": "Liberté, Égalité, Fraternité was the rallying cry of the Revolution."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "Who were the members of the First Estate?",
+            "answer": "The clergy (priests, bishops, and the Church)."
+          },
+          {
+            "question": "What is the Declaration of Rights of Man and of the Citizen?",
+            "answer": "A document passed in 1789 declaring freedom of speech, equal laws, and the right to participate in government for all male citizens."
+          }
+        ]
+      }
+    ]
+  },
+  "english": {
+    "icon": "menu_book",
+    "title": "English",
+    "bookTitle": "Beehive – Class IX",
+    "description": "Prose and poetry for Class 9.",
+    "chapters": [
+      {
+        "id": "c9_e_c1",
+        "title": "The Fun They Had",
+        "lessons": [
+          {
+            "id": "c9_e_l1",
+            "title": "The Fun They Had",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/ieeh1dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c9_e_l1",
+        "title": "The Fun They Had",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/ieeh1dd.pdf",
+        "content": [
+          "The story is set in 2157. Children have mechanical teachers at home and learn digitally. Margie finds an old book about school with human teachers.",
+          "Margie discovers that in the past, children went to school together, learned in groups, and had human teachers. She thinks about how fun that must have been."
+        ],
+        "long_answers": [
+          {
+            "question": "What kind of school did Margie have?",
+            "answer": "Margie had a mechanical teacher at home that displayed lessons on a screen and gave tests electronically."
+          },
+          {
+            "question": "Why did Margie think the old school was fun?",
+            "answer": "Because children went together to a common building, learned with friends, and had a human teacher they could laugh with."
+          }
+        ],
+        "exam_tips": [
+          "Story is by Isaac Asimov.",
+          "Theme: human connection in education — technology cannot replace it."
+        ],
+        "quiz": [
+          {
+            "question": "Who wrote \"The Fun They Had\"?",
+            "options": [
+              "Leo Tolstoy",
+              "Isaac Asimov",
+              "R.K. Narayan",
+              "Ruskin Bond"
+            ],
+            "answer": "Isaac Asimov",
+            "explanation": "Isaac Asimov, famous for science fiction, wrote this story."
+          },
+          {
+            "question": "What year is the story set in?",
+            "options": [
+              "2001",
+              "2057",
+              "2157",
+              "3001"
+            ],
+            "answer": "2157",
+            "explanation": "The story is set in the future year 2157."
+          },
+          {
+            "question": "What did Margie and Tommy find?",
+            "options": [
+              "A robot",
+              "An old printed book",
+              "A spaceship",
+              "A mechanical teacher"
+            ],
+            "answer": "An old printed book",
+            "explanation": "They found a real paper book, which was very rare in their time."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "What is the message of the story?",
+            "answer": "Physical school and human teachers offer joy and social learning that machines cannot fully replace."
+          },
+          {
+            "question": "How was Margie's mechanical teacher different from a human teacher?",
+            "answer": "It was a machine that displayed lessons and marked papers, had no emotions, and could not understand students personally."
+          }
+        ]
+      }
+    ]
+  }
+};
+
+    ALL_COURSE_DATA['10'] = {
+  "mathematics": {
+    "icon": "calculate",
+    "title": "Mathematics",
+    "bookTitle": "Mathematics – Class X",
+    "description": "Real numbers, polynomials, and trigonometry.",
+    "chapters": [
+      {
+        "id": "c10_m_c1",
+        "title": "Real Numbers",
+        "lessons": [
+          {
+            "id": "c10_m_l1",
+            "title": "Real Numbers",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/jemh1dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c10_m_l1",
+        "title": "Real Numbers",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/jemh1dd.pdf",
+        "content": [
+          "Real numbers include all rational and irrational numbers. Euclid's Division Lemma states: for any two positive integers a and b, a = bq + r (0 ≤ r < b).",
+          "The Fundamental Theorem of Arithmetic: Every composite number can be expressed as a product of primes uniquely."
+        ],
+        "long_answers": [
+          {
+            "question": "State Euclid's Division Lemma.",
+            "answer": "For any two positive integers a and b, there exist unique integers q and r such that a = bq + r, where 0 ≤ r < b."
+          },
+          {
+            "question": "Express 156 as a product of prime factors.",
+            "answer": "156 = 2 × 2 × 3 × 13 = 2² × 3 × 13."
+          }
+        ],
+        "exam_tips": [
+          "HCF using Euclid's algorithm: apply the lemma repeatedly until remainder = 0.",
+          "LCM × HCF = Product of two numbers."
+        ],
+        "quiz": [
+          {
+            "question": "The HCF of 26 and 91 is:",
+            "options": [
+              "13",
+              "26",
+              "91",
+              "7"
+            ],
+            "answer": "13",
+            "explanation": "26 = 2×13, 91 = 7×13 → HCF = 13."
+          },
+          {
+            "question": "Which theorem states every composite number has a unique prime factorisation?",
+            "options": [
+              "Pythagoras",
+              "Euclid's Lemma",
+              "Fundamental Theorem of Arithmetic",
+              "Fermat's Last"
+            ],
+            "answer": "Fundamental Theorem of Arithmetic",
+            "explanation": "This is the Fundamental Theorem of Arithmetic."
+          },
+          {
+            "question": "Is 5 × 7 × 11 × 13 + 13 a prime number?",
+            "options": [
+              "Yes",
+              "No",
+              "Cannot determine",
+              "It is 1"
+            ],
+            "answer": "No",
+            "explanation": "= 13(5×7×11+1) = 13×386 — composite because it has factor 13."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "Find the HCF of 96 and 404 using Euclid's algorithm.",
+            "answer": "404 = 96×4 + 20; 96 = 20×4 + 16; 20 = 16×1 + 4; 16 = 4×4 + 0. HCF = 4."
+          },
+          {
+            "question": "Prove that √3 is irrational.",
+            "answer": "Assume √3 = p/q (lowest terms). Then 3q² = p² → 3 divides p² → 3 divides p. Let p=3m; 3q²=9m² → q²=3m² → 3 divides q. Contradiction (p and q have common factor 3)."
+          }
+        ]
+      }
+    ]
+  },
+  "science": {
+    "icon": "science",
+    "title": "Science",
+    "bookTitle": "Science – Class X",
+    "description": "Chemical reactions, life processes, and electricity.",
+    "chapters": [
+      {
+        "id": "c10_s_c1",
+        "title": "Chemical Reactions and Equations",
+        "lessons": [
+          {
+            "id": "c10_s_l1",
+            "title": "Chemical Reactions and Equations",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/jesc1dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c10_s_l1",
+        "title": "Chemical Reactions and Equations",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/jesc1dd.pdf",
+        "content": [
+          "A chemical reaction is a process where substances (reactants) transform into new substances (products). Signs of a reaction: colour change, gas produced, precipitate formed, heat released/absorbed.",
+          "A balanced chemical equation has equal numbers of atoms on both sides. Example: Mg + O₂ → MgO balances to 2Mg + O₂ → 2MgO."
+        ],
+        "long_answers": [
+          {
+            "question": "What is a chemical equation?",
+            "answer": "A symbolic representation of a chemical reaction showing reactants on the left and products on the right separated by an arrow."
+          },
+          {
+            "question": "Why must equations be balanced?",
+            "answer": "Because matter cannot be created or destroyed (Law of Conservation of Mass) — atoms must be equal on both sides."
+          }
+        ],
+        "exam_tips": [
+          "Reactants are on the left, products on the right of the arrow.",
+          "Combination, decomposition, displacement, double displacement, redox — the five main reaction types."
+        ],
+        "quiz": [
+          {
+            "question": "What is produced when iron rusts?",
+            "options": [
+              "Iron oxide",
+              "Iron sulphide",
+              "Iron carbonate",
+              "Iron chloride"
+            ],
+            "answer": "Iron oxide",
+            "explanation": "Rusting: 4Fe + 3O₂ + xH₂O → Fe₂O₃.xH₂O (hydrated iron oxide)."
+          },
+          {
+            "question": "Which law explains why equations must be balanced?",
+            "options": [
+              "Newton's law",
+              "Conservation of energy",
+              "Conservation of mass",
+              "Avogadro's law"
+            ],
+            "answer": "Conservation of mass",
+            "explanation": "Mass of reactants = mass of products (Lavoisier)."
+          },
+          {
+            "question": "What type of reaction is A + B → AB?",
+            "options": [
+              "Decomposition",
+              "Displacement",
+              "Combination",
+              "Redox"
+            ],
+            "answer": "Combination",
+            "explanation": "Two reactants combining to form one product = combination reaction."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "Balance: Fe + H₂O → Fe₃O₄ + H₂",
+            "answer": "3Fe + 4H₂O → Fe₃O₄ + 4H₂"
+          },
+          {
+            "question": "Name 4 observations that indicate a chemical reaction has occurred.",
+            "answer": "Change in colour, evolution of gas, formation of precipitate, change in temperature."
+          }
+        ]
+      }
+    ]
+  },
+  "social_science": {
+    "icon": "public",
+    "title": "Social Science",
+    "bookTitle": "India and the Contemporary World II, Contemporary India II, Democratic Politics II, Understanding Economic Development",
+    "description": "History, geography, economics, and civics for Class 10.",
+    "chapters": [
+      {
+        "id": "c10_ss_c1",
+        "title": "The Rise of Nationalism in Europe",
+        "lessons": [
+          {
+            "id": "c10_ss_l1",
+            "title": "The Rise of Nationalism in Europe",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/jess1dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c10_ss_l1",
+        "title": "The Rise of Nationalism in Europe",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/jess1dd.pdf",
+        "content": [
+          "Nationalism is the idea that people sharing a common identity should form their own nation. In the 19th century, Europe saw a wave of national movements.",
+          "Napoleon's conquests spread revolutionary ideas across Europe. The Congress of Vienna (1815) tried to restore old monarchies but could not stop nationalism."
+        ],
+        "long_answers": [
+          {
+            "question": "What is nationalism?",
+            "answer": "Nationalism is the belief that people who share a common culture, language, or identity should form their own independent nation."
+          },
+          {
+            "question": "How did Napoleon contribute to the rise of nationalism?",
+            "answer": "Though a conqueror, Napoleon spread revolutionary ideas of liberty, equality, and law (Napoleonic Code) across Europe, inspiring local populations to assert their own national identities."
+          }
+        ],
+        "exam_tips": [
+          "Frederic Sorrieu's 1848 print visualised a utopia of democratic republics.",
+          "Ernst Moritz Arndt — German nationalist who used culture and language to define the German nation."
+        ],
+        "quiz": [
+          {
+            "question": "The idea of a unified Germany was promoted by:",
+            "options": [
+              "Napoleon",
+              "Bismarck",
+              "Ernst Arndt",
+              "Mazzini"
+            ],
+            "answer": "Bismarck",
+            "explanation": "Otto von Bismarck unified the German states through \"blood and iron\" policy (1871)."
+          },
+          {
+            "question": "What was the Congress of Vienna (1815) about?",
+            "options": [
+              "Creating the UN",
+              "Restoring conservative order after Napoleon",
+              "Industrialisation",
+              "Colonial partition of Africa"
+            ],
+            "answer": "Restoring conservative order after Napoleon",
+            "explanation": "The Congress tried to restore monarchies and prevent revolutionary change."
+          },
+          {
+            "question": "Who is called the \"Young Italy\" movement's founder?",
+            "options": [
+              "Garibaldi",
+              "Cavour",
+              "Mazzini",
+              "Victor Emmanuel"
+            ],
+            "answer": "Mazzini",
+            "explanation": "Giuseppe Mazzini founded Young Italy to unite Italian states into one republic."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "Why was 1848 called the \"Spring of Nations\"?",
+            "answer": "Revolutions broke out across Europe in 1848 as people demanded national self-determination and liberal constitutions."
+          },
+          {
+            "question": "What is a nation-state?",
+            "answer": "A political unit where the state and the nation (people with common identity) coincide — citizens share culture, language, and history."
+          }
+        ]
+      }
+    ]
+  },
+  "english": {
+    "icon": "menu_book",
+    "title": "English",
+    "bookTitle": "First Flight – Class X",
+    "description": "Literature and grammar for Class 10.",
+    "chapters": [
+      {
+        "id": "c10_e_c1",
+        "title": "A Letter to God",
+        "lessons": [
+          {
+            "id": "c10_e_l1",
+            "title": "A Letter to God",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/jeeh1dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c10_e_l1",
+        "title": "A Letter to God",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/jeeh1dd.pdf",
+        "content": [
+          "Lencho is a poor farmer who writes a letter to God asking for money after hailstones destroy his crops.",
+          "Post office workers collect money to help him, but Lencho accuses \"God\" of sending less — suspecting the post office workers stole the rest."
+        ],
+        "long_answers": [
+          {
+            "question": "Why did Lencho write to God?",
+            "answer": "A hailstorm destroyed his crops and he had no money. With deep faith, he believed God would help him, so he wrote asking for 100 pesos."
+          },
+          {
+            "question": "What was the irony of the story?",
+            "answer": "The post office workers collected money out of kindness to help Lencho, but Lencho suspected them of stealing part of \"God's\" money."
+          }
+        ],
+        "exam_tips": [
+          "Theme: simple faith vs. human cynicism.",
+          "G.L. Fuentes wrote this story originally in Spanish."
+        ],
+        "quiz": [
+          {
+            "question": "Who is the main character?",
+            "options": [
+              "Post master",
+              "God",
+              "Lencho",
+              "Lencho's wife"
+            ],
+            "answer": "Lencho",
+            "explanation": "Lencho the farmer is the protagonist of the story."
+          },
+          {
+            "question": "Why did Lencho mistrust the post office employees?",
+            "options": [
+              "They were rude",
+              "He received less than 100 pesos",
+              "They did not reply",
+              "They lost his letter"
+            ],
+            "answer": "He received less than 100 pesos",
+            "explanation": "He had asked for 100 pesos but received only 70 — he thought the rest was stolen."
+          },
+          {
+            "question": "What destroyed Lencho's crops?",
+            "options": [
+              "Flood",
+              "Hailstorm",
+              "Drought",
+              "Locusts"
+            ],
+            "answer": "Hailstorm",
+            "explanation": "A severe hailstorm destroyed all of Lencho's crops."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "What does the story tell us about Lencho's character?",
+            "answer": "He had strong, unshakeable faith but was unable to trust fellow human beings — ironic because humans helped him."
+          },
+          {
+            "question": "How did the post office employees respond to the letter?",
+            "answer": "The postmaster was moved by Lencho's faith and collected money from employees to fulfil the request."
+          }
+        ]
+      }
+    ]
+  }
+};
+
+    ALL_COURSE_DATA['11'] = {
+  "mathematics": {
+    "icon": "calculate",
+    "title": "Mathematics",
+    "bookTitle": "Mathematics – Class XI",
+    "description": "Sets, relations, trigonometry, and calculus introduction.",
+    "chapters": [
+      {
+        "id": "c11_m_c1",
+        "title": "Sets",
+        "lessons": [
+          {
+            "id": "c11_m_l1",
+            "title": "Sets",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/kemh1dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c11_m_l1",
+        "title": "Sets",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/kemh1dd.pdf",
+        "content": [
+          "A set is a well-defined collection of objects. Sets are denoted by capital letters. Elements are enclosed in curly braces: A = {1, 2, 3}.",
+          "Types of sets: empty set (∅), finite set, infinite set, universal set, subset. Operations: union (∪), intersection (∩), complement (A')."
+        ],
+        "long_answers": [
+          {
+            "question": "Define a set.",
+            "answer": "A set is a well-defined collection of distinct objects. \"Well-defined\" means there is no ambiguity about whether an element belongs."
+          },
+          {
+            "question": "What is A ∪ B?",
+            "answer": "The union of A and B contains all elements that are in A, or B, or both."
+          }
+        ],
+        "exam_tips": [
+          "n(A ∪ B) = n(A) + n(B) − n(A ∩ B) — the addition principle.",
+          "A ⊂ B means every element of A is also in B."
+        ],
+        "quiz": [
+          {
+            "question": "A = {1,2,3}, B = {3,4,5}. Find A ∩ B.",
+            "options": [
+              "{}",
+              "{3}",
+              "{1,2,3,4,5}",
+              "{1,2}"
+            ],
+            "answer": "{3}",
+            "explanation": "Only 3 is common to both sets."
+          },
+          {
+            "question": "The empty set is denoted by:",
+            "options": [
+              "{}",
+              "0",
+              "∅",
+              "Both {} and ∅"
+            ],
+            "answer": "Both {} and ∅",
+            "explanation": "Both notations represent the empty set."
+          },
+          {
+            "question": "If A ⊆ B and B ⊆ A, then:",
+            "options": [
+              "A = B",
+              "A is larger",
+              "B is empty",
+              "A ∩ B = ∅"
+            ],
+            "answer": "A = B",
+            "explanation": "Mutual subsets imply equality."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "In a class, 35 students like cricket, 20 like football, and 10 like both. How many like at least one?",
+            "answer": "n(C ∪ F) = 35 + 20 − 10 = 45 students."
+          },
+          {
+            "question": "What is the power set of {1,2}?",
+            "answer": "P({1,2}) = {∅, {1}, {2}, {1,2}} — 4 elements (2² = 4)."
+          }
+        ]
+      }
+    ]
+  },
+  "physics": {
+    "icon": "bolt",
+    "title": "Physics",
+    "bookTitle": "Physics Part I & II – Class XI",
+    "description": "Mechanics, thermodynamics, and waves.",
+    "chapters": [
+      {
+        "id": "c11_p_c1",
+        "title": "Laws of Motion",
+        "lessons": [
+          {
+            "id": "c11_p_l1",
+            "title": "Laws of Motion",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/keph1dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c11_p_l1",
+        "title": "Laws of Motion",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/keph1dd.pdf",
+        "content": [
+          "Newton's First Law: An object remains at rest or in uniform motion unless acted on by a net external force.",
+          "Newton's Second Law: F = ma. Force = mass × acceleration. Newton's Third Law: For every action there is an equal and opposite reaction."
+        ],
+        "long_answers": [
+          {
+            "question": "State Newton's Second Law of Motion.",
+            "answer": "The net force acting on an object equals its mass times acceleration: F = ma. The direction of force and acceleration are the same."
+          },
+          {
+            "question": "Why does a gun recoil when fired?",
+            "answer": "By Newton's Third Law, the action of the bullet going forward is accompanied by an equal and opposite reaction — the gun kicks back."
+          }
+        ],
+        "exam_tips": [
+          "Inertia is the tendency to resist change in state of motion — it depends on mass.",
+          "Impulse = Force × time = change in momentum."
+        ],
+        "quiz": [
+          {
+            "question": "What is Newton's First Law also called?",
+            "options": [
+              "Law of Force",
+              "Law of Inertia",
+              "Law of Action-Reaction",
+              "Law of Gravity"
+            ],
+            "answer": "Law of Inertia",
+            "explanation": "The First Law describes inertia — resistance to change in motion."
+          },
+          {
+            "question": "F = ma is Newton's:",
+            "options": [
+              "First Law",
+              "Second Law",
+              "Third Law",
+              "Law of Gravitation"
+            ],
+            "answer": "Second Law",
+            "explanation": "F = ma defines the Second Law."
+          },
+          {
+            "question": "A 2 kg object has 4 m/s² acceleration. Force?",
+            "options": [
+              "2N",
+              "6N",
+              "8N",
+              "0.5N"
+            ],
+            "answer": "8N",
+            "explanation": "F = ma = 2 × 4 = 8 N."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "A cricket ball changes velocity from 0 to 30 m/s in 0.05 s when hit. If mass = 0.15 kg, find force.",
+            "answer": "a = (30−0)/0.05 = 600 m/s²; F = 0.15 × 600 = 90 N."
+          },
+          {
+            "question": "Why should seat belts be worn in a car?",
+            "answer": "In a sudden stop, inertia keeps the body moving forward. The seatbelt provides the external force to stop the body safely (First Law)."
+          }
+        ]
+      }
+    ]
+  },
+  "chemistry": {
+    "icon": "science",
+    "title": "Chemistry",
+    "bookTitle": "Chemistry Part I & II – Class XI",
+    "description": "Atomic structure, chemical bonding, and thermodynamics.",
+    "chapters": [
+      {
+        "id": "c11_c_c1",
+        "title": "Structure of Atom",
+        "lessons": [
+          {
+            "id": "c11_c_l1",
+            "title": "Structure of Atom",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/kech2dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c11_c_l1",
+        "title": "Structure of Atom",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/kech2dd.pdf",
+        "content": [
+          "The atom has a nucleus (protons + neutrons) surrounded by electrons in shells. Atomic number = number of protons. Mass number = protons + neutrons.",
+          "Quantum model: electrons occupy orbitals (s, p, d, f) with specific shapes and energies. Aufbau principle, Pauli exclusion, and Hund's rule govern electron configuration."
+        ],
+        "long_answers": [
+          {
+            "question": "What is an atomic number?",
+            "answer": "Atomic number (Z) is the number of protons in the nucleus of an atom. It uniquely identifies an element."
+          },
+          {
+            "question": "What is the electron configuration of carbon (Z=6)?",
+            "answer": "Carbon: 1s² 2s² 2p² — 2 electrons in 1s, 2 in 2s, 2 in 2p."
+          }
+        ],
+        "exam_tips": [
+          "Isotopes: same protons, different neutrons. E.g., ¹²C and ¹⁴C.",
+          "Bohr model explained hydrogen spectrum — energy levels are quantised."
+        ],
+        "quiz": [
+          {
+            "question": "Number of neutrons in ¹⁴N (Z=7)?",
+            "options": [
+              "7",
+              "14",
+              "5",
+              "21"
+            ],
+            "answer": "7",
+            "explanation": "Neutrons = Mass number − Atomic number = 14 − 7 = 7."
+          },
+          {
+            "question": "Which quantum number describes orbital shape?",
+            "options": [
+              "Principal (n)",
+              "Azimuthal (l)",
+              "Magnetic (m)",
+              "Spin (s)"
+            ],
+            "answer": "Azimuthal (l)",
+            "explanation": "The azimuthal (l) quantum number determines the shape of the orbital."
+          },
+          {
+            "question": "Pauli Exclusion Principle states:",
+            "options": [
+              "Electrons fill lower energy first",
+              "No two electrons have all 4 quantum numbers identical",
+              "Electrons in same sublevel have parallel spins",
+              "Electrons move in circular orbits"
+            ],
+            "answer": "No two electrons have all 4 quantum numbers identical",
+            "explanation": "Pauli: no two electrons in an atom can have all four quantum numbers the same."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "Write the electronic configuration of Na (Z=11).",
+            "answer": "1s² 2s² 2p⁶ 3s¹"
+          },
+          {
+            "question": "What is the difference between a shell and a subshell?",
+            "answer": "A shell (n=1,2,3...) is the main energy level. A subshell (s, p, d, f) is a subdivision within a shell."
+          }
+        ]
+      }
+    ]
+  },
+  "biology": {
+    "icon": "psychiatry",
+    "title": "Biology",
+    "bookTitle": "Biology – Class XI",
+    "description": "Cell biology, plant physiology, and human physiology.",
+    "chapters": [
+      {
+        "id": "c11_b_c1",
+        "title": "Cell: The Unit of Life",
+        "lessons": [
+          {
+            "id": "c11_b_l1",
+            "title": "Cell: The Unit of Life",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/kebo3dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c11_b_l1",
+        "title": "Cell: The Unit of Life",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/kebo3dd.pdf",
+        "content": [
+          "The cell is the basic structural and functional unit of life. All organisms are made of cells. Cell theory: all living things are composed of cells.",
+          "Prokaryotic cells (bacteria) have no membrane-bound nucleus. Eukaryotic cells (plants, animals) have a nucleus enclosed by a nuclear envelope."
+        ],
+        "long_answers": [
+          {
+            "question": "What is cell theory?",
+            "answer": "Cell theory states: 1) All living organisms are made of cells. 2) The cell is the basic unit of life. 3) All cells arise from pre-existing cells."
+          },
+          {
+            "question": "What is the difference between prokaryotic and eukaryotic cells?",
+            "answer": "Prokaryotic cells (like bacteria) lack a membrane-bound nucleus. Eukaryotic cells (plants, animals, fungi) have a true nucleus bounded by a membrane."
+          }
+        ],
+        "exam_tips": [
+          "Who proposed cell theory? Schleiden and Schwann (1838−39), confirmed by Virchow (1855).",
+          "Mitochondria = powerhouse of the cell (ATP production)."
+        ],
+        "quiz": [
+          {
+            "question": "Who called the cell \"the basic unit of life\"?",
+            "options": [
+              "Newton",
+              "Hooke",
+              "Schleiden & Schwann",
+              "Darwin"
+            ],
+            "answer": "Schleiden & Schwann",
+            "explanation": "Matthias Schleiden and Theodor Schwann proposed the cell theory."
+          },
+          {
+            "question": "Which organelle is called the powerhouse of the cell?",
+            "options": [
+              "Nucleus",
+              "Ribosome",
+              "Mitochondria",
+              "Chloroplast"
+            ],
+            "answer": "Mitochondria",
+            "explanation": "Mitochondria produce ATP via cellular respiration."
+          },
+          {
+            "question": "Prokaryotic cells differ from eukaryotic in:",
+            "options": [
+              "Size only",
+              "Absence of membrane-bound nucleus",
+              "Having more DNA",
+              "Having mitochondria"
+            ],
+            "answer": "Absence of membrane-bound nucleus",
+            "explanation": "The defining difference is the absence of a nuclear membrane in prokaryotes."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "Name the organelle where proteins are synthesised.",
+            "answer": "Ribosomes (found in both prokaryotic and eukaryotic cells)."
+          },
+          {
+            "question": "What is the function of the endoplasmic reticulum?",
+            "answer": "Rough ER has ribosomes and helps in protein synthesis and transport. Smooth ER lacks ribosomes and helps in lipid synthesis and detoxification."
+          }
+        ]
+      }
+    ]
+  }
+};
+
+    ALL_COURSE_DATA['12'] = {
+  "mathematics": {
+    "icon": "calculate",
+    "title": "Mathematics",
+    "bookTitle": "Mathematics – Class XII",
+    "description": "Calculus, vectors, and probability.",
+    "chapters": [
+      {
+        "id": "c12_m_c1",
+        "title": "Relations and Functions",
+        "lessons": [
+          {
+            "id": "c12_m_l1",
+            "title": "Relations and Functions",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/lemh1dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c12_m_l1",
+        "title": "Relations and Functions",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/lemh1dd.pdf",
+        "content": [
+          "A relation from set A to set B is a subset of A × B. A function is a special relation where each element of A has exactly one image in B.",
+          "Types of functions: one-one (injective), onto (surjective), bijective (both). Composition of functions: (f∘g)(x) = f(g(x))."
+        ],
+        "long_answers": [
+          {
+            "question": "What is a function?",
+            "answer": "A function f: A → B assigns to every element x in A exactly one element f(x) in B."
+          },
+          {
+            "question": "What is a bijective function?",
+            "answer": "A function that is both one-one (injective) and onto (surjective) — every output is reached by exactly one input."
+          }
+        ],
+        "exam_tips": [
+          "One-one: different inputs give different outputs. Onto: every element of codomain is an output.",
+          "Inverse function exists only for bijective functions."
+        ],
+        "quiz": [
+          {
+            "question": "f(x) = x² is NOT one-one because:",
+            "options": [
+              "f(0) = 0",
+              "f(2) = f(-2) = 4",
+              "It has no inverse",
+              "It is not onto"
+            ],
+            "answer": "f(2) = f(-2) = 4",
+            "explanation": "Two different inputs give the same output → not one-one."
+          },
+          {
+            "question": "A bijective function is:",
+            "options": [
+              "Only one-one",
+              "Only onto",
+              "Both one-one and onto",
+              "Neither"
+            ],
+            "answer": "Both one-one and onto",
+            "explanation": "Bijective = injective + surjective."
+          },
+          {
+            "question": "If f(x) = 2x+1, find f(3).",
+            "options": [
+              "5",
+              "7",
+              "6",
+              "8"
+            ],
+            "answer": "7",
+            "explanation": "f(3) = 2(3)+1 = 7."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "Show that f(x) = 2x+3 is a bijection on ℝ.",
+            "answer": "One-one: f(x₁)=f(x₂) → 2x₁+3=2x₂+3 → x₁=x₂. Onto: for any y∈ℝ, x=(y-3)/2∈ℝ and f(x)=y. Hence bijective."
+          },
+          {
+            "question": "Find the inverse of f(x) = (x-1)/2.",
+            "answer": "Let y=(x-1)/2. Then x = 2y+1. So f⁻¹(x) = 2x+1."
+          }
+        ]
+      }
+    ]
+  },
+  "physics": {
+    "icon": "bolt",
+    "title": "Physics",
+    "bookTitle": "Physics Part I & II – Class XII",
+    "description": "Electromagnetism, optics, and modern physics.",
+    "chapters": [
+      {
+        "id": "c12_p_c1",
+        "title": "Electric Charges and Fields",
+        "lessons": [
+          {
+            "id": "c12_p_l1",
+            "title": "Electric Charges and Fields",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/leph1dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c12_p_l1",
+        "title": "Electric Charges and Fields",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/leph1dd.pdf",
+        "content": [
+          "Electric charge is a fundamental property of matter. There are two types: positive (protons) and negative (electrons). Like charges repel; unlike charges attract.",
+          "Coulomb's Law: F = kq₁q₂/r² where k = 9×10⁹ N·m²/C². Electric field E = F/q = kQ/r²."
+        ],
+        "long_answers": [
+          {
+            "question": "State Coulomb's Law.",
+            "answer": "The force between two point charges is directly proportional to the product of the charges and inversely proportional to the square of the distance: F = kq₁q₂/r²."
+          },
+          {
+            "question": "What is electric field intensity?",
+            "answer": "Electric field at a point is the force per unit positive test charge placed at that point: E = F/q₀. Its unit is N/C or V/m."
+          }
+        ],
+        "exam_tips": [
+          "k = 1/4πε₀ = 9×10⁹ N·m²/C².",
+          "Electric field lines originate at positive charges and terminate at negative charges."
+        ],
+        "quiz": [
+          {
+            "question": "What is the SI unit of charge?",
+            "options": [
+              "Ampere",
+              "Volt",
+              "Coulomb",
+              "Farad"
+            ],
+            "answer": "Coulomb",
+            "explanation": "The SI unit of electric charge is the Coulomb (C)."
+          },
+          {
+            "question": "Two equal positive charges are placed 1m apart. The force is:",
+            "options": [
+              "Attractive",
+              "Repulsive",
+              "Zero",
+              "Cannot determine"
+            ],
+            "answer": "Repulsive",
+            "explanation": "Like charges (both positive) repel each other."
+          },
+          {
+            "question": "Coulomb's law is analogous to:",
+            "options": [
+              "Ohm's law",
+              "Newton's Second Law",
+              "Newton's Law of Gravitation",
+              "Faraday's law"
+            ],
+            "answer": "Newton's Law of Gravitation",
+            "explanation": "Both are inverse-square laws between two point entities."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "Two charges 2μC and 3μC are 10 cm apart. Find force (k=9×10⁹).",
+            "answer": "F = 9×10⁹ × 2×10⁻⁶ × 3×10⁻⁶ / (0.1)² = 9×10⁹ × 6×10⁻¹² / 0.01 = 5.4 N."
+          },
+          {
+            "question": "What is a Faraday cage?",
+            "answer": "An enclosure of conducting material that blocks external electric fields, because charges redistribute to cancel internal field."
+          }
+        ]
+      }
+    ]
+  },
+  "chemistry": {
+    "icon": "science",
+    "title": "Chemistry",
+    "bookTitle": "Chemistry Part I & II – Class XII",
+    "description": "Electrochemistry, polymers, and biomolecules.",
+    "chapters": [
+      {
+        "id": "c12_c_c1",
+        "title": "Electrochemistry",
+        "lessons": [
+          {
+            "id": "c12_c_l1",
+            "title": "Electrochemistry",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/lech3dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c12_c_l1",
+        "title": "Electrochemistry",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/lech3dd.pdf",
+        "content": [
+          "Electrochemistry studies the relationship between chemical energy and electrical energy. Electrolytic cells use electricity to drive non-spontaneous reactions; galvanic cells convert chemical energy to electricity.",
+          "Standard electrode potential (E°) measures the tendency to get reduced. EMF = E°cathode − E°anode. Nernst equation: E = E° − (RT/nF)lnQ."
+        ],
+        "long_answers": [
+          {
+            "question": "What is the difference between a galvanic cell and an electrolytic cell?",
+            "answer": "A galvanic cell converts chemical energy to electrical energy (spontaneous reaction, e.g. batteries). An electrolytic cell uses electrical energy to drive a non-spontaneous chemical reaction (e.g. electroplating)."
+          },
+          {
+            "question": "State Faraday's First Law of Electrolysis.",
+            "answer": "The mass of substance deposited at an electrode is directly proportional to the charge passed through the electrolyte: m = ZQ = ZIt."
+          }
+        ],
+        "exam_tips": [
+          "Daniel cell is a classic galvanic cell: Zn|ZnSO₄||CuSO₄|Cu.",
+          "EMF is positive for spontaneous cells."
+        ],
+        "quiz": [
+          {
+            "question": "In a galvanic cell, oxidation occurs at:",
+            "options": [
+              "Cathode",
+              "Anode",
+              "Both",
+              "Neither"
+            ],
+            "answer": "Anode",
+            "explanation": "Oxidation = Anode (both start with vowels); Reduction = Cathode."
+          },
+          {
+            "question": "Faraday's constant F is approximately:",
+            "options": [
+              "6.02×10²³",
+              "96500 C/mol",
+              "8.314 J/mol·K",
+              "1.6×10⁻¹⁹ C"
+            ],
+            "answer": "96500 C/mol",
+            "explanation": "F = 96485 C/mol ≈ 96500 C/mol, the charge of one mole of electrons."
+          },
+          {
+            "question": "Which process occurs in electroplating?",
+            "options": [
+              "Galvanic reaction",
+              "Electrolysis",
+              "Photosynthesis",
+              "Combustion"
+            ],
+            "answer": "Electrolysis",
+            "explanation": "Electroplating uses electrolysis to deposit a metal layer on a surface."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "Calculate EMF of Zn-Cu cell. E°Zn = -0.76V, E°Cu = +0.34V.",
+            "answer": "EMF = E°cathode − E°anode = 0.34 − (−0.76) = 1.10 V."
+          },
+          {
+            "question": "What is conductance? How does it vary with temperature?",
+            "answer": "Conductance = 1/Resistance; it measures ease of current flow. For electrolytes, conductance increases with temperature (more ion mobility)."
+          }
+        ]
+      }
+    ]
+  },
+  "biology": {
+    "icon": "psychiatry",
+    "title": "Biology",
+    "bookTitle": "Biology – Class XII",
+    "description": "Genetics, evolution, and biotechnology.",
+    "chapters": [
+      {
+        "id": "c12_b_c1",
+        "title": "Principles of Inheritance and Variation",
+        "lessons": [
+          {
+            "id": "c12_b_l1",
+            "title": "Principles of Inheritance and Variation",
+            "pdfUrl": "https://ncert.nic.in/textbook/pdf/lebo5dd.pdf"
+          }
+        ]
+      }
+    ],
+    "lessons": [
+      {
+        "id": "c12_b_l1",
+        "title": "Principles of Inheritance and Variation",
+        "pdfUrl": "https://ncert.nic.in/textbook/pdf/lebo5dd.pdf",
+        "content": [
+          "Gregor Mendel studied pea plants and discovered the laws of inheritance. Law of Segregation: allele pairs separate during gamete formation.",
+          "Law of Independent Assortment: genes for different traits assort independently. Monohybrid cross gives 3:1 ratio (F₂); dihybrid cross gives 9:3:3:1 ratio."
+        ],
+        "long_answers": [
+          {
+            "question": "State Mendel's Law of Segregation.",
+            "answer": "Each organism carries two alleles for each trait. During gamete formation, these alleles separate so each gamete gets only one allele."
+          },
+          {
+            "question": "What is the phenotypic ratio in F₂ of a monohybrid cross between Tall (TT) × Dwarf (tt)?",
+            "answer": "3 Tall : 1 Dwarf. F₁ = all Tt (tall); F₂ = TT : Tt : tt = 1:2:1 (genotypic), 3 tall : 1 dwarf (phenotypic)."
+          }
+        ],
+        "exam_tips": [
+          "Dominant allele masks recessive in heterozygote.",
+          "Codominance: both alleles expressed equally (e.g. ABO blood groups)."
+        ],
+        "quiz": [
+          {
+            "question": "Who is the Father of Genetics?",
+            "options": [
+              "Darwin",
+              "Watson",
+              "Mendel",
+              "Morgan"
+            ],
+            "answer": "Mendel",
+            "explanation": "Gregor Mendel's pea plant experiments founded the science of genetics."
+          },
+          {
+            "question": "Monohybrid F₂ ratio is:",
+            "options": [
+              "1:1",
+              "1:2:1 genotypic / 3:1 phenotypic",
+              "9:3:3:1",
+              "1:3"
+            ],
+            "answer": "1:2:1 genotypic / 3:1 phenotypic",
+            "explanation": "Monohybrid F₂: 3 dominant : 1 recessive phenotype."
+          },
+          {
+            "question": "What is a test cross?",
+            "options": [
+              "Cross of two hybrids",
+              "Cross of F₁ with homozygous recessive",
+              "Cross of F₁ with F₂",
+              "Self-pollination"
+            ],
+            "answer": "Cross of F₁ with homozygous recessive",
+            "explanation": "A test cross reveals the unknown genotype by crossing with homozygous recessive."
+          }
+        ],
+        "game": null,
+        "back_questions": [
+          {
+            "question": "What is incomplete dominance? Give an example.",
+            "answer": "When neither allele is completely dominant, the heterozygote shows an intermediate phenotype. Example: Snapdragon flower — RR (red) × WW (white) → RW (pink)."
+          },
+          {
+            "question": "In a dihybrid cross, what is the F₂ genotypic ratio?",
+            "answer": "1:2:1:2:4:2:1:2:1 (9 phenotypic classes collapse to 9:3:3:1)."
+          }
+        ]
+      }
+    ]
+  }
+};
+
+
+    // ─── Minimal stub generator for classes not yet fully authored ───
+    // Classes 1-5, 7-12 are loaded dynamically below
+    // (already defined in ALL_COURSE_DATA above if present)
+
+    // ─── Subject color accents for ALL classes ───
+    const ALL_SUBJECT_ACCENTS = {
+      mathematics:    { bg: 'bg-surface-container-low', icon: 'text-primary' },
+      science:        { bg: 'bg-[#e6faf5]',             icon: 'text-secondary' },
+      social_science: { bg: 'bg-[#fff3eb]',             icon: 'text-[#f99028]' },
+      english:        { bg: 'bg-[#f0f0ff]',             icon: 'text-primary' },
+      hindi:          { bg: 'bg-[#fdeaea]',             icon: 'text-error' },
+      evs:            { bg: 'bg-[#e8f5e9]',             icon: 'text-secondary' },
+      physics:        { bg: 'bg-[#e3f2fd]',             icon: 'text-blue-700' },
+      chemistry:      { bg: 'bg-[#f3e5f5]',             icon: 'text-purple-700' },
+      biology:        { bg: 'bg-[#e8f5e9]',             icon: 'text-green-700' },
+    };
 
     // --- Subject color accents for cards ---
-    const subjectAccents = {
-      mathematics: { bg: 'bg-surface-container-low', icon: 'text-primary' },
-      science:     { bg: 'bg-[#e6faf5]',              icon: 'text-secondary' },
-      social_science: { bg: 'bg-[#fff3eb]',            icon: 'text-[#f99028]' },
-      english:     { bg: 'bg-[#f0f0ff]',              icon: 'text-primary' },
-      hindi:       { bg: 'bg-[#fdeaea]',              icon: 'text-error' }
-    };
+    const subjectAccents = ALL_SUBJECT_ACCENTS;
 
     // --- Application State ---
     const state = {
@@ -3783,7 +7160,8 @@
     const IDB_NAME    = 'risync_ncert';
     const IDB_VERSION = 1;
     const IDB_STORE   = 'progress';
-    const IDB_KEY     = 'class6';
+    // IDB_KEY is now dynamic — always use `class${activeClass}` instead of this constant
+    const IDB_KEY_BASE = 'class';
     let   _idb        = null; // will hold the open IDBDatabase instance
 
     function _openIDB() {
@@ -3798,19 +7176,21 @@
       });
     }
 
-    function _saveToIDB(payload) {
+    function _saveToIDB(payload, classNum) {
+      const key = IDB_KEY_BASE + (classNum || activeClass || '6');
       _openIDB().then(db => {
         const tx  = db.transaction(IDB_STORE, 'readwrite');
-        tx.objectStore(IDB_STORE).put(payload, IDB_KEY);
+        tx.objectStore(IDB_STORE).put(payload, key);
       }).catch(err => console.warn('IDB save error:', err));
     }
 
-    function _loadFromIDB() {
+    function _loadFromIDB(classNum) {
+      const key = IDB_KEY_BASE + (classNum || activeClass || '6');
       return _openIDB().then(db => {
         return new Promise((resolve, reject) => {
           const req = db.transaction(IDB_STORE, 'readonly')
                         .objectStore(IDB_STORE)
-                        .get(IDB_KEY);
+                        .get(key);
           req.onsuccess = e => resolve(e.target.result || null);
           req.onerror   = e => reject(e.target.error);
         });
@@ -3831,7 +7211,7 @@
 
     function saveState() {
       // 1. IndexedDB — instant, survives refresh
-      _saveToIDB(_buildPayload());
+      _saveToIDB(_buildPayload(), activeClass);
 
       // 2. Firestore — cloud sync, debounced
       if (typeof window._saveStateToFirebase !== 'function') {
@@ -3841,7 +7221,7 @@
       clearTimeout(_saveDebounceTimer);
       _saveDebounceTimer = setTimeout(() => {
         _pendingSave = false;
-        window._saveStateToFirebase(_buildPayload()).catch(err =>
+        window._saveStateToFirebase(_buildPayload(), activeClass).catch(err =>
           console.warn('Firestore save error:', err));
       }, 1500);
     }
@@ -3850,7 +7230,7 @@
       if (_pendingSave) {
         clearTimeout(_saveDebounceTimer);
         _pendingSave = false;
-        window._saveStateToFirebase(_buildPayload()).catch(err =>
+        window._saveStateToFirebase(_buildPayload(), activeClass).catch(err =>
           console.warn('Firestore save error:', err));
       }
     }
@@ -3859,56 +7239,101 @@
     window.addEventListener('beforeunload', () => {
       clearTimeout(_saveDebounceTimer);
       if (typeof window._saveStateToFirebase === 'function') {
-        window._saveStateToFirebase(_buildPayload());
+        window._saveStateToFirebase(_buildPayload(), activeClass);
       }
     });
 
     function loadState() { /* handled in onUserLoad below */ }
 
     // Called by the Firebase module once the authenticated user is confirmed.
-    // Strategy: load IDB first (instant, no network) → render immediately
-    //           then load Firestore (cloud) → merge if it has higher totalPoints
+    // Strategy:
+    //   1. Fetch user's class from Firestore users/{uid}
+    //   2. Set courseData from ALL_COURSE_DATA[class]
+    //   3. Load progress from IDB then Firestore (class-specific path)
     function onUserLoad(user) {
-      if (typeof window._loadStateFromFirebase !== 'function') {
+      if (typeof window._loadStateFromFirebase !== 'function' ||
+          typeof window._getUserClass !== 'function') {
         setTimeout(() => onUserLoad(user), 150);
         return;
       }
       _onFirebaseReady();
 
-      // Step 1 – load IndexedDB (instant, local)
-      _loadFromIDB().then(local => {
-        if (local) {
-          if (local.quizAttempts) state.quizAttempts = local.quizAttempts;
-          if (local.performance)  state.performance  = local.performance;
-          if (typeof local.totalPoints === 'number') state.totalPoints = local.totalPoints;
-        }
-        renderSubjectCards();
-        updateDashboard();
+      // Show loading overlay
+      const overlay = document.getElementById('class-loading-overlay');
+      const loadingMsg = document.getElementById('class-loading-msg');
 
-        // Step 2 – load Firestore in background; use it only if it has more progress
-        window._loadStateFromFirebase(user.uid).then(cloud => {
-          if (cloud && typeof cloud.totalPoints === 'number' &&
-              cloud.totalPoints > state.totalPoints) {
-            if (cloud.quizAttempts) state.quizAttempts = cloud.quizAttempts;
-            if (cloud.performance)  state.performance  = cloud.performance;
-            state.totalPoints = cloud.totalPoints;
-            renderSubjectCards();
-            updateDashboard();
-            _saveToIDB(_buildPayload()); // keep IDB in sync with cloud
+      // Step 1 – Get student's class
+      window._getUserClass(user.uid).then(cls => {
+        // Normalize: accept "6", "Class 6", "class6", 6, etc.
+        let classNum = '6'; // default
+        if (cls !== null && cls !== undefined) {
+          const str = String(cls).replace(/\D/g, ''); // keep only digits
+          if (str && ALL_COURSE_DATA[str]) {
+            classNum = str;
+          } else if (str) {
+            classNum = str; // even if not in ALL_COURSE_DATA, keep it
           }
-        }).catch(err => console.warn('Firestore load error (non-fatal):', err));
-      }).catch(err => {
-        console.warn('IDB load error:', err);
-        // fallback: try Firestore only
-        window._loadStateFromFirebase(user.uid).then(saved => {
-          if (saved) {
-            if (saved.quizAttempts) state.quizAttempts = saved.quizAttempts;
-            if (saved.performance)  state.performance  = saved.performance;
-            if (typeof saved.totalPoints === 'number') state.totalPoints = saved.totalPoints;
+        }
+        activeClass = classNum;
+        courseData = ALL_COURSE_DATA[classNum] || ALL_COURSE_DATA['6'];
+
+        // Update header
+        const headerTitle = document.getElementById('class-header-title');
+        if (headerTitle) headerTitle.textContent = `Class ${classNum} Learning Platform`;
+        document.title = `RiSync | Class ${classNum} NCERT Learning Platform`;
+
+        if (loadingMsg) loadingMsg.textContent = 'Loading your progress…';
+
+        // Step 2 – Load progress (IDB first, then Firestore)
+        _loadFromIDB(classNum).then(local => {
+          if (local) {
+            if (local.quizAttempts) state.quizAttempts = local.quizAttempts;
+            if (local.performance)  state.performance  = local.performance;
+            if (typeof local.totalPoints === 'number') state.totalPoints = local.totalPoints;
           }
+          // Hide overlay and render
+          if (overlay) overlay.classList.add('hidden');
           renderSubjectCards();
           updateDashboard();
-        }).catch(() => { renderSubjectCards(); updateDashboard(); });
+
+          // Step 3 – Firestore cloud sync in background
+          window._loadStateFromFirebase(user.uid, classNum).then(cloud => {
+            if (cloud && typeof cloud.totalPoints === 'number' &&
+                cloud.totalPoints > state.totalPoints) {
+              if (cloud.quizAttempts) state.quizAttempts = cloud.quizAttempts;
+              if (cloud.performance)  state.performance  = cloud.performance;
+              state.totalPoints = cloud.totalPoints;
+              renderSubjectCards();
+              updateDashboard();
+              _saveToIDB(_buildPayload(), classNum);
+            }
+          }).catch(err => console.warn('Firestore load error (non-fatal):', err));
+
+        }).catch(err => {
+          console.warn('IDB load error:', err);
+          window._loadStateFromFirebase(user.uid, classNum).then(saved => {
+            if (saved) {
+              if (saved.quizAttempts) state.quizAttempts = saved.quizAttempts;
+              if (saved.performance)  state.performance  = saved.performance;
+              if (typeof saved.totalPoints === 'number') state.totalPoints = saved.totalPoints;
+            }
+            if (overlay) overlay.classList.add('hidden');
+            renderSubjectCards();
+            updateDashboard();
+          }).catch(() => {
+            if (overlay) overlay.classList.add('hidden');
+            renderSubjectCards();
+            updateDashboard();
+          });
+        });
+      }).catch(err => {
+        console.warn('getUserClass error:', err);
+        // fallback to Class 6
+        activeClass = '6';
+        courseData = ALL_COURSE_DATA['6'];
+        if (overlay) overlay.classList.add('hidden');
+        renderSubjectCards();
+        updateDashboard();
       });
     }
 
@@ -3933,23 +7358,38 @@
     }
 
     function updateDashboard() {
-      let totalQuizzesAttempted = 0, totalScore = 0, completedSubjects = 0;
+      let totalQuizzesAttempted = 0, totalScore = 0, completedSubjects = 0, totalLessons = 0;
       for (const subjectKey in courseData) {
         let allLessonsCompleted = true;
-        for (const lessonIndex in courseData[subjectKey].lessons) {
-          if (state.performance[subjectKey] && state.performance[subjectKey][lessonIndex]) {
+        const lessons = courseData[subjectKey].lessons;
+        totalLessons += Object.keys(lessons).length;
+        for (const lessonIndex in lessons) {
+          const perf = state.performance[subjectKey]?.[lessonIndex];
+          if (perf && typeof perf.score === 'number' && !isNaN(perf.score)) {
             totalQuizzesAttempted++;
-            totalScore += state.performance[subjectKey][lessonIndex].score;
-          } else { allLessonsCompleted = false; }
+            totalScore += perf.score;
+          } else if (!perf) { allLessonsCompleted = false; }
         }
         if (allLessonsCompleted) completedSubjects++;
       }
-      const average = totalQuizzesAttempted > 0 ? (totalScore / totalQuizzesAttempted).toFixed(2) : 0;
+      const average        = totalQuizzesAttempted > 0 ? (totalScore / totalQuizzesAttempted).toFixed(2) : 0;
+      const ncertProgress  = totalLessons > 0 ? Math.round((totalQuizzesAttempted / totalLessons) * 100) : 0;
       elements.totalPoints.textContent = state.totalPoints;
       elements.completedSubjects.textContent = completedSubjects;
       elements.totalQuizzes.textContent = totalQuizzesAttempted;
       elements.averageScore.textContent = `${average}%`;
       saveState();
+      // Persist summary to root user doc so other pages (e.g. content.html) can read it instantly
+      if (typeof window._saveProgressToUserDoc === 'function') {
+        window._saveProgressToUserDoc({
+          ncertProgress:          ncertProgress,
+          ncertTotalPoints:       state.totalPoints,
+          ncertQuizzesAttempted:  totalQuizzesAttempted,
+          ncertCompletedSubjects: completedSubjects,
+          ncertAverageScore:      parseFloat(average),
+          ncertTotalLessons:      totalLessons
+        });
+      }
     }
 
     function selectSubject(subjectKey) {
@@ -5302,37 +8742,71 @@
   <script type="module">
     import { initializeApp }    from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyBWAwm_TDtD1qXDtjxJu0jrDP45c3p1Bxg",
-      authDomain: "risync-risync.firebaseapp.com",
-      projectId: "risync-risync",
-      storageBucket: "risync-risync.firebasestorage.app",
+      apiKey:            "AIzaSyBWAwm_TDtD1qXDtjxJu0jrDP45c3p1Bxg",
+      authDomain:        "risync-risync.firebaseapp.com",
+      projectId:         "risync-risync",
+      storageBucket:     "risync-risync.firebasestorage.app",
       messagingSenderId: "195106250121",
-      appId: "1:195106250121:web:57b23c5b94d5771995d558"
+      appId:             "1:195106250121:web:57b23c5b94d5771995d558",
+      measurementId:     "G-D5WSLQ706Z"
     };
 
-    const app  = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db   = getFirestore(app);
+    const app       = initializeApp(firebaseConfig);
+    const auth      = getAuth(app);
+    const db        = getFirestore(app);
+    const analytics = getAnalytics(app);
+
+    // --- Get user's class from Firestore users/{uid} document ---
+    window._getUserClass = async (uid) => {
+      try {
+        const ref  = doc(db, 'users', uid);
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          const data = snap.data();
+          // Support both 'class' and 'grade' field names
+          return data.class || data.grade || data.className || null;
+        }
+        return null;
+      } catch (err) {
+        console.error('Firestore getUserClass error:', err);
+        return null;
+      }
+    };
 
     // --- Expose Firestore helpers to the non-module script ---
-
-    window._saveStateToFirebase = async (payload) => {
+    // Progress is stored per-class: users/{uid}/ncert/class{N}progress
+    window._saveStateToFirebase = async (payload, classNum) => {
       const user = auth.currentUser;
       if (!user) return;
+      const docId = classNum ? `class${classNum}progress` : 'class6progress';
       try {
-        const ref = doc(db, 'users', user.uid, 'ncert', 'class6progress');
+        const ref = doc(db, 'users', user.uid, 'ncert', docId);
         await setDoc(ref, { ...payload, updatedAt: new Date().toISOString() }, { merge: true });
       } catch (err) {
         console.error('Firestore save error:', err);
       }
     };
 
-    window._loadStateFromFirebase = async (uid) => {
+    // --- Save summary stats to root users/{uid} doc so other pages can read them ---
+    window._saveProgressToUserDoc = async (stats) => {
+      const user = auth.currentUser;
+      if (!user) return;
       try {
-        const ref  = doc(db, 'users', uid, 'ncert', 'class6progress');
+        const ref = doc(db, 'users', user.uid);
+        await updateDoc(ref, { ...stats, ncertUpdatedAt: new Date().toISOString() });
+      } catch (err) {
+        console.warn('Firestore root-doc progress save error:', err);
+      }
+    };
+
+    window._loadStateFromFirebase = async (uid, classNum) => {
+      const docId = classNum ? `class${classNum}progress` : 'class6progress';
+      try {
+        const ref  = doc(db, 'users', uid, 'ncert', docId);
         const snap = await getDoc(ref);
         return snap.exists() ? snap.data() : null;
       } catch (err) {
