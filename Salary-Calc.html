@@ -740,6 +740,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-analytics-compat.js"></script>
 <script>
@@ -754,15 +755,29 @@ const firebaseConfig = {
   measurementId: "G-5F4KMXTJMP"
 };
 
-let app, db;
+let app, db, auth;
 try {
   if (typeof firebase === 'undefined') throw new Error('Firebase SDK not loaded');
   app = firebase.initializeApp(firebaseConfig);
   try { firebase.analytics(app); } catch(e) {}
-  db = firebase.firestore(app);
+  db   = firebase.firestore(app);
+  auth = firebase.auth(app);
+  // Enable Firestore offline persistence as a safety net
+  db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
 } catch(e) {
   console.warn('Firebase unavailable — running offline:', e.message);
-  db = null;
+  db = null; auth = null;
+}
+
+// Sign in anonymously so Firestore rules that require auth are satisfied
+async function ensureAuth() {
+  if (!auth) return;
+  if (auth.currentUser) return;
+  try {
+    await auth.signInAnonymously();
+  } catch(e) {
+    console.warn('Anonymous auth failed:', e.message);
+  }
 }
 
 // ── Employee data ──────────────────────────────────────────────
@@ -1071,6 +1086,12 @@ function logActivity(msg, type='success') {
   setTimeout(() => { item.style.opacity='0'; item.style.transform='translateX(40px)'; setTimeout(()=>item.remove(),300); }, 3200);
 }
 
+// ── localStorage helpers (offline persistence) ─────────────────
+const LS = {
+  save(key, val) { try { localStorage.setItem('risync_' + key, JSON.stringify(val)); } catch(e) {} },
+  load(key)      { try { const v = localStorage.getItem('risync_' + key); return v ? JSON.parse(v) : null; } catch(e) { return null; } }
+};
+
 // ── Firebase docs ──────────────────────────────────────────────
 const SETTINGS_DOC  = db ? db.collection('salary_app').doc('settings_may2026')  : null;
 const SALARIES_DOC  = db ? db.collection('salary_app').doc('salaries_may2026')  : null;
@@ -1086,39 +1107,79 @@ function scheduleSave() {
 }
 
 async function saveToFirebase() {
+  const settings = {
+    workingDays: g('workingDays').value, otRate: g('otRate').value,
+    lateRate: g('lateRate').value, pfPct: g('pfPct').value,
+    esiPct: g('esiPct').value, pfEsiOn: g('pfEsiOn').value,
+    leavePolicy: g('leavePolicy').value, updatedAt: new Date().toISOString()
+  };
+  // Always persist locally so data survives offline
+  LS.save('settings', settings);
+  LS.save('salaries', salaries);
+  if (!db) {
+    setSyncStatus('synced', 'Saved Locally');
+    return;
+  }
   try {
-    const settings = {
-      workingDays: g('workingDays').value, otRate: g('otRate').value,
-      lateRate: g('lateRate').value, pfPct: g('pfPct').value,
-      esiPct: g('esiPct').value, pfEsiOn: g('pfEsiOn').value,
-      leavePolicy: g('leavePolicy').value, updatedAt: new Date().toISOString()
-    };
     await SETTINGS_DOC.set(settings);
     await SALARIES_DOC.set({ ...salaries, updatedAt: new Date().toISOString() });
     setSyncStatus('synced', 'Saved to Cloud');
     logActivity('Changes saved to Firebase', 'success');
   } catch(err) {
-    setSyncStatus('offline', 'Sync Failed');
-    logActivity('Save error: ' + err.message, 'error');
+    setSyncStatus('synced', 'Saved Locally');
+    logActivity('Cloud unavailable — saved locally', 'info');
   }
 }
 
 async function saveTimingsToFirebase() {
+  LS.save('timings', timings);
+  if (!db) return;
   try {
     await TIMINGS_DOC.set({ data: JSON.stringify(timings), updatedAt: new Date().toISOString() });
-  } catch(err) { console.error('Timings save error:', err); }
+  } catch(err) { console.warn('Timings cloud save skipped (offline)'); }
 }
 
 async function saveMonthlyHoursToFirebase() {
+  LS.save('monthlyHours', monthlyHours);
+  if (!db) return;
   try {
     await MONTHHRS_DOC.set({ data: JSON.stringify(monthlyHours), updatedAt: new Date().toISOString() });
-  } catch(err) { console.error('Monthly hours save error:', err); }
+  } catch(err) { console.warn('Monthly hours cloud save skipped (offline)'); }
 }
 
 async function saveEmployeesToFirebase() {
+  LS.save('employees', employees);
+  if (!db) return;
   try {
     await EMPLOYEES_DOC.set({ list: JSON.stringify(employees), updatedAt: new Date().toISOString() });
-  } catch(err) { console.error('Employee save error:', err); }
+  } catch(err) { console.warn('Employees cloud save skipped (offline)'); }
+}
+
+// ── Restore all state from localStorage (offline fallback) ─────
+function loadAllFromLocalStorage() {
+  const savedSettings = LS.load('settings');
+  if (savedSettings) {
+    ['workingDays','otRate','lateRate','pfPct','esiPct','pfEsiOn','leavePolicy'].forEach(k => {
+      if (savedSettings[k] !== undefined && g(k)) g(k).value = savedSettings[k];
+    });
+  }
+  const savedSalaries = LS.load('salaries');
+  if (savedSalaries) {
+    employees.forEach(e => { if (savedSalaries[e.code] !== undefined) salaries[e.code] = parseFloat(savedSalaries[e.code]) || 15000; });
+  }
+  const savedEmps = LS.load('employees');
+  if (Array.isArray(savedEmps) && savedEmps.length > 0) {
+    employees.length = 0;
+    savedEmps.forEach(e => { employees.push(e); if (salaries[e.code] === undefined) salaries[e.code] = 15000; });
+  }
+  const savedTimings = LS.load('timings');
+  if (savedTimings) Object.assign(timings, savedTimings);
+  const savedHours = LS.load('monthlyHours');
+  if (savedHours) {
+    const firstKey = Object.keys(savedHours)[0];
+    if (firstKey && savedHours[firstKey].month === currentMonthKey) Object.assign(monthlyHours, savedHours);
+  }
+  initMonthlyHours();
 }
 
 // ── Firebase load ──────────────────────────────────────────────
@@ -1129,11 +1190,14 @@ async function loadFromFirebase() {
   renderHours();
 
   if (!db) {
-    setSyncStatus('offline', 'Offline');
-    logActivity('Firebase unavailable — working offline', 'error');
+    setSyncStatus('synced', 'Local Storage');
+    logActivity('Running offline — data saved locally', 'info');
+    loadAllFromLocalStorage();
     loadDailyActualFromLocalStorage();
     initDailyActual();
     checkDayRenewal();
+    recalc();
+    renderHours();
     updateMonthProgress();
     return;
   }
@@ -1141,12 +1205,13 @@ async function loadFromFirebase() {
   const timeout = ms => new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms));
   try {
     setSyncStatus('loading', 'Connecting…');
+    await ensureAuth();
     const [setSnap, salSnap, empSnap, timSnap, hrSnap] = await Promise.all([
-      Promise.race([SETTINGS_DOC.get(), timeout(6000)]),
-      Promise.race([SALARIES_DOC.get(), timeout(6000)]),
-      Promise.race([EMPLOYEES_DOC.get(), timeout(6000)]),
-      Promise.race([TIMINGS_DOC.get(), timeout(6000)]),
-      Promise.race([MONTHHRS_DOC.get(), timeout(6000)]),
+      Promise.race([SETTINGS_DOC.get(), timeout(12000)]),
+      Promise.race([SALARIES_DOC.get(), timeout(12000)]),
+      Promise.race([EMPLOYEES_DOC.get(), timeout(12000)]),
+      Promise.race([TIMINGS_DOC.get(), timeout(12000)]),
+      Promise.race([MONTHHRS_DOC.get(), timeout(12000)]),
     ]);
 
     if (setSnap.exists()) {
