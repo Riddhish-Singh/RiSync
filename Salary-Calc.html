@@ -1,0 +1,1971 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RiSync — Salary Calculator</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "secondary-fixed": "#ffdcc2",
+          "on-error-container": "#ffdad6",
+          "tertiary": "#b2c6fb",
+          "primary-container": "#ff8c00",
+          "surface-bright": "#2c3951",
+          "surface-container": "#112036",
+          "secondary-container": "#d77910",
+          "tertiary-container": "#95a9dd",
+          "primary-fixed": "#ffdcc3",
+          "on-surface-variant": "#ddc1ae",
+          "on-secondary-container": "#432100",
+          "error": "#ffb4ab",
+          "outline": "#a48c7a",
+          "surface-variant": "#27354c",
+          "surface-container-high": "#1c2a41",
+          "on-surface": "#d6e3ff",
+          "secondary": "#ffb77c",
+          "primary-fixed-dim": "#ffb77d",
+          "background": "#041329",
+          "on-background": "#d6e3ff",
+          "inverse-primary": "#904d00",
+          "on-tertiary": "#192f5b",
+          "error-container": "#93000a",
+          "inverse-surface": "#d6e3ff",
+          "surface-container-lowest": "#010e24",
+          "surface-container-low": "#0d1c32",
+          "surface-container-highest": "#27354c",
+          "surface": "#041329",
+          "on-primary": "#4d2600",
+          "primary": "#ffb77d",
+          "outline-variant": "#564334",
+          "surface-dim": "#041329",
+          "accent": "#ff8c00"
+        },
+        borderRadius: {
+          "DEFAULT": "0.125rem",
+          "lg": "0.25rem",
+          "xl": "0.5rem",
+          "2xl": "0.75rem",
+          "3xl": "1.5rem",
+          "full": "9999px"
+        },
+        fontFamily: {
+          "sans": ["Hanken Grotesk", "sans-serif"],
+          "mono": ["IBM Plex Mono", "monospace"]
+        }
+      },
+    },
+  }
+</script>
+<style>
+  :root {
+    --bg: #041329;
+    --surface: #0d1c32;
+    --surface-elevated: #1c2a41;
+    --surface-bright: #2c3951;
+    --border: rgba(39, 53, 76, 0.6);
+    --border-glow: rgba(255, 140, 0, 0.2);
+    --text: #d6e3ff;
+    --text-muted: #8e9fb1;
+    --accent: #ff8c00;
+    --green: #4ade80;
+    --red: #ffb4ab;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'Hanken Grotesk', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; min-height: 100vh; overflow-x: hidden; }
+
+  .glass-header {
+    background: rgba(4, 19, 41, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 50;
+  }
+
+  .premium-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .premium-card:hover { border-color: var(--border-glow); box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+
+  .sync-badge {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 14px; border-radius: 99px;
+    font-size: 11px; font-family: var(--mono);
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.03);
+    transition: all 0.3s;
+  }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .sync-badge.synced { color: var(--green); border-color: rgba(74,222,128,0.2); }
+  .sync-badge.synced .sync-dot { background: var(--green); box-shadow: 0 0 8px var(--green); }
+  .sync-badge.saving { color: var(--accent); border-color: rgba(255,140,0,0.2); }
+  .sync-badge.saving .sync-dot { background: var(--accent); animation: pulse 1s infinite; }
+  .sync-badge.loading { color: var(--text-muted); }
+  .sync-badge.loading .sync-dot { background: var(--text-muted); animation: pulse 1s infinite; }
+  .sync-badge.offline { color: var(--red); border-color: rgba(255,180,171,0.2); }
+  .sync-badge.offline .sync-dot { background: var(--red); }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(1.3)} }
+
+  .btn {
+    padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex; align-items: center; gap: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface-elevated); color: var(--text);
+    cursor: pointer; font-family: var(--sans);
+  }
+  .btn:hover { background: var(--surface-bright); transform: translateY(-1px); border-color: var(--text-muted); }
+  .btn.accent {
+    background: var(--accent); color: #041329; border-color: var(--accent);
+    box-shadow: 0 4px 16px rgba(255,140,0,0.25);
+  }
+  .btn.accent:hover { background: #ffa733; box-shadow: 0 6px 22px rgba(255,140,0,0.35); }
+  .btn.green-btn {
+    background: rgba(74,222,128,0.1); color: var(--green);
+    border-color: rgba(74,222,128,0.25);
+  }
+  .btn.green-btn:hover { background: rgba(74,222,128,0.2); }
+
+  .input-field {
+    background: rgba(0,0,0,0.25);
+    border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 12px;
+    color: #000000; font-family: var(--mono); font-size: 13px;
+    transition: all 0.2s; width: 100%;
+  }
+  .input-field:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255,140,0,0.12); }
+  .input-field option { background: #1c2a41; color: #ffffff; }
+  select.input-field { color: #ffffff; }
+
+  .tab {
+    padding: 16px 24px; color: var(--text-muted); font-weight: 600;
+    border-bottom: 2px solid transparent; transition: all 0.3s;
+    background: none; border-left: none; border-right: none; border-top: none;
+    cursor: pointer; font-family: var(--sans); font-size: 14px;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); background: linear-gradient(to top, rgba(255,140,0,0.06), transparent); }
+
+  table { width: 100%; border-collapse: separate; border-spacing: 0; }
+  thead th {
+    padding: 14px 18px; text-align: left; font-size: 10px; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700;
+    background: rgba(4,19,41,0.6); border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  thead th.num { text-align: right; }
+  tbody tr { transition: all 0.2s; }
+  tbody tr:hover { background: rgba(44,57,81,0.5); }
+  tbody td { padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.025); vertical-align: middle; }
+  tbody td.num { font-family: var(--mono); font-size: 13px; text-align: right; }
+
+  .sal-input {
+    width: 105px; padding: 6px 10px;
+    background: rgba(0,0,0,0.3); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--accent); font-family: var(--mono);
+    font-size: 13px; text-align: right; transition: all 0.2s;
+  }
+  .sal-input:focus { outline: none; border-color: var(--accent); background: rgba(0,0,0,0.5); box-shadow: 0 0 0 2px rgba(255,140,0,0.1); }
+
+  .time-input {
+    width: 80px; padding: 5px 8px;
+    background: rgba(0,0,0,0.3); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text); font-family: var(--mono);
+    font-size: 12px; text-align: center; transition: all 0.2s;
+  }
+  .time-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(255,140,0,0.1); }
+  .time-input.accent-time { color: var(--accent); border-color: rgba(255,140,0,0.2); }
+  .time-input.green-time { color: var(--green); border-color: rgba(74,222,128,0.2); }
+
+  .pill {
+    padding: 4px 10px; border-radius: 4px; font-size: 10px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .pill-green { background: rgba(74,222,128,0.1); color: var(--green); border: 1px solid rgba(74,222,128,0.2); }
+  .pill-amber { background: rgba(255,220,194,0.1); color: #ffdcc2; border: 1px solid rgba(255,220,194,0.2); }
+  .pill-red { background: rgba(255,180,171,0.1); color: var(--red); border: 1px solid rgba(255,180,171,0.2); }
+
+  #loadingOverlay {
+    position: fixed; inset: 0; background: var(--bg);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    z-index: 9999; gap: 40px; transition: opacity 0.6s ease-out;
+  }
+  .loader-bar-bg { width: 320px; height: 3px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; }
+  .loader-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.4s ease; box-shadow: 0 0 16px var(--accent); }
+
+  .stat-card { position: relative; overflow: hidden; }
+  .stat-card::before {
+    content: ''; position: absolute; top: 0; right: 0;
+    width: 100px; height: 100px;
+    background: radial-gradient(circle at top right, rgba(255,140,0,0.07), transparent 70%);
+    pointer-events: none;
+  }
+
+  .activity-item {
+    background: var(--surface-elevated); border: 1px solid var(--border);
+    border-radius: 12px; box-shadow: 0 12px 28px rgba(0,0,0,0.5);
+    backdrop-filter: blur(10px); transition: all 0.3s;
+  }
+
+  .hdivider { width: 1px; height: 32px; background: var(--border); }
+
+  /* Day renewal banner */
+  .renewal-banner {
+    background: linear-gradient(135deg, rgba(74,222,128,0.08), rgba(255,140,0,0.06));
+    border: 1px solid rgba(74,222,128,0.2);
+    border-radius: 12px; padding: 14px 20px;
+    display: flex; align-items: center; gap: 12px;
+    font-size: 12px; margin-bottom: 16px;
+  }
+
+  /* Monthly hours panel */
+  .hours-card {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,140,0,0.15);
+    border-radius: 10px; padding: 12px 16px;
+  }
+
+  /* Timing edit modal fields */
+  .timing-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .timing-row:last-child { border-bottom: none; }
+
+  .eod-banner {
+    background: linear-gradient(135deg, rgba(255,140,0,0.12), rgba(255,180,171,0.06));
+    border: 1px solid rgba(255,140,0,0.3);
+    border-radius: 14px; padding: 20px 28px;
+    margin-bottom: 20px;
+  }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--surface-bright); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+  @media print {
+    #loadingOverlay, .glass-header .btn, #activityLog, .sync-badge { display: none !important; }
+    body { background: white; color: black; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay">
+  <div class="flex flex-col items-center gap-3">
+    <img src="https://risync.in/logo.png" alt="RiSync" style="height:48px;object-fit:contain;filter:drop-shadow(0 0 16px rgba(255,140,0,0.4))">
+    <div class="text-4xl font-bold tracking-tight text-on-surface mt-2">SALARY <span class="text-accent">CALCULATOR</span></div>
+    <div class="text-[10px] font-mono tracking-[0.4em] text-text-muted uppercase">Pioneer · May 2026</div>
+  </div>
+  <div class="flex flex-col items-center gap-3">
+    <div class="loader-bar-bg"><div class="loader-fill" id="loaderFill"></div></div>
+    <div class="text-[10px] font-mono uppercase tracking-widest text-text-muted" id="loaderText">Starting up…</div>
+  </div>
+</div>
+
+<!-- Header -->
+<header class="glass-header">
+  <div class="max-w-[1700px] mx-auto px-8 h-20 flex items-center justify-between gap-6">
+    <div class="flex items-center gap-4">
+      <img src="https://risync.in/logo.png" alt="RiSync" style="height:36px;object-fit:contain">
+      <div class="hdivider"></div>
+      <div>
+        <h1 class="text-xl font-bold tracking-tight">SALARY <span class="text-accent">CALCULATOR</span></h1>
+        <p class="text-[10px] font-mono text-text-muted uppercase tracking-wider" id="headerMeta">May 2026 &nbsp;·&nbsp; Loading… &nbsp;·&nbsp; DefaultCompany</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-4">
+      <div class="sync-badge loading" id="syncBadge">
+        <div class="sync-dot"></div>
+        <span id="syncText">Connecting…</span>
+      </div>
+      <div class="hdivider"></div>
+      <!-- Day clock -->
+      <div class="font-mono text-text-muted" style="font-size:12px">
+        <span id="liveClock" class="text-accent font-bold">--:--:--</span>
+        &nbsp;·&nbsp; <span id="liveDate">--</span>
+      </div>
+      <div class="hdivider"></div>
+      <button class="btn green-btn" onclick="openTimingsModal()">
+        <span class="material-symbols-outlined" style="font-size:17px">schedule</span> Timings
+      </button>
+      <button class="btn" onclick="window.print()">
+        <span class="material-symbols-outlined" style="font-size:17px">print</span> Print
+      </button>
+      <button class="btn accent" onclick="exportCSV()">
+        <span class="material-symbols-outlined" style="font-size:17px">download</span> Export CSV
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Main -->
+<main class="max-w-[1700px] mx-auto p-8">
+
+  <!-- EOD/Month-end banner (hidden by default) -->
+  <div id="eodBanner" class="eod-banner hidden">
+    <div class="flex items-center gap-3 mb-3">
+      <span class="material-symbols-outlined text-accent" style="font-size:24px">event_available</span>
+      <span class="font-bold text-lg" id="eodTitle">End of Month Summary</span>
+    </div>
+    <div id="eodContent"></div>
+  </div>
+
+  <!-- Daily renewal notice -->
+  <div id="renewalBanner" class="renewal-banner hidden">
+    <span class="material-symbols-outlined text-green-400" style="font-size:20px">autorenew</span>
+    <div>
+      <span class="font-semibold text-green-400" id="renewalMsg">Day renewed.</span>
+      <span class="text-text-muted ml-2" id="renewalSub"></span>
+    </div>
+    <button onclick="document.getElementById('renewalBanner').classList.add('hidden')" class="ml-auto text-text-muted hover:text-text">
+      <span class="material-symbols-outlined" style="font-size:18px">close</span>
+    </button>
+  </div>
+
+  <!-- Settings Card -->
+  <div class="premium-card p-6 mb-8">
+    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-5">
+      <div class="flex flex-col gap-2">
+        <label class="text-[10px] font-bold uppercase tracking-wider text-text-muted">Working Days</label>
+        <input class="input-field" id="workingDays" max="31" min="1" oninput="settingChanged()" type="number" value="22"/>
+      </div>
+      <div class="flex flex-col gap-2">
+        <label class="text-[10px] font-bold uppercase tracking-wider text-text-muted">OT Rate (₹/hr)</label>
+        <input class="input-field" id="otRate" min="0" oninput="settingChanged()" type="number" value="100"/>
+      </div>
+      <div class="flex flex-col gap-2">
+        <label class="text-[10px] font-bold uppercase tracking-wider text-text-muted">Late Penalty (₹/hr)</label>
+        <input class="input-field" id="lateRate" min="0" oninput="settingChanged()" type="number" value="50"/>
+      </div>
+      <div class="flex flex-col gap-2">
+        <label class="text-[10px] font-bold uppercase tracking-wider text-text-muted">PF (%)</label>
+        <input class="input-field" id="pfPct" max="100" min="0" oninput="settingChanged()" type="number" value="12"/>
+      </div>
+      <div class="flex flex-col gap-2">
+        <label class="text-[10px] font-bold uppercase tracking-wider text-text-muted">ESI (%)</label>
+        <input class="input-field" id="esiPct" max="100" min="0" step="0.01" oninput="settingChanged()" type="number" value="0.75"/>
+      </div>
+      <div class="flex flex-col gap-2">
+        <label class="text-[10px] font-bold uppercase tracking-wider text-text-muted">Apply PF/ESI</label>
+        <select class="input-field" id="pfEsiOn" onchange="settingChanged()">
+          <option value="0">No</option>
+          <option value="1">Yes</option>
+        </select>
+      </div>
+      <div class="flex flex-col gap-2">
+        <label class="text-[10px] font-bold uppercase tracking-wider text-text-muted">Leave Policy</label>
+        <select class="input-field" id="leavePolicy" onchange="settingChanged()">
+          <option value="0">Paid Leave</option>
+          <option value="1">LWP Deduction</option>
+        </select>
+      </div>
+      <div class="flex flex-col gap-2">
+        <label class="text-[10px] font-bold uppercase tracking-wider text-text-muted">Set All Salaries</label>
+        <input class="input-field" id="bulkSalary" oninput="setBulk(this.value)" placeholder="₹ e.g. 15000" type="number"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="flex items-center justify-between border-b mb-8" style="border-color:var(--border)">
+    <div class="flex">
+      <button class="tab active" onclick="showTab('sheet',this)">
+        <span class="material-symbols-outlined align-middle mr-1" style="font-size:16px;vertical-align:-3px">table_chart</span>
+        Salary Sheet
+      </button>
+      <button class="tab" onclick="showTab('summary',this)">
+        <span class="material-symbols-outlined align-middle mr-1" style="font-size:16px;vertical-align:-3px">analytics</span>
+        Analytics
+      </button>
+      <button class="tab" onclick="showTab('payslips',this)">
+        <span class="material-symbols-outlined align-middle mr-1" style="font-size:16px;vertical-align:-3px">receipt_long</span>
+        Payslips
+      </button>
+      <button class="tab" onclick="showTab('hours',this)">
+        <span class="material-symbols-outlined align-middle mr-1" style="font-size:16px;vertical-align:-3px">alarm_on</span>
+        Monthly Hours
+      </button>
+    </div>
+    <div class="font-mono text-sm pr-2 flex items-center gap-2 text-text-muted">
+      Total Net Payout:
+      <span class="text-accent font-bold text-xl ml-1" id="headerTotal">—</span>
+    </div>
+  </div>
+
+  <!-- Salary Sheet Tab -->
+  <div id="tab-sheet" class="content">
+    <div class="flex items-center justify-between mb-4">
+      <div class="font-mono text-text-muted" style="font-size:12px">
+        <span id="empCount">—</span> employees
+      </div>
+      <div class="flex gap-3">
+        <button class="btn" onclick="logAllDays()" title="Log today's start/end for all employees">
+          <span class="material-symbols-outlined" style="font-size:17px">alarm_add</span> Log All Today
+        </button>
+        <button class="btn accent" onclick="openAddModal()">
+          <span class="material-symbols-outlined" style="font-size:17px">person_add</span> Add Employee
+        </button>
+      </div>
+    </div>
+    <div class="premium-card overflow-hidden">
+      <div class="overflow-x-auto">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Personnel</th>
+              <th class="num">Gross Salary (₹)</th>
+              <th class="num">PRS</th>
+              <th class="num">ABS</th>
+              <th class="num">WOP</th>
+              <th class="num" style="color:var(--accent)">▶ Start Time</th>
+              <th class="num" style="color:var(--green)">■ End Time</th>
+              <th class="num" style="color:#b2c6fb">Hrs Today</th>
+              <th class="num">OT Hrs</th>
+              <th class="num">Late</th>
+              <th class="num">Total Hrs/Mo</th>
+              <th class="num">Earned Basic</th>
+              <th class="num">OT Pay</th>
+              <th class="num">Late Deduct</th>
+              <th class="num">PF / ESI</th>
+              <th class="num">Net Payout</th>
+              <th>Rating</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="empTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analytics Tab -->
+  <div id="tab-summary" class="content hidden space-y-8">
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" id="metricsGrid"></div>
+
+    <!-- Charts Row 1 -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Net Salary Bar Chart (spans 2 cols) -->
+      <div class="premium-card p-6 lg:col-span-2" style="position:relative">
+        <div class="flex items-center justify-between mb-5">
+          <h3 class="text-xs font-bold text-text-muted uppercase tracking-[0.2em] flex items-center gap-2">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block"></span>
+            Net Salary — All Employees
+          </h3>
+          <span class="font-mono text-text-muted" style="font-size:10px">MAY 2026</span>
+        </div>
+        <div style="height:280px;position:relative">
+          <canvas id="chartNetSalary"></canvas>
+        </div>
+      </div>
+      <!-- Payroll Breakdown Donut -->
+      <div class="premium-card p-6" style="position:relative">
+        <div class="flex items-center justify-between mb-5">
+          <h3 class="text-xs font-bold text-text-muted uppercase tracking-[0.2em] flex items-center gap-2">
+            <span style="width:8px;height:8px;border-radius:50%;background:#b2c6fb;display:inline-block"></span>
+            Payroll Breakdown
+          </h3>
+        </div>
+        <div style="height:200px;position:relative">
+          <canvas id="chartDonut"></canvas>
+        </div>
+        <div id="donutLegend" class="mt-4 space-y-2"></div>
+      </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Attendance % Bar -->
+      <div class="premium-card p-6">
+        <div class="flex items-center justify-between mb-5">
+          <h3 class="text-xs font-bold text-text-muted uppercase tracking-[0.2em] flex items-center gap-2">
+            <span style="width:8px;height:8px;border-radius:50%;background:#4ade80;display:inline-block"></span>
+            Attendance Rate (%)
+          </h3>
+          <span class="font-mono text-xs" style="color:var(--green)">↑ Good = 90%+</span>
+        </div>
+        <div style="height:260px;position:relative">
+          <canvas id="chartAttendance"></canvas>
+        </div>
+      </div>
+      <!-- OT vs Late Hours Grouped Bar -->
+      <div class="premium-card p-6">
+        <div class="flex items-center justify-between mb-5">
+          <h3 class="text-xs font-bold text-text-muted uppercase tracking-[0.2em] flex items-center gap-2">
+            <span style="width:8px;height:8px;border-radius:50%;background:#b2c6fb;display:inline-block"></span>
+            Overtime vs Late Hours
+          </h3>
+          <div class="flex items-center gap-4" style="font-size:10px;font-family:var(--mono)">
+            <span style="color:var(--accent)">■ OT</span>
+            <span style="color:var(--red)">■ Late</span>
+          </div>
+        </div>
+        <div style="height:260px;position:relative">
+          <canvas id="chartOTLate"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payslips Tab -->
+  <div id="tab-payslips" class="content hidden">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" id="payslipList"></div>
+  </div>
+
+  <!-- Monthly Hours Tab -->
+  <div id="tab-hours" class="content hidden">
+    <div class="mb-6 flex items-center gap-4">
+      <div>
+        <h2 class="text-lg font-bold">Monthly Hours Summary</h2>
+        <p class="text-text-muted font-mono mt-1" style="font-size:11px">Accumulated daily work hours for the current month. Resets on the 1st of each month.</p>
+      </div>
+      <div class="ml-auto flex gap-3">
+        <button class="btn" onclick="exportHoursCSV()">
+          <span class="material-symbols-outlined" style="font-size:17px">download</span> Export Hours
+        </button>
+      </div>
+    </div>
+
+    <!-- Month progress -->
+    <div class="premium-card p-6 mb-6">
+      <div class="flex items-center justify-between mb-3">
+        <div class="font-mono text-text-muted" style="font-size:11px">MONTH PROGRESS</div>
+        <div class="font-mono text-accent font-bold" id="monthProgressText">—</div>
+      </div>
+      <div class="h-2 rounded-full overflow-hidden" style="background:rgba(255,255,255,0.05)">
+        <div id="monthProgressBar" class="h-full rounded-full transition-all" style="background:var(--accent);width:0%"></div>
+      </div>
+    </div>
+
+    <div class="premium-card overflow-hidden">
+      <div class="overflow-x-auto">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Personnel</th>
+              <th class="num">Days Tracked</th>
+              <th class="num">Total Hours</th>
+              <th class="num">Avg Hours/Day</th>
+              <th class="num">OT Hours</th>
+              <th class="num">Late Hours</th>
+              <th class="num">Expected Hrs</th>
+              <th class="num">Status</th>
+            </tr>
+          </thead>
+          <tbody id="hoursTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- End of month section -->
+    <div id="eomSection" class="hidden mt-8">
+      <div class="eod-banner">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="material-symbols-outlined text-accent" style="font-size:28px">workspace_premium</span>
+          <div>
+            <div class="font-bold text-xl">End of Month Report</div>
+            <div class="text-text-muted font-mono" style="font-size:11px" id="eomPeriodLabel">—</div>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="eomStats"></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Timings Modal -->
+<div class="fixed inset-0 bg-black/90 backdrop-blur-md z-[1000] hidden items-center justify-center p-4" id="timingsModal">
+  <div class="premium-card w-full max-w-2xl p-0 overflow-hidden" style="background:#08172e;max-height:90vh;display:flex;flex-direction:column">
+    <div class="p-6 flex items-center justify-between border-b flex-shrink-0" style="border-color:var(--border)">
+      <div>
+        <h3 class="font-bold text-lg tracking-tight flex items-center gap-2">
+          <span class="material-symbols-outlined text-accent" style="font-size:22px">schedule</span>
+          Shift Timings
+        </h3>
+        <p class="text-text-muted font-mono mt-0.5" style="font-size:11px">Default shift schedule per employee. Pre-fills today's Start/End columns.</p>
+      </div>
+      <button onclick="closeTimingsModal()" class="text-text-muted hover:text-text transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <!-- Global default row -->
+    <div class="p-4 border-b flex-shrink-0" style="border-color:var(--border);background:rgba(255,140,0,0.04)">
+      <div class="flex items-center gap-4">
+        <span class="material-symbols-outlined text-accent" style="font-size:18px">settings</span>
+        <span class="font-semibold text-sm flex-1">Default for all</span>
+        <div class="flex items-center gap-2">
+          <span class="text-text-muted font-mono" style="font-size:11px">IN</span>
+          <input type="time" id="defaultCheckin" class="time-input accent-time" value="09:00" onchange="applyDefaultTimings()">
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-text-muted font-mono" style="font-size:11px">OUT</span>
+          <input type="time" id="defaultCheckout" class="time-input green-time" value="18:00" onchange="applyDefaultTimings()">
+        </div>
+        <button class="btn" style="padding:6px 12px;font-size:12px" onclick="applyDefaultTimings()">Apply All</button>
+      </div>
+    </div>
+    <div class="overflow-y-auto flex-1 p-4" id="timingsList"></div>
+    <div class="p-4 border-t flex justify-end gap-3 flex-shrink-0" style="border-color:var(--border);background:rgba(0,0,0,0.2)">
+      <button class="btn" onclick="closeTimingsModal()">Cancel</button>
+      <button class="btn accent" onclick="saveTimings()">
+        <span class="material-symbols-outlined" style="font-size:16px">save</span> Save Timings
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Employee Modal -->
+<div class="fixed inset-0 bg-black/90 backdrop-blur-md z-[1000] hidden items-center justify-center p-4" id="addEmpModal">
+  <div class="premium-card w-full max-w-xl p-0 overflow-hidden" style="background:#08172e">
+    <div class="p-6 flex items-center justify-between border-b" style="border-color:var(--border)">
+      <div>
+        <h3 class="font-bold text-lg tracking-tight">Add Employee</h3>
+        <p class="text-text-muted font-mono mt-0.5" style="font-size:11px">New employee will sync to Firebase</p>
+      </div>
+      <button onclick="closeAddModal()" class="text-text-muted hover:text-text transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="p-6 grid grid-cols-2 gap-4">
+      <div class="flex flex-col gap-2 col-span-2">
+        <label class="text-[10px] font-bold uppercase tracking-wider text-text-muted">Full Name *</label>
+        <input class="input-field" id="newName" placeholder="e.g. Rahul Sharma" type="text"/>
+      </div>
+      <div class="flex flex-col gap-2">
+        <label class="text-[10px] font-bold uppercase tracking-wider text-text-muted">Employee Code *</label>
+        <input class="input-field" id="newCode" placeholder="e.g. 310" type="text"/>
+      </div>
+      <div class="flex flex-col gap-2">
+        <label class="text-[10px] font-bold uppercase tracking-wider text-text-muted">Monthly Salary (₹)</label>
+        <input class="input-field" id="newSalary" placeholder="15000" type="number" value="15000"/>
+      </div>
+      <div class="flex flex-col gap-2">
+        <label class="text-[10px] font-bold uppercase tracking-wider text-text-muted">Days Present</label>
+        <input class="input-field" id="newPresent" placeholder="0" type="number" value="0" min="0"/>
+      </div>
+      <div class="flex flex-col gap-2">
+        <label class="text-[10px] font-bold uppercase tracking-wider text-text-muted">Days Absent</label>
+        <input class="input-field" id="newAbsent" placeholder="0" type="number" value="0" min="0"/>
+      </div>
+      <div class="flex flex-col gap-2">
+        <label class="text-[10px] font-bold uppercase tracking-wider text-text-muted">Weekly Off Present</label>
+        <input class="input-field" id="newWop" placeholder="0" type="number" value="0" min="0"/>
+      </div>
+      <div class="flex flex-col gap-2">
+        <label class="text-[10px] font-bold uppercase tracking-wider text-text-muted">Leave Taken</label>
+        <input class="input-field" id="newLeave" placeholder="0" type="number" value="0" min="0"/>
+      </div>
+      <div class="flex flex-col gap-2">
+        <label class="text-[10px] font-bold uppercase tracking-wider text-text-muted">Overtime (HH:MM)</label>
+        <input class="input-field" id="newOT" placeholder="00:00" type="text" value="00:00"/>
+      </div>
+      <div class="flex flex-col gap-2">
+        <label class="text-[10px] font-bold uppercase tracking-wider text-text-muted">Late By (HH:MM)</label>
+        <input class="input-field" id="newLate" placeholder="00:00" type="text" value="00:00"/>
+      </div>
+      <div id="addEmpError" class="col-span-2 text-xs font-mono hidden" style="color:var(--red)"></div>
+    </div>
+    <div class="p-5 border-t flex justify-end gap-3" style="border-color:var(--border);background:rgba(0,0,0,0.2)">
+      <button class="btn" onclick="closeAddModal()">Cancel</button>
+      <button class="btn accent" onclick="confirmAddEmployee()">
+        <span class="material-symbols-outlined" style="font-size:16px">person_add</span> Add Employee
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Remove Modal -->
+<div class="fixed inset-0 bg-black/90 backdrop-blur-md z-[1000] hidden items-center justify-center p-4" id="removeEmpModal">
+  <div class="premium-card w-full max-w-sm p-0 overflow-hidden" style="background:#08172e">
+    <div class="p-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="material-symbols-outlined text-red-400" style="font-size:28px">warning</span>
+        <div>
+          <h3 class="font-bold text-lg">Remove Employee?</h3>
+          <p class="text-text-muted" style="font-size:12px">This cannot be undone.</p>
+        </div>
+      </div>
+      <div class="p-4 rounded-xl mb-2" style="background:rgba(255,180,171,0.07);border:1px solid rgba(255,180,171,0.15)">
+        <div class="font-semibold" id="removeEmpName">—</div>
+        <div class="font-mono text-text-muted" style="font-size:11px" id="removeEmpCode">—</div>
+      </div>
+    </div>
+    <div class="px-6 pb-5 flex justify-end gap-3">
+      <button class="btn" onclick="closeRemoveModal()">Cancel</button>
+      <button class="btn" onclick="confirmRemoveEmployee()" style="background:rgba(255,180,171,0.15);border-color:rgba(255,180,171,0.3);color:var(--red)">
+        <span class="material-symbols-outlined" style="font-size:16px">delete</span> Remove
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Payslip Modal -->
+<div class="fixed inset-0 bg-black/90 backdrop-blur-md z-[1000] hidden items-center justify-center p-4" id="payslipModal">
+  <div class="premium-card w-full max-w-2xl p-0 overflow-hidden" style="background:#08172e">
+    <div class="p-8 flex items-center justify-between border-b" style="border-color:var(--border)">
+      <img src="https://risync.in/logo.png" alt="RiSync" style="height:28px;object-fit:contain;opacity:0.85">
+      <button onclick="closeModal()" class="text-text-muted hover:text-text transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="p-8" id="modalContent"></div>
+    <div class="p-6 border-t flex justify-end gap-3" style="border-color:var(--border);background:rgba(0,0,0,0.2)">
+      <button class="btn" onclick="closeModal()">Close</button>
+      <button class="btn accent" onclick="printPayslip()">
+        <span class="material-symbols-outlined" style="font-size:16px">picture_as_pdf</span> Generate PDF
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Activity Log -->
+<div class="fixed bottom-6 right-6 w-80 flex flex-col gap-3 z-[100] pointer-events-none" id="activityLog"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-analytics-compat.js"></script>
+<script>
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB6Q7d8vfB2NQfOGVG0iI2QHFg7ZcjkiOY",
+  authDomain: "pioneer-chacha-ji.firebaseapp.com",
+  projectId: "pioneer-chacha-ji",
+  storageBucket: "pioneer-chacha-ji.firebasestorage.app",
+  messagingSenderId: "43888822795",
+  appId: "1:43888822795:web:d31aba1d0d411ba0ca550e",
+  measurementId: "G-5F4KMXTJMP"
+};
+
+let app, db;
+try {
+  if (typeof firebase === 'undefined') throw new Error('Firebase SDK not loaded');
+  app = firebase.initializeApp(firebaseConfig);
+  try { firebase.analytics(app); } catch(e) {}
+  db = firebase.firestore(app);
+} catch(e) {
+  console.warn('Firebase unavailable — running offline:', e.message);
+  db = null;
+}
+
+// ── Employee data ──────────────────────────────────────────────
+const employees = [
+  {code:'3',  name:'Jaswant Singh',   present:16,absent:0,leave:0,wop:3,duration:'170:16',overtime:'11:23',late:'04:41'},
+  {code:'5',  name:'Satinder Kumar',  present:16,absent:0,leave:0,wop:3,duration:'175:53',overtime:'14:23',late:'03:38'},
+  {code:'10', name:'Parvind Yadav',   present:13,absent:0,leave:0,wop:2,duration:'131:10',overtime:'09:06',late:'05:22'},
+  {code:'13', name:'Harcharan Singh', present:13,absent:0,leave:0,wop:1,duration:'118:03',overtime:'05:36',late:'07:39'},
+  {code:'17', name:'Kulwinder Kaur',  present:16,absent:0,leave:0,wop:3,duration:'145:14',overtime:'00:00',late:'16:27'},
+  {code:'21', name:'Aashmi',          present:11,absent:0,leave:0,wop:3,duration:'121:47',overtime:'00:00',late:'02:38'},
+  {code:'35', name:'Kamlesh',         present:2, absent:0,leave:0,wop:1,duration:'28:09', overtime:'00:00',late:'00:27'},
+  {code:'36', name:'Balkaran',        present:7, absent:0,leave:0,wop:2,duration:'70:39', overtime:'01:40',late:'01:40'},
+  {code:'46', name:'Sunita',          present:16,absent:0,leave:0,wop:3,duration:'154:57',overtime:'00:00',late:'03:57'},
+  {code:'48', name:'Ragbir',          present:16,absent:0,leave:0,wop:3,duration:'167:53',overtime:'11:55',late:'08:05'},
+  {code:'59', name:'Chanda',          present:11,absent:0,leave:0,wop:2,duration:'99:22', overtime:'00:00',late:'02:28'},
+  {code:'62', name:'Swarn Singh',     present:12,absent:0,leave:0,wop:3,duration:'109:17',overtime:'00:00',late:'03:05'},
+  {code:'66', name:'Joginder',        present:15,absent:0,leave:0,wop:3,duration:'155:49',overtime:'08:39',late:'07:38'},
+  {code:'67', name:'Monu',            present:14,absent:0,leave:0,wop:3,duration:'143:37',overtime:'07:09',late:'03:19'},
+  {code:'73', name:'Radha',           present:13,absent:0,leave:0,wop:2,duration:'119:46',overtime:'00:00',late:'03:01'},
+  {code:'158',name:'Dr. Harshmee',    present:14,absent:0,leave:0,wop:2,duration:'38:29', overtime:'00:00',late:'105:38'},
+  {code:'161',name:'Sarabjit Singh',  present:16,absent:0,leave:0,wop:3,duration:'151:58',overtime:'18:58',late:'37:24'},
+  {code:'176',name:'Rahul Welder',    present:1, absent:0,leave:0,wop:1,duration:'18:39', overtime:'00:41',late:'00:16'},
+  {code:'181',name:'Assa',            present:16,absent:0,leave:0,wop:3,duration:'154:31',overtime:'04:44',late:'03:40'},
+  {code:'184',name:'Amarjeet Singh',  present:13,absent:0,leave:0,wop:3,duration:'144:38',overtime:'11:38',late:'02:47'},
+  {code:'187',name:'Money',           present:1, absent:0,leave:0,wop:0,duration:'00:00', overtime:'00:00',late:'08:33'},
+  {code:'191',name:'Balwinder',       present:3, absent:0,leave:0,wop:1,duration:'29:31', overtime:'00:00',late:'00:40'},
+  {code:'301',name:'Sunita Sharma',   present:15,absent:0,leave:0,wop:2,duration:'135:52',overtime:'04:48',late:'03:28'},
+];
+
+const salaries = {};
+employees.forEach(e => salaries[e.code] = 15000);
+
+// ── Timings: checkin/checkout per employee ─────────────────────
+// timings[code] = { checkin: "09:00", checkout: "18:00" }
+let timings = {};
+employees.forEach(e => { timings[e.code] = { checkin: '09:00', checkout: '18:00' }; });
+
+// ── Daily actual start/end times (resets each day) ────────────
+// dailyActual[code] = { start: "HH:MM", end: "HH:MM", logged: bool, date: "YYYY-MM-DD" }
+let dailyActual = {};
+function initDailyActual() {
+  const today = getTodayStr();
+  employees.forEach(e => {
+    const t = timings[e.code] || { checkin:'09:00', checkout:'18:00' };
+    const saved = dailyActual[e.code];
+    // Reset if it's a new day
+    if (!saved || saved.date !== today) {
+      dailyActual[e.code] = { start: t.checkin, end: t.checkout, logged: false, date: today };
+    }
+  });
+}
+
+function onTimeChange(code) {
+  const si = document.getElementById('start_'+code);
+  const ei = document.getElementById('end_'+code);
+  if (!si || !ei) return;
+  const today = getTodayStr();
+  dailyActual[code] = { start: si.value, end: ei.value, logged: dailyActual[code]?.logged || false, date: today };
+  // Update the live Hrs Today cell
+  const cell = document.getElementById('todayHrs_'+code);
+  if (cell) {
+    const mins = shiftMinutes(si.value, ei.value);
+    cell.innerHTML = `<span class="font-mono font-bold" style="color:#b2c6fb">${minsToHHMM(mins)}</span>`;
+  }
+  saveDailyActualToLocalStorage();
+}
+
+function logDayForEmp(code) {
+  const da = dailyActual[code];
+  if (!da) return;
+  const mins = shiftMinutes(da.start, da.end);
+  if (!monthlyHours[code]) initMonthlyHoursForEmp(employees.find(x=>x.code===code));
+  // If already logged today, subtract old value first (re-log)
+  if (da.logged && da.prevMins !== undefined) {
+    monthlyHours[code].totalMinutes = Math.max(0, monthlyHours[code].totalMinutes - da.prevMins);
+  } else if (!da.logged) {
+    monthlyHours[code].days += 1;
+    const emp = employees.find(x=>x.code===code);
+    if (emp) emp.present = (emp.present || 0) + 1;
+  }
+  monthlyHours[code].totalMinutes += mins;
+  monthlyHours[code].month = currentMonthKey;
+  da.logged = true;
+  da.prevMins = mins;
+  saveDailyActualToLocalStorage();
+  saveMonthlyHoursToFirebase();
+  saveEmployeesToFirebase();
+  recalc();
+  if (!document.getElementById('tab-hours').classList.contains('hidden')) renderHours();
+  const emp = employees.find(x=>x.code===code);
+  logActivity(`Logged ${minsToHHMM(mins)} for ${emp?.name} (${da.start}–${da.end})`, 'success');
+}
+
+function logAllDays() {
+  employees.forEach(e => {
+    if (!dailyActual[e.code]?.logged) logDayForEmp(e.code);
+  });
+}
+
+function saveDailyActualToLocalStorage() {
+  try { localStorage.setItem('risync_daily_actual', JSON.stringify(dailyActual)); } catch(e) {}
+}
+function loadDailyActualFromLocalStorage() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('risync_daily_actual') || '{}');
+    const today = getTodayStr();
+    Object.keys(saved).forEach(code => {
+      if (saved[code].date === today) dailyActual[code] = saved[code];
+    });
+  } catch(e) {}
+}
+
+// ── Monthly hours log ─────────────────────────────────────────
+// monthlyHours[code] = { totalMinutes, days, otMinutes, lateMinutes, month: 'YYYY-MM' }
+let monthlyHours = {};
+const currentMonthKey = (() => { const n = new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`; })();
+
+// Initialize monthly hours from employee duration data
+function initMonthlyHours() {
+  employees.forEach(e => {
+    if (!monthlyHours[e.code]) {
+      monthlyHours[e.code] = {
+        totalMinutes: toMins(e.duration),
+        days: e.present,
+        otMinutes: toMins(e.overtime),
+        lateMinutes: toMins(e.late),
+        month: currentMonthKey
+      };
+    }
+  });
+}
+
+// ── Day renewal tracking ───────────────────────────────────────
+// lastRenewed: localStorage key to track which date we last renewed
+function getTodayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function checkDayRenewal() {
+  const lastDay = localStorage.getItem('risync_last_day');
+  const today = getTodayStr();
+  const lastMonth = localStorage.getItem('risync_last_month') || currentMonthKey;
+
+  // New month → show EOM report then reset hours
+  if (lastMonth && lastMonth !== currentMonthKey) {
+    showEndOfMonthReport(lastMonth);
+    // Reset monthly hours for the new month
+    employees.forEach(e => {
+      monthlyHours[e.code] = { totalMinutes: 0, days: 0, otMinutes: 0, lateMinutes: 0, month: currentMonthKey };
+    });
+    saveMonthlyHoursToFirebase();
+    localStorage.setItem('risync_last_month', currentMonthKey);
+    localStorage.setItem('risync_last_day', today);
+    return;
+  }
+
+  // New day → update daily accumulated hours
+  if (lastDay && lastDay !== today) {
+    // Add one day's hours per employee based on their shift timing
+    employees.forEach(e => {
+      const t = timings[e.code] || { checkin:'09:00', checkout:'18:00' };
+      const shiftMins = shiftMinutes(t.checkin, t.checkout);
+      if (!monthlyHours[e.code]) initMonthlyHoursForEmp(e);
+      monthlyHours[e.code].totalMinutes += shiftMins;
+      monthlyHours[e.code].days += 1;
+      monthlyHours[e.code].month = currentMonthKey;
+    });
+    saveMonthlyHoursToFirebase();
+    const renewBanner = document.getElementById('renewalBanner');
+    const renewMsg = document.getElementById('renewalMsg');
+    const renewSub = document.getElementById('renewalSub');
+    renewMsg.textContent = `Day renewed — ${formatDate(new Date())}`;
+    renewSub.textContent = `Accumulated ${employees.length} employees' hours for yesterday (${lastDay})`;
+    renewBanner.classList.remove('hidden');
+    logActivity(`Daily hours recorded for ${lastDay}`, 'success');
+  }
+
+  localStorage.setItem('risync_last_day', today);
+  localStorage.setItem('risync_last_month', currentMonthKey);
+}
+
+function initMonthlyHoursForEmp(e) {
+  monthlyHours[e.code] = { totalMinutes: 0, days: 0, otMinutes: 0, lateMinutes: 0, month: currentMonthKey };
+}
+
+// Manual "Mark Today" button — logs today's hours now (for testing or manual use)
+function renewDay() {
+  employees.forEach(e => {
+    const t = timings[e.code] || { checkin:'09:00', checkout:'18:00' };
+    const shiftMins = shiftMinutes(t.checkin, t.checkout);
+    if (!monthlyHours[e.code]) initMonthlyHoursForEmp(e);
+    monthlyHours[e.code].totalMinutes += shiftMins;
+    monthlyHours[e.code].days += 1;
+    monthlyHours[e.code].month = currentMonthKey;
+    // Also increment present count
+    e.present = (e.present || 0) + 1;
+  });
+  saveMonthlyHoursToFirebase();
+  saveEmployeesToFirebase();
+  recalc();
+  if(!document.getElementById('tab-hours').classList.contains('hidden')) renderHours();
+  logActivity(`Today's hours marked for all employees`, 'success');
+  const renewBanner = document.getElementById('renewalBanner');
+  document.getElementById('renewalMsg').textContent = `Today marked — ${formatDate(new Date())}`;
+  document.getElementById('renewalSub').textContent = `Hours recorded based on current shift timings`;
+  renewBanner.classList.remove('hidden');
+}
+
+function shiftMinutes(checkin, checkout) {
+  const [ih, im] = checkin.split(':').map(Number);
+  const [oh, om] = checkout.split(':').map(Number);
+  return Math.max(0, (oh*60+om) - (ih*60+im));
+}
+
+function formatDate(d) {
+  return d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+function showEndOfMonthReport(month) {
+  const eomSection = document.getElementById('eomSection');
+  const eomStats = document.getElementById('eomStats');
+  const eomPeriodLabel = document.getElementById('eomPeriodLabel');
+  if (!eomSection) return;
+  eomSection.classList.remove('hidden');
+
+  const [yr, mo] = month.split('-');
+  const monthName = new Date(parseInt(yr), parseInt(mo)-1, 1).toLocaleString('default', { month:'long', year:'numeric' });
+  eomPeriodLabel.textContent = monthName;
+
+  let totalMins = 0, totalDays = 0, maxHrs = 0, minHrs = Infinity;
+  let maxEmp = '', minEmp = '';
+
+  employees.forEach(e => {
+    const h = monthlyHours[e.code];
+    if (!h) return;
+    totalMins += h.totalMinutes;
+    totalDays += h.days;
+    if (h.totalMinutes > maxHrs) { maxHrs = h.totalMinutes; maxEmp = e.name; }
+    if (h.totalMinutes < minHrs) { minHrs = h.totalMinutes; minEmp = e.name; }
+  });
+
+  const avgHrs = employees.length ? totalMins / employees.length : 0;
+
+  eomStats.innerHTML = [
+    { label:'Total Hours (All)', val: minsToHHMM(totalMins), icon:'timer', color:'text-accent' },
+    { label:'Avg Hrs/Employee', val: minsToHHMM(avgHrs), icon:'avg_pace', color:'text-green-400' },
+    { label:'Most Hours', val: `${minsToHHMM(maxHrs)} (${maxEmp})`, icon:'emoji_events', color:'text-yellow-400' },
+    { label:'Total Man-Days', val: totalDays, icon:'calendar_month', color:'text-on-surface' },
+  ].map(s => `
+    <div class="hours-card">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="material-symbols-outlined ${s.color}" style="font-size:18px">${s.icon}</span>
+        <span class="text-[10px] font-bold text-text-muted uppercase tracking-wider">${s.label}</span>
+      </div>
+      <div class="font-mono font-bold text-lg ${s.color}">${s.val}</div>
+    </div>
+  `).join('');
+
+  // Also show header EOD banner
+  const eodBanner = document.getElementById('eodBanner');
+  document.getElementById('eodTitle').textContent = `End of Month — ${monthName}`;
+  document.getElementById('eodContent').innerHTML = `
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
+      <div class="hours-card"><div class="text-[10px] text-text-muted uppercase mb-1">Total Hours</div><div class="font-mono font-bold text-accent text-lg">${minsToHHMM(totalMins)}</div></div>
+      <div class="hours-card"><div class="text-[10px] text-text-muted uppercase mb-1">Avg Per Employee</div><div class="font-mono font-bold text-green-400 text-lg">${minsToHHMM(avgHrs)}</div></div>
+      <div class="hours-card"><div class="text-[10px] text-text-muted uppercase mb-1">Top Worker</div><div class="font-mono font-bold text-yellow-400 text-sm">${maxEmp} (${minsToHHMM(maxHrs)})</div></div>
+      <div class="hours-card"><div class="text-[10px] text-text-muted uppercase mb-1">Man-Days</div><div class="font-mono font-bold text-on-surface text-lg">${totalDays}</div></div>
+    </div>
+  `;
+  eodBanner.classList.remove('hidden');
+}
+
+// ── Helpers ────────────────────────────────────────────────────
+const g = id => document.getElementById(id);
+const inr = n => '₹' + Math.round(n).toLocaleString('en-IN');
+const toHrs = s => { if(!s||s==='00:00')return 0; const[h,m]=s.split(':').map(Number);return h+(m||0)/60; };
+const toMins = s => { if(!s||s==='00:00')return 0; const[h,m]=s.split(':').map(Number);return h*60+(m||0); };
+const minsToHHMM = m => { const h=Math.floor(m/60), mn=Math.round(m%60); return `${h}:${String(mn).padStart(2,'0')}`; };
+
+// ── Live clock ─────────────────────────────────────────────────
+function tickClock() {
+  const now = new Date();
+  g('liveClock').textContent = now.toLocaleTimeString('en-IN');
+  g('liveDate').textContent = formatDate(now);
+  g('headerMeta').textContent = `May 2026 · ${employees.length} Employees · DefaultCompany`;
+}
+setInterval(tickClock, 1000);
+tickClock();
+
+// ── Sync status ────────────────────────────────────────────────
+function setSyncStatus(status, text) {
+  const b = g('syncBadge');
+  b.className = 'sync-badge ' + status;
+  g('syncText').textContent = text;
+}
+
+function logActivity(msg, type='success') {
+  const log = g('activityLog');
+  const item = document.createElement('div');
+  item.className = 'activity-item p-4 text-xs font-mono flex items-center gap-3 transition-all pointer-events-auto';
+  const icon = type === 'success' ? 'check_circle' : type === 'error' ? 'error' : 'info';
+  const color = type === 'success' ? 'text-green-400' : type === 'error' ? 'text-red-400' : 'text-blue-400';
+  item.innerHTML = `<span class="material-symbols-outlined ${color}" style="font-size:18px">${icon}</span><span style="color:var(--text)">${msg}</span>`;
+  log.appendChild(item);
+  setTimeout(() => { item.style.opacity='0'; item.style.transform='translateX(40px)'; setTimeout(()=>item.remove(),300); }, 3200);
+}
+
+// ── Firebase docs ──────────────────────────────────────────────
+const SETTINGS_DOC  = db ? db.collection('salary_app').doc('settings_may2026')  : null;
+const SALARIES_DOC  = db ? db.collection('salary_app').doc('salaries_may2026')  : null;
+const EMPLOYEES_DOC = db ? db.collection('salary_app').doc('employees_may2026') : null;
+const TIMINGS_DOC   = db ? db.collection('salary_app').doc('timings_may2026')   : null;
+const MONTHHRS_DOC  = db ? db.collection('salary_app').doc('monthhours_may2026'): null;
+
+let saveTimer = null;
+function scheduleSave() {
+  setSyncStatus('saving', 'Syncing…');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveToFirebase, 1400);
+}
+
+async function saveToFirebase() {
+  try {
+    const settings = {
+      workingDays: g('workingDays').value, otRate: g('otRate').value,
+      lateRate: g('lateRate').value, pfPct: g('pfPct').value,
+      esiPct: g('esiPct').value, pfEsiOn: g('pfEsiOn').value,
+      leavePolicy: g('leavePolicy').value, updatedAt: new Date().toISOString()
+    };
+    await SETTINGS_DOC.set(settings);
+    await SALARIES_DOC.set({ ...salaries, updatedAt: new Date().toISOString() });
+    setSyncStatus('synced', 'Saved to Cloud');
+    logActivity('Changes saved to Firebase', 'success');
+  } catch(err) {
+    setSyncStatus('offline', 'Sync Failed');
+    logActivity('Save error: ' + err.message, 'error');
+  }
+}
+
+async function saveTimingsToFirebase() {
+  try {
+    await TIMINGS_DOC.set({ data: JSON.stringify(timings), updatedAt: new Date().toISOString() });
+  } catch(err) { console.error('Timings save error:', err); }
+}
+
+async function saveMonthlyHoursToFirebase() {
+  try {
+    await MONTHHRS_DOC.set({ data: JSON.stringify(monthlyHours), updatedAt: new Date().toISOString() });
+  } catch(err) { console.error('Monthly hours save error:', err); }
+}
+
+async function saveEmployeesToFirebase() {
+  try {
+    await EMPLOYEES_DOC.set({ list: JSON.stringify(employees), updatedAt: new Date().toISOString() });
+  } catch(err) { console.error('Employee save error:', err); }
+}
+
+// ── Firebase load ──────────────────────────────────────────────
+async function loadFromFirebase() {
+  dismissLoader();
+  initMonthlyHours();
+  recalc();
+  renderHours();
+
+  if (!db) {
+    setSyncStatus('offline', 'Offline');
+    logActivity('Firebase unavailable — working offline', 'error');
+    loadDailyActualFromLocalStorage();
+    initDailyActual();
+    checkDayRenewal();
+    updateMonthProgress();
+    return;
+  }
+
+  const timeout = ms => new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms));
+  try {
+    setSyncStatus('loading', 'Connecting…');
+    const [setSnap, salSnap, empSnap, timSnap, hrSnap] = await Promise.all([
+      Promise.race([SETTINGS_DOC.get(), timeout(6000)]),
+      Promise.race([SALARIES_DOC.get(), timeout(6000)]),
+      Promise.race([EMPLOYEES_DOC.get(), timeout(6000)]),
+      Promise.race([TIMINGS_DOC.get(), timeout(6000)]),
+      Promise.race([MONTHHRS_DOC.get(), timeout(6000)]),
+    ]);
+
+    if (setSnap.exists()) {
+      const s = setSnap.data();
+      ['workingDays','otRate','lateRate','pfPct','esiPct','pfEsiOn','leavePolicy'].forEach(k => {
+        if(s[k]!==undefined) g(k).value = s[k];
+      });
+    }
+    if (salSnap.exists()) {
+      const s = salSnap.data();
+      employees.forEach(e => { if(s[e.code]!==undefined) salaries[e.code] = parseFloat(s[e.code])||15000; });
+    }
+    if (empSnap.exists() && empSnap.data().list) {
+      try {
+        const saved = JSON.parse(empSnap.data().list);
+        if(Array.isArray(saved) && saved.length > 0) {
+          employees.length = 0;
+          saved.forEach(e => employees.push(e));
+          employees.forEach(e => { if(salaries[e.code]===undefined) salaries[e.code]=15000; });
+        }
+      } catch(e) {}
+    }
+    if (timSnap.exists() && timSnap.data().data) {
+      try { Object.assign(timings, JSON.parse(timSnap.data().data)); } catch(e) {}
+    }
+    if (hrSnap.exists() && hrSnap.data().data) {
+      try {
+        const saved = JSON.parse(hrSnap.data().data);
+        // Only load if same month
+        const firstKey = Object.keys(saved)[0];
+        if (firstKey && saved[firstKey].month === currentMonthKey) {
+          Object.assign(monthlyHours, saved);
+        }
+      } catch(e) {}
+    }
+
+    setSyncStatus('synced', 'Cloud Synced');
+    logActivity('Data synced from Firebase', 'success');
+    initMonthlyHours();
+    loadDailyActualFromLocalStorage();
+    initDailyActual();
+    checkDayRenewal();
+    recalc();
+    renderHours();
+    updateMonthProgress();
+
+    // Live listeners
+    SETTINGS_DOC.onSnapshot(snap => {
+      if(!snap.exists()||snap.metadata.hasPendingWrites) return;
+      const s = snap.data();
+      ['workingDays','otRate','lateRate','pfPct','esiPct','pfEsiOn','leavePolicy'].forEach(k => { if(s[k]!==undefined) g(k).value=s[k]; });
+      setSyncStatus('synced', 'Live Sync'); recalc();
+    });
+    SALARIES_DOC.onSnapshot(snap => {
+      if(!snap.exists()||snap.metadata.hasPendingWrites) return;
+      const s = snap.data();
+      let changed = false;
+      employees.forEach(e => {
+        if(s[e.code]!==undefined && parseFloat(s[e.code])!==salaries[e.code]) {
+          salaries[e.code] = parseFloat(s[e.code])||0; changed = true;
+        }
+      });
+      if(changed) { setSyncStatus('synced','Live Sync'); recalc(); }
+    });
+
+  } catch(err) {
+    const isTimeout = err.message === 'timeout';
+    setSyncStatus('offline', isTimeout ? 'Timed Out' : 'No Access');
+    logActivity(isTimeout ? 'Firebase timed out — working offline' : 'Firebase error — working offline', 'error');
+    initMonthlyHours();
+    loadDailyActualFromLocalStorage();
+    initDailyActual();
+    checkDayRenewal();
+    updateMonthProgress();
+  }
+}
+
+function dismissLoader() {
+  const ol = g('loadingOverlay');
+  if(!ol) return;
+  g('loaderFill').style.width = '100%';
+  setTimeout(() => { ol.style.opacity = '0'; setTimeout(() => ol.remove(), 400); }, 150);
+}
+
+// ── Calculations ───────────────────────────────────────────────
+function calcRow(e) {
+  const gross = parseFloat(salaries[e.code]) || 0;
+  const wd = parseInt(g('workingDays').value) || 22;
+  const earnedDays = g('leavePolicy').value=='0' ? e.present+e.leave : e.present;
+  const earned = (gross/wd) * earnedDays;
+  const otPay = toHrs(e.overtime) * parseFloat(g('otRate').value||0);
+  const lateDeduct = toHrs(e.late) * parseFloat(g('lateRate').value||0);
+  const pf = g('pfEsiOn').value=='1' ? earned*(parseFloat(g('pfPct').value)/100) : 0;
+  const esi = g('pfEsiOn').value=='1' ? gross*(parseFloat(g('esiPct').value)/100) : 0;
+  return { gross, earned, otPay, lateDeduct, pf, esi, net: earned+otPay-lateDeduct-pf-esi, wd };
+}
+
+function getMonthlyHrs(code) {
+  return monthlyHours[code] || { totalMinutes: 0, days: 0, otMinutes: 0, lateMinutes: 0 };
+}
+
+// ── Render table ───────────────────────────────────────────────
+function renderTable() {
+  let html='', totalNet=0;
+  employees.forEach((e,i) => {
+    const c = calcRow(e);
+    totalNet += c.net;
+    const pct = e.present/c.wd;
+    const rating = pct>=0.9?'pill-green':pct>=0.6?'pill-amber':'pill-red';
+    const label  = pct>=0.9?'Optimal':pct>=0.6?'Standard':'Low Cap';
+    const t = timings[e.code] || { checkin:'09:00', checkout:'18:00' };
+    const mh = getMonthlyHrs(e.code);
+    const totalHrsDisplay = minsToHHMM(mh.totalMinutes);
+    // today's actual start/end from dailyActual store
+    const da = dailyActual[e.code] || { start: t.checkin, end: t.checkout, logged: false };
+    const todayMins = shiftMinutes(da.start, da.end);
+    const loggedClass = da.logged ? 'style="background:rgba(74,222,128,0.12);border-color:rgba(74,222,128,0.3);color:var(--green)"' : '';
+
+    html += `<tr>
+      <td class="font-mono text-text-muted" style="font-size:10px">${i+1}</td>
+      <td>
+        <div class="font-semibold">${e.name}</div>
+        <div class="font-mono text-text-muted" style="font-size:10px">EMP-${e.code}</div>
+      </td>
+      <td class="num"><input class="sal-input" type="number" value="${salaries[e.code]}"
+        oninput="salaries['${e.code}']=this.value;recalc();scheduleSave()"></td>
+      <td class="num">${e.present}</td>
+      <td class="num">${e.absent}</td>
+      <td class="num">${e.wop}</td>
+      <td class="num">
+        <input type="time" id="start_${e.code}" class="time-input accent-time" value="${da.start}"
+          onchange="onTimeChange('${e.code}')" title="Today's start time">
+      </td>
+      <td class="num">
+        <input type="time" id="end_${e.code}" class="time-input green-time" value="${da.end}"
+          onchange="onTimeChange('${e.code}')" title="Today's end time">
+      </td>
+      <td class="num" id="todayHrs_${e.code}">
+        <span class="font-mono font-bold" style="color:#b2c6fb">${minsToHHMM(todayMins)}</span>
+      </td>
+      <td class="num text-accent">${e.overtime==='00:00'?'<span style="color:var(--surface-bright)">—</span>':e.overtime}</td>
+      <td class="num" style="color:var(--red);opacity:0.7">${e.late==='00:00'?'<span style="color:var(--surface-bright)">—</span>':e.late}</td>
+      <td class="num font-mono" style="color:#b2c6fb;font-size:12px">${totalHrsDisplay}</td>
+      <td class="num" style="color:var(--text);opacity:0.8">${inr(c.earned)}</td>
+      <td class="num font-semibold" style="color:var(--green)">${c.otPay>0?'+'+inr(c.otPay):'<span style="color:var(--surface-bright)">—</span>'}</td>
+      <td class="num" style="color:var(--red)">${c.lateDeduct>0?'-'+inr(c.lateDeduct):'<span style="color:var(--surface-bright)">—</span>'}</td>
+      <td class="num" style="color:var(--red);opacity:0.75">${(c.pf+c.esi)>0?'-'+inr(c.pf+c.esi):'<span style="color:var(--surface-bright)">—</span>'}</td>
+      <td class="num"><span class="font-bold text-accent" style="font-size:14px;font-family:var(--mono)">${inr(c.net)}</span></td>
+      <td><span class="pill ${rating}">${label}</span></td>
+      <td>
+        <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
+          <button onclick="logDayForEmp('${e.code}')" class="btn" ${loggedClass} style="padding:5px 8px;border-radius:8px;font-size:11px" title="${da.logged?'Re-log today':'Log today\'s hours'}">
+            <span class="material-symbols-outlined" style="font-size:14px">${da.logged?'check_circle':'alarm_add'}</span>
+          </button>
+          <button onclick="openPayslip('${e.code}')" class="btn" style="padding:5px 8px;border-radius:8px">
+            <span class="material-symbols-outlined" style="font-size:14px">receipt</span>
+          </button>
+          <button onclick="openRemoveModal('${e.code}')" class="btn" style="padding:5px 8px;border-radius:8px;border-color:rgba(255,180,171,0.2);color:var(--red)">
+            <span class="material-symbols-outlined" style="font-size:14px">delete</span>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  });
+  g('empTable').innerHTML = html;
+  g('headerTotal').textContent = inr(totalNet);
+  if(g('empCount')) g('empCount').textContent = employees.length;
+}
+
+// ── Monthly Hours Tab ──────────────────────────────────────────
+function renderHours() {
+  const wd = parseInt(g('workingDays').value) || 22;
+  const shiftStdMins = 9 * 60; // 9 hours standard shift
+  let html = '';
+
+  employees.forEach((e, i) => {
+    const mh = getMonthlyHrs(e.code);
+    const expectedMins = e.present * shiftStdMins;
+    const diff = mh.totalMinutes - expectedMins;
+    const pct = expectedMins > 0 ? Math.min(120, (mh.totalMinutes / expectedMins) * 100) : 0;
+    const avgMins = mh.days > 0 ? mh.totalMinutes / mh.days : 0;
+    const statusColor = diff >= 0 ? 'var(--green)' : 'var(--red)';
+    const statusLabel = diff >= 0 ? `+${minsToHHMM(diff)} ahead` : `-${minsToHHMM(Math.abs(diff))} behind`;
+
+    html += `<tr>
+      <td class="font-mono text-text-muted" style="font-size:10px">${i+1}</td>
+      <td>
+        <div class="font-semibold">${e.name}</div>
+        <div class="font-mono text-text-muted" style="font-size:10px">EMP-${e.code}</div>
+      </td>
+      <td class="num font-mono">${mh.days}</td>
+      <td class="num">
+        <div class="font-mono font-bold" style="color:#b2c6fb">${minsToHHMM(mh.totalMinutes)}</div>
+        <div style="margin-top:4px;height:3px;border-radius:4px;overflow:hidden;background:rgba(255,255,255,0.05);width:80px;margin-left:auto">
+          <div style="height:100%;border-radius:4px;background:var(--accent);width:${pct}%"></div>
+        </div>
+      </td>
+      <td class="num font-mono text-text-muted">${minsToHHMM(avgMins)}</td>
+      <td class="num font-mono" style="color:var(--green)">${minsToHHMM(mh.otMinutes)}</td>
+      <td class="num font-mono" style="color:var(--red);opacity:0.8">${minsToHHMM(mh.lateMinutes)}</td>
+      <td class="num font-mono text-text-muted">${minsToHHMM(expectedMins)}</td>
+      <td class="num">
+        <span class="font-mono font-bold" style="font-size:11px;color:${statusColor}">${statusLabel}</span>
+      </td>
+    </tr>`;
+  });
+
+  g('hoursTable').innerHTML = html;
+  updateMonthProgress();
+}
+
+function updateMonthProgress() {
+  const now = new Date();
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  const dayOfMonth = now.getDate();
+  const pct = (dayOfMonth / daysInMonth) * 100;
+  const bar = g('monthProgressBar');
+  const txt = g('monthProgressText');
+  if (bar) bar.style.width = pct + '%';
+  if (txt) txt.textContent = `Day ${dayOfMonth} of ${daysInMonth} (${Math.round(pct)}%)`;
+}
+
+// ── Timings Modal ──────────────────────────────────────────────
+function openTimingsModal() {
+  const list = g('timingsList');
+  list.innerHTML = employees.map(e => {
+    const t = timings[e.code] || { checkin:'09:00', checkout:'18:00' };
+    const shiftMins = shiftMinutes(t.checkin, t.checkout);
+    return `<div class="timing-row">
+      <div style="flex:1;min-width:0">
+        <div class="font-semibold text-sm">${e.name}</div>
+        <div class="font-mono text-text-muted" style="font-size:10px">EMP-${e.code}</div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-accent" style="font-size:15px">login</span>
+        <input type="time" id="tin_${e.code}" class="time-input accent-time" value="${t.checkin}">
+      </div>
+      <span class="text-text-muted font-mono" style="font-size:11px">→</span>
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-green-400" style="font-size:15px">logout</span>
+        <input type="time" id="tout_${e.code}" class="time-input green-time" value="${t.checkout}">
+      </div>
+      <div class="font-mono text-text-muted" style="font-size:11px;min-width:48px;text-align:right" id="tshift_${e.code}">${minsToHHMM(shiftMins)} hrs</div>
+    </div>`;
+  }).join('');
+
+  // Live shift duration preview
+  employees.forEach(e => {
+    ['tin_','tout_'].forEach(prefix => {
+      const el = g(prefix + e.code);
+      if (el) el.addEventListener('input', () => {
+        const ci = g('tin_'+e.code).value;
+        const co = g('tout_'+e.code).value;
+        const sm = shiftMinutes(ci, co);
+        const sd = g('tshift_'+e.code);
+        if (sd) sd.textContent = minsToHHMM(sm) + ' hrs';
+      });
+    });
+  });
+
+  g('timingsModal').classList.remove('hidden');
+  g('timingsModal').classList.add('flex');
+}
+
+function closeTimingsModal() {
+  g('timingsModal').classList.add('hidden');
+  g('timingsModal').classList.remove('flex');
+}
+
+function applyDefaultTimings() {
+  const ci = g('defaultCheckin').value;
+  const co = g('defaultCheckout').value;
+  employees.forEach(e => {
+    timings[e.code] = { checkin: ci, checkout: co };
+    const ti = g('tin_'+e.code); if(ti) ti.value = ci;
+    const to = g('tout_'+e.code); if(to) to.value = co;
+    const sm = shiftMinutes(ci, co);
+    const sd = g('tshift_'+e.code); if(sd) sd.textContent = minsToHHMM(sm) + ' hrs';
+  });
+}
+
+function saveTimings() {
+  employees.forEach(e => {
+    const ci = g('tin_'+e.code);
+    const co = g('tout_'+e.code);
+    if (ci && co) timings[e.code] = { checkin: ci.value, checkout: co.value };
+  });
+  saveTimingsToFirebase();
+  renderTable();
+  closeTimingsModal();
+  logActivity('Shift timings saved for all employees', 'success');
+}
+
+// ── Chart instances (destroy before recreate) ──────────────────
+const _charts = {};
+function destroyChart(id) { if(_charts[id]){ _charts[id].destroy(); delete _charts[id]; } }
+
+// ── Summary ────────────────────────────────────────────────────
+function renderSummary() {
+  const wd = parseInt(g('workingDays').value)||22;
+  let tNet=0,tOT=0,tDeduct=0,tStat=0,tEarned=0,optCount=0;
+  employees.forEach(e => {
+    const c=calcRow(e);
+    tNet+=c.net; tOT+=c.otPay; tDeduct+=c.lateDeduct; tStat+=(c.pf+c.esi); tEarned+=c.earned;
+    if(e.present/wd>=0.9) optCount++;
+  });
+
+  // KPI cards
+  const stats = [
+    {label:'Total Net Payout',   val:inr(tNet),   color:'text-accent',    icon:'payments',      glow:'rgba(255,140,0,0.12)'},
+    {label:'Overtime Spend',     val:inr(tOT),    color:'text-green-400', icon:'timer',         glow:'rgba(74,222,128,0.1)'},
+    {label:'Late Deductions',    val:inr(tDeduct),color:'text-red-300',   icon:'history_toggle_off',glow:'rgba(255,180,171,0.1)'},
+    {label:'PF + ESI',           val:inr(tStat),  color:'text-on-surface',icon:'verified_user', glow:'rgba(178,198,251,0.08)'},
+    {label:'Optimal Attendance', val:`${optCount} / ${employees.length}`,color:'text-on-surface',icon:'groups',glow:'rgba(255,255,255,0.04)'},
+    {label:'Avg Net / Employee', val:inr(tNet/employees.length),color:'text-on-surface',icon:'account_balance',glow:'rgba(255,255,255,0.04)'},
+  ];
+  g('metricsGrid').innerHTML = stats.map(s=>`
+    <div class="premium-card p-5 stat-card" style="background:linear-gradient(135deg,#0d1c32,#112036);border:1px solid var(--border)">
+      <div class="flex justify-between items-start mb-4">
+        <span class="material-symbols-outlined ${s.color} p-2 rounded-xl" style="font-size:20px;background:${s.glow}">${s.icon}</span>
+      </div>
+      <div class="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">${s.label}</div>
+      <div class="text-lg font-bold font-mono ${s.color}">${s.val}</div>
+    </div>`).join('');
+
+  // ── Chart defaults ──
+  const FONT = "'IBM Plex Mono', monospace";
+  const GRID_COLOR = 'rgba(255,255,255,0.05)';
+  const TEXT_COLOR = '#8e9fb1';
+  const ACCENT = '#ff8c00';
+  const GREEN = '#4ade80';
+  const RED = '#ffb4ab';
+  const BLUE = '#b2c6fb';
+
+  const shortName = e => e.name.split(' ')[0];
+
+  // ── 1. Net Salary Horizontal Bar ──
+  destroyChart('netSalary');
+  const sorted = [...employees].map(e=>({e,c:calcRow(e)})).sort((a,b)=>b.c.net-a.c.net);
+  const ctx1 = document.getElementById('chartNetSalary').getContext('2d');
+  const netGrad = ctx1.createLinearGradient(0,0,400,0);
+  netGrad.addColorStop(0, 'rgba(255,140,0,0.85)');
+  netGrad.addColorStop(1, 'rgba(255,167,51,0.4)');
+  _charts['netSalary'] = new Chart(ctx1, {
+    type: 'bar',
+    data: {
+      labels: sorted.map(({e})=>shortName(e)),
+      datasets: [{
+        label: 'Net Payout (₹)',
+        data: sorted.map(({c})=>Math.round(c.net)),
+        backgroundColor: netGrad,
+        borderColor: ACCENT,
+        borderWidth: 1,
+        borderRadius: 4,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      indexAxis: 'x',
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0d1c32',
+          borderColor: 'rgba(255,140,0,0.3)',
+          borderWidth: 1,
+          titleColor: '#8e9fb1',
+          bodyColor: ACCENT,
+          bodyFont: { family: FONT, size: 13, weight: 'bold' },
+          callbacks: { label: ctx => ' ₹' + ctx.parsed.y.toLocaleString('en-IN') }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: TEXT_COLOR, font: { family: FONT, size: 9 }, maxRotation: 45 },
+          border: { color: GRID_COLOR }
+        },
+        y: {
+          grid: { color: GRID_COLOR },
+          ticks: { color: TEXT_COLOR, font: { family: FONT, size: 9 },
+            callback: v => '₹' + (v/1000).toFixed(0) + 'k' },
+          border: { color: GRID_COLOR }
+        }
+      }
+    }
+  });
+
+  // ── 2. Payroll Donut ──
+  destroyChart('donut');
+  const ctx2 = document.getElementById('chartDonut').getContext('2d');
+  const donutData = [
+    { label: 'Earned Basic', val: Math.round(tEarned), color: '#b2c6fb' },
+    { label: 'OT Pay',       val: Math.round(tOT),     color: GREEN },
+    { label: 'Late Deduct',  val: Math.round(tDeduct), color: RED },
+    { label: 'PF + ESI',     val: Math.round(tStat),   color: '#ffdcc2' },
+  ];
+  _charts['donut'] = new Chart(ctx2, {
+    type: 'doughnut',
+    data: {
+      labels: donutData.map(d=>d.label),
+      datasets: [{
+        data: donutData.map(d=>d.val),
+        backgroundColor: donutData.map(d=>d.color+'cc'),
+        borderColor: donutData.map(d=>d.color),
+        borderWidth: 1.5,
+        hoverOffset: 6,
+      }]
+    },
+    options: {
+      cutout: '68%',
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0d1c32',
+          borderColor: 'rgba(255,255,255,0.1)',
+          borderWidth: 1,
+          bodyFont: { family: FONT, size: 12 },
+          callbacks: { label: ctx => ' ₹' + ctx.parsed.toLocaleString('en-IN') }
+        }
+      }
+    }
+  });
+  // Custom legend
+  g('donutLegend').innerHTML = donutData.map(d=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;font-size:10px;font-family:${FONT}">
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="width:8px;height:8px;border-radius:2px;background:${d.color};display:inline-block"></span>
+        <span style="color:${TEXT_COLOR}">${d.label}</span>
+      </div>
+      <span style="color:${d.color};font-weight:600">₹${d.val.toLocaleString('en-IN')}</span>
+    </div>`).join('');
+
+  // ── 3. Attendance % ──
+  destroyChart('attendance');
+  const ctx3 = document.getElementById('chartAttendance').getContext('2d');
+  const attPcts = employees.map(e=>parseFloat((e.present/wd*100).toFixed(1)));
+  const attColors = attPcts.map(p => p>=90 ? GREEN+'bb' : p>=60 ? ACCENT+'bb' : RED+'bb');
+  const attBorders = attPcts.map(p => p>=90 ? GREEN : p>=60 ? ACCENT : RED);
+  _charts['attendance'] = new Chart(ctx3, {
+    type: 'bar',
+    data: {
+      labels: employees.map(e=>shortName(e)),
+      datasets: [{
+        label: 'Attendance %',
+        data: attPcts,
+        backgroundColor: attColors,
+        borderColor: attBorders,
+        borderWidth: 1,
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0d1c32',
+          borderColor: 'rgba(255,255,255,0.1)',
+          borderWidth: 1,
+          bodyFont: { family: FONT },
+          callbacks: { label: ctx => ' ' + ctx.parsed.y + '%' }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: TEXT_COLOR, font: { family: FONT, size: 9 }, maxRotation: 45 },
+          border: { color: GRID_COLOR }
+        },
+        y: {
+          min: 0, max: 110,
+          grid: { color: GRID_COLOR },
+          ticks: { color: TEXT_COLOR, font: { family: FONT, size: 9 }, callback: v => v+'%' },
+          border: { color: GRID_COLOR }
+        }
+      }
+    }
+  });
+
+  // ── 4. OT vs Late Grouped Bar (exact HH:MM from Excel) ──
+  destroyChart('otLate');
+  const ctx4 = document.getElementById('chartOTLate').getContext('2d');
+  // Store raw HH:MM strings for tooltips
+  const otRaw   = employees.map(e => e.overtime);
+  const lateRaw = employees.map(e => e.late);
+  _charts['otLate'] = new Chart(ctx4, {
+    type: 'bar',
+    data: {
+      labels: employees.map(e => shortName(e)),
+      datasets: [
+        {
+          label: 'Overtime',
+          data: employees.map(e => parseFloat(toHrs(e.overtime).toFixed(2))),
+          backgroundColor: ACCENT + '99',
+          borderColor: ACCENT,
+          borderWidth: 1,
+          borderRadius: 3,
+        },
+        {
+          label: 'Late By',
+          data: employees.map(e => parseFloat(toHrs(e.late).toFixed(2))),
+          backgroundColor: RED + '88',
+          borderColor: RED,
+          borderWidth: 1,
+          borderRadius: 3,
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0d1c32',
+          borderColor: 'rgba(255,255,255,0.1)',
+          borderWidth: 1,
+          titleFont: { family: FONT, size: 11 },
+          bodyFont: { family: FONT, size: 12, weight: 'bold' },
+          callbacks: {
+            title: ctx => employees[ctx[0].dataIndex].name,
+            label: ctx => {
+              const idx = ctx.dataIndex;
+              if (ctx.datasetIndex === 0) return '  OT  : ' + otRaw[idx];
+              return '  Late: ' + lateRaw[idx];
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: TEXT_COLOR, font: { family: FONT, size: 9 }, maxRotation: 45 },
+          border: { color: GRID_COLOR }
+        },
+        y: {
+          grid: { color: GRID_COLOR },
+          ticks: {
+            color: TEXT_COLOR, font: { family: FONT, size: 9 },
+            callback: v => {
+              const h = Math.floor(v); const m = Math.round((v - h) * 60);
+              return h + ':' + String(m).padStart(2,'0');
+            }
+          },
+          border: { color: GRID_COLOR }
+        }
+      }
+    }
+  });
+}
+
+function renderPayslipList() {
+  g('payslipList').innerHTML = employees.map(e=>{
+    const c=calcRow(e);
+    return `<div onclick="openPayslip('${e.code}')" class="premium-card p-6 cursor-pointer group">
+      <div class="flex justify-between items-start mb-5">
+        <div class="font-mono text-text-muted" style="font-size:10px">EMP-${e.code}</div>
+        <span class="material-symbols-outlined text-accent opacity-0 group-hover:opacity-100 transition-all" style="font-size:16px">open_in_new</span>
+      </div>
+      <div class="text-lg font-bold mb-5 group-hover:text-accent transition-colors">${e.name}</div>
+      <div class="space-y-1">
+        <div class="text-[10px] text-text-muted uppercase font-bold tracking-widest">Net Payable</div>
+        <div class="text-2xl font-mono font-bold text-accent">${inr(c.net)}</div>
+      </div>
+      <div class="mt-3 text-[11px] text-text-muted">${e.present} days present</div>
+    </div>`;
+  }).join('');
+}
+
+function openPayslip(code) {
+  const e = employees.find(x=>x.code===code);
+  const c = calcRow(e);
+  const statOn = g('pfEsiOn').value=='1';
+  const mh = getMonthlyHrs(code);
+  const t = timings[code] || { checkin:'09:00', checkout:'18:00' };
+  g('modalContent').innerHTML = `
+    <div class="border-b pb-6 mb-6" style="border-color:var(--border)">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="font-mono text-accent uppercase tracking-[0.4em] mb-2" style="font-size:10px">Pay Statement · May 2026</div>
+          <h2 class="text-3xl font-bold tracking-tight">${e.name}</h2>
+          <div class="font-mono text-text-muted mt-1" style="font-size:11px">DefaultCompany · DefaultDepartment · Shift ${t.checkin}–${t.checkout}</div>
+        </div>
+        <div class="font-mono text-accent px-3 py-1 rounded" style="font-size:11px;background:rgba(255,140,0,0.1);border:1px solid rgba(255,140,0,0.2)">EMP-${e.code}</div>
+      </div>
+      <div class="grid grid-cols-4 gap-4 mt-6">
+        <div><div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px">Days Present</div><div class="font-mono font-bold">${e.present}/${c.wd}</div></div>
+        <div><div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px">WO Present</div><div class="font-mono font-bold">${e.wop}</div></div>
+        <div><div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px">OT Hours</div><div class="font-mono font-bold text-accent">${e.overtime}</div></div>
+        <div><div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px">Total Hrs/Month</div><div class="font-mono font-bold" style="color:#b2c6fb">${minsToHHMM(mh.totalMinutes)}</div></div>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 gap-8 mb-8">
+      <div>
+        <div class="font-bold text-text-muted uppercase tracking-widest border-b pb-3 mb-4" style="font-size:10px;border-color:var(--border)">Earnings</div>
+        <div class="space-y-3 font-mono text-sm">
+          <div class="flex justify-between"><span class="text-text-muted">Contract Base</span><span>${inr(c.gross)}</span></div>
+          <div class="flex justify-between font-semibold"><span class="text-text-muted">Pro-rata Earned</span><span>${inr(c.earned)}</span></div>
+          <div class="flex justify-between font-bold" style="color:var(--green)"><span class="text-text-muted">OT Pay</span><span>+ ${inr(c.otPay)}</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="font-bold text-text-muted uppercase tracking-widest border-b pb-3 mb-4" style="font-size:10px;border-color:var(--border)">Deductions</div>
+        <div class="space-y-3 font-mono text-sm">
+          <div class="flex justify-between" style="color:var(--red)"><span class="text-text-muted">Late Penalty</span><span>- ${inr(c.lateDeduct)}</span></div>
+          ${statOn?`
+          <div class="flex justify-between" style="color:var(--red);opacity:0.7"><span class="text-text-muted">Provident Fund (${g('pfPct').value}%)</span><span>- ${inr(c.pf)}</span></div>
+          <div class="flex justify-between" style="color:var(--red);opacity:0.7"><span class="text-text-muted">ESI (${g('esiPct').value}%)</span><span>- ${inr(c.esi)}</span></div>`:''}
+        </div>
+      </div>
+    </div>
+    <div class="p-6 rounded-xl flex justify-between items-center" style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,140,0,0.15)">
+      <div>
+        <div class="font-bold text-text-muted uppercase tracking-[0.2em]" style="font-size:10px">Net Disbursement</div>
+        <div class="font-mono text-text-muted mt-1" style="font-size:11px">Calculated for ${e.present} active days</div>
+      </div>
+      <div class="text-4xl font-mono font-bold text-accent">${inr(c.net)}</div>
+    </div>`;
+  g('payslipModal').classList.remove('hidden');
+  g('payslipModal').classList.add('flex');
+}
+
+function closeModal() {
+  g('payslipModal').classList.add('hidden');
+  g('payslipModal').classList.remove('flex');
+}
+
+function printPayslip() {
+  const content = g('modalContent').innerHTML;
+  const w = window.open('','_blank');
+  w.document.write(`<html><head><title>Pay Statement</title>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:'Hanken Grotesk',sans-serif;max-width:760px;margin:50px auto;color:#1a1a1a;font-size:13px;line-height:1.6}
+    .font-mono{font-family:'IBM Plex Mono',monospace}.text-accent{color:#ff8c00}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+    .grid-cols-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:20px}
+    .border-b{border-bottom:1px solid #eee;padding-bottom:12px;margin-bottom:12px}
+    .flex{display:flex;justify-content:space-between;align-items:center}
+    .space-y-3>*{margin-bottom:8px}
+    h2{font-size:28px;margin:0;letter-spacing:-0.5px}
+    .text-4xl{font-size:32px;font-weight:700;color:#ff8c00}
+    .bg-black\\/40{background:#f7f7f7;padding:20px;border-radius:12px;display:flex;justify-content:space-between;align-items:center}
+    .text-text-muted,.text-muted{color:#666}
+  </style></head><body>${content}</body></html>`);
+  w.document.close(); w.print();
+}
+
+// ── Add / Remove Employee ──────────────────────────────────────
+let empToRemove = null;
+
+function openAddModal() {
+  ['newName','newCode','newSalary','newPresent','newAbsent','newWop','newLeave','newOT','newLate'].forEach(id => {
+    const el = g(id);
+    if(el.type==='number') el.value = id==='newSalary'?15000:0;
+    else el.value = id.includes('OT')||id.includes('Late') ? '00:00' : '';
+  });
+  g('addEmpError').classList.add('hidden');
+  g('addEmpModal').classList.remove('hidden');
+  g('addEmpModal').classList.add('flex');
+  setTimeout(()=>g('newName').focus(), 50);
+}
+
+function closeAddModal() {
+  g('addEmpModal').classList.add('hidden');
+  g('addEmpModal').classList.remove('flex');
+}
+
+function confirmAddEmployee() {
+  const name = g('newName').value.trim();
+  const code = g('newCode').value.trim();
+  const errEl = g('addEmpError');
+  if(!name) { errEl.textContent='Name is required.'; errEl.classList.remove('hidden'); return; }
+  if(!code) { errEl.textContent='Employee code is required.'; errEl.classList.remove('hidden'); return; }
+  if(employees.find(e=>e.code===code)) { errEl.textContent=`Code "${code}" already exists.`; errEl.classList.remove('hidden'); return; }
+
+  const ot = g('newOT').value.trim() || '00:00';
+  const late = g('newLate').value.trim() || '00:00';
+  const newEmp = {
+    code, name,
+    present: parseInt(g('newPresent').value)||0,
+    absent:  parseInt(g('newAbsent').value)||0,
+    leave:   parseInt(g('newLeave').value)||0,
+    wop:     parseInt(g('newWop').value)||0,
+    duration:'00:00', overtime: ot, late: late
+  };
+  employees.push(newEmp);
+  salaries[code] = parseFloat(g('newSalary').value)||15000;
+  timings[code] = { checkin: '09:00', checkout: '18:00' };
+  monthlyHours[code] = { totalMinutes: 0, days: 0, otMinutes: 0, lateMinutes: 0, month: currentMonthKey };
+  dailyActual[code] = { start: '09:00', end: '18:00', logged: false, date: getTodayStr() };
+
+  closeAddModal();
+  recalc();
+  saveEmployeesToFirebase();
+  saveTimingsToFirebase();
+  saveMonthlyHoursToFirebase();
+  scheduleSave();
+  logActivity(`${name} added successfully`, 'success');
+}
+
+function openRemoveModal(code) {
+  const e = employees.find(x=>x.code===code);
+  if(!e) return;
+  empToRemove = code;
+  g('removeEmpName').textContent = e.name;
+  g('removeEmpCode').textContent = `EMP-${e.code}`;
+  g('removeEmpModal').classList.remove('hidden');
+  g('removeEmpModal').classList.add('flex');
+}
+
+function closeRemoveModal() {
+  g('removeEmpModal').classList.add('hidden');
+  g('removeEmpModal').classList.remove('flex');
+  empToRemove = null;
+}
+
+function confirmRemoveEmployee() {
+  if(!empToRemove) return;
+  const e = employees.find(x=>x.code===empToRemove);
+  const idx = employees.findIndex(x=>x.code===empToRemove);
+  if(idx===-1) return;
+  employees.splice(idx, 1);
+  delete salaries[empToRemove];
+  delete timings[empToRemove];
+  delete monthlyHours[empToRemove];
+  closeRemoveModal();
+  recalc();
+  saveEmployeesToFirebase();
+  saveTimingsToFirebase();
+  saveMonthlyHoursToFirebase();
+  scheduleSave();
+  logActivity(`${e.name} removed`, 'success');
+}
+
+// ── Tab control ────────────────────────────────────────────────
+function showTab(id, btn) {
+  ['sheet','summary','payslips','hours'].forEach(t=>g('tab-'+t).classList.add('hidden'));
+  g('tab-'+id).classList.remove('hidden');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  if(id==='summary') renderSummary();
+  if(id==='payslips') renderPayslipList();
+  if(id==='hours') { renderHours(); checkEOM(); }
+}
+
+function checkEOM() {
+  const now = new Date();
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  const isLastDay = now.getDate() === daysInMonth;
+  if (isLastDay) {
+    showEndOfMonthReport(currentMonthKey);
+    document.getElementById('eomSection').classList.remove('hidden');
+  }
+}
+
+// ── Misc ───────────────────────────────────────────────────────
+function setBulk(v) {
+  if(!v) return;
+  employees.forEach(e => salaries[e.code] = parseFloat(v)||0);
+  recalc(); scheduleSave();
+}
+
+function settingChanged() { recalc(); scheduleSave(); }
+function recalc() {
+  renderTable();
+  if(g('tab-summary') && !g('tab-summary').classList.contains('hidden')) renderSummary();
+  if(g('tab-hours') && !g('tab-hours').classList.contains('hidden')) renderHours();
+}
+
+function exportCSV() {
+  let csv = 'Emp Code,Name,Gross Salary,Present,Absent,WOP,Check-In,Check-Out,OT Hours,Late Hours,Monthly Hours,Earned Basic,OT Pay,Late Deduction,PF,ESI,Net Salary\n';
+  employees.forEach(e => {
+    const c = calcRow(e);
+    const t = timings[e.code] || { checkin:'09:00', checkout:'18:00' };
+    const mh = getMonthlyHrs(e.code);
+    csv += `${e.code},"${e.name}",${Math.round(c.gross)},${e.present},${e.absent},${e.wop},${t.checkin},${t.checkout},${e.overtime},${e.late},${minsToHHMM(mh.totalMinutes)},${Math.round(c.earned)},${Math.round(c.otPay)},${Math.round(c.lateDeduct)},${Math.round(c.pf)},${Math.round(c.esi)},${Math.round(c.net)}\n`;
+  });
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,\uFEFF' + encodeURIComponent(csv);
+  a.download = 'risync_salary_may2026.csv';
+  a.click();
+  logActivity('Payroll exported to CSV', 'success');
+}
+
+function exportHoursCSV() {
+  let csv = 'Emp Code,Name,Days Tracked,Total Hours,Avg Hours/Day,OT Hours,Late Hours\n';
+  employees.forEach(e => {
+    const mh = getMonthlyHrs(e.code);
+    const avg = mh.days > 0 ? mh.totalMinutes / mh.days : 0;
+    csv += `${e.code},"${e.name}",${mh.days},${minsToHHMM(mh.totalMinutes)},${minsToHHMM(avg)},${minsToHHMM(mh.otMinutes)},${minsToHHMM(mh.lateMinutes)}\n`;
+  });
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,\uFEFF' + encodeURIComponent(csv);
+  a.download = 'risync_monthly_hours_may2026.csv';
+  a.click();
+  logActivity('Monthly hours exported to CSV', 'success');
+}
+
+// ── Event listeners ────────────────────────────────────────────
+g('payslipModal').addEventListener('click', function(ev) { if(ev.target===this) closeModal(); });
+g('addEmpModal').addEventListener('click', function(ev) { if(ev.target===this) closeAddModal(); });
+g('removeEmpModal').addEventListener('click', function(ev) { if(ev.target===this) closeRemoveModal(); });
+g('timingsModal').addEventListener('click', function(ev) { if(ev.target===this) closeTimingsModal(); });
+
+// Global exports
+window.recalc=recalc; window.settingChanged=settingChanged; window.scheduleSave=scheduleSave;
+window.setBulk=setBulk; window.showTab=showTab; window.openPayslip=openPayslip;
+window.closeModal=closeModal; window.printPayslip=printPayslip; window.exportCSV=exportCSV;
+window.exportHoursCSV=exportHoursCSV; window.salaries=salaries;
+window.openAddModal=openAddModal; window.closeAddModal=closeAddModal; window.confirmAddEmployee=confirmAddEmployee;
+window.openRemoveModal=openRemoveModal; window.closeRemoveModal=closeRemoveModal; window.confirmRemoveEmployee=confirmRemoveEmployee;
+window.openTimingsModal=openTimingsModal; window.closeTimingsModal=closeTimingsModal;
+window.applyDefaultTimings=applyDefaultTimings; window.saveTimings=saveTimings; window.renewDay=renewDay;
+window.logDayForEmp=logDayForEmp; window.logAllDays=logAllDays; window.onTimeChange=onTimeChange;
+
+loadFromFirebase();
+
+</script>
+</body>
+</html>
