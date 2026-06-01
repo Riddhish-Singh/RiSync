@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI GuruKul — Offer Proposal Generator</title>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; min-height: 100vh; }
+  input, select, textarea { font-family: inherit; }
+
+  /* Layout */
+  #app { max-width: 900px; margin: 0 auto; padding: 20px 16px; }
+
+  /* Header */
+  .header-bar { display: flex; align-items: center; gap: 14px; background: linear-gradient(135deg, #1e3a5f, #2563a8); border-radius: 12px; padding: 14px 20px; margin-bottom: 20px; }
+  .header-logo { width: 50px; height: 50px; border-radius: 50%; overflow: hidden; border: 3px solid rgba(255,255,255,0.35); background: #f5f0e8; flex-shrink: 0; }
+  .header-logo img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+  .header-text { flex: 1; }
+  .header-text h1 { margin: 0; color: #fff; font-weight: 700; font-size: 18px; }
+  .header-text p { margin: 3px 0 0; color: rgba(255,255,255,0.65); font-size: 12.5px; }
+  .header-ref { background: rgba(255,255,255,0.12); border-radius: 7px; padding: 4px 12px; font-size: 11px; color: rgba(255,255,255,0.75); }
+
+  /* Stepper */
+  .stepper { display: flex; align-items: center; margin-bottom: 20px; padding: 13px 20px; background: #fafafa; border: 1px solid #eee; border-radius: 10px; }
+  .step-item { display: flex; align-items: center; flex: 1; }
+  .step-item:last-child { flex: none; }
+  .step-circle { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: #999; background: #e5e5e5; flex-shrink: 0; }
+  .step-circle.active { background: #1e3a5f; color: #fff; }
+  .step-circle.done { background: #16a34a; color: #fff; }
+  .step-label { margin-left: 10px; }
+  .step-label .step-num { font-size: 10.5px; color: #aaa; margin: 0; }
+  .step-label .step-name { font-size: 13px; font-weight: 500; color: #777; margin: 0; }
+  .step-label .step-name.active { font-weight: 700; color: #1e3a5f; }
+  .step-line { flex: 1; height: 2px; background: #e5e5e5; margin: 0 16px; border-radius: 2px; }
+  .step-line.done { background: #16a34a; }
+
+  /* Card */
+  .card { background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 24px 28px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 13px; border-bottom: 1px solid #f0f0f0; }
+  .card-title { margin: 0; font-weight: 700; font-size: 16px; color: #1a1a2e; }
+  .badge-generated { background: #fff3cd; color: #b45309; border: 1px solid #fcd34d; border-radius: 20px; padding: 3px 12px; font-size: 12px; font-weight: 600; display: none; }
+
+  /* Form */
+  .info-box { background: #f7fbff; border: 1px solid #dce8f5; border-radius: 9px; padding: 12px 16px; margin-bottom: 18px; font-size: 12.5px; color: #666; line-height: 1.6; }
+  .section-head { margin: 20px 0 12px; padding-bottom: 7px; border-bottom: 2px solid #e8f0fa; }
+  .section-head p { margin: 0; font-size: 12px; font-weight: 700; color: #2563a8; text-transform: uppercase; letter-spacing: 0.7px; }
+  .section-head span { color: #1e3a5f; margin-right: 8px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 18px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px 18px; }
+  .span-full { grid-column: 1 / -1; }
+  .field label { display: block; margin: 0 0 4px; font-size: 11.5px; font-weight: 600; color: #444; }
+  .field label .req { color: #f24646; }
+  .field input, .field select, .field textarea {
+    width: 100%; padding: 9px 12px; border: 1.5px solid #ddd; border-radius: 7px;
+    font-size: 13px; color: #1a1a2e; outline: none; background: #fff;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: #2563a8; }
+  .field textarea { resize: vertical; }
+  .field input[readonly] { background: #f5f5f5; color: #777; cursor: default; }
+  .field input.ctc-total { background: #edf7ed; color: #166534; font-weight: 700; }
+  .hint { font-size: 12px; color: #888; margin: 0 0 12px; }
+  .form-footer { display: flex; justify-content: flex-end; margin-top: 24px; padding-top: 16px; border-top: 1px solid #eee; }
+
+  /* Buttons */
+  .btn { padding: 10px 22px; border-radius: 8px; font-size: 13.5px; font-weight: 600; cursor: pointer; font-family: inherit; border: none; }
+  .btn-primary { background: #1e3a5f; color: #fff; padding: 11px 32px; font-size: 14px; font-weight: 700; letter-spacing: 0.2px; }
+  .btn-outline { background: transparent; color: #555; border: 1.5px solid #ddd; }
+  .btn-danger-outline { background: #fff3f3; color: #f24646; border: 1.5px solid #f24646; }
+  .btn-navy { background: #1e3a5f; color: #fff; padding: 10px 28px; font-weight: 700; }
+  .preview-actions { display: flex; justify-content: space-between; margin-top: 16px; gap: 10px; }
+  .preview-actions-right { display: flex; gap: 10px; }
+
+  /* Letter Preview */
+  .letter {
+    background: #fff; border: 1px solid #ccc; border-radius: 4px;
+    padding: 52px 60px; font-size: 13px; line-height: 1.85; color: #1a1a1a;
+    position: relative; font-family: 'Times New Roman', serif;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+  }
+  .letter-top-bar { position: absolute; top: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, #1e3a5f, #2563a8); }
+  .letter-bottom-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #2563a8, #1e3a5f); }
+  .letter-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .letter-logo-wrap { width: 60px; height: 60px; border-radius: 50%; overflow: hidden; border: 2px solid #2563a8; background: #f5f0e8; flex-shrink: 0; }
+  .letter-logo-wrap img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+  .letter-company { border-bottom: 1px solid #dce8f5; padding-bottom: 12px; margin-bottom: 20px; font-family: Arial, sans-serif; }
+  .letter-company .name { margin: 0; font-size: 11.5px; font-weight: 700; color: #1e3a5f; }
+  .letter-company .ref { margin: 3px 0 0; font-size: 10.5px; color: #888; }
+  .letter h2 { margin: 0 0 4px; font-size: 22px; font-weight: 900; color: #1e3a5f; font-family: Arial, sans-serif; letter-spacing: -0.3px; }
+  .letter .role-title { margin: 0 0 2px; font-size: 15px; font-weight: 700; color: #2563a8; font-family: Arial, sans-serif; }
+  .letter .letter-date { margin: 0 0 28px; font-size: 12.5px; color: #666; font-family: Arial, sans-serif; }
+  .letter .sec-title { margin: 0 0 6px; font-size: 14px; font-weight: 700; color: #1e3a5f; font-family: Arial, sans-serif; border-bottom: 1px solid #dce8f5; padding-bottom: 5px; }
+  .letter p { font-family: Arial, sans-serif; }
+  .tags { display: flex; gap: 10px; margin: 12px 0 20px; flex-wrap: wrap; }
+  .tag { background: #e8f0fa; color: #1e3a5f; font-size: 11.5px; font-weight: 700; padding: 5px 14px; border-radius: 4px; font-family: Arial, sans-serif; }
+  .letter table { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-family: Arial, sans-serif; }
+  .letter th { background: #1e3a5f; color: #fff; padding: 9px 14px; font-size: 12.5px; font-weight: 700; border: 1px solid #1e3a5f; }
+  .letter th.right { text-align: right; }
+  .letter td { padding: 8px 14px; font-size: 12.5px; border: 1px solid #dce8f5; }
+  .letter td.right { text-align: right; }
+  .letter td.bold { font-weight: 700; }
+  .letter td.navy-bg { background: #f0f6ff; color: #1e3a5f; }
+  .letter td.group-hd { font-size: 12px; font-weight: 700; background: #f0f6ff; color: #1e3a5f; }
+  .letter td.faint-bg { background: #fafcff; font-weight: 700; color: #1e3a5f; vertical-align: top; }
+  .letter td.total-row { padding: 10px 14px; font-weight: 900; font-size: 13px; background: #1e3a5f; color: #fff; border: 1px solid #1e3a5f; }
+  .letter td.total-row.right { text-align: right; }
+  .letter ul { margin: 0 0 24px; padding-left: 20px; font-family: Arial, sans-serif; font-size: 12.5px; line-height: 1.85; color: #333; }
+  .offer-validity { background: #fff8e1; border: 1px solid #fcd34d; border-radius: 6px; padding: 10px 16px; margin-bottom: 28px; font-family: Arial, sans-serif; font-size: 12.5px; color: #92400e; }
+  .sig-row { display: flex; justify-content: space-between; align-items: flex-end; font-family: Arial, sans-serif; }
+  .sig-line { width: 150px; height: 1px; background: #555; margin-bottom: 8px; }
+  .acceptance-block { margin-top: 32px; padding-top: 20px; border-top: 1px dashed #ccc; font-family: Arial, sans-serif; }
+  .acceptance-row { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+  .sig-box { flex: 1; min-width: 160px; }
+  .sig-box-line { height: 1px; background: #aaa; margin-bottom: 6px; }
+  .accept-btn { padding: 7px 22px; border: 2px solid #16a34a; border-radius: 5px; font-size: 13px; font-weight: 700; color: #16a34a; cursor: pointer; background: #fff; font-family: inherit; }
+  .decline-btn { padding: 7px 22px; border: 2px solid #f24646; border-radius: 5px; font-size: 13px; font-weight: 700; color: #f24646; cursor: pointer; background: #fff; font-family: inherit; }
+  .letter-footer { margin-top: 32px; padding-top: 12px; border-top: 1px solid #dce8f5; font-family: Arial, sans-serif; font-size: 10.5px; color: #aaa; }
+
+  @media print {
+    body { background: white; }
+    #app { padding: 0; max-width: 100%; }
+    .header-bar, .stepper, .card-header, .preview-actions { display: none !important; }
+    .card { border: none; box-shadow: none; padding: 0; }
+    .letter { box-shadow: none; }
+  }
+
+  /* EmailJS Modal */
+  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center; }
+  .modal-overlay.open { display:flex; }
+  .modal-box { background:#fff; border-radius:14px; padding:28px 32px; max-width:460px; width:90%; box-shadow:0 8px 40px rgba(0,0,0,0.18); }
+  .modal-box h3 { margin:0 0 6px; font-size:17px; color:#1e3a5f; }
+  .modal-box p { margin:0 0 18px; font-size:13px; color:#777; }
+  .modal-field { margin-bottom:14px; }
+  .modal-field label { display:block; font-size:11.5px; font-weight:600; color:#444; margin-bottom:4px; }
+  .modal-field input { width:100%; padding:9px 12px; border:1.5px solid #ddd; border-radius:7px; font-size:13px; font-family:inherit; outline:none; box-sizing:border-box; }
+  .modal-field input:focus { border-color:#2563a8; }
+  .modal-footer { display:flex; justify-content:flex-end; gap:10px; margin-top:20px; }
+  .btn-green { background:#16a34a; color:#fff; border:none; padding:10px 26px; border-radius:8px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
+  .btn-green:disabled { background:#86b89e; cursor:not-allowed; }
+  .toast { display:none; position:fixed; bottom:28px; right:28px; background:#1e3a5f; color:#fff; padding:13px 22px; border-radius:10px; font-size:13.5px; font-weight:600; z-index:2000; box-shadow:0 4px 18px rgba(0,0,0,0.18); }
+  .toast.show { display:block; }
+  .toast.error { background:#c0392b; }
+  @media (max-width: 600px) {
+    .grid2, .grid3 { grid-template-columns: 1fr; }
+    .span-full { grid-column: 1; }
+    .letter { padding: 28px 18px; }
+    .sig-row { flex-direction: column; align-items: flex-start; gap: 16px; }
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<!-- Hidden logo for JS access -->
+<img id="logo-src" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAGQAZADASIAAhEBAxEB/8QAHQABAAEEAwEAAAAAAAAAAAAAAAECAwQGBQcICf/EAEkQAAEDAwMCAwUDCQUECgMAAAEAAgMEBREGITEHQRJRYQgTcYGxIpGhFBUyNEJyc8HRIzM1YrIkQ1LhFhclU1RjgpKi8ISTs//EABsBAAEFAQEAAAAAAAAAAAAAAAABAgMEBQYH/8QAMBEAAgEDAwMDBAEDBQEAAAAAAAECAwQRBSExEkFRBhNhFCIycYEzkbEjNEJSoeH/2gAMAwEAAhEDEQA/APP9vaTQU+xwYm/QLI8JUW3/AA6m/gs+gV9TpZSE6SwWuxuCnhPkVfRHQJgxy09gmDjCyFQ5hOT3SqKwDWCyUVbo3d1Hg9U1RbE4KVJUoM4Kco7ZYEAIVIA2QpJRwkBSof2VTgAqH9kkd9xVyQiKCQ0EkgAdynJZeEOJUEDG4CxZ6+ni2DvGfJqw5blM7Ija1gPfkrRoaVc1lnpwvLIJ14R75M87DJwB6q2+ohYN5Gg+QOVxL5XvH23ud8SqM+i2KPp2KX+pLJVldPsjk318QGzXO+WFYfXuOcRgD1OViZTK0KeiWkOY5InczfcvmrmI28I+Sg1U5/bA+ACsFMq1HT7aOyghjqzfLLvv5s7yFBPKeXnCt5TKk+kof9UJ7kvJcE0v/Fn4hBPJySD8lbyozuo5afbS5ghVVmu5kNqXd2g/BSKhpO4IKxhspyqtTRbSfEcD1cTXcyxLGTjxAH1VeQe+QsBS1xBBBIWfW9Oxf9OWCWN2/wDkjNeAOAqD3WP7537WCrrZWnnY+qya+k3NFZ6cryizC4hJYzgY4UqcggEHIQrOaxsxWtsrgpchAwdt1KY3z2TZLKCJRwmAc5VZ5CpPKjxtkdJFog54Qg+SuHhUvzhIKnlFCIiBQiIgAhAPKIgCMN8grdR/cydh4D9FdVFT+ryfuH6FKmCeDa7b/h9N/BZ9AshY9t/w+m/gs+gWQpFwPCYRE4AiIgCHN8QAzhUlgzjJVaFJwBaOBkZUN4Klzdyd0aMHdPyR/AByQQqSqjyVSSAC4nAHcprXVhLkMYIA+1urcz2sHie5rQO5OFiVlyjYS2AeN3/EeB/VcVUTSzOJlcXeWeAtiy0StWSlU+1EFS5UNluzPqLk0bQjxf5jwuPmnlmOZHkjy4H3KjsoXT2+nULdLoW/llKdac3uwiIOVeXgiG6HZSoIOUYfcRADIU4KgNOOU8OO+EbChThPDnjJUtY9x8LWucfIDKa5xXLQuGyndN1dFLVH9GnlP/oKk0tW3d1PMPiwpvvU+Mr+4vS/BawVG6rex7Th0bgfUEKAMeidGcHwxGmuSMFMFQ4Z+SeF3mnbCbDG+E3QAqcBGPAZII3QbKSoQBUHEHIOFWJQThw28wrSjdUrmwoXC++O/lEsaso9zJGDkg5BVQJz5BYoJ7Ej4K6yXP6Qx6rmr3RKtLMqf3It07hN4excPI7oQSc/RTzjG6kAYWBNYeGty3jPHBZLsOxvyhGVcLd84CpkyBkbfBMbEccFtwAKpVxv2hk7lUO5OyBEQiIgUIiIAKip/Vpf3D9Cq1RU/q0v7h+hQBt1uYfzdTcf3LPoFf8ACVRbf8Npv4LPoFfKsKKwHUyyiqLe6YHqjDHJlKKSmEnfApA4RESZAEbEeatFpHOMK6Vxt0uLIcxR4dIOSOArFtb1LiajBZI6k4wWWX6upipm5kcMngDkrhK2tmqHEZ8MfZo/msaV8kjy+Rxc4nOSoyuwstKp26Up7yM2rXcuOCE4TsSpBHcrWx2RAQin4KAeAeTwjjnYFkY7qQOcbrc9B9M9Za1na2zWiYwkgOnlHgY31JO/3L0JoH2V7bTe7qNW3OSqk5NNAMAHyLu4+SyL7W7SzX3y38ItUrWpU4R5No6aqq5xDTU8k8jjgNY0kk/ALsHSvRXqLqBzTT2GanjO/jqR7sAee69x6V0JpHTEIis1io6XAx4gwFx9STndbK3AGAAAOABgLlLv1jLOLeH8mjS0xczPJOnPZQuk3hffb/DA07lkDcuHpkjC7DsXsxaBoMGulrrmcbiVwaPwwu8js7lRkrCreoL+rzLH6LsbKlHhHX1r6M9N7bj8n0xTuI7yEv8AqSthp9EaQgaBFpi0gDgmlYT9+FsGT35TKz5XtzJ5lN5/ZOqEF2OHGltNDYadtg//ABmf0Q6W027nT1sPxpmf0XMeI9ky71Uf1VfOep/3F9qPhHAT6K0jPtJpm0u2/wDCMz9FwVz6P9Obl4vynTFKM53jBZj7iFvmSmSnxvrmL2m1/IjoQfKR0pfPZn6e3AEUbau2HfBhf4sf+7K691H7J9WzxOsGo2yAcMqWYJ+YAC9W5TutCjr99R4nn9kMrKlLlHgHVXQvqPYPE59lkrYhw6mPjyPPA4XXVwoa63zugraOamlacFsjCCD5EFfUUgAYP3LgdR6Q0xqOnMF5stHVtO324wD8cjdblp6ymmo14fyUaumJ7wPmcQUwV7F197LdguAkqNL3CW2ynJEEo8bCfIHIwPvXnnqB0j1toqR77panzUgJAqYPtsI+W/4LrLHXbS72jLD8Mz6tpUp8rJoG6eYKl2WuLS0gjsRjHxUevmtjKaytyq01yR5KR3TYhO/ol3XIhU1xaQRv6K+x4dsM58lj5UAkHIWTfaVSuU3FYkT0q7ht2MsKiRpcMDHKoik3w7byKvDhcXdWdS3m41Fg0oTVRbFprHAb91BIGR3V5WywEk5VVjnEthpKggjlXSMDlUlviOUg1vDwW0VfhVCBWmFRU/q8v7h+hVaoqf1eX9w/QoA3K2b26l/gs+gV8g5VFqY42ylOP9yz6BXXNd4iCFYTFcUllFBG24TA8lUQcKlLkQh4GdvJUkEK5n0QnIIwlFyW8KCqiAOdh5rg7xcvETT05+yNnuHf0Ct2tlO6moxW3dkdSqoIqutz3NPTHfhzx9B/VcNnc55TZR3K7W0s6drBRgv5MydRzeWScYUIoxt6q2k2Rk8EFVADCybZQVlyq46ShgknnkIaxjBkknjYL070W9mxuIb1rncnD2UDSRj98/yWZqGqW9jBym9/BYo206z2R0X056Z6s11Wtjs9ve2mziSpkGGMHnk4z8AvVXTL2ctJ6aEVbfc3ivGCfGCI2nbgZ3+a7mtdvobVRR0VupYaaCMANZG0AYCyzuMcLzzUvUtzdNxg8RNuhYQp4clllikpqakgZT0sEcELAA1jGgADywFeyR2wEDWjfO6nPmublKUnmW7L6SXCKTk+aqGAPVNsYUEpM9sYF5IPKIiUcEREAEREAEREAEREAVEjCpHopCnYApvGzWRvALjjAGVamiimidFNG2SNwILHDIPxCuZwRj5qSGkJ0W4vMdhNuDpzqb7P2jdWiWqoYW2i4OBIlgGGE+RbnC8q9TekWrtCVTzW0TqqhaSG1UIy0jtkdvmvobsBjOSrFbTU9ZTPp6uCOaJ4ILXtBBB9Cuh031Jc2bSk8xKNexhUWywz5cFuORhU53+C9fdaPZuobm2e8aLLaSryXupCfsPPp5FeU7/ZbnYbjLbrrRTUtVESHMkaQQfTzXoenavb30eqL38GLWtZ0Xvwccic7otbHcqgK5HJ4cBxyPPyVtO6q3VpTuoOE1/8Hwm4PKMkkbY3TbkndWo34OHceaunnI3XBahYVLWeGtuzNSjVVRfI2+KjA8gpOMcYKhZxNhEEZPoo8I8lVlCdkuRuMblp4wRgK1U/q8o/yH6FZBHorVSD7iXA28B+icK47ZN4tP8AhlL/AAWfQK+9mTnKsWrItdKcf7ln+kLKVlLKBPBafHhpOVa8ACySMjBUeBqMBs+TGI3Tw7ZV17RnhcTf7h+TRfk8J/tXDcj9kf1Vm2t516ihHcZOSgm2Yd9uO5pac+j3D6BcJuAp8z+KjddzaWsLaCjFb9zJqTc3lhEwUVgYCNltXTjQ1/13eW2yy0rnDI97M4EMiHmT/Jcv0Y6X3rqLe2xQRPgtkRBqKpwIaB3AONz6L3VoHRtj0TYo7TYqRsTAB7yUgF8h8ye65nW9fp2a9um8zZoWtk6rzLg1jo50h050+omvZAysujwDLVStBIO+zfILsp24HOyjG3O45TC8zurqrczc6jbN+nSjTSUUSPVQeT5KeFB3UCbe7JAiIlHBERABERABERABERABERABERADKZ9URG3YAiIgAAp4CgKUcb5EYaQOSQtF6rdMtOdQbW6C40rIa0D+xq4wA9h7b9x6LeSAm3f71LbXNS3n10200RzpxmsNHzr6q9NNQdPLqaW6QOkpHkiCqYCWPHkTjY+i0YYJznIX021bpu06ps0tqvdHFVU0oIw5oJafME8H1Xh/rt0funTy6Pq6Vj6qySuJimaCfd+jsDb4r0jQ/UELpKnVeJ/5MG6sXSzKO6OqTzwiZ3QhdZyZoVcT8ENJ2+ioU5z6KtdWsLmm4SQ+E3B5RlbH1VJHkqIXjPhPPYq6vP7yznbVHCSNenUU1koRSQc8KMHyVEeOVaqdqeX9w/RXVbqSDTy7Y+wfolTwKmbza2/9lUm3MLPoFfIOTgbK3ahm1UnpCz6BZHgPmrvTtsMw+xbwfJRwqyOypkLWsLnEBoGST2TlDOMCZMG61jaKldKcFx2a3PJWmSyvmldJKSXOOSSsu81zq6tLgSImZDB6efzWEV2Wl2StqfU19zM2vVc5Y7IgkYQFEOcjHK1luyuSDvuF2H0S6Y3TqJqGOKNjobZC4GpnI2AzuB6lcP0u0Rcteaqp7Nbo3eAkGeXG0TM7klfQHp7pK16M05TWO0wtbHGwe8eBgvfjcn7ly3qDXI2dP26e83/4aFla+6+p8IydH6ctOlbHBaLRTMggiaAfC0AuIHJ8yVzBODsQQjtj6FUnheY1KkqknKTy2dDCCikkT33TO6ImD8AlERLhChERIAREQAREQAREQAREQAREQAREQAREQAREQATKIhpMBlAiI55AnJWDfrTb75a57ZcqaOoppmlrmPaCN1mqR6J8JuElJPDGSimsM8F+0H0jrun96fW0Ub57HO4mOUDPuiST4XY4wupSdl9O9VWO3aksdRZrrA2emqGFpDhnGRjI9QvAfWvpxX9PNVS0U4dJb5yX0k4Gzm52BPmOML0n0/riu4ezV2kuPkwL609t9UeDQE2wnB42Q8rrcYMwlvOe6vxu8Y35HKsDlSwljg4b+YWZqljG5pPH5LcnoVXCW/DMrO2cKCDjZSDkAjGCg4XBzi45i1ho1U87oo8JHZW6n9Wl/cP0WQrFUP8AZpjnP9mfooXHbYU36ztBtFIcb+4Z/pCyHbHZWLQP+yKP+Az6BZRAO5GSriyuRMlogYJWvatrvdRCkid9t4y8js3y+a56rlZT00k8mzWAk/0XX9bUPqqmSokJ8T3E48h2C29HtPeqdcuEVbqoorC5ZYQfeUxshHddcjNB37cLMs1tq7tc6e3UMTpaiokEcbQM5JOAsUDI2G69Y+x10wbTUh1zeqfMsuRQscP0R3fg+fAWZquoQsbdzk9+xYtqLrTS7HavQjpvRdPNJxU7WNkuVSA+rm8OCSQD4R6Dhdi9sjYo4kknOSe/mg2C8gubmdzVlUm+Tp6dNU4qKQOc7ohRQEwREQAREQAREQAREQAREQAREQAREQAREQAREQAREQAREQAREQAREQAQbcIgKN2IyRwc/Fad1a0Lbtf6SqLRXMa2UAup5sbxvxsfh5hbioBwRjtx6eqkt687eoqkXuiOcFOOGfMrV2n6/TOoKuy3KJzKimkLCSMAgcEfELhyV7T9rbpgzUmnnaptEH/adC0mYNGTKzv8wvFxZjkYI2wV67o2pRv7dSXK5OZuqDoza7FONsogwUxuthpp4ZVL1O4Eljt+49FfAHGVh5IIcNiFmxO8bAe55+K47XrL25+7FbPk0Laq2ulk4CsVe1PKP8h+iyCD5KzWAfksp/8ALP0XPJ42Lm6N9tLT+aaP+Az/AEhZKs2gA2mi8vcM/wBIV2VzY2OkecNaCSfIDlX4x6sJDM45NZ1rWkNjoWHGftSAeXYfzWr9+VfuNS6rrZahxP23EgHsOw+5Y67ixt1b0VFc9zLrTc5NsFNyh3QZJAaMk7ADureVFZfYiSyb30N0TUa715R2tsbvySNwkqngZDWDcg/HC+hdvoqe30EFDSRNjggYGMa0YAAGMLqL2T9BDSegW3Srh8FwueJHlw3awE4Hn3z813McYyOF5T6k1L6q5cYv7UdHY0FTgn3ZT8kCklQubabW5oBERKlgcEREAEREAEREAEREAEREAEREAEREAEREAEREAEREAEREAEREAEREAEHKIgCTwMDdQc8bpkpkpEmuBpRLFHNE6KVodG8FrmkbEHbC8F+0voF+iNeyyUsTm2yvJlp3AbA92/fn5L3y3cF3kutfaK0RHrbpzW08cYdX0YM1K4DcEYJA+IGPmt70/qLtLlKT+17FG9oKrDPdHz6wQUzurk0UkE74ZWFj2EtLTyCD3Vs8r1tSUkpLuc01h4Jyr9I8BxYTsdx8VjqQSHBwO4OVWvrdXFCVN+NiSlPokmcjj1VmraTSzeXgP0Kuxu8UYcOCFRV/qs37jvoV5vOLhJxfKNtYksm+Wf8Awij/AIDP9IXHaxqvye1GNpw6c+H5cn/76rkrQCLRRE8GnZ/pC1HW1V767CAH7EDQNvM7n+S3tLoe9XWeEUq8nGLODPChCc7YQBdmZoW/9BdHya16jW+2mMmlif76odjYMG+D8SMfNaAOMFex/Yo0iLbpOq1NUxgTV7/BESNwwEj8SsfXb1WlpKXd7Fq0pOpUXweg4Io4KeOnhaGxxtDWNGwAAwFcH6Kg8g8eik5J9F4831Pqfc6hLGxCJxym2yXncdkIh5wpwkbS3DJSpTBAJ7BcRdtT6ftLC643iipwOQ6UAj5ZypYU5z/FZ/QOSRyyLrm49b+mNDIY5NU0rng4LWgkj8FxMvtFdMGP8IvDn74y2M4VuOmXUllQY11IruduBSuvtHdYtAaqubLZa71GayQ4jieCC4+i7BOOByqtahOi8VE0/kVST3QREUQ4IiIAIiIAIiIAIiIAIiIAIiIAIiIAIiIAIiIAIiIAIiIAkZ8JCjAIIIBzspbsM52UHckhJnDyNPBvtTaLOkepM89PF4KC5f28JA2B/aHyO/zXUuy9ze15pIah6ZyXOCIOqrUffAgZJYcBw+i8M8bHleuenb9XdnHPK2OZvaXt1PhkIiLeKRl0T8sLCeN1cq/1Wb+G76FYlM7wTA8A7FZdXvSTfw3fQrhNbt/ZucpbM17SfVDHg363PayyUb3HAbTMJ+AaF1vWymoq5Zzkl7y459St3uU/5PoqJ4OC6mjYPmAPplaEQtzQqWISm+5Uupb4Azkqe3qiDlb+dymZVoo5bjdqWgia5z6iVsYAG+5AX0r0JZYtOaQtlmhY1opadkZA4JAGT8yvEPsr6e/P3V+3l7PFFRA1L8jbbYD7z+C98HyHHZed+sbtupGgv2zc0yls5Mp5ySquBtyowccqD5LiHh4SNfkDfcqoAJwMq3NIyGJ0srw2NgJc5xwABzkoipTeEBcJHwA5K6j6tdedJaFMlDDILrdAMe4gdkMPk4gYHw5XXPWXrBfdV6id0+6ZMfPK9xiqKuLcnsQDjYAclbd0b9n2xaYEd61N4bxengPd73JZE48gZO59St2jYUbaHu3Ty+0SGU23iJ1sL1186unxWmCSx2eQ7ObiIAeYccE8diuWpPZUrK+mfPqTWVRPXOGQ5gLwD6lxyV6lijjijEcTGxsAwGtAAA9AFV9lJPW6kFihBRXbYFST5PFt39k7V8ErvyC80NXGT9nILDj1yVYovZR1xM8Ce5W+maTu4nxY+4r2yQAP6qnfOymj6mvVHtkPp4M89dJPZootJ6jpL9eL06vqqR3jijiYWsDuxJzk/Behu2Am/wAFBWRd31a7n1VXkkhBR2QREVdvJIEREgBERABERABETshAEREAEREAEREAEREAEREAEREAEREAS3hRsDsgKq8Od0i2bTG9zFutHFcbXVUM7A+OeJ0bmnggjG/zXzV13ZZdO6vudlmaQ6lqXxgkcgE4K+mgyBleJvbR09+bOpsV2jYGx3GAPBA2yNj8+67D0hduFeVF8Pgy9TpJw6vB0SeCil2wxyoXpWc4ZgD18lmzuzQyO84z9CsJZIdm3zDyY4fgVznqKh1UYzXKLtlLEmvJsOqZvBpi1QZ/vI2Ej0DB/ULVSFzeppi6C1w5OGUbCR6kD+i4QrS0uHRbR+SC4lmYRg5JTOxCDYLQ7EPY9VewpZSGXy/SNyCWQxOx8S4fiF6kJPZdO+yDaRbOjlJKW+F1bM+oBxyCAB9F3CeF49rtb3r+cvGx1VnDppIZJVQHOVSpBwFjvZFpkblwx5rzn7VXUmv/ACmDpzpN7pLpXuDKh0Ry5oOQGjHBPdd2dRdSU+ktF3O/1BHhpYHPY0nHjfg4A9SV569k7S1RqvVN06oahaZ3vne2lMgzl5IJcM+Q2HxWzpdGEIyuZraK2/ZDUbbSR2p7P3Smg6fabinqYmzXuqaHVMzhktJ38IPkF2kcdvvTOSoPYLNua87iq5zJIxxsSpACgdgD8soRvzn1Vb/ApBVXHqm2wCHICE+2AyMDCg4wo3J/kh4Gycs9wSBx2RESjgiBEAEREAFONshUrFvNzpLRaaq518vuqWmjMkjz2aOSl6XJpLkR7GZ+Kk4xtytV6ea/01rymqajTtY6oZTPDJA4YIJ42ytjrKiOkpZaqckRxNL3EDJAG5TpUZxl0tYfgammXhnupIC0PSXVrReqb7+ZbPWzS1oJBYYyPCRyDvst7GSipSlTf3xwwUk90QRhEdyiZnI5BERAoREQAREQAREQAREQATKIjnkCQTnleevbfshrND2+8RNBfR1OJHY4YQf54XoPutA9oi1fnfo/fqUMDnMhEg248JBP4BaWj1vZvYSK1zDqptHzzlyWg98o3cDPdHA4xzuozwPJezRa6Uco/AV1h/2aoaeDGSPuKtKQcRSjzjcPwWfqtP3LWSJqEsTTM69vMlRACchlLC0f+wH+awCFkVxL5xk5/s2D7mBY6s2kemhFIjqPMmFLBktb5kBArlI0uqYmjkyAfiFNUeIN+ExI7vB9GeilCLb0o03R+HBZQsz6k5K285zuuN0rC2n01a4GjAZSxgD/ANIXJO/SXiF5JyuJS8tnXUViCXwEHHqiKuSnm724b9MyxWbSlI93vK+cPkYDuQDgfjldz9JdPQ6X6e2izwsa0xUzDIQOXEAkleeOvBOoPao0paH7xQPgY5ucjHjJJx8CvV8LBHG2Nv6LWgAeQAW7fv2bKnTW2VlleG8m2VgcqAQDjGSqgeywNRXWksdlq7tXSNip6aMve4nbYcLDpwlUl0JZZK3jc6f9qfqtVaEskFrsE7G3qtOQQMmJgIyceZ4+a5v2bepJ6haMDrhK03mjPu6pnBPk7Hr/ACXTPR6zVPWbrDcdcX+AyWeikIhjeMtdsQ1uPQAH5KzeYanoR1+juEDXN05d5Mua3IaGnkHtkE5+a6qVjQ9j6Zf1EslfqlnPY9fAgkgchVHlWaOogq6SKqp3tkilYHsc05BBGQrwIyuTacG4vksJ53LdQ90cEj2jLmsJA9cLob2eNe6s1R1N1dab5O+ahonuMDXMIDCHkAD5LvmdwZE+R3DWkn4AZXU/RrqRY9Xa41JZrdp2K2VNE8mWZoaDOA7w5JAyTnfdaNom6FR9OUu/ga9mjtvGUVFRLFBC+aeRscbBlznHAA8yVqFT1Q6f01SaeXVdsEgOCPfDAPqVTp0alRfam/0OckuWbnjAVO3ouMsuorDe4y+03ejrGjcmKUOx+K5QA/EeibOEobSyv2gUk+5BRSVCZF5Q5BdIe2FqiOz6Bp7GJRHLd6gRu5J90CPGcDfgru8crr3WfTGl1Z1FtOprpVCaktrfsUL2Asce5Oec7fcr2nypRrKVXhDJptbHSPRDU2mdO9bobRpm4Nls91oWQn7Ja0TNAycEDfYjK9YOAcCCAQdjldba96RWS/XC0XK0Np7LV22pEzX00Ib4wDktOAuwqiGeSgdBHOY5nRlglAyWnGM4+KsajcUbqpGpB48jacWludDez9TxR9c+pJbHGPBcHhv2RkDPA8l6BGxXU3TTpNddIa4rtSyaplrHXF7pKyMxgCUk5ydtl2z3UGp1IVKvVGWcIWCxkg8ohUDhUVusokRKIiBQiIgAiIgAiIgAiIgAiIgAOVxOtKYVekLxTYz72ilZjzJYQuWardWwS000RGQ6Mgj0IIUlBtVYtdmiOosxZ8vq+E09dUU52MUjm/cSFjlcvrKP3OrrvFjAZWygD08ZXEr3Cg+qlF92kchPaTI7KH4Ebyf+Aj8CpCpqM+4fjyKbcx6qUl8CweJIuud4vC7/ACNH4BUEKrw4DR/lb9AqSUtv/Sj+hJ/kS3usuzN8V5o245mYPxCxAOVmWR3hvVE7ynZ9Qi4/pS/QU/yR9NrN/hVE3GMU7B/8Qsp36SxbOSbXQnzp2f6Qsp2zyvEa39WWfLOvp/iv0EHCDlB/NRrYkPJ+pB7z21aRsmMNfHjPwBXrHOx+K8m9VAbR7YWn6uT7LKuSAgnYYJwT+C9Yg5APYjOy2dZ3p0fHSV6fLB49eQvLvtma+EstH0+tdUGPncH1zgcBozs0n7yR8F391K1bR6L0dcL9VuaPcRn3bSceJ5GGj5nC8udF+kbur0t21trGpqo46uoJh8OznnufhjCfo9GlTzdV9orZBUbf2o7q6TX3pvofRFDYqfUtv95GwGd4cQXvO5P3lcP7Qdx6ea80BVUcWorebjTgzUjiTnxDtnsCsY+ytoI4P5ZXj08X/NSfZV0CdjW3D5O/5qwqunwr+8qj6sidMsYwWPY46iG/aak0jc5/FXWwH3BJ3fFnA+7YfNehR3XjTqToWo6Da6ser9NSzzWoyBk3i3I8wfiMleuNLXqk1Hp6ivVDI2Snq4WyNIO4JGSD8Dsqus28JSVxR3jIWk2tmZldtRVGP+7d9CvLPsiE/wDXVrryw/P/AO0r1NW7UU/8N30K8seyJv1q1z22f/8A1KXTf9lWy+ULP80d+dZdK3HWegK2w2u4GiqpgC1+SA7BzgkcAryFW+zL1MimLRBSTbnD2zZyPPde7snJIPKZ81Dp+sV7GDjTSefIs6SnyeK9Kezt1YoBJXUV1itdRFvG1s5BcflsubtnVHq30puUVDr+3zXK2FwaZngFxGeQ8emdiF66YMgrRevcFDUdJb+bjCyWJlK5zS8ZDXYwCPI5Ku0dXd3VVOvBNS8LgZ7fQsp8HO6H1RatY6bpr7Zp/e004zuMFp7gjzC5tdB+w42cdLq0yklhriYs+XhHHzyu/VkX1BUK8oLjsSwbaTClQOFKpPPgeycqDnCnBwmd8Jqw+RATsqQpUjGUucPZCFJKKeVONsp274Q7JSiqI7qO6Tq7BkhFKgDzRnbcMhCNlKb5RnCyGSEQ8pyQlz4DI5RCqgNkZT4YZKUQnlEIEBujuH5/4SEb2R42OPIlPp/msDZ8M+afUlvg17fG+VdL/qK18rYepjvH1Avjh3rpf9RWule2WT/0I/pHIVfzYCon/uH/AAKrCpm/unegKmq705CQ5RkVI8Mwb/5bD/8AEKys26M8NRHtjxU8RHrlgWEUy1lmjF/AtRYmyrKu0DzFXU8g7SNP3EKwOVUw+GRjuMOB/FSVY9UGvgbB4aPp7pyQTWC2ytOQaaM//ELOcPtLWek9YLh030/WA+IS0TDnPoR/JbMeV4hdRarzT7NnX0nmKfwBygQcoPNQZwsskZ5c9tSiltep9LawhafFDIIi4DYFp8QJPzXpLS1xhu2m7fcYHh8dRTMe1wOc5A3Wje0ppE6v6VXKlhj8dXSt/KYQBkktBJA+K1T2ONZC96Afp2qkH5daJDGGE7+72A252wt2rH6nT4yW7h/ggWIza8mq+0oNR686q2fp3Q0tRFbmFsk0vhPgdvu7PGAPxXo3S1jo9OacorJQRtjp6SIRgAc45PzOVnmCEzid0UZkAwHloyB8VWc4WfcXzqUYUorCX+R6jh5KvDlRjhSCMKCeFR5T8j9zWup2kqTWui7hYaprSZ4yYnY3Y8DY/eulvZErtRWO5Xzp/e6SoEVukL4ZXNIA3xgE9jjI+K9G5JODwqGQQxyOkZExr3n7Tg0An4lX6V64UXRccpjejfJTWNL6SdoGSYyAPkvMXsn22upOsmuZqmkmhjJe1rnsIBPvScAkb7br1GrcUEMb3viijY55y8taASfUjlNt7z2aU6fTnq7iSjlplaABThAMKnnbYkyBsF0n7Y+oG2fpFNQB+JbnM2nDQd8bkn4bLuskNySQABkleRetdwm6rdfrRom0u99QWyUCdzd2kh2X5x2AGM+q1NGo9df3JfjHdkVV4id2+zLYnWHo9Z4JGls08fv35GM+LcfgQuzVj26kioKCnoYG+GKnjbGweQAAH4BX1Uu6vvVpT+f/AAfBYSRK0frB1Ht3TuyQ1VRA+srap/gpKWM4dK7bb4bhbwvPHtUMdbteaF1JXROktFHVkVJLcsZxjPbf+Sl0+hCtWUZ8f5CbwjatKa46qXC7UDrnoRtNbat4BeJftRNIzkjC7dJxnO2NzuvMWvNa3yh6iWCewa2pq+1XSrjYaKB4cYmEjIIB2Xpw7xk9yP5KfUaHT0Ppwn2GQllHHW+/2avnrIKO5U88lCS2qax+TERyD5YwVcst5tV7p31Fproa2JjyxzonZAI5BXnPpXfrTYdZ9WYbzXw0UstTM+Ns0gYXgBw2zyckbBbV7GkrZ9A3OZriWvuD3DPkUXGm+3SdTtgVSy8HcN3vNrs4iN0roaQTO8MZldgOPkCqLFqCy311Q20XOmrTTPEc4id4vA7GcFdK+2awy6f0/CJHMElxYwlpIIBIBx8iu3tDaPsGjrYaOxULKdsgBldy55AwCT3Kr1LalC2jVk932DLbM68Xu02eSnjulwgpHVL/AAQiR2C93kPvSqv1mpbrTWqouEMdbUgmGBzsPeB3AXSPtbzNpLloislLmU8NxJkeThrRtuVxWrL/AGq9e03ocWqvhrWwQESOhkDmgluwyNsqzS0z3KKqfGWI54eD0lK4xxukAz4QT8cBdNae650M2kr9fb1TMpRbqk08ETXZdO/fAA8zhdx1Y/2aXy92fovBlp0rfqq33nWVG5tXRWS7+8loCMh48RJJHchS6TaUa8Zuq+OBKkmmsHs3pdfb5qTS8V5vdrFtfUnxww5y4MPBPqVzV0vlotlbS0VwuEFNUVZLaeJ7sGQjkAd+Vx/TzUdu1VpGgvNsLfczxDLG4+w4DBafgdl077TNTFb+qfTi4VcohpYquUySuOGtGGjc9lUp2qqXMqfYc5YWTvGS+WiO9ssj7hA24vb4mU5d9sjGcgfBZNxnNLb6iqDQTFG54HngE/yXno3u3Xn2v7a+2VsVXFFSOaZInhzCfdnIBGxXf+ov8Br8f+Hf/pKLiz+nnGLfPIRllZNQ6I69n6g6ZqbtPRtpXRVT4A1pzkA4BW/BedvZJ1Np206ErqS53mhpJzc5SGTTtY4gnY4J4XoWCWOaFk0T2yRvAc1zTkEEZBB8sKLUaHs1mkmlsEJdSK3DBUKXHKhVESIBUyvDIpHuOA1hOfkqmrj9TT/kunLlU5x7qlkeDnyaSpKKzVivkZUeIs+bmuJffa0vUnnXS4/95XDHgLLvM35Td6yozn3k73588klYZJyF7fbx6aMV3wjkam8mFRUEe4f8CrgVMwzC8f5SfuCLh4pSfwEPyRy+oYy0W+Ts+jj/AAAC4lbHqaPNitM4/Zha0/AtB/l+K1w8qrpk+u2j8D6yxNhB+iRyiMJ3V/sQnvr2Vbp+dOjFoaXZNJmmO+ceHB/mu0u682+wrehNpy82JzsGmmEzAe/jGD9AvSZ3Oy8c1qj7N9OPl5OrtJdVJMIBsnCZwFlSexaKXta9jmPGWuBBHmCvH2uKWv6Fdd4tS0Eb22C6yEva3IYGOd9pm222xC9i42ytS6q6JtmvtJVNjuMbS5wLoJcbxvAOCD81paZdqhNwn+Mtn8ENSOVldjnrDdqK+WelutunbPS1MYkje05BBGcfFZuV5F6Ra7vfRjWMvT/XDJG2l8pEE7gSI8nAcD5H8F60oqqmrqSOro5454JWhzHxnIIPcJl7YuhJtbxe6YsJKSL5GAoQ9lHCoIkRPCIiBQqm8KlMkAhD3EZJJ45UcpnOy0HrL1RsPTmxSVNXO2a4vBFPSNOXvPYkdh6qWhbzr1FCCGuSitziPaP6m0+gdHyU9LK115r2mOljBy5uRjxEeS1j2R+nVRYrJLrK+xO/O12y5nvN3MjODnfcEnn4LR+jug7/ANWdau6ia8bJ+bmSB9LA/YPwdgAf2R+K9ZxxsZE2ONoaxgAa0DAAHAC2LurCzofTU3lv8mRRTk+p8FRHfnPKhSTthQsGJOgAsK+We2X23SW670MNZSSj7UcrQR8fQ+oWbnZTv5pynKDTg8NCNZNCsnRzpxZrky42/TNNFVRODo3+JzsEHIIBJwt9PHkAVA8kzunVK9SrLNSTfgRRS4NQv3TDQl9vv58umnqWev8AF4jKQR4jzuAcH5hc1pjTdl0zSy0tjoY6KCWQyPZHkAuPJx2XLZx3KgJZXNapHolJ4BRwcPqrS1i1RDTxX2gjrG00gliDiQGuBBBGD5gLmQQBjy49ERRdbmlFvZAjiNU6asWqrYbZfrdFXUpOfBIOD6HkfJcLYel+hLFV0VXa7BTU89E4up5Gk+JpPO+d/mtx45UBSxuatOLgpPD7A4rOQ8BwIcMgggjzC4Kw6P01Y6SupbZa4aeCucTUsGSJCeSQfPK53KAbJkKk4LCeAwu5w+ktL2PSlFLRWGhbR08knvHRtcSM+YBJx8AqNY6S07q+hbQ6htkNdA05aHjdp8wRuOFzoyN1ByUvuTU+tN58hhPY1LT3TfROn6+kr7RYqelqqNhZDK3PiAPOSTvnPJW1zRRzwvhlb4o3gtcD3B2IU8KQdwnVK1So1KTbYKOEdcv6HdLzMZTpeAvLi8kSPGSTnscLsGip4aOkhpKdgZDBGI42jgNAwB8gAr2BunHCKtxUq/nLIiSRB4UKSoUabwPQC0vrjdBZ+ld/rXODT+SOjBJxu4eH+a3QLo320b0Ld0wjtrX/AGrjUiMtHPhG+fvCv6XR968hH5ILmXTTbPEruCR3OU5GUds0AIDsF7THaKOTbzuByocMsk9I3H8Cg5VxjT+TVDvKMj8CqOp1PbtZv4JaEczSNuusRn0dBgZdHDE4fIDK00ldg0MbZ7FTwuxh9M1ufi0LQJWujlcwggtJBHkQqOh1M03DPBJcx+7JSjRg5/BFPZbqWXgqndfseagFp6rMoZH4huEJix2L+R/Ne48jG+6+Y+jrvLYdVW67QO8D6aoY/PoDv+BK+lVir4rvZaO505BiqYWytIPYjK829X2jhXjWXfk3tMqJw6X2M4kcqnBCKr9krjXthrhmtwRk4UDz7ogTsLcMGjdXOmlh6i2M0VyjEVYwE09U0fbYfL1HovOtov8A1K9n67ttl8pprtpovIY4Elob5tPY+hXsXAxnKxLrbqC6Uj6O40kNVTyAhzJW5BC07TU3SiqVSPVD57EUoZ3RpfT3q5onWsDDbrtFDVOAzTTHwPB8t8Z+S30FrgS0tI9DleftfezFpy4zyXDSVfNY6skuEbcmPPkNwR960ym0X7RehT4LPdZLrSt2bEyQPB+R3/FWXY2lxvQnhvsxqlJLc9a9jsoHK8of9avtD27+yrtHsk8OxLqUZPzBXonpheL5ftEUV01BbDbrlKwmSnO2CDt96pXWnVLaKbaefDHxqJmzrj73eLXZaR1Xda+npIGgkuleAF5113rHr/ddT3Cx6c0++ipIpS2OdkYyG52PiJ/kuKtXs99QNX1ja/qHqqUNccuiDvG4jyIBACt0tMpQSlXqJJrOw11G+Ec/1P8AaUpBK6xdPKJ90r5T4G1BYfCD/lGMk/guL6VdDr9qy9M1n1Tqpp5HH3kdG85LvLO+w9F3T046UaL0JTtFptbJKoDDqqb7UhPxOwW9kZ5+5FXUqVGHtWsf58iKm28yLFFTU1FSR0tJCyGCIBsbGjAAHAAV7KIsZycm2+WTKOBlERIOCIiAARERyARES5ABMoiQTAJQIiMChM7IiMZAZPmhJRECYHmiIgUZKnJUIhrImAMqoYxuUG4JVJ34SYy2/AncrBBGy8d+2/qAVer7dYIn5bRw+ORuf2zuD9xXr6aRsFPJO/ZrGlxycbAZ/kvnF1g1EdUdRbvdy4ujkqHNiPkwEho+5dX6StHVunVa2iZmpVFGHT5NSfuh4Ck8IOF6glwjn0wOVeAxQTnzYfoVYWZO3w2+RvlGfoVz3qGt00FDO7LlnHM8+DcrU4i10gydoWf6QtU1NT+4u0jmghsoDx8Tz+IW02og2uk2I/sWfQLjdX0/vKNlQBkxHB27H/ms7SK3tV0nwya4hmLZqpCnKE5ChdjxuZoGO/C9x+x9q3/pB02ba55fFVWp3uXZO5YSfD8sYC8OLt32Vtaf9E+pEFPUy+GguP8AYS5OAHHPhP34WD6hsfqrSWOVuXbKr7dRZ7nvA877FSTthRkOAcDkEZGO6kbtJK8jxjbwdMQgREo4Z39FORg91SFKEvAjRJPlwoPIIOFGESpYWwYJJOMbYPkFOSBgYVOEwjLDBI5yQDn0VWc7FUKUZeOQaRJ7HuUUIk7cBgFERAoREQAREQAREQAREQAREQAREQAREQAREQAREQAREQBIO2FHBx37KoYwSqTvuka7Z5GnWvtK6sGk+ltxljk8NXWt/JoMHByeSP8A73Xz9cS4lxOSdyV357ZmtPz3rSLTlHL4qW1giTByHSEAn7hhdBL1b0zYfTWilLmRzd/V66mF2CkKEXSLJQwXIWeKVrSMjOT8Fl1m9JL/AAz9CrNEBlzyPQK5WOBpJh/5Z+hXD69ce7cdK4j/AJNW0j0wz5NttW1spP4DPoFcqomz08kDuHgg59ViWt5/NtKMn+5Z39AssO2G/wCKo024STT3HyaxhmizRuilfE8YcxxBHwVtczqml8FS2qaPsv2djzH/ACXCld7Z11XpKfwZU4uLaZJVyCaSCaOaJzmvjcHNIOCCDkK2inlFSi0+41PDyj6G9ANbR646dUVa6RpraZohqWg7gjYH5jC7BOzfDz6rwf7LXUF+jNdx0VXOW2u4kRTAnZjt/C7Hbc7r3e14e0Oa5rmuGQQcggryTX9N+iun0rZ7o6WyrKpBLO5J4UKUA3WE5NLdF7JCJtklEvbIoREQAREQAREQAREQAREQAREQAREQAREQAREQAREQAREQAREQAREQAREQwHCKUHqky8ZQmQ07FpWq9VtWU+itDXG+TvAkjjLYWnlzzsPxK2rbOcgDuTwF4v8AbB6iHUWpxpe3T5oLcSJi07Pk2+8Dj4hbGiae725imtluypd1lSg/J0Zd7hUXO6VVxqnufPUSGR5JySSViHlSBkKDyvX6cVCKiuxy8pdTbYUcn4qQFdpm+KTPIG6iuqyoUpTfgdBdUkkZMbPAwNHblUVf6rN/DP0KuEgc7KzVu/2aUZ28B+i84qTdSTk+Xua8Y4SSNmtj2/m6m/gs+gWUMEZWFbf8Opv4LPoFkh5AxjKsRl5BrJTXU4qqWSE9xkHyPYrTXxuje5jxhzSQR6rdydv+a1/UVKWyCrYNnbPHkfNb+i3fRP25PZ8FO5ptrqRw6HyCKQB3XUcblEqa5zMPY4tc05BBwc+i9weyl1KZq/SYsdxmButtaGfaO8sfAPqRtleHO+Qti6e6puGjdU0d9t0jmyQPBe0HZ7O7T8RlYut6dG+t2sfcuC3aV3Rn8H0rORnzG3xU9sLXunurbZrTS9LfLZI17ZmD3jRyx+N2kdsFbEdgvI61GdGo4TW6OlhJSimu5TghFJ3HkoTCRBERAoREQAREQAREQAREQAREQAREQAREQAREQAREQAREQAREQAREQAREBwhicAnbCA5HGcKeRlcXqe+27Tdiqrvc5mw09NGZC4nkgcDzJ8k6nTlVmowW7eBspKKyaJ7RvUOn0HomYQyNNzrWmOmYDuM7FxHp/NeB6meSpnlqKh7pJZHFz3OOSSTklbb1h1xW6+1hVXeoc4U4cW00RO0bM7D4laXg53XrOgaWrC3y/wAnyc1e3HvT2eyDeSc8pndDyi3VllIkcLLgaGRAE4J3KsUzPE/LuAfxWURkYXKa/eptUIvjkvW1P/kylx8RyserP+zy/wAM/RZBABwrFX+ry/wz9FzE+C+bDb3O/IKfBx/ZN+gWSCT3WJbv1Cnz/wB0z6BX87+auxw0skT/AGXg48ElROxs0TonjLXDBVA2IVQJTotwkpJ8CPjDNVq4HU87onjcHY+Y7FWTytku1GKqnDmD+1YMj1HktcLTkg7EHBBXbafdq5pLyuTNqw6X8EIDg9/khCK8sJ7kR2p7PXVGq6e6jbFVPfJZ6t4bUR5/QJI+2PUfivd9ouNHdbdBcaCds9LUMD43tOxBGV8vRuN13v7M/WaXSNfHpq/zPks07wI5HHPuHHA+7Zcb6j0H6iLuKK+5cryjUsbzofRLg9qlN+6tUdTBWUsdTTStlhlaHMe05BBGQQVewc+a85acdpco300+CEREmBwREQAREQAREQAREQAREQAREQAREQAREQAREQAREQAREQAREQATvtymM4GFEr2QxOkle1kbQS5xOAB3KVJy2XI1soq6iGlp5KmokbFDE0uke44AAGSSvE3tOdW3a2vLrFZ5nNstG8jIOPfvBxk+nktl9qDrY65yzaP0vVEUjCW1dSx2PeHcFoI7ea81bjPmdyfNeg+m9BdOP1FZfc+EYV/d9X2RYOxIx80PKIu3z4MkKQ0lwaOSoWXTRYHjdsTwMcBUb+8ja0XJ8vZEtOm5srY3wMDfJRk+aqc4DKtFwK4CpN1JuTeWzVglFYJJ7lWar9WlOf2D9Fcc5u2dsqxVOHuJf3D9FBJb7j00zYbcc0NP5e6b9Arxfg8BYtucfyGn3/3TfoFfzndWo7oZhF8HvyVPi9FaY4k4JVfmpU0xriVh2OQuIvdEATVxNwD+mAOPVcqpG48LsEHYgjOVdtLmVvNSX8kVSmpLBqJRZ92ojTPMsYJicfuPksBdlRrRrQU4szpRaeGAUzv6ogG6m5WGNO/fZy641OlamHT2pp3z2d5DYpXEl0BOw3J4+i9k26vpLhRxVlDPFUU8oDmPYQQQfUL5cvwRhdudDOtF40BUtoq50lfZXuHjhLiTF6tzx8Fxmv8ApyNdurQ2l4NW0vuhKM+D3kcc/chGVwWitVWTV9niulkrY6iF4yWgjxMPcEcgrnCNhv8AIrzytSnRk4yTTNyM1JZTJUFSOFBUa2eGhy5CIiUcEREAEREAEREAEREAEREAEREAEREAEREAByqhyqRjKqKR5e2BrIIGUwOc4wo77rjtS3y16dtUtzvFXFS0sQJc57gD8AO5T6dOVSSjHdiSkordmdPURU8Lp6iVkUTAS573YAHqSvJvtI9d33F0+ltIVJZSDLamrYd5DwWtIOw9VrXXrrtctZvls1gfLQ2YOIc4Eh8/xwdh6LowE+IlxyTznuu/0D04qbVa4WX2RiXd/wBWYwJc5znFziSScknklRlSeeVC7dJRWEZDeWERXKeIyO32aOSo61WNKDnJ4SHRi28Iqgi8Tg9wyBx6rL4OFAAaABgAKiVzg4YOBjdcNf3krmo5PjsjRpwUEQ/fKoU59VQ922x3yqCRJJ5xgol/SHwVqo/V5f3D9FcdknJVuf8AV5f3D9CopbMctjm6AkUMH8Nv0Cyg4Y5WHQb0UH8Nv0Cvg5HCmi9kJnDyXgR2VyPk+ashwyNlWx2CThSJ90KpZ2L6lpwcq212VWpVLIjXYqeGSMcxwBaRggrXbnQvpJC5u8ROx8vQrYWHBKl7GyRuY9oc0jBBWhZXs7eWe3gr1KakjUE+izrnb30rveMBdEeDjceh/qsHtlddQrQrRUoPJRlFp4YHdCTjGcegRFNkabR0+1xqDRF1bX2KtkhBIMkRJLJAOxH817I6O9ddNa3hjoa6VttvOAHQvOGPPm0nn4crweeBhXIJHwyNfFI6N4IIc04IPxWHqmiUL6O6xLyW7e7nRflH1JBBaHAgjzByFVzzsPNeJOkntFaj0uYrfqEuu1sBDQ5xHvIx6HG/wXq3QXUXSetaNk1lukL5CMugefDI0+WDz8l51qGhXVk3lZXlG5QvIVV4Zt23YqnB75THfO6kEkLFy+5cAbtzsoKZ9VUOMndD23zkOClEKJRwREQAREQAREQAREHKAGFV4fVDwT3VIODyk3e/A3djHkpwPNMnso2J9UZD5Jx3HCHjJGAO54Wua01rpnSFE6qvt1hpwBkRl2XuPkAN15b6ue0rd70ZbZpBjrdRHINQT/aPHG22y19P0W6vZJQWF5ZVrXcKa5yd99WusmltA0skMlQ2tuhGI6WI5Of8x7Lxp1P6lal19cnT3ercymDsw0rCRGweWO/xOVp9ZUz1k76irmfPK8kue9xJJ+JVgE/8/Nei6XoNCxWcZl3Zh3F5Os8cIbjYbY7IiLeb2SwUgiK7TwOlPk0clR1asaUXKTFjFt4REEbpHYGw7nyWYGtY3AGAFV4RGAwbAdlQ47krkL++lczaW0VwXqdPoW/LKCcclQ45OVD+AoCyXsskqWB5qyrrjgK0mIdEgqif9Xl/cP0KrKtVDsQSAf8ACfoVDJbkiOYoXEUUG/8Au2/QLJactBKw6Lakh/ht+gV8OyApIy2wK4l8ZzypBd2KoBGwyqgpYtLZjC415A2IVxrySN8hWAQB6qpmSQnpbhncyQcKoOwFaacHdXBxkKaIjLhw4YcAQRggjsuFudpczxS0oLmjcsHI+C5kEY5VxhGT8Fctbqdu8xe3ggnBSRpmPvChbLcrXDUgyROEcv4H4rX6iCWnkMcrC1w8+D6g911Fte07hbPD8FOdNxLSYPmiK4m1wRgDAOTlZVsuFbbKxlXQVctLMwgtfE4gg/JYqJsoRmmprORyk08o766de0tqmxtjpNRRNvFKAAZDhsoHoQN/mvRGhOuOgdVNZFHdGUFU7AMNSfBg+WTsfkvn6qmuLXBzTgjcEbELnb/0zaXLckul/Bco31Sns3lH1JilinYJYXsew7hzSCCPMEK41fN/SHUrW+lpQ60X2qjYCCY3vL2keWDnZdw6U9qy+0xZHqGywVjRsXwksPxwcrlLr0ldUnml9yNKlqUJbS2PXpyTso3XTGnPaV6d3QNZWTVVtkPJmjHgHzz/ACW/2bqLoi8eEW3VFtnLhsGzAH8ViVdLu6KbnBl6NxTlwzaEwrUNbSTDMVXTvBG3hkBz9xV9p8Qy0tPqCqTpzXKwSda8kYRThw7BPteQCTEvAdSIUKo5Ay7ACsy1dNF/eVUDAOS6QD6pVCb4QdaXcubqRnZa5edeaNs2fznqa20+Bkh0wOPuWg6j9o7pxafE2nrZ7lINh+TMBYT8SQrlLTbur+EGRyr048s7jO+yoe5sbS57gGgZJJAAXk3VftXXKUvi05YoYBuBJUHxk+uBjC6d1h1Y15qkubc77UNhJ/uoXeBo9ABv+K27T0nd1Xmq+lFOpqVOK+3c9ra56x6D0ix7ay7w1FQ3YQ058ZJ8jjheeuontPX65+8pNK0jLZAcgTvw+Qj5jAXniV75Hl0j3OcdyXEkn5lU53XVWHpi0t8Skup/JmVr+pU2WyM++3i6XqufW3Svmq53kkulcScnyysAfihTP3+i6OnSjTWILGPBSlJyeWCCMZQ74Tc7on5Y0IqmNc9wawEk9guQpaNrCHS4c7OccgKrc3dO3jlvL8D4wcmY1NSukAe7ZvIHcrMDQ0YAAA4AV0nYjsrMxBaMHuuVvLudw8t4XguQgoL5KZSfErTv0SpO/KgrPk8D85ZbJynZRyhcAACVHPgeUOcckdlSh5UHhRt4WR6QKsVP91If8p+iuOOCrNTvDIfNp+ii53FzhnL0bwKSHY/3Y7+ivB2eyxaM5pIv4Y+ivBxHCfFZWwOTL7XDxBXA8HssceYVbSd09LKEUk+S80+IZAx2V1h8J4ysdriNgrw4UsXlYBrcuhwJwArzDgcLGZkFXA9wGykjnkG9ty8DvlXGOGTthWgdhnnCrj/SKkT7jGi4qqiGCpi93NEHDHJ5HwPZUq4OAfgpqc3F5TwxkuMGv19kliy+lzKwb+E/pD+q4ktLT4XAgjsey3hriDngeas1Vvpq5hMsYD+A9uxH9Vt22ptbVFn5K0qOd0aacbKFy1fYqqD7UP8Abxjy2I+S4pzXNcWuBaRyCMFbFOtTqrMGV3FrkhByiKQQnbOVBdj4JjZEvIJE+MYwQVLHlhy1zx8CqdscJgDhNcIvtkVPHBylBqC+UGDRXetpyOPBMRj8VzNP1J17T491q27gDgGqcR9VqeUy3yKgnaUJPMoJ/wADlUku7N3Z1a6isAxqu5H4zE/zR/VvqK8fa1Xch8Jj/VaR9lR9nyKjWn23/Rf2He9PyzbqjqZr+oGJNW3bHpUuH81xFfqTUFfn8tvVwnzz453H+a4nbGybqSNnQi8qCX8Dfck+7K3yPccvke4nklxOVb8bfIlNu+6YHkp1CC4Q1vPJIIPGwRU8Z8lJwAnLCWEhMA8oiDdHIBAN0wc4G58gsymt1RKAXD3bT3cN8fBR1KsaazJiqLfBiAZ2G5WVT0Mkg8T8sb6jcrlKaiggOQPE4ftOGSqiTglZFzqbacae3ySxp77lmKGOFobG3B8zyfmqjzhSScAqgk5Kwqk5TeW8ssxWFhFsnYlWpP0fmqnE4KtvJxhQPgV7spVBIGR3VatO/SKjkOjuQqH8qo5AyFQ7fcqOXBJEpzvhHkNGSoI3JVtzyRgnZRS8B1eQ93iVufeF/wC6foqlTN/dP9Wn6JmMIM5ZyFEcU0WT+wPoFkAgjI3CxqT9Vi/cH0V4PAG4J+CSLw8EsltsXArjMZIyFaypacEqQYtnkyPxV1rm7DO6x2vGOFW04IKfF4F5L+fJVs4O4VochVD8FKpeBrWS8w/aG/dXgfIrHadwfJXI3DOMFSp8IbnyX4yMHJ7qsHON9lZGOyut/RHwUieHgRouDfbKusOGnfGVYb+llXAc/JTJvkjezyZDSPDzyrVTRUdZtURNcQMeIbEfMKWOAAGFWxwDtwVPTnKLyngZLflHB1emgSXUk+3Zr/6hcPV22upcmWnd4R+00ZH3hbyxwwcAqsEHgYWhS1CpDaW6I3TT4OuEXYFTb6KoJM1NG4nuBg/eFxlRpmjfkxSSRHyO4/FXoahTeMrBG6T7GpKMrn59MVTc+5nikHbIIP8ANYctiukYJNKXDza4HPyByrULilLiSGOLXKONRZEtBWRk+OklbjklpWO4FpIIwR2KlTT3Q0IiIAIgyTgDOVejo6qTdlNK4eYacIbS5Asos+Oz3F/FKR6uIH1KyotO1biPeyRRj0ySonXprli9LZwxxjKLZIrBTMOJZZJCOwwAsyGhooQPd07QR3IyfxVeV/TXCyO6GuTVoKSpnx7uFxB7kYH3lcjBZXbGeQD0bv8Aiuee4NI2+CtnklU6uoTbxHZDoxRiwUlNTt/s4wHD9ojJPzVUhGyuF2xVmbgLMnUlPLk8k6iktikuG+SrLhsVW7fCpPCrye+BYrctkgAZKtlwzyq3kbeisSfpfJRSe+R2Wil3dW3EKsnYhWX/AKKik8bCxW+4cTkYVt3JVY4VDuSo5YJFwQ7hWidzsq3uAHmrZOTsonyK3hEb4IVpXCcK2Tuo5Iak8BUTkCGTf9k/RVqxUk+7k+B+ibzkdHk//9k=" style="display:none" alt="">
+
+<!-- EmailJS Send Modal -->
+<div class="modal-overlay" id="sendModal">
+  <div class="modal-box">
+    <h3>&#x1F4E7; Send Offer to Candidate</h3>
+    <p>The offer letter will be sent via email to the candidate.</p>
+    <div class="modal-field">
+      <label>Recipient Email <span style="color:#f24646">*</span></label>
+      <input type="email" id="modal-to-email" placeholder="candidate@example.com">
+    </div>
+    <div class="modal-field">
+      <label>Recipient Name</label>
+      <input type="text" id="modal-to-name" placeholder="Candidate Full Name">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-green" id="sendBtn" onclick="sendEmail()">Send Offer &#x2192;</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+
+<script>
+const LOGO = document.getElementById("logo-src").src;
+
+const today = new Date().toISOString().split("T")[0];
+const expiry = new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0];
+const joiningDefault = new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0];
+const REF_NO = "OL/" + new Date().getFullYear() + "/" + Math.floor(1000 + Math.random() * 9000);
+
+const DESIGNATIONS = [
+  "Client Engagement Lead","AI Instructor","ML Engineer","Data Scientist",
+  "Product Manager","Business Analyst","Team Lead","Senior Consultant",
+  "Software Engineer","Marketing Manager","HR Business Partner","Operations Lead"
+];
+const DEPTS = [
+  "Client Engagement","AI & Machine Learning","Product","Engineering",
+  "Marketing","Sales","Human Resources","Operations","Finance"
+];
+
+// ─── Config ─────────────────────────────────────────────────────────
+const EMAILJS_SERVICE_ID  = "service_dbrxwcc";
+const EMAILJS_TEMPLATE_ID = "template_lrd0vxq";
+const EMAILJS_PUBLIC_KEY  = "wE5czNrnX73D-1gj8";
+const APPS_SCRIPT_URL     = "https://script.google.com/macros/s/AKfycbwnYcRW72ryXU9Wu0bDWUkD8gKeCGIHWNz8F5A0H6gh7vysx06MMJS1rdh9F5yIj4D6oQ/exec";
+
+(function(){ emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); })();
+
+function openSendModal() {
+  document.getElementById("modal-to-email").value = form.candidateEmail || "";
+  document.getElementById("modal-to-name").value  = form.candidateName  || "";
+  document.getElementById("sendModal").classList.add("open");
+}
+function closeModal() {
+  document.getElementById("sendModal").classList.remove("open");
+}
+function showToast(msg, isError) {
+  var t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "toast show" + (isError ? " error" : "");
+  setTimeout(function(){ t.className = "toast"; }, 4000);
+}
+
+function buildEmailBody(candidateName, driveLink) {
+  var d = calc();
+  var firstName = (candidateName || form.candidateName || "Candidate").split(" ")[0];
+  return "Dear " + firstName + ",\n\n"
+    + "Heartiest Congratulations!\n\n"
+    + "We are delighted to welcome you to Team VTION.\n\n"
+    + "We are pleased to offer you the position of " + form.designation
+    + ", based out of " + (form.location || "Mumbai")
+    + ", reporting to " + (form.reportingTo || "the Management") + ".\n\n"
+    + "Remuneration Details\n\n"
+    + "Your total annual remuneration will be \u20B9" + d.totalCTC.toLocaleString("en-IN")
+    + " per annum, comprising:\n\n"
+    + "\u2022 Fixed Compensation: \u20B9" + d.fixedPay.toLocaleString("en-IN") + " per annum\n"
+    + "\u2022 Annual Variable Pay: \u20B9" + d.variableNum.toLocaleString("en-IN") + " per annum\n\n"
+    + "Please find the detailed offer proposal here: " + driveLink + "\n\n"
+    + "The proposal outlines the role scope, compensation structure, benefits, and other terms of employment.\n\n"
+    + "We believe your experience and leadership capabilities will play an important role in strengthening VTION's enterprise client engagement and growth journey. We are excited about the possibility of having you onboard.\n\n"
+    + "Should you wish to discuss any aspect of the offer further, we would be happy to connect.\n\n"
+    + "Kindly confirm your acceptance of the offer by acknowledging this email within the validity timeline mentioned in the offer proposal.\n\n"
+    + "We look forward to working with you and welcoming you to VTION.\n\n"
+    + "Warm regards,\nOn behalf of Team VTION\nHR Team";
+}
+
+async function generatePdfBase64() {
+  var element = document.getElementById("preview");
+  var opt = {
+    margin: 0,
+    filename: "offer.pdf",
+    image: { type: "jpeg", quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+  };
+  var pdf = await html2pdf().set(opt).from(element).outputPdf("arraybuffer");
+  var binary = "";
+  var bytes = new Uint8Array(pdf);
+  for (var i = 0; i < bytes.byteLength; i++) { binary += String.fromCharCode(bytes[i]); }
+  return btoa(binary);
+}
+
+async function uploadToDrive(base64, fileName) {
+  // Apps Script requires Content-Type text/plain to avoid CORS preflight
+  var response = await fetch(APPS_SCRIPT_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain" },
+    body: JSON.stringify({ pdf: base64, fileName: fileName })
+  });
+  var text = await response.text();
+  var data;
+  try { data = JSON.parse(text); } catch(e) { throw new Error("Drive upload failed: " + text); }
+  if (data.error) throw new Error(data.error);
+  if (!data.url) throw new Error("No Drive link returned. Check your Apps Script.");
+  return data.url;
+}
+
+async function sendEmail() {
+  var toEmail = document.getElementById("modal-to-email").value.trim();
+  var toName  = document.getElementById("modal-to-name").value.trim();
+  if (!toEmail) { showToast("Please enter the recipient email.", true); return; }
+
+  var btn = document.getElementById("sendBtn");
+  btn.disabled = true;
+  btn.textContent = "Generating PDF\u2026";
+
+  try {
+    // Step 1: Generate PDF
+    btn.textContent = "Generating PDF\u2026";
+    var fileName = "Offer_" + (form.candidateName || "Candidate").replace(/\s+/g, "_") + "_" + REF_NO + ".pdf";
+    var base64 = await generatePdfBase64();
+
+    // Step 2: Upload to Drive
+    btn.textContent = "Uploading to Drive\u2026";
+    var driveLink;
+    try {
+      driveLink = await uploadToDrive(base64, fileName);
+    } catch(driveErr) {
+      throw new Error("Drive upload failed: " + (driveErr.message || driveErr));
+    }
+
+    // Step 3: Send email with Drive link
+    btn.textContent = "Sending Email\u2026";
+    var templateParams = {
+      to_email: toEmail,
+      to_name:  toName || form.candidateName || "Candidate",
+      subject:  "Offer Proposal - " + form.designation + " | " + REF_NO,
+      message:  buildEmailBody(toName, driveLink)
+    };
+    try {
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams, { publicKey: EMAILJS_PUBLIC_KEY });
+    } catch(ejErr) {
+      throw new Error("EmailJS failed: " + (ejErr.text || ejErr.message || JSON.stringify(ejErr)));
+    }
+
+    closeModal();
+    showToast("\u2705 Offer sent & saved to Drive successfully!");
+
+  } catch(err) {
+    console.error("Send error:", err);
+    var msg = err.text || err.message || JSON.stringify(err) || "Unknown error";
+    showToast("\u274C Failed: " + msg, true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Send Offer \u2192";
+  }
+}
+// ────────────────────────────────────────────────────────────────────
+
+function fmtDate(str) {
+  if (!str) return "—";
+  return new Date(str).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
+}
+function fmtINR(n) {
+  if (!n) return "—";
+  return "₹" + Number(n).toLocaleString("en-IN");
+}
+function fmt(n) {
+  return n ? n.toLocaleString("en-IN") : "—";
+}
+function fmtM(n) {
+  return n ? Math.round(n/12).toLocaleString("en-IN") : "—";
+}
+
+// State
+let step = 1;
+let form = {
+  candidateName: "", candidateEmail: "", candidatePhone: "", candidateAddress: "",
+  designation: DESIGNATIONS[0], dept: DEPTS[0],
+  reportingTo: "", location: "Mumbai",
+  employmentType: "Full Time Employee", monthlyStipend: "", joiningDate: joiningDefault, offerExpiry: expiry,
+  probation: "3 months", noticePeriod: "60 days",
+  companyDesc: "AI GuruKul is a Digital AI Education platform empowering professionals with cutting-edge AI skills through hands-on training, live mentorship, and industry-relevant curriculum.",
+  basicSalary: "", specialAllowance: "", variablePay: "", pfContribution: "21600",
+  esops: "May be considered after completion of one year, subject to Board approval",
+  healthInsurance: "Comprehensive group health insurance covering self, spouse, and children",
+  travel: "Business travel expenses covered as per company travel policy",
+  leavePolicy: "As per company leave and holiday policy applicable to all employees",
+  signee: "", signeeTitle: "Founder & CEO",
+  customTerms: ""
+};
+
+function isIntern() {
+  return form.employmentType === "Full Time Intern" || form.employmentType === "Part Time Intern";
+}
+function isEmployee() {
+  return form.employmentType === "Full Time Employee" || form.employmentType === "Part Time Employee";
+}
+
+function calc() {
+  const stipendNum = Number(form.monthlyStipend) || 0;
+  if (isIntern()) {
+    return { isInternMode: true, stipendNum, basicNum:0, hraCalc:0, hraRate:0, specialNum:0, variableNum:0, pfNum:0, fixedPay:0, totalCTC: stipendNum * 12 };
+  }
+  const basicNum = Number(form.basicSalary) || 0;
+  // Employees get 50% HRA; Contract gets 40%
+  const hraRate = isEmployee() ? 0.5 : 0.4;
+  const hraCalc = Math.round(basicNum * hraRate);
+  const specialNum = Number(form.specialAllowance) || 0;
+  const variableNum = Number(form.variablePay) || 0;
+  const pfNum = Number(form.pfContribution) || 0;
+  const fixedPay = basicNum + hraCalc + specialNum;
+  const totalCTC = fixedPay + variableNum + pfNum;
+  return { isInternMode: false, stipendNum:0, basicNum, hraCalc, hraRate, specialNum, variableNum, pfNum, fixedPay, totalCTC };
+}
+
+function setField(key, val) {
+  form[key] = val;
+  // Only re-render computed fields, not the whole form (preserves focus)
+  updateComputedFields();
+}
+
+function updateComputedFields() {
+  const d = calc();
+  const hraEl = document.getElementById('hra-display');
+  const ctcEl = document.getElementById('ctc-display');
+  const hraLbl = document.getElementById('hra-label');
+  if (hraEl && hraLbl) {
+    hraLbl.textContent = "HRA (Auto: " + Math.round(d.hraRate * 100) + "% of Basic)";
+    hraEl.value = d.basicNum ? "\u20B9" + d.hraCalc.toLocaleString("en-IN") : "";
+  }
+  if (ctcEl) ctcEl.value = d.totalCTC ? "\u20B9" + d.totalCTC.toLocaleString("en-IN") : "";
+}
+
+function renderStepper() {
+  return `
+  <div class="stepper">
+    <div class="step-item">
+      <div class="step-circle ${step === 1 ? 'active' : 'done'}">${step > 1 ? '✓' : '1'}</div>
+      <div class="step-label">
+        <p class="step-num">Step 1</p>
+        <p class="step-name ${step === 1 ? 'active' : ''}">Offer Details</p>
+      </div>
+      <div class="step-line ${step > 1 ? 'done' : ''}"></div>
+    </div>
+    <div class="step-item">
+      <div class="step-circle ${step === 2 ? 'active' : ''}">${step > 2 ? '✓' : '2'}</div>
+      <div class="step-label">
+        <p class="step-num">Step 2</p>
+        <p class="step-name ${step === 2 ? 'active' : ''}">Preview &amp; Send</p>
+      </div>
+    </div>
+  </div>`;
+}
+
+function field(label, id, opts = {}) {
+  const { type = "text", placeholder = "", required = false, spanFull = false, rows = 0, readonly = false, cls = "" } = opts;
+  const val = form[id] !== undefined ? form[id] : "";
+  const spanClass = spanFull ? ' span-full' : '';
+  const reqMark = required ? '<span class="req"> *</span>' : '';
+
+  let input;
+  if (opts.datalist) {
+    const listId = `dl-${id}`;
+    const optHtml = opts.datalist.map(o => `<option value="${o}"></option>`).join('');
+    input = `<input id="f-${id}" type="text" list="${listId}" value="${val.replace(/"/g,'&quot;')}" placeholder="${placeholder || 'Type or pick a title…'}" oninput="setField('${id}', this.value)" autocomplete="off"><datalist id="${listId}">${optHtml}</datalist>`;
+  } else if (opts.options) {
+    const optHtml = opts.options.map(o => `<option value="${o}"${val === o ? ' selected' : ''}>${o}</option>`).join('');
+    const extraChange = opts.triggerRender ? " render();" : "";
+    input = `<select id="f-${id}" onchange="setField('${id}', this.value);${extraChange}">${optHtml}</select>`;
+  } else if (rows > 0) {
+    input = `<textarea id="f-${id}" rows="${rows}" placeholder="${placeholder}" oninput="setField('${id}', this.value)">${val}</textarea>`;
+  } else if (readonly) {
+    input = `<input id="${id}" type="text" readonly value="${val}" placeholder="${placeholder || 'Auto-calculated'}" class="${cls}">`;
+  } else {
+    input = `<input id="f-${id}" type="${type}" value="${val.replace(/"/g,'&quot;')}" placeholder="${placeholder}" oninput="setField('${id}', this.value)">`;
+  }
+  return `<div class="field${spanClass}"><label>${label}${reqMark}</label>${input}</div>`;
+}
+
+function sec(n, text) {
+  return `<div class="section-head"><p>${n ? `<span>${n}.</span>` : ''}${text}</p></div>`;
+}
+
+
+function renderCompFields() {
+  var d = calc();
+  if (d.isInternMode) {
+    var annualEq = d.stipendNum ? '\u20B9' + (d.stipendNum * 12).toLocaleString('en-IN') : '';
+    return '<p class="hint">Enter the monthly stipend for this intern.</p>' +
+      '<div class="grid2">' +
+        field('Monthly Stipend (\u20B9)', 'monthlyStipend', {placeholder: 'e.g. 15000', required: true}) +
+        '<div class="field"><label>Annual Equivalent (Auto)</label>' +
+          '<input type="text" readonly value="' + annualEq + '" placeholder="Auto-calculated" class="ctc-total">' +
+        '</div>' +
+      '</div>';
+  }
+  var hraLabel = 'HRA (Auto: ' + Math.round(d.hraRate * 100) + '% of Basic)';
+  var hraVal = d.basicNum ? '\u20B9' + d.hraCalc.toLocaleString('en-IN') : '';
+  var ctcVal = d.totalCTC ? '\u20B9' + d.totalCTC.toLocaleString('en-IN') : '';
+  return '<p class="hint">Enter annual figures (\u20B9). HRA is auto-calculated at ' + Math.round(d.hraRate * 100) + '% of Basic for ' + form.employmentType + '.</p>' +
+    '<div class="grid3">' +
+      field('Basic Salary (Annual \u20B9)', 'basicSalary', {placeholder: 'e.g. 2000000', required: true}) +
+      '<div class="field"><label id="hra-label">' + hraLabel + '</label>' +
+        '<input id="hra-display" type="text" readonly value="' + hraVal + '" placeholder="Auto-calculated"></div>' +
+      field('Special Allowance (Annual \u20B9)', 'specialAllowance', {placeholder: 'e.g. 1178400'}) +
+      field('Variable Pay / Incentive (Annual \u20B9)', 'variablePay', {placeholder: 'e.g. 600000'}) +
+      field('Employer PF Contribution (Annual \u20B9)', 'pfContribution', {placeholder: '21600'}) +
+      '<div class="field"><label>Total CTC (Auto-calculated)</label>' +
+        '<input id="ctc-display" type="text" readonly value="' + ctcVal + '" placeholder="Auto-calculated" class="ctc-total"></div>' +
+    '</div>';
+}
+
+function renderCompLetter(d) {
+  var out = '<p class="sec-title">4. Compensation Structure</p>';
+  if (d.isInternMode) {
+    var monthly = Number(form.monthlyStipend || 0);
+    out += '<table><thead><tr><th style="width:60%">Component</th><th class="right">Amount (\u20B9)</th></tr></thead><tbody>' +
+      '<tr><td class="bold">Monthly Stipend</td><td class="bold right navy-bg">\u20B9' + monthly.toLocaleString('en-IN') + '</td></tr>' +
+      '<tr><td>Annual Equivalent</td><td class="right">\u20B9' + (monthly * 12).toLocaleString('en-IN') + '</td></tr>' +
+      '</tbody></table>' +
+      '<p style="margin:0 0 24px;font-size:11px;color:#888;font-style:italic;font-family:Arial,sans-serif">Stipend is subject to applicable statutory deductions as per prevailing law.</p>';
+    return out;
+  }
+  var hraPercent = Math.round(d.hraRate * 100);
+  out += '<p style="margin:12px 0 8px;font-family:Arial,sans-serif;font-size:12.5px;font-weight:700;color:#333">4A. Summary</p>' +
+    '<table><thead><tr><th style="width:60%">Component</th><th class="right">Amount (\u20B9 Per Annum)</th></tr></thead><tbody>' +
+      '<tr><td>Fixed Pay</td><td class="right">' + fmtINR(d.fixedPay) + '</td></tr>' +
+      '<tr><td>Variable Pay (Performance-linked)</td><td class="right">' + fmtINR(d.variableNum) + '</td></tr>' +
+      '<tr><td class="bold">Committed CTC</td><td class="bold right navy-bg">' + fmtINR(d.totalCTC) + '</td></tr>' +
+    '</tbody></table>' +
+    '<p style="margin:0 0 8px;font-family:Arial,sans-serif;font-size:12.5px;font-weight:700;color:#333">4B. Detailed CTC Breakup</p>' +
+    '<table><thead><tr><th style="width:55%">Salary Component</th><th class="right">Annual (\u20B9)</th><th class="right">Monthly (\u20B9)</th></tr></thead><tbody>' +
+      '<tr><td class="group-hd" colspan="3">A. Basic Salary</td></tr>' +
+      '<tr><td>Basic Salary</td><td class="right">' + fmt(d.basicNum) + '</td><td class="right">' + fmtM(d.basicNum) + '</td></tr>' +
+      '<tr><td class="bold">Total \u2013 (A)</td><td class="bold right">' + fmt(d.basicNum) + '</td><td class="bold right">' + fmtM(d.basicNum) + '</td></tr>' +
+      '<tr><td class="group-hd" colspan="3">B. Allowances</td></tr>' +
+      '<tr><td>House Rent Allowance (' + hraPercent + '% of Basic)</td><td class="right">' + fmt(d.hraCalc) + '</td><td class="right">' + fmtM(d.hraCalc) + '</td></tr>' +
+      '<tr><td>Special Allowance (Balancing Figure)</td><td class="right">' + fmt(d.specialNum) + '</td><td class="right">' + fmtM(d.specialNum) + '</td></tr>' +
+      '<tr><td class="bold">Total \u2013 (B)</td><td class="bold right">' + fmt(d.hraCalc + d.specialNum) + '</td><td class="bold right">' + fmtM(d.hraCalc + d.specialNum) + '</td></tr>' +
+      '<tr><td class="group-hd" colspan="3">C. Performance Incentive</td></tr>' +
+      '<tr><td>Variable Pay (Annual, Performance-linked)</td><td class="right">' + fmt(d.variableNum) + '</td><td class="right">\u2013</td></tr>' +
+      '<tr><td class="bold">Total \u2013 (C)</td><td class="bold right">' + fmt(d.variableNum) + '</td><td class="bold right">\u2013</td></tr>' +
+      '<tr><td class="group-hd" colspan="3">D. Retirement Benefits</td></tr>' +
+      '<tr><td>Employer\'s PF Contribution (as per statutory ceiling)</td><td class="right">' + fmt(d.pfNum) + '</td><td class="right">' + fmtM(d.pfNum) + '</td></tr>' +
+      '<tr><td class="bold">Total \u2013 (D)</td><td class="bold right">' + fmt(d.pfNum) + '</td><td class="bold right">' + fmtM(d.pfNum) + '</td></tr>' +
+      '<tr><td class="total-row">TOTAL CTC (A + B + C + D)</td><td class="total-row right">' + fmt(d.totalCTC) + '</td><td class="total-row right">' + fmtM(d.totalCTC) + '</td></tr>' +
+    '</tbody></table>' +
+    '<p style="margin:0 0 24px;font-size:11px;color:#888;font-style:italic;font-family:Arial,sans-serif">Figures are rounded off for representation purposes. Actuals will be as per payroll processing.</p>';
+  return out;
+}
+
+function renderStep1() {
+  return `
+  <div class="info-box">Create a professional offer proposal. Fill in candidate details, role information, compensation structure, and benefits to generate a complete document.</div>
+  ${sec(1,'Candidate &amp; Basic Info')}
+  <div class="grid2">
+    ${field('Candidate Full Name','candidateName',{placeholder:'e.g. John Smith',required:true})}
+    ${field('Email Address','candidateEmail',{type:'email',placeholder:'name@example.com',required:true})}
+    ${field('Phone Number','candidatePhone',{placeholder:'+91-9876543210'})}
+    ${field('City / Address','candidateAddress',{placeholder:'Mumbai, Maharashtra'})}
+  </div>
+  ${sec(2,'Role Details')}
+  <div class="grid2">
+    ${field('Designation','designation',{datalist:DESIGNATIONS,required:true})}
+    ${field('Department','dept',{options:DEPTS})}
+    ${field('Reporting To','reportingTo',{placeholder:'e.g. Jane Doe'})}
+    ${field('Work Location','location',{placeholder:'Mumbai'})}
+    ${field('Employment Type','employmentType',{options:['Full Time Employee','Part Time Employee','Full Time Intern','Part Time Intern','Contract'],triggerRender:true})}
+    ${field('Date of Joining','joiningDate',{type:'date',required:true})}
+    ${field('Offer Expiry Date','offerExpiry',{type:'date',required:true})}
+    ${field('Probation Period','probation',{placeholder:'3 months'})}
+  </div>
+  ${sec(3,'Compensation Structure')}
+  ${renderCompFields()}
+  ${sec(4,'Benefits &amp; Incentives')}
+  <div class="grid2">
+    ${field('ESOPs','esops',{rows:2,placeholder:'ESOP eligibility details...'})}
+    ${field('Health Insurance','healthInsurance',{rows:2,placeholder:'Insurance coverage details...'})}
+    ${field('Travel &amp; Reimbursements','travel',{rows:2,placeholder:'Travel policy details...'})}
+    ${field('Leave Policy','leavePolicy',{rows:2,placeholder:'Leave policy details...'})}
+  </div>
+  ${sec(5,'General Terms &amp; Sign-off')}
+  <div class="grid2">
+    ${field('Notice Period','noticePeriod',{placeholder:'e.g. 60 days'})}
+    ${field('Signed By','signee',{placeholder:'e.g. Rahul Gupta',required:true})}
+    ${field('Signee Designation','signeeTitle',{placeholder:'Founder & CEO'})}
+    <div></div>
+    ${field('About Company (for letter)','companyDesc',{rows:3,placeholder:'Brief company description...',spanFull:true})}
+    ${field('Additional / Custom Terms (optional)','customTerms',{rows:2,placeholder:'Any additional conditions...',spanFull:true})}
+  </div>
+  <div class="form-footer">
+    <button class="btn btn-primary" onclick="goStep2()">Next: Preview →</button>
+  </div>`;
+}
+
+function renderStep2() {
+  const d = calc();
+  const { basicNum, hraCalc, hraRate, specialNum, variableNum, pfNum, fixedPay, totalCTC } = d;
+
+  return `
+  <div class="letter">
+    <div class="letter-top-bar"></div>
+    <div class="letter-header">
+      <div><p style="margin:0;font-size:11px;color:#888;font-family:Arial,sans-serif">Confidential – Offer Proposal</p></div>
+      <div class="letter-logo-wrap"><img src="${LOGO}" alt="AI GuruKul"></div>
+    </div>
+    <div class="letter-company">
+      <p class="name">AI GuruKul — Empowering AI Talent</p>
+      <p class="ref">Ref: ${REF_NO} &nbsp;|&nbsp; contact@aigurukul.com &nbsp;|&nbsp; www.aigurukul.com</p>
+    </div>
+    <h2>OFFER PROPOSAL</h2>
+    <p class="role-title">${form.designation || 'Position'}</p>
+    <p class="letter-date">Date: ${fmtDate(today)}</p>
+
+    <p class="sec-title">1. About AI GuruKul</p>
+    <p style="margin:0 0 16px;font-family:Arial,sans-serif;font-size:12.5px;color:#333">${form.companyDesc}</p>
+
+    <p class="sec-title">2. Role Objective</p>
+    <p style="margin:0 0 10px;font-family:Arial,sans-serif;font-size:12.5px;color:#333">
+      You will be joining as <strong>${form.designation || '[Designation]'}</strong>${form.dept ? ` in the ${form.dept} department` : ''}. This role is a key position within the organisation, responsible for driving outcomes aligned with AI GuruKul's mission.
+    </p>
+    <p style="margin:0 0 6px;font-family:Arial,sans-serif;font-size:12.5px">
+      <strong>Reporting to:</strong> ${form.reportingTo || '—'} &nbsp;&nbsp;|&nbsp;&nbsp; <strong>Location:</strong> ${form.location || '—'}
+    </p>
+    <div class="tags">
+      <span class="tag">Client Relationship Management</span>
+      <span class="tag">Revenue Growth &amp; Retention</span>
+      <span class="tag">Insight-led Account Strategy</span>
+    </div>
+
+    <p class="sec-title">3. Role Outcomes</p>
+    <table>
+      <thead><tr><th style="width:32%">Area</th><th>Expected Outcomes</th></tr></thead>
+      <tbody>
+        ${[
+          ["Client Relationship & Delivery","• Serve as primary point of contact for enterprise accounts<br>• Ensure timely delivery of insight projects and client presentations<br>• Build trust-based relationships with client stakeholders"],
+          ["Revenue Retention & Growth","• Drive account renewals and minimise churn<br>• Identify upsell and cross-sell opportunities<br>• Grow revenue through deeper product adoption"],
+          ["Insight-led Engagement","• Translate client problems into actionable insight briefs<br>• Present data narratives and strategic recommendations<br>• Build engagement cadence that drives client stickiness"],
+          ["Proposal & Pipeline Support","• Partner with sales to develop proposals for new business<br>• Support with client intelligence and relationship mapping"],
+        ].map(([a,o])=>`<tr><td class="faint-bg" style="font-size:12.5px">${a}</td><td style="font-size:12.5px;vertical-align:top;line-height:1.7">${o}</td></tr>`).join('')}
+      </tbody>
+    </table>
+
+    ${renderCompLetter(d)}
+
+    <p class="sec-title">5. Additional Benefits &amp; Incentives</p>
+    <table>
+      <thead><tr><th style="width:28%">Benefit</th><th>Details</th></tr></thead>
+      <tbody>
+        ${[
+          ["ESOPs", form.esops],
+          ["Gratuity","Payable as per the provisions of the Payment of Gratuity Act, 1972. This is an additional benefit over and above the stated CTC."],
+          ["Health Insurance", form.healthInsurance],
+          ["Travel & Reimbursements", form.travel],
+          ["Leave Policy", form.leavePolicy],
+        ].map(([b,d])=>`<tr><td class="faint-bg" style="font-size:12.5px">${b}</td><td style="font-size:12.5px;line-height:1.7">• ${d}</td></tr>`).join('')}
+      </tbody>
+    </table>
+
+    <p class="sec-title">6. General Terms</p>
+    <ul>
+      <li>You will be on probation for a period of <strong>${form.probation || '3 months'}</strong> from your date of joining. Confirmation of employment shall be subject to satisfactory performance and conduct.</li>
+      <li>Compensation is subject to applicable statutory deductions (Income Tax, Professional Tax, Employee PF contribution).</li>
+      <li>Variable pay shall be payable annually and prorated based on date of joining and performance outcomes, in accordance with company policy.</li>
+      <li>You may be considered for participation in the ESOP programme after completion of one year, subject to Board approval and company policy.</li>
+      <li>Notice period: <strong>${form.noticePeriod || '60 days'}</strong> from either side. The company reserves the right to recover notice period shortfall or offer pay in lieu of notice.</li>
+      ${form.customTerms ? `<li>${form.customTerms}</li>` : ''}
+    </ul>
+
+    <div class="offer-validity">
+      <strong>This offer is valid until ${fmtDate(form.offerExpiry)}.</strong> Please confirm your acceptance by this date. Kindly sign and return a copy of this document as your formal acceptance.
+    </div>
+
+    <div class="sig-row">
+      <div>
+        <div class="sig-line"></div>
+        <p style="margin:0;font-weight:700;font-size:13px">${form.signee || 'Authorised Signatory'}</p>
+        <p style="margin:2px 0 0;font-size:12px;color:#666">${form.signeeTitle || 'Founder & CEO'}</p>
+        <p style="margin:2px 0 0;font-size:12px;color:#2563a8;font-weight:700">AI GuruKul</p>
+      </div>
+      <div style="text-align:right">
+        <p style="margin:0 0 2px;font-size:12px;color:#888">Date of Joining: <strong>${fmtDate(form.joiningDate)}</strong></p>
+        <p style="margin:0;font-size:12px;color:#888">Offer Expiry: <strong>${fmtDate(form.offerExpiry)}</strong></p>
+      </div>
+    </div>
+
+    <div class="acceptance-block">
+      <p style="margin:0 0 14px;font-size:12px;color:#888;font-style:italic">
+        I, <strong>${form.candidateName || '________________________'}</strong>, have read and understood the above offer proposal and hereby:
+      </p>
+      <div class="acceptance-row">
+        <div class="sig-box"><div class="sig-box-line"></div><p style="margin:0;font-size:11px;color:#999">Candidate Signature</p></div>
+        <div class="sig-box"><div class="sig-box-line"></div><p style="margin:0;font-size:11px;color:#999">Date</p></div>
+        <div style="display:flex;gap:12px">
+          <button class="accept-btn">Accept</button>
+          <button class="decline-btn">Decline</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="letter-footer">
+      <p style="margin:0">AI GuruKul — Empowering AI Talent</p>
+      <p style="margin:2px 0 0">contact@aigurukul.com | www.aigurukul.com | Ref: ${REF_NO}</p>
+    </div>
+    <div class="letter-bottom-bar"></div>
+  </div>
+
+  <div class="preview-actions">
+    <button class="btn btn-outline" onclick="goStep1()">← Previous</button>
+    <div class="preview-actions-right">
+      <button class="btn btn-danger-outline" onclick="goStep1()">↺ Regenerate</button>
+      <button class="btn btn-navy" onclick="openSendModal()">&#x1F4E7; Send to Candidate &#x2192;</button>
+    </div>
+  </div>`;
+}
+
+function render() {
+  const { totalCTC } = calc();
+  document.getElementById('app').innerHTML = `
+  <div id="app-inner">
+    <div class="header-bar">
+      <div class="header-logo"><img src="${LOGO}" alt="AI GuruKul"></div>
+      <div class="header-text">
+        <h1>AI GuruKul — Offer Proposal Generator</h1>
+        <p>Generate professional offer proposals with full CTC breakup</p>
+      </div>
+      <div class="header-ref">${REF_NO}</div>
+    </div>
+    ${renderStepper()}
+    <div class="card">
+      <div class="card-header">
+        <p class="card-title">${step === 1 ? 'Add Offer Details' : 'View Offer Proposal'}</p>
+        ${step === 2 ? '<span class="badge-generated" style="display:inline">⏳ Generated</span>' : ''}
+      </div>
+      <div id="step-content">
+        ${step === 1 ? renderStep1() : renderStep2()}
+      </div>
+    </div>
+  </div>`;
+}
+
+function goStep2() {
+  step = 2;
+  render();
+  window.scrollTo(0, 0);
+}
+function goStep1() {
+  step = 1;
+  render();
+  window.scrollTo(0, 0);
+}
+
+// Initial render
+render();
+</script>
+</body>
+</html>
