@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>OFFICEVERSE: Escape The Monday</title>
+    <!-- Tailwind CSS for high-tech Corporate Cyberpunk HUD -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti Library for celebrations -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            background: radial-gradient(circle at top right, #0d1527, #050811);
+            color: #f1f5f9;
+            overflow-x: hidden;
+        }
+        /* Glassmorphism styling */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-input {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            transition: all 0.25s ease;
+        }
+        .glass-input:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+        }
+        /* Soft pulsing highlights */
+        .neon-glow-blue {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
+        }
+        .neon-glow-purple {
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.15);
+        }
+        .neon-glow-red {
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.15);
+        }
+        /* Smooth scrolling */
+        .scroll-smooth {
+            scroll-behavior: smooth;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Unified Top Navigation Bar -->
+    <header class="glass-panel sticky top-0 z-40 border-b border-slate-800/80 px-6 py-4 flex justify-between items-center shadow-lg">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+                <i class="fa-solid fa-briefcase text-xl text-white"></i>
+            </div>
+            <div>
+                <h1 class="text-lg font-black tracking-wider bg-gradient-to-r from-blue-400 via-indigo-300 to-emerald-400 bg-clip-text text-transparent uppercase">
+                    OFFICEVERSE
+                </h1>
+                <p class="text-[9px] text-blue-400 font-bold uppercase tracking-widest leading-none">Escape The Monday</p>
+            </div>
+        </div>
+
+        <!-- Dynamic Synced Timer & Status -->
+        <div class="flex items-center gap-4">
+            <div id="countdown-hud" class="hidden bg-slate-950/80 px-4 py-2 rounded-xl border border-red-500/30 flex items-center gap-2 text-sm font-mono text-red-400 shadow-inner">
+                <i class="fa-solid fa-clock animate-pulse"></i> 
+                <span id="countdown-timer">30:00</span>
+            </div>
+            <div id="game-status-pill" class="bg-amber-950/60 border border-amber-500/30 text-amber-400 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider">
+                Lobby Waiting
+            </div>
+            <!-- Logout / Switch button -->
+            <button id="btn-logout" onclick="logoutSession()" class="hidden text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-700 transition-colors">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN IMMERSIVE BODY CONTAINER -->
+    <main class="flex-1 flex flex-col md:flex-row p-4 md:p-6 gap-6 max-w-7xl mx-auto w-full">
+
+        <!-- Auth & Portal Setup Screen -->
+        <div id="auth-screen" class="w-full max-w-xl mx-auto my-auto py-8">
+            <div class="glass-panel p-8 rounded-2xl border border-blue-500/20 shadow-2xl space-y-6">
+                <div class="text-center space-y-1">
+                    <h2 class="text-2xl font-black">Thoughtworks Escape Challenge</h2>
+                    <p class="text-xs text-slate-400">Collaborative team building arena with dynamic trivia & logic tasks</p>
+                </div>
+
+                <!-- Custom Portal Selector Tabs -->
+                <div class="flex bg-slate-950/60 p-1 rounded-xl border border-slate-800">
+                    <button id="tab-employee-portal" onclick="switchAuthTab('employee')" class="flex-1 py-2 rounded-lg font-bold text-xs bg-blue-600 text-white transition-all">
+                        <i class="fa-solid fa-user-circle mr-1.5"></i> Employee Sign-In
+                    </button>
+                    <button id="tab-admin-portal" onclick="switchAuthTab('admin')" class="flex-1 py-2 rounded-lg font-bold text-xs text-slate-400 hover:text-white transition-all">
+                        <i class="fa-solid fa-user-shield mr-1.5"></i> Admin Dashboard
+                    </button>
+                </div>
+
+                <!-- Form: Employee Login -->
+                <div id="form-employee" class="space-y-4">
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-bold text-slate-300 uppercase block">Your Professional ID / Name Tag</label>
+                        <div class="flex gap-2">
+                            <input id="user-name-input" type="text" placeholder="e.g. Consultant Craig" class="flex-1 px-4 py-2.5 rounded-xl glass-input text-sm font-semibold">
+                            <button onclick="randomizeDisplayName()" class="px-3 bg-slate-800 hover:bg-slate-700 rounded-xl border border-slate-700 transition-all">
+                                <i class="fa-solid fa-dice text-slate-300"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-bold text-slate-300 uppercase block">Department Alignment</label>
+                        <div class="grid grid-cols-4 gap-2 bg-slate-950/60 p-2 rounded-xl border border-slate-800">
+                            <button onclick="selectDept('dev', '#2563eb')" class="dept-btn py-1.5 text-[10px] font-black rounded-lg border border-white bg-blue-600">DEV</button>
+                            <button onclick="selectDept('sales', '#16a34a')" class="dept-btn py-1.5 text-[10px] font-black rounded-lg border border-transparent bg-emerald-600 hover:brightness-110">SAL</button>
+                            <button onclick="selectDept('hr', '#db2777')" class="dept-btn py-1.5 text-[10px] font-black rounded-lg border border-transparent bg-pink-600 hover:brightness-110">HR</button>
+                            <button onclick="selectDept('design', '#ea580c')" class="dept-btn py-1.5 text-[10px] font-black rounded-lg border border-transparent bg-orange-600 hover:brightness-110">UX</button>
+                        </div>
+                    </div>
+
+                    <button onclick="signInAsEmployee()" id="btn-employee-submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-extrabold py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-blue-500/20 text-sm">
+                        ENTER GAME LOBBY
+                    </button>
+                </div>
+
+                <!-- Form: Admin Login -->
+                <div id="form-admin" class="hidden space-y-4">
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-bold text-slate-300 uppercase block">Consulting Coordinator Email</label>
+                        <input id="admin-email-input" type="email" placeholder="coordinator@asvithoughtworks.com" class="w-full px-4 py-2.5 rounded-xl glass-input text-sm font-semibold">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-bold text-slate-300 uppercase block">Coordinator Password</label>
+                        <input id="admin-password-input" type="password" placeholder="••••••••" class="w-full px-4 py-2.5 rounded-xl glass-input text-sm font-semibold">
+                    </div>
+
+                    <button onclick="signInAsAdmin()" id="btn-admin-submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-indigo-500/20 text-sm">
+                        AUTHORIZE ACCESS
+                    </button>
+                </div>
+
+                <div class="text-center text-[10px] text-slate-500 font-mono border-t border-slate-800/80 pt-4">
+                    Secure Firebase Realtime Synchronization Module
+                </div>
+            </div>
+        </div>
+
+        <!-- Play / Lobby Interactive Panels (Shown after Login) -->
+        <div id="play-interface" class="hidden w-full flex flex-col md:flex-row gap-6">
+
+            <!-- Left Panel: Interactive Gameplay Workspace -->
+            <div class="flex-1 flex flex-col gap-6">
+
+                <!-- Sync status: Waiting state vs Active state -->
+                <div id="lobby-wait-screen" class="glass-panel p-8 rounded-2xl border border-yellow-500/20 shadow-2xl flex flex-col items-center text-center justify-center min-h-[400px] space-y-4">
+                    <div class="w-16 h-16 rounded-full bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center text-yellow-400 text-2xl animate-pulse">
+                        <i class="fa-solid fa-hourglass-half"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-yellow-400">Waiting for Challenge Initiation</h3>
+                        <p class="text-sm text-slate-400 mt-1 max-w-md mx-auto">
+                            The escape coordinator will start the live 30-minute Thoughtworks team challenge shortly. Stand by in intercom and practice with teammates!
+                        </p>
+                    </div>
+                    <div class="text-xs font-semibold text-slate-400 py-1 px-3 bg-slate-900 rounded-full border border-slate-800">
+                        Total Joined Teammates: <span id="lobby-count-label" class="text-yellow-400 font-bold">1</span>
+                    </div>
+                </div>
+
+                <!-- Coordinator / Admin Dashboard (Only visible to Admin) -->
+                <div id="admin-control-dashboard" class="hidden glass-panel p-6 rounded-2xl border border-indigo-500/30 shadow-2xl space-y-4 bg-indigo-950/20">
+                    <div class="flex justify-between items-center border-b border-indigo-500/20 pb-3">
+                        <h3 class="text-sm font-black text-indigo-400 tracking-wider uppercase flex items-center gap-2">
+                            <i class="fa-solid fa-user-shield"></i> Coordinator Operations Panel
+                        </h3>
+                        <span class="text-[10px] font-bold bg-indigo-900/60 border border-indigo-500/30 text-indigo-300 px-2.5 py-0.5 rounded-full">Owner</span>
+                    </div>
+
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        As a designated Thoughtworks coordinator, you are authorized to start the escape challenge, synchronize the global 30-minute timer for all 100+ connected players, and reset progress as required.
+                    </p>
+
+                    <div class="flex flex-wrap gap-3 pt-2">
+                        <button onclick="adminTriggerStartGame()" id="btn-admin-start" class="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-6 py-2.5 rounded-xl transition-all shadow-md shadow-emerald-500/20 text-xs flex items-center gap-1.5">
+                            <i class="fa-solid fa-play"></i> START ESCAPE (30 MINUTES)
+                        </button>
+                        <button onclick="adminTriggerResetGame()" class="bg-red-950/40 hover:bg-red-900 border border-red-800/40 text-red-300 font-bold px-4 py-2.5 rounded-xl transition-all text-xs flex items-center gap-1.5">
+                            <i class="fa-solid fa-arrows-rotate"></i> RESET SESSION
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Active Game: Main Task Dashboard -->
+                <div id="active-challenge-dashboard" class="hidden flex-1 flex flex-col gap-6">
+
+                    <!-- Interactive Task Selection Category Hub -->
+                    <div class="glass-panel p-4 rounded-xl border border-slate-800/80">
+                        <h4 class="text-xs font-black tracking-wider text-slate-400 uppercase mb-3 flex items-center gap-1.5">
+                            <i class="fa-solid fa-layer-group"></i> Active Task Matrix
+                        </h4>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                            <button onclick="activateCategory('emoji')" id="btn-cat-emoji" class="p-3 rounded-xl border border-blue-500 bg-blue-950/20 text-left transition-all">
+                                <span class="block text-lg"><i class="fa-solid fa-headset text-blue-400"></i></span>
+                                <span class="font-bold text-xs block mt-1">Client Emoji Quiz</span>
+                            </button>
+                            <button onclick="activateCategory('trivia')" id="btn-cat-trivia" class="p-3 rounded-xl border border-slate-800 hover:border-blue-500/40 bg-slate-900/60 text-left transition-all">
+                                <span class="block text-lg"><i class="fa-solid fa-brain text-purple-400"></i></span>
+                                <span class="font-bold text-xs block mt-1">Thoughtworks Quiz</span>
+                            </button>
+                            <button onclick="activateCategory('speak')" id="btn-cat-speak" class="p-3 rounded-xl border border-slate-800 hover:border-blue-500/40 bg-slate-900/60 text-left transition-all">
+                                <span class="block text-lg"><i class="fa-solid fa-comments text-amber-400"></i></span>
+                                <span class="font-bold text-xs block mt-1">Corporate Decrypter</span>
+                            </button>
+                            <button onclick="activateCategory('teasers')" id="btn-cat-teasers" class="p-3 rounded-xl border border-slate-800 hover:border-blue-500/40 bg-slate-900/60 text-left transition-all">
+                                <span class="block text-lg"><i class="fa-solid fa-lightbulb text-pink-400"></i></span>
+                                <span class="font-bold text-xs block mt-1">Logic Puzzles</span>
+                            </button>
+                            <button onclick="activateCategory('typing')" id="btn-cat-typing" class="p-3 rounded-xl border border-slate-800 hover:border-blue-500/40 bg-slate-900/60 text-left transition-all">
+                                <span class="block text-lg"><i class="fa-solid fa-keyboard text-emerald-400"></i></span>
+                                <span class="font-bold text-xs block mt-1">Typing Speed</span>
+                            </button>
+                            <button onclick="activateCategory('reaction')" id="btn-cat-reaction" class="p-3 rounded-xl border border-slate-800 hover:border-blue-500/40 bg-slate-900/60 text-left transition-all">
+                                <span class="block text-lg"><i class="fa-solid fa-bolt text-red-400"></i></span>
+                                <span class="font-bold text-xs block mt-1">Reaction Speed</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Active Category Challenge Workspace -->
+                    <div class="glass-panel p-6 rounded-xl border border-slate-800/80 flex-1 flex flex-col justify-between min-h-[300px] shadow-inner relative overflow-hidden">
+                        
+                        <!-- Floating points animations anchor -->
+                        <div id="points-particle-container" class="absolute inset-0 pointer-events-none z-30"></div>
+
+                        <!-- Card Header -->
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-4">
+                            <span id="current-category-label" class="text-xs font-black tracking-wider uppercase text-blue-400">
+                                Client Emoji Quiz
+                            </span>
+                            <span id="card-task-index" class="text-[10px] font-semibold text-slate-500">
+                                Task 1 of 5
+                            </span>
+                        </div>
+
+                        <!-- Task Core Question Block -->
+                        <div class="flex-1 flex flex-col justify-center py-4">
+                            <div id="task-main-question" class="text-center font-bold text-slate-100 text-lg leading-relaxed max-w-xl mx-auto">
+                                Initializing task...
+                            </div>
+
+                            <!-- Interactive Answer Area (Changes dynamically based on category) -->
+                            <div id="interactive-answer-panel" class="mt-6 w-full max-w-lg mx-auto">
+                                <!-- Choices, typing input, or reaction matrices injected dynamically here -->
+                            </div>
+                        </div>
+
+                        <!-- Card Footer -->
+                        <div class="flex justify-between items-center border-t border-slate-800 pt-3 mt-4 text-[10px] text-slate-500">
+                            <span>Answers auto-evaluated instantly</span>
+                            <span class="text-emerald-400 font-bold"><i class="fa-solid fa-circle-check"></i> Standard Scoring</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Victory Celebration Stage Panel (At the end of 30 mins) -->
+                <div id="victory-stage-screen" class="hidden glass-panel p-8 rounded-2xl border border-yellow-500/30 text-center shadow-2xl space-y-6">
+                    <div class="flex justify-center">
+                        <div class="w-20 h-20 bg-gradient-to-tr from-yellow-500 to-amber-400 rounded-full flex items-center justify-center shadow-lg shadow-yellow-500/20 text-3xl animate-bounce">
+                            🏆
+                        </div>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-black bg-gradient-to-r from-yellow-400 via-amber-200 to-yellow-500 bg-clip-text text-transparent uppercase">
+                            CHALLENGE FINISHED!
+                        </h2>
+                        <p class="text-xs text-slate-400 tracking-wider uppercase mt-1">Thoughtworks Escape Chamber Complete</p>
+                    </div>
+
+                    <!-- Celebratory Winner Podium -->
+                    <div class="grid grid-cols-3 gap-2 max-w-md mx-auto items-end pt-8 pb-4">
+                        <!-- Rank 2 -->
+                        <div class="flex flex-col items-center">
+                            <span id="podium-name-2" class="text-xs font-bold truncate w-24 text-slate-400">Craig</span>
+                            <div class="w-full bg-slate-800 h-20 rounded-t-xl flex flex-col justify-center items-center mt-2 border border-slate-700/50 shadow">
+                                <span class="text-sm font-black">2nd</span>
+                                <span id="podium-score-2" class="text-[10px] font-bold text-yellow-500 mt-1 font-mono">150 XP</span>
+                            </div>
+                        </div>
+                        <!-- Rank 1 -->
+                        <div class="flex flex-col items-center">
+                            👑 <span id="podium-name-1" class="text-sm font-black truncate w-28 text-yellow-400">Lead Dev Dave</span>
+                            <div class="w-full bg-gradient-to-t from-yellow-600/30 to-yellow-500/20 h-28 rounded-t-xl flex flex-col justify-center items-center mt-2 border border-yellow-500/30 shadow-lg shadow-yellow-500/10">
+                                <span class="text-lg font-black text-yellow-400">1st</span>
+                                <span id="podium-score-1" class="text-xs font-black text-yellow-300 mt-1 font-mono">310 XP</span>
+                            </div>
+                        </div>
+                        <!-- Rank 3 -->
+                        <div class="flex flex-col items-center">
+                            <span id="podium-name-3" class="text-xs font-bold truncate w-24 text-slate-400">Sally</span>
+                            <div class="w-full bg-slate-900 h-16 rounded-t-xl flex flex-col justify-center items-center mt-2 border border-slate-800 shadow">
+                                <span class="text-xs font-black">3rd</span>
+                                <span id="podium-score-3" class="text-[10px] font-bold text-yellow-500 mt-1 font-mono">110 XP</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 flex flex-wrap justify-center gap-3">
+                        <button onclick="generatePerformanceReview()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-6 rounded-xl transition-all shadow-md text-xs">
+                            <i class="fa-solid fa-file-invoice mr-1.5"></i> DOWNLOAD ESCAPE CERTIFICATE
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Synced Leaderboard & Corporate Live Chat (Intercom) -->
+            <div class="w-full md:w-80 flex flex-col gap-6">
+
+                <!-- Standings Section -->
+                <div class="glass-panel p-4 rounded-xl border border-slate-800/80 flex flex-col max-h-[300px]">
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-2 mb-3">
+                        <h4 class="text-xs font-black tracking-wider text-blue-400 uppercase">
+                            <i class="fa-solid fa-ranking-star"></i> Standings
+                        </h4>
+                        <span id="worker-count-pill" class="text-[9px] bg-slate-950 px-2 py-0.5 rounded-full text-slate-400">0 Workers</span>
+                    </div>
+
+                    <div id="standings-list-box" class="space-y-1.5 overflow-y-auto pr-1 flex-1">
+                        <!-- Synced scores populate here -->
+                    </div>
+                </div>
+
+                <!-- Live Chat Section -->
+                <div class="glass-panel rounded-xl border border-slate-800/80 overflow-hidden flex flex-col max-h-[350px]">
+                    <div class="bg-slate-900/80 px-4 py-3 border-b border-slate-800 flex justify-between items-center text-xs font-black tracking-wider text-slate-300">
+                        <span><i class="fa-solid fa-comments text-blue-400 mr-1.5"></i> Live Intercom Chat</span>
+                    </div>
+                    <!-- Intercom Chat scroll space -->
+                    <div id="chat-messages-live" class="h-44 p-3 overflow-y-auto space-y-2 text-xs text-slate-300 font-medium scroll-smooth">
+                        <!-- Live message elements populated dynamically -->
+                    </div>
+                    <!-- Quick Emoticons Reaction Pad -->
+                    <div class="flex justify-around items-center bg-slate-950/80 px-2 py-2 border-t border-slate-800/80 text-sm">
+                        <button onclick="sendEmojiReaction('👍')" class="hover:scale-125 transition-transform">👍</button>
+                        <button onclick="sendEmojiReaction('🔥')" class="hover:scale-125 transition-transform">🔥</button>
+                        <button onclick="sendEmojiReaction('💻')" class="hover:scale-125 transition-transform">💻</button>
+                        <button onclick="sendEmojiReaction('☕')" class="hover:scale-125 transition-transform">☕</button>
+                        <button onclick="sendEmojiReaction('🚨')" class="hover:scale-125 transition-transform">🚨</button>
+                        <button onclick="sendEmojiReaction('🎉')" class="hover:scale-125 transition-transform">🎉</button>
+                    </div>
+                    <!-- Chat Form Input -->
+                    <form id="chat-form-interactive" onsubmit="handleChatSubmit(event)" class="p-2 bg-slate-900/60 border-t border-slate-800/80 flex gap-2">
+                        <input id="chat-text-input" type="text" placeholder="Watercooler chat..." class="flex-1 px-3 py-2 rounded-lg glass-input text-xs" maxlength="120" autocomplete="off">
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-500 px-3 rounded-lg transition-colors text-white text-xs"><i class="fa-solid fa-paper-plane"></i></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Synced Career Performance review / Certificate Modal -->
+    <div id="certificate-modal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-gradient-to-br from-slate-900 to-indigo-950 w-full max-w-lg rounded-2xl border border-yellow-500/30 p-8 shadow-2xl text-center space-y-6 relative overflow-hidden">
+            <div class="absolute inset-0 border-4 border-double border-yellow-500/20 m-2 rounded-xl pointer-events-none"></div>
+
+            <div class="space-y-2">
+                <div class="text-yellow-400 text-4xl animate-bounce"><i class="fa-solid fa-award"></i></div>
+                <h3 class="text-lg font-black tracking-widest text-slate-100 uppercase">OFFICEVERSE RECOGNITION CERTIFICATE</h3>
+                <div class="h-0.5 bg-gradient-to-r from-transparent via-yellow-500 to-transparent w-full"></div>
+            </div>
+
+            <div class="space-y-4 py-2 font-serif text-slate-300">
+                <p class="text-xs italic text-slate-400">This certifies that highly dedicated professional</p>
+                <p id="cert-employee-name" class="text-xl font-bold tracking-wide text-white uppercase underline decoration-yellow-500 decoration-wavy decoration-1 underline-offset-4"> Dave </p>
+                <p class="text-xs text-slate-400">has successfully conquered the ultimate workspace challenges of OFFICEVERSE,</p>
+                <p class="text-sm font-semibold text-slate-200">Elevating to corporate seniority through task excellence with rank:</p>
+                <p id="cert-employee-rank" class="text-lg font-black tracking-widest text-yellow-400">Junior Intern</p>
+            </div>
+
+            <div class="flex justify-center gap-6 pt-4 text-left border-t border-slate-800/80 font-mono text-[10px] text-slate-400">
+                <div>
+                    <span class="block">XP: <strong id="cert-xp-val" class="text-slate-200">125</strong></span>
+                </div>
+                <div>
+                    <span class="block">Office Status: <strong class="text-slate-200">Distinguished Elite</strong></span>
+                </div>
+            </div>
+
+            <div class="pt-2">
+                <button onclick="closeCertificate()" class="bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-extrabold py-2.5 px-6 rounded-lg transition-colors text-xs uppercase shadow-md shadow-yellow-500/10">
+                    Acknowledge Review
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Application Module logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getDatabase, ref, set, get, update, onValue, onDisconnect, push } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+
+        // Environment configuration
+        const defaultFirebaseConfig = {
+            apiKey: "AIzaSyC250mSz3FEK2JuFh5BgxOdMEfYwdNOPKY",
+            authDomain: "game-263a6.firebaseapp.com",
+            projectId: "game-263a6",
+            storageBucket: "game-263a6.firebasestorage.app",
+            messagingSenderId: "547553744920",
+            appId: "1:547553744920:web:432a2c74cb5dbe8aa28b6d",
+            measurementId: "G-L3X1SN7VJN",
+            databaseURL: "https://game-263a6-default-rtdb.firebaseio.com"
+        };
+
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : defaultFirebaseConfig;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        // Initialize SDK Modules
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const firestore = getFirestore(app);
+        const realtimeDB = getDatabase(app);
+
+        // --- Core Application States ---
+        let playerUserId = null;
+        let playerDisplayName = "";
+        let playerDeptColor = "#2563eb";
+        let playerDeptType = "dev";
+        let playerXP = 0;
+        let currentUser = null;
+        let isAdminCoordinator = false;
+
+        let syncLobbyTimer = null;
+        let globalTimerRemaining = 1800; // 30 minutes in seconds
+
+        let currentCategoryKey = "emoji";
+        let currentQuestionIndex = 0;
+        let activeQuestionObj = null;
+
+        // Sound System
+        let audioCtx = null;
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function playSound(freq, duration, type = 'sine') {
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                gain.gain.setValueAtTime(0.08, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + duration);
+            } catch (e) {
+                console.warn('Audio synthesis blocked:', e);
+            }
+        }
+
+        // --- STREAMING_CHUNK: Deep Interactive Task Library... ---
+        // Rich Task Database
+        const taskDatabase = {
+            emoji: [
+                { q: "Translate: 💻📊🤝🚀", choices: ["Writing unit test algorithms", "Closing a major enterprise SaaS deal", "Daily status standup", "Filing operational taxes"], answer: 1 },
+                { q: "Translate: ⏰👔🏢🚨", choices: ["Late to critical client boardroom review", "Breakroom coffee run", "Celebrating colleague anniversary", "Submitting timesheet logs"], answer: 0 },
+                { q: "Translate: 🧠🔄💡📈", choices: ["Server database index crash", "Synergizing team workflow scaling", "Writing corporate updates", "Drafting project budget lists"], answer: 1 },
+                { q: "Translate: ✈️💼🌍💻", choices: ["Local client workshop desk", "Strategic international business consultation", "Opening technical systems logs", "Answering watercooler chats"], answer: 1 },
+                { q: "Translate: ❌☕📉🔥", choices: ["Watercooler coffee machine empty emergency", "Filing corporate updates on Friday", "IT specialist server room crash", "Sales team quarterly alignment success"], answer: 0 }
+            ],
+            trivia: [
+                { q: "What year was Thoughtworks founded in Chicago?", choices: ["1993", "1999", "2005", "2010"], answer: 0 },
+                { q: "Which programming design style was pioneered by Thoughtworks' Martin Fowler?", choices: ["Agile Retrospectives", "Microservices & CI/CD paradigms", "Visual basic compilers", "Relational SQL algorithms"], answer: 1 },
+                { q: "What is Thoughtworks' landmark publication for tracking tech trends called?", choices: ["The Tech Radar", "The DevOps Manual", "Enterprise Synergies Monthly", "Agile Consulting Journal"], answer: 0 },
+                { q: "Thoughtworks is widely celebrated globally as an advocate for:", choices: ["Proprietary closed-source codebases", "Social impact, equity, and open source evolution", "Manual waterfall project schedules", "Monolithic computing database stacks"], answer: 1 },
+                { q: "The practice of integrating and verifying code multiple times a day is called:", choices: ["Waterfall lifecycle development", "Continuous Integration (CI)", "Diagnostic memory profiling", "Voxel canvas rendering"], answer: 1 }
+            ],
+            speak: [
+                { q: "What does 'Let's take this offline' actually mean in practice?", choices: ["Let's schedule a separate private call later", "Stop talking about this immediately, you are wasting time", "Please disconnect your ethernet cable", "Let's meet in the breakroom for coffee"], answer: 1 },
+                { q: "Translate: 'Low hanging fruit'", choices: ["Unimportant tasks that can be ignored", "Easiest targets to hit quickly to show progress", "Catering options inside the executive lounge", "Designing recursive database structures"], answer: 1 },
+                { q: "Translate: 'Circle back next week'", choices: ["The project is canceled permanently", "I am currently too busy or ignoring this thread", "We must schedule a daily whiteboard standup", "Our client needs international consultancy help"], answer: 1 },
+                { q: "Translate: 'Synthesize paradigms'", choices: ["Create a beautiful PPT template deck", "Combining distinct team procedures into one workflow", "Refactoring legacy relational database columns", "Answering standard corporate lingo trivias"], answer: 1 },
+                { q: "Translate: 'Boil the ocean'", choices: ["Overcomplicating the project scope unnecessarily", "Running standard diagnostic server sweeps", "Increasing server processor speeds", "Initiating a quick happy hour bonus"], answer: 0 }
+            ],
+            teasers: [
+                { q: "A consultant spends half their budget on hotel rooms and half of what is left on taxi fares. They have $100 left. What was the starting budget?", choices: ["$200", "$400", "$600", "$800"], answer: 1 },
+                { q: "If five consulting teams can build five strategy decks in five days, how long does it take 100 teams to build 100 decks?", choices: ["1 day", "5 days", "25 days", "100 days"], answer: 1 },
+                { q: "You are designing a client database. If column A is larger than column B, and column B is equal to column C, is column A larger than column C?", choices: ["No, B is larger", "Yes, A is larger", "They are equal", "Cannot be determined"], answer: 1 },
+                { q: "A consulting firm has 3 teams. Every team must present to every other team once. How many total presentations are delivered?", choices: ["3", "6", "9", "12"], answer: 0 },
+                { q: "If a project timeline doubles in complexity every day, and takes 30 days to finish, on which day was the project exactly half complete?", choices: ["15th Day", "29th Day", "28th Day", "20th Day"], answer: 1 }
+            ],
+            typing: [
+                { q: "Type precisely: 'Agile synergy is critical to scaling software consulting.'", prompt: "Agile synergy is critical to scaling software consulting." },
+                { q: "Type precisely: 'Thoughtworkers deliver high-quality digital solutions daily.'", prompt: "Thoughtworkers deliver high-quality digital solutions daily." },
+                { q: "Type precisely: 'Please review the updated pitch deck before our client demo.'", prompt: "Please review the updated pitch deck before our client demo." },
+                { q: "Type precisely: 'Leverage microservices to modularize enterprise applications.'", prompt: "Leverage microservices to modularize enterprise applications." },
+                { q: "Type precisely: 'Continuous Integration keeps our deployment pipelines fluid.'", prompt: "Continuous Integration keeps our deployment pipelines fluid." }
+            ],
+            reaction: [
+                { q: "CLICK THE RED WARNING ZONE INSTANTLY WHEN IT FLASHES!", type: "click-matrix" },
+                { q: "CLICK THE GREEN DEPLOY ZONE INSTANTLY WHEN IT FLASHES!", type: "click-matrix" },
+                { q: "CLICK THE BLUE CODE ZONE INSTANTLY WHEN IT FLASHES!", type: "click-matrix" },
+                { q: "CLICK THE PURPLE CLOUD ZONE INSTANTLY WHEN IT FLASHES!", type: "click-matrix" },
+                { q: "CLICK THE EMERALD BONUS ZONE INSTANTLY WHEN IT FLASHES!", type: "click-matrix" }
+            ]
+        };
+
+        // --- STREAMING_CHUNK: Setup global handlers... ---
+
+        let userSessionRef = null;
+        let messagesRef = null;
+
+        // Secure Firebase connection entrypoint
+        async function connectFirebase() {
+            const btn = document.getElementById('btn-employee-submit');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = "CONNECTING DATABASE...";
+            }
+
+            try {
+                // Perform fast anonymous auth natively
+                const credentials = await signInAnonymously(auth);
+                currentUser = credentials.user;
+                playerUserId = credentials.user.uid;
+
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = "ENTER GAME LOBBY";
+                }
+            } catch (err) {
+                console.error("Database connection failure:", err);
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = "RETRY ENTER LOBBY";
+                }
+            }
+        }
+
+        // Switch sign in portals
+        function switchAuthTab(type) {
+            playSound(400, 0.08);
+            const btnEmp = document.getElementById('tab-employee-portal');
+            const btnAdm = document.getElementById('tab-admin-portal');
+            const formEmp = document.getElementById('form-employee');
+            const formAdm = document.getElementById('form-admin');
+
+            if (type === 'employee') {
+                btnEmp.className = "flex-1 py-2 rounded-lg font-bold text-xs bg-blue-600 text-white transition-all";
+                btnAdm.className = "flex-1 py-2 rounded-lg font-bold text-xs text-slate-400 hover:text-white transition-all";
+                formEmp.classList.remove('hidden');
+                formAdm.classList.add('hidden');
+            } else {
+                btnEmp.className = "flex-1 py-2 rounded-lg font-bold text-xs text-slate-400 hover:text-white transition-all";
+                btnAdm.className = "flex-1 py-2 rounded-lg font-bold text-xs bg-indigo-600 text-white transition-all";
+                formEmp.classList.add('hidden');
+                formAdm.classList.remove('hidden');
+            }
+        }
+
+        function randomizeDisplayName() {
+            const adjectives = ["Agile", "Lead", "Scrum", "Principal", "Senior", "Expert", "Cloud", "Synergy"];
+            const nouns = ["Architect", "Consultant", "Dev", "Analyst", "Steward", "Coder", "Strategist"];
+            const rAdj = adjectives[Math.floor(Math.random() * adjectives.length)];
+            const rNoun = nouns[Math.floor(Math.random() * nouns.length)];
+            document.getElementById('user-name-input').value = `${rAdj} ${rNoun}`;
+            playSound(320, 0.08);
+        }
+
+        function selectDept(deptType, colorHex) {
+            playerDeptType = deptType;
+            playerDeptColor = colorHex;
+            document.querySelectorAll('.dept-btn').forEach(btn => {
+                btn.classList.add('border-transparent');
+                btn.classList.remove('border-white');
+            });
+            event.target.classList.remove('border-transparent');
+            event.target.classList.add('border-white');
+            playSound(450, 0.08);
+        }
+
+        // Authenticate Standard Employee
+        async function signInAsEmployee() {
+            const nameInp = document.getElementById('user-name-input').value.trim();
+            if (!nameInp) {
+                showNotification("Enter your professional name tag to connect.");
+                return;
+            }
+
+            playerDisplayName = nameInp;
+
+            const btn = document.getElementById('btn-employee-submit');
+            btn.disabled = true;
+            btn.innerText = "JOINING ESCAPE LOBBY...";
+
+            try {
+                if (!currentUser) {
+                    await connectFirebase();
+                }
+                isAdminCoordinator = false;
+
+                // Load initial scores if persisted (Rule 1 & Rule 3 compliant)
+                try {
+                    const snap = await getDoc(doc(firestore, 'artifacts', appId, 'users', playerUserId, 'profile_data', 'stats'));
+                    if (snap.exists() && typeof snap.data().score === 'number') {
+                        playerXP = snap.data().score;
+                    }
+                } catch (e) {
+                    console.warn("Firestore profile read bypassed:", e);
+                }
+
+                initializePlayerSession();
+            } catch (err) {
+                console.error("Authentication failed:", err);
+                showNotification("Database login failure. Please retry.");
+                btn.disabled = false;
+                btn.innerText = "ENTER GAME LOBBY";
+            }
+        }
+
+        // --- STREAMING_CHUNK: Authorizing Coordinator Admins... ---
+        // Authenticate Admin via custom requested accounts:
+        // - harvinderkaur@asvithoughtworks.com
+        // - snigdhatripathi@asvithoughtworks.com
+        // Password: ASVI@2026
+        async function signInAsAdmin() {
+            const emailInp = document.getElementById('admin-email-input').value.trim();
+            const passwordInp = document.getElementById('admin-password-input').value;
+
+            if (!emailInp || !passwordInp) {
+                showNotification("Please provide your consulting credentials.");
+                return;
+            }
+
+            // Client-side guard check for specified accounts
+            const validEmails = ['harvinderkaur@asvithoughtworks.com', 'snigdhatripathi@asvithoughtworks.com'];
+            if (!validEmails.includes(emailInp.toLowerCase())) {
+                showNotification("Unauthorized admin email context.");
+                return;
+            }
+
+            const btn = document.getElementById('btn-admin-submit');
+            btn.disabled = true;
+            btn.innerText = "AUTHORIZING CONSOLE...";
+
+            try {
+                const credentials = await signInWithEmailAndPassword(auth, emailInp, passwordInp);
+                currentUser = credentials.user;
+                playerUserId = credentials.user.uid;
+                playerDisplayName = emailInp.split('@')[0] === "harvinderkaur" ? "Harvinder Kaur" : "Snigdha Tripathi";
+                isAdminCoordinator = true;
+
+                showNotification("Admin credentials approved!");
+                initializePlayerSession();
+            } catch (err) {
+                console.error("Admin sign-in failure:", err);
+                showNotification("Invalid coordinator password. Please retry.");
+                btn.disabled = false;
+                btn.innerText = "AUTHORIZE ACCESS";
+            }
+        }
+
+        function initializePlayerSession() {
+            // Establish direct RTDB nodes
+            userSessionRef = ref(realtimeDB, `players/${playerUserId}`);
+            messagesRef = ref(realtimeDB, `chat_channel`);
+
+            // Register spatial position setup (XP tracking)
+            set(userSessionRef, {
+                uid: playerUserId,
+                name: playerDisplayName,
+                dept: playerDeptType,
+                color: playerDeptColor,
+                score: playerXP,
+                isAdmin: isAdminCoordinator,
+                lastEmoji: ""
+            });
+
+            // Disconnect node cleanup
+            onDisconnect(userSessionRef).remove();
+
+            // Clear login panel view
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('play-interface').classList.remove('hidden');
+            document.getElementById('btn-logout').classList.remove('hidden');
+
+            if (isAdminCoordinator) {
+                document.getElementById('admin-control-dashboard').classList.remove('hidden');
+                document.getElementById('lobby-wait-screen').classList.add('hidden');
+            }
+
+            // Fire up live sync listeners
+            bindRealtimeListeners();
+            activateCategory('emoji');
+        }
+
+        // Realtime synced listeners
+        function bindRealtimeListeners() {
+            // Synced user connections
+            onValue(ref(realtimeDB, `players`), (snapshot) => {
+                const data = snapshot.val() || {};
+                const size = Object.keys(data).length;
+                document.getElementById('worker-count-pill').innerText = `${size} Workers`;
+                
+                const lobbyLabel = document.getElementById('lobby-count-label');
+                if (lobbyLabel) lobbyLabel.innerText = size;
+
+                // Sync live leaderboard standings
+                updateLeaderboardStandings(data);
+            });
+
+            // Synced global lobby escape status & countdown
+            onValue(ref(realtimeDB, `escape_lobby_state`), (snapshot) => {
+                const state = snapshot.val() || { status: "waiting" };
+                handleGlobalLobbyStateTransition(state);
+            });
+
+            // Synced watercooler intercom messages
+            onValue(ref(realtimeDB, `chat_channel`), (snapshot) => {
+                const data = snapshot.val() || {};
+                const chatBox = document.getElementById('chat-messages-live');
+                if (!chatBox) return;
+
+                chatBox.innerHTML = '';
+                const sorted = Object.keys(data).map(k => data[k]).sort((a,b) => a.timestamp - b.timestamp);
+                const limitSlice = sorted.slice(-15);
+
+                if (limitSlice.length === 0) {
+                    chatBox.innerHTML = `<div class="text-slate-500 text-center py-4">Welcome to Officeverse! Interact inside chat.</div>`;
+                } else {
+                    limitSlice.forEach(msg => {
+                        const row = document.createElement('div');
+                        row.className = "p-1.5 rounded bg-slate-900/40 border border-slate-800/50";
+                        row.innerHTML = `
+                            <span class="font-extrabold text-[10px]" style="color: ${msg.color || '#3b82f6'}">${msg.sender}:</span>
+                            <span class="text-[11px] ml-1 text-slate-100">${msg.text}</span>
+                        `;
+                        chatBox.appendChild(row);
+                    });
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }
+            });
+        }
+
+        // Leaderboard UI generator
+        function updateLeaderboardStandings(playersData) {
+            const container = document.getElementById('standings-list-box');
+            if (!container) return;
+
+            container.innerHTML = '';
+            const ranked = Object.keys(playersData).map(k => playersData[k]).sort((a,b) => b.score - a.score);
+
+            ranked.forEach((p, idx) => {
+                const el = document.createElement('div');
+                el.className = "flex justify-between items-center bg-slate-900/60 p-2 rounded-lg border border-slate-800/80 text-xs text-slate-200 transition-all";
+                if (p.uid === playerUserId) {
+                    el.className += " border-blue-500/50 bg-blue-950/20";
+                }
+                el.innerHTML = `
+                    <div class="flex items-center gap-1.5">
+                        <span class="font-bold text-[10px] text-slate-400">#${idx+1}</span>
+                        <div class="w-2 h-2 rounded-full" style="background-color: ${p.color || '#94a3b8'}"></div>
+                        <span class="font-semibold text-[11px] truncate w-24">${p.name}</span>
+                    </div>
+                    <span class="font-mono text-[10px] font-bold text-yellow-400">${p.score} XP</span>
+                `;
+                container.appendChild(el);
+            });
+        }
+
+        // --- STREAMING_CHUNK: Timer synchronizations & admin triggers... ---
+        // Synced Lobby state machine transition handler
+        function handleGlobalLobbyStateTransition(state) {
+            const statusPill = document.getElementById('game-status-pill');
+            const lobbyWait = document.getElementById('lobby-wait-screen');
+            const activeDashboard = document.getElementById('active-challenge-dashboard');
+            const victoryScreen = document.getElementById('victory-stage-screen');
+            const timerHud = document.getElementById('countdown-hud');
+
+            if (state.status === "active") {
+                statusPill.innerText = "CHALLENGE ACTIVE";
+                statusPill.className = "bg-red-950/60 border border-red-500/30 text-red-400 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider animate-pulse";
+                timerHud.classList.remove('hidden');
+
+                if (!isAdminCoordinator) {
+                    lobbyWait.classList.add('hidden');
+                    activeDashboard.classList.remove('hidden');
+                } else {
+                    activeDashboard.classList.remove('hidden');
+                }
+                victoryScreen.classList.add('hidden');
+
+                // Track live elapsed countdown timer relative to admin Server start value
+                const elapsed = Math.floor((Date.now() - state.started_at) / 1000);
+                globalTimerRemaining = Math.max(0, 1800 - elapsed);
+                startSyncedCountdownTimer(state.started_at);
+            } else if (state.status === "finished") {
+                statusPill.innerText = "CHALLENGE COMPLETE";
+                statusPill.className = "bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider";
+                timerHud.classList.add('hidden');
+
+                lobbyWait.classList.add('hidden');
+                activeDashboard.classList.add('hidden');
+                victoryScreen.classList.remove('hidden');
+
+                clearInterval(syncLobbyTimer);
+                populatePodiumVisuals();
+            } else {
+                // Waiting lobby
+                statusPill.innerText = "Lobby Waiting";
+                statusPill.className = "bg-amber-950/60 border border-amber-500/30 text-amber-400 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider";
+                timerHud.classList.add('hidden');
+
+                if (!isAdminCoordinator) {
+                    lobbyWait.classList.remove('hidden');
+                    activeDashboard.classList.add('hidden');
+                }
+                victoryScreen.classList.add('hidden');
+                clearInterval(syncLobbyTimer);
+            }
+        }
+
+        function startSyncedCountdownTimer(adminStartTime) {
+            clearInterval(syncLobbyTimer);
+            syncLobbyTimer = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - adminStartTime) / 1000);
+                globalTimerRemaining = Math.max(0, 1800 - elapsed);
+
+                const mins = Math.floor(globalTimerRemaining / 60);
+                const secs = globalTimerRemaining % 60;
+                document.getElementById('countdown-timer').innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
+
+                if (globalTimerRemaining <= 0) {
+                    clearInterval(syncLobbyTimer);
+                    // Automatically freeze game if timer has expired
+                    if (isAdminCoordinator) {
+                        set(ref(realtimeDB, `escape_lobby_state`), {
+                            status: "finished",
+                            finished_at: Date.now()
+                        });
+                    }
+                }
+            }, 1000);
+        }
+
+        // Coordinator: Trigger Global Escape Start (30 Mins)
+        function adminTriggerStartGame() {
+            set(ref(realtimeDB, `escape_lobby_state`), {
+                status: "active",
+                started_at: Date.now()
+            });
+            playSound(600, 0.25, 'triangle');
+            showNotification("Thoughtworks Escape Started! Live 30-Minute countdown active.");
+        }
+
+        // Coordinator: Reset Lobby Game State
+        function adminTriggerResetGame() {
+            set(ref(realtimeDB, `escape_lobby_state`), {
+                status: "waiting"
+            });
+            update(userSessionRef, { score: 0 });
+            playerXP = 0;
+            showNotification("Lobby Reset Successfully.");
+        }
+
+        // Populate Celebratory Winners Podium
+        async function populatePodiumVisuals() {
+            try {
+                const snap = await get(ref(realtimeDB, `players`));
+                const list = Object.keys(snap.val() || {}).map(k => snap.val()[k]).sort((a,b) => b.score - a.score);
+
+                document.getElementById('podium-name-1').innerText = list[0] ? list[0].name : "N/A";
+                document.getElementById('podium-score-1').innerText = list[0] ? `${list[0].score} XP` : "0 XP";
+
+                document.getElementById('podium-name-2').innerText = list[1] ? list[1].name : "N/A";
+                document.getElementById('podium-score-2').innerText = list[1] ? `${list[1].score} XP` : "0 XP";
+
+                document.getElementById('podium-name-3').innerText = list[2] ? list[2].name : "N/A";
+                document.getElementById('podium-score-3').innerText = list[2] ? `${list[2].score} XP` : "0 XP";
+
+                confetti({ particleCount: 150, spread: 80 });
+            } catch (e) {
+                console.error("Podium query failure:", e);
+            }
+        }
+
+        // --- STREAMING_CHUNK: Interactive Task Engines & Click Matrices... ---
+        // Category workspace selection
+        function activateCategory(catKey) {
+            playSound(420, 0.08);
+            currentCategoryKey = catKey;
+            currentQuestionIndex = 0;
+
+            // Shift buttons active designs
+            ['emoji', 'trivia', 'speak', 'teasers', 'typing', 'reaction'].forEach(k => {
+                const el = document.getElementById(`btn-cat-${k}`);
+                if (el) {
+                    if (k === catKey) {
+                        el.className = "p-3 rounded-xl border border-blue-500 bg-blue-950/20 text-left transition-all shadow-md shadow-blue-500/10";
+                    } else {
+                        el.className = "p-3 rounded-xl border border-slate-800 hover:border-blue-500/40 bg-slate-900/60 text-left transition-all";
+                    }
+                }
+            });
+
+            renderActiveTask();
+        }
+
+        function renderActiveTask() {
+            const list = taskDatabase[currentCategoryKey];
+            activeQuestionObj = list[currentQuestionIndex];
+
+            document.getElementById('current-category-label').innerText = currentCategoryKey === 'speak' ? 'Corporate Speak Decrypter' : currentCategoryKey.toUpperCase() + ' CHALLENGE';
+            document.getElementById('card-task-index').innerText = `Task ${currentQuestionIndex + 1} of ${list.length}`;
+            document.getElementById('task-main-question').innerText = activeQuestionObj.q;
+
+            const panel = document.getElementById('interactive-answer-panel');
+            panel.innerHTML = '';
+
+            if (currentCategoryKey === 'typing') {
+                panel.innerHTML = `
+                    <div class="space-y-3">
+                        <input id="typing-prompt-input" type="text" oninput="verifyTypingSpeedInput()" placeholder="Start typing the slogan above exactly..." class="w-full px-4 py-3 rounded-xl glass-input text-xs font-mono text-center" autocomplete="off">
+                        <div class="text-right text-[10px] text-slate-500 font-mono">Accuracy check: 100%</div>
+                    </div>
+                `;
+                setTimeout(() => document.getElementById('typing-prompt-input').focus(), 50);
+            } else if (currentCategoryKey === 'reaction') {
+                const matrixGrid = document.createElement('div');
+                matrixGrid.className = "grid grid-cols-3 gap-2.5 max-w-[280px] mx-auto";
+                
+                const labels = ["CLOUDS", "CODE", "DEPLOY", "TEST", "WARN", "API", "CONTAINER", "PIPELINE", "INTEGRATE"];
+                const colors = {
+                    "click-matrix": "bg-slate-950 hover:bg-slate-800 border-slate-800/80 text-slate-400"
+                };
+
+                for (let i = 0; i < 9; i++) {
+                    const cell = document.createElement('button');
+                    cell.className = `p-3 font-mono text-[9px] font-bold rounded-xl border transition-all h-16 flex items-center justify-center text-center ${colors["click-matrix"]}`;
+                    cell.innerText = labels[i];
+                    matrixGrid.appendChild(cell);
+                }
+
+                // Randomly trigger warning zone
+                const randomIndex = Math.floor(Math.random() * 9);
+                const targetCell = matrixGrid.children[randomIndex];
+                
+                const label = activeQuestionObj.q;
+                if (label.includes("RED WARNING")) {
+                    targetCell.className = "p-3 font-mono text-[9px] font-black rounded-xl border border-red-500 bg-red-950 text-red-300 animate-pulse shadow-lg shadow-red-500/20";
+                } else if (label.includes("GREEN DEPLOY")) {
+                    targetCell.className = "p-3 font-mono text-[9px] font-black rounded-xl border border-emerald-500 bg-emerald-950 text-emerald-300 animate-pulse shadow-lg shadow-emerald-500/20";
+                } else if (label.includes("BLUE CODE")) {
+                    targetCell.className = "p-3 font-mono text-[9px] font-black rounded-xl border border-blue-500 bg-blue-950 text-blue-300 animate-pulse shadow-lg shadow-blue-500/20";
+                } else {
+                    targetCell.className = "p-3 font-mono text-[9px] font-black rounded-xl border border-purple-500 bg-purple-950 text-purple-300 animate-pulse shadow-lg shadow-purple-500/20";
+                }
+
+                targetCell.onclick = () => {
+                    triggerTaskSuccess(20);
+                };
+
+                panel.appendChild(matrixGrid);
+            } else {
+                activeQuestionObj.choices.forEach((choice, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = "w-full text-left p-3.5 bg-slate-900/60 hover:bg-slate-800 border border-slate-800 hover:border-blue-500/40 rounded-xl text-xs font-semibold transition-all flex justify-between items-center mb-2 shadow-sm";
+                    btn.innerHTML = `<span>${choice}</span> <i class="fa-regular fa-hand-point-right text-slate-600"></i>`;
+                    
+                    btn.onclick = () => {
+                        if (idx === activeQuestionObj.answer) {
+                            triggerTaskSuccess(15);
+                        } else {
+                            playSound(180, 0.25, 'sawtooth');
+                            btn.className = "w-full text-left p-3.5 bg-red-950/40 border border-red-900/80 rounded-xl text-xs font-bold text-red-300 transition-all flex justify-between items-center mb-2";
+                            btn.innerHTML = `<span>${choice} (Incorrect alignment)</span> <i class="fa-solid fa-circle-xmark text-red-400"></i>`;
+                            btn.disabled = true;
+                        }
+                    };
+                    panel.appendChild(btn);
+                });
+            }
+        }
+
+        // --- STREAMING_CHUNK: Success evaluations & float popups... ---
+        function verifyTypingSpeedInput() {
+            const inp = document.getElementById('typing-prompt-input').value;
+            const prompt = activeQuestionObj.prompt;
+
+            if (inp === prompt) {
+                triggerTaskSuccess(25);
+            }
+        }
+
+        function triggerTaskSuccess(scoreAwarded) {
+            playSound(650, 0.15, 'triangle');
+            awardXP(scoreAwarded);
+
+            // Confetti bursts
+            confetti({ particleCount: 20, spread: 35 });
+
+            // Spawn floating points popup
+            spawnFloatingXPPointsText(scoreAwarded);
+
+            // Progress Category Questions index
+            const list = taskDatabase[currentCategoryKey];
+            currentQuestionIndex++;
+            if (currentQuestionIndex >= list.length) {
+                currentQuestionIndex = 0; // wrap around
+                showNotification(`Category Mastered! Earned +${scoreAwarded} XP bonus.`);
+            }
+
+            renderActiveTask();
+        }
+
+        function spawnFloatingXPPointsText(pointsVal) {
+            const container = document.getElementById('points-particle-container');
+            if (!container) return;
+
+            const el = document.createElement('div');
+            el.className = "absolute font-mono font-black text-emerald-400 text-sm tracking-wider animate-bounce select-none pointer-events-none";
+            
+            const rx = Math.floor(Math.random() * 60) + 20;
+            const ry = Math.floor(Math.random() * 50) + 20;
+            el.style.left = `${rx}%`;
+            el.style.top = `${ry}%`;
+            el.innerText = `+${pointsVal} XP`;
+
+            container.appendChild(el);
+            setTimeout(() => el.remove(), 1200);
+        }
+
+        // Synchronize and write XP updates
+        async function awardXP(amount) {
+            playerXP += amount;
+            
+            if (userSessionRef) {
+                update(userSessionRef, { score: playerXP });
+            }
+
+            // Persistence write (RULE 3 & Rule 1 compliant pathing)
+            if (currentUser && playerUserId) {
+                try {
+                    const pathRef = doc(firestore, 'artifacts', appId, 'users', playerUserId, 'profile_data', 'stats');
+                    await setDoc(pathRef, {
+                        uid: playerUserId,
+                        displayName: playerDisplayName,
+                        score: playerXP,
+                        rank: getCareerRankName(),
+                        lastActive: Date.now()
+                    }, { merge: true });
+                } catch (e) {
+                    console.warn("Firestore statistics saving bypassed:", e);
+                }
+            }
+        }
+
+        function getCareerRankName() {
+            if (playerXP < 50) return "Junior Intern";
+            if (playerXP < 120) return "Product Associate";
+            if (playerXP < 250) return "Team Lead Synergizer";
+            return "VP of Scaling Synergies";
+        }
+
+        function generatePerformanceReview() {
+            getAudioContext();
+            document.getElementById('cert-employee-name').innerText = playerDisplayName;
+            document.getElementById('cert-employee-rank').innerText = getCareerRankName();
+            document.getElementById('cert-xp-val').innerText = `${playerXP} XP`;
+            
+            document.getElementById('certificate-modal').classList.remove('hidden');
+            playSound(600, 0.2);
+        }
+
+        function closeCertificate() {
+            document.getElementById('certificate-modal').classList.add('hidden');
+        }
+
+        function sendEmojiReaction(emoji) {
+            if (!userSessionRef) return;
+            update(userSessionRef, { lastEmoji: emoji });
+            playSound(600, 0.12, 'triangle');
+            showNotification(`Reaction: ${emoji}`);
+        }
+
+        function handleChatSubmit(event) {
+            event.preventDefault();
+            const input = document.getElementById('chat-text-input');
+            const txt = input.value.trim();
+            if (!txt || !messagesRef) return;
+
+            const newMsgRef = push(messagesRef);
+            set(newMsgRef, {
+                sender: playerDisplayName,
+                text: txt,
+                color: playerDeptColor,
+                timestamp: Date.now()
+            });
+
+            input.value = '';
+            playSound(400, 0.08);
+        }
+
+        function showNotification(text) {
+            const banner = document.createElement('div');
+            banner.className = "fixed top-6 left-1/2 -translate-x-1/2 bg-slate-900/95 border border-blue-500 text-blue-300 py-3 px-6 rounded-xl text-xs font-bold shadow-2xl z-50 transition-all duration-300 flex items-center gap-2";
+            banner.innerHTML = `<i class="fa-solid fa-info-circle animate-pulse"></i> <span>${text}</span>`;
+            document.body.appendChild(banner);
+            setTimeout(() => banner.remove(), 3000);
+        }
+
+        function logoutSession() {
+            playSound(300, 0.15);
+            if (userSessionRef) {
+                remove(userSessionRef);
+            }
+            auth.signOut().then(() => {
+                location.reload();
+            });
+        }
+
+        // --- Bind module functions directly to window object to prevent global reference errors ---
+        window.connectFirebase = connectFirebase;
+        window.randomizeDisplayName = randomizeDisplayName;
+        window.selectDept = selectDept;
+        window.signInAsEmployee = signInAsEmployee;
+        window.signInAsAdmin = signInAsAdmin;
+        window.switchAuthTab = switchAuthTab;
+        window.sendEmojiReaction = sendEmojiReaction;
+        window.handleChatSubmit = handleChatSubmit;
+        window.activateCategory = activateCategory;
+        window.generatePerformanceReview = generatePerformanceReview;
+        window.closeCertificate = closeCertificate;
+        window.adminTriggerStartGame = adminTriggerStartGame;
+        window.adminTriggerResetGame = adminTriggerResetGame;
+        window.verifyTypingSpeedInput = verifyTypingSpeedInput;
+        window.logoutSession = logoutSession;
+
+        // Window startup triggers
+        window.onload = function() {
+            connectFirebase();
+            randomizeDisplayName();
+        };
+
+    </script>
+</body>
+</html>
