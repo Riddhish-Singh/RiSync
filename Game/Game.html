@@ -190,7 +190,7 @@
                         </p>
                     </div>
                     <div class="text-xs font-semibold text-slate-400 py-1 px-3 bg-slate-900 rounded-full border border-slate-800">
-                        Total Joined Teammates: <span id="lobby-count-label" class="text-yellow-400 font-bold">1</span>
+                        Total Joined Teammates: <span id="lobby-count-label" class="text-yellow-400 font-bold">0</span>
                     </div>
                 </div>
 
@@ -275,7 +275,7 @@
                                 Initializing task...
                             </div>
 
-                            <!-- Interactive Answer Area (Changes dynamically based on category) -->
+                            <!-- Interactive Answer Area -->
                             <div id="interactive-answer-panel" class="mt-6 w-full max-w-lg mx-auto">
                                 <!-- Choices, typing input, or reaction matrices injected dynamically here -->
                             </div>
@@ -307,26 +307,26 @@
                     <div class="grid grid-cols-3 gap-2 max-w-md mx-auto items-end pt-8 pb-4">
                         <!-- Rank 2 -->
                         <div class="flex flex-col items-center">
-                            <span id="podium-name-2" class="text-xs font-bold truncate w-24 text-slate-400">Craig</span>
+                            <span id="podium-name-2" class="text-xs font-bold truncate w-24 text-slate-400">Waiting...</span>
                             <div class="w-full bg-slate-800 h-20 rounded-t-xl flex flex-col justify-center items-center mt-2 border border-slate-700/50 shadow">
                                 <span class="text-sm font-black">2nd</span>
-                                <span id="podium-score-2" class="text-[10px] font-bold text-yellow-500 mt-1 font-mono">150 XP</span>
+                                <span id="podium-score-2" class="text-[10px] font-bold text-yellow-500 mt-1 font-mono">0 XP</span>
                             </div>
                         </div>
                         <!-- Rank 1 -->
                         <div class="flex flex-col items-center">
-                            👑 <span id="podium-name-1" class="text-sm font-black truncate w-28 text-yellow-400">Lead Dev Dave</span>
+                            👑 <span id="podium-name-1" class="text-sm font-black truncate w-28 text-yellow-400">Waiting...</span>
                             <div class="w-full bg-gradient-to-t from-yellow-600/30 to-yellow-500/20 h-28 rounded-t-xl flex flex-col justify-center items-center mt-2 border border-yellow-500/30 shadow-lg shadow-yellow-500/10">
                                 <span class="text-lg font-black text-yellow-400">1st</span>
-                                <span id="podium-score-1" class="text-xs font-black text-yellow-300 mt-1 font-mono">310 XP</span>
+                                <span id="podium-score-1" class="text-xs font-black text-yellow-300 mt-1 font-mono">0 XP</span>
                             </div>
                         </div>
                         <!-- Rank 3 -->
                         <div class="flex flex-col items-center">
-                            <span id="podium-name-3" class="text-xs font-bold truncate w-24 text-slate-400">Sally</span>
+                            <span id="podium-name-3" class="text-xs font-bold truncate w-24 text-slate-400">Waiting...</span>
                             <div class="w-full bg-slate-900 h-16 rounded-t-xl flex flex-col justify-center items-center mt-2 border border-slate-800 shadow">
                                 <span class="text-xs font-black">3rd</span>
-                                <span id="podium-score-3" class="text-[10px] font-bold text-yellow-500 mt-1 font-mono">110 XP</span>
+                                <span id="podium-score-3" class="text-[10px] font-bold text-yellow-500 mt-1 font-mono">0 XP</span>
                             </div>
                         </div>
                     </div>
@@ -405,7 +405,7 @@
 
             <div class="flex justify-center gap-6 pt-4 text-left border-t border-slate-800/80 font-mono text-[10px] text-slate-400">
                 <div>
-                    <span class="block">XP: <strong id="cert-xp-val" class="text-slate-200">125</strong></span>
+                    <span class="block">XP: <strong id="cert-xp-val" class="text-slate-200">0</strong></span>
                 </div>
                 <div>
                     <span class="block">Office Status: <strong class="text-slate-200">Distinguished Elite</strong></span>
@@ -423,9 +423,9 @@
     <!-- Core Application Module logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, signInWithEmailAndPassword, signOut, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getDatabase, ref, set, get, update, onValue, onDisconnect, push } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+        import { getDatabase, ref, set, get, update, onValue, onDisconnect, push, remove } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
 
         // Environment configuration
         const defaultFirebaseConfig = {
@@ -448,7 +448,6 @@
         const firestore = getFirestore(app);
         const realtimeDB = getDatabase(app);
 
-        // --- Core Application States ---
         let playerUserId = null;
         let playerDisplayName = "";
         let playerDeptColor = "#2563eb";
@@ -494,8 +493,6 @@
             }
         }
 
-        // --- STREAMING_CHUNK: Deep Interactive Task Library... ---
-        // Rich Task Database
         const taskDatabase = {
             emoji: [
                 { q: "Translate: 💻📊🤝🚀", choices: ["Writing unit test algorithms", "Closing a major enterprise SaaS deal", "Daily status standup", "Filing operational taxes"], answer: 1 },
@@ -541,81 +538,9 @@
             ]
         };
 
-        // --- STREAMING_CHUNK: Setup global handlers... ---
-
         let userSessionRef = null;
         let messagesRef = null;
 
-        // Secure Firebase connection entrypoint
-        async function connectFirebase() {
-            const btn = document.getElementById('btn-employee-submit');
-            if (btn) {
-                btn.disabled = true;
-                btn.innerText = "CONNECTING DATABASE...";
-            }
-
-            try {
-                // Perform fast anonymous auth natively
-                const credentials = await signInAnonymously(auth);
-                currentUser = credentials.user;
-                playerUserId = credentials.user.uid;
-
-                if (btn) {
-                    btn.disabled = false;
-                    btn.innerText = "ENTER GAME LOBBY";
-                }
-            } catch (err) {
-                console.error("Database connection failure:", err);
-                if (btn) {
-                    btn.disabled = false;
-                    btn.innerText = "RETRY ENTER LOBBY";
-                }
-            }
-        }
-
-        // Switch sign in portals
-        function switchAuthTab(type) {
-            playSound(400, 0.08);
-            const btnEmp = document.getElementById('tab-employee-portal');
-            const btnAdm = document.getElementById('tab-admin-portal');
-            const formEmp = document.getElementById('form-employee');
-            const formAdm = document.getElementById('form-admin');
-
-            if (type === 'employee') {
-                btnEmp.className = "flex-1 py-2 rounded-lg font-bold text-xs bg-blue-600 text-white transition-all";
-                btnAdm.className = "flex-1 py-2 rounded-lg font-bold text-xs text-slate-400 hover:text-white transition-all";
-                formEmp.classList.remove('hidden');
-                formAdm.classList.add('hidden');
-            } else {
-                btnEmp.className = "flex-1 py-2 rounded-lg font-bold text-xs text-slate-400 hover:text-white transition-all";
-                btnAdm.className = "flex-1 py-2 rounded-lg font-bold text-xs bg-indigo-600 text-white transition-all";
-                formEmp.classList.add('hidden');
-                formAdm.classList.remove('hidden');
-            }
-        }
-
-        function randomizeDisplayName() {
-            const adjectives = ["Agile", "Lead", "Scrum", "Principal", "Senior", "Expert", "Cloud", "Synergy"];
-            const nouns = ["Architect", "Consultant", "Dev", "Analyst", "Steward", "Coder", "Strategist"];
-            const rAdj = adjectives[Math.floor(Math.random() * adjectives.length)];
-            const rNoun = nouns[Math.floor(Math.random() * nouns.length)];
-            document.getElementById('user-name-input').value = `${rAdj} ${rNoun}`;
-            playSound(320, 0.08);
-        }
-
-        function selectDept(deptType, colorHex) {
-            playerDeptType = deptType;
-            playerDeptColor = colorHex;
-            document.querySelectorAll('.dept-btn').forEach(btn => {
-                btn.classList.add('border-transparent');
-                btn.classList.remove('border-white');
-            });
-            event.target.classList.remove('border-transparent');
-            event.target.classList.add('border-white');
-            playSound(450, 0.08);
-        }
-
-        // Authenticate Standard Employee
         async function signInAsEmployee() {
             const nameInp = document.getElementById('user-name-input').value.trim();
             if (!nameInp) {
@@ -623,16 +548,36 @@
                 return;
             }
 
-            playerDisplayName = nameInp;
-
             const btn = document.getElementById('btn-employee-submit');
             btn.disabled = true;
-            btn.innerText = "JOINING ESCAPE LOBBY...";
+            btn.innerText = "VERIFYING PROFESSIONAL ID...";
 
             try {
-                if (!currentUser) {
-                    await connectFirebase();
+                // Verify the chosen name is unique among currently active players in RTDB
+                const playersRef = ref(realtimeDB, 'players');
+                const snapshot = await get(playersRef);
+                const players = snapshot.val() || {};
+                const nameExists = Object.values(players).some(p => p.name.toLowerCase() === nameInp.toLowerCase());
+
+                if (nameExists) {
+                    showNotification("This name is already there, try something else");
+                    btn.disabled = false;
+                    btn.innerText = "ENTER GAME LOBBY";
+                    return;
                 }
+
+                playerDisplayName = nameInp;
+                btn.innerText = "CREATING UNIQUE WORKER ID...";
+
+                // FORCE sign out of any persistent session to guarantee a brand new Employee authorization ID!
+                await signOut(auth);
+
+                // Set session persistence so refreshing or opening a new tab launches a completely new account ID
+                await setPersistence(auth, browserSessionPersistence);
+
+                const credentials = await signInAnonymously(auth);
+                currentUser = credentials.user;
+                playerUserId = credentials.user.uid;
                 isAdminCoordinator = false;
 
                 // Load initial scores if persisted (Rule 1 & Rule 3 compliant)
@@ -647,18 +592,13 @@
 
                 initializePlayerSession();
             } catch (err) {
-                console.error("Authentication failed:", err);
-                showNotification("Database login failure. Please retry.");
+                console.error("Employee authentication failed:", err);
+                showNotification("Database setup failed. Please retry.");
                 btn.disabled = false;
                 btn.innerText = "ENTER GAME LOBBY";
             }
         }
 
-        // --- STREAMING_CHUNK: Authorizing Coordinator Admins... ---
-        // Authenticate Admin via custom requested accounts:
-        // - harvinderkaur@asvithoughtworks.com
-        // - snigdhatripathi@asvithoughtworks.com
-        // Password: ASVI@2026
         async function signInAsAdmin() {
             const emailInp = document.getElementById('admin-email-input').value.trim();
             const passwordInp = document.getElementById('admin-password-input').value;
@@ -668,10 +608,15 @@
                 return;
             }
 
-            // Client-side guard check for specified accounts
+            // Client-side validation guard for specified admin accounts
             const validEmails = ['harvinderkaur@asvithoughtworks.com', 'snigdhatripathi@asvithoughtworks.com'];
             if (!validEmails.includes(emailInp.toLowerCase())) {
-                showNotification("Unauthorized admin email context.");
+                showNotification("Unauthorized coordinator email mapping.");
+                return;
+            }
+
+            if (passwordInp !== "ASVI@2026") {
+                showNotification("Incorrect password alignment.");
                 return;
             }
 
@@ -680,6 +625,9 @@
             btn.innerText = "AUTHORIZING CONSOLE...";
 
             try {
+                // Clear any leftover sessions before signing in as the Admin Coordinator
+                await signOut(auth);
+
                 const credentials = await signInWithEmailAndPassword(auth, emailInp, passwordInp);
                 currentUser = credentials.user;
                 playerUserId = credentials.user.uid;
@@ -690,14 +638,13 @@
                 initializePlayerSession();
             } catch (err) {
                 console.error("Admin sign-in failure:", err);
-                showNotification("Invalid coordinator password. Please retry.");
+                showNotification("Coordinator synchronization error.");
                 btn.disabled = false;
                 btn.innerText = "AUTHORIZE ACCESS";
             }
         }
 
         function initializePlayerSession() {
-            // Establish direct RTDB nodes
             userSessionRef = ref(realtimeDB, `players/${playerUserId}`);
             messagesRef = ref(realtimeDB, `chat_channel`);
 
@@ -730,9 +677,7 @@
             activateCategory('emoji');
         }
 
-        // Realtime synced listeners
         function bindRealtimeListeners() {
-            // Synced user connections
             onValue(ref(realtimeDB, `players`), (snapshot) => {
                 const data = snapshot.val() || {};
                 const size = Object.keys(data).length;
@@ -741,17 +686,14 @@
                 const lobbyLabel = document.getElementById('lobby-count-label');
                 if (lobbyLabel) lobbyLabel.innerText = size;
 
-                // Sync live leaderboard standings
                 updateLeaderboardStandings(data);
             });
 
-            // Synced global lobby escape status & countdown
             onValue(ref(realtimeDB, `escape_lobby_state`), (snapshot) => {
                 const state = snapshot.val() || { status: "waiting" };
                 handleGlobalLobbyStateTransition(state);
             });
 
-            // Synced watercooler intercom messages
             onValue(ref(realtimeDB, `chat_channel`), (snapshot) => {
                 const data = snapshot.val() || {};
                 const chatBox = document.getElementById('chat-messages-live');
@@ -778,7 +720,6 @@
             });
         }
 
-        // Leaderboard UI generator
         function updateLeaderboardStandings(playersData) {
             const container = document.getElementById('standings-list-box');
             if (!container) return;
@@ -793,9 +734,9 @@
                     el.className += " border-blue-500/50 bg-blue-950/20";
                 }
                 el.innerHTML = `
-                    <div class="flex items-center gap-1.5">
+                    <div class="flex items-center gap-2">
                         <span class="font-bold text-[10px] text-slate-400">#${idx+1}</span>
-                        <div class="w-2 h-2 rounded-full" style="background-color: ${p.color || '#94a3b8'}"></div>
+                        <div class="w-2.5 h-2.5 rounded-full" style="background-color: ${p.color || '#94a3b8'}"></div>
                         <span class="font-semibold text-[11px] truncate w-24">${p.name}</span>
                     </div>
                     <span class="font-mono text-[10px] font-bold text-yellow-400">${p.score} XP</span>
@@ -804,8 +745,6 @@
             });
         }
 
-        // --- STREAMING_CHUNK: Timer synchronizations & admin triggers... ---
-        // Synced Lobby state machine transition handler
         function handleGlobalLobbyStateTransition(state) {
             const statusPill = document.getElementById('game-status-pill');
             const lobbyWait = document.getElementById('lobby-wait-screen');
@@ -826,7 +765,6 @@
                 }
                 victoryScreen.classList.add('hidden');
 
-                // Track live elapsed countdown timer relative to admin Server start value
                 const elapsed = Math.floor((Date.now() - state.started_at) / 1000);
                 globalTimerRemaining = Math.max(0, 1800 - elapsed);
                 startSyncedCountdownTimer(state.started_at);
@@ -842,7 +780,6 @@
                 clearInterval(syncLobbyTimer);
                 populatePodiumVisuals();
             } else {
-                // Waiting lobby
                 statusPill.innerText = "Lobby Waiting";
                 statusPill.className = "bg-amber-950/60 border border-amber-500/30 text-amber-400 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider";
                 timerHud.classList.add('hidden');
@@ -868,7 +805,6 @@
 
                 if (globalTimerRemaining <= 0) {
                     clearInterval(syncLobbyTimer);
-                    // Automatically freeze game if timer has expired
                     if (isAdminCoordinator) {
                         set(ref(realtimeDB, `escape_lobby_state`), {
                             status: "finished",
@@ -879,7 +815,6 @@
             }, 1000);
         }
 
-        // Coordinator: Trigger Global Escape Start (30 Mins)
         function adminTriggerStartGame() {
             set(ref(realtimeDB, `escape_lobby_state`), {
                 status: "active",
@@ -889,7 +824,6 @@
             showNotification("Thoughtworks Escape Started! Live 30-Minute countdown active.");
         }
 
-        // Coordinator: Reset Lobby Game State
         function adminTriggerResetGame() {
             set(ref(realtimeDB, `escape_lobby_state`), {
                 status: "waiting"
@@ -899,7 +833,6 @@
             showNotification("Lobby Reset Successfully.");
         }
 
-        // Populate Celebratory Winners Podium
         async function populatePodiumVisuals() {
             try {
                 const snap = await get(ref(realtimeDB, `players`));
@@ -920,14 +853,11 @@
             }
         }
 
-        // --- STREAMING_CHUNK: Interactive Task Engines & Click Matrices... ---
-        // Category workspace selection
         function activateCategory(catKey) {
             playSound(420, 0.08);
             currentCategoryKey = catKey;
             currentQuestionIndex = 0;
 
-            // Shift buttons active designs
             ['emoji', 'trivia', 'speak', 'teasers', 'typing', 'reaction'].forEach(k => {
                 const el = document.getElementById(`btn-cat-${k}`);
                 if (el) {
@@ -960,7 +890,10 @@
                         <div class="text-right text-[10px] text-slate-500 font-mono">Accuracy check: 100%</div>
                     </div>
                 `;
-                setTimeout(() => document.getElementById('typing-prompt-input').focus(), 50);
+                setTimeout(() => {
+                    const inp = document.getElementById('typing-prompt-input');
+                    if (inp) inp.focus();
+                }, 50);
             } else if (currentCategoryKey === 'reaction') {
                 const matrixGrid = document.createElement('div');
                 matrixGrid.className = "grid grid-cols-3 gap-2.5 max-w-[280px] mx-auto";
@@ -977,7 +910,6 @@
                     matrixGrid.appendChild(cell);
                 }
 
-                // Randomly trigger warning zone
                 const randomIndex = Math.floor(Math.random() * 9);
                 const targetCell = matrixGrid.children[randomIndex];
                 
@@ -1018,7 +950,6 @@
             }
         }
 
-        // --- STREAMING_CHUNK: Success evaluations & float popups... ---
         function verifyTypingSpeedInput() {
             const inp = document.getElementById('typing-prompt-input').value;
             const prompt = activeQuestionObj.prompt;
@@ -1032,17 +963,13 @@
             playSound(650, 0.15, 'triangle');
             awardXP(scoreAwarded);
 
-            // Confetti bursts
             confetti({ particleCount: 20, spread: 35 });
-
-            // Spawn floating points popup
             spawnFloatingXPPointsText(scoreAwarded);
 
-            // Progress Category Questions index
             const list = taskDatabase[currentCategoryKey];
             currentQuestionIndex++;
             if (currentQuestionIndex >= list.length) {
-                currentQuestionIndex = 0; // wrap around
+                currentQuestionIndex = 0; // Wrap around
                 showNotification(`Category Mastered! Earned +${scoreAwarded} XP bonus.`);
             }
 
@@ -1066,7 +993,6 @@
             setTimeout(() => el.remove(), 1200);
         }
 
-        // Synchronize and write XP updates
         async function awardXP(amount) {
             playerXP += amount;
             
@@ -1074,8 +1000,7 @@
                 update(userSessionRef, { score: playerXP });
             }
 
-            // Persistence write (RULE 3 & Rule 1 compliant pathing)
-            if (currentUser && playerUserId) {
+            if (currentUser && playerUserId && !isAdminCoordinator) {
                 try {
                     const pathRef = doc(firestore, 'artifacts', appId, 'users', playerUserId, 'profile_data', 'stats');
                     await setDoc(pathRef, {
@@ -1137,6 +1062,47 @@
             playSound(400, 0.08);
         }
 
+        function switchAuthTab(type) {
+            playSound(400, 0.08);
+            const btnEmp = document.getElementById('tab-employee-portal');
+            const btnAdm = document.getElementById('tab-admin-portal');
+            const formEmp = document.getElementById('form-employee');
+            const formAdm = document.getElementById('form-admin');
+
+            if (type === 'employee') {
+                btnEmp.className = "flex-1 py-2 rounded-lg font-bold text-xs bg-blue-600 text-white transition-all";
+                btnAdm.className = "flex-1 py-2 rounded-lg font-bold text-xs text-slate-400 hover:text-white transition-all";
+                formEmp.classList.remove('hidden');
+                formAdm.classList.add('hidden');
+            } else {
+                btnEmp.className = "flex-1 py-2 rounded-lg font-bold text-xs text-slate-400 hover:text-white transition-all";
+                btnAdm.className = "flex-1 py-2 rounded-lg font-bold text-xs bg-indigo-600 text-white transition-all";
+                formEmp.classList.add('hidden');
+                formAdm.classList.remove('hidden');
+            }
+        }
+
+        function randomizeDisplayName() {
+            const adjectives = ["Agile", "Lead", "Scrum", "Principal", "Senior", "Expert", "Cloud", "Synergy"];
+            const nouns = ["Architect", "Consultant", "Dev", "Analyst", "Steward", "Coder", "Strategist"];
+            const rAdj = adjectives[Math.floor(Math.random() * adjectives.length)];
+            const rNoun = nouns[Math.floor(Math.random() * nouns.length)];
+            document.getElementById('user-name-input').value = `${rAdj} ${rNoun}`;
+            playSound(320, 0.08);
+        }
+
+        function selectDept(deptType, colorHex) {
+            playerDeptType = deptType;
+            playerDeptColor = colorHex;
+            document.querySelectorAll('.dept-btn').forEach(btn => {
+                btn.classList.add('border-transparent');
+                btn.classList.remove('border-white');
+            });
+            event.target.classList.remove('border-transparent');
+            event.target.classList.add('border-white');
+            playSound(450, 0.08);
+        }
+
         function showNotification(text) {
             const banner = document.createElement('div');
             banner.className = "fixed top-6 left-1/2 -translate-x-1/2 bg-slate-900/95 border border-blue-500 text-blue-300 py-3 px-6 rounded-xl text-xs font-bold shadow-2xl z-50 transition-all duration-300 flex items-center gap-2";
@@ -1155,8 +1121,7 @@
             });
         }
 
-        // --- Bind module functions directly to window object to prevent global reference errors ---
-        window.connectFirebase = connectFirebase;
+        // Bind module functions directly to window object to prevent global reference errors
         window.randomizeDisplayName = randomizeDisplayName;
         window.selectDept = selectDept;
         window.signInAsEmployee = signInAsEmployee;
@@ -1172,9 +1137,7 @@
         window.verifyTypingSpeedInput = verifyTypingSpeedInput;
         window.logoutSession = logoutSession;
 
-        // Window startup triggers
         window.onload = function() {
-            connectFirebase();
             randomizeDisplayName();
         };
 
