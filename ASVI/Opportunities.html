@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>CareerHub | View Open Positions & Admin Panel</title>
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Manrope & Work Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed": "#ffdada",
+                        "primary-fixed": "#f2daff",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#ffb3b6",
+                        "on-surface-variant": "#4c4451",
+                        "outline": "#7d7482",
+                        "surface-tint": "#7c43ab",
+                        "primary-fixed-dim": "#e0b6ff",
+                        "secondary-container": "#e21e49",
+                        "surface-container-low": "#f0f3ff",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed-dim": "#d0c3c5",
+                        "on-primary-container": "#ca8efc",
+                        "tertiary-fixed": "#eddfe0",
+                        "surface-container-high": "#dee8ff",
+                        "on-secondary-fixed-variant": "#920028",
+                        "on-secondary-fixed": "#40000c",
+                        "surface-variant": "#d8e3fb",
+                        "on-primary-fixed-variant": "#632892",
+                        "on-tertiary-fixed": "#211a1b",
+                        "on-primary-fixed": "#2d004f",
+                        "on-error": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed-variant": "#4d4546",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#2d2526",
+                        "on-tertiary-container": "#b1a5a6",
+                        "on-background": "#111c2d",
+                        "on-primary": "#ffffff",
+                        "surface-container-highest": "#d8e3fb",
+                        "inverse-surface": "#263143",
+                        "background": "#f9f9ff",
+                        "surface-bright": "#f9f9ff",
+                        "surface": "#f9f9ff",
+                        "inverse-on-surface": "#ecf1ff",
+                        "on-surface": "#111c2d",
+                        "error": "#ba1a1a",
+                        "on-secondary": "#ffffff",
+                        "tertiary-container": "#433b3c",
+                        "inverse-primary": "#e0b6ff",
+                        "on-secondary-container": "#fffbff",
+                        "secondary": "#ba0035",
+                        "primary": "#3e0069",
+                        "primary-container": "#581c87",
+                        "outline-variant": "#cfc2d2",
+                        "surface-container": "#e7eeff",
+                        "surface-dim": "#cfdaf2"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "lg": "48px",
+                        "xs": "8px",
+                        "md": "24px",
+                        "sm": "16px",
+                        "gutter": "24px",
+                        "margin-desktop": "64px",
+                        "xl": "80px",
+                        "base": "4px",
+                        "container-max": "1280px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Manrope"],
+                        "label-md": ["Work Sans"],
+                        "label-sm": ["Work Sans"],
+                        "headline-lg": ["Manrope"],
+                        "headline-sm": ["Manrope"],
+                        "headline-md": ["Manrope"],
+                        "body-md": ["Work Sans"],
+                        "body-lg": ["Work Sans"],
+                        "display": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-sm": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "display": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body { font-family: 'Work Sans', sans-serif; -webkit-font-smoothing: antialiased; }
+        h1, h2, h3, h4, .font-headline { font-family: 'Manrope', sans-serif; }
+        .job-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .job-card:hover { transform: translateY(-4px); box-shadow: 0 12px 25px -5px rgba(62, 0, 105, 0.1); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+        .hero-gradient {
+            background: radial-gradient(circle at 100% 0%, rgba(124, 67, 171, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 0% 100%, rgba(186, 0, 53, 0.05) 0%, transparent 50%);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface overflow-x-hidden">
+
+<!-- Navigation Top Bar -->
+<nav class="fixed top-0 left-0 right-0 z-50 bg-surface shadow-sm h-16 flex items-center border-b border-outline-variant">
+    <div class="flex justify-between items-center h-16 w-full px-gutter max-w-[1280px] mx-auto">
+        <div class="flex items-center gap-md">
+            <a href="#" class="flex items-center" id="branding-logo-anchor">
+                <img src="https://www.asvithoughtworks.com/images/asvi_dark_logo.svg" alt="Company Logo" class="h-8 w-auto" id="dynamic-nav-logo">
+            </a>
+            <div class="hidden md:flex items-center gap-md ml-lg">
+                <a class="font-label-md text-label-md text-secondary font-bold border-b-2 border-secondary" href="#" id="nav-jobs-link">Jobs Portal</a>
+                <a class="font-label-md text-label-md text-primary font-bold hidden" href="#admin-dashboard-section" id="nav-admin-link">ASVI System Control</a>
+            </div>
+        </div>
+        <div class="flex items-center gap-sm">
+            <div id="auth-loading-state" class="text-label-sm text-outline animate-pulse">Synchronizing...</div>
+            <div id="unauthenticated-state" class="hidden flex items-center gap-xs">
+                <button onclick="openAuthModal('login')" class="px-md py-xs bg-surface-container border border-outline-variant text-primary font-label-md text-label-md rounded-lg hover:bg-surface-container-high transition-all">Sign In</button>
+            </div>
+            <div id="authenticated-state" class="hidden flex items-center gap-sm">
+                <span id="user-display-email" class="hidden sm:inline font-label-sm text-on-surface-variant bg-surface-container px-sm py-1 rounded-full"></span>
+                <button onclick="handleSignOut()" class="px-md py-xs bg-outline-variant/30 text-on-surface font-label-md text-label-md rounded-lg hover:bg-outline-variant/50 transition-all">Sign Out</button>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Client Facing View Block -->
+<div id="client-facing-view" class="pt-16 min-h-screen">
+    <!-- Standalone Client Welcome Banner -->
+    <div id="standalone-client-header" class="hidden bg-surface-container p-sm text-center border-b border-outline-variant text-label-md font-bold text-primary">
+        You are looking at current job context assignments via ASVI Recruitment Pipeline partnership.
+    </div>
+
+    <!-- Hero Search Section -->
+    <section class="relative hero-gradient pt-xl pb-lg border-b border-outline-variant">
+        <div class="max-w-[1280px] mx-auto px-gutter">
+            <h1 class="font-display text-display text-primary mb-lg" id="dynamic-hero-title">Find Your Next Role</h1>
+            
+            <div class="bg-surface-container-lowest p-2 rounded-xl shadow-lg border border-outline-variant flex flex-col lg:flex-row items-center gap-2">
+                <div class="flex-1 flex items-center px-sm w-full">
+                    <span class="material-symbols-outlined text-outline">search</span>
+                    <input id="search-keyword" class="w-full border-none focus:ring-0 text-body-md font-body-md py-sm bg-transparent placeholder-outline" placeholder="Job title or keywords" type="text">
+                </div>
+                <div class="h-8 w-px bg-outline-variant hidden lg:block"></div>
+                <div class="w-full lg:w-48 px-sm flex items-center">
+                    <span class="material-symbols-outlined text-outline">category</span>
+                    <select id="filter-department" class="w-full border-none focus:ring-0 text-label-md font-label-md bg-transparent appearance-none cursor-pointer">
+                        <option value="All">All Departments</option>
+                        <option value="Finance & Growth">Finance & Growth</option>
+                        <option value="Internal Systems & Operations">Internal Systems & Operations</option>
+                        <option value="Core Program & Research Innovation">Core Program & Research Innovation</option>
+                        <option value="Education & EdTech">Education & EdTech</option>
+                    </select>
+                </div>
+                <div class="h-8 w-px bg-outline-variant hidden lg:block"></div>
+                <div class="w-full lg:w-48 px-sm flex items-center">
+                    <span class="material-symbols-outlined text-outline">location_on</span>
+                    <input id="filter-location-text" class="w-full border-none focus:ring-0 text-label-md font-label-md bg-transparent placeholder-outline" placeholder="Search City/State" type="text">
+                </div>
+                <button onclick="executeClientSearchFilter()" class="w-full lg:w-auto bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:opacity-90 transition-all flex items-center justify-center gap-xs" id="dynamic-search-btn">
+                    <span class="material-symbols-outlined text-[20px]">search</span> Search
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Job Opportunities Section -->
+    <section class="py-xl">
+        <div class="max-w-[1280px] mx-auto px-gutter">
+            <div class="flex justify-between items-end mb-md">
+                <div>
+                    <h2 class="text-headline-sm font-bold text-primary">Open Opportunities</h2>
+                    <p id="job-count-indicator" class="text-on-surface-variant font-body-md text-body-md">Loading dynamic openings...</p>
+                </div>
+                <div>
+                    <select id="sort-order" class="border-none bg-transparent text-label-md font-label-md text-primary font-bold py-0 focus:ring-0 cursor-pointer">
+                        <option value="desc">Newest First</option>
+                        <option value="asc">Oldest First</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="jobs-grid-display" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md"></div>
+        </div>
+    </section>
+</div>
+
+<!-- Protected Administrative Dashboard View Layer -->
+<div id="admin-dashboard-section" class="pt-16 min-h-screen hidden bg-surface-container-low/40">
+    <div class="max-w-[1280px] mx-auto px-gutter py-xl">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-outline-variant pb-md mb-lg gap-sm">
+            <div>
+                <span class="px-xs py-1 bg-secondary-fixed text-secondary font-bold rounded text-[10px] uppercase tracking-wider">Secure Root Instance</span>
+                <h1 class="text-headline-lg font-bold text-primary mt-base">ASVI Executive Control Center</h1>
+            </div>
+            <div class="flex gap-xs">
+                <button onclick="openClientCrudModal()" class="px-md py-xs bg-primary text-on-primary rounded-lg font-label-md text-label-md flex items-center gap-xs hover:opacity-90 transition-all">
+                    <span class="material-symbols-outlined">group_add</span> Add New ASVI Client
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard Internal Context Nav Tabs -->
+        <div class="flex flex-wrap gap-xs mb-md border-b border-outline-variant/60">
+            <button onclick="switchAdminTab('clients-mgmt')" id="tab-btn-clients-mgmt" class="px-md py-xs font-label-md text-label-md text-primary border-b-2 border-primary font-bold">ASVI Client Portfolio</button>
+            <button onclick="switchAdminTab('jobs-mgmt')" id="tab-btn-jobs-mgmt" class="px-md py-xs font-label-md text-label-md text-on-surface-variant hover:text-primary">Positions Workspace <span id="active-focused-client-tag" class="text-xs bg-secondary-fixed text-secondary px-1 rounded ml-1 hidden"></span></button>
+            <button onclick="switchAdminTab('apps-mgmt')" id="tab-btn-apps-mgmt" class="px-md py-xs font-label-md text-label-md text-on-surface-variant hover:text-primary">Applications Repository</button>
+            <button onclick="switchAdminTab('users-mgmt')" id="tab-btn-users-mgmt" class="px-md py-xs font-label-md text-label-md text-on-surface-variant hover:text-primary">Utilities & Access</button>
+        </div>
+
+        <!-- TAB 0: CLIENT PORTFOLIO MANAGEMENT -->
+        <div id="admin-tab-clients-mgmt" class="space-y-sm">
+            <div class="p-sm bg-surface-container rounded-xl text-label-sm text-on-surface-variant">
+                Select a client instance below to directly add open context positions, fetch active vacancy matrices, or copy distinct talent application links.
+            </div>
+            <div id="admin-clients-grid-display" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md"></div>
+        </div>
+
+        <!-- TAB 1: JOB MANAGEMENT CRUD PANEL -->
+        <div id="admin-tab-jobs-mgmt" class="space-y-sm hidden">
+            <div class="flex justify-between items-center bg-surface-container p-sm rounded-xl border border-outline-variant/40">
+                <span class="font-label-md text-primary font-bold" id="recruitment-context-headline">Please select a Client from Portfolio first.</span>
+                <button onclick="openJobFormModal()" id="admin-create-job-btn" disabled class="px-md py-xs bg-secondary text-on-secondary rounded-lg font-label-md text-label-md flex items-center gap-xs opacity-50 cursor-not-allowed transition-all">
+                    <span class="material-symbols-outlined">add</span> Create Job under Target Client
+                </button>
+            </div>
+            <div class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-surface-container border-b border-outline-variant text-label-sm font-bold text-on-surface">
+                            <th class="p-sm">Job Particulars</th>
+                            <th class="p-sm">Department</th>
+                            <th class="p-sm">Location</th>
+                            <th class="p-sm">Status</th>
+                            <th class="p-sm">Compensation</th>
+                            <th class="p-sm text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-jobs-table-body">
+                        <tr><td colspan="6" class="p-md text-center italic text-outline">Choose a client from the Client tab to view or modify structured jobs.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 2: APPLICATIONS MATRIX -->
+        <div id="admin-tab-apps-mgmt" class="space-y-md hidden">
+            <div id="apps-list-view-container" class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[1100px]">
+                    <thead>
+                        <tr class="bg-surface-container border-b border-outline-variant text-label-sm font-bold text-on-surface">
+                            <th class="p-sm">Applicant / Client Entity</th>
+                            <th class="p-sm">Target Position</th>
+                            <th class="p-sm">Compensation (Current / Expected)</th>
+                            <th class="p-sm">Locations (Current & Pref)</th>
+                            <th class="p-sm">Reason for Change & Style</th>
+                            <th class="p-sm">Date Received</th>
+                        </tr>
+                    </thead>
+                    <tbody id="apps-list-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 3: CONTROL PROFILE CHANGE UTILITIES -->
+        <div id="admin-tab-users-mgmt" class="grid grid-cols-1 lg:grid-cols-3 gap-md hidden">
+            <div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant h-fit">
+                <h3 class="text-headline-sm font-bold text-primary mb-xs">Change Control Password</h3>
+                <form id="admin-password-form" onsubmit="handleAdminPasswordUpdate(event)" class="space-y-xs">
+                    <div>
+                        <label class="block text-label-sm font-bold mb-base">Enter New Security Password</label>
+                        <input type="password" id="admin-new-password" required minlength="6" class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="••••••••">
+                    </div>
+                    <div id="pw-status-msg" class="text-label-sm font-bold p-xs rounded hidden"></div>
+                    <button type="submit" class="w-full bg-primary text-on-primary py-xs rounded-lg font-label-md transition-all hover:opacity-90">Commit Credential Update</button>
+                </form>
+            </div>
+            <div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant lg:col-span-2">
+                <h3 class="text-headline-sm font-bold text-primary mb-xs">User Management Roll</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-outline-variant text-label-sm font-bold text-on-surface">
+                                <th class="pb-xs">Unique Applicant Email</th>
+                                <th class="pb-xs">System Scope Access</th>
+                                <th class="pb-xs">Applications Sent</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body" class="text-body-md text-on-surface-variant"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CLIENT ENTITY MANAGEMENT CRUD MODAL -->
+<div id="client-crud-modal" class="fixed inset-0 bg-inverse-surface/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-md">
+    <div class="bg-surface-container-lowest border border-outline-variant w-full max-w-xl rounded-2xl p-md shadow-2xl overflow-y-auto max-h-[90vh]">
+        <div class="flex justify-between items-center border-b border-outline-variant/40 pb-xs mb-sm">
+            <h3 class="text-headline-sm font-bold text-primary">Provision Strategic Partner Profile</h3>
+            <button onclick="closeClientCrudModal()" class="text-on-surface-variant hover:text-error"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <form id="client-crud-form" class="space-y-xs" onsubmit="handleClientCrudSubmit(event)">
+            <div>
+                <label class="block text-label-sm font-bold mb-base">Corporate Brand Title (e.g. Logic Ladder)</label>
+                <input type="text" id="crud-client-name" required class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="Enter Brand Name">
+            </div>
+            <div>
+                <label class="block text-label-sm font-bold mb-base">Vector Image Logo URL (SVG/PNG Asset)</label>
+                <input type="url" id="crud-client-logo" required class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="https://example.com/logo.svg">
+            </div>
+            <div class="grid grid-cols-2 gap-xs">
+                <div>
+                    <label class="block text-label-sm font-bold mb-base">Primary Theme Color Hex</label>
+                    <div class="flex gap-xs items-center">
+                        <input type="color" id="crud-client-color-primary" value="#3e0069" class="h-10 w-12 rounded border-none cursor-pointer">
+                        <input type="text" id="crud-client-text-primary" value="#3e0069" class="w-full rounded-lg border-outline-variant text-body-md uppercase">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-label-sm font-bold mb-base">Secondary Accent Color Hex</label>
+                    <div class="flex gap-xs items-center">
+                        <input type="color" id="crud-client-color-secondary" value="#ba0035" class="h-10 w-12 rounded border-none cursor-pointer">
+                        <input type="text" id="crud-client-text-secondary" value="#ba0035" class="w-full rounded-lg border-outline-variant text-body-md uppercase">
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="w-full bg-primary text-on-primary py-xs rounded-lg font-label-md font-bold hover:opacity-90">Store Corporate Matrix Profile</button>
+        </form>
+    </div>
+</div>
+
+<!-- Authentication Form Dialog Modal -->
+<div id="auth-modal" class="fixed inset-0 bg-inverse-surface/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-md">
+    <div class="bg-surface-container-lowest border border-outline-variant w-full max-w-md rounded-2xl p-md shadow-2xl relative">
+        <button onclick="closeAuthModal()" class="absolute top-sm right-sm text-on-surface-variant hover:text-error"><span class="material-symbols-outlined">close</span></button>
+        <h3 id="auth-modal-title" class="text-headline-sm font-bold text-primary mb-xs">Sign In</h3>
+        <p id="auth-modal-subtitle" class="text-label-sm text-on-surface-variant mb-md">Provide credentials to coordinate structural profiles.</p>
+        
+        <form id="auth-form" class="space-y-sm" onsubmit="handleAuthSubmit(event)">
+            <input type="hidden" id="auth-action-type" value="login">
+            <div>
+                <label class="block text-label-sm font-bold mb-base text-on-surface" for="auth-email">Email Address</label>
+                <input type="email" id="auth-email" required class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="name@asvithoughtworks.com">
+            </div>
+            <div>
+                <label class="block text-label-sm font-bold mb-base text-on-surface" for="auth-password">Password Vector</label>
+                <input type="password" id="auth-password" required minlength="6" class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="••••••••">
+            </div>
+            <div id="auth-error-message" class="text-error text-label-sm font-bold hidden bg-error-container p-xs rounded"></div>
+            <button type="submit" id="auth-submit-btn" class="w-full bg-secondary text-on-secondary py-sm rounded-lg font-label-md hover:opacity-90 transition-all">Proceed to Profile</button>
+        </form>
+    </div>
+</div>
+
+<!-- Create / Edit Job Form Modal Panel Container -->
+<div id="job-crud-modal" class="fixed inset-0 bg-inverse-surface/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-md">
+    <div class="bg-surface-container-lowest border border-outline-variant w-full max-w-xl rounded-2xl p-md shadow-2xl overflow-y-auto max-h-[90vh]">
+        <div class="flex justify-between items-center border-b border-outline-variant/40 pb-xs mb-sm">
+            <h3 id="job-crud-modal-title" class="text-headline-sm font-bold text-primary">Post Structural Position</h3>
+            <button onclick="closeJobCrudModal()" class="text-on-surface-variant hover:text-error"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <form id="job-crud-form" class="space-y-xs" onsubmit="handleJobCrudSubmit(event)">
+            <input type="hidden" id="crud-job-id">
+            <div class="grid grid-cols-3 gap-xs">
+                <div class="col-span-2">
+                    <label class="block text-label-sm font-bold mb-base">Role Position Title</label>
+                    <input type="text" id="crud-job-title" required class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md">
+                </div>
+                <div>
+                    <label class="block text-label-sm font-bold mb-base">Job Status</label>
+                    <select id="crud-job-status" required class="w-full rounded-lg border-outline-variant text-body-md">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-xs">
+                <div>
+                    <label class="block text-label-sm font-bold mb-base">Department Branch</label>
+                    <select id="crud-job-dept" required class="w-full rounded-lg border-outline-variant text-body-md">
+                        <option value="Finance & Growth">Finance & Growth</option>
+                        <option value="Internal Systems & Operations">Internal Systems & Operations</option>
+                        <option value="Core Program & Research Innovation">Core Program & Research Innovation</option>
+                        <option value="Education & EdTech">Education & EdTech</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-label-sm font-bold mb-base">Compensation Band</label>
+                    <input type="text" id="crud-job-comp" placeholder="e.g. ₹6,0,000 - ₹9,0,000" required class="w-full rounded-lg border-outline-variant text-body-md">
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-xs bg-surface-container-low p-xs rounded-xl border border-outline-variant/30">
+                <div>
+                    <label class="block text-label-sm font-bold mb-base text-primary">State / UT (India)</label>
+                    <select id="crud-job-state" required onchange="populateAdminCityDropdown()" class="w-full rounded-lg border-outline-variant text-body-md max-h-48">
+                        <option value="">Select State/UT</option>
+                        <option value="Andhra Pradesh">Andhra Pradesh</option>
+                        <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                        <option value="Assam">Assam</option>
+                        <option value="Bihar">Bihar</option>
+                        <option value="Chandigarh">Chandigarh</option>
+                        <option value="Chhattisgarh">Chhattisgarh</option>
+                        <option value="Delhi">Delhi</option>
+                        <option value="Goa">Goa</option>
+                        <option value="Gujarat">Gujarat</option>
+                        <option value="Haryana">Haryana</option>
+                        <option value="Himachal Pradesh">Himachal Pradesh</option>
+                        <option value="Jammu & Kashmir">Jammu & Kashmir</option>
+                        <option value="Jharkhand">Jharkhand</option>
+                        <option value="Karnataka">Karnataka</option>
+                        <option value="Kerala">Kerala</option>
+                        <option value="Ladakh">Ladakh</option>
+                        <option value="Madhya Pradesh">Madhya Pradesh</option>
+                        <option value="Maharashtra">Maharashtra</option>
+                        <option value="Manipur">Manipur</option>
+                        <option value="Meghalaya">Meghalaya</option>
+                        <option value="Mizoram">Mizoram</option>
+                        <option value="Nagaland">Nagaland</option>
+                        <option value="Odisha">Odisha</option>
+                        <option value="Puducherry">Puducherry</option>
+                        <option value="Punjab">Punjab</option>
+                        <option value="Rajasthan">Rajasthan</option>
+                        <option value="Sikkim">Sikkim</option>
+                        <option value="Tamil Nadu">Tamil Nadu</option>
+                        <option value="Telangana">Telangana</option>
+                        <option value="Tripura">Tripura</option>
+                        <option value="Uttar Pradesh">Uttar Pradesh</option>
+                        <option value="Uttarakhand">Uttarakhand</option>
+                        <option value="West Bengal">West Bengal</option>
+                        <option value="Remote">Pan-India Remote</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-label-sm font-bold mb-base text-primary">City Location Hub</label>
+                    <select id="crud-job-city" required class="w-full rounded-lg border-outline-variant text-body-md">
+                        <option value="">Select City</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-label-sm font-bold mb-base">Context Indicator Tag</label>
+                <select id="crud-job-type" class="w-full rounded-lg border-outline-variant text-body-md">
+                    <option value="">None Specified</option>
+                    <option value="New">New</option>
+                    <option value="Remote">Remote</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-label-sm font-bold mb-base">Description & Mandate</label>
+                <textarea id="crud-job-desc" rows="4" required class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="Enter explicit requirements outline..."></textarea>
+            </div>
+            <button type="submit" class="w-full bg-secondary text-on-secondary py-xs rounded-lg font-label-md font-bold hover:opacity-90">Commit Posting Data</button>
+        </form>
+    </div>
+</div>
+
+<!-- Job Application Form Modal Platform Screen -->
+<div id="application-modal" class="fixed inset-0 bg-inverse-surface/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-md">
+    <div class="bg-surface-container-lowest border border-outline-variant w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
+        <div class="p-md border-b border-outline-variant/50 flex justify-between items-start">
+            <div>
+                <span id="app-job-dept" class="px-xs py-1 bg-primary-fixed text-primary font-bold rounded text-[10px] uppercase tracking-wider">Dept</span>
+                <h3 id="app-job-title" class="text-headline-md font-bold text-primary mt-base">Position</h3>
+                <p id="app-job-meta" class="text-label-sm text-on-surface-variant mt-base flex gap-md"></p>
+            </div>
+            <button onclick="closeApplicationModal()" class="text-on-surface-variant hover:text-error"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        
+        <div class="p-md overflow-y-auto space-y-md flex-1">
+            <div>
+                <h4 class="font-label-md font-bold text-on-surface mb-base">Job Parameters Overview</h4>
+                <p id="app-job-desc" class="text-body-md text-on-surface-variant whitespace-pre-line"></p>
+            </div>
+            <hr class="border-outline-variant/30">
+            
+            <div id="application-form-wrapper">
+                <h4 id="form-header-easy" class="font-label-md font-bold text-primary mb-sm">Submit Your Application</h4>
+                <div id="app-login-notice" class="bg-surface-container p-sm rounded-xl border border-outline-variant text-center hidden">
+                    <p class="text-body-md text-on-surface-variant mb-sm">You must be logged in to submit your application package.</p>
+                    <button onclick="switchFromAppToAuth()" class="px-md py-xs bg-primary text-on-primary font-label-md text-label-md rounded-lg">Sign In Profile</button>
+                </div>
+                
+                <form id="job-application-form" class="space-y-sm hidden" onsubmit="handleApplicationSubmit(event)">
+                    <input type="hidden" id="app-target-job-id">
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-sm">
+                        <div>
+                            <label class="block text-label-sm font-bold mb-base" for="applicant-name">Applicant Legal Name</label>
+                            <input type="text" id="applicant-name" required class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md">
+                        </div>
+                        <div>
+                            <label class="block text-label-sm font-bold mb-base" for="applicant-phone">Phone Number Matrix</label>
+                            <input type="tel" id="applicant-phone" required class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="+91...">
+                        </div>
+                    </div>
+
+                    <div class="bg-surface-container-low p-sm rounded-xl space-y-sm border border-outline-variant/40">
+                        <span class="text-label-sm font-bold text-primary block">Application Details</span>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-xs">
+                            <div>
+                                <label class="block text-label-sm font-medium mb-base" for="applicant-current-ctc">Current CTC</label>
+                                <input type="text" id="applicant-current-ctc" required class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="e.g. 228000"[cite: 1]>
+                            </div>
+                            <div>
+                                <label class="block text-label-sm font-medium mb-base" for="applicant-expected-ctc">Expected CTC</label>
+                                <input type="text" id="applicant-expected-ctc" required class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="e.g. 300000"[cite: 1]>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-xs">
+                            <div>
+                                <label class="block text-label-sm font-medium mb-base" for="applicant-notice-period">Notice Period</label>
+                                <input type="text" id="applicant-notice-period" required class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="Immediate"[cite: 1]>
+                            </div>
+                            <div>
+                                <label class="block text-label-sm font-medium mb-base" for="applicant-current-location">Current Location</label>
+                                <input type="text" id="applicant-current-location" required class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="e.g. Dehradun">
+                            </div>
+                            <div>
+                                <label class="block text-label-sm font-medium mb-base" for="applicant-location-pref">Comfortable with Job Location?</label>
+                                <select id="applicant-location-pref" required class="w-full rounded-lg border-outline-variant text-body-md">
+                                    <option value="Yes, I am comfortable working from the specified location">Yes</option>
+                                    <option value="No, I prefer alternative locations">No</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-label-sm font-bold mb-base" for="applicant-portfolio">Portfolio / LinkedIn Link</label>
+                        <input type="url" id="applicant-portfolio" class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="https://...">
+                    </div>
+                    <div>
+                        <label class="block text-label-sm font-bold mb-base" for="applicant-reason-change">Reason for Change</label>
+                        <textarea id="applicant-reason-change" rows="2" required class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="Wanted a stable job and a better growth"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-label-sm font-bold mb-base" for="applicant-work-style">Work Style Preference</label>
+                        <textarea id="applicant-work-style" rows="2" required class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="Describe independent/team preference details..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-label-sm font-bold mb-base" for="applicant-notes">Cover Letter</label>
+                        <textarea id="applicant-notes" rows="2" required class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="Detail alignments here..."></textarea>
+                    </div>
+
+                    <div id="app-status-msg" class="text-label-sm font-bold hidden p-xs rounded"></div>
+                    <div class="flex justify-end gap-xs pt-base">
+                        <button type="submit" id="app-submit-btn" class="px-lg py-xs bg-secondary text-on-secondary rounded-lg font-label-md font-bold hover:opacity-90 shadow">Submit Application</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer Framework Component -->
+<footer class="bg-surface-container-highest border-t border-outline-variant py-xl">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-md px-gutter max-w-[1280px] mx-auto">
+        <div class="space-y-sm">
+            <span class="font-display text-headline-md font-bold text-primary">ASVICareerHub</span>
+            <p class="font-body-md text-body-md text-on-surface-variant">Empowering the next generation of professionals to build what matters.</p>
+        </div>
+        <div>
+            <h4 class="font-label-md text-label-md text-primary mb-sm">Company</h4>
+            <ul class="space-y-xs text-body-md text-on-surface-variant">
+                <li><a class="underline" href="#">About Us</a></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="font-label-md text-label-md text-primary mb-sm">Offerings</h4>
+            <ul class="space-y-xs text-body-md text-on-surface-variant">
+                <li><a class="underline" href="#">Fractional HR</a></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="font-label-md text-label-md text-primary mb-sm">Contact</h4>
+            <p class="text-body-md text-on-surface-variant">info@asvithoughtworks.com</p>
+        </div>
+    </div>
+    <div class="mt-xl pt-md border-t border-outline-variant text-center max-w-[1280px] mx-auto px-gutter">
+        <p class="font-label-sm text-label-sm text-on-surface-variant opacity-80">© 2026 CareerHub Inc. All rights reserved.</p>
+    </div>
+</footer>
+
+<!-- Firebase & Data Logic Matrix -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCEwOhV05bkHE4W6w7Zbqb5qOlKAdnlkqY",
+        authDomain: "asvi-carrer.firebaseapp.com",
+        projectId: "asvi-carrer",
+        storageBucket: "asvi-carrer.firebasestorage.app",
+        messagingSenderId: "1044711279650",
+        appId: "1:1044711279650:web:1037c35225ec2ffcadce7b",
+        measurementId: "G-1TRZWPGSQL"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let localClientsDatabase = [];
+    let localJobsDatabase = [];
+    let localAppsDatabase = [];
+    let currentSessionUser = null;
+    let currentlyFocusedClientId = null; 
+    let activeVisitorClientId = null;     
+
+    const adminClearanceList = [
+        "harvinderkaur@asvithoughtworks.com",
+        "snigdhatripathi@asvithoughtworks.com"
+    ];
+
+    window.indiaLocationMatrix = {
+        "Andhra Pradesh": ["Visakhapatnam", "Vijayawada", "Guntur", "Nellore", "Tirupati"],
+        "Arunachal Pradesh": ["Itanagar", "Naharlagun", "Pasighat"],
+        "Assam": ["Guwahati", "Dibrugarh", "Silchar", "Jorhat"],
+        "Bihar": ["Patna", "Gaya", "Bhagalpur", "Muzaffarpur"],
+        "Chandigarh": ["Chandigarh City"],
+        "Chhattisgarh": ["Raipur", "Bhilai", "Bilaspur"],
+        "Delhi": ["New Delhi", "Connaught Place", "Dwarka", "Saket"],
+        "Goa": ["Panaji", "Margao", "Vasco da Gama"],
+        "Gujarat": ["Ahmedabad", "Surat", "Vadodara", "Rajkot"],
+        "Haryana": ["Gurugram", "Faridabad", "Panipat", "Ambala"],
+        "Himachal Pradesh": ["Shimla", "Manali", "Dharamshala"],
+        "Jammu & Kashmir": ["Srinagar", "Jammu"],
+        "Jharkhand": ["Ranchi", "Jamshedpur", "Dhanbad"],
+        "Karnataka": ["Bengaluru", "Mysuru", "Hubballi-Dharwad", "Mangaluru"],
+        "Kerala": ["Thiruvananthapuram", "Kochi", "Kozhikode"],
+        "Ladakh": ["Leh", "Kargil"],
+        "Madhya Pradesh": ["Indore", "Bhopal", "Jabalpur", "Gwalior"],
+        "Maharashtra": ["Mumbai", "Pune", "Nagpur", "Thane", "Nashik"],
+        "Manipur": ["Imphal"],
+        "Meghalaya": ["Shillong"],
+        "Mizoram": ["Aizawl"],
+        "Nagaland": ["Dimapur", "Kohima"],
+        "Odisha": ["Bhubaneswar", "Cuttack", "Rourkela"],
+        "Puducherry": ["Puducherry City"],
+        "Punjab": ["Ludhiana", "Amritsar", "Jalandhar", "Patiala", "Mohali"],
+        "Rajasthan": ["Jaipur", "Jodhpur", "Kota", "Udaipur"],
+        "Sikkim": ["Gangtok"],
+        "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Trichy"],
+        "Telangana": ["Hyderabad", "Warangal", "Nizamabad"],
+        "Tripura": ["Agartala"],
+        "Uttar Pradesh": ["Noida", "Lucknow", "Kanpur", "Ghaziabad", "Agra"],
+        "Uttarakhand": ["Dehradun", "Haldwani", "Haridwar", "Roorkee", "Rudrapur"],
+        "West Bengal": ["Kolkata", "Asansol", "Siliguri", "Durgapur"],
+        "Remote": ["Fully Remote (Work From Home)"]
+    };
+
+    window.populateAdminCityDropdown = function(selectedCity = "") {
+        const stateSelect = document.getElementById('crud-job-state');
+        const citySelect = document.getElementById('crud-job-city');
+        const state = stateSelect.value;
+        
+        citySelect.innerHTML = '<option value="">Select City</option>';
+        if (state && window.indiaLocationMatrix[state]) {
+            window.indiaLocationMatrix[state].forEach(city => {
+                const opt = document.createElement('option');
+                opt.value = city;
+                opt.innerText = city;
+                if(city === selectedCity) opt.selected = true;
+                citySelect.appendChild(opt);
+            });
+        }
+    };
+
+    // --- Dynamic Theming Engine ---
+    function applyClientTheming(clientObj) {
+        if (!clientObj) {
+            document.getElementById('dynamic-nav-logo').src = "https://www.asvithoughtworks.com/images/asvi_dark_logo.svg";
+            document.getElementById('dynamic-hero-title').innerText = "Find Your Next Role";
+            document.getElementById('standalone-client-header').classList.add('hidden');
+            return;
+        }
+        document.getElementById('dynamic-nav-logo').src = clientObj.logoUrl;
+        document.getElementById('dynamic-hero-title').innerText = `Join the Team at ${clientObj.name}`;
+        document.getElementById('standalone-client-header').innerText = `You are exploring current vacancies for ${clientObj.name} managed by ASVI Thoughtworks.`;
+        document.getElementById('standalone-client-header').classList.remove('hidden');
+        
+        const searchBtn = document.getElementById('dynamic-search-btn');
+        if(searchBtn && clientObj.primaryColor) {
+            searchBtn.style.backgroundColor = clientObj.primaryColor;
+        }
+    }
+
+    // --- Deep Link Navigation Parser Engine ---
+    function evaluateHashRoutingParameters() {
+        const currentHash = window.location.hash;
+        if (currentHash.startsWith('#client/')) {
+            const parts = currentHash.split('/');
+            activeVisitorClientId = parts[1];
+            
+            if (localClientsDatabase.length > 0) {
+                const match = localClientsDatabase.find(c => c.id === activeVisitorClientId);
+                if (match) {
+                    applyClientTheming(match);
+                }
+            }
+        } else {
+            activeVisitorClientId = null;
+            applyClientTheming(null);
+        }
+        executeClientSearchFilter();
+    }
+
+    window.addEventListener('hashchange', evaluateHashRoutingParameters);
+
+    // --- Authentication Synchronization ---
+    onAuthStateChanged(auth, (user) => {
+        document.getElementById('auth-loading-state').classList.add('hidden');
+        const unauthBlock = document.getElementById('unauthenticated-state');
+        const authBlock = document.getElementById('authenticated-state');
+        const userDisplay = document.getElementById('user-display-email');
+        const navAdminLink = document.getElementById('nav-admin-link');
+
+        if (user) {
+            currentSessionUser = user;
+            userDisplay.innerText = user.email;
+            unauthBlock.classList.add('hidden');
+            authBlock.classList.remove('hidden');
+
+            if (adminClearanceList.includes(user.email)) {
+                navAdminLink.classList.remove('hidden');
+                document.getElementById('client-facing-view').classList.add('hidden');
+                document.getElementById('admin-dashboard-section').classList.remove('hidden');
+                fetchAdminDatasets();
+            } else {
+                navAdminLink.classList.add('hidden');
+                document.getElementById('client-facing-view').classList.remove('hidden');
+                document.getElementById('admin-dashboard-section').classList.add('hidden');
+            }
+        } else {
+            currentSessionUser = null;
+            unauthBlock.classList.remove('hidden');
+            authBlock.classList.add('hidden');
+            navAdminLink.classList.add('hidden');
+            document.getElementById('client-facing-view').classList.remove('hidden');
+            document.getElementById('admin-dashboard-section').classList.add('hidden');
+        }
+        
+        fetchInitialClientAndJobData();
+    });
+
+    async function fetchInitialClientAndJobData() {
+        try {
+            const clientSnap = await getDocs(collection(db, "clients"));
+            localClientsDatabase = [];
+            clientSnap.forEach(doc => localClientsDatabase.push({ id: doc.id, ...doc.data() }));
+
+            const jobSnap = await getDocs(collection(db, "jobs"));
+            localJobsDatabase = [];
+            jobSnap.forEach(doc => localJobsDatabase.push({ id: doc.id, ...doc.data() }));
+
+            evaluateHashRoutingParameters();
+        } catch (err) {
+            console.error("Data fetch anomaly: ", err);
+        }
+    }
+
+    window.handleAuthSubmit = async function(e) {
+        e.preventDefault();
+        const email = document.getElementById('auth-email').value.trim();
+        const password = document.getElementById('auth-password').value;
+        const errDisplay = document.getElementById('auth-error-message');
+        const submitBtn = document.getElementById('auth-submit-btn');
+
+        errDisplay.classList.add('hidden');
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Authenticating Engine...";
+
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            closeAuthModal();
+        } catch (error) {
+            errDisplay.innerText = error.message;
+            errDisplay.classList.remove('hidden');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Proceed to Profile";
+        }
+    }
+
+    window.handleSignOut = async function() {
+        await signOut(auth);
+        window.location.hash = "";
+        location.reload();
+    }
+
+    window.handleAdminPasswordUpdate = async function(e) {
+        e.preventDefault();
+        const newPassword = document.getElementById('admin-new-password').value;
+        const statusMsg = document.getElementById('pw-status-msg');
+        statusMsg.classList.add('hidden');
+        try {
+            await updatePassword(currentSessionUser, newPassword);
+            statusMsg.className = "text-label-sm font-bold p-xs rounded bg-surface-container-high text-primary";
+            statusMsg.innerText = "Security Password changed successfully.";
+            statusMsg.classList.remove('hidden');
+            document.getElementById('admin-password-form').reset();
+        } catch (error) {
+            statusMsg.className = "text-label-sm font-bold p-xs rounded bg-error-container text-error";
+            statusMsg.innerText = error.message;
+            statusMsg.classList.remove('hidden');
+        }
+    }
+
+    // --- Frontend Job Render Logic ---
+    window.executeClientSearchFilter = function() {
+        const keyword = document.getElementById('search-keyword').value.toLowerCase().trim();
+        const dept = document.getElementById('filter-department').value;
+        const locFilter = document.getElementById('filter-location-text').value.toLowerCase().trim();
+        const sorting = document.getElementById('sort-order').value;
+        
+        let results = localJobsDatabase.filter(j => j.status !== 'inactive');
+        
+        if (activeVisitorClientId) {
+            results = results.filter(j => j.clientId === activeVisitorClientId);
+        }
+        
+        if (dept !== 'All') results = results.filter(j => j.department === dept);
+        if (locFilter) {
+            results = results.filter(j => 
+                (j.city && j.city.toLowerCase().includes(locFilter)) || 
+                (j.state && j.state.toLowerCase().includes(locFilter))
+            );
+        }
+        if (keyword) {
+            results = results.filter(j => j.title.toLowerCase().includes(keyword) || j.description?.toLowerCase().includes(keyword));
+        }
+
+        results.sort((a, b) => (sorting === 'desc' ? (b.postedAt?.seconds || 0) - (a.postedAt?.seconds || 0) : (a.postedAt?.seconds || 0) - (b.postedAt?.seconds || 0)));
+        
+        const grid = document.getElementById('jobs-grid-display');
+        document.getElementById('job-count-indicator').innerText = `${results.length} position(s) active.`;
+
+        grid.innerHTML = results.map(job => {
+            const clientMeta = localClientsDatabase.find(c => c.id === job.clientId);
+            return `
+            <article class="job-card bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col h-full">
+                <div class="flex justify-between items-start mb-sm">
+                    <div class="w-12 h-12 bg-primary/5 rounded-lg flex items-center justify-center p-1">
+                        <img src="${clientMeta ? clientMeta.logoUrl : 'https://www.asvithoughtworks.com/images/asvi_dark_logo.svg'}" class="max-h-full max-w-full object-contain">
+                    </div>
+                    <span class="px-xs py-1 bg-surface-container text-on-surface-variant text-[10px] uppercase font-bold rounded">${clientMeta ? clientMeta.name : 'ASVI'}</span>
+                </div>
+                <h3 class="text-headline-sm font-bold text-primary mb-xs">${job.title}</h3>
+                <p class="text-label-sm text-on-surface-variant flex gap-sm mb-md">
+                    <span>${job.department}</span>|<span>${job.city || ''}, ${job.state || ''}</span>
+                </p>
+                <div class="mt-auto pt-md border-t border-outline-variant flex justify-between items-center">
+                    <span class="text-on-surface-variant font-label-md text-label-md text-xs">${job.compensation}</span>
+                    <button onclick="openApplicationModal('${job.id}')" class="text-secondary font-bold font-label-md text-label-md hover:underline flex items-center gap-xs">View Details <span class="material-symbols-outlined text-[18px]">arrow_forward</span></button>
+                </div>
+            </article>
+        `;}).join('');
+    }
+
+    // --- Admin Dashboard Controller Datasets ---
+    async function fetchAdminDatasets() {
+        if (!currentSessionUser || !adminClearanceList.includes(currentSessionUser.email)) return;
+        
+        const clientSnap = await getDocs(collection(db, "clients"));
+        localClientsDatabase = [];
+        clientSnap.forEach(doc => localClientsDatabase.push({ id: doc.id, ...doc.data() }));
+        renderAdminClientsGrid();
+
+        const jobsSnapshot = await getDocs(collection(db, "jobs"));
+        localJobsDatabase = [];
+        jobsSnapshot.forEach(doc => localJobsDatabase.push({ id: doc.id, ...doc.data() }));
+        
+        if (currentlyFocusedClientId) {
+            renderAdminJobsTable(currentlyFocusedClientId);
+        }
+
+        const appsSnapshot = await getDocs(collection(db, "applications"));
+        localAppsDatabase = [];
+        appsSnapshot.forEach(doc => localAppsDatabase.push({ id: doc.id, ...doc.data() }));
+        renderAdminApplicationsMatrix();
+        renderUserAndAssignmentsOverview();
+    }
+
+    // Render Tab 0: Clients List Grid Panel
+    function renderAdminClientsGrid() {
+        const grid = document.getElementById('admin-clients-grid-display');
+        if(localClientsDatabase.length === 0) {
+            grid.innerHTML = `<div class="col-span-full p-md bg-surface-container-low text-center italic text-outline rounded-xl">No active operational corporate clients found. Add one above.</div>`;
+            return;
+        }
+
+        grid.innerHTML = localClientsDatabase.map(client => {
+            const clientJobCount = localJobsDatabase.filter(j => j.clientId === client.id).length;
+            
+            // Hardcoded structural destination link engine as per custom requirements rule configuration
+            const generatedLink = `https://risync.in/ASVI/#client/${client.id}`;
+
+            return `
+            <div class="bg-surface-container-lowest border ${currentlyFocusedClientId === client.id ? 'border-secondary ring-2 ring-secondary/20' : 'border-outline-variant'} rounded-xl p-md flex flex-col justify-between space-y-sm shadow-sm">
+                <div class="flex justify-between items-start">
+                    <div class="h-10 w-24 bg-surface-container-low p-1 rounded flex items-center justify-center">
+                        <img src="${client.logoUrl}" class="max-h-full object-contain">
+                    </div>
+                    <button onclick="deleteClientEntity('${client.id}')" class="text-error text-xs hover:underline flex items-center gap-1"><span class="material-symbols-outlined text-sm">delete</span> Delete</button>
+                </div>
+                <div>
+                    <h3 class="text-headline-sm font-bold text-primary">${client.name}</h3>
+                    <div class="flex gap-xs items-center mt-xs">
+                        <span class="w-3 h-3 rounded-full border border-outline" style="background-color: ${client.primaryColor || '#000'}"></span>
+                        <span class="w-3 h-3 rounded-full border border-outline" style="background-color: ${client.secondaryColor || '#000'}"></span>
+                        <span class="text-xs text-outline font-mono">Theme Mapping Applied</span>
+                    </div>
+                </div>
+                <div class="bg-surface-container-low p-xs rounded text-xs text-on-surface-variant space-y-1">
+                    <div class="flex justify-between"><span>Open Positions:</span><strong class="text-primary">${clientJobCount}</strong></div>
+                    <div class="pt-1 border-t border-outline-variant/30 text-[11px] truncate select-all bg-surface-container-lowest px-1 rounded cursor-pointer" title="Click to copy standalone pipeline entry route" onclick="navigator.clipboard.writeText('${generatedLink}'); alert('Client pipeline link copied to clipboard!');">Link: ${generatedLink}</div>
+                </div>
+                <div class="pt-xs flex gap-xs">
+                    <button onclick="setAdminClientFocus('${client.id}')" class="w-full text-center bg-primary text-on-primary py-1 rounded text-xs font-semibold hover:opacity-90">Manage Positions</button>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    window.setAdminClientFocus = function(clientId) {
+        currentlyFocusedClientId = clientId;
+        const matchedClient = localClientsDatabase.find(c => c.id === clientId);
+        
+        const activeTag = document.getElementById('active-focused-client-tag');
+        activeTag.innerText = matchedClient.name;
+        activeTag.classList.remove('hidden');
+
+        document.getElementById('recruitment-context-headline').innerText = `Active Workspace Target Context: ${matchedClient.name}`;
+        
+        const createBtn = document.getElementById('admin-create-job-btn');
+        createBtn.disabled = false;
+        createBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+        renderAdminJobsTable(clientId);
+        switchAdminTab('jobs-mgmt');
+        renderAdminClientsGrid();
+    }
+
+    function renderAdminJobsTable(clientId) {
+        const tbody = document.getElementById('admin-jobs-table-body');
+        const clientFilteredJobs = localJobsDatabase.filter(j => j.clientId === clientId);
+        
+        if (clientFilteredJobs.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="p-md text-center italic text-outline">No jobs posted under this client yet. Click the create button above to post one.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = clientFilteredJobs.map(job => `
+            <tr class="border-b border-outline-variant/40 text-body-md hover:bg-surface-container-low/50">
+                <td class="p-sm font-bold text-primary">${job.title}</td>
+                <td class="p-sm text-on-surface-variant">${job.department}</td>
+                <td class="p-sm text-on-surface-variant">${job.city || ''}, ${job.state || ''}</td>
+                <td class="p-sm">
+                    <span class="px-xs py-0.5 rounded text-[11px] font-bold uppercase ${job.status === 'inactive' ? 'bg-error-container text-error' : 'bg-emerald-100 text-emerald-800'}">
+                        ${job.status || 'active'}
+                    </span>
+                </td>
+                <td class="p-sm font-label-md text-xs">${job.compensation}</td>
+                <td class="p-sm text-right space-x-xs">
+                    <button onclick="openJobFormModal('${job.id}')" class="text-primary font-bold hover:underline">Edit</button>
+                    <button onclick="deleteJobEntry('${job.id}')" class="text-error font-bold hover:underline">Delete</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // --- Client Profile Mutation CRUD ---
+    window.handleClientCrudSubmit = async function(e) {
+        e.preventDefault();
+        const payload = {
+            name: document.getElementById('crud-client-name').value.trim(),
+            logoUrl: document.getElementById('crud-client-logo').value.trim(),
+            primaryColor: document.getElementById('crud-client-text-primary').value.trim(),
+            secondaryColor: document.getElementById('crud-client-text-secondary').value.trim(),
+            timestamp: serverTimestamp()
+        };
+
+        try {
+            await addDoc(collection(db, "clients"), payload);
+            closeClientCrudModal();
+            fetchAdminDatasets();
+        } catch (err) {
+            alert("Exception storing client matrix code: " + err.message);
+        }
+    }
+
+    window.deleteClientEntity = async function(id) {
+        if(confirm("Warning! Removing this client will drop link references. Open assignments mapping this client ID will remain hidden until re-linked. Proceed?")) {
+            await deleteDoc(doc(db, "clients", id));
+            if(currentlyFocusedClientId === id) {
+                currentlyFocusedClientId = null;
+                document.getElementById('active-focused-client-tag').classList.add('hidden');
+                document.getElementById('admin-create-job-btn').disabled = true;
+                document.getElementById('admin-create-job-btn').classList.add('opacity-50', 'cursor-not-allowed');
+                document.getElementById('recruitment-context-headline').innerText = "Please select a Client from Portfolio first.";
+            }
+            fetchAdminDatasets();
+        }
+    }
+
+    // --- Job Mutation Mapping Focused Client Context ---
+    window.handleJobCrudSubmit = async function(e) {
+        e.preventDefault();
+        if(!currentlyFocusedClientId) {
+            alert("Error: Target workspace client scope missing. Refresh database state.");
+            return;
+        }
+
+        const jobId = document.getElementById('crud-job-id').value;
+        const payload = {
+            clientId: currentlyFocusedClientId, 
+            title: document.getElementById('crud-job-title').value.trim(),
+            status: document.getElementById('crud-job-status').value,
+            department: document.getElementById('crud-job-dept').value,
+            state: document.getElementById('crud-job-state').value,
+            city: document.getElementById('crud-job-city').value,
+            compensation: document.getElementById('crud-job-comp').value.trim(),
+            type: document.getElementById('crud-job-type').value,
+            description: document.getElementById('crud-job-desc').value.trim(),
+            postedAt: serverTimestamp()
+        };
+
+        try {
+            if (jobId) {
+                await updateDoc(doc(db, "jobs", jobId), payload);
+            } else {
+                await addDoc(collection(db, "jobs"), payload);
+            }
+            closeJobCrudModal();
+            fetchAdminDatasets();
+        } catch (err) {
+            alert("Job Submission Exception: " + err.message);
+        }
+    }
+
+    window.deleteJobEntry = async function(id) {
+        if (confirm("Confirm removal of selected Job Position from directory?")) {
+            await deleteDoc(doc(db, "jobs", id));
+            fetchAdminDatasets();
+        }
+    }
+
+    function renderAdminApplicationsMatrix() {
+        const tbody = document.getElementById('apps-list-table-body');
+        tbody.innerHTML = localAppsDatabase.map(app => {
+            const jobObj = localJobsDatabase.find(j => j.id === app.jobId);
+            const clientName = jobObj ? (localClientsDatabase.find(c => c.id === jobObj.clientId)?.name || "ASVI Core Group") : "Unknown Partner Instance";
+            
+            return `
+            <tr class="border-b border-outline-variant/40 text-body-md hover:bg-surface-container-low/50">
+                <td class="p-sm font-bold text-on-surface">
+                    ${app.fullName}<br>
+                    <span class="text-xs font-normal text-outline">${app.email || 'no-auth-cached'}</span><br>
+                    <span class="text-xs font-bold text-primary bg-primary-fixed/20 px-1 rounded uppercase tracking-wider">${clientName}</span>
+                </td>
+                <td class="p-sm text-primary font-bold text-sm">${jobObj ? jobObj.title : 'Deleted Position Entry'}</td>
+                <td class="p-sm text-on-surface text-xs">
+                    Current: <strong>${app.currentCtc || 'N/A'}</strong><br>Expected: <strong>${app.expectedCtc || 'N/A'}</strong>
+                </td>
+                <td class="p-sm text-xs text-on-surface-variant">
+                    Current: <strong>${app.currentLocation || 'N/A'}</strong><br>Comfortable: <span class="text-secondary font-semibold">${app.locationPref ? (app.locationPref.includes('Yes') ? 'Yes' : 'No') : 'N/A'}</span>
+                </td>
+                <td class="p-sm text-xs text-on-surface-variant max-w-xs">
+                    <div>Reason: <em>${app.reasonChange || 'N/A'}</em></div>
+                    <div class="truncate">Style: <em>${app.workStyle || 'N/A'}</em></div>
+                </td>
+                <td class="p-sm text-label-sm text-outline">${app.submittedAt ? new Date(app.submittedAt.seconds * 1000).toLocaleDateString() : 'Pending Synchrony'}</td>
+            </tr>
+        `;}).join('');
+    }
+
+    function renderUserAndAssignmentsOverview() {
+        const tbody = document.getElementById('users-table-body');
+        const uniqueUsersList = [...new Set(localAppsDatabase.map(a => a.email).filter(Boolean))];
+        
+        if(uniqueUsersList.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" class="p-sm text-center text-outline italic">No standard profiles tracked yet.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = uniqueUsersList.map(email => {
+            const assignedAppsCount = localAppsDatabase.filter(a => a.email === email).length;
+            return `
+                <tr class="border-b border-outline-variant/30">
+                    <td class="py-xs font-bold text-xs">${email}</td>
+                    <td class="py-xs"><span class="px-xs py-0.5 bg-surface-container text-on-surface-variant text-[12px] rounded">Standard Talent Tier</span></td>
+                    <td class="py-xs text-primary font-bold text-xs">${assignedAppsCount} Submission(s) Cached</td>
+                </tr>`;
+        }).join('');
+    }
+
+    window.handleApplicationSubmit = async function(e) {
+        e.preventDefault();
+        if (!currentSessionUser) return;
+
+        const payload = {
+            jobId: document.getElementById('app-target-job-id').value,
+            uid: currentSessionUser.uid,
+            email: currentSessionUser.email,
+            fullName: document.getElementById('applicant-name').value.trim(),
+            phoneNumber: document.getElementById('applicant-phone').value.trim(),
+            currentCtc: document.getElementById('applicant-current-ctc').value.trim(),
+            expectedCtc: document.getElementById('applicant-expected-ctc').value.trim(),
+            noticePeriod: document.getElementById('applicant-notice-period').value.trim(),
+            currentLocation: document.getElementById('applicant-current-location').value.trim(),
+            locationPref: document.getElementById('applicant-location-pref').value,
+            portfolioUrl: document.getElementById('applicant-portfolio').value.trim(),
+            reasonChange: document.getElementById('applicant-reason-change').value.trim(),
+            workStyle: document.getElementById('applicant-work-style').value.trim(),
+            statementOfPurpose: document.getElementById('applicant-notes').value.trim(),
+            submittedAt: serverTimestamp()
+        };
+
+        const statusMsg = document.getElementById('app-status-msg');
+        try {
+            await addDoc(collection(db, "applications"), payload);
+            statusMsg.className = "text-label-sm font-bold p-xs rounded bg-surface-container-high text-primary text-center";
+            statusMsg.innerText = "Application submitted successfully.";
+            statusMsg.classList.remove('hidden');
+            document.getElementById('job-application-form').reset();
+            setTimeout(() => { closeApplicationModal(); }, 2000);
+        } catch (err) {
+            statusMsg.className = "text-label-sm font-bold p-xs rounded bg-error-container text-error";
+            statusMsg.innerText = err.message;
+            statusMsg.classList.remove('hidden');
+        }
+    }
+
+    window.openJobFormModal = function(id = "") {
+        document.getElementById('job-crud-form').reset();
+        document.getElementById('crud-job-id').value = id;
+        const titleLabel = document.getElementById('job-crud-modal-title');
+        
+        if (id) {
+            titleLabel.innerText = "Modify Operational Position Parameters";
+            const job = localJobsDatabase.find(j => j.id === id);
+            if (job) {
+                document.getElementById('crud-job-title').value = job.title;
+                document.getElementById('crud-job-status').value = job.status || "active";
+                document.getElementById('crud-job-dept').value = job.department;
+                document.getElementById('crud-job-state').value = job.state || "";
+                populateAdminCityDropdown(job.city || "");
+                document.getElementById('crud-job-comp').value = job.compensation;
+                document.getElementById('crud-job-type').value = job.type || "";
+                document.getElementById('crud-job-desc').value = job.description || "";
+            }
+        } else {
+            titleLabel.innerText = "Provision New Operational Position";
+            document.getElementById('crud-job-status').value = "active";
+            document.getElementById('crud-job-city').innerHTML = '<option value="">Select City</option>';
+        }
+        document.getElementById('job-crud-modal').classList.remove('hidden');
+    }
+
+    window.closeJobCrudModal = function() { document.getElementById('job-crud-modal').classList.add('hidden'); }
+
+    window.openApplicationModal = function(jobId) {
+        const job = localJobsDatabase.find(j => j.id === jobId);
+        if (!job) return;
+
+        document.getElementById('app-target-job-id').value = jobId;
+        document.getElementById('app-job-title').innerText = job.title;
+        document.getElementById('app-job-dept').innerText = job.department;
+        document.getElementById('app-job-meta').innerHTML = `<span>Location: ${job.city || ''}, ${job.state || ''}</span>|<span>${job.compensation}</span>`;
+        document.getElementById('app-job-desc').innerText = job.description || "No parameters listed.";
+
+        if (currentSessionUser) {
+            document.getElementById('app-login-notice').classList.add('hidden');
+            document.getElementById('job-application-form').classList.remove('hidden');
+        } else {
+            document.getElementById('app-login-notice').classList.remove('hidden');
+            document.getElementById('job-application-form').classList.add('hidden');
+        }
+
+        document.getElementById('app-status-msg').classList.add('hidden');
+        document.getElementById('application-modal').classList.remove('hidden');
+    }
+
+    window.closeApplicationModal = function() { document.getElementById('application-modal').classList.add('hidden'); }
+    window.switchFromAppToAuth = function() { closeApplicationModal(); openAuthModal('login'); }
+</script>
+
+<!-- Visual Tab, Dual-Link Dynamic Controls & Layout Scripts -->
+<script>
+    document.getElementById('crud-client-color-primary').addEventListener('input', (e) => {
+        document.getElementById('crud-client-text-primary').value = e.target.value;
+    });
+    document.getElementById('crud-client-color-secondary').addEventListener('input', (e) => {
+        document.getElementById('crud-client-text-secondary').value = e.target.value;
+    });
+
+    function openClientCrudModal() {
+        document.getElementById('client-crud-form').reset();
+        document.getElementById('client-crud-modal').classList.remove('hidden');
+    }
+    function closeClientCrudModal() { document.getElementById('client-crud-modal').classList.add('hidden'); }
+
+    function openAuthModal(mode = 'login') {
+        document.getElementById('auth-action-type').value = mode;
+        document.getElementById('auth-form').reset();
+        document.getElementById('auth-error-message').classList.add('hidden');
+        document.getElementById('auth-modal').classList.remove('hidden');
+    }
+
+    function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
+
+    document.getElementById('nav-jobs-link').addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('client-facing-view').classList.remove('hidden');
+        document.getElementById('admin-dashboard-section').classList.add('hidden');
+    });
+
+    document.getElementById('branding-logo-anchor').addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.hash = "";
+        location.reload();
+    });
+
+    function switchAdminTab(target) {
+        const tabs = ['clients-mgmt', 'jobs-mgmt', 'apps-mgmt', 'users-mgmt'];
+        tabs.forEach(t => {
+            document.getElementById(`admin-tab-${t}`).classList.add('hidden');
+            document.getElementById(`tab-btn-${t}`).className = "px-md py-xs font-label-md text-label-md text-on-surface-variant hover:text-primary";
+        });
+
+        document.getElementById(`admin-tab-${target}`).classList.remove('hidden');
+        document.getElementById(`tab-btn-${target}`).className = "px-md py-xs font-label-md text-label-md text-primary border-b-2 border-primary font-bold";
+    }
+</script>
+</body>
+</html>
