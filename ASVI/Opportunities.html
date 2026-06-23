@@ -138,6 +138,7 @@
             <div id="auth-loading-state" class="text-label-sm text-outline animate-pulse">Synchronizing...</div>
             <div id="unauthenticated-state" class="hidden flex items-center gap-xs">
                 <button onclick="openAuthModal('login')" class="px-md py-xs bg-surface-container border border-outline-variant text-primary font-label-md text-label-md rounded-lg hover:bg-surface-container-high transition-all">Sign In</button>
+                <button onclick="openAuthModal('signup')" class="px-md py-xs bg-primary text-on-primary font-label-md text-label-md rounded-lg hover:opacity-90 transition-all">Sign Up</button>
             </div>
             <div id="authenticated-state" class="hidden flex items-center gap-sm">
                 <span id="user-display-email" class="hidden sm:inline font-label-sm text-on-surface-variant bg-surface-container px-sm py-1 rounded-full"></span>
@@ -359,13 +360,32 @@
     <div class="bg-surface-container-lowest border border-outline-variant w-full max-w-md rounded-2xl p-md shadow-2xl relative">
         <button onclick="closeAuthModal()" class="absolute top-sm right-sm text-on-surface-variant hover:text-error"><span class="material-symbols-outlined">close</span></button>
         <h3 id="auth-modal-title" class="text-headline-sm font-bold text-primary mb-xs">Sign In</h3>
-        <p id="auth-modal-subtitle" class="text-label-sm text-on-surface-variant mb-md">Provide credentials to coordinate structural profiles.</p>
+        <p id="auth-modal-subtitle" class="text-label-sm text-on-surface-variant mb-md">Provide parameters to access customized workspaces.</p>
         
+        <!-- Google Quick Login Track -->
+        <div class="mb-sm">
+            <button onclick="handleGoogleSignIn()" type="button" class="w-full flex items-center justify-center gap-xs bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 py-xs rounded-lg font-label-md text-label-md transition-all">
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.85z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.85c.87-2.6 3.3-4.53 12-4.53z" fill="#EA4335"/>
+                </svg>
+                Continue with Google
+            </button>
+        </div>
+
+        <div class="relative flex py-xs items-center">
+            <div class="flex-grow border-t border-outline-variant/40"></div>
+            <span class="flex-shrink mx-4 text-outline text-xs uppercase font-bold">Or use email</span>
+            <div class="flex-grow border-t border-outline-variant/40"></div>
+        </div>
+
         <form id="auth-form" class="space-y-sm" onsubmit="handleAuthSubmit(event)">
             <input type="hidden" id="auth-action-type" value="login">
             <div>
                 <label class="block text-label-sm font-bold mb-base text-on-surface" for="auth-email">Email Address</label>
-                <input type="email" id="auth-email" required class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="name@asvithoughtworks.com">
+                <input type="email" id="auth-email" required class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="name@domain.com">
             </div>
             <div>
                 <label class="block text-label-sm font-bold mb-base text-on-surface" for="auth-password">Password Vector</label>
@@ -374,6 +394,9 @@
             <div id="auth-error-message" class="text-error text-label-sm font-bold hidden bg-error-container p-xs rounded"></div>
             <button type="submit" id="auth-submit-btn" class="w-full bg-secondary text-on-secondary py-sm rounded-lg font-label-md hover:opacity-90 transition-all">Proceed to Profile</button>
         </form>
+        <div class="mt-md text-center border-t border-outline-variant/30 pt-sm">
+            <button id="auth-toggle-view" onclick="toggleAuthMode()" class="text-label-sm text-primary hover:underline font-bold">Don't have an account? Sign Up instead</button>
+        </div>
     </div>
 </div>
 
@@ -411,7 +434,7 @@
                 </div>
                 <div>
                     <label class="block text-label-sm font-bold mb-base">Compensation Band</label>
-                    <input type="text" id="crud-job-comp" placeholder="e.g. ₹6,0,000 - ₹9,0,000" required class="w-full rounded-lg border-outline-variant text-body-md">
+                    <input type="text" id="crud-job-comp" placeholder="e.g. ₹6,0,000 - ₹9,0,0,000" required class="w-full rounded-lg border-outline-variant text-body-md">
                 </div>
             </div>
             
@@ -611,7 +634,7 @@
 <!-- Firebase & Data Logic Matrix -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
     import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -627,6 +650,7 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    const googleProvider = new GoogleAuthProvider();
 
     let localClientsDatabase = [];
     let localJobsDatabase = [];
@@ -771,24 +795,21 @@
         fetchInitialClientAndJobData();
     });
 
-    async function fetchInitialClientAndJobData() {
+    window.handleGoogleSignIn = async function() {
+        const errDisplay = document.getElementById('auth-error-message');
+        errDisplay.classList.add('hidden');
         try {
-            const clientSnap = await getDocs(collection(db, "clients"));
-            localClientsDatabase = [];
-            clientSnap.forEach(doc => localClientsDatabase.push({ id: doc.id, ...doc.data() }));
-
-            const jobSnap = await getDocs(collection(db, "jobs"));
-            localJobsDatabase = [];
-            jobSnap.forEach(doc => localJobsDatabase.push({ id: doc.id, ...doc.data() }));
-
-            evaluateHashRoutingParameters();
-        } catch (err) {
-            console.error("Data fetch anomaly: ", err);
+            await signInWithPopup(auth, googleProvider);
+            closeAuthModal();
+        } catch (error) {
+            errDisplay.innerText = error.message;
+            errDisplay.classList.remove('hidden');
         }
     }
 
     window.handleAuthSubmit = async function(e) {
         e.preventDefault();
+        const actionType = document.getElementById('auth-action-type').value;
         const email = document.getElementById('auth-email').value.trim();
         const password = document.getElementById('auth-password').value;
         const errDisplay = document.getElementById('auth-error-message');
@@ -796,10 +817,14 @@
 
         errDisplay.classList.add('hidden');
         submitBtn.disabled = true;
-        submitBtn.innerText = "Authenticating Engine...";
+        submitBtn.innerText = "Authenticating Context Parameters...";
 
         try {
-            await signInWithEmailAndPassword(auth, email, password);
+            if (actionType === 'login') {
+                await signInWithEmailAndPassword(auth, email, password);
+            } else {
+                await createUserWithEmailAndPassword(auth, email, password);
+            }
             closeAuthModal();
         } catch (error) {
             errDisplay.innerText = error.message;
@@ -919,9 +944,7 @@
 
         grid.innerHTML = localClientsDatabase.map(client => {
             const clientJobCount = localJobsDatabase.filter(j => j.clientId === client.id).length;
-            
-            // Hardcoded structural destination link engine as per custom requirements rule configuration
-            const generatedLink = `https://risync.in/ASVI/#client/${client.id}`;
+            const generatedLink = `https://risync.in/ASVI/Opportunities.html#client/${client.id}`;
 
             return `
             <div class="bg-surface-container-lowest border ${currentlyFocusedClientId === client.id ? 'border-secondary ring-2 ring-secondary/20' : 'border-outline-variant'} rounded-xl p-md flex flex-col justify-between space-y-sm shadow-sm">
@@ -1232,10 +1255,30 @@
         document.getElementById('auth-action-type').value = mode;
         document.getElementById('auth-form').reset();
         document.getElementById('auth-error-message').classList.add('hidden');
+        
+        const title = document.getElementById('auth-modal-title');
+        const subtitle = document.getElementById('auth-modal-subtitle');
+        const toggleBtn = document.getElementById('auth-toggle-view');
+        
+        if (mode === 'login') {
+            title.innerText = "Sign In";
+            subtitle.innerText = "Provide parameters to access customized workspaces.";
+            toggleBtn.innerText = "Don't have an account? Sign Up instead";
+        } else {
+            title.innerText = "Create Account";
+            subtitle.innerText = "Register an email profile to coordinate job vacancy workflows.";
+            toggleBtn.innerText = "Already registered? Sign In instead";
+        }
+        
         document.getElementById('auth-modal').classList.remove('hidden');
     }
 
     function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
+
+    function toggleAuthMode() {
+        const currentType = document.getElementById('auth-action-type').value;
+        openAuthModal(currentType === 'login' ? 'signup' : 'login');
+    }
 
     document.getElementById('nav-jobs-link').addEventListener('click', (e) => {
         e.preventDefault();
