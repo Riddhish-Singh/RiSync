@@ -170,10 +170,19 @@
                     <span class="material-symbols-outlined text-outline">category</span>
                     <select id="filter-department" class="w-full border-none focus:ring-0 text-label-md font-label-md bg-transparent appearance-none cursor-pointer">
                         <option value="All">All Departments</option>
-                        <option value="Finance & Growth">Finance & Growth</option>
-                        <option value="Internal Systems & Operations">Internal Systems & Operations</option>
-                        <option value="Core Program & Research Innovation">Core Program & Research Innovation</option>
-                        <option value="Education & EdTech">Education & EdTech</option>
+                        <option value="Sales">Sales</option>
+                        <option value="Support Function">Support Function</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Business & Strategy">Business & Strategy</option>
+                        <option value="Product & Technology">Product & Technology</option>
+                        <option value="Customer Success">Customer Success</option>
+                        <option value="Research & Analytics">Research & Analytics</option>
+                        <option value="Client Engagement">Client Engagement</option>
+                        <option value="Corporate">Corporate</option>
+                        <option value="Insights & Surveys">Insights & Surveys</option>
+                        <option value="1P & SDK">1P & SDK</option>
+                        <option value="Activation">Activation</option>
+                        <option value="SMB-sales">SMB-sales</option>
                     </select>
                 </div>
                 <div class="h-8 w-px bg-outline-variant hidden lg:block"></div>
@@ -194,7 +203,7 @@
             <div class="flex justify-between items-end mb-md">
                 <div>
                     <h2 class="text-headline-sm font-bold text-primary">Open Opportunities</h2>
-                    <p id="job-count-indicator" class="text-on-surface-variant font-body-md text-body-md">Loading dynamic openings...</p>
+                    <p id="job-count-indicator" class="text-on-surface-variant font-body-md text-body-md">Loading openings...</p>
                 </div>
                 <div>
                     <select id="sort-order" class="border-none bg-transparent text-label-md font-label-md text-primary font-bold py-0 focus:ring-0 cursor-pointer">
@@ -214,10 +223,10 @@
     <div class="max-w-[1280px] mx-auto px-gutter py-xl">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-outline-variant pb-md mb-lg gap-sm">
             <div>
-                <span class="px-xs py-1 bg-secondary-fixed text-secondary font-bold rounded text-[10px] uppercase tracking-wider">Secure Root Instance</span>
+                <span id="admin-role-badge" class="px-xs py-1 bg-secondary-fixed text-secondary font-bold rounded text-[10px] uppercase tracking-wider">Secure Instance</span>
                 <h1 class="text-headline-lg font-bold text-primary mt-base">ASVI Executive Control Center</h1>
             </div>
-            <div class="flex gap-xs">
+            <div class="flex gap-xs" id="super-admin-action-block">
                 <button onclick="openClientCrudModal()" class="px-md py-xs bg-primary text-on-primary rounded-lg font-label-md text-label-md flex items-center gap-xs hover:opacity-90 transition-all">
                     <span class="material-symbols-outlined">group_add</span> Add New ASVI Client
                 </button>
@@ -225,7 +234,7 @@
         </div>
 
         <!-- Dashboard Internal Context Nav Tabs -->
-        <div class="flex flex-wrap gap-xs mb-md border-b border-outline-variant/60">
+        <div class="flex flex-wrap gap-xs mb-md border-b border-outline-variant/60" id="admin-tabs-nav-bar">
             <button onclick="switchAdminTab('clients-mgmt')" id="tab-btn-clients-mgmt" class="px-md py-xs font-label-md text-label-md text-primary border-b-2 border-primary font-bold">ASVI Client Portfolio</button>
             <button onclick="switchAdminTab('jobs-mgmt')" id="tab-btn-jobs-mgmt" class="px-md py-xs font-label-md text-label-md text-on-surface-variant hover:text-primary">Positions Workspace <span id="active-focused-client-tag" class="text-xs bg-secondary-fixed text-secondary px-1 rounded ml-1 hidden"></span></button>
             <button onclick="switchAdminTab('apps-mgmt')" id="tab-btn-apps-mgmt" class="px-md py-xs font-label-md text-label-md text-on-surface-variant hover:text-primary">Applications Repository</button>
@@ -241,7 +250,7 @@
         </div>
 
         <!-- TAB 1: JOB MANAGEMENT CRUD PANEL -->
-        <div id="admin-tab-jobs-mgmt" class="space-y-sm hidden">
+        <div id="admin-tab-jobs-mgmt" class="space-y-sm">
             <div class="flex justify-between items-center bg-surface-container p-sm rounded-xl border border-outline-variant/40">
                 <span class="font-label-md text-primary font-bold" id="recruitment-context-headline">Please select a Client from Portfolio first.</span>
                 <button onclick="openJobFormModal()" id="admin-create-job-btn" disabled class="px-md py-xs bg-secondary text-on-secondary rounded-lg font-label-md text-label-md flex items-center gap-xs opacity-50 cursor-not-allowed transition-all">
@@ -273,45 +282,133 @@
                 <table class="w-full text-left border-collapse min-w-[1100px]">
                     <thead>
                         <tr class="bg-surface-container border-b border-outline-variant text-label-sm font-bold text-on-surface">
-                            <th class="p-sm">Applicant / Client Entity</th>
+                            <th class="p-sm">Applicant Matrix Details</th>
                             <th class="p-sm">Target Position</th>
                             <th class="p-sm">Compensation (Current / Expected)</th>
                             <th class="p-sm">Locations (Current & Pref)</th>
                             <th class="p-sm">Reason for Change & Style</th>
-                            <th class="p-sm">Date Received</th>
+                            <th class="p-sm">Attached Profile</th>
                         </tr>
                     </thead>
-                    <tbody id="apps-list-table-body"></tbody>
+                    <tbody id="apps-list-table-body">
+                        <tr><td colspan="6" class="p-md text-center italic text-outline">Choose a client from the Client tab to filter matching candidate profiles.</td></tr>
+                    </tbody>
                 </table>
             </div>
         </div>
 
         <!-- TAB 3: CONTROL PROFILE CHANGE UTILITIES -->
         <div id="admin-tab-users-mgmt" class="grid grid-cols-1 lg:grid-cols-3 gap-md hidden">
-            <div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant h-fit">
-                <h3 class="text-headline-sm font-bold text-primary mb-xs">Change Control Password</h3>
-                <form id="admin-password-form" onsubmit="handleAdminPasswordUpdate(event)" class="space-y-xs">
+            <!-- Access Deployment Controls Grid -->
+            <div class="bg-surface-container-lowest p-sm md:p-md rounded-xl border border-outline-variant h-fit space-y-md">
+                <div>
+                    <h3 class="text-headline-sm font-bold text-primary mb-xs">Change Control Password</h3>
+                    <form id="admin-password-form" onsubmit="handleAdminPasswordUpdate(event)" class="space-y-xs">
+                        <div>
+                            <input type="password" id="admin-new-password" required minlength="6" class="w-full rounded-lg border-outline-variant focus:ring-primary text-xs py-1" placeholder="••••••••">
+                        </div>
+                        <div id="pw-status-msg" class="text-label-sm font-bold p-xs rounded hidden"></div>
+                        <button type="submit" class="w-full bg-primary text-on-primary py-xs rounded text-xs transition-all hover:opacity-90">Commit Password</button>
+                    </form>
+                </div>
+                
+                <!-- Client Sub-Admin Assignment Module -->
+                <div id="super-admin-subadmin-block" class="pt-sm border-t border-outline-variant/40 space-y-md">
                     <div>
-                        <label class="block text-label-sm font-bold mb-base">Enter New Security Password</label>
-                        <input type="password" id="admin-new-password" required minlength="6" class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="••••••••">
+                        <h3 class="text-label-md font-bold text-primary mb-xs">Deploy Client Sub-Admin</h3>
+                        <form id="subadmin-form" onsubmit="handleSubAdminAssignment(event)" class="space-y-xs">
+                            <div>
+                                <input type="email" id="subadmin-email" placeholder="subadmin@domain.com" required class="w-full rounded-lg border-outline-variant text-xs py-1">
+                            </div>
+                            <div>
+                                <select id="subadmin-client-select" required class="w-full rounded-lg border-outline-variant text-xs py-1"></select>
+                            </div>
+                            <button type="submit" class="w-full bg-secondary text-on-secondary py-xs rounded text-xs font-bold">Deploy Sub-Admin</button>
+                        </form>
                     </div>
-                    <div id="pw-status-msg" class="text-label-sm font-bold p-xs rounded hidden"></div>
-                    <button type="submit" class="w-full bg-primary text-on-primary py-xs rounded-lg font-label-md transition-all hover:opacity-90">Commit Credential Update</button>
-                </form>
+
+                    <!-- Manager Assignment Module -->
+                    <div class="pt-sm border-t border-outline-variant/40">
+                        <h3 class="text-label-md font-bold text-primary mb-xs">Deploy Team Manager</h3>
+                        <form id="manager-form" onsubmit="handleManagerAssignment(event)" class="space-y-xs">
+                            <div>
+                                <input type="email" id="manager-email" placeholder="manager@domain.com" required class="w-full rounded-lg border-outline-variant text-xs py-1">
+                            </div>
+                            <div>
+                                <select id="manager-client-select" required class="w-full rounded-lg border-outline-variant text-xs py-1"></select>
+                            </div>
+                            <div>
+                                <select id="manager-team-select" required class="w-full rounded-lg border-outline-variant text-xs py-1">
+                                    <option value="">Select Team Assignment</option>
+                                    <option value="Sales">Sales</option>
+                                    <option value="Support Function">Support Function</option>
+                                    <option value="Marketing">Marketing</option>
+                                    <option value="Business & Strategy">Business & Strategy</option>
+                                    <option value="Product & Technology">Product & Technology</option>
+                                    <option value="Customer Success">Customer Success</option>
+                                    <option value="Research & Analytics">Research & Analytics</option>
+                                    <option value="Client Engagement">Client Engagement</option>
+                                    <option value="Corporate">Corporate</option>
+                                    <option value="Insights & Surveys">Insights & Surveys</option>
+                                    <option value="1P & SDK">1P & SDK</option>
+                                    <option value="Activation">Activation</option>
+                                    <option value="SMB-sales">SMB-sales</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="w-full bg-primary text-on-primary py-xs rounded text-xs font-bold">Deploy Team Manager</button>
+                        </form>
+                    </div>
+                </div>
             </div>
-            <div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant lg:col-span-2">
-                <h3 class="text-headline-sm font-bold text-primary mb-xs">User Management Roll</h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="border-b border-outline-variant text-label-sm font-bold text-on-surface">
-                                <th class="pb-xs">Unique Applicant Email</th>
-                                <th class="pb-xs">System Scope Access</th>
-                                <th class="pb-xs">Applications Sent</th>
-                            </tr>
-                        </thead>
-                        <tbody id="users-table-body" class="text-body-md text-on-surface-variant"></tbody>
-                    </table>
+            
+            <div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant lg:col-span-2 space-y-md">
+                <div id="admin-user-roll-view">
+                    <h3 class="text-headline-sm font-bold text-primary mb-xs">User Management Roll</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-outline-variant text-label-sm font-bold text-on-surface">
+                                    <th class="pb-xs">Unique Applicant Email</th>
+                                    <th class="pb-xs">System Scope Access</th>
+                                    <th class="pb-xs">Applications Sent</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body" class="text-body-md text-on-surface-variant"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Live Sub-Admins Matrix -->
+                <div id="super-admin-subadmins-table-block" class="space-y-sm">
+                    <h3 class="text-label-md font-bold text-secondary mb-xs">Active Sub-Admin Matrix Roll</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse bg-surface-container-low p-xs rounded-xl">
+                            <thead>
+                                <tr class="text-[11px] font-bold text-on-surface-variant border-b border-outline-variant/30">
+                                    <th class="p-xs">Sub-Admin Email</th>
+                                    <th class="p-xs">Assigned Corporate Client</th>
+                                    <th class="p-xs text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subadmins-table-body" class="text-xs text-on-surface-variant"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- Live Managers Matrix Roll -->
+                    <h3 class="text-label-md font-bold text-primary mb-xs pt-xs">Active Team Managers Roll Matrix</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse bg-surface-container-low p-xs rounded-xl">
+                            <thead>
+                                <tr class="text-[11px] font-bold text-on-surface-variant border-b border-outline-variant/30">
+                                    <th class="p-xs">Manager Email</th>
+                                    <th class="p-xs">Client Context</th>
+                                    <th class="p-xs">Assigned Team</th>
+                                    <th class="p-xs text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="managers-table-body" class="text-xs text-on-surface-variant"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -333,6 +430,10 @@
             <div>
                 <label class="block text-label-sm font-bold mb-base">Vector Image Logo URL (SVG/PNG Asset)</label>
                 <input type="url" id="crud-client-logo" required class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="https://example.com/logo.svg">
+            </div>
+            <div>
+                <label class="block text-label-sm font-bold mb-base">Departments / Branches (Comma separated)</label>
+                <textarea id="crud-client-departments" required class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" rows="2" placeholder="Sales, Support Function, Marketing, Business & Strategy, Product & Technology"></textarea>
             </div>
             <div class="grid grid-cols-2 gap-xs">
                 <div>
@@ -362,14 +463,13 @@
         <h3 id="auth-modal-title" class="text-headline-sm font-bold text-primary mb-xs">Sign In</h3>
         <p id="auth-modal-subtitle" class="text-label-sm text-on-surface-variant mb-md">Provide parameters to access customized workspaces.</p>
         
-        <!-- Google Quick Login Track -->
         <div class="mb-sm">
             <button onclick="handleGoogleSignIn()" type="button" class="w-full flex items-center justify-center gap-xs bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 py-xs rounded-lg font-label-md text-label-md transition-all">
                 <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
                     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.85z" fill="#FBBC05"/>
-                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.85c.87-2.6 3.3-4.53 12-4.53z" fill="#EA4335"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.85c.87-2.6 3.3-4.53 12 5.38z" fill="#EA4335"/>
                 </svg>
                 Continue with Google
             </button>
@@ -426,22 +526,29 @@
                 <div>
                     <label class="block text-label-sm font-bold mb-base">Department Branch</label>
                     <select id="crud-job-dept" required class="w-full rounded-lg border-outline-variant text-body-md">
-                        <option value="Finance & Growth">Finance & Growth</option>
-                        <option value="Internal Systems & Operations">Internal Systems & Operations</option>
-                        <option value="Core Program & Research Innovation">Core Program & Research Innovation</option>
-                        <option value="Education & EdTech">Education & EdTech</option>
+                        <!-- Populated dynamically based on chosen Client -->
                     </select>
                 </div>
                 <div>
-                    <label class="block text-label-sm font-bold mb-base">Compensation Band</label>
-                    <input type="text" id="crud-job-comp" placeholder="e.g. ₹6,0,000 - ₹9,0,0,000" required class="w-full rounded-lg border-outline-variant text-body-md">
+                    <label class="block text-label-sm font-bold mb-base">Compensation Band (Annually)</label>
+                    <input type="text" id="crud-job-comp" placeholder="e.g. ₹6,00,000 - ₹9,0,0,000" required class="w-full rounded-lg border-outline-variant text-body-md">
                 </div>
             </div>
+
+            <div>
+                <label class="block text-label-sm font-bold mb-base">Work Mode Configuration</label>
+                <select id="crud-job-work-mode" required onchange="toggleWorkModeFields()" class="w-full rounded-lg border-outline-variant text-body-md">
+                    <option value="">Select Work Mode</option>
+                    <option value="Remote">Remote</option>
+                    <option value="Work From Office">Work From Office</option>
+                    <option value="Hybrid">Hybrid</option>
+                </select>
+            </div>
             
-            <div class="grid grid-cols-2 gap-xs bg-surface-container-low p-xs rounded-xl border border-outline-variant/30">
+            <div id="location-fields-container" class="grid grid-cols-2 gap-xs bg-surface-container-low p-xs rounded-xl border border-outline-variant/30 hidden">
                 <div>
                     <label class="block text-label-sm font-bold mb-base text-primary">State / UT (India)</label>
-                    <select id="crud-job-state" required onchange="populateAdminCityDropdown()" class="w-full rounded-lg border-outline-variant text-body-md max-h-48">
+                    <select id="crud-job-state" onchange="populateAdminCityDropdown()" class="w-full rounded-lg border-outline-variant text-body-md max-h-48">
                         <option value="">Select State/UT</option>
                         <option value="Andhra Pradesh">Andhra Pradesh</option>
                         <option value="Arunachal Pradesh">Arunachal Pradesh</option>
@@ -476,14 +583,29 @@
                         <option value="Uttar Pradesh">Uttar Pradesh</option>
                         <option value="Uttarakhand">Uttarakhand</option>
                         <option value="West Bengal">West Bengal</option>
-                        <option value="Remote">Pan-India Remote</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-label-sm font-bold mb-base text-primary">City Location Hub</label>
-                    <select id="crud-job-city" required class="w-full rounded-lg border-outline-variant text-body-md">
+                    <select id="crud-job-city" class="w-full rounded-lg border-outline-variant text-body-md">
                         <option value="">Select City</option>
                     </select>
+                </div>
+            </div>
+
+            <div id="working-days-container" class="hidden">
+                <label class="block text-label-sm font-bold mb-base">Number of Working Days</label>
+                <input type="number" id="crud-job-working-days" min="1" max="7" class="w-full rounded-lg border-outline-variant text-body-md" placeholder="e.g. 5">
+            </div>
+
+            <div id="hybrid-days-container" class="grid grid-cols-2 gap-xs hidden">
+                <div>
+                    <label class="block text-label-sm font-bold mb-base">Days from Office</label>
+                    <input type="number" id="crud-job-hybrid-office" min="0" max="7" class="w-full rounded-lg border-outline-variant text-body-md" placeholder="e.g. 3">
+                </div>
+                <div>
+                    <label class="block text-label-sm font-bold mb-base">Days from Home</label>
+                    <input type="number" id="crud-job-hybrid-home" min="0" max="7" class="w-full rounded-lg border-outline-variant text-body-md" placeholder="e.g. 2">
                 </div>
             </div>
 
@@ -495,11 +617,18 @@
                     <option value="Remote">Remote</option>
                 </select>
             </div>
-            <div>
-                <label class="block text-label-sm font-bold mb-base">Description & Mandate</label>
-                <textarea id="crud-job-desc" rows="4" required class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="Enter explicit requirements outline..."></textarea>
+
+            <!-- Direct Google Drive Automated Upload Component Form Fields -->
+            <div class="bg-surface-container p-sm rounded-xl border border-outline-variant/60 space-y-xs">
+                <span class="block text-label-sm font-bold text-primary">Attach Job Description File (Saves to Google Drive)</span>
+                <div>
+                    <label class="block text-[11px] font-medium text-on-surface-variant mb-1">Select File Document (PDF, Word Doc, TXT, Image, etc.)</label>
+                    <input type="file" id="google-drive-file-picker" class="w-full text-xs bg-surface-container-lowest border border-outline-variant/40 rounded-lg p-base">
+                </div>
+                <div id="crud-file-feedback" class="text-[11px] font-semibold text-emerald-700 hidden"></div>
             </div>
-            <button type="submit" class="w-full bg-secondary text-on-secondary py-xs rounded-lg font-label-md font-bold hover:opacity-90">Commit Posting Data</button>
+
+            <button type="submit" id="admin-submit-posting-btn" class="w-full bg-secondary text-on-secondary py-xs rounded-lg font-label-md font-bold hover:opacity-90">Commit Posting Data</button>
         </form>
     </div>
 </div>
@@ -517,9 +646,15 @@
         </div>
         
         <div class="p-md overflow-y-auto space-y-md flex-1">
-            <div>
-                <h4 class="font-label-md font-bold text-on-surface mb-base">Job Parameters Overview</h4>
-                <p id="app-job-desc" class="text-body-md text-on-surface-variant whitespace-pre-line"></p>
+            <!-- Talent Google Drive Access Sync Asset Component -->
+            <div id="app-jd-container-block" class="bg-primary-fixed/10 p-sm rounded-xl border border-primary/20 flex items-center justify-between gap-sm hidden">
+                <div>
+                    <h4 class="font-label-md font-bold text-primary flex items-center gap-xs"><span class="material-symbols-outlined text-[18px]">cloud_done</span> Job Description</h4>
+                    <p class="text-xs text-on-surface-variant">Before applying please go through the JD...once they read the JD then move ahead (its mandatory to ready the JD)</p>
+                </div>
+                <a id="app-external-jd-link" href="#" target="_blank" class="inline-flex items-center gap-xs px-md py-1 bg-primary text-on-primary text-xs font-bold rounded-lg shadow-sm hover:opacity-90 transition-all">
+                    <span class="material-symbols-outlined text-sm">open_in_new</span> View JD ↗
+                </a>
             </div>
             <hr class="border-outline-variant/30">
             
@@ -546,33 +681,54 @@
 
                     <div class="bg-surface-container-low p-sm rounded-xl space-y-sm border border-outline-variant/40">
                         <span class="text-label-sm font-bold text-primary block">Application Details</span>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-xs">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-xs">
                             <div>
-                                <label class="block text-label-sm font-medium mb-base" for="applicant-current-ctc">Current CTC</label>
-                                <input type="text" id="applicant-current-ctc" required class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="e.g. 228000"[cite: 1]>
+                                <label class="block text-label-sm font-medium mb-base" for="applicant-current-fixed-ctc">Annual Current Fixed CTC</label>
+                                <input type="text" id="applicant-current-fixed-ctc" required class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="e.g. 228000">
                             </div>
                             <div>
-                                <label class="block text-label-sm font-medium mb-base" for="applicant-expected-ctc">Expected CTC</label>
-                                <input type="text" id="applicant-expected-ctc" required class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="e.g. 300000"[cite: 1]>
+                                <label class="block text-label-sm font-medium mb-base" for="applicant-current-pli">Annual current PLI (if any)</label>
+                                <input type="text" id="applicant-current-pli" class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="e.g. 50000">
+                            </div>
+                            <div>
+                                <label class="block text-label-sm font-medium mb-base" for="applicant-monthly-in-hand">Monthly in hand salary</label>
+                                <input type="text" id="applicant-monthly-in-hand" required class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="e.g. 25000">
+                            </div>
+                            <div>
+                                <label class="block text-label-sm font-medium mb-base" for="applicant-expected-annual-ctc">Expected Annual CTC</label>
+                                <input type="text" id="applicant-expected-annual-ctc" required class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="e.g. 350000">
+                            </div>
+                            <div>
+                                <label class="block text-label-sm font-medium mb-base" for="applicant-monthly-in-hand-expected">Monthly in hand expected</label>
+                                <input type="text" id="applicant-monthly-in-hand-expected" required class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="e.g. 30000">
+                            </div>
+                            <div>
+                                <label class="block text-label-sm font-medium mb-base" for="applicant-work-model">WFO, Remote, Hybrid as per JD</label>
+                                <select id="applicant-work-model" required class="w-full rounded-lg border-outline-variant text-body-md">
+                                    <option value="">Select preference</option>
+                                    <option value="WFO">WFO</option>
+                                    <option value="Remote">Remote</option>
+                                    <option value="Hybrid">Hybrid</option>
+                                </select>
                             </div>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-xs">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-xs">
                             <div>
                                 <label class="block text-label-sm font-medium mb-base" for="applicant-notice-period">Notice Period</label>
-                                <input type="text" id="applicant-notice-period" required class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="Immediate"[cite: 1]>
+                                <input type="text" id="applicant-notice-period" required class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="Immediate">
                             </div>
                             <div>
                                 <label class="block text-label-sm font-medium mb-base" for="applicant-current-location">Current Location</label>
                                 <input type="text" id="applicant-current-location" required class="w-full rounded-lg border-outline-variant focus:ring-primary text-body-md" placeholder="e.g. Dehradun">
                             </div>
-                            <div>
-                                <label class="block text-label-sm font-medium mb-base" for="applicant-location-pref">Comfortable with Job Location?</label>
-                                <select id="applicant-location-pref" required class="w-full rounded-lg border-outline-variant text-body-md">
-                                    <option value="Yes, I am comfortable working from the specified location">Yes</option>
-                                    <option value="No, I prefer alternative locations">No</option>
-                                </select>
-                            </div>
                         </div>
+                    </div>
+
+                    <!-- Direct Resume / Profile Upload Section Component -->
+                    <div class="bg-surface-container p-sm rounded-xl border border-outline-variant/60 space-y-xs">
+                        <label class="block text-label-sm font-bold text-primary">Upload Profile / Resume Document (Saves to Google Drive)</label>
+                        <input type="file" id="employee-profile-file-picker" required class="w-full text-xs bg-surface-container-lowest border border-outline-variant/40 rounded-lg p-base">
+                        <div id="applicant-file-feedback" class="text-[11px] font-semibold text-emerald-700 hidden"></div>
                     </div>
 
                     <div>
@@ -655,9 +811,19 @@
     let localClientsDatabase = [];
     let localJobsDatabase = [];
     let localAppsDatabase = [];
+    let localSubAdminsList = [];
+    let localManagersList = [];
+    
     let currentSessionUser = null;
     let currentlyFocusedClientId = null; 
     let activeVisitorClientId = null;     
+    let userRoleMode = "candidate"; 
+    let managerAssignedTeam = null; 
+
+    const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxCWRGoSikQ2juINGimACfufaywE5sRKnIN0rmKbqNunOlzYJUyNXjAOKiNl6nJ-PF1/exec";
+
+    let localFileObjectToUpload = null;
+    let localApplicantProfileFileToUpload = null;
 
     const adminClearanceList = [
         "harvinderkaur@asvithoughtworks.com",
@@ -697,15 +863,15 @@
         "Tripura": ["Agartala"],
         "Uttar Pradesh": ["Noida", "Lucknow", "Kanpur", "Ghaziabad", "Agra"],
         "Uttarakhand": ["Dehradun", "Haldwani", "Haridwar", "Roorkee", "Rudrapur"],
-        "West Bengal": ["Kolkata", "Asansol", "Siliguri", "Durgapur"],
-        "Remote": ["Fully Remote (Work From Home)"]
+        "West Bengal": ["Kolkata", "Asansol", "Siliguri", "Durgapur"]
     };
 
     window.populateAdminCityDropdown = function(selectedCity = "") {
         const stateSelect = document.getElementById('crud-job-state');
         const citySelect = document.getElementById('crud-job-city');
-        const state = stateSelect.value;
+        if (!stateSelect || !citySelect) return;
         
+        const state = stateSelect.value;
         citySelect.innerHTML = '<option value="">Select City</option>';
         if (state && window.indiaLocationMatrix[state]) {
             window.indiaLocationMatrix[state].forEach(city => {
@@ -718,29 +884,84 @@
         }
     };
 
-    // --- Dynamic Theming Engine ---
+    // --- Dynamic Conditional Working Modes Engine ---
+    window.toggleWorkModeFields = function() {
+        const mode = document.getElementById('crud-job-work-mode').value;
+        const locationContainer = document.getElementById('location-fields-container');
+        const standardDaysContainer = document.getElementById('working-days-container');
+        const hybridDaysContainer = document.getElementById('hybrid-days-container');
+
+        const stateSelect = document.getElementById('crud-job-state');
+        const citySelect = document.getElementById('crud-job-city');
+
+        if (mode === "Work From Office" || mode === "Hybrid") {
+            locationContainer.classList.remove('hidden');
+            if (stateSelect) stateSelect.required = true;
+            if (citySelect) citySelect.required = true;
+        } else {
+            locationContainer.classList.add('hidden');
+            if (stateSelect) { stateSelect.required = false; stateSelect.value = ""; }
+            if (citySelect) { citySelect.required = false; citySelect.innerHTML = '<option value="">Select City</option>'; }
+        }
+
+        if (mode === "Remote" || mode === "Work From Office") {
+            standardDaysContainer.classList.remove('hidden');
+            hybridDaysContainer.classList.add('hidden');
+        } else if (mode === "Hybrid") {
+            standardDaysContainer.classList.add('hidden');
+            hybridDaysContainer.classList.remove('hidden');
+        } else {
+            standardDaysContainer.classList.add('hidden');
+            hybridDaysContainer.classList.add('hidden');
+        }
+    };
+
+    function populateClientDepartmentsDropdown(clientObj, selectedValue = "") {
+        const deptDropdown = document.getElementById('crud-job-dept');
+        if (!deptDropdown) return;
+        
+        let targetDepts = [
+            "Sales", "Support Function", "Marketing", "Business & Strategy", 
+            "Product & Technology", "Customer Success", "Research & Analytics", 
+            "Client Engagement", "Corporate", "Insights & Surveys", "1P & SDK", 
+            "Activation", "SMB-sales"
+        ];
+
+        if (clientObj && clientObj.departments && clientObj.departments.length > 0) {
+            targetDepts = clientObj.departments;
+        }
+
+        deptDropdown.innerHTML = targetDepts.map(d => `<option value="${d}">${d}</option>`).join('');
+        if (selectedValue) deptDropdown.value = selectedValue;
+    }
+
     function applyClientTheming(clientObj) {
+        const navLogo = document.getElementById('dynamic-nav-logo');
+        const heroTitle = document.getElementById('dynamic-hero-title');
+        const welcomeBanner = document.getElementById('standalone-client-header');
+        const searchBtn = document.getElementById('dynamic-search-btn');
+
         if (!clientObj) {
-            document.getElementById('dynamic-nav-logo').src = "https://www.asvithoughtworks.com/images/asvi_dark_logo.svg";
-            document.getElementById('dynamic-hero-title').innerText = "Find Your Next Role";
-            document.getElementById('standalone-client-header').classList.add('hidden');
+            if (navLogo) navLogo.src = "https://www.asvithoughtworks.com/images/asvi_dark_logo.svg";
+            if (heroTitle) heroTitle.innerText = "Find Your Next Role";
+            if (welcomeBanner) welcomeBanner.classList.add('hidden');
+            if (searchBtn) searchBtn.style.backgroundColor = "";
             return;
         }
-        document.getElementById('dynamic-nav-logo').src = clientObj.logoUrl;
-        document.getElementById('dynamic-hero-title').innerText = `Join the Team at ${clientObj.name}`;
-        document.getElementById('standalone-client-header').innerText = `You are exploring current vacancies for ${clientObj.name} managed by ASVI Thoughtworks.`;
-        document.getElementById('standalone-client-header').classList.remove('hidden');
-        
-        const searchBtn = document.getElementById('dynamic-search-btn');
-        if(searchBtn && clientObj.primaryColor) {
+        if (navLogo) navLogo.src = clientObj.logoUrl;
+        if (heroTitle) heroTitle.innerText = `Join the Team at ${clientObj.name}`;
+        if (welcomeBanner) {
+            welcomeBanner.innerText = `You are exploring current vacancies for ${clientObj.name} managed by ASVI Thoughtworks.`;
+            welcomeBanner.classList.remove('hidden');
+        }
+        if (searchBtn && clientObj.primaryColor) {
             searchBtn.style.backgroundColor = clientObj.primaryColor;
         }
     }
 
-    // --- Deep Link Navigation Parser Engine ---
     function evaluateHashRoutingParameters() {
         const currentHash = window.location.hash;
-        if (currentHash.startsWith('#client/')) {
+        if (currentHash && currentHash.startsWith('#client/')) {
             const parts = currentHash.split('/');
             activeVisitorClientId = parts[1];
             
@@ -759,51 +980,116 @@
 
     window.addEventListener('hashchange', evaluateHashRoutingParameters);
 
-    // --- Authentication Synchronization ---
-    onAuthStateChanged(auth, (user) => {
-        document.getElementById('auth-loading-state').classList.add('hidden');
+    onAuthStateChanged(auth, async (user) => {
+        const authLoading = document.getElementById('auth-loading-state');
+        if (authLoading) authLoading.classList.add('hidden');
+        
         const unauthBlock = document.getElementById('unauthenticated-state');
         const authBlock = document.getElementById('authenticated-state');
         const userDisplay = document.getElementById('user-display-email');
-        const navAdminLink = document.getElementById('nav-admin-link');
 
         if (user) {
             currentSessionUser = user;
-            userDisplay.innerText = user.email;
-            unauthBlock.classList.add('hidden');
-            authBlock.classList.remove('hidden');
+            if (userDisplay) userDisplay.innerText = user.email || "Candidate Profile";
+            if (unauthBlock) unauthBlock.classList.add('hidden');
+            if (authBlock) authBlock.classList.remove('hidden');
 
-            if (adminClearanceList.includes(user.email)) {
-                navAdminLink.classList.remove('hidden');
-                document.getElementById('client-facing-view').classList.add('hidden');
-                document.getElementById('admin-dashboard-section').classList.remove('hidden');
-                fetchAdminDatasets();
+            const subAdminsSnap = await getDocs(collection(db, "subadmins"));
+            localSubAdminsList = [];
+            subAdminsSnap.forEach(d => localSubAdminsList.push({id: d.id, ...d.data()}));
+
+            const managersSnap = await getDocs(collection(db, "managers"));
+            localManagersList = [];
+            managersSnap.forEach(d => localManagersList.push({id: d.id, ...d.data()}));
+            
+            const matchingSubAdmin = localSubAdminsList.find(sa => sa.email.toLowerCase() === user.email?.toLowerCase());
+            const matchingManager = localManagersList.find(m => m.email.toLowerCase() === user.email?.toLowerCase());
+
+            if (user.email && adminClearanceList.includes(user.email.toLowerCase())) {
+                userRoleMode = "super-admin";
+                setupSuperAdminUIView();
+            } else if (matchingSubAdmin) {
+                userRoleMode = "sub-admin";
+                setupSubAdminUIView(matchingSubAdmin.clientId);
+            } else if (matchingManager) {
+                userRoleMode = "manager";
+                setupManagerUIView(matchingManager.clientId, matchingManager.teamName);
             } else {
-                navAdminLink.classList.add('hidden');
-                document.getElementById('client-facing-view').classList.remove('hidden');
-                document.getElementById('admin-dashboard-section').classList.add('hidden');
+                userRoleMode = "candidate";
+                setupCandidateUIView();
             }
         } else {
             currentSessionUser = null;
-            unauthBlock.classList.remove('hidden');
-            authBlock.classList.add('hidden');
-            navAdminLink.classList.add('hidden');
-            document.getElementById('client-facing-view').classList.remove('hidden');
-            document.getElementById('admin-dashboard-section').classList.add('hidden');
+            userRoleMode = "candidate";
+            setupCandidateUIView();
         }
         
         fetchInitialClientAndJobData();
     });
 
+    function setupSuperAdminUIView() {
+        document.getElementById('nav-admin-link').classList.remove('hidden');
+        document.getElementById('client-facing-view').classList.add('hidden');
+        document.getElementById('admin-dashboard-section').classList.remove('hidden');
+        document.getElementById('admin-role-badge').innerText = "ASVI Super Admin";
+        document.getElementById('super-admin-action-block').classList.remove('hidden');
+        document.getElementById('tab-btn-clients-mgmt').classList.remove('hidden');
+        document.getElementById('super-admin-subadmin-block').classList.remove('hidden');
+        document.getElementById('super-admin-subadmins-table-block').classList.remove('hidden');
+        fetchAdminDatasets();
+    }
+
+    function setupSubAdminUIView(assignedClientId) {
+        currentlyFocusedClientId = assignedClientId;
+        document.getElementById('nav-admin-link').classList.remove('hidden');
+        document.getElementById('client-facing-view').classList.add('hidden');
+        document.getElementById('admin-dashboard-section').classList.remove('hidden');
+        
+        document.getElementById('admin-role-badge').innerText = "Client Sub-Admin";
+        document.getElementById('super-admin-action-block').classList.add('hidden');
+        document.getElementById('tab-btn-clients-mgmt').classList.add('hidden');
+        document.getElementById('super-admin-subadmin-block').classList.add('hidden');
+        document.getElementById('super-admin-subadmins-table-block').classList.add('hidden');
+
+        switchAdminTab('jobs-mgmt');
+        fetchAdminDatasets();
+    }
+
+    function setupManagerUIView(assignedClientId, assignedTeamName) {
+        currentlyFocusedClientId = assignedClientId;
+        managerAssignedTeam = assignedTeamName;
+        
+        document.getElementById('nav-admin-link').classList.remove('hidden');
+        document.getElementById('client-facing-view').classList.add('hidden');
+        document.getElementById('admin-dashboard-section').classList.remove('hidden');
+        
+        document.getElementById('admin-role-badge').innerText = `Team Manager (${assignedTeamName})`;
+        document.getElementById('super-admin-action-block').classList.add('hidden');
+        document.getElementById('tab-btn-clients-mgmt').classList.add('hidden');
+        document.getElementById('super-admin-subadmin-block').classList.add('hidden');
+        document.getElementById('super-admin-subadmins-table-block').classList.add('hidden');
+
+        switchAdminTab('jobs-mgmt');
+        fetchAdminDatasets();
+    }
+
+    function setupCandidateUIView() {
+        document.getElementById('nav-admin-link').classList.add('hidden');
+        document.getElementById('client-facing-view').classList.remove('hidden');
+        document.getElementById('admin-dashboard-section').classList.add('hidden');
+    }
+
     window.handleGoogleSignIn = async function() {
         const errDisplay = document.getElementById('auth-error-message');
-        errDisplay.classList.add('hidden');
+        if (errDisplay) errDisplay.classList.add('hidden');
         try {
             await signInWithPopup(auth, googleProvider);
             closeAuthModal();
         } catch (error) {
-            errDisplay.innerText = error.message;
-            errDisplay.classList.remove('hidden');
+            if (errDisplay) {
+                errDisplay.innerText = error.message;
+                errDisplay.classList.remove('hidden');
+            }
         }
     }
 
@@ -815,9 +1101,11 @@
         const errDisplay = document.getElementById('auth-error-message');
         const submitBtn = document.getElementById('auth-submit-btn');
 
-        errDisplay.classList.add('hidden');
-        submitBtn.disabled = true;
-        submitBtn.innerText = "Authenticating Context Parameters...";
+        if (errDisplay) errDisplay.classList.add('hidden');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Authenticating...";
+        }
 
         try {
             if (actionType === 'login') {
@@ -827,11 +1115,15 @@
             }
             closeAuthModal();
         } catch (error) {
-            errDisplay.innerText = error.message;
-            errDisplay.classList.remove('hidden');
+            if (errDisplay) {
+                errDisplay.innerText = error.message;
+                errDisplay.classList.remove('hidden');
+            }
         } finally {
-            submitBtn.disabled = false;
-            submitBtn.innerText = "Proceed to Profile";
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Proceed to Profile";
+            }
         }
     }
 
@@ -841,30 +1133,89 @@
         location.reload();
     }
 
+    window.handleSubAdminAssignment = async function(e) {
+        e.preventDefault();
+        const email = document.getElementById('subadmin-email').value.trim().toLowerCase();
+        const clientId = document.getElementById('subadmin-client-select').value;
+        if (!email || !clientId) return;
+
+        try {
+            await addDoc(collection(db, "subadmins"), {
+                email: email,
+                clientId: clientId,
+                createdAt: serverTimestamp()
+            });
+            document.getElementById('subadmin-form').reset();
+            alert("Sub-Admin role authorized successfully.");
+            fetchAdminDatasets();
+        } catch (err) {
+            alert("Authorization Error: " + err.message);
+        }
+    }
+
+    window.revokeSubAdmin = async function(id) {
+        if(confirm("Revoke sub-admin clearance metrics for this profile?")) {
+            await deleteDoc(doc(db, "subadmins", id));
+            fetchAdminDatasets();
+        }
+    }
+
+    window.handleManagerAssignment = async function(e) {
+        e.preventDefault();
+        const email = document.getElementById('manager-email').value.trim().toLowerCase();
+        const clientId = document.getElementById('manager-client-select').value;
+        const teamName = document.getElementById('manager-team-select').value;
+        if (!email || !clientId || !teamName) return;
+
+        try {
+            await addDoc(collection(db, "managers"), {
+                email: email,
+                clientId: clientId,
+                teamName: teamName,
+                createdAt: serverTimestamp()
+            });
+            document.getElementById('manager-form').reset();
+            alert("Team Manager metrics deployed successfully.");
+            fetchAdminDatasets();
+        } catch (err) {
+            alert("Manager Deployment Error: " + err.message);
+        }
+    }
+
+    window.revokeManager = async function(id) {
+        if(confirm("Revoke team manager clearance roles?")) {
+            await deleteDoc(doc(db, "managers", id));
+            fetchAdminDatasets();
+        }
+    }
+
     window.handleAdminPasswordUpdate = async function(e) {
         e.preventDefault();
         const newPassword = document.getElementById('admin-new-password').value;
         const statusMsg = document.getElementById('pw-status-msg');
-        statusMsg.classList.add('hidden');
+        if (statusMsg) statusMsg.classList.add('hidden');
         try {
             await updatePassword(currentSessionUser, newPassword);
-            statusMsg.className = "text-label-sm font-bold p-xs rounded bg-surface-container-high text-primary";
-            statusMsg.innerText = "Security Password changed successfully.";
-            statusMsg.classList.remove('hidden');
+            if (statusMsg) {
+                statusMsg.className = "text-label-sm font-bold p-xs rounded bg-surface-container-high text-primary";
+                statusMsg.innerText = "Security Password changed successfully.";
+                statusMsg.classList.remove('hidden');
+            }
             document.getElementById('admin-password-form').reset();
         } catch (error) {
-            statusMsg.className = "text-label-sm font-bold p-xs rounded bg-error-container text-error";
-            statusMsg.innerText = error.message;
-            statusMsg.classList.remove('hidden');
+            if (statusMsg) {
+                statusMsg.className = "text-label-sm font-bold p-xs rounded bg-error-container text-error";
+                statusMsg.innerText = error.message;
+                statusMsg.classList.remove('hidden');
+            }
         }
     }
 
-    // --- Frontend Job Render Logic ---
     window.executeClientSearchFilter = function() {
-        const keyword = document.getElementById('search-keyword').value.toLowerCase().trim();
-        const dept = document.getElementById('filter-department').value;
-        const locFilter = document.getElementById('filter-location-text').value.toLowerCase().trim();
-        const sorting = document.getElementById('sort-order').value;
+        const keyword = document.getElementById('search-keyword')?.value.toLowerCase().trim() || "";
+        const dept = document.getElementById('filter-department')?.value || "All";
+        const locFilter = document.getElementById('filter-location-text')?.value.toLowerCase().trim() || "";
+        const sorting = document.getElementById('sort-order')?.value || "desc";
         
         let results = localJobsDatabase.filter(j => j.status !== 'inactive');
         
@@ -880,16 +1231,19 @@
             );
         }
         if (keyword) {
-            results = results.filter(j => j.title.toLowerCase().includes(keyword) || j.description?.toLowerCase().includes(keyword));
+            results = results.filter(j => j.title.toLowerCase().includes(keyword));
         }
 
         results.sort((a, b) => (sorting === 'desc' ? (b.postedAt?.seconds || 0) - (a.postedAt?.seconds || 0) : (a.postedAt?.seconds || 0) - (b.postedAt?.seconds || 0)));
         
         const grid = document.getElementById('jobs-grid-display');
-        document.getElementById('job-count-indicator').innerText = `${results.length} position(s) active.`;
+        const counter = document.getElementById('job-count-indicator');
+        if (counter) counter.innerText = `${results.length} position(s) active.`;
 
+        if (!grid) return;
         grid.innerHTML = results.map(job => {
             const clientMeta = localClientsDatabase.find(c => c.id === job.clientId);
+            const resolvedLocation = job.workMode === "Remote" ? "Remote" : `${job.city || ''}, ${job.state || ''}`;
             return `
             <article class="job-card bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col h-full">
                 <div class="flex justify-between items-start mb-sm">
@@ -900,7 +1254,7 @@
                 </div>
                 <h3 class="text-headline-sm font-bold text-primary mb-xs">${job.title}</h3>
                 <p class="text-label-sm text-on-surface-variant flex gap-sm mb-md">
-                    <span>${job.department}</span>|<span>${job.city || ''}, ${job.state || ''}</span>
+                    <span>${job.department}</span>|<span>${resolvedLocation}</span>|<span>${job.workMode || 'WFO'}</span>
                 </p>
                 <div class="mt-auto pt-md border-t border-outline-variant flex justify-between items-center">
                     <span class="text-on-surface-variant font-label-md text-label-md text-xs">${job.compensation}</span>
@@ -910,13 +1264,12 @@
         `;}).join('');
     }
 
-    // --- Admin Dashboard Controller Datasets ---
     async function fetchAdminDatasets() {
-        if (!currentSessionUser || !adminClearanceList.includes(currentSessionUser.email)) return;
-        
         const clientSnap = await getDocs(collection(db, "clients"));
         localClientsDatabase = [];
         clientSnap.forEach(doc => localClientsDatabase.push({ id: doc.id, ...doc.data() }));
+        
+        populateSubAdminDropdownSelectors();
         renderAdminClientsGrid();
 
         const jobsSnapshot = await getDocs(collection(db, "jobs"));
@@ -930,21 +1283,101 @@
         const appsSnapshot = await getDocs(collection(db, "applications"));
         localAppsDatabase = [];
         appsSnapshot.forEach(doc => localAppsDatabase.push({ id: doc.id, ...doc.data() }));
+
+        const subAdminsSnap = await getDocs(collection(db, "subadmins"));
+        localSubAdminsList = [];
+        subAdminsSnap.forEach(d => localSubAdminsList.push({id: d.id, ...d.data()}));
+
+        const managersSnap = await getDocs(collection(db, "managers"));
+        localManagersList = [];
+        managersSnap.forEach(d => localManagersList.push({id: d.id, ...d.data()}));
+
         renderAdminApplicationsMatrix();
         renderUserAndAssignmentsOverview();
+        renderSubAdminsRollMatrix();
+        renderManagersRollMatrix();
     }
 
-    // Render Tab 0: Clients List Grid Panel
+    function populateSubAdminDropdownSelectors() {
+        const subadminSelect = document.getElementById('subadmin-client-select');
+        const managerSelect = document.getElementById('manager-client-select');
+        if (!subadminSelect || !managerSelect) return;
+        
+        const templateHtml = '<option value="">Select Corporate Scope</option>' + localClientsDatabase.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        subadminSelect.innerHTML = templateHtml;
+        managerSelect.innerHTML = templateHtml;
+    }
+
+    function renderSubAdminsRollMatrix() {
+        const tbody = document.getElementById('subadmins-table-body');
+        if (!tbody) return;
+        if(localSubAdminsList.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" class="p-xs text-center italic text-outline">No client sub-admins deployed.</td></tr>`;
+            return;
+        }
+        tbody.innerHTML = localSubAdminsList.map(sa => {
+            const clientName = localClientsDatabase.find(c => c.id === sa.clientId)?.name || "Unknown Context";
+            return `
+            <tr class="border-b border-outline-variant/20 hover:bg-surface-container-high/40">
+                <td class="p-xs font-mono text-primary font-bold text-xs">${sa.email}</td>
+                <td class="p-xs font-semibold text-xs">${clientName}</td>
+                <td class="p-xs text-right"><button onclick="revokeSubAdmin('${sa.id}')" class="text-error font-bold underline text-[11px]">Revoke</button></td>
+            </tr>`;
+        }).join('');
+    }
+
+    function renderManagersRollMatrix() {
+        const tbody = document.getElementById('managers-table-body');
+        if (!tbody) return;
+        if(localManagersList.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="p-xs text-center italic text-outline">No team managers deployed yet.</td></tr>`;
+            return;
+        }
+        tbody.innerHTML = localManagersList.map(m => {
+            const clientName = localClientsDatabase.find(c => c.id === m.clientId)?.name || "Unknown Context";
+            return `
+            <tr class="border-b border-outline-variant/20 hover:bg-surface-container-high/40">
+                <td class="p-xs font-mono text-secondary font-bold text-xs">${m.email}</td>
+                <td class="p-xs text-xs font-medium">${clientName}</td>
+                <td class="p-xs text-xs font-bold text-primary">${m.teamName}</td>
+                <td class="p-xs text-right"><button onclick="revokeManager('${m.id}')" class="text-error font-bold underline text-[11px]">Revoke</button></td>
+            </tr>`;
+        }).join('');
+    }
+
+    async function fetchInitialClientAndJobData() {
+        try {
+            const clientSnap = await getDocs(collection(db, "clients"));
+            localClientsDatabase = [];
+            clientSnap.forEach(doc => localClientsDatabase.push({ id: doc.id, ...doc.data() }));
+
+            const jobSnap = await getDocs(collection(db, "jobs"));
+            localJobsDatabase = [];
+            jobSnap.forEach(doc => localJobsDatabase.push({ id: doc.id, ...doc.data() }));
+
+            evaluateHashRoutingParameters();
+        } catch (err) {
+            console.error("Data fetch anomaly: ", err);
+        }
+    }
+
     function renderAdminClientsGrid() {
         const grid = document.getElementById('admin-clients-grid-display');
+        if(!grid) return;
+        
+        if (userRoleMode === "sub-admin" || userRoleMode === "manager") {
+            grid.innerHTML = `<div class="col-span-full p-md bg-surface-container-low text-center italic text-outline rounded-xl">Portfolio dashboard is locked under tenant access scope rules.</div>`;
+            return;
+        }
+
         if(localClientsDatabase.length === 0) {
-            grid.innerHTML = `<div class="col-span-full p-md bg-surface-container-low text-center italic text-outline rounded-xl">No active operational corporate clients found. Add one above.</div>`;
+            grid.innerHTML = `<div class="col-span-full p-md bg-surface-container-low text-center italic text-outline rounded-xl">No active corporate clients found. Add one above.</div>`;
             return;
         }
 
         grid.innerHTML = localClientsDatabase.map(client => {
             const clientJobCount = localJobsDatabase.filter(j => j.clientId === client.id).length;
-            const generatedLink = `https://risync.in/ASVI/Opportunities.html#client/${client.id}`;
+            const generatedLink = `${window.location.origin}${window.location.pathname}#client/${client.id}`;
 
             return `
             <div class="bg-surface-container-lowest border ${currentlyFocusedClientId === client.id ? 'border-secondary ring-2 ring-secondary/20' : 'border-outline-variant'} rounded-xl p-md flex flex-col justify-between space-y-sm shadow-sm">
@@ -959,12 +1392,12 @@
                     <div class="flex gap-xs items-center mt-xs">
                         <span class="w-3 h-3 rounded-full border border-outline" style="background-color: ${client.primaryColor || '#000'}"></span>
                         <span class="w-3 h-3 rounded-full border border-outline" style="background-color: ${client.secondaryColor || '#000'}"></span>
-                        <span class="text-xs text-outline font-mono">Theme Mapping Applied</span>
+                        <span class="text-xs text-outline font-mono">Theme Active</span>
                     </div>
                 </div>
                 <div class="bg-surface-container-low p-xs rounded text-xs text-on-surface-variant space-y-1">
                     <div class="flex justify-between"><span>Open Positions:</span><strong class="text-primary">${clientJobCount}</strong></div>
-                    <div class="pt-1 border-t border-outline-variant/30 text-[11px] truncate select-all bg-surface-container-lowest px-1 rounded cursor-pointer" title="Click to copy standalone pipeline entry route" onclick="navigator.clipboard.writeText('${generatedLink}'); alert('Client pipeline link copied to clipboard!');">Link: ${generatedLink}</div>
+                    <div class="pt-1 border-t border-outline-variant/30 text-[11px] truncate select-all bg-surface-container-lowest px-1 rounded cursor-pointer" onclick="navigator.clipboard.writeText('${generatedLink}'); alert('Client link copied!');">Link: ${generatedLink}</div>
                 </div>
                 <div class="pt-xs flex gap-xs">
                     <button onclick="setAdminClientFocus('${client.id}')" class="w-full text-center bg-primary text-on-primary py-1 rounded text-xs font-semibold hover:opacity-90">Manage Positions</button>
@@ -976,6 +1409,7 @@
     window.setAdminClientFocus = function(clientId) {
         currentlyFocusedClientId = clientId;
         const matchedClient = localClientsDatabase.find(c => c.id === clientId);
+        if (!matchedClient) return;
         
         const activeTag = document.getElementById('active-focused-client-tag');
         activeTag.innerText = matchedClient.name;
@@ -988,24 +1422,40 @@
         createBtn.classList.remove('opacity-50', 'cursor-not-allowed');
 
         renderAdminJobsTable(clientId);
+        renderAdminApplicationsMatrix(); 
         switchAdminTab('jobs-mgmt');
         renderAdminClientsGrid();
     }
 
     function renderAdminJobsTable(clientId) {
         const tbody = document.getElementById('admin-jobs-table-body');
-        const clientFilteredJobs = localJobsDatabase.filter(j => j.clientId === clientId);
         
+        if (userRoleMode === "sub-admin" || userRoleMode === "manager") {
+            clientId = currentlyFocusedClientId; 
+            const matchedClient = localClientsDatabase.find(c => c.id === clientId);
+            document.getElementById('recruitment-context-headline').innerText = `${userRoleMode === "manager" ? 'Manager' : 'Sub-Admin'} Workspace Context: ${matchedClient ? matchedClient.name : 'Assigned Entity'}`;
+            const createBtn = document.getElementById('admin-create-job-btn');
+            createBtn.disabled = false;
+            createBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+
+        let clientFilteredJobs = localJobsDatabase.filter(j => j.clientId === clientId);
+        if (userRoleMode === "manager") {
+            clientFilteredJobs = clientFilteredJobs.filter(j => j.department === managerAssignedTeam);
+        }
+
         if (clientFilteredJobs.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" class="p-md text-center italic text-outline">No jobs posted under this client yet. Click the create button above to post one.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="p-md text-center italic text-outline">No jobs posted under this operational workspace tier yet.</td></tr>`;
             return;
         }
 
-        tbody.innerHTML = clientFilteredJobs.map(job => `
+        tbody.innerHTML = clientFilteredJobs.map(job => {
+            const displayLoc = job.workMode === "Remote" ? "Remote" : `${job.city || ''}, ${job.state || ''}`;
+            return `
             <tr class="border-b border-outline-variant/40 text-body-md hover:bg-surface-container-low/50">
-                <td class="p-sm font-bold text-primary">${job.title}</td>
-                <td class="p-sm text-on-surface-variant">${job.department}</td>
-                <td class="p-sm text-on-surface-variant">${job.city || ''}, ${job.state || ''}</td>
+                <td class="p-sm font-bold text-primary">${job.title} <span class="text-xs text-on-surface-variant font-normal">(${job.workMode || 'WFO'})</span></td>
+                <td class="p-sm text-on-surface-variant text-xs">${job.department}</td>
+                <td class="p-sm text-on-surface-variant text-xs">${displayLoc}</td>
                 <td class="p-sm">
                     <span class="px-xs py-0.5 rounded text-[11px] font-bold uppercase ${job.status === 'inactive' ? 'bg-error-container text-error' : 'bg-emerald-100 text-emerald-800'}">
                         ${job.status || 'active'}
@@ -1013,19 +1463,22 @@
                 </td>
                 <td class="p-sm font-label-md text-xs">${job.compensation}</td>
                 <td class="p-sm text-right space-x-xs">
-                    <button onclick="openJobFormModal('${job.id}')" class="text-primary font-bold hover:underline">Edit</button>
-                    <button onclick="deleteJobEntry('${job.id}')" class="text-error font-bold hover:underline">Delete</button>
+                    <button onclick="openJobFormModal('${job.id}')" class="text-primary font-bold hover:underline text-xs">Edit</button>
+                    <button onclick="deleteJobEntry('${job.id}')" class="text-error font-bold hover:underline text-xs">Delete</button>
                 </td>
             </tr>
-        `).join('');
+        `;}).join('');
     }
 
-    // --- Client Profile Mutation CRUD ---
     window.handleClientCrudSubmit = async function(e) {
         e.preventDefault();
+        const deptRaw = document.getElementById('crud-client-departments').value;
+        const deptArray = deptRaw.split(',').map(d => d.trim()).filter(Boolean);
+
         const payload = {
             name: document.getElementById('crud-client-name').value.trim(),
             logoUrl: document.getElementById('crud-client-logo').value.trim(),
+            departments: deptArray,
             primaryColor: document.getElementById('crud-client-text-primary').value.trim(),
             secondaryColor: document.getElementById('crud-client-text-secondary').value.trim(),
             timestamp: serverTimestamp()
@@ -1036,12 +1489,12 @@
             closeClientCrudModal();
             fetchAdminDatasets();
         } catch (err) {
-            alert("Exception storing client matrix code: " + err.message);
+            alert("Exception storing client profile: " + err.message);
         }
     }
 
     window.deleteClientEntity = async function(id) {
-        if(confirm("Warning! Removing this client will drop link references. Open assignments mapping this client ID will remain hidden until re-linked. Proceed?")) {
+        if(confirm("Warning! Removing this client will drop link references. Proceed?")) {
             await deleteDoc(doc(db, "clients", id));
             if(currentlyFocusedClientId === id) {
                 currentlyFocusedClientId = null;
@@ -1054,43 +1507,112 @@
         }
     }
 
-    // --- Job Mutation Mapping Focused Client Context ---
+    document.getElementById('google-drive-file-picker')?.addEventListener('change', function(e) {
+        localFileObjectToUpload = e.target.files[0] || null;
+        const feedback = document.getElementById('crud-file-feedback');
+        if (feedback && localFileObjectToUpload) {
+            feedback.innerText = `Document ready: ${localFileObjectToUpload.name}.`;
+            feedback.classList.remove('hidden');
+        }
+    });
+
+    document.getElementById('employee-profile-file-picker')?.addEventListener('change', function(e) {
+        localApplicantProfileFileToUpload = e.target.files[0] || null;
+        const feedback = document.getElementById('applicant-file-feedback');
+        if (feedback && localApplicantProfileFileToUpload) {
+            feedback.innerText = `Profile file selected: ${localApplicantProfileFileToUpload.name}.`;
+            feedback.classList.remove('hidden');
+        }
+    });
+
+    async function uploadDocumentToGoogleDriveStream(fileObj) {
+        if (!fileObj) return null;
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = async function(evt) {
+                try {
+                    const base64Content = evt.target.result.split(',')[1];
+                    const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                        method: "POST",
+                        mode: "cors",
+                        headers: { "Content-Type": "text/plain" },
+                        body: JSON.stringify({
+                            filename: fileObj.name,
+                            mimeType: fileObj.type,
+                            fileContent: base64Content
+                        })
+                    });
+                    const resJson = await response.json();
+                    if (resJson.status === "success" || resJson.driveUrl) {
+                        resolve(resJson.driveUrl);
+                    } else {
+                        reject(new Error(resJson.message || "Drive upload mapping error."));
+                    }
+                } catch (err) { reject(err); }
+            };
+            reader.onerror = () => reject(new Error("File stream processing crashed."));
+            reader.readAsDataURL(fileObj);
+        });
+    }
+
     window.handleJobCrudSubmit = async function(e) {
         e.preventDefault();
-        if(!currentlyFocusedClientId) {
-            alert("Error: Target workspace client scope missing. Refresh database state.");
+        const activeScopeId = currentlyFocusedClientId;
+        if(!activeScopeId) {
+            alert("Error: Target workspace client scope missing.");
             return;
         }
 
         const jobId = document.getElementById('crud-job-id').value;
-        const payload = {
-            clientId: currentlyFocusedClientId, 
+        const submitBtn = document.getElementById('admin-submit-posting-btn');
+        
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Uploading Asset Stream To Google Drive...";
+        }
+
+        const mode = document.getElementById('crud-job-work-mode').value;
+
+        let payload = {
+            clientId: activeScopeId, 
             title: document.getElementById('crud-job-title').value.trim(),
             status: document.getElementById('crud-job-status').value,
             department: document.getElementById('crud-job-dept').value,
-            state: document.getElementById('crud-job-state').value,
-            city: document.getElementById('crud-job-city').value,
+            workMode: mode,
+            state: (mode === "Work From Office" || mode === "Hybrid") ? document.getElementById('crud-job-state').value : "Remote",
+            city: (mode === "Work From Office" || mode === "Hybrid") ? document.getElementById('crud-job-city').value : "Remote",
+            workingDays: (mode === "Remote" || mode === "Work From Office") ? document.getElementById('crud-job-working-days').value : "",
+            hybridOfficeDays: (mode === "Hybrid") ? document.getElementById('crud-job-hybrid-office').value : "",
+            hybridHomeDays: (mode === "Hybrid") ? document.getElementById('crud-job-hybrid-home').value : "",
             compensation: document.getElementById('crud-job-comp').value.trim(),
             type: document.getElementById('crud-job-type').value,
-            description: document.getElementById('crud-job-desc').value.trim(),
             postedAt: serverTimestamp()
         };
 
         try {
+            if (localFileObjectToUpload) {
+                payload.googleDriveJdUrl = await uploadDocumentToGoogleDriveStream(localFileObjectToUpload);
+            }
             if (jobId) {
                 await updateDoc(doc(db, "jobs", jobId), payload);
             } else {
                 await addDoc(collection(db, "jobs"), payload);
             }
+            localFileObjectToUpload = null;
             closeJobCrudModal();
             fetchAdminDatasets();
         } catch (err) {
-            alert("Job Submission Exception: " + err.message);
+            alert("Execution Error: " + err.message);
+        } finally {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Commit Posting Data";
+            }
         }
     }
 
     window.deleteJobEntry = async function(id) {
-        if (confirm("Confirm removal of selected Job Position from directory?")) {
+        if (confirm("Confirm removal of selected Job Position?")) {
             await deleteDoc(doc(db, "jobs", id));
             fetchAdminDatasets();
         }
@@ -1098,20 +1620,41 @@
 
     function renderAdminApplicationsMatrix() {
         const tbody = document.getElementById('apps-list-table-body');
-        tbody.innerHTML = localAppsDatabase.map(app => {
+        if (!tbody) return;
+
+        let filteredApps = localAppsDatabase;
+
+        if (currentlyFocusedClientId) {
+            const focusedJobIds = localJobsDatabase.filter(j => j.clientId === currentlyFocusedClientId).map(j => j.id);
+            filteredApps = filteredApps.filter(app => focusedJobIds.includes(app.jobId));
+        }
+
+        if (userRoleMode === "manager" && managerAssignedTeam) {
+            const managerJobIds = localJobsDatabase.filter(j => j.clientId === currentlyFocusedClientId && j.department === managerAssignedTeam).map(j => j.id);
+            filteredApps = filteredApps.filter(app => managerJobIds.includes(app.jobId));
+        }
+
+        if (filteredApps.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="p-md text-center italic text-outline">No applications tracked under this operational workspace tier context yet.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = filteredApps.map(app => {
             const jobObj = localJobsDatabase.find(j => j.id === app.jobId);
-            const clientName = jobObj ? (localClientsDatabase.find(c => c.id === jobObj.clientId)?.name || "ASVI Core Group") : "Unknown Partner Instance";
+            const clientName = jobObj ? (localClientsDatabase.find(c => c.id === jobObj.clientId)?.name || "ASVI Core Group") : "Unknown Partner";
             
             return `
             <tr class="border-b border-outline-variant/40 text-body-md hover:bg-surface-container-low/50">
                 <td class="p-sm font-bold text-on-surface">
                     ${app.fullName}<br>
-                    <span class="text-xs font-normal text-outline">${app.email || 'no-auth-cached'}</span><br>
+                    <span class="text-xs font-normal text-outline">${app.email || 'no-auth'}</span><br>
                     <span class="text-xs font-bold text-primary bg-primary-fixed/20 px-1 rounded uppercase tracking-wider">${clientName}</span>
                 </td>
-                <td class="p-sm text-primary font-bold text-sm">${jobObj ? jobObj.title : 'Deleted Position Entry'}</td>
+                <td class="p-sm text-primary font-bold text-xs">${jobObj ? jobObj.title : app.jobId}</td>
                 <td class="p-sm text-on-surface text-xs">
-                    Current: <strong>${app.currentCtc || 'N/A'}</strong><br>Expected: <strong>${app.expectedCtc || 'N/A'}</strong>
+                    Fixed CTC: <strong>${app.currentFixedCtc || 'N/A'}</strong><br>
+                    Expected: <strong>${app.expectedAnnualCtc || 'N/A'}</strong><br>
+                    Model: <strong>${app.workModelPref || 'N/A'}</strong>
                 </td>
                 <td class="p-sm text-xs text-on-surface-variant">
                     Current: <strong>${app.currentLocation || 'N/A'}</strong><br>Comfortable: <span class="text-secondary font-semibold">${app.locationPref ? (app.locationPref.includes('Yes') ? 'Yes' : 'No') : 'N/A'}</span>
@@ -1120,13 +1663,16 @@
                     <div>Reason: <em>${app.reasonChange || 'N/A'}</em></div>
                     <div class="truncate">Style: <em>${app.workStyle || 'N/A'}</em></div>
                 </td>
-                <td class="p-sm text-label-sm text-outline">${app.submittedAt ? new Date(app.submittedAt.seconds * 1000).toLocaleDateString() : 'Pending Synchrony'}</td>
+                <td class="p-sm text-xs text-right">
+                    ${app.applicantProfileDriveUrl ? `<a href="${app.applicantProfileDriveUrl}" target="_blank" class="px-2 py-0.5 bg-secondary text-on-secondary font-bold text-[11px] rounded inline-flex items-center gap-1">Open Profile ↗</a>` : '<span class="text-outline italic">No profile file</span>'}
+                </td>
             </tr>
         `;}).join('');
     }
 
     function renderUserAndAssignmentsOverview() {
         const tbody = document.getElementById('users-table-body');
+        if (!tbody) return;
         const uniqueUsersList = [...new Set(localAppsDatabase.map(a => a.email).filter(Boolean))];
         
         if(uniqueUsersList.length === 0) {
@@ -1139,8 +1685,8 @@
             return `
                 <tr class="border-b border-outline-variant/30">
                     <td class="py-xs font-bold text-xs">${email}</td>
-                    <td class="py-xs"><span class="px-xs py-0.5 bg-surface-container text-on-surface-variant text-[12px] rounded">Standard Talent Tier</span></td>
-                    <td class="py-xs text-primary font-bold text-xs">${assignedAppsCount} Submission(s) Cached</td>
+                    <td class="py-xs"><span class="px-xs py-0.5 bg-surface-container text-on-surface-variant text-[11px] rounded">Restricted Tier</span></td>
+                    <td class="py-xs text-primary font-bold text-xs">${assignedAppsCount} Active Match Allocation(s)</td>
                 </tr>`;
         }).join('');
     }
@@ -1149,62 +1695,130 @@
         e.preventDefault();
         if (!currentSessionUser) return;
 
-        const payload = {
-            jobId: document.getElementById('app-target-job-id').value,
-            uid: currentSessionUser.uid,
-            email: currentSessionUser.email,
-            fullName: document.getElementById('applicant-name').value.trim(),
-            phoneNumber: document.getElementById('applicant-phone').value.trim(),
-            currentCtc: document.getElementById('applicant-current-ctc').value.trim(),
-            expectedCtc: document.getElementById('applicant-expected-ctc').value.trim(),
-            noticePeriod: document.getElementById('applicant-notice-period').value.trim(),
-            currentLocation: document.getElementById('applicant-current-location').value.trim(),
-            locationPref: document.getElementById('applicant-location-pref').value,
-            portfolioUrl: document.getElementById('applicant-portfolio').value.trim(),
-            reasonChange: document.getElementById('applicant-reason-change').value.trim(),
-            workStyle: document.getElementById('applicant-work-style').value.trim(),
-            statementOfPurpose: document.getElementById('applicant-notes').value.trim(),
-            submittedAt: serverTimestamp()
-        };
-
+        const submitBtn = document.getElementById('app-submit-btn');
         const statusMsg = document.getElementById('app-status-msg');
+
+        if (!localApplicantProfileFileToUpload) {
+            alert("Please select and upload your profile document package first before transmitting parameters.");
+            return;
+        }
+
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Uploading Profile To Google Drive...";
+        }
+        if (statusMsg) statusMsg.classList.add('hidden');
+
         try {
+            const profileDriveLink = await uploadDocumentToGoogleDriveStream(localApplicantProfileFileToUpload);
+
+            const payload = {
+                jobId: document.getElementById('app-target-job-id').value,
+                uid: currentSessionUser.uid,
+                email: currentSessionUser.email,
+                fullName: document.getElementById('applicant-name').value.trim(),
+                phoneNumber: document.getElementById('applicant-phone').value.trim(),
+                currentFixedCtc: document.getElementById('applicant-current-fixed-ctc').value.trim(),
+                currentPli: document.getElementById('applicant-current-pli').value.trim(),
+                monthlyInHand: document.getElementById('applicant-monthly-in-hand').value.trim(),
+                expectedAnnualCtc: document.getElementById('applicant-expected-annual-ctc').value.trim(),
+                monthlyInHandExpected: document.getElementById('applicant-monthly-in-hand-expected').value.trim(),
+                workModelPref: document.getElementById('applicant-work-model').value,
+                noticePeriod: document.getElementById('applicant-notice-period').value.trim(),
+                currentLocation: document.getElementById('applicant-current-location').value.trim(),
+                portfolioUrl: document.getElementById('applicant-portfolio').value.trim(),
+                reasonChange: document.getElementById('applicant-reason-change').value.trim(),
+                workStyle: document.getElementById('applicant-work-style').value.trim(),
+                statementOfPurpose: document.getElementById('applicant-notes').value.trim(),
+                applicantProfileDriveUrl: profileDriveLink, 
+                submittedAt: serverTimestamp()
+            };
+
             await addDoc(collection(db, "applications"), payload);
-            statusMsg.className = "text-label-sm font-bold p-xs rounded bg-surface-container-high text-primary text-center";
-            statusMsg.innerText = "Application submitted successfully.";
-            statusMsg.classList.remove('hidden');
+            if (statusMsg) {
+                statusMsg.className = "text-label-sm font-bold p-xs rounded bg-surface-container-high text-primary text-center";
+                statusMsg.innerText = "Application submitted successfully.";
+                statusMsg.classList.remove('hidden');
+            }
+            localApplicantProfileFileToUpload = null;
             document.getElementById('job-application-form').reset();
             setTimeout(() => { closeApplicationModal(); }, 2000);
         } catch (err) {
-            statusMsg.className = "text-label-sm font-bold p-xs rounded bg-error-container text-error";
-            statusMsg.innerText = err.message;
-            statusMsg.classList.remove('hidden');
+            if (statusMsg) {
+                statusMsg.className = "text-label-sm font-bold p-xs rounded bg-error-container text-error";
+                statusMsg.innerText = err.message;
+                statusMsg.classList.remove('hidden');
+            }
+        } finally {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Submit Application";
+            }
         }
     }
 
     window.openJobFormModal = function(id = "") {
-        document.getElementById('job-crud-form').reset();
+        const form = document.getElementById('job-crud-form');
+        if (form) form.reset();
+        
+        localFileObjectToUpload = null;
         document.getElementById('crud-job-id').value = id;
+        
         const titleLabel = document.getElementById('job-crud-modal-title');
+        const feedback = document.getElementById('crud-file-feedback');
+
+        if (feedback) feedback.classList.add('hidden');
+        
+        const currentFocusedClient = localClientsDatabase.find(c => c.id === currentlyFocusedClientId);
         
         if (id) {
             titleLabel.innerText = "Modify Operational Position Parameters";
             const job = localJobsDatabase.find(j => j.id === id);
             if (job) {
+                populateClientDepartmentsDropdown(currentFocusedClient, job.department);
                 document.getElementById('crud-job-title').value = job.title;
                 document.getElementById('crud-job-status').value = job.status || "active";
-                document.getElementById('crud-job-dept').value = job.department;
-                document.getElementById('crud-job-state').value = job.state || "";
-                populateAdminCityDropdown(job.city || "");
+                document.getElementById('crud-job-work-mode').value = job.workMode || "";
+                
+                window.toggleWorkModeFields();
+                
+                if (job.workMode === "Work From Office" || job.workMode === "Hybrid") {
+                    document.getElementById('crud-job-state').value = job.state || "";
+                    populateAdminCityDropdown(job.city || "");
+                }
+                
+                if (job.workMode === "Remote" || job.workMode === "Work From Office") {
+                    document.getElementById('crud-job-working-days').value = job.workingDays || "";
+                } else if (job.workMode === "Hybrid") {
+                    document.getElementById('crud-job-hybrid-office').value = job.hybridOfficeDays || "";
+                    document.getElementById('crud-job-hybrid-home').value = job.hybridHomeDays || "";
+                }
+
                 document.getElementById('crud-job-comp').value = job.compensation;
                 document.getElementById('crud-job-type').value = job.type || "";
-                document.getElementById('crud-job-desc').value = job.description || "";
+                
+                if (feedback && job.googleDriveJdUrl) {
+                    feedback.innerText = "Linked Google Drive JD Asset Live.";
+                    feedback.classList.remove('hidden');
+                }
             }
         } else {
-            titleLabel.innerText = "Provision New Operational Position";
+            titleLabel.innerText = "Provision New Position";
             document.getElementById('crud-job-status').value = "active";
-            document.getElementById('crud-job-city').innerHTML = '<option value="">Select City</option>';
+            populateClientDepartmentsDropdown(currentFocusedClient, "");
+            window.toggleWorkModeFields();
         }
+
+        const deptDropdown = document.getElementById('crud-job-dept');
+        if (userRoleMode === "manager" && managerAssignedTeam) {
+            if (deptDropdown) {
+                deptDropdown.value = managerAssignedTeam;
+                deptDropdown.disabled = true; 
+            }
+        } else {
+            if (deptDropdown) deptDropdown.disabled = false;
+        }
+
         document.getElementById('job-crud-modal').classList.remove('hidden');
     }
 
@@ -1217,8 +1831,20 @@
         document.getElementById('app-target-job-id').value = jobId;
         document.getElementById('app-job-title').innerText = job.title;
         document.getElementById('app-job-dept').innerText = job.department;
-        document.getElementById('app-job-meta').innerHTML = `<span>Location: ${job.city || ''}, ${job.state || ''}</span>|<span>${job.compensation}</span>`;
-        document.getElementById('app-job-desc').innerText = job.description || "No parameters listed.";
+        
+        const displayLoc = job.workMode === "Remote" ? "Remote" : `${job.city || ''}, ${job.state || ''}`;
+        document.getElementById('app-job-meta').innerHTML = `<span>Location: ${displayLoc} (${job.workMode || 'WFO'})</span>|<span>${job.compensation}</span>`;
+
+        const extLink = document.getElementById('app-external-jd-link');
+        const jdContainer = document.getElementById('app-jd-container-block');
+
+        if (job.googleDriveJdUrl) {
+            extLink.href = job.googleDriveJdUrl;
+            jdContainer.classList.remove('hidden');
+        } else {
+            extLink.href = "#";
+            jdContainer.classList.add('hidden');
+        }
 
         if (currentSessionUser) {
             document.getElementById('app-login-notice').classList.add('hidden');
@@ -1234,26 +1860,42 @@
 
     window.closeApplicationModal = function() { document.getElementById('application-modal').classList.add('hidden'); }
     window.switchFromAppToAuth = function() { closeApplicationModal(); openAuthModal('login'); }
+    window.switchAdminTab = function(target) {
+        const tabs = ['clients-mgmt', 'jobs-mgmt', 'apps-mgmt', 'users-mgmt'];
+        tabs.forEach(t => {
+            const tabElement = document.getElementById(`admin-tab-${t}`);
+            const btnElement = document.getElementById(`tab-btn-${t}`);
+            if (tabElement) tabElement.classList.add('hidden');
+            if (btnElement) btnElement.className = "px-md py-xs font-label-md text-label-md text-on-surface-variant hover:text-primary";
+        });
+
+        const targetTab = document.getElementById(`admin-tab-${target}`);
+        const targetBtn = document.getElementById(`tab-btn-${target}`);
+        if (targetTab) targetTab.classList.remove('hidden');
+        if (targetBtn) targetBtn.className = "px-md py-xs font-label-md text-label-md text-primary border-b-2 border-primary font-bold";
+        
+        if (target === 'jobs-mgmt' && currentlyFocusedClientId) {
+            renderAdminJobsTable(currentlyFocusedClientId);
+        }
+        if (target === 'apps-mgmt') {
+            renderAdminApplicationsMatrix();
+        }
+    }
 </script>
 
-<!-- Visual Tab, Dual-Link Dynamic Controls & Layout Scripts -->
+<!-- Visual Tab & Layout Manipulation Script -->
 <script>
-    document.getElementById('crud-client-color-primary').addEventListener('input', (e) => {
+    document.getElementById('crud-client-color-primary')?.addEventListener('input', (e) => {
         document.getElementById('crud-client-text-primary').value = e.target.value;
     });
-    document.getElementById('crud-client-color-secondary').addEventListener('input', (e) => {
+    document.getElementById('crud-client-color-secondary')?.addEventListener('input', (e) => {
         document.getElementById('crud-client-text-secondary').value = e.target.value;
     });
 
-    function openClientCrudModal() {
-        document.getElementById('client-crud-form').reset();
-        document.getElementById('client-crud-modal').classList.remove('hidden');
-    }
-    function closeClientCrudModal() { document.getElementById('client-crud-modal').classList.add('hidden'); }
-
     function openAuthModal(mode = 'login') {
         document.getElementById('auth-action-type').value = mode;
-        document.getElementById('auth-form').reset();
+        const authForm = document.getElementById('auth-form');
+        if (authForm) authForm.reset();
         document.getElementById('auth-error-message').classList.add('hidden');
         
         const title = document.getElementById('auth-modal-title');
@@ -1280,6 +1922,16 @@
         openAuthModal(currentType === 'login' ? 'signup' : 'login');
     }
 
+    function openClientCrudModal() {
+        const clientForm = document.getElementById('client-crud-form');
+        if (clientForm) clientForm.reset();
+        document.getElementById('client-crud-modal').classList.remove('hidden');
+    }
+    
+    function closeClientCrudModal() {
+        document.getElementById('client-crud-modal').classList.add('hidden');
+    }
+
     document.getElementById('nav-jobs-link').addEventListener('click', (e) => {
         e.preventDefault();
         document.getElementById('client-facing-view').classList.remove('hidden');
@@ -1291,17 +1943,6 @@
         window.location.hash = "";
         location.reload();
     });
-
-    function switchAdminTab(target) {
-        const tabs = ['clients-mgmt', 'jobs-mgmt', 'apps-mgmt', 'users-mgmt'];
-        tabs.forEach(t => {
-            document.getElementById(`admin-tab-${t}`).classList.add('hidden');
-            document.getElementById(`tab-btn-${t}`).className = "px-md py-xs font-label-md text-label-md text-on-surface-variant hover:text-primary";
-        });
-
-        document.getElementById(`admin-tab-${target}`).classList.remove('hidden');
-        document.getElementById(`tab-btn-${target}`).className = "px-md py-xs font-label-md text-label-md text-primary border-b-2 border-primary font-bold";
-    }
 </script>
 </body>
 </html>
