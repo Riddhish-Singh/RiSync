@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RiBuild Engine - Public Keyless AI Site Builder</title>
+  <!-- Tailwind CSS for UI Layout Architecture -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-zinc-950 text-white font-sans h-screen flex flex-col overflow-hidden">
+
+  <!-- Control Dashboard Header -->
+  <header class="p-4 bg-zinc-900 border-b border-zinc-800 flex flex-col md:flex-row gap-4 justify-between items-center shadow-md z-10">
+    <div class="flex items-center gap-3">
+      <div class="h-9 w-9 bg-indigo-600 rounded-xl flex items-center justify-center font-black text-xl text-white shadow-lg shadow-indigo-600/20">R</div>
+      <div>
+        <h1 class="text-base font-bold tracking-tight text-zinc-100">RiBuild <span class="text-indigo-400 font-medium text-[11px] ml-1 bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-500/20">Public Node</span></h1>
+        <p id="status" class="text-[10px] text-zinc-400 font-mono">STATUS: Ready for Generation</p>
+      </div>
+    </div>
+    
+    <!-- User Prompt Input Control -->
+    <div class="flex-1 max-w-2xl w-full flex gap-2">
+      <input type="text" id="prompt-input" 
+             placeholder="Describe a premium layout (e.g., A dark analytics dashboard with working metrics charts tabs...)" 
+             class="w-full px-4 py-2 bg-zinc-800 border border-zinc-700/80 rounded-xl text-white placeholder-zinc-500 text-sm outline-none focus:border-indigo-500 transition-all shadow-inner" />
+      <button id="build-btn" 
+              class="bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white px-5 py-2 rounded-xl text-sm font-semibold transition-all shrink-0 shadow-lg shadow-indigo-600/20">
+        Build Canvas
+      </button>
+      <button id="download-btn" disabled
+              class="bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shrink-0">
+        Download HTML
+      </button>
+    </div>
+  </header>
+
+  <!-- Interactive Content Preview Pane -->
+  <main class="flex-1 bg-zinc-900 relative">
+    <iframe id="preview-sandbox" 
+            sandbox="allow-scripts allow-modals allow-same-origin" 
+            class="w-full h-full bg-white border-none">
+    </iframe>
+  </main>
+
+  <script>
+    const buildBtn = document.getElementById('build-btn');
+    const downloadBtn = document.getElementById('download-btn');
+    const promptInput = document.getElementById('prompt-input');
+    const previewFrame = document.getElementById('preview-sandbox');
+    const statusText = document.getElementById('status');
+
+    let compiledGlobalCode = ""; // Cache string for portable export file
+
+    // Default Canvas Initializer
+    window.addEventListener('DOMContentLoaded', () => {
+      previewFrame.srcdoc = `
+        <div style="font-family:system-ui, sans-serif; display:flex; flex-direction:column; justify-content:center; align-items:center; height:100vh; background:#09090b; color:#e4e4e7; text-align:center; padding:20px;">
+          <h2 style="font-size:1.5rem; font-weight:800; color:#818cf8; margin-bottom:6px;">RiBuild Public Engine</h2>
+          <p style="color:#71717a; font-size:0.9rem; max-w:380px; line-height:1.5;">Provide an explicit layout instruction above. The public proxy compiles structural assets, components, and runtime states with zero billing nodes.</p>
+        </div>
+      `;
+    });
+
+    async function executeBuild() {
+      const prompt = promptInput.value.trim();
+      if (!prompt) return alert('Please enter a description prompt!');
+
+      buildBtn.disabled = true;
+      downloadBtn.disabled = true;
+      buildBtn.innerText = 'Compiling Code...';
+      statusText.innerText = 'STATUS: Generating code layout framework...';
+
+      previewFrame.srcdoc = `
+        <div style="font-family:system-ui, sans-serif; display:flex; justify-content:center; align-items:center; height:100vh; background:#09090b; color:#a1a1aa; font-size:0.9rem;">
+          <div style="text-align:center;">
+            <p style="color:#f4f4f5; font-weight:600; margin-bottom:4px;">🤖 Synthesizing high-end UI components...</p>
+            <p style="font-size:0.8rem; color:#71717a;">Injecting Tailwind CSS modules, active scripts, and functional layers</p>
+          </div>
+        </div>
+      `;
+
+      // Structuring absolute requirements for structural design and code formatting
+      const orchestrationPrompt = `
+        You are RiBuild Core UI Engine. Generate an entire premium single HTML page based on this description: "${prompt}".
+        
+        STRICT CODING REQUIREMENTS:
+        - Generate beautiful modern designs (SaaS look, dark modes, slate-950, crisp clean cards, soft borders).
+        - Add true functional scripts using AlpineJS inline attributes (make mobile nav buttons toggles, active profile dropdown links, or operational tab screens actually click and render changes).
+        - Integrate Lucide Icons markup where icons fit logically (<i data-lucide="icon-name"></i>).
+        - Return ONLY functional raw layout source code starting directly with <!DOCTYPE html>. Do not add explainers, notes, markdown blocks, or wrap code inside backticks. Only pure valid HTML syntax.
+      `;
+
+      try {
+        // Fetching layout text over a public, unauthenticated inference route
+        const response = await fetch('https://text.pollinations.ai/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: [{ role: 'user', content: orchestrationPrompt }],
+            model: 'openai'
+          })
+        });
+
+        if (!response.ok) throw new Error('Inference node failed.');
+        
+        let generatedCode = await response.text();
+        generatedCode = generatedCode.trim();
+
+        // Safety layer preventing markdown backtick artifacts if the model bypasses formatting instructions
+        if (generatedCode.startsWith("```html")) {
+          generatedCode = generatedCode.replace(/```html|```/g, "").trim();
+        } else if (generatedCode.startsWith("```")) {
+          generatedCode = generatedCode.replace(/```/g, "").trim();
+        }
+
+        // Automatic Global Dependency Script Injection
+        const coreRuntimeStack = `
+          <!-- Global UI Utilities -->
+          <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+          <script defer src="[https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js](https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js)"></script>
+          <script src="[https://unpkg.com/lucide@latest](https://unpkg.com/lucide@latest)"></script>
+          <script>
+            // Deep uniform premium styling defaults override
+            tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] } } } };
+            document.addEventListener("DOMContentLoaded", () => { lucide.createIcons(); });
+          </script>
+        `;
+
+        // Ensure we inject the runtime stack nicely inside the head tag
+        const finalExecutableDOM = generatedCode.includes("</head>")
+          ? generatedCode.replace("</head>", `${coreRuntimeStack}\n</head>`)
+          : coreRuntimeStack + generatedCode;
+
+        // Save into instance state string for the extraction utility download block
+        compiledGlobalCode = finalExecutableDOM;
+
+        // Render generated system layer directly inside the client workspace
+        previewFrame.srcdoc = finalExecutableDOM;
+        statusText.innerText = 'STATUS: Compilation clean. Active live preview loaded.';
+        downloadBtn.disabled = false;
+
+      } catch (err) {
+        console.error(err);
+        statusText.innerText = 'STATUS: Compilation interface exception encountered.';
+        previewFrame.srcdoc = `<div style="padding:40px; background:#09090b; color:#ef4444; font-family:sans-serif; font-size:0.9rem;">Network error connection to free public generation arrays. Please try adjusting your layout description parameters.</div>`;
+      } finally {
+        buildBtn.disabled = false;
+        buildBtn.innerText = 'Build Canvas';
+      }
+    }
+
+    // Direct Browser Download Asset Handler
+    function triggerAssetDownload() {
+      if (!compiledGlobalCode) return;
+      const elementBlob = new Blob([compiledGlobalCode], { type: 'text/html' });
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.href = URL.createObjectURL(elementBlob);
+      downloadAnchor.download = 'ribuild-generated-site.html';
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      document.body.removeChild(downloadAnchor);
+    }
+
+    buildBtn.addEventListener('click', executeBuild);
+    downloadBtn.addEventListener('click', triggerAssetDownload);
+    promptInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') executeBuild(); });
+  </script>
+</body>
+</html>
