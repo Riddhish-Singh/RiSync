@@ -100,22 +100,24 @@
         let generatedCode = await response.text();
         generatedCode = generatedCode.trim();
 
+        // Clean formatting wrappers cleanly
         if (generatedCode.startsWith("```html")) {
           generatedCode = generatedCode.replace(/```html|```/g, "").trim();
         } else if (generatedCode.startsWith("```")) {
           generatedCode = generatedCode.replace(/```/g, "").trim();
         }
 
-        // Cleanest possible absolute URL injection
-        const coreRuntimeStack = '<script src="[https://cdn.tailwindcss.com/3.4.15](https://cdn.tailwindcss.com/3.4.15)"><\/script>' +
-          '<script defer src="[https://cdn.jsdelivr.net/npm/alpinejs@3.16.0/dist/cdn.min.js](https://cdn.jsdelivr.net/npm/alpinejs@3.16.0/dist/cdn.min.js)"><\/script>' +
-          '<script src="[https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js](https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js)"><\/script>' +
-          '<script>' +
-          '  tailwind.config = { theme: { extend: { fontFamily: { sans: ["Inter", "sans-serif"] } } } };' +
-          '  document.addEventListener("DOMContentLoaded", () => {' +
-          '    if (typeof lucide !== "undefined") { lucide.createIcons(); }' +
-          '  });' +
-          '<\/script>';
+        // Compiled via array matrix to completely shield URLs and quotes from local server string manipulation errors
+        const coreRuntimeStack = [
+          '<script src="[https://cdn.tailwindcss.com/3.4.15](https://cdn.tailwindcss.com/3.4.15)"><\/script>',
+          '<script defer src="[https://cdn.jsdelivr.net/npm/alpinejs@3.16.0/dist/cdn.min.js](https://cdn.jsdelivr.net/npm/alpinejs@3.16.0/dist/cdn.min.js)"><\/script>',
+          '<script src="[https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js](https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js)"><\/script>',
+          '<script>',
+          '  window.addEventListener("DOMContentLoaded", () => {',
+          '    if (typeof lucide !== "undefined") { lucide.createIcons(); }',
+          '  });',
+          '<\/script>'
+        ].join('\n');
 
         let finalExecutableDOM;
         if (generatedCode.includes("</head>")) {
@@ -123,7 +125,7 @@
         } else if (generatedCode.includes("<body>")) {
           finalExecutableDOM = generatedCode.replace("<body>", "<body>\n" + coreRuntimeStack);
         } else {
-          finalExecutableDOM = coreRuntimeStack + generatedCode;
+          finalExecutableDOM = coreRuntimeStack + "\n" + generatedCode;
         }
 
         compiledGlobalCode = finalExecutableDOM;
