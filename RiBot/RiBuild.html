@@ -100,21 +100,22 @@
         let generatedCode = await response.text();
         generatedCode = generatedCode.trim();
 
-        // Clean formatting wrappers cleanly
         if (generatedCode.startsWith("```html")) {
           generatedCode = generatedCode.replace(/```html|```/g, "").trim();
         } else if (generatedCode.startsWith("```")) {
           generatedCode = generatedCode.replace(/```/g, "").trim();
         }
 
-        // Compiled via array matrix to completely shield URLs and quotes from local server string manipulation errors
+        // Swapped to un-minified CDN versions to avoid local token clashing ('Infinity' error)
         const coreRuntimeStack = [
           '<script src="[https://cdn.tailwindcss.com/3.4.15](https://cdn.tailwindcss.com/3.4.15)"><\/script>',
-          '<script defer src="[https://cdn.jsdelivr.net/npm/alpinejs@3.16.0/dist/cdn.min.js](https://cdn.jsdelivr.net/npm/alpinejs@3.16.0/dist/cdn.min.js)"><\/script>',
-          '<script src="[https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js](https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js)"><\/script>',
+          '<script defer src="[https://unpkg.com/alpinejs@3.16.0/dist/cdn.js](https://unpkg.com/alpinejs@3.16.0/dist/cdn.js)"><\/script>',
+          '<script src="[https://unpkg.com/lucide@0.469.0/dist/umd/lucide.js](https://unpkg.com/lucide@0.469.0/dist/umd/lucide.js)"><\/script>',
           '<script>',
           '  window.addEventListener("DOMContentLoaded", () => {',
-          '    if (typeof lucide !== "undefined") { lucide.createIcons(); }',
+          '    setTimeout(() => {',
+          '      if (typeof lucide !== "undefined") { lucide.createIcons(); }',
+          '    }, 100);',
           '  });',
           '<\/script>'
         ].join('\n');
