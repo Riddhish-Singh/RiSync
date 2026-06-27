@@ -48,6 +48,7 @@
 
     let compiledGlobalCode = "";
 
+    // Default Canvas Initializer UI
     window.addEventListener('DOMContentLoaded', () => {
       previewFrame.srcdoc = `
         <div style="font-family:system-ui, sans-serif; display:flex; flex-direction:column; justify-content:center; align-items:center; height:100vh; background:#09090b; color:#e4e4e7; text-align:center; padding:20px;">
@@ -100,30 +101,37 @@
         let generatedCode = await response.text();
         generatedCode = generatedCode.trim();
 
+        // Strip away any unnecessary markdown formatting if the model slipped up
         if (generatedCode.startsWith("```html")) {
           generatedCode = generatedCode.replace(/```html|```/g, "").trim();
         } else if (generatedCode.startsWith("```")) {
           generatedCode = generatedCode.replace(/```/g, "").trim();
         }
 
-        // Fixed, rock-solid stable CDN paths
+        // Rock-solid stable production CDN dependencies
         const coreRuntimeStack = `
           <script src="[https://cdn.tailwindcss.com/3.4.15](https://cdn.tailwindcss.com/3.4.15)"></script>
-          <script defer src="[https://cdn.jsdelivr.net/npm/alpinejs@3.14.3/dist/cdn.min.js](https://cdn.jsdelivr.net/npm/alpinejs@3.14.3/dist/cdn.min.js)"></script>
-          <script src="[https://cdnjs.cloudflare.com/ajax/libs/lucide/0.469.0/umd/lucide.min.js](https://cdnjs.cloudflare.com/ajax/libs/lucide/0.469.0/umd/lucide.min.js)"></script>
+          <script defer src="[https://cdn.jsdelivr.net/npm/alpinejs@3.16.0/dist/cdn.min.js](https://cdn.jsdelivr.net/npm/alpinejs@3.16.0/dist/cdn.min.js)"></script>
+          <script src="[https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js](https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js)"></script>
           <script>
             tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] } } } };
             document.addEventListener("DOMContentLoaded", () => { 
-              if (window.lucide) {
+              if (typeof lucide !== 'undefined') {
                 lucide.createIcons(); 
               }
             });
           </script>
         `;
 
-        const finalExecutableDOM = generatedCode.includes("</head>")
-          ? generatedCode.replace("</head>", `${coreRuntimeStack}\n</head>`)
-          : coreRuntimeStack + generatedCode;
+        // Safe injection algorithm targeting code structures instead of loose checks
+        let finalExecutableDOM;
+        if (generatedCode.includes("</head>")) {
+          finalExecutableDOM = generatedCode.replace("</head>", `${coreRuntimeStack}\n</head>`);
+        } else if (generatedCode.includes("<body>")) {
+          finalExecutableDOM = generatedCode.replace("<body>", `<body>\n${coreRuntimeStack}`);
+        } else {
+          finalExecutableDOM = coreRuntimeStack + generatedCode;
+        }
 
         compiledGlobalCode = finalExecutableDOM;
         previewFrame.srcdoc = finalExecutableDOM;
@@ -133,13 +141,18 @@
       } catch (err) {
         console.error(err);
         statusText.innerText = 'STATUS: Compilation interface exception encountered.';
-        previewFrame.srcdoc = `<div style="padding:40px; background:#09090b; color:#ef4444; font-family:sans-serif; font-size:0.9rem;">Network error connecting to free public generation arrays. Please try adjusting your parameters.</div>`;
+        previewFrame.srcdoc = `
+          <div style="padding:40px; background:#09090b; color:#ef4444; font-family:sans-serif; font-size:0.9rem;">
+            Network error connecting to free public generation arrays. Please try adjusting your parameters.
+          </div>
+        `;
       } finally {
         buildBtn.disabled = false;
         buildBtn.innerText = 'Build Canvas';
       }
     }
 
+    // Export generated layout to direct file system blob
     function triggerAssetDownload() {
       if (!compiledGlobalCode) return;
       const elementBlob = new Blob([compiledGlobalCode], { type: 'text/html' });
@@ -151,6 +164,7 @@
       document.body.removeChild(downloadAnchor);
     }
 
+    // App View Listeners Wireup
     buildBtn.addEventListener('click', executeBuild);
     downloadBtn.addEventListener('click', triggerAssetDownload);
     promptInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') executeBuild(); });
