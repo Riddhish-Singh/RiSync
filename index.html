@@ -40,18 +40,34 @@
         }
 
         /* Base & Reset */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none !important; }
+
         body {
             background-color: var(--bg-void);
             color: var(--text-main);
             font-family: var(--font-body);
             line-height: 1.6;
             overflow-x: hidden;
-            cursor: url('https://risync.in/logo.png') 16 16, auto;
             background-image: radial-gradient(circle at 50% 0%, #0a2a61 0%, var(--bg-void) 60%);
             background-attachment: fixed;
         }
+
+        /* --- Custom logo cursor --- */
+        #risync-custom-cursor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 28px;
+            height: 28px;
+            pointer-events: none;
+            z-index: 999999;
+            transform: translate(-4px, -4px);
+            will-change: transform;
+            opacity: 0;
+            transition: opacity 0.15s ease, width 0.15s ease, height 0.15s ease;
+        }
+        #risync-custom-cursor.is-visible { opacity: 1; }
+        #risync-custom-cursor.is-active { width: 34px; height: 34px; }
 
         /* Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
@@ -1125,6 +1141,40 @@
             else setTimeout(type, isDel ? 50 : 100);
         }
         type();
+    </script>
+
+    <img id="risync-custom-cursor" src="https://risync.in/logo.png" alt="">
+    <script>
+        (function () {
+            var cursor = document.getElementById('risync-custom-cursor');
+            var hasMoved = false;
+
+            function moveCursor(x, y) {
+                cursor.style.transform = 'translate(' + (x - 4) + 'px, ' + (y - 4) + 'px)';
+                if (!hasMoved) {
+                    hasMoved = true;
+                    cursor.classList.add('is-visible');
+                }
+            }
+
+            window.addEventListener('mousemove', function (e) {
+                moveCursor(e.clientX, e.clientY);
+            });
+
+            window.addEventListener('mousedown', function () {
+                cursor.classList.add('is-active');
+            });
+            window.addEventListener('mouseup', function () {
+                cursor.classList.remove('is-active');
+            });
+
+            document.addEventListener('mouseleave', function () {
+                cursor.classList.remove('is-visible');
+            });
+            document.addEventListener('mouseenter', function () {
+                if (hasMoved) cursor.classList.add('is-visible');
+            });
+        })();
     </script>
 </body>
 </html>
