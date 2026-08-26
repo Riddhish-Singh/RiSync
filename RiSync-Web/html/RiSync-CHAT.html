@@ -924,6 +924,83 @@
     .login-box .error-msg {
         color: red; font-size: 13px; margin-bottom: 10px; display: none;
     }
+  
+    .mention-hint {
+        position: absolute;
+        right: 12px;
+        bottom: -18px;
+        font-size: 10px;
+        color: var(--wa-text-secondary);
+        pointer-events: none;
+        white-space: nowrap;
+        opacity: .85;
+    }
+    .profile-card {
+        background: var(--modal-bg);
+        color: var(--modal-text);
+        width: 430px;
+        max-width: 92%;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 12px 35px rgba(0,0,0,.28);
+    }
+    .profile-cover {
+        height: 105px;
+        background: linear-gradient(135deg, var(--wa-green), #128c7e);
+    }
+    .profile-body { padding: 0 24px 24px; }
+    .profile-avatar-wrap {
+        margin-top: -42px;
+        position: relative;
+        width: 84px;
+    }
+    .profile-avatar {
+        width: 84px;
+        height: 84px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid var(--modal-bg);
+        background: var(--wa-input-bg);
+    }
+    .profile-title { margin: 10px 0 2px; font-size: 22px; }
+    .profile-subtitle { color: var(--wa-text-secondary); font-size: 13px; margin-bottom: 18px; }
+    .profile-grid { display: grid; gap: 10px; text-align: left; }
+    .profile-field {
+        padding: 11px 12px;
+        border: 1px solid var(--wa-border);
+        border-radius: 8px;
+        background: var(--wa-input-bg);
+    }
+    .profile-field label {
+        display: block;
+        font-size: 11px;
+        color: var(--wa-text-secondary);
+        margin-bottom: 3px;
+    }
+    .profile-field input, .profile-field select {
+        width: 100%;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        color: var(--wa-text-primary);
+        font: inherit;
+    }
+    .profile-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:18px; }
+    .profile-btn {
+        border:0; border-radius:7px; padding:9px 15px; cursor:pointer; font-weight:600;
+    }
+    .profile-btn.primary { background:var(--wa-green); color:#fff; }
+    .profile-btn.secondary { background:var(--wa-input-bg); color:var(--wa-text-primary); }
+    .profile-edit-only { display:none; }
+    .profile-modal.editing .profile-edit-only { display:block; }
+    .profile-modal.editing .profile-readonly { display:none; }
+    .generated-image-label {
+        display:inline-block;
+        margin-top:5px;
+        font-size:10px;
+        color:var(--wa-text-secondary);
+    }
+
   </style>
 </head>
 <body>
@@ -966,7 +1043,7 @@
   
   <aside class="sidebar">
     <header>
-      <div class="user-profile-section" onclick="alert('Profile view coming soon!')">
+      <div class="user-profile-section" onclick="openProfileModal(false)" title="View Profile">
         <img src="https://placehold.co/40x40/f58220/ffffff?text=U" alt="Profile" class="user-avatar" id="sidebarAvatar" title="Click to view Profile">
         <span class="user-name-display" id="sidebarName">Guest</span>
       </div>
@@ -977,6 +1054,8 @@
       </div>
 
       <div class="dropdown-menu" id="sidebarDropdown">
+          <div class="dropdown-item" onclick="openProfileModal(false)">View Profile</div>
+          <div class="dropdown-item" onclick="openProfileModal(true)">Edit Profile</div>
           <div class="dropdown-item" onclick="openModal('newChat')">New Chat</div>
           <div class="dropdown-item" onclick="toggleTheme()">Toggle Dark Mode</div>
           <div class="dropdown-item" onclick="handleLogout()" style="color: red;">Log out</div>
@@ -1069,6 +1148,7 @@
             <div class="input-wrapper">
                 <div class="mention-box" id="mentionBox"></div>
                 <input type="text" id="msgInput" placeholder="Type a message (@ to mention)" autocomplete="off">
+                <div class="mention-hint">Try <strong>@RiBot</strong> for web search or <strong>@RiBot-Gen</strong> for images</div>
             </div>
             <button type="submit" class="btn-send"><i class="fas fa-paper-plane"></i></button>
         </form>
@@ -1078,6 +1158,51 @@
 
   </main>
 
+</div>
+
+
+<div id="profileModal" class="modal profile-modal">
+  <div class="profile-card">
+    <div class="profile-cover"></div>
+    <div class="profile-body">
+      <div class="profile-avatar-wrap">
+        <img id="profileModalAvatar" class="profile-avatar" src="" alt="Profile">
+      </div>
+      <h2 class="profile-title" id="profileViewName">Student</h2>
+      <div class="profile-subtitle" id="profileViewEmail">student@example.com</div>
+
+      <div class="profile-grid profile-readonly">
+        <div class="profile-field"><label>Class</label><span id="profileViewClass">—</span></div>
+        <div class="profile-field"><label>RiSync ID</label><span id="profileViewId">—</span></div>
+      </div>
+
+      <div class="profile-grid profile-edit-only">
+        <div class="profile-field">
+          <label>Full Name</label>
+          <input id="profileEditName" type="text" maxlength="60">
+        </div>
+        <div class="profile-field">
+          <label>Class</label>
+          <select id="profileEditClass">
+            <option value="5">Class 5</option><option value="6">Class 6</option>
+            <option value="7">Class 7</option><option value="8">Class 8</option>
+            <option value="9">Class 9</option><option value="10">Class 10</option>
+            <option value="11">Class 11</option><option value="12">Class 12</option>
+          </select>
+        </div>
+        <div class="profile-field">
+          <label>Profile Picture</label>
+          <input id="profileEditImage" type="file" accept="image/*">
+        </div>
+      </div>
+
+      <div class="profile-actions">
+        <button class="profile-btn secondary" onclick="closeProfileModal()">Close</button>
+        <button class="profile-btn primary profile-edit-only" onclick="saveProfileChanges()">Save Changes</button>
+        <button class="profile-btn primary profile-readonly" onclick="openProfileModal(true)">Edit Profile</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div id="statusModal" class="modal">
@@ -1617,25 +1742,92 @@
         }
     }
 
-    // --- AI BOT COMMAND LOGIC (STRICT TEACHER) ---
+    // --- RiBot / RiBot-Gen COMMAND LOGIC ---
+    // @RiBot = web-search only. No AI-generated answer is used.
+    // @RiBot-Gen = image generation.
     async function handleBotCommand(text) {
-        const userPrompt = text.replace('@ribot', '').trim();
-        if(!userPrompt) return;
+        const raw = text.trim();
+        const lower = raw.toLowerCase();
 
-        // Strict System Prompt using 'openai' model via Pollinations
-        const systemPrompt = `System: You are RiBot, a strict educational AI assistant for school students (age 11). You ONLY answer questions about school subjects (Math, Science, English, History, Art). If the user asks about pranks, teasing, games, movies, or anything non-educational, strictly refuse and tell them to focus on studies. Keep answers short and helpful for a child. \n\nUser: ${userPrompt}`;
-        
-        // Force model=openai for smarter reasoning
-        const url = `https://text.pollinations.ai/${encodeURIComponent(systemPrompt)}?model=openai`;
+        if (lower.startsWith('@ribot-gen')) {
+            const prompt = raw.substring('@ribot-gen'.length).trim();
+            if (!prompt) {
+                await window.sendFirebaseMessage("Use @RiBot-Gen followed by an image prompt.", 'text',
+                    null, { fullname: "RiBot-Gen 🎨", email: "ribot-gen-agent" });
+                return;
+            }
+            await generateRiBotImage(prompt);
+            return;
+        }
 
+        if (!lower.startsWith('@ribot')) return;
+
+        const queryText = raw.substring('@ribot'.length).trim();
+        if (!queryText) {
+            await window.sendFirebaseMessage("Use @RiBot followed by your question. I will search the web.", 'text',
+                null, { fullname: "RiBot 🌐", email: "ribot-agent" });
+            return;
+        }
+        await webSearchAnswer(queryText);
+    }
+
+    async function webSearchAnswer(queryText) {
+        const botProfile = { fullname: "RiBot 🌐", email: "ribot-agent" };
         try {
+            const url = `https://api.duckduckgo.com/?q=${encodeURIComponent(queryText)}&format=json&no_html=1&skip_disambig=1`;
             const response = await fetch(url);
-            const aiText = await response.text();
-            const botProfile = { fullname: "RiBot 🤖", email: "ribot-agent" };
-            await window.sendFirebaseMessage(aiText, 'text', null, botProfile);
+            if (!response.ok) throw new Error(`Search failed: ${response.status}`);
+            const data = await response.json();
+
+            const results = [];
+            if (data.AbstractText) {
+                results.push({
+                    title: data.Heading || "Web result",
+                    text: data.AbstractText,
+                    url: data.AbstractURL || ""
+                });
+            }
+
+            (data.RelatedTopics || []).slice(0, 5).forEach(item => {
+                if (item.Text) results.push({ title: item.Text.split(" - ")[0], text: item.Text, url: item.FirstURL || "" });
+                if (item.Topics) item.Topics.slice(0, 2).forEach(t => {
+                    if (t.Text) results.push({ title: t.Text.split(" - ")[0], text: t.Text, url: t.FirstURL || "" });
+                });
+            });
+
+            if (!results.length) {
+                const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(queryText)}`;
+                await window.sendFirebaseMessage(
+                    `No direct web snippet was returned. Open the web search: ${searchUrl}`,
+                    'text', null, botProfile
+                );
+                return;
+            }
+
+            let answer = `Web search results for: ${queryText}\n\n`;
+            results.slice(0, 5).forEach((r, i) => {
+                answer += `${i + 1}. ${r.text}${r.url ? `\n${r.url}` : ""}\n\n`;
+            });
+            await window.sendFirebaseMessage(answer.trim(), 'text', null, botProfile);
         } catch (error) {
-            const botProfile = { fullname: "RiBot 🤖", email: "ribot-agent" };
-            await window.sendFirebaseMessage("Error connecting to AI.", 'text', null, botProfile);
+            console.error("RiBot web search error:", error);
+            const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(queryText)}`;
+            await window.sendFirebaseMessage(
+                `Web search is unavailable right now. Search directly: ${searchUrl}`,
+                'text', null, botProfile
+            );
+        }
+    }
+
+    async function generateRiBotImage(prompt) {
+        const botProfile = { fullname: "RiBot-Gen 🎨", email: "ribot-gen-agent" };
+        try {
+            // Image endpoint. The generated image is sent as an image message.
+            const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&nologo=true`;
+            await window.sendFirebaseMessage(imageUrl, 'image', "RiBot-Gen image", botProfile);
+        } catch (error) {
+            console.error("RiBot-Gen error:", error);
+            await window.sendFirebaseMessage("I couldn't generate that image right now.", 'text', null, botProfile);
         }
     }
 
@@ -1644,7 +1836,7 @@
         const userProfile = getCurrentUserProfile();
         
         const isMe = data.uid === userProfile.email;
-        const isBot = data.uid === "ribot-agent";
+        const isBot = data.uid === "ribot-agent" || data.uid === "ribot-gen-agent";
 
         const div = document.createElement('div');
         let msgClass = isMe ? 'my-message' : (isBot ? 'bot-message' : 'other-message');
@@ -1670,7 +1862,7 @@
         // --- RENDER LOGIC START ---
         if (data.type === 'image') {
             // data.fileUrl is Base64
-            contentHtml = `<img src="${data.fileUrl}" class="msg-image" onclick="window.open(this.src)">`;
+            contentHtml = `<img src="${data.fileUrl}" class="msg-image" onclick="window.open(this.src)">${data.uid === "ribot-gen-agent" ? '<span class="generated-image-label">Generated by @RiBot-Gen</span>' : ''}`;
         } 
         else if (data.type === 'file') {
             contentHtml = `
@@ -1768,8 +1960,9 @@
     function showMentions(query) {
         mentionBox.innerHTML = "";
         const users = Array.from(roomUsers);
-        if(users.length === 0) users.push("Everyone", "RiBot"); 
-        const matches = users.filter(u => u.toLowerCase().includes(query));
+        users.push("RiBot", "RiBot-Gen");
+        const uniqueUsers = [...new Set(users)]; 
+        const matches = uniqueUsers.filter(u => u.toLowerCase().includes(query));
         if (matches.length > 0) {
             matches.forEach(user => {
                 const div = document.createElement("div");
@@ -1835,39 +2028,27 @@
         return users.find(u => u.email === email) || null;
     }
 
-    // --- AI MODERATION & SUSPENSION LOGIC START ---
+    // --- KEYWORD MODERATION ---
+    // Lightweight local monitoring: no external AI moderation call.
+    // Keep this list focused on clearly inappropriate/off-topic categories.
+    const bannedKeywords = [
+        "dating", "bullying", "harassment", "prank", "teasing",
+        "spam", "scam", "abusive", "threat", "hate",
+        "offtopic", "off-topic"
+    ];
 
-    window.checkMessageRelevance = async function(text) {
-        if (!text || text.length < 2) return; // Ignore very short msg
-
-        // Prompt tailored for strict study/classroom environment
-        const prompt = `You are a strict school moderator for 11-year-olds. 
-        Determine if the following message is related to studies, school work, classroom greetings, or app help.
-        If it is about gaming, dating, movies, rude behavior, pranks, teasing, or purely distracting nonsense, reply NO. 
-        If it is safe/relevant, reply YES. 
-        Strictly answer only YES or NO.
-        Message: "${text}"`;
-
-        try {
-            // UPGRADE: Use 'openai' model for smarter, stricter checking
-            const url = `https://text.pollinations.ai/${encodeURIComponent(prompt)}?model=openai`;
-            const response = await fetch(url);
-            const answer = await response.text();
-            
-            if (answer.trim().toUpperCase().includes("NO")) {
-                handleViolation();
-            }
-        } catch (e) {
-            console.error("AI Check Failed", e);
-            // Fallback: If OpenAI fails, try default model as backup
-            try {
-                 const responseBackup = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
-                 const answerBackup = await responseBackup.text();
-                 if (answerBackup.trim().toUpperCase().includes("NO")) handleViolation();
-            } catch(err) {
-                console.log("Both AI models failed. Skipping check.");
-            }
+    window.checkMessageRelevance = function(text) {
+        if (!text || text.length < 2) return false;
+        const normalized = text.toLowerCase();
+        const found = bannedKeywords.find(keyword => {
+            const pattern = new RegExp(`(^|\\W)${keyword.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}(?=$|\\W)`, "i");
+            return pattern.test(normalized);
+        });
+        if (found) {
+            handleViolation();
+            return true;
         }
+        return false;
     }
 
     function handleViolation() {
@@ -1932,23 +2113,28 @@
 
     window.handleChatSubmit = function(e) {
         e.preventDefault();
-        
+
         // Step 1: Check Suspension
         if (checkSuspension()) return;
 
         const text = msgInput.value.trim();
         if(text) {
-            // ALWAYS Send Message First for Speed
-            sendFirebaseMessage(text, 'text');
+            // Check local moderation keywords before sending.
+            if (window.checkMessageRelevance(text)) {
+                msgInput.value = "";
+                emojiPicker.classList.remove("show");
+                mentionBox.classList.remove("show");
+                return;
+            }
 
-            // ALWAYS Run Background AI Check (Even for Bot Commands)
-            window.checkMessageRelevance(text);
-            
-            // Handle Bot Command
-            if (text.toLowerCase().startsWith('@ribot')) {
+            // @RiBot = web search, @RiBot-Gen = image generation.
+            const lower = text.toLowerCase();
+            if (lower.startsWith('@ribot')) {
                 handleBotCommand(text);
-            } 
-            
+            } else {
+                sendFirebaseMessage(text, 'text');
+            }
+
             msgInput.value = "";
             emojiPicker.classList.remove("show");
             mentionBox.classList.remove("show");
@@ -2081,6 +2267,82 @@
     loadRoom(myClass, `Class ${myClass} Group`);
   }
   
+  window.openProfileModal = function(editMode = false) {
+      const user = getCurrentUserProfile();
+      if (!user) return;
+      const modal = document.getElementById("profileModal");
+      modal.classList.toggle("editing", !!editMode);
+
+      const savedImage = localStorage.getItem("profileImage");
+      const initial = (user.fullname || "U").charAt(0).toUpperCase();
+      document.getElementById("profileModalAvatar").src =
+          savedImage || `https://placehold.co/84x84/f58220/ffffff?text=${encodeURIComponent(initial)}`;
+
+      document.getElementById("profileViewName").textContent = user.fullname || "Student";
+      document.getElementById("profileViewEmail").textContent = user.email || "";
+      document.getElementById("profileViewClass").textContent = `Class ${user.class || "—"}`;
+      document.getElementById("profileViewId").textContent = user.email || "—";
+
+      document.getElementById("profileEditName").value = user.fullname || "";
+      document.getElementById("profileEditClass").value = user.class || "5";
+      document.getElementById("profileEditImage").value = "";
+
+      modal.style.display = "flex";
+  };
+
+  window.closeProfileModal = function() {
+      document.getElementById("profileModal").style.display = "none";
+  };
+
+  window.saveProfileChanges = function() {
+      const name = document.getElementById("profileEditName").value.trim();
+      const cls = document.getElementById("profileEditClass").value;
+      const imageFile = document.getElementById("profileEditImage").files[0];
+
+      if (!name) {
+          alert("Please enter your name.");
+          return;
+      }
+
+      const email = localStorage.getItem("currentUserEmail");
+      let users = JSON.parse(localStorage.getItem("users")) || [];
+      const idx = users.findIndex(u => u.email === email);
+      if (idx === -1) return;
+
+      users[idx].fullname = name;
+      users[idx].class = cls;
+      localStorage.setItem("users", JSON.stringify(users));
+
+      const finish = () => {
+          currentUser = users[idx];
+          document.getElementById("sidebarName").textContent = currentUser.fullname;
+          document.getElementById("myClassName").textContent = `Class ${currentUser.class} Group`;
+
+          const initial = currentUser.fullname.charAt(0).toUpperCase();
+          const savedImage = localStorage.getItem("profileImage");
+          sidebarAvatar.src = savedImage ||
+              `https://placehold.co/40x40/f58220/ffffff?text=${encodeURIComponent(initial)}`;
+
+          myClass = parseInt(currentUser.class) || 5;
+          closeProfileModal();
+      };
+
+      if (imageFile) {
+          if (imageFile.size > 500 * 1024) {
+              alert("Profile image is too large. Please use an image under 500KB.");
+              return;
+          }
+          const reader = new FileReader();
+          reader.onload = e => {
+              localStorage.setItem("profileImage", e.target.result);
+              finish();
+          };
+          reader.readAsDataURL(imageFile);
+      } else {
+          finish();
+      }
+  };
+
   window.toggleTheme = function() {
       const body = document.body;
       const current = body.getAttribute('data-theme');
