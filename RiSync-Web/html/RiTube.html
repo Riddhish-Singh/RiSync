@@ -1,64 +1,565 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RiTube — RiSync</title>
 
-  <link rel="stylesheet" href="./css/style.css" />
+  <style>
+    :root {
+      --bg: #05070d;
+      --panel: #0b111d;
+      --panel-2: #101827;
+      --border: #22314a;
+      --text: #f7f9ff;
+      --muted: #8290a8;
+      --blue: #5b8cff;
+      --cyan: #59d9ff;
+      --orange: #ff7b32;
+      --purple: #8b5cf6;
+      --danger: #ff5d67;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, input, textarea { font: inherit; }
+    button { cursor: pointer; }
+
+    .navbar {
+      position: fixed;
+      inset: 0 0 auto;
+      height: 72px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 0 20px;
+      background: rgba(5, 7, 13, .88);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+
+    .menu {
+      border: 0;
+      background: transparent;
+      color: white;
+      font-size: 22px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: white;
+      text-decoration: none;
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .logo {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      box-shadow: 0 0 28px rgba(91,140,255,.25);
+    }
+
+    .search {
+      display: flex;
+      width: min(680px, 100%);
+      margin: auto;
+    }
+
+    .search input {
+      flex: 1;
+      height: 44px;
+      padding: 0 16px;
+      border: 1px solid var(--border);
+      border-right: 0;
+      border-radius: 13px 0 0 13px;
+      background: var(--panel);
+      color: white;
+      outline: none;
+    }
+
+    .search button {
+      width: 55px;
+      border: 1px solid var(--border);
+      border-radius: 0 13px 13px 0;
+      background: var(--panel-2);
+      color: white;
+    }
+
+    .upload-btn {
+      padding: 10px 15px;
+      border: 1px solid #354766;
+      border-radius: 12px;
+      background: var(--panel-2);
+      color: white;
+      font-weight: 800;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border: 0;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      color: white;
+      font-weight: 900;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 72px;
+      left: 0;
+      bottom: 0;
+      width: 230px;
+      z-index: 50;
+      padding: 18px 12px;
+      background: #070b13;
+      border-right: 1px solid #152136;
+    }
+
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 14px;
+      margin: 3px 0;
+      border-radius: 11px;
+      color: #aab6ca;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .sidebar a:hover,
+    .sidebar a.active {
+      background: #111b2d;
+      color: white;
+    }
+
+    .sidebar hr {
+      border: 0;
+      border-top: 1px solid #162238;
+      margin: 17px 8px;
+    }
+
+    main {
+      margin-left: 230px;
+      padding: 94px 32px 70px;
+      max-width: 1600px;
+    }
+
+    .categories {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+
+    .category {
+      white-space: nowrap;
+      padding: 9px 14px;
+      border: 1px solid #1d2b42;
+      border-radius: 999px;
+      background: #0b1220;
+      color: #aebbd0;
+    }
+
+    .category.active {
+      background: white;
+      color: #090d15;
+    }
+
+    .hero {
+      position: relative;
+      min-height: 370px;
+      padding: 50px;
+      overflow: hidden;
+      border: 1px solid #1b2b45;
+      border-radius: 28px;
+      background:
+        radial-gradient(circle at 82% 35%, #183b7d66, transparent 32%),
+        linear-gradient(135deg, #0c1423, #070b12);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 680px;
+    }
+
+    .eyebrow {
+      color: var(--cyan);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 2px;
+    }
+
+    .hero h1 {
+      margin: 14px 0;
+      font-size: clamp(42px, 5vw, 68px);
+      line-height: .98;
+      letter-spacing: -3px;
+    }
+
+    .gradient {
+      background: linear-gradient(90deg, white, var(--cyan), #ff9b62);
+      color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      max-width: 620px;
+      color: #9eabc0;
+      line-height: 1.7;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 25px;
+    }
+
+    .primary,
+    .secondary {
+      padding: 12px 17px;
+      border-radius: 12px;
+      font-weight: 850;
+    }
+
+    .primary {
+      border: 0;
+      background: linear-gradient(135deg, var(--orange), #ff5943);
+      color: white;
+    }
+
+    .secondary {
+      border: 1px solid #2a3b58;
+      background: #0e1728;
+      color: #e8edf6;
+    }
+
+    .orb {
+      position: absolute;
+      right: 9%;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 240px;
+      height: 240px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 30% 25%, white 0 2%, #66e2ff 3% 7%, #346cff 20%, #0b1732 62%, transparent 70%);
+      filter: drop-shadow(0 0 55px #346cff88);
+      font-size: 55px;
+    }
+
+    .section { margin-top: 42px; }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      margin-bottom: 16px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: 21px;
+    }
+
+    .section-head span {
+      color: #63728b;
+      font-size: 12px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .empty {
+      grid-column: 1 / -1;
+      padding: 52px 20px;
+      border: 1px dashed #263752;
+      border-radius: 18px;
+      background: #080e18;
+      text-align: center;
+    }
+
+    .video-card { min-width: 0; }
+
+    .thumb {
+      aspect-ratio: 16 / 9;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      border: 1px solid #1a2942;
+      border-radius: 15px;
+      background: #0b111d;
+    }
+
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .video-card h3 {
+      margin: 10px 0 5px;
+      font-size: 14px;
+    }
+
+    .video-card p {
+      margin: 0;
+      color: #718097;
+      font-size: 12px;
+    }
+
+    .video-card a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .video-card a:hover h3 { color: #79bfff; }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: none;
+      place-items: center;
+      padding: 18px;
+      background: rgba(0,0,0,.78);
+      backdrop-filter: blur(10px);
+    }
+
+    .modal.show { display: grid; }
+
+    .modal-box {
+      width: min(620px, 100%);
+      max-height: 90vh;
+      overflow: auto;
+      padding: 25px;
+      border: 1px solid #263752;
+      border-radius: 20px;
+      background: #0b111d;
+      box-shadow: 0 30px 100px #000b;
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .close {
+      padding: 7px 11px;
+      border: 1px solid #263752;
+      border-radius: 9px;
+      background: #111b2c;
+      color: white;
+      font-size: 18px;
+    }
+
+    .form {
+      display: grid;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .form input,
+    .form textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #263752;
+      border-radius: 10px;
+      background: #0e1625;
+      color: white;
+      outline: none;
+    }
+
+    .form input:focus,
+    .form textarea:focus {
+      border-color: var(--blue);
+    }
+
+    .form textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .provider {
+      width: 100%;
+      margin-top: 10px;
+      padding: 12px;
+      border: 1px solid #263752;
+      border-radius: 11px;
+      background: #101827;
+      color: white;
+      font-weight: 750;
+    }
+
+    .divider {
+      margin: 18px 0;
+      color: #66758d;
+      text-align: center;
+      font-size: 12px;
+    }
+
+    .progress-wrap {
+      display: none;
+      margin-top: 18px;
+    }
+
+    .progress-track {
+      height: 8px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #172238;
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--cyan));
+      transition: width .2s;
+    }
+
+    .progress-text {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .warning {
+      margin-top: 14px;
+      padding: 12px;
+      border: 1px solid #5a4522;
+      border-radius: 10px;
+      background: #211a0d;
+      color: #e7c982;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 500;
+      max-width: 380px;
+      padding: 13px 16px;
+      border: 1px solid #334866;
+      border-radius: 11px;
+      background: #111b2b;
+      color: white;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: .2s;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 1100px) {
+      .sidebar { width: 76px; }
+      .sidebar a { justify-content: center; }
+      .sidebar a span { display: none; }
+      main { margin-left: 76px; }
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 700px) {
+      .brand span,
+      .upload-btn { display: none; }
+
+      .sidebar { display: none; }
+
+      main {
+        margin-left: 0;
+        padding: 88px 14px 45px;
+      }
+
+      .hero {
+        min-height: 440px;
+        padding: 30px 24px;
+      }
+
+      .orb {
+        width: 160px;
+        height: 160px;
+        right: -30px;
+        top: auto;
+        bottom: 15px;
+        transform: none;
+        opacity: .35;
+      }
+
+      .grid { grid-template-columns: 1fr; }
+
+      .search { min-width: 0; }
+    }
+  </style>
 </head>
 
 <body>
 
-  <!-- =========================
+  <!-- =======================================================
        NAVBAR
-  ========================== -->
+  ======================================================== -->
 
   <header class="navbar">
 
     <button
       id="menuButton"
-      class="icon-button"
-      aria-label="Open menu"
+      class="menu"
+      aria-label="Menu"
     >
       ☰
     </button>
 
-    <a href="/" class="brand">
-      <img
-        src="./assets/ritube-logo.png"
-        alt="RiTube"
-      />
-
+    <a
+      class="brand"
+      href="/"
+    >
+      <div class="logo">R</div>
       <span>RiTube</span>
     </a>
 
-    <div class="search-container">
-
+    <div class="search">
       <input
         id="searchInput"
         type="search"
         placeholder="Search RiTube"
-        autocomplete="off"
-      />
-
-      <button
-        id="searchButton"
-        class="search-button"
       >
+
+      <button id="searchButton">
         🔍
       </button>
-
     </div>
 
     <button
       id="uploadButton"
-      class="upload-button"
+      class="upload-btn"
     >
       ＋ Upload
     </button>
@@ -73,162 +574,113 @@
   </header>
 
 
-  <!-- =========================
+  <!-- =======================================================
        SIDEBAR
-  ========================== -->
+  ======================================================== -->
 
-  <aside id="sidebar">
+  <aside
+    id="sidebar"
+    class="sidebar"
+  >
 
     <a
       href="/"
-      class="sidebar-item active"
+      class="active"
     >
-      🏠
-      <span>Home</span>
+      🏠 <span>Home</span>
     </a>
 
-    <a
-      href="/trending"
-      class="sidebar-item"
-    >
-      🔥
-      <span>Trending</span>
+    <a href="#trending">
+      🔥 <span>Trending</span>
     </a>
 
-    <a
-      href="/shorts"
-      class="sidebar-item"
-    >
-      ▶
-      <span>Shorts</span>
+    <a href="#shorts">
+      ▶ <span>Shorts</span>
     </a>
 
-    <a
-      href="/subscriptions"
-      class="sidebar-item"
-    >
-      📺
-      <span>Subscriptions</span>
+    <a href="#">
+      📺 <span>Subscriptions</span>
     </a>
 
-    <hr />
+    <hr>
 
     <a
-      href="/library"
-      class="sidebar-item"
+      href="#"
+      id="libraryButton"
     >
-      📚
-      <span>Library</span>
+      📚 <span>Library</span>
     </a>
 
-    <a
-      href="/history"
-      class="sidebar-item"
-    >
-      🕘
-      <span>History</span>
+    <a href="#">
+      🕘 <span>History</span>
     </a>
 
-    <hr />
+    <hr>
 
-    <a
-      href="/studio"
-      class="sidebar-item"
-    >
-      📊
-      <span>Creator Studio</span>
+    <a href="#">
+      ✨ <span>RiSync AI</span>
     </a>
 
-    <a
-      href="/ai"
-      class="sidebar-item"
-    >
-      ✨
-      <span>RiSync AI</span>
+    <a href="#">
+      📊 <span>Creator Studio</span>
     </a>
 
   </aside>
 
 
-  <!-- =========================
-       MAIN CONTENT
-  ========================== -->
+  <!-- =======================================================
+       MAIN
+  ======================================================== -->
 
   <main>
 
-    <!-- Categories -->
-
     <div class="categories">
 
-      <button class="category active">
-        All
-      </button>
-
-      <button class="category">
-        Technology
-      </button>
-
-      <button class="category">
-        AI
-      </button>
-
-      <button class="category">
-        Music
-      </button>
-
-      <button class="category">
-        Gaming
-      </button>
-
-      <button class="category">
-        Education
-      </button>
-
-      <button class="category">
-        RiSync
-      </button>
+      <button class="category active">All</button>
+      <button class="category">Technology</button>
+      <button class="category">AI</button>
+      <button class="category">Music</button>
+      <button class="category">Gaming</button>
+      <button class="category">Education</button>
+      <button class="category">RiSync</button>
 
     </div>
 
-
-    <!-- Hero -->
 
     <section class="hero">
 
       <div class="hero-content">
 
-        <span class="eyebrow">
+        <div class="eyebrow">
           THE RISING VIDEO PLATFORM
-        </span>
+        </div>
 
         <h1>
-          Watch.
-          Create.
-          <br />
-
-          <span>
+          Watch. Create.
+          <br>
+          <span class="gradient">
             Build what's next.
           </span>
         </h1>
 
         <p>
-          RiTube is the video platform
-          built for creators and powered
-          by the RiSync ecosystem.
+          RiTube is the video layer of RiSync:
+          creator-first, clean and powered by
+          real Firebase accounts and data.
         </p>
 
         <div class="hero-actions">
 
           <button
             id="heroUploadButton"
-            class="primary-button"
+            class="primary"
           >
             Start creating →
           </button>
 
           <button
-            class="secondary-button"
-            onclick="scrollToVideos()"
+            id="exploreButton"
+            class="secondary"
           >
             Explore videos
           </button>
@@ -237,42 +689,42 @@
 
       </div>
 
-      <div class="hero-orb">
+      <div class="orb">
         ▶
       </div>
 
     </section>
 
 
-    <!-- =========================
-         VIDEO FEED
-    ========================== -->
+    <!-- =====================================================
+         REAL FIREBASE VIDEO FEED
+    ====================================================== -->
 
     <section
       id="videos"
-      class="content-section"
+      class="section"
     >
 
-      <div class="section-header">
+      <div class="section-head">
 
         <h2>
-          Recommended for you
+          Latest on RiTube
         </h2>
 
         <span id="firebaseStatus">
-          Connecting...
+          Connecting to Firebase…
         </span>
 
       </div>
 
       <div
         id="videoGrid"
-        class="video-grid"
+        class="grid"
       >
 
-        <div class="empty-state">
+        <div class="empty">
 
-          <div class="empty-icon">
+          <div style="font-size:30px">
             ◌
           </div>
 
@@ -281,8 +733,8 @@
           </h3>
 
           <p>
-            Real videos published through
-            RiTube will appear here.
+            Publish a real video and it will
+            appear here automatically.
           </p>
 
         </div>
@@ -292,40 +744,66 @@
     </section>
 
 
-    <!-- =========================
-         TRENDING
-    ========================== -->
-
     <section
       id="trending"
-      class="content-section"
+      class="section"
     >
 
-      <div class="section-header">
+      <div class="section-head">
 
-        <h2>
-          Trending
-        </h2>
+        <h2>Trending</h2>
 
         <span>
-          Powered by real engagement
+          Real engagement only
         </span>
 
       </div>
 
-      <div
-        id="trendingGrid"
-        class="video-grid"
-      >
+      <div class="grid">
 
-        <div class="empty-state">
+        <div class="empty">
 
           <h3>
             Trending will be earned.
           </h3>
 
           <p>
-            No artificial views or fake engagement.
+            RiTube never fabricates views
+            or engagement.
+          </p>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <section
+      id="shorts"
+      class="section"
+    >
+
+      <div class="section-head">
+
+        <h2>Shorts</h2>
+
+        <span>
+          Real uploads only
+        </span>
+
+      </div>
+
+      <div class="grid">
+
+        <div class="empty">
+
+          <h3>
+            Shorts are coming.
+          </h3>
+
+          <p>
+            No fake Shorts are displayed.
           </p>
 
         </div>
@@ -337,9 +815,9 @@
   </main>
 
 
-  <!-- =========================
+  <!-- =======================================================
        AUTH MODAL
-  ========================== -->
+  ======================================================== -->
 
   <div
     id="authModal"
@@ -348,13 +826,13 @@
 
     <div class="modal-box">
 
-      <div class="modal-header">
+      <div class="modal-head">
 
         <div>
 
-          <span class="eyebrow">
+          <div class="eyebrow">
             RITUBE ACCOUNT
-          </span>
+          </div>
 
           <h2 id="authTitle">
             Sign in
@@ -363,7 +841,7 @@
         </div>
 
         <button
-          class="close-button"
+          class="close"
           onclick="closeModal('authModal')"
         >
           ×
@@ -372,33 +850,35 @@
       </div>
 
 
-      <form id="authForm">
+      <form
+        id="authForm"
+        class="form"
+      >
 
         <input
           id="nameInput"
           type="text"
           placeholder="Your name"
-          class="auth-name"
-          hidden
-        />
+          style="display:none"
+        >
 
         <input
           id="emailInput"
           type="email"
           placeholder="Email"
           required
-        />
+        >
 
         <input
           id="passwordInput"
           type="password"
           placeholder="Password"
           required
-        />
+        >
 
         <button
+          class="primary"
           type="submit"
-          class="primary-button full-width"
         >
           Continue
         </button>
@@ -408,36 +888,37 @@
 
       <button
         id="toggleAuthMode"
-        class="secondary-button full-width"
+        class="secondary"
+        style="width:100%;margin-top:10px"
       >
         Create a RiTube account
       </button>
 
 
-      <div class="auth-divider">
-        <span>OR</span>
+      <div class="divider">
+        OR
       </div>
 
 
       <button
-        id="googleLogin"
-        class="auth-provider"
+        id="googleButton"
+        class="provider"
       >
         🔵 Continue with Google
       </button>
 
 
       <button
-        id="phoneLogin"
-        class="auth-provider"
+        id="phoneButton"
+        class="provider"
       >
         📱 Continue with Phone
       </button>
 
 
       <button
-        id="appleLogin"
-        class="auth-provider"
+        id="appleButton"
+        class="provider"
       >
          Continue with Apple
       </button>
@@ -447,9 +928,84 @@
   </div>
 
 
-  <!-- =========================
+  <!-- =======================================================
+       PHONE MODAL
+  ======================================================== -->
+
+  <div
+    id="phoneModal"
+    class="modal"
+  >
+
+    <div class="modal-box">
+
+      <div class="modal-head">
+
+        <div>
+
+          <div class="eyebrow">
+            PHONE VERIFICATION
+          </div>
+
+          <h2>
+            Verify your phone
+          </h2>
+
+        </div>
+
+        <button
+          class="close"
+          onclick="closeModal('phoneModal')"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <div class="form">
+
+        <input
+          id="phoneInput"
+          type="tel"
+          placeholder="+91 98765 43210"
+        >
+
+        <button
+          id="sendOtpButton"
+          class="primary"
+        >
+          Send verification code
+        </button>
+
+        <input
+          id="otpInput"
+          type="text"
+          inputmode="numeric"
+          placeholder="Verification code"
+          style="display:none"
+        >
+
+        <button
+          id="verifyOtpButton"
+          class="secondary"
+          style="display:none"
+        >
+          Verify code
+        </button>
+
+        <div id="recaptcha-container"></div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =======================================================
        UPLOAD MODAL
-  ========================== -->
+  ======================================================== -->
 
   <div
     id="uploadModal"
@@ -458,22 +1014,22 @@
 
     <div class="modal-box">
 
-      <div class="modal-header">
+      <div class="modal-head">
 
         <div>
 
-          <span class="eyebrow">
+          <div class="eyebrow">
             CREATOR STUDIO
-          </span>
+          </div>
 
           <h2>
-            Upload video
+            Upload to RiTube
           </h2>
 
         </div>
 
         <button
-          class="close-button"
+          class="close"
           onclick="closeModal('uploadModal')"
         >
           ×
@@ -482,14 +1038,17 @@
       </div>
 
 
-      <form id="uploadForm">
+      <form
+        id="uploadForm"
+        class="form"
+      >
 
         <input
           id="videoTitle"
           type="text"
           placeholder="Video title"
           required
-        />
+        >
 
         <textarea
           id="videoDescription"
@@ -501,25 +1060,154 @@
           type="file"
           accept="video/*"
           required
-        />
+        >
 
         <button
           type="submit"
-          class="primary-button full-width"
+          class="primary"
         >
-          Publish video →
+          Prepare video →
         </button>
 
       </form>
+
+
+      <div
+        id="uploadProgress"
+        class="progress-wrap"
+      >
+
+        <div class="progress-track">
+
+          <div
+            id="progressBar"
+            class="progress-bar"
+          ></div>
+
+        </div>
+
+        <div
+          id="progressText"
+          class="progress-text"
+        >
+          Preparing…
+        </div>
+
+      </div>
+
+
+      <div class="warning">
+
+        RiTube uses Firebase for accounts and
+        metadata. Firebase Storage is intentionally
+        not used here because your project is on
+        the no-storage/billing path.
+
+        The upload engine is separated from the
+        Firebase database so a real video backend
+        can be connected without changing creator,
+        video or watch-page IDs.
+
+      </div>
 
     </div>
 
   </div>
 
 
-  <!-- =========================
-       TOAST
-  ========================== -->
+  <!-- =======================================================
+       PROFILE MODAL
+  ======================================================== -->
+
+  <div
+    id="profileModal"
+    class="modal"
+  >
+
+    <div class="modal-box">
+
+      <div class="modal-head">
+
+        <h2>
+          RiTube Account
+        </h2>
+
+        <button
+          class="close"
+          onclick="closeModal('profileModal')"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <div
+        style="
+          display:flex;
+          align-items:center;
+          gap:14px;
+          margin-top:20px;
+        "
+      >
+
+        <div
+          id="profileAvatar"
+          class="avatar"
+        >
+          G
+        </div>
+
+        <div>
+
+          <h3
+            id="profileName"
+            style="margin:0"
+          >
+            Guest
+          </h3>
+
+          <p
+            id="profileEmail"
+            style="color:var(--muted)"
+          >
+            Not signed in
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div
+        style="
+          display:flex;
+          gap:10px;
+          margin-top:20px;
+        "
+      >
+
+        <button
+          id="profileSignIn"
+          class="primary"
+        >
+          Sign in
+        </button>
+
+        <button
+          id="signOutButton"
+          class="secondary"
+          style="display:none"
+        >
+          Sign out
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
 
   <div
     id="toast"
@@ -527,16 +1215,1571 @@
   ></div>
 
 
-  <!-- Firebase -->
+  <!-- =======================================================
+       FIREBASE
+  ======================================================== -->
 
-  <script type="module" src="./js/firebase.js"></script>
+  <script type="module">
 
-  <!-- Application -->
+    /*
+     * ========================================================
+     * FIREBASE IMPORTS
+     * ========================================================
+     */
 
-  <script
-    type="module"
-    src="./js/app.js"
-  ></script>
+    import {
+      initializeApp
+    } from
+      "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+
+
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signInWithPopup,
+      GoogleAuthProvider,
+      OAuthProvider,
+      RecaptchaVerifier,
+      signInWithPhoneNumber,
+      onAuthStateChanged,
+      signOut,
+      updateProfile
+    } from
+      "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+
+
+    import {
+      getFirestore,
+      collection,
+      doc,
+      addDoc,
+      setDoc,
+      query,
+      orderBy,
+      limit,
+      onSnapshot,
+      serverTimestamp
+    } from
+      "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+
+    /*
+     * ========================================================
+     * FIREBASE CONFIG
+     * ========================================================
+     */
+
+    const firebaseConfig = {
+
+      apiKey:
+        "AIzaSyDX13HEiZM4aLLsNU5pxI2wLSwl2WWt1Bk",
+
+      authDomain:
+        "ritube-75a30.firebaseapp.com",
+
+      projectId:
+        "ritube-75a30",
+
+      storageBucket:
+        "ritube-75a30.firebasestorage.app",
+
+      messagingSenderId:
+        "518559902037",
+
+      appId:
+        "1:518559902037:web:f737ab1154384cf84627dc",
+
+      measurementId:
+        "G-WWRQMF22Z2"
+
+    };
+
+
+    /*
+     * ========================================================
+     * INITIALIZE
+     * ========================================================
+     */
+
+    const app =
+      initializeApp(
+        firebaseConfig
+      );
+
+
+    const auth =
+      getAuth(app);
+
+
+    const db =
+      getFirestore(app);
+
+
+    const googleProvider =
+      new GoogleAuthProvider();
+
+
+    const appleProvider =
+      new OAuthProvider(
+        "apple.com"
+      );
+
+
+    /*
+     * ========================================================
+     * STATE
+     * ========================================================
+     */
+
+    let createMode = false;
+
+    let phoneConfirmation = null;
+
+    let recaptchaVerifier = null;
+
+
+    /*
+     * ========================================================
+     * UI HELPERS
+     * ========================================================
+     */
+
+    window.openModal = function(id) {
+
+      document
+        .getElementById(id)
+        .classList
+        .add("show");
+
+    };
+
+
+    window.closeModal = function(id) {
+
+      document
+        .getElementById(id)
+        .classList
+        .remove("show");
+
+    };
+
+
+    window.showToast = function(message) {
+
+      const toast =
+        document.getElementById(
+          "toast"
+        );
+
+
+      toast.textContent =
+        message;
+
+
+      toast.classList.add(
+        "show"
+      );
+
+
+      clearTimeout(
+        window.__toast
+      );
+
+
+      window.__toast =
+        setTimeout(
+          () => {
+
+            toast.classList.remove(
+              "show"
+            );
+
+          },
+          3000
+        );
+
+    };
+
+
+    /*
+     * ========================================================
+     * AUTH MODE
+     * ========================================================
+     */
+
+    document
+      .getElementById(
+        "toggleAuthMode"
+      )
+      .addEventListener(
+        "click",
+        () => {
+
+          createMode =
+            !createMode;
+
+
+          const nameInput =
+            document.getElementById(
+              "nameInput"
+            );
+
+
+          if (createMode) {
+
+            document
+              .getElementById(
+                "authTitle"
+              )
+              .textContent =
+              "Create account";
+
+
+            document
+              .getElementById(
+                "toggleAuthMode"
+              )
+              .textContent =
+              "Already have an account? Sign in";
+
+
+            nameInput.style.display =
+              "block";
+
+
+            nameInput.required =
+              true;
+
+          } else {
+
+            document
+              .getElementById(
+                "authTitle"
+              )
+              .textContent =
+              "Sign in";
+
+
+            document
+              .getElementById(
+                "toggleAuthMode"
+              )
+              .textContent =
+              "Create a RiTube account";
+
+
+            nameInput.style.display =
+              "none";
+
+
+            nameInput.required =
+              false;
+
+          }
+
+        }
+      );
+
+
+    /*
+     * ========================================================
+     * EMAIL AUTH
+     * ========================================================
+     */
+
+    document
+      .getElementById(
+        "authForm"
+      )
+      .addEventListener(
+        "submit",
+        async event => {
+
+          event.preventDefault();
+
+
+          const email =
+            document
+              .getElementById(
+                "emailInput"
+              )
+              .value
+              .trim();
+
+
+          const password =
+            document
+              .getElementById(
+                "passwordInput"
+              )
+              .value;
+
+
+          const name =
+            document
+              .getElementById(
+                "nameInput"
+              )
+              .value
+              .trim();
+
+
+          try {
+
+            if (createMode) {
+
+              const result =
+                await createUserWithEmailAndPassword(
+                  auth,
+                  email,
+                  password
+                );
+
+
+              const user =
+                result.user;
+
+
+              await updateProfile(
+                user,
+                {
+                  displayName:
+                    name
+                }
+              );
+
+
+              await setDoc(
+                doc(
+                  db,
+                  "users",
+                  user.uid
+                ),
+                {
+
+                  uid:
+                    user.uid,
+
+                  displayName:
+                    name,
+
+                  email:
+                    user.email,
+
+                  provider:
+                    "password",
+
+                  createdAt:
+                    serverTimestamp()
+
+                },
+                {
+                  merge: true
+                }
+              );
+
+
+              showToast(
+                "Account created 🎉"
+              );
+
+            } else {
+
+              await signInWithEmailAndPassword(
+                auth,
+                email,
+                password
+              );
+
+
+              showToast(
+                "Welcome back 👋"
+              );
+
+            }
+
+
+            closeModal(
+              "authModal"
+            );
+
+          } catch (error) {
+
+            console.error(
+              error
+            );
+
+
+            showToast(
+              firebaseError(
+                error.code
+              )
+            );
+
+          }
+
+        }
+      );
+
+
+    /*
+     * ========================================================
+     * GOOGLE
+     * ========================================================
+     */
+
+    document
+      .getElementById(
+        "googleButton"
+      )
+      .addEventListener(
+        "click",
+        async () => {
+
+          try {
+
+            const result =
+              await signInWithPopup(
+                auth,
+                googleProvider
+              );
+
+
+            const user =
+              result.user;
+
+
+            await setDoc(
+              doc(
+                db,
+                "users",
+                user.uid
+              ),
+              {
+
+                uid:
+                  user.uid,
+
+                displayName:
+                  user.displayName ||
+                  "RiTube User",
+
+                email:
+                  user.email ||
+                  "",
+
+                photoURL:
+                  user.photoURL ||
+                  "",
+
+                provider:
+                  "google",
+
+                lastLoginAt:
+                  serverTimestamp()
+
+              },
+              {
+                merge: true
+              }
+            );
+
+
+            closeModal(
+              "authModal"
+            );
+
+
+            showToast(
+              "Signed in with Google 🚀"
+            );
+
+          } catch (error) {
+
+            console.error(
+              error
+            );
+
+
+            showToast(
+              firebaseError(
+                error.code
+              )
+            );
+
+          }
+
+        }
+      );
+
+
+    /*
+     * ========================================================
+     * APPLE
+     * ========================================================
+     */
+
+    document
+      .getElementById(
+        "appleButton"
+      )
+      .addEventListener(
+        "click",
+        async () => {
+
+          try {
+
+            const result =
+              await signInWithPopup(
+                auth,
+                appleProvider
+              );
+
+
+            const user =
+              result.user;
+
+
+            await setDoc(
+              doc(
+                db,
+                "users",
+                user.uid
+              ),
+              {
+
+                uid:
+                  user.uid,
+
+                displayName:
+                  user.displayName ||
+                  "RiTube User",
+
+                email:
+                  user.email ||
+                  "",
+
+                provider:
+                  "apple",
+
+                lastLoginAt:
+                  serverTimestamp()
+
+              },
+              {
+                merge: true
+              }
+            );
+
+
+            closeModal(
+              "authModal"
+            );
+
+
+            showToast(
+              "Signed in with Apple 🍎"
+            );
+
+          } catch (error) {
+
+            console.error(
+              error
+            );
+
+
+            showToast(
+              firebaseError(
+                error.code
+              )
+            );
+
+          }
+
+        }
+      );
+
+
+    /*
+     * ========================================================
+     * PHONE AUTH
+     * ========================================================
+     */
+
+    document
+      .getElementById(
+        "phoneButton"
+      )
+      .addEventListener(
+        "click",
+        () => {
+
+          closeModal(
+            "authModal"
+          );
+
+
+          openModal(
+            "phoneModal"
+          );
+
+        }
+      );
+
+
+    document
+      .getElementById(
+        "sendOtpButton"
+      )
+      .addEventListener(
+        "click",
+        async () => {
+
+          const phone =
+            document
+              .getElementById(
+                "phoneInput"
+              )
+              .value
+              .trim();
+
+
+          if (!phone) {
+
+            showToast(
+              "Enter your phone number."
+            );
+
+            return;
+
+          }
+
+
+          try {
+
+            if (!recaptchaVerifier) {
+
+              recaptchaVerifier =
+                new RecaptchaVerifier(
+                  auth,
+                  "recaptcha-container",
+                  {
+                    size:
+                      "normal"
+                  }
+                );
+
+            }
+
+
+            phoneConfirmation =
+              await signInWithPhoneNumber(
+                auth,
+                phone,
+                recaptchaVerifier
+              );
+
+
+            document
+              .getElementById(
+                "otpInput"
+              )
+              .style
+              .display =
+              "block";
+
+
+            document
+              .getElementById(
+                "verifyOtpButton"
+              )
+              .style
+              .display =
+              "block";
+
+
+            showToast(
+              "Verification code sent 📱"
+            );
+
+          } catch (error) {
+
+            console.error(
+              error
+            );
+
+
+            showToast(
+              firebaseError(
+                error.code
+              )
+            );
+
+          }
+
+        }
+      );
+
+
+    document
+      .getElementById(
+        "verifyOtpButton"
+      )
+      .addEventListener(
+        "click",
+        async () => {
+
+          const code =
+            document
+              .getElementById(
+                "otpInput"
+              )
+              .value
+              .trim();
+
+
+          try {
+
+            if (!phoneConfirmation) {
+
+              showToast(
+                "Request a code first."
+              );
+
+              return;
+
+            }
+
+
+            const result =
+              await phoneConfirmation
+                .confirm(code);
+
+
+            const user =
+              result.user;
+
+
+            await setDoc(
+              doc(
+                db,
+                "users",
+                user.uid
+              ),
+              {
+
+                uid:
+                  user.uid,
+
+                phoneNumber:
+                  user.phoneNumber,
+
+                displayName:
+                  user.displayName ||
+                  "RiTube User",
+
+                provider:
+                  "phone",
+
+                lastLoginAt:
+                  serverTimestamp()
+
+              },
+              {
+                merge: true
+              }
+            );
+
+
+            phoneConfirmation =
+              null;
+
+
+            closeModal(
+              "phoneModal"
+            );
+
+
+            showToast(
+              "Phone verified 📱"
+            );
+
+          } catch (error) {
+
+            console.error(
+              error
+            );
+
+
+            showToast(
+              firebaseError(
+                error.code
+              )
+            );
+
+          }
+
+        }
+      );
+
+
+    /*
+     * ========================================================
+     * AUTH STATE
+     * ========================================================
+     */
+
+    onAuthStateChanged(
+      auth,
+      user => {
+
+        const profileName =
+          document.getElementById(
+            "profileName"
+          );
+
+
+        const profileEmail =
+          document.getElementById(
+            "profileEmail"
+          );
+
+
+        const profileAvatar =
+          document.getElementById(
+            "profileAvatar"
+          );
+
+
+        if (user) {
+
+          const initial =
+            (
+              user.displayName ||
+              user.email ||
+              user.phoneNumber ||
+              "R"
+            )
+              .charAt(0)
+              .toUpperCase();
+
+
+          profileName.textContent =
+            user.displayName ||
+            "RiTube User";
+
+
+          profileEmail.textContent =
+            user.email ||
+            user.phoneNumber ||
+            "Signed in";
+
+
+          profileAvatar.textContent =
+            initial;
+
+
+          document
+            .getElementById(
+              "profileButton"
+            )
+            .textContent =
+            initial;
+
+
+          document
+            .getElementById(
+              "profileSignIn"
+            )
+            .style
+            .display =
+            "none";
+
+
+          document
+            .getElementById(
+              "signOutButton"
+            )
+            .style
+            .display =
+            "block";
+
+        } else {
+
+          profileName.textContent =
+            "Guest";
+
+
+          profileEmail.textContent =
+            "Not signed in";
+
+
+          profileAvatar.textContent =
+            "G";
+
+
+          document
+            .getElementById(
+              "profileButton"
+            )
+            .textContent =
+            "G";
+
+
+          document
+            .getElementById(
+              "profileSignIn"
+            )
+            .style
+            .display =
+            "block";
+
+
+          document
+            .getElementById(
+              "signOutButton"
+            )
+            .style
+            .display =
+            "none";
+
+        }
+
+      }
+    );
+
+
+    /*
+     * ========================================================
+     * PROFILE
+     * ========================================================
+     */
+
+    document
+      .getElementById(
+        "profileButton"
+      )
+      .addEventListener(
+        "click",
+        () => {
+
+          openModal(
+            "profileModal"
+          );
+
+        }
+      );
+
+
+    document
+      .getElementById(
+        "profileSignIn"
+      )
+      .addEventListener(
+        "click",
+        () => {
+
+          closeModal(
+            "profileModal"
+          );
+
+
+          openModal(
+            "authModal"
+          );
+
+        }
+      );
+
+
+    document
+      .getElementById(
+        "signOutButton"
+      )
+      .addEventListener(
+        "click",
+        async () => {
+
+          await signOut(
+            auth
+          );
+
+
+          closeModal(
+            "profileModal"
+          );
+
+
+          showToast(
+            "Signed out."
+          );
+
+        }
+      );
+
+
+    /*
+     * ========================================================
+     * UPLOAD UI
+     *
+     * NOTE:
+     * Firebase Storage is NOT used.
+     *
+     * The selected file is inspected and the upload
+     * pipeline is prepared, but the actual bytes must be
+     * sent to a dedicated video backend/CDN.
+     * ========================================================
+     */
+
+    function openUpload() {
+
+      if (!auth.currentUser) {
+
+        showToast(
+          "Sign in before uploading."
+        );
+
+
+        openModal(
+          "authModal"
+        );
+
+
+        return;
+
+      }
+
+
+      openModal(
+        "uploadModal"
+      );
+
+    }
+
+
+    document
+      .getElementById(
+        "uploadButton"
+      )
+      .addEventListener(
+        "click",
+        openUpload
+      );
+
+
+    document
+      .getElementById(
+        "heroUploadButton"
+      )
+      .addEventListener(
+        "click",
+        openUpload
+      );
+
+
+    /*
+     * ========================================================
+     * VIDEO CHUNK PREVIEW
+     *
+     * This demonstrates the correct chunking layer.
+     * It does NOT pretend that Firebase can store the
+     * chunks. Replace sendChunk() with the chosen video
+     * backend later.
+     * ========================================================
+     */
+
+    const CHUNK_SIZE =
+      8 * 1024 * 1024;
+
+
+    async function sendChunk(
+      chunk,
+      index,
+      total,
+      uploadId
+    ) {
+
+      /*
+       * Future backend contract:
+       *
+       * POST /api/video/chunk
+       *
+       * Headers:
+       *   X-Upload-ID
+       *   X-Chunk-Index
+       *   X-Chunk-Total
+       *
+       * Body:
+       *   chunk bytes
+       *
+       * This function deliberately does not upload
+       * anything to Firebase Storage.
+       */
+
+      console.log(
+        "Prepared chunk:",
+        {
+          uploadId,
+          index,
+          total,
+          bytes:
+            chunk.size
+        }
+      );
+
+    }
+
+
+    document
+      .getElementById(
+        "uploadForm"
+      )
+      .addEventListener(
+        "submit",
+        async event => {
+
+          event.preventDefault();
+
+
+          const file =
+            document
+              .getElementById(
+                "videoFile"
+              )
+              .files[0];
+
+
+          const title =
+            document
+              .getElementById(
+                "videoTitle"
+              )
+              .value
+              .trim();
+
+
+          if (!file || !title) {
+
+            showToast(
+              "Add a title and video."
+            );
+
+            return;
+
+          }
+
+
+          const uploadId =
+            crypto.randomUUID();
+
+
+          const totalChunks =
+            Math.ceil(
+              file.size /
+              CHUNK_SIZE
+            );
+
+
+          const progress =
+            document.getElementById(
+              "uploadProgress"
+            );
+
+
+          const bar =
+            document.getElementById(
+              "progressBar"
+            );
+
+
+          const text =
+            document.getElementById(
+              "progressText"
+            );
+
+
+          progress.style.display =
+            "block";
+
+
+          /*
+           * Prepare chunks.
+           */
+
+          for (
+            let index = 0;
+            index < totalChunks;
+            index++
+          ) {
+
+            const start =
+              index *
+              CHUNK_SIZE;
+
+
+            const end =
+              Math.min(
+                start +
+                CHUNK_SIZE,
+                file.size
+              );
+
+
+            const chunk =
+              file.slice(
+                start,
+                end
+              );
+
+
+            await sendChunk(
+              chunk,
+              index,
+              totalChunks,
+              uploadId
+            );
+
+
+            const percent =
+              Math.round(
+                (
+                  (index + 1) /
+                  totalChunks
+                ) * 100
+              );
+
+
+            bar.style.width =
+              `${percent}%`;
+
+
+            text.textContent =
+              `Prepared ${percent}% · ${
+                index + 1
+              } / ${
+                totalChunks
+              } chunks`;
+
+          }
+
+
+          /*
+           * IMPORTANT:
+           *
+           * We do NOT create a fake video document
+           * containing a fake playback URL.
+           *
+           * Once the real video backend returns a
+           * playback URL, create the Firestore document.
+           */
+
+          showToast(
+            "Video chunks prepared. Connect the video backend to publish."
+          );
+
+        }
+      );
+
+
+    /*
+     * ========================================================
+     * FIRESTORE VIDEO FEED
+     * ========================================================
+     */
+
+    const videosQuery =
+      query(
+
+        collection(
+          db,
+          "videos"
+        ),
+
+        orderBy(
+          "createdAt",
+          "desc"
+        ),
+
+        limit(24)
+
+      );
+
+
+    onSnapshot(
+
+      videosQuery,
+
+      snapshot => {
+
+        const grid =
+          document.getElementById(
+            "videoGrid"
+          );
+
+
+        const status =
+          document.getElementById(
+            "firebaseStatus"
+          );
+
+
+        status.textContent =
+          `${snapshot.size} real video${
+            snapshot.size === 1
+              ? ""
+              : "s"
+          }`;
+
+
+        if (snapshot.empty) {
+
+          return;
+
+        }
+
+
+        grid.innerHTML =
+          "";
+
+
+        snapshot.docs.forEach(
+          item => {
+
+            const video =
+              item.data();
+
+
+            const videoId =
+              item.id;
+
+
+            const card =
+              document.createElement(
+                "article"
+              );
+
+
+            card.className =
+              "video-card";
+
+
+            const link =
+              document.createElement(
+                "a"
+              );
+
+
+            link.href =
+              `/watch/${encodeURIComponent(
+                videoId
+              )}`;
+
+
+            const thumb =
+              document.createElement(
+                "div"
+              );
+
+
+            thumb.className =
+              "thumb";
+
+
+            if (
+              video.thumbnailURL
+            ) {
+
+              const image =
+                document.createElement(
+                  "img"
+                );
+
+
+              image.src =
+                video.thumbnailURL;
+
+
+              image.alt =
+                video.title || "";
+
+
+              thumb.appendChild(
+                image
+              );
+
+            } else {
+
+              thumb.textContent =
+                "▶";
+
+
+              thumb.style.fontSize =
+                "42px";
+
+            }
+
+
+            const title =
+              document.createElement(
+                "h3"
+              );
+
+
+            title.textContent =
+              video.title ||
+              "Untitled video";
+
+
+            link.appendChild(
+              thumb
+            );
+
+
+            link.appendChild(
+              title
+            );
+
+
+            const metadata =
+              document.createElement(
+                "p"
+              );
+
+
+            const creator =
+              document.createElement(
+                "a"
+              );
+
+
+            creator.href =
+              `/creator/${encodeURIComponent(
+                video.ownerId || ""
+              )}`;
+
+
+            creator.textContent =
+              video.ownerName ||
+              "RiTube Creator";
+
+
+            metadata.appendChild(
+              creator
+            );
+
+
+            metadata.append(
+              ` · ${
+                Number(
+                  video.views || 0
+                ).toLocaleString()
+              } views`
+            );
+
+
+            card.appendChild(
+              link
+            );
+
+
+            card.appendChild(
+              metadata
+            );
+
+
+            grid.appendChild(
+              card
+            );
+
+          }
+        );
+
+      },
+
+      error => {
+
+        console.error(
+          error
+        );
+
+
+        document
+          .getElementById(
+            "firebaseStatus"
+          )
+          .textContent =
+          "Firebase unavailable";
+
+
+        showToast(
+          "Could not load Firebase videos."
+        );
+
+      }
+
+    );
+
+
+    /*
+     * ========================================================
+     * ERROR MESSAGES
+     * ========================================================
+     */
+
+    function firebaseError(
+      code
+    ) {
+
+      const errors = {
+
+        "auth/email-already-in-use":
+          "This email already has a RiTube account.",
+
+        "auth/invalid-email":
+          "Enter a valid email.",
+
+        "auth/weak-password":
+          "Password is too weak.",
+
+        "auth/invalid-credential":
+          "Email or password is incorrect.",
+
+        "auth/user-not-found":
+          "No RiTube account was found.",
+
+        "auth/wrong-password":
+          "Incorrect password.",
+
+        "auth/popup-blocked":
+          "Please allow popups for RiTube.",
+
+        "auth/popup-closed-by-user":
+          "The sign-in window was closed.",
+
+        "auth/operation-not-allowed":
+          "This provider is disabled in Firebase.",
+
+        "auth/invalid-phone-number":
+          "Enter a valid phone number.",
+
+        "auth/invalid-verification-code":
+          "The verification code is incorrect.",
+
+        "auth/too-many-requests":
+          "Too many attempts. Try again later."
+
+      };
+
+
+      return (
+        errors[code] ||
+        "Authentication failed. Check the browser console."
+      );
+
+    }
+
+  </script>
 
 </body>
 </html>
