@@ -877,7 +877,7 @@
             
             <div class="contact-form">
                 
-                <form id="contactForm" action="https://formsubmit.co/risync08@gmail.com" method="POST" target="hiddenFrame">
+                <form id="contactForm" action="https://script.google.com/macros/s/AKfycbzNWFJoY6G7yUE0_s8znwkYlLnUcsIr_4Hwn9qg5P3wKKFCLszvTJCP6YWeoyl-m4oc5g/exec" method="POST" target="hiddenFrame">
                     
                     <input type="hidden" name="_subject" value="New Message from RiSync Website!">
                     <input type="hidden" name="_cc" value="riddhishsingh2015@gmail.com">
@@ -957,11 +957,8 @@
         const submitBtn = document.getElementById('submitBtn');
         const successMessage = document.getElementById('successMessage');
 
-        contactForm.addEventListener('submit', function() {
-            const replyToField = contactForm.querySelector('input[name="_replyto"]');
-            if (replyToField) {
-                replyToField.value = document.getElementById('email').value;
-            }
+        contactForm.addEventListener('submit', function(event) {
+            event.preventDefault();
             // A. Save to Firebase
             if (typeof firebase !== 'undefined') {
                 const db = firebase.firestore();
@@ -978,7 +975,26 @@
                 });
             }
 
-            // B. UI Updates (The form also submits to FormSubmit via HTML)
+            // B. Send form data to Google Apps Script.
+            // The script sends the Gmail notification and personalized auto-reply.
+            const googleFormData = new FormData();
+            googleFormData.append('name', document.getElementById('name').value.trim());
+            googleFormData.append('email', document.getElementById('email').value.trim());
+            googleFormData.append('mobile', document.getElementById('mobile').value.trim());
+            googleFormData.append('message', document.getElementById('message').value.trim());
+
+            fetch('https://script.google.com/macros/s/AKfycbzNWFJoY6G7yUE0_s8znwkYlLnUcsIr_4Hwn9qg5P3wKKFCLszvTJCP6YWeoyl-m4oc5g/exec', {
+                method: 'POST',
+                body: googleFormData,
+                mode: 'no-cors',
+                keepalive: true
+            }).then(() => {
+                console.log('RiSync Google email request sent.');
+            }).catch((error) => {
+                console.error('Google email request error:', error);
+            });
+
+            // C. UI Updates
             submitBtn.innerHTML = 'Sending... <i class="fas fa-spinner fa-spin"></i>';
             submitBtn.disabled = true;
 
