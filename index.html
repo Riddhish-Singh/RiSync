@@ -1,6 +1,26 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
+<!-- Google / Social Preview -->
+<meta property="og:title" content="RiSync — The Digital Workspace of RiSync">
+<meta property="og:description" content="Merging logic with imagination to build the future.">
+<meta property="og:image" content="https://risync.in/logo.png">
+<meta property="og:url" content="https://risync.in/">
+<meta property="og:type" content="website">
+
+<!-- Preferred Google image -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "url": "https://risync.in/",
+  "primaryImageOfPage": "https://risync.in/logo.png"
+}
+</script>
+
+<!-- Favicon -->
+<link rel="icon" type="image/png" href="https://risync.in/logo.png">
+<link rel="apple-touch-icon" href="https://risync.in/logo.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	    <meta name="description" content="RiSync: Built By A 11-Year-Old Frontend Developer, Author, and Founder of RiSync.">
@@ -877,7 +897,7 @@
             
             <div class="contact-form">
                 
-                <form id="contactForm" action="https://script.google.com/macros/s/AKfycbzNWFJoY6G7yUE0_s8znwkYlLnUcsIr_4Hwn9qg5P3wKKFCLszvTJCP6YWeoyl-m4oc5g/exec" method="POST" target="hiddenFrame">
+                <form id="contactForm" action="https://formsubmit.co/risync08@gmail.com" method="POST" target="hiddenFrame">
                     
                     <input type="hidden" name="_subject" value="New Message from RiSync Website!">
                     <input type="hidden" name="_cc" value="riddhishsingh2015@gmail.com">
@@ -957,8 +977,11 @@
         const submitBtn = document.getElementById('submitBtn');
         const successMessage = document.getElementById('successMessage');
 
-        contactForm.addEventListener('submit', function(event) {
-            event.preventDefault();
+        contactForm.addEventListener('submit', function() {
+            const replyToField = contactForm.querySelector('input[name="_replyto"]');
+            if (replyToField) {
+                replyToField.value = document.getElementById('email').value;
+            }
             // A. Save to Firebase
             if (typeof firebase !== 'undefined') {
                 const db = firebase.firestore();
@@ -975,26 +998,7 @@
                 });
             }
 
-            // B. Send form data to Google Apps Script.
-            // The script sends the Gmail notification and personalized auto-reply.
-            const googleFormData = new FormData();
-            googleFormData.append('name', document.getElementById('name').value.trim());
-            googleFormData.append('email', document.getElementById('email').value.trim());
-            googleFormData.append('mobile', document.getElementById('mobile').value.trim());
-            googleFormData.append('message', document.getElementById('message').value.trim());
-
-            fetch('https://script.google.com/macros/s/AKfycbzNWFJoY6G7yUE0_s8znwkYlLnUcsIr_4Hwn9qg5P3wKKFCLszvTJCP6YWeoyl-m4oc5g/exec', {
-                method: 'POST',
-                body: googleFormData,
-                mode: 'no-cors',
-                keepalive: true
-            }).then(() => {
-                console.log('RiSync Google email request sent.');
-            }).catch((error) => {
-                console.error('Google email request error:', error);
-            });
-
-            // C. UI Updates
+            // B. UI Updates (The form also submits to FormSubmit via HTML)
             submitBtn.innerHTML = 'Sending... <i class="fas fa-spinner fa-spin"></i>';
             submitBtn.disabled = true;
 
