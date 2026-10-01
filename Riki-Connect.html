@@ -1,0 +1,97 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isOwner(uid) { return signedIn() && request.auth.uid == uid; }
+
+    // Profiles
+    match /users/{uid} {
+      allow read: if signedIn();
+      allow create, update: if isOwner(uid);
+      allow delete: if false;
+    }
+
+    // Produce listings
+    match /batches/{id} {
+      allow read: if true;
+      allow create: if signedIn() && request.resource.data.farmerId == request.auth.uid;
+      allow update, delete: if signedIn() && resource.data.farmerId == request.auth.uid;
+    }
+
+    // Community posts
+    match /posts/{id} {
+      allow read: if true;
+      allow create: if signedIn()
+        && request.resource.data.authorId == request.auth.uid
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 2000
+        && request.resource.data.likes == 0;
+      allow update: if signedIn() && (
+        resource.data.authorId == request.auth.uid
+        || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes'])
+            && request.resource.data.likes == resource.data.likes + 1)
+      );
+      allow delete: if signedIn() && resource.data.authorId == request.auth.uid;
+    }
+
+    // Messages
+    match /messages/{id} {
+      allow read: if signedIn() && (resource.data.fromId == request.auth.uid
+                                   || resource.data.toId == request.auth.uid);
+      allow create: if signedIn() && request.resource.data.fromId == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // Notifications
+    match /notifications/{id} {
+      allow read, update, delete: if signedIn() && resource.data.userId == request.auth.uid;
+      allow create: if signedIn() && request.resource.data.fromId == request.auth.uid;
+    }
+
+    // Enquiries, sample requests, quotes
+    match /enquiries/{id} {
+      allow create: if signedIn() && request.resource.data.buyerId == request.auth.uid;
+      allow read: if signedIn() && (resource.data.buyerId == request.auth.uid
+                                   || resource.data.sellerId == request.auth.uid);
+      allow update: if signedIn() && resource.data.sellerId == request.auth.uid;
+      allow delete: if false;
+    }
+    match /sampleRequests/{id} {
+      allow create: if signedIn() && request.resource.data.buyerId == request.auth.uid;
+      allow read: if signedIn() && (resource.data.buyerId == request.auth.uid
+                                   || resource.data.sellerId == request.auth.uid);
+      allow update: if signedIn() && resource.data.sellerId == request.auth.uid;
+      allow delete: if false;
+    }
+    match /quotes/{id} {
+      allow create: if signedIn() && request.resource.data.buyerId == request.auth.uid;
+      allow read: if signedIn() && (resource.data.buyerId == request.auth.uid
+                                   || resource.data.sellerId == request.auth.uid);
+      allow update: if signedIn() && resource.data.sellerId == request.auth.uid;
+      allow delete: if false;
+    }
+
+    // Orders
+    match /orders/{id} {
+      allow create: if signedIn() && request.resource.data.buyerId == request.auth.uid
+                    && request.resource.data.status == 'ORDER_REQUESTED';
+      allow read: if signedIn() && (resource.data.buyerId == request.auth.uid
+                                   || resource.data.sellerId == request.auth.uid);
+      allow update: if signedIn() && resource.data.sellerId == request.auth.uid;
+      allow delete: if false;
+    }
+
+    // Saved listings (doc id = uid_listingId)
+    match /savedListings/{id} {
+      allow read: if signedIn() && (resource == null || resource.data.userId == request.auth.uid);
+      allow delete: if signedIn() && resource.data.userId == request.auth.uid;
+      allow create: if signedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if false;
+    }
+
+    // Everything else denied
+    match /{document=**} { allow read, write: if false; }
+  }
+}
