@@ -2191,7 +2191,10 @@ body.rc-msg-chat #rc-phone-bottom-nav{display:none!important}
           <select id="sa-grade" class="${inp}"><option>Grade A</option><option>Grade B</option><option>Grade C</option></select>
           <select id="sa-method" class="${inp}"><option>Conventional</option><option>Organic</option><option>Natural</option></select>
         </div>
-        <button onclick="addStudioProduct()" class="mt-4 px-5 py-2.5 bg-brand-800 text-white font-bold text-xs rounded-xl">+ Add Product</button>
+        <div class="mt-3"><label class="text-xs font-bold text-slate-600">Photos (up to 3, JPG/PNG)</label>
+          <input id="sa-img" type="file" accept="image/*" multiple onchange="previewStudioImages()" class="block mt-1 text-xs">
+          <div id="sa-prev" class="flex gap-2 mt-2"></div></div>
+        <button id="sa-add" onclick="addStudioProduct()" class="mt-4 px-5 py-2.5 bg-brand-800 text-white font-bold text-xs rounded-xl">+ Add Product</button>
         <div id="sa-list" class="mt-5 space-y-2"></div>
       </div>
       <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
@@ -2209,7 +2212,7 @@ body.rc-msg-chat #rc-phone-bottom-nav{display:none!important}
       uRef=onSnapshot(query(collection(db,"users"),where("referredBy","==",code),limit(100)),s=>{myRefs=s.docs.map(d=>d.data());paintRefs();},e=>console.error(e));
     };
     function paintProducts(){ const el=$("sa-list"); if(!el) return;
-      el.innerHTML=myProducts.length?myProducts.map(x=>`<div class="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 text-sm"><div><b>${escapeHtml(x.produceName||"")}</b> · ₹${x.price||0}/${escapeHtml(x.unit||"kg")} · ${escapeHtml(x.volume||"")}<div class="text-[11px] text-slate-500">${escapeHtml(x.category||"")} · ${escapeHtml(x.grade||"")} · ${escapeHtml(x.method||"")} · ${x.status==="active"?"Live":"Paused"}</div></div><div class="flex gap-2"><button class="text-xs font-bold text-brand-800" onclick="toggleStudioProduct('${x.id}')">${x.status==="active"?"Pause":"Resume"}</button><button class="text-xs font-bold text-red-600" onclick="deleteStudioProduct('${x.id}')">Delete</button></div></div>`).join(""):'<div class="text-xs text-slate-400">No products yet. Add your first one above.</div>'; }
+      el.innerHTML=myProducts.length?myProducts.map(x=>`<div class="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 text-sm"><img src="${escapeHtml(x.imageUrl||placeholderImage(x.produceName||"P"))}" class="w-14 h-14 rounded-xl object-cover bg-slate-200" alt=""><div class="flex-1"><b>${escapeHtml(x.produceName||"")}</b> · ₹${x.price||0}/${escapeHtml(x.unit||"kg")} · ${escapeHtml(x.volume||"")}<div class="text-[11px] text-slate-500">${escapeHtml(x.category||"")} · ${escapeHtml(x.grade||"")} · ${escapeHtml(x.method||"")} · ${x.status==="active"?"Live":"Paused"}</div></div><div class="flex gap-2"><button class="text-xs font-bold text-brand-800" onclick="toggleStudioProduct('${x.id}')">${x.status==="active"?"Pause":"Resume"}</button><button class="text-xs font-bold text-red-600" onclick="deleteStudioProduct('${x.id}')">Delete</button></div></div>`).join(""):'<div class="text-xs text-slate-400">No products yet. Add your first one above.</div>'; }
     function paintRefs(){ if($("sr-count")) $("sr-count").textContent=myRefs.length; if($("sr-list")) $("sr-list").innerHTML=myRefs.map(u=>`<div>• ${escapeHtml(u.name||"New member")} (${escapeHtml(u.role||"Member")})</div>`).join(""); }
     const v=id=>($(id)?.value||"").trim();
     window.saveStudioProfile = async function(){
@@ -2223,10 +2226,20 @@ body.rc-msg-chat #rc-phone-bottom-nav{display:none!important}
       if(!currentUser) return toast("Please sign in.");
       const name=v("sa-name"), price=Number(v("sa-price")), vol=v("sa-vol");
       if(!name||!(price>0)||!vol) return toast("Product name, price and quantity are required.");
-      try{ await addDoc(collection(db,"batches"),{farmerId:currentUser.uid,farmerName:currentProfile?.name||"Farmer",produceName:name,category:v("sa-cat"),price,unit:v("sa-unit")||"kg",volume:vol,minOrder:v("sa-min"),location:v("sa-loc"),district:currentProfile?.district||"",grade:v("sa-grade"),method:v("sa-method"),qualityNote:"",imageUrl:"",harvestAt:serverTimestamp(),createdAt:serverTimestamp(),status:"active"});
-        ["sa-name","sa-price","sa-vol","sa-min"].forEach(i=>$(i).value=""); toast("Product added to the marketplace."); }
+      const btn=$("sa-add"); btn.disabled=true; btn.textContent="Uploading...";
+      let images=[];
+      try{ const files=[...($("sa-img").files||[])].slice(0,3);
+        for(const f of files){ const blob=await shrinkImage(f); const snap=await uploadBytes(ref(storage,`batch-images/${currentUser.uid}/${Date.now()}-${images.length}.jpg`),blob,{contentType:"image/jpeg"}); images.push(await getDownloadURL(snap.ref)); }
+      }catch(e){ console.error(e); btn.disabled=false; btn.textContent="+ Add Product"; return toast("Photo upload failed. Check Storage is enabled and its rules are published."); }
+      try{ await addDoc(collection(db,"batches"),{images,farmerId:currentUser.uid,farmerName:currentProfile?.name||"Farmer",produceName:name,category:v("sa-cat"),price,unit:v("sa-unit")||"kg",volume:vol,minOrder:v("sa-min"),location:v("sa-loc"),district:currentProfile?.district||"",grade:v("sa-grade"),method:v("sa-method"),qualityNote:"",imageUrl:images[0]||"",harvestAt:serverTimestamp(),createdAt:serverTimestamp(),status:"active"});
+        ["sa-name","sa-price","sa-vol","sa-min","sa-img"].forEach(i=>$(i).value=""); $("sa-prev").innerHTML=""; toast("Product added to the marketplace."); }
       catch(e){ console.error(e); toast("Could not add product."); }
+      btn.disabled=false; btn.textContent="+ Add Product";
     };
+    function shrinkImage(file){ return new Promise((res,rej)=>{ if(file.size>10*1024*1024) return rej(new Error("too big")); const img=new Image(), u=URL.createObjectURL(file);
+      img.onload=()=>{ const k=Math.min(1,1200/Math.max(img.width,img.height)), c=document.createElement("canvas"); c.width=img.width*k; c.height=img.height*k; c.getContext("2d").drawImage(img,0,0,c.width,c.height); URL.revokeObjectURL(u); c.toBlob(b=>b?res(b):rej(new Error("fail")),"image/jpeg",0.82); };
+      img.onerror=()=>rej(new Error("bad image")); img.src=u; }); }
+    window.previewStudioImages = function(){ const fs=[...($("sa-img").files||[])].slice(0,3); $("sa-prev").innerHTML=fs.map(f=>`<img src="${URL.createObjectURL(f)}" class="w-16 h-16 rounded-xl object-cover" alt="">`).join(""); };
     window.toggleStudioProduct = async function(id){ const x=myProducts.find(p=>p.id===id); if(!x) return; try{ await updateDoc(doc(db,"batches",id),{status:x.status==="active"?"paused":"active"}); }catch(e){ toast("Could not update."); } };
     window.deleteStudioProduct = async function(id){ if(!confirm("Delete this product?")) return; try{ await deleteDoc(doc(db,"batches",id)); toast("Deleted."); }catch(e){ toast("Could not delete."); } };
     window.copyRefLink = function(){ const i=$("sr-link"); i.select(); (navigator.clipboard?navigator.clipboard.writeText(i.value):Promise.reject()).then(()=>toast("Link copied."),()=>{document.execCommand("copy");toast("Link copied.");}); };
