@@ -1341,6 +1341,7 @@ body.rc-msg-chat #rc-phone-bottom-nav{display:none!important}
       photoURL: user.photoURL || existing.data()?.photoURL || "",
       updatedAt: serverTimestamp()
     };
+    if (!existing.exists()) { payload.refCode = user.uid.slice(0,6).toUpperCase(); let rc=""; try{rc=localStorage.getItem("rikiRef")||""}catch(e){} if (rc && rc!==payload.refCode) payload.referredBy = rc; }
     if (!existing.exists()) payload.createdAt = serverTimestamp();
     await setDoc(userRef, payload, {merge:true});
     currentProfile = {...(existing.data() || {}), ...payload};
@@ -2151,6 +2152,89 @@ body.rc-msg-chat #rc-phone-bottom-nav{display:none!important}
 
   subscribeBatches();
   subscribePosts();
+  /* ===== Farmer Studio: edit profile, add products, referrals ===== */
+  (function(){
+    const refFromUrl = new URLSearchParams(location.search).get("ref");
+    if (refFromUrl) { try { localStorage.setItem("rikiRef", refFromUrl.toUpperCase().slice(0,12)); } catch(e){} }
+    let uProd = null, uRef = null, myProducts = [], myRefs = [];
+    const myCode = () => currentProfile?.refCode || (currentUser ? currentUser.uid.slice(0,6).toUpperCase() : "");
+    const inp = "w-full px-3 py-2.5 bg-slate-50 rounded-xl text-sm border border-slate-200";
+    const F = [["name","Full name"],["district","District / State"],["phone","Phone (optional)"],["farmSize","Farm size (e.g. 5 acres)"],["crops","Main crops (comma separated)"],["languages","Languages spoken"],["experience","Years of experience"],["bio","About you","textarea"]];
+    function pct(){ const p=currentProfile||{}; return Math.round(F.filter(f=>String(p[f[0]]||"").trim()).length/F.length*100); }
+    function ensureBox(){
+      let b=$("rk-studio"); if(b) return b;
+      b=document.createElement("div"); b.id="rk-studio"; b.className="space-y-6";
+      const host=document.querySelector("#tab-profile > div"); host.firstElementChild.insertAdjacentElement("afterend",b); return b;
+    }
+    window.renderStudio = function(){
+      const b=ensureBox();
+      if(!currentUser){ b.innerHTML='<div class="bg-white rounded-2xl border border-slate-200 p-6 text-sm text-slate-600">Sign in to edit your profile, add products and invite friends. <button class="font-bold text-brand-800" onclick="onHeaderChipClick()">Sign in</button></div>'; return; }
+      const p=currentProfile||{}, c=pct(), code=myCode();
+      const link=location.origin+location.pathname+"?ref="+code;
+      b.innerHTML=`
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+        <div class="flex items-center justify-between mb-2"><h3 class="font-extrabold text-slate-900">Edit Profile</h3><span class="text-xs font-bold text-brand-800">${c}% complete</span></div>
+        <div class="h-2 bg-slate-100 rounded-full mb-4"><div class="h-2 bg-brand-800 rounded-full" style="width:${c}%"></div></div>
+        <div class="grid sm:grid-cols-2 gap-3">${F.map(f=>f[2]?`<textarea id="sp-${f[0]}" rows="3" class="${inp} sm:col-span-2" placeholder="${f[1]}">${escapeHtml(p[f[0]]||"")}</textarea>`:`<input id="sp-${f[0]}" class="${inp}" placeholder="${f[1]}" value="${escapeHtml(p[f[0]]||"")}">`).join("")}</div>
+        <button onclick="saveStudioProfile()" class="mt-4 px-5 py-2.5 bg-brand-800 text-white font-bold text-xs rounded-xl">Save Profile</button>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+        <h3 class="font-extrabold text-slate-900 mb-3">My Products</h3>
+        <div class="grid sm:grid-cols-3 gap-3">
+          <input id="sa-name" class="${inp}" placeholder="Product name e.g. Tomato">
+          <select id="sa-cat" class="${inp}"><option>Vegetables</option><option>Grains</option><option>Fruits</option><option>Citrus</option><option>Spices</option><option>Other</option></select>
+          <input id="sa-price" type="number" min="0" class="${inp}" placeholder="Price per unit (₹)">
+          <input id="sa-unit" class="${inp}" value="kg" placeholder="Unit">
+          <input id="sa-vol" class="${inp}" placeholder="Available quantity e.g. 500 kg">
+          <input id="sa-min" class="${inp}" placeholder="Minimum order e.g. 50 kg">
+          <input id="sa-loc" class="${inp}" placeholder="Location / village" value="${escapeHtml(p.district||"")}">
+          <select id="sa-grade" class="${inp}"><option>Grade A</option><option>Grade B</option><option>Grade C</option></select>
+          <select id="sa-method" class="${inp}"><option>Conventional</option><option>Organic</option><option>Natural</option></select>
+        </div>
+        <button onclick="addStudioProduct()" class="mt-4 px-5 py-2.5 bg-brand-800 text-white font-bold text-xs rounded-xl">+ Add Product</button>
+        <div id="sa-list" class="mt-5 space-y-2"></div>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+        <h3 class="font-extrabold text-slate-900">Refer &amp; Grow the Network</h3>
+        <p class="text-xs text-slate-500 mt-1">Invite farmers and buyers. People who join with your link are counted here.</p>
+        <div class="flex flex-wrap items-center gap-2 mt-3"><code class="px-3 py-2 bg-slate-100 rounded-xl text-sm font-bold">${code}</code>
+          <input readonly id="sr-link" class="${inp} flex-1 min-w-[200px]" value="${link}">
+          <button onclick="copyRefLink()" class="px-4 py-2.5 bg-slate-100 font-bold text-xs rounded-xl">Copy</button>
+          <button onclick="shareRefLink()" class="px-4 py-2.5 bg-brand-800 text-white font-bold text-xs rounded-xl">Share on WhatsApp</button></div>
+        <div class="mt-4 text-sm"><b id="sr-count">0</b> people joined with your code</div>
+        <div id="sr-list" class="mt-2 text-xs text-slate-600 space-y-1"></div>
+      </div>`;
+      if(uProd) uProd(); if(uRef) uRef();
+      uProd=onSnapshot(query(collection(db,"batches"),where("farmerId","==",currentUser.uid),limit(100)),s=>{myProducts=s.docs.map(d=>({id:d.id,...d.data()}));paintProducts();},e=>console.error(e));
+      uRef=onSnapshot(query(collection(db,"users"),where("referredBy","==",code),limit(100)),s=>{myRefs=s.docs.map(d=>d.data());paintRefs();},e=>console.error(e));
+    };
+    function paintProducts(){ const el=$("sa-list"); if(!el) return;
+      el.innerHTML=myProducts.length?myProducts.map(x=>`<div class="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 text-sm"><div><b>${escapeHtml(x.produceName||"")}</b> · ₹${x.price||0}/${escapeHtml(x.unit||"kg")} · ${escapeHtml(x.volume||"")}<div class="text-[11px] text-slate-500">${escapeHtml(x.category||"")} · ${escapeHtml(x.grade||"")} · ${escapeHtml(x.method||"")} · ${x.status==="active"?"Live":"Paused"}</div></div><div class="flex gap-2"><button class="text-xs font-bold text-brand-800" onclick="toggleStudioProduct('${x.id}')">${x.status==="active"?"Pause":"Resume"}</button><button class="text-xs font-bold text-red-600" onclick="deleteStudioProduct('${x.id}')">Delete</button></div></div>`).join(""):'<div class="text-xs text-slate-400">No products yet. Add your first one above.</div>'; }
+    function paintRefs(){ if($("sr-count")) $("sr-count").textContent=myRefs.length; if($("sr-list")) $("sr-list").innerHTML=myRefs.map(u=>`<div>• ${escapeHtml(u.name||"New member")} (${escapeHtml(u.role||"Member")})</div>`).join(""); }
+    const v=id=>($(id)?.value||"").trim();
+    window.saveStudioProfile = async function(){
+      if(!currentUser) return toast("Please sign in.");
+      const d={}; F.forEach(f=>d[f[0]]=v("sp-"+f[0]).slice(0,600));
+      if(!d.name) return toast("Name is required.");
+      try{ await setDoc(doc(db,"users",currentUser.uid),{...d,updatedAt:serverTimestamp()},{merge:true}); currentProfile={...currentProfile,...d}; await refreshUserUI(); renderStudio(); toast("Profile saved."); }
+      catch(e){ console.error(e); toast("Could not save profile."); }
+    };
+    window.addStudioProduct = async function(){
+      if(!currentUser) return toast("Please sign in.");
+      const name=v("sa-name"), price=Number(v("sa-price")), vol=v("sa-vol");
+      if(!name||!(price>0)||!vol) return toast("Product name, price and quantity are required.");
+      try{ await addDoc(collection(db,"batches"),{farmerId:currentUser.uid,farmerName:currentProfile?.name||"Farmer",produceName:name,category:v("sa-cat"),price,unit:v("sa-unit")||"kg",volume:vol,minOrder:v("sa-min"),location:v("sa-loc"),district:currentProfile?.district||"",grade:v("sa-grade"),method:v("sa-method"),qualityNote:"",imageUrl:"",harvestAt:serverTimestamp(),createdAt:serverTimestamp(),status:"active"});
+        ["sa-name","sa-price","sa-vol","sa-min"].forEach(i=>$(i).value=""); toast("Product added to the marketplace."); }
+      catch(e){ console.error(e); toast("Could not add product."); }
+    };
+    window.toggleStudioProduct = async function(id){ const x=myProducts.find(p=>p.id===id); if(!x) return; try{ await updateDoc(doc(db,"batches",id),{status:x.status==="active"?"paused":"active"}); }catch(e){ toast("Could not update."); } };
+    window.deleteStudioProduct = async function(id){ if(!confirm("Delete this product?")) return; try{ await deleteDoc(doc(db,"batches",id)); toast("Deleted."); }catch(e){ toast("Could not delete."); } };
+    window.copyRefLink = function(){ const i=$("sr-link"); i.select(); (navigator.clipboard?navigator.clipboard.writeText(i.value):Promise.reject()).then(()=>toast("Link copied."),()=>{document.execCommand("copy");toast("Link copied.");}); };
+    window.shareRefLink = function(){ window.open("https://wa.me/?text="+encodeURIComponent("Join me on Riki Connect, the digital network for farmers and buyers: "+$("sr-link").value),"_blank"); };
+    const st=window.switchTab; window.switchTab=function(t){ const r=st.apply(this,arguments); if(t==="profile") setTimeout(renderStudio,300); return r; };
+    onAuthStateChanged(auth,()=>setTimeout(()=>{ if(document.getElementById("tab-profile")?.classList.contains("active")) renderStudio(); },900));
+  })();
+
   updateEscrowSummary();
   refreshUserUI();
 
