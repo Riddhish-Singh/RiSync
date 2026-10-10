@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1948,6 +1947,256 @@
 
     <input type="file" id="importInput" style="display:none" accept=".json" onchange="handleImportFile(event)">
 
+    <!-- ===== RiBot Offline AI (no API, no key, free) =====
+         Runs a small open-source model (Qwen2.5 via WebLLM) directly in the user's browser.
+         Works on static hosting such as GitHub Pages. Edit RIBOT_KB below to teach it your own answers. -->
+    <style>
+        #ribotAIPill {
+            position: fixed; top: 10px; right: 14px; z-index: 9999;
+            background: var(--bg-card, #2c2c2e); color: var(--text, #e3e3e3);
+            border: 1px solid var(--border, rgba(255,255,255,0.12));
+            border-radius: 999px; padding: 6px 12px; font-size: 0.78rem;
+            cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            transition: opacity 0.4s, transform 0.2s; user-select: none; max-width: 80vw;
+        }
+        #ribotAIPill:hover { transform: translateY(-1px); }
+        #ribotAIPill.faded { opacity: 0.35; }
+        #ribotAIPill .bar { height: 3px; background: rgba(128,128,128,0.3); border-radius: 3px; margin-top: 5px; overflow: hidden; display: none; }
+        #ribotAIPill .bar > i { display: block; height: 100%; width: 0%; background: var(--accent, #007AFF); transition: width 0.3s; }
+        #ribotAIPill.loading .bar { display: block; }
+    </style>
+    <script>
+    (function () {
+        const WEBLLM_URLS = [
+            "https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.79/+esm",
+            "https://esm.run/@mlc-ai/web-llm@0.2.79"
+        ];
+        const MODEL_BIG   = "Qwen2.5-1.5B-Instruct-q4f16_1-MLC"; // ~1 GB, better answers (desktop)
+        const MODEL_SMALL = "Qwen2.5-0.5B-Instruct-q4f16_1-MLC"; // ~0.4 GB, for phones / weak devices
+        const CONSENT_KEY = "ribot_offline_ai_ok";
+
+        // ---- Built-in instant answers (no AI needed). Add your own! ----
+        const RIBOT_KB = [
+            { q: /^(hi+|hello+|hey+|namaste|good (morning|afternoon|evening))\b/i,
+              a: "Hi! 👋 I'm RiBot. Ask me anything — I run free, right inside your browser." },
+            { q: /\b(who|what) are you\b|\byour name\b/i,
+              a: "I'm **RiBot**, a free AI assistant by RiSync. I run directly in your browser, with no API and no account needed for answers." },
+            { q: /\bwho (made|created|built|developed|designed) you\b/i,
+              a: "I was built by the RiSync team as a free, private AI assistant for students." },
+            { q: /\bwhat can you do\b|\byour features\b|\bhow can you help\b/i,
+              a: "I can answer questions, explain concepts, help with homework, write and debug code, summarize files you upload, and do quick maths. Just ask!" },
+            { q: /^(thanks|thank you|thx|ty)\b/i,
+              a: "You're welcome! 😊 Ask me anything else." }
+        ];
+
+        const RiBotLocal = {
+            engine: null, model: null, status: "off", _loading: null, _queue: Promise.resolve(),
+            listeners: [],
+
+            onStatus(fn) { this.listeners.push(fn); },
+            _emit(status, info) { this.status = status; this.listeners.forEach(f => { try { f(status, info || {}); } catch (e) {} }); },
+
+            // ---------- instant local answers ----------
+            shortcut(raw) {
+                const t = (raw || "").replace(/\n\[Uploaded.*\]/, "").trim();
+                if (!t || t.length > 90) return null;
+                const low = t.toLowerCase().replace(/[?!.]+$/g, "").trim();
+
+                // maths
+                let expr = low.replace(/^(what('| i)?s|calculate|solve|compute|find|how much is)\s+/, "")
+                              .replace(/\s*=\s*$/, "").replace(/,/g, "")
+                              .replace(/\bsquare root of\s+([\d.]+)/g, "Math.sqrt($1)")
+                              .replace(/\bsqrt\s*(?:of\s*)?\(?\s*([\d.]+)\s*\)?/g, "Math.sqrt($1)")
+                              .replace(/(\d)\s*[x×]\s*(\d)/g, "$1*$2").replace(/×/g, "*").replace(/÷/g, "/").replace(/\^/g, "**")
+                              .replace(/(\d+(?:\.\d+)?)\s*%\s*of\s*(\d+(?:\.\d+)?)/g, "($1/100*$2)");
+                if (/\d/.test(expr) && /[+\-*/%]|Math\.sqrt/.test(expr) && /^[\d\s+\-*/().%Math.sqrt]*$/.test(expr)) {
+                    try {
+                        const v = Function('"use strict";return (' + expr + ")")();
+                        if (typeof v === "number" && isFinite(v)) return `**${t.replace(/[?=]+$/, "").replace(/^(what('| i)?s|calculate|solve|compute|find|how much is)\s+/i, "").trim()} = ${+v.toFixed(10)}**`;
+                    } catch (e) {}
+                }
+                // date / time
+                const now = new Date();
+                if (/\bwhat('s| is)? the time\b|\bcurrent time\b|\bwhat time is it\b/.test(low))
+                    return `It's **${now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}** on your device.`;
+                if (/\b(today'?s date|what('s| is)? the date|what day is (it|today)|current date)\b/.test(low))
+                    return `Today is **${now.toLocaleDateString([], { weekday: "long", year: "numeric", month: "long", day: "numeric" })}**.`;
+                // knowledge base
+                for (const item of RIBOT_KB) if (item.q.test(t)) return item.a;
+                return null;
+            },
+
+            // ---------- keep prompts inside the small model's context window ----------
+            trim(messages) {
+                const sysParts = [], turns = [];
+                messages.forEach(m => {
+                    const c = String(m.content || "");
+                    if (m.role === "system") sysParts.push(c.length > 2500 ? c.slice(0, 2500) + "\n...[truncated]" : c);
+                    else turns.push({ role: m.role === "assistant" ? "assistant" : "user", content: c });
+                });
+                let sys = sysParts.join("\n\n");
+                if (sys.length > 5000) sys = sys.slice(0, 5000);
+                const out = [];
+                let budget = 9500 - sys.length;
+                for (let i = turns.length - 1; i >= 0; i--) {
+                    let c = turns[i].content;
+                    if (c.length > 3000) c = c.slice(0, 3000) + "...";
+                    if (out.length && budget - c.length < 0) break;
+                    budget -= c.length;
+                    out.unshift({ role: turns[i].role, content: c });
+                }
+                while (out.length && out[0].role !== "user") out.shift();
+                return (sys ? [{ role: "system", content: sys }] : []).concat(out);
+            },
+
+            extractJSON(text) {
+                const s = text.replace(/```json/gi, "").replace(/```/g, "").trim();
+                const a = s.indexOf("["), b = s.lastIndexOf("]");
+                if (a !== -1 && b > a) return s.slice(a, b + 1);
+                return s;
+            },
+
+            // ---------- load model ----------
+            async enable() {
+                if (this.engine) return;
+                if (!localStorage.getItem(CONSENT_KEY)) {
+                    const ok = confirm("RiBot will download a free AI model (about 0.4–1 GB) ONE time and then run it on your own device.\n\nNo API, no key, no account. Works offline afterwards.\n\nDownload now?");
+                    if (!ok) throw new Error("DECLINED");
+                    localStorage.setItem(CONSENT_KEY, "1");
+                }
+                return this.load();
+            },
+
+            async load() {
+                if (this.engine) return this.engine;
+                if (this._loading) return this._loading;
+                this._loading = (async () => {
+                    try {
+                        if (!navigator.gpu || !(await navigator.gpu.requestAdapter())) {
+                            this._emit("unsupported");
+                            throw new Error("NO_WEBGPU");
+                        }
+                        let webllm = null, lastErr = null;
+                        for (const url of WEBLLM_URLS) {
+                            try { webllm = await import(url); break; } catch (e) { lastErr = e; }
+                        }
+                        if (!webllm) throw new Error("Could not load the AI engine (" + (lastErr && lastErr.message) + ")");
+
+                        const mobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+                        const order = mobile ? [MODEL_SMALL] : [MODEL_BIG, MODEL_SMALL];
+                        let err = null;
+                        for (const id of order) {
+                            try {
+                                this._emit("loading", { progress: 0, text: "Starting..." });
+                                this.engine = await webllm.CreateMLCEngine(id, {
+                                    initProgressCallback: r => this._emit("loading", { progress: r.progress || 0, text: r.text || "" })
+                                }, { context_window_size: 4096 });
+                                this.model = id;
+                                this._emit("ready", { model: id });
+                                return this.engine;
+                            } catch (e) { err = e; this.engine = null; }
+                        }
+                        throw err || new Error("Model failed to load");
+                    } catch (e) {
+                        if (e.message !== "NO_WEBGPU") this._emit("error", { message: e.message });
+                        throw e;
+                    } finally { this._loading = null; }
+                })();
+                return this._loading;
+            },
+
+            // ---------- main entry used by RiBot ----------
+            // messages: [{role, content}], opts: {json, shortcuts, loadingId}
+            chat(messages, opts = {}) {
+                const run = async () => {
+                    const lastUser = [...messages].reverse().find(m => m.role === "user");
+                    if (opts.shortcuts && lastUser) {
+                        const s = this.shortcut(lastUser.content);
+                        if (s) return s;
+                    }
+                    let unsub = null;
+                    try {
+                        if (!this.engine) {
+                            if (opts.loadingId) {
+                                const f = (st, info) => {
+                                    if (st === "loading") setBubble(opts.loadingId, `Downloading offline AI… ${Math.round((info.progress || 0) * 100)}% (one time only)`);
+                                };
+                                this.listeners.push(f); unsub = f;
+                            }
+                            await this.enable();
+                        }
+                    } catch (e) {
+                        if (opts.json) throw e;
+                        if (e.message === "NO_WEBGPU")
+                            return "⚠️ Your browser can't run the offline AI (it needs **WebGPU**). Please use **Chrome or Edge** (desktop or Android). Meanwhile I can still answer maths, date/time and basic questions.";
+                        if (e.message === "DECLINED")
+                            return "No problem! I'll skip the download. I can still do maths, date/time and basic questions. Tap the **Offline AI** badge at the top-right any time to enable full answers.";
+                        throw e;
+                    } finally {
+                        if (unsub) this.listeners = this.listeners.filter(f => f !== unsub);
+                    }
+                    if (opts.loadingId) setBubble(opts.loadingId, "RiBot is thinking...");
+                    const res = await this.engine.chat.completions.create({
+                        messages: this.trim(messages),
+                        temperature: opts.json ? 0.2 : 0.7,
+                        max_tokens: opts.json ? 700 : 1100
+                    });
+                    let out = (res.choices[0].message.content || "").trim();
+                    if (opts.json) out = this.extractJSON(out);
+                    return out;
+                };
+                // one request at a time (the model runs on the user's GPU)
+                const p = this._queue.then(run, run);
+                this._queue = p.catch(() => {});
+                return p;
+            }
+        };
+
+        function setBubble(id, text) {
+            const el = document.querySelector("#" + id + " .msg-bubble");
+            if (el) el.innerHTML = `<div class="spinner"></div>${text}`;
+        }
+
+        // ---------- status badge ----------
+        function buildPill() {
+            const pill = document.createElement("div");
+            pill.id = "ribotAIPill";
+            pill.innerHTML = `<span class="t"></span><div class="bar"><i></i></div>`;
+            document.body.appendChild(pill);
+            const t = pill.querySelector(".t"), bar = pill.querySelector(".bar > i");
+            let fadeTimer = null;
+            const show = (st, info) => {
+                pill.classList.remove("loading", "faded");
+                clearTimeout(fadeTimer);
+                if (st === "off") t.textContent = "🧠 Offline AI: tap to enable";
+                else if (st === "loading") {
+                    pill.classList.add("loading");
+                    const p = Math.round((info.progress || 0) * 100);
+                    t.textContent = `⬇️ Offline AI: downloading ${p}%`;
+                    bar.style.width = p + "%";
+                    pill.title = info.text || "";
+                } else if (st === "ready") {
+                    t.textContent = "🟢 Offline AI ready";
+                    pill.title = "Model: " + (info.model || "");
+                    fadeTimer = setTimeout(() => pill.classList.add("faded"), 4000);
+                } else if (st === "unsupported") t.textContent = "⚠️ Offline AI needs Chrome/Edge (WebGPU)";
+                else if (st === "error") t.textContent = "⚠️ Offline AI failed — tap to retry";
+            };
+            show("off");
+            RiBotLocal.onStatus(show);
+            pill.addEventListener("click", () => {
+                if (RiBotLocal.status === "off" || RiBotLocal.status === "error") RiBotLocal.enable().catch(() => {});
+            });
+            // Already downloaded before? Warm it up quietly in the background (loads from cache).
+            if (localStorage.getItem(CONSENT_KEY)) setTimeout(() => RiBotLocal.load().catch(() => {}), 1500);
+        }
+        if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", buildPill);
+        else buildPill();
+
+        window.RiBotLocal = RiBotLocal;
+    })();
+    </script>
+
     <script>
         // --- FIREBASE CONFIGURATION ---
         const firebaseConfig = {
@@ -2771,18 +3020,7 @@
             `;
 
             try {
-                // FIXED URL (Removed brackets)
-                const response = await fetch('https://text.pollinations.ai/', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        messages: [{ role: 'system', content: 'You are a JSON planner.' }, { role: 'user', content: prompt }],
-                        model: 'openai',
-                        
-                    })
-                });
-                
-                let text = await response.text();
+                let text = await RiBotLocal.chat([{ role: 'system', content: 'You are a JSON planner.' }, { role: 'user', content: prompt }], { json: true, loadingId: loadingId });
                 text = text.replace(/```json/g, '').replace(/```/g, '').trim();
                 
                 const steps = JSON.parse(text);
@@ -2862,18 +3100,7 @@
                 }));
                 msgs.push(contextMsg);
 
-                // FIXED URL (Removed brackets)
-                const response = await fetch('https://text.pollinations.ai/', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        messages: msgs,
-                        model: 'openai',
-                        
-                    })
-                });
-
-                const data = await response.text();
+                const data = await RiBotLocal.chat(msgs, { loadingId: loadingId });
                 processBotResponse(data, activeChatId, loadingId, chat); // Use existing processor
                 
                 // Mark done
@@ -3031,21 +3258,8 @@
             });
 
             try {
-                // FIXED: REMOVED BRACKETS []
-                const response = await fetch('https://text.pollinations.ai/', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    mode: 'cors',
-                    body: JSON.stringify({
-                        messages: conversationHistory,
-                        model: 'openai', 
-                        seed: Math.floor(Math.random() * 1000) 
-                    })
-                });
-
-                if (!response.ok) throw new Error(`POST Error: ${response.status}`);
-                
-                const data = await response.text();
+                const isDefaultGem = !chat.gemType || chat.gemType === 'default';
+                const data = await RiBotLocal.chat(conversationHistory, { shortcuts: isDefaultGem, loadingId: loadingId });
                 processBotResponse(data, chatId, loadingId, chat);
 
             } catch (error) {
@@ -3053,7 +3267,7 @@
                 
                 // FIXED: REMOVED FALLBACK LOOP TO PREVENT SPAM
                 removeMessage(loadingId);
-                addMessage(chatId, 'bot', `Connection Error (${error.message}). Please wait a moment and try again.`, 'text');
+                addMessage(chatId, 'bot', `Offline AI error (${error.message}). Tap the Offline AI badge (top-right) to retry.`, 'text');
             }
         }
 
@@ -3595,18 +3809,7 @@ function appendMessageToDOM(msg) {
             `;
 
             try {
-                // FIXED: REMOVED BRACKETS []
-                const response = await fetch('https://text.pollinations.ai/', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        messages: [{ role: 'system', content: 'You are a JSON generator.' }, { role: 'user', content: prompt }],
-                        model: 'openai',
-                        
-                    })
-                });
-                
-                let text = await response.text();
+                let text = await RiBotLocal.chat([{ role: 'system', content: 'You are a JSON generator.' }, { role: 'user', content: prompt }], { json: true, loadingId: loadingId });
                 // Clean markdown code blocks if present
                 text = text.replace(/```json/g, '').replace(/```/g, '').trim();
                 
@@ -3842,5 +4045,39 @@ function shareMsg(msgId) {
     alert("Share functionality triggered.");
 }
     </script>
+	<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBWAwm_TDtD1qXDtjxJu0jrDP45c3p1Bxg",
+    authDomain: "risync-risync.firebaseapp.com",
+    projectId: "risync-risync",
+    storageBucket: "risync-risync.firebasestorage.app",
+    messagingSenderId: "195106250121",
+    appId: "1:195106250121:web:57b23c5b94d5771995d558"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // AUTH PROTECTION: Check if user is logged in
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      // If not logged in, redirect to signin.html
+      window.location.href = "signin.html";
+    } else {
+      console.log("RiSync User Verified:", user.email);
+      // Optional: Load user data for the specific tool
+      if (typeof onUserLoad === "function") onUserLoad(user);
+    }
+  });
+
+  // Make db and auth accessible to your other scripts
+  window.risyncAuth = auth;
+  window.risyncDb = db;
+</script>
 </body>
 </html>
