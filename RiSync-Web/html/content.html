@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html class="dark" lang="en">
+<html class="light" lang="en">
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>RiSync | Create Account</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <title>RiSync Dashboard</title>
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script id="tailwind-config">
@@ -12,47 +14,65 @@
       darkMode: "class",
       theme: {
         extend: {
-          colors: {
-            "on-primary-container": "#14007e",
-            "on-secondary": "#003047",
-            "on-surface": "#dee5ff",
-            "secondary": "#34b5fa",
-            "primary-container": "#9795ff",
-            "surface-dim": "#060e20",
-            "outline-variant": "#40485d",
-            "primary-fixed": "#9795ff",
-            "tertiary": "#9bddff",
-            "primary-fixed-dim": "#8885ff",
-            "error": "#ff6e84",
-            "surface": "#060e20",
-            "surface-variant": "#192540",
-            "on-primary-fixed": "#000000",
-            "surface-container": "#0f1930",
-            "surface-container-high": "#141f38",
-            "surface-container-highest": "#192540",
-            "on-primary": "#1c00a0",
-            "background": "#060e20",
-            "primary-dim": "#645efb",
-            "secondary-container": "#006591",
-            "surface-container-lowest": "#000000",
-            "surface-bright": "#1f2b49",
-            "on-secondary-container": "#f3f8ff",
-            "surface-container-low": "#091328",
-            "primary": "#a7a5ff",
-            "outline": "#6d758c",
-            "on-background": "#dee5ff",
-            "on-surface-variant": "#a3aac4"
+          "colors": {
+            "surface-container-low": "#eff4ff",
+            "outline-variant": "#c7c5d4",
+            "surface-container": "#e6eeff",
+            "error": "#ba1a1a",
+            "on-error": "#ffffff",
+            "inverse-surface": "#233144",
+            "surface-bright": "#f8f9ff",
+            "on-primary-container": "#9da1ff",
+            "on-secondary": "#ffffff",
+            "on-secondary-fixed-variant": "#005137",
+            "on-tertiary-fixed": "#2f1500",
+            "tertiary": "#422000",
+            "inverse-primary": "#c0c1ff",
+            "surface": "#f8f9ff",
+            "on-secondary-container": "#00714e",
+            "tertiary-fixed": "#ffdcc3",
+            "on-primary-fixed": "#04006d",
+            "primary": "#15157d",
+            "tertiary-fixed-dim": "#ffb77d",
+            "secondary-fixed-dim": "#68dba9",
+            "on-tertiary": "#ffffff",
+            "on-error-container": "#93000a",
+            "tertiary-container": "#623200",
+            "on-primary": "#ffffff",
+            "on-surface-variant": "#464652",
+            "background": "#f8f9ff",
+            "on-background": "#0d1c2e",
+            "on-secondary-fixed": "#002114",
+            "on-primary-fixed-variant": "#373a9b",
+            "on-tertiary-container": "#f99028",
+            "surface-container-highest": "#d5e3fc",
+            "surface-container-high": "#dce9ff",
+            "primary-fixed": "#e1e0ff",
+            "error-container": "#ffdad6",
+            "surface-variant": "#d5e3fc",
+            "inverse-on-surface": "#eaf1ff",
+            "on-surface": "#0d1c2e",
+            "secondary-fixed": "#85f8c4",
+            "surface-tint": "#4f54b4",
+            "primary-container": "#2e3192",
+            "primary-fixed-dim": "#c0c1ff",
+            "secondary-container": "#82f5c1",
+            "outline": "#777683",
+            "on-tertiary-fixed-variant": "#6e3900",
+            "surface-container-lowest": "#ffffff",
+            "surface-dim": "#ccdbf3",
+            "secondary": "#006c4a"
           },
-          borderRadius: {
-            DEFAULT: "0.125rem",
-            lg: "0.25rem",
-            xl: "0.5rem",
-            full: "0.75rem"
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "1.5rem",
+            "full": "9999px"
           },
-          fontFamily: {
-            headline: ["Space Grotesk"],
-            body: ["Inter"],
-            label: ["Inter"]
+          "fontFamily": {
+            "headline": ["Manrope", "sans-serif"],
+            "body": ["Inter", "sans-serif"],
+            "label": ["Inter", "sans-serif"]
           }
         }
       }
@@ -61,728 +81,1622 @@
   <style>
     .material-symbols-outlined {
       font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-      vertical-align: middle;
     }
-    .glass-card {
-      background: rgba(25, 37, 64, 0.6);
-      backdrop-filter: blur(40px);
-      -webkit-backdrop-filter: blur(40px);
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8f9ff;
+      color: #0d1c2e;
     }
-    .kinetic-bg {
-      background: radial-gradient(circle at 0% 0%, #0f1930 0%, #060e20 100%);
+    .editorial-header {
+      font-family: 'Manrope', sans-serif;
+      letter-spacing: -0.02em;
     }
-    input:focus, select:focus {
-      outline: none;
-      box-shadow: 0 0 0 1px #a7a5ff15;
+    .btn-primary-gradient {
+      background: linear-gradient(15deg, #15157d, #2e3192);
     }
-    /* Custom select arrow */
-    select {
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236d758c' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 14px center;
+
+    /* ---- Sidebar mobile ---- */
+    @media (max-width: 1024px) {
+      #sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+      #sidebar.open { transform: translateX(0); }
+      .main-wrapper { margin-left: 0 !important; }
+      .menu-toggle { display: flex !important; }
+      .top-bar { left: 0 !important; }
+    }
+    .menu-toggle { display: none; }
+    .overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(13, 28, 46, 0.45);
+      z-index: 40;
+      backdrop-filter: blur(2px);
+    }
+    .main-wrapper.sidebar-open .overlay { display: block; }
+
+    /* ---- Language dropdown ---- */
+    .language-dropdown-container {
+      position: relative;
       cursor: pointer;
+      user-select: none;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      width: 130px;
+      z-index: 10;
+      color: #0d1c2e;
     }
-    select option { background: #0f1930; color: #dee5ff; }
-    /* Smart match */
-    .chip { border:1px solid rgba(64,72,93,.4); background:#192540; color:#a3aac4; padding:.55rem .95rem; border-radius:9999px; font-size:.85rem; cursor:pointer; transition:all .2s; }
-    .chip:hover { border-color:rgba(167,165,255,.5); color:#dee5ff; }
-    .chip.on { background:linear-gradient(90deg,#a7a5ff,#34b5fa); color:#000; border-color:transparent; font-weight:600; }
-    @keyframes scanning {
-      0%   { transform: translateX(-100%); }
-      50%  { transform: translateX(300%); }
-      100% { transform: translateX(-100%); }
+    .selected-language {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 12px;
+      background: #eff4ff;
+      border-radius: 10px;
+      border: 1.5px solid #c7c5d4;
+      transition: all 0.2s;
+      color: #15157d;
+      font-weight: 600;
     }
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      20%       { transform: translateX(-6px); }
-      40%       { transform: translateX(6px); }
-      60%       { transform: translateX(-4px); }
-      80%       { transform: translateX(4px); }
+    .selected-language:hover {
+      background: #e6eeff;
+      border-color: #15157d;
     }
-    .shake { animation: shake 0.4s ease; }
-    /* Scrollbar inside card */
-    .card-scroll::-webkit-scrollbar { width: 4px; }
-    .card-scroll::-webkit-scrollbar-track { background: transparent; }
-    .card-scroll::-webkit-scrollbar-thumb { background: #40485d; border-radius: 4px; }
+    .selected-language .dropdown-arrow {
+      font-size: 18px;
+      transition: transform 0.3s ease;
+    }
+    .language-dropdown-container.active .selected-language .dropdown-arrow {
+      transform: rotate(180deg);
+    }
+    .language-dropdown-list {
+      position: absolute;
+      top: 110%;
+      left: 0;
+      width: 220px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(21,21,125,0.12);
+      padding: 4px;
+      max-height: 320px;
+      overflow-y: auto;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: all 0.2s;
+      border: 1.5px solid #c7c5d4;
+      scrollbar-width: thin;
+      scrollbar-color: #e6eeff transparent;
+    }
+    .language-dropdown-container.active .language-dropdown-list {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    .language-dropdown-list li {
+      list-style: none;
+      padding: 9px 12px;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .language-dropdown-list li:hover {
+      background: #eff4ff;
+      color: #15157d;
+    }
+
+    /* ---- Settings dropdown ---- */
+    .settings-menu {
+      visibility: hidden;
+      opacity: 0;
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background: #fff;
+      border-radius: 14px;
+      padding: 6px;
+      box-shadow: 0 8px 32px rgba(21,21,125,0.14);
+      z-index: 100;
+      min-width: 200px;
+      transform: translateY(-8px) scale(0.96);
+      transition: all 0.2s;
+      border: 1.5px solid #c7c5d4;
+    }
+    .settings-menu.active {
+      visibility: visible;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    .settings-menu button {
+      background-color: transparent;
+      color: #0d1c2e;
+      border: none;
+      padding: 10px 14px;
+      cursor: pointer;
+      border-radius: 10px;
+      width: 100%;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s;
+    }
+    .settings-menu button:hover {
+      background-color: #eff4ff;
+      color: #15157d;
+    }
+    .settings-menu button:last-child:hover {
+      background-color: #ffdad6;
+      color: #ba1a1a;
+    }
+
+    /* ---- To-do list ---- */
+    .todo-list { list-style: none; padding: 0; margin: 0; }
+    .todo-list li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #e6eeff;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .todo-list li:last-child { border-bottom: none; }
+    .todo-list li.completed span {
+      text-decoration: line-through;
+      color: #777683;
+    }
+    .todo-list .remove-btn {
+      background: none;
+      border: none;
+      color: #ba1a1a;
+      cursor: pointer;
+      font-size: 18px;
+      padding: 2px 8px;
+      border-radius: 6px;
+      transition: all 0.2s;
+      line-height: 1;
+    }
+    .todo-list .remove-btn:hover { background: #ffdad6; }
+
+    /* ---- Progress bar ---- */
+    .progress-bar-container {
+      width: 100%;
+      background: #e6eeff;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 16px 0 8px;
+      height: 8px;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #006c4a, #68dba9);
+      transition: width 0.5s ease-in-out;
+      border-radius: 999px;
+      box-shadow: 0 0 10px rgba(0,108,74,0.25);
+    }
+
+    /* ---- Chatbot popup ---- */
+    #chatbot-popup {
+      position: fixed;
+      bottom: 120px;
+      right: 32px;
+      width: 320px;
+      background: #fff;
+      border-radius: 1.5rem;
+      box-shadow: 0 12px 42px rgba(21,21,125,0.14);
+      padding: 24px;
+      z-index: 1000;
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+      border: 1.5px solid #c7c5d4;
+      transform: scale(0.85);
+      opacity: 0;
+      transition: all 0.25s;
+    }
+    #chatbot-popup.active {
+      display: flex;
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    /* ---- Ribot settings popup ---- */
+    #ribot-settings-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.85);
+      width: 440px;
+      max-width: 90vw;
+      background: #fff;
+      border-radius: 1.5rem;
+      box-shadow: 0 16px 48px rgba(21,21,125,0.18);
+      padding: 32px;
+      z-index: 1001;
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+      opacity: 0;
+      transition: all 0.25s;
+      border: 1.5px solid #c7c5d4;
+    }
+    #ribot-settings-popup.active {
+      display: flex;
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+    .ribot-options { display: flex; flex-direction: column; gap: 8px; }
+    .ribot-option-btn {
+      background: #f8f9ff;
+      color: #0d1c2e;
+      border: 1.5px solid #c7c5d4;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+    }
+    .ribot-option-btn:hover {
+      background: #eff4ff;
+      border-color: #15157d;
+      color: #15157d;
+      transform: translateX(4px);
+    }
+    .ribot-response {
+      padding: 16px;
+      background: #eff4ff;
+      border-left: 4px solid #15157d;
+      border-radius: 10px;
+      color: #0d1c2e;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    /* ---- "Hey RiSync" listening indicator on the mic button ---- */
+    #mic-btn { position: relative; }
+    #mic-btn.wake-on::after {
+      content: ''; position: absolute; top: 4px; right: 4px; width: 9px; height: 9px;
+      border-radius: 50%; background: #22c55e; border: 2px solid #fff; animation: wakeDot 1.6s infinite;
+    }
+    @keyframes wakeDot { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+    /* ---- Mic active animation ---- */
+    #mic-btn.active {
+      background: linear-gradient(135deg, #f99028, #ffb77d) !important;
+      animation: micPulse 1s infinite;
+      box-shadow: 0 4px 20px rgba(249,144,40,0.5) !important;
+    }
+    @keyframes micPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    /* ---- Profile image ---- */
+    .profile-upload { display: none; }
+    #profileIcon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      cursor: pointer;
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 2px #15157d;
+      transition: all 0.2s;
+    }
+    #profileIcon:hover { box-shadow: 0 0 0 3px #c0c1ff; }
+
+    /* ---- Page fade in ---- */
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    .content-area { animation: fadeIn 0.4s ease-out; }
   </style>
 </head>
-<body class="bg-background text-on-background font-body min-h-screen flex flex-col overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
+<body class="flex min-h-screen">
 
-  <!-- ── Top Bar ── -->
-  <header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 py-4 bg-transparent backdrop-blur-md">
-    <div class="flex items-center gap-4">
-      <a href="signin.html"
-         class="text-[#a7a5ff] active:scale-95 transition-transform p-2 hover:bg-white/5 rounded-full duration-300">
-        <span class="material-symbols-outlined">arrow_back</span>
-      </a>
-      <span class="text-2xl font-black text-[#a7a5ff] tracking-tighter font-headline">RiSync</span>
+  <!-- Mobile overlay -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside id="sidebar" class="h-screen w-64 fixed left-0 top-0 bg-slate-50 flex flex-col py-6 px-4 gap-4 z-50">
+    <!-- Logo -->
+    <div class="mb-6 px-2 flex items-center gap-3">
+      <img src="https://risync.in/RiSync-Web/assets/logo.png" alt="RiSync Logo" class="w-10 h-10 rounded-xl object-contain flex-shrink-0"/>
+      <div>
+        <h1 class="text-lg font-black text-indigo-900 leading-none">RiSync</h1>
+        <p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mt-1">Learning Platform</p>
+      </div>
     </div>
-    <div class="flex items-center gap-6">
-      <a href="signin.html"
-         class="font-headline text-lg font-bold tracking-wider text-[#a3aac4] hover:text-[#34b5fa] hover:bg-white/5 transition-all duration-300 cursor-pointer px-3 py-1 rounded-full">
-        Sign In
+
+    <!-- Search inside sidebar -->
+    <div class="relative px-1 mb-2">
+      <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+      <input id="searchInput" type="text" placeholder="Search menu..."
+        class="w-full bg-white border border-slate-200 rounded-xl py-2 pl-9 pr-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"/>
+    </div>
+
+    <!-- Nav links -->
+    <nav class="nav-menu flex-1 space-y-1 overflow-y-auto pr-1" style="scrollbar-width:thin;scrollbar-color:#e6eeff transparent;">
+      <a href="content" class="nav-button flex items-center gap-3 px-4 py-3 text-indigo-900 font-bold bg-white rounded-xl shadow-sm transition-all duration-200">
+        <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">dashboard</span>
+        <span class="text-sm font-medium">Dashboard</span>
       </a>
-      <button class="text-[#a7a5ff] active:scale-95 p-2 hover:bg-white/5 rounded-full transition-all duration-300">
-        <span class="material-symbols-outlined">help_outline</span>
+      <a href="RiSync-CHAT" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">chat</span>
+        <span class="text-sm font-medium">Chat</span>
+      </a>
+      <a href="monitor" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">monitor</span>
+        <span class="text-sm font-medium">Monitor</span>
+      </a>
+      <a href="books" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">menu_book</span>
+        <span class="text-sm font-medium">Books</span>
+      </a>
+      <a href="https://risync.in/RiSync-Web/html/ricall?schedule=true" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">schedule</span>
+        <span class="text-sm font-medium">Schedule</span>
+      </a>
+      <a href="calendar" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">calendar_month</span>
+        <span class="text-sm font-medium">Calendar</span>
+      </a>
+      <a href="database" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">storage</span>
+        <span class="text-sm font-medium">Database</span>
+      </a>
+      <a href="subjects" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">subject</span>
+        <span class="text-sm font-medium">Subjects</span>
+      </a>
+      <a href="NCERT" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">library_books</span>
+        <span class="text-sm font-medium">NCERT</span>
+      </a>
+      <a href="whiteboard" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">draw</span>
+        <span class="text-sm font-medium">Whiteboard</span>
+      </a>
+      <a href="calculator" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">calculate</span>
+        <span class="text-sm font-medium">Calculator</span>
+      </a>
+      <a href="gpt" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">smart_toy</span>
+        <span class="text-sm font-medium">AI Assistant</span>
+      </a>
+      <a href="https://cse.google.com/cse?cx=21639bebac7284493" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">search</span>
+        <span class="text-sm font-medium">Search</span>
+      </a>
+      <a href="leaderboard" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">emoji_events</span>
+        <span class="text-sm font-medium">Leaderboard</span>
+      </a>
+      <a href="ppt" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">slideshow</span>
+        <span class="text-sm font-medium">Presentations</span>
+      </a>
+      <a href="design" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">laptop_mac</span>
+        <span class="text-sm font-medium">Design</span>
+      </a>
+    </nav>
+
+    <!-- Bottom actions -->
+    <div class="mt-auto space-y-2 border-t border-slate-100 pt-4">
+      <a id="ribotSettingsBtn" href="#" class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 transition-colors rounded-xl">
+        <span class="material-symbols-outlined">help</span>
+        <span class="text-sm font-medium">Help & Support</span>
+      </a>
+      <button id="logoutButton" class="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-error transition-colors rounded-xl text-left">
+        <span class="material-symbols-outlined">logout</span>
+        <span class="text-sm font-medium">Sign Out</span>
       </button>
     </div>
-  </header>
+  </aside>
 
-  <!-- ── Main ── -->
-  <main class="flex-grow kinetic-bg flex items-center justify-center px-4 relative pt-24 pb-24">
+  <!-- ===== MAIN AREA ===== -->
+  <div class="main-wrapper flex flex-col flex-1 ml-64 min-h-screen">
 
-    <!-- Atmospheric blobs -->
-    <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 blur-[120px] rounded-full pointer-events-none"></div>
-    <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/10 blur-[120px] rounded-full pointer-events-none"></div>
-
-    <div class="grid lg:grid-cols-2 gap-12 max-w-6xl w-full items-start">
-
-      <!-- ── Editorial Left ── -->
-      <div class="hidden lg:flex flex-col space-y-6 text-left pt-4">
-        <h1 class="font-headline text-7xl font-black text-on-surface leading-tight tracking-tighter">
-          Create.<br/>
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">Connect.</span><br/>
-          Explore.
-        </h1>
-        <p class="text-on-surface-variant text-xl max-w-md font-light leading-relaxed">
-          Join the RiSync portal. Select your school branch, tell us your class, and unlock a world of stories made just for young readers like you.
-        </p>
-
-        <!-- Steps -->
-        <div class="pt-4 space-y-5">
-          <div class="flex items-start gap-4">
-            <div class="w-9 h-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-              <span class="text-xs font-black text-primary">01</span>
-            </div>
-            <div>
-              <p class="font-bold text-on-surface text-sm">Fill in your details</p>
-              <p class="text-on-surface-variant text-xs mt-0.5">Name, school branch, and class.</p>
-            </div>
+    <!-- Top Bar -->
+    <header class="top-bar flex justify-between items-center w-full px-8 h-16 sticky top-0 z-40 bg-slate-50/90 backdrop-blur-xl shadow-[0_12px_42px_rgba(0,0,0,0.06)]">
+      <div class="flex items-center gap-4 flex-1">
+        <!-- Mobile menu toggle -->
+        <button class="menu-toggle p-2 text-slate-500 hover:bg-slate-200/50 rounded-lg transition-all" id="menuToggle">
+          <span class="material-symbols-outlined">menu</span>
+        </button>
+        <!-- Page title (mobile) + search (desktop) -->
+        <div class="relative w-full max-w-md">
+          <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+          <input class="w-full bg-slate-100/60 border-none rounded-xl py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+            placeholder="Search resources, courses, or notes..." type="text"/>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <!-- Language dropdown -->
+        <div class="language-dropdown-container" id="language-dropdown-container">
+          <div class="selected-language" id="selected-language">
+            <span>English</span>
+            <span class="material-symbols-outlined dropdown-arrow">expand_more</span>
           </div>
-          <div class="flex items-start gap-4">
-            <div class="w-9 h-9 rounded-full bg-secondary/10 border border-secondary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-              <span class="text-xs font-black text-secondary">02</span>
-            </div>
-            <div>
-              <p class="font-bold text-on-surface text-sm">Verify your email</p>
-              <p class="text-on-surface-variant text-xs mt-0.5">We check your domain can receive mail live.</p>
-            </div>
+          <ul class="language-dropdown-list" id="language-dropdown-list"></ul>
+        </div>
+        <button class="p-2 text-slate-500 hover:bg-slate-200/50 rounded-lg transition-all relative">
+          <span class="material-symbols-outlined">notifications</span>
+          <span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+        </button>
+        <div class="relative">
+          <button class="p-2 text-slate-500 hover:bg-slate-200/50 rounded-lg transition-all" id="settingsIcon">
+            <span class="material-symbols-outlined">settings</span>
+          </button>
+          <div class="settings-menu" id="settingsMenu">
+            <button id="profileBtn"><span class="material-symbols-outlined text-sm">person</span> Profile</button>
+            <button id="ribotSettingsMenuBtn"><span class="material-symbols-outlined text-sm">help</span> Help & Support</button>
+            <button id="logoutButtonMenu"><span class="material-symbols-outlined text-sm">logout</span> Sign Out</button>
           </div>
-          <div class="flex items-start gap-4">
-            <div class="w-9 h-9 rounded-full bg-tertiary/10 border border-tertiary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-              <span class="text-xs font-black text-tertiary">03</span>
+        </div>
+        <div class="h-8 w-[1px] bg-slate-200 mx-1"></div>
+        <div class="flex items-center gap-2 hover:bg-slate-100 p-1 pr-3 rounded-full transition-colors cursor-pointer">
+          <input type="file" id="profileUpload" class="profile-upload" accept=".png,.jpg"/>
+          <img src="https://placehold.co/40x40/15157d/ffffff?text=U" alt="Profile" id="profileIcon"/>
+          <span class="text-sm font-bold text-indigo-900" id="welcome-message">Welcome back</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ===== CONTENT AREA ===== -->
+    <main class="content-area flex-1 p-8 space-y-8">
+
+      <!-- Welcome Hero Banner -->
+      <section class="relative overflow-hidden rounded-xl bg-primary-container p-10 text-on-primary min-h-[220px] flex flex-col justify-center">
+        <div class="absolute right-0 top-0 w-2/5 h-full opacity-20 pointer-events-none">
+          <div class="absolute inset-0 bg-gradient-to-l from-primary-container to-transparent z-10"></div>
+        </div>
+        <div class="relative z-10 max-w-2xl">
+          <div class="flex items-center gap-3 mb-3 flex-wrap">
+            <span class="px-3 py-1 rounded-full bg-secondary text-white text-[10px] font-bold uppercase tracking-widest">
+              Ready to Learn
+            </span>
+            <div class="flex items-center gap-1 text-secondary-fixed">
+              <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1;">local_fire_department</span>
+              <span class="text-xs font-bold">7-Day Streak</span>
             </div>
-            <div>
-              <p class="font-bold text-on-surface text-sm">Unlock the portal</p>
-              <p class="text-on-surface-variant text-xs mt-0.5">Access books, tools & more in one click.</p>
+            <span class="px-3 py-1 rounded-full bg-on-tertiary-container/90 text-white text-[10px] font-bold uppercase tracking-widest">
+              ⭐ Top Learner
+            </span>
+          </div>
+          <h2 class="editorial-header text-4xl md:text-5xl font-extrabold mb-3">Welcome back! 🚀</h2>
+          <p class="text-primary-fixed/80 text-base max-w-lg leading-relaxed">Ready to learn something new today? Jump back in and continue your journey.</p>
+          <p class="text-[11px] uppercase tracking-widest text-primary-fixed/50 mt-2 font-bold" id="displayBranch"></p>
+        </div>
+      </section>
+
+      <!-- Bento Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-6">
+
+        <!-- Quick Access (col 4) -->
+        <div class="xl:col-span-4 space-y-4">
+          <h3 class="editorial-header text-xl font-bold text-indigo-900">Quick Access</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <a href="RiSync-CHAT" class="bg-surface-container-lowest p-5 rounded-xl shadow-[0_12px_42px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-transform group text-left block">
+              <div class="w-11 h-11 rounded-lg bg-surface-container-low flex items-center justify-center text-primary mb-3 group-hover:bg-primary group-hover:text-white transition-colors">
+                <span class="material-symbols-outlined">chat</span>
+              </div>
+              <span class="font-bold text-sm block text-on-surface">Chat</span>
+              <span class="text-[10px] text-slate-400">Peer Collaboration</span>
+            </a>
+            <a href="gpt" class="bg-surface-container-lowest p-5 rounded-xl shadow-[0_12px_42px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-transform group text-left block">
+              <div class="w-11 h-11 rounded-lg bg-surface-container-low flex items-center justify-center text-primary mb-3 group-hover:bg-primary group-hover:text-white transition-colors">
+                <span class="material-symbols-outlined">smart_toy</span>
+              </div>
+              <span class="font-bold text-sm block text-on-surface">AI Assistant</span>
+              <span class="text-[10px] text-slate-400">Ask anything</span>
+            </a>
+            <a href="whiteboard" class="bg-surface-container-lowest p-5 rounded-xl shadow-[0_12px_42px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-transform group text-left block">
+              <div class="w-11 h-11 rounded-lg bg-surface-container-low flex items-center justify-center text-primary mb-3 group-hover:bg-primary group-hover:text-white transition-colors">
+                <span class="material-symbols-outlined">draw</span>
+              </div>
+              <span class="font-bold text-sm block text-on-surface">Whiteboard</span>
+              <span class="text-[10px] text-slate-400">Real-time solving</span>
+            </a>
+            <a href="leaderboard" class="bg-surface-container-lowest p-5 rounded-xl shadow-[0_12px_42px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-transform group text-left block">
+              <div class="w-11 h-11 rounded-lg bg-surface-container-low flex items-center justify-center text-primary mb-3 group-hover:bg-primary group-hover:text-white transition-colors">
+                <span class="material-symbols-outlined">emoji_events</span>
+              </div>
+              <span class="font-bold text-sm block text-on-surface">Leaderboard</span>
+              <span class="text-[10px] text-slate-400">Your rank</span>
+            </a>
+          </div>
+          <!-- Pro Tip -->
+          <div class="bg-tertiary-container p-6 rounded-xl relative overflow-hidden">
+            <span class="material-symbols-outlined absolute -right-4 -bottom-4 text-7xl text-on-tertiary-container/10">lightbulb</span>
+            <div class="flex items-center gap-2 mb-2">
+              <span class="material-symbols-outlined text-on-tertiary-container">tips_and_updates</span>
+              <span class="font-bold text-xs uppercase tracking-widest text-on-tertiary-container">Pro Tip</span>
             </div>
+            <p class="text-on-tertiary-fixed text-sm font-medium leading-relaxed">
+              Collaborate with peers using the Whiteboard feature to solve complex problems together in real-time!
+            </p>
           </div>
         </div>
 
-        <!-- Chips -->
-        <div class="flex flex-wrap gap-3 pt-2">
-          <span class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-secondary border border-secondary/20 bg-secondary/5 px-3 py-1.5 rounded-full">
-            <span class="material-symbols-outlined text-[14px]" style="font-variation-settings:'FILL' 1;">verified</span>
-            Live MX Check
-          </span>
-          <span class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-primary border border-primary/20 bg-primary/5 px-3 py-1.5 rounded-full">
-            <span class="material-symbols-outlined text-[14px]" style="font-variation-settings:'FILL' 1;">lock</span>
-            Firebase Secured
-          </span>
-          <span class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-tertiary border border-tertiary/20 bg-tertiary/5 px-3 py-1.5 rounded-full">
-            <span class="material-symbols-outlined text-[14px]" style="font-variation-settings:'FILL' 1;">school</span>
-            School Verified
-          </span>
+        <!-- Tasks & Goals (col 4) -->
+        <div class="xl:col-span-4 space-y-4">
+          <h3 class="editorial-header text-xl font-bold text-indigo-900">Tasks & Goals</h3>
+          <div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_12px_42px_rgba(0,0,0,0.06)] space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-50">
+              <span class="text-xs font-bold uppercase tracking-widest text-slate-400">Your To-Do List</span>
+            </div>
+            <!-- Add task -->
+            <div class="flex gap-2">
+              <input type="text" id="todo-input" placeholder="Add a new task..."
+                class="flex-1 bg-surface-bright border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all"/>
+              <button id="add-todo-btn" class="btn-primary-gradient text-white px-3 py-2 rounded-xl font-bold text-sm flex items-center gap-1 shadow-md hover:-translate-y-0.5 transition-transform">
+                <span class="material-symbols-outlined text-sm">add</span>
+              </button>
+            </div>
+            <ul class="todo-list" id="todo-list"></ul>
+            <button class="w-full py-3 text-slate-400 text-sm font-medium border-2 border-dashed border-slate-100 rounded-xl hover:border-primary/20 hover:text-primary transition-all flex items-center justify-center gap-2">
+              <span class="material-symbols-outlined">add_circle</span>
+              Add New Task
+            </button>
+          </div>
+        </div>
+
+        <!-- Learning Progress (col 4) -->
+        <div class="xl:col-span-4 space-y-4">
+          <h3 class="editorial-header text-xl font-bold text-indigo-900">Learning Progress</h3>
+          <div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_12px_42px_rgba(0,0,0,0.06)] space-y-4">
+            <div class="flex items-center gap-3">
+              <div class="w-16 h-16 flex-shrink-0 relative">
+                <svg class="w-full h-full -rotate-90" viewBox="0 0 64 64">
+                  <circle class="text-surface-container" cx="32" cy="32" fill="transparent" r="27" stroke="currentColor" stroke-width="6"></circle>
+                  <circle class="text-secondary transition-all duration-500" cx="32" cy="32" fill="transparent" r="27"
+                    stroke="currentColor" stroke-dasharray="169.6" stroke-dashoffset="169.6" stroke-width="6" id="progress-circle"></circle>
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                  <span class="text-xs font-black editorial-header" id="progress-percent">0%</span>
+                </div>
+              </div>
+              <div>
+                <p class="font-bold text-on-surface text-sm">Course Completion</p>
+                <p class="text-xs text-on-surface-variant">Track your overall progress</p>
+              </div>
+            </div>
+            <div class="space-y-1">
+              <div class="flex justify-between text-xs font-bold">
+                <span>Overall Progress</span>
+                <span class="text-secondary" id="progress-text">0% Complete</span>
+              </div>
+              <div class="progress-bar-container">
+                <div class="progress-bar" id="progress-bar"></div>
+              </div>
+            </div>
+            <!-- NCERT Subject Quick Stats -->
+            <div id="ncert-subject-stats" class="space-y-2 pt-1"></div>
+            <div class="pt-2 border-t border-slate-50 space-y-2">
+              <div class="flex items-center justify-between p-3 bg-surface-bright rounded-xl">
+                <div class="flex items-center gap-3">
+                  <span class="material-symbols-outlined text-primary text-sm">library_books</span>
+                  <span class="text-sm font-medium">NCERT Textbooks</span>
+                </div>
+                <a href="ncert" class="text-xs font-bold text-primary hover:underline">Open →</a>
+              </div>
+              <div class="flex items-center justify-between p-3 bg-surface-bright rounded-xl">
+                <div class="flex items-center gap-3">
+                  <span class="material-symbols-outlined text-primary text-sm">subject</span>
+                  <span class="text-sm font-medium">My Subjects</span>
+                </div>
+                <a href="subjects" class="text-xs font-bold text-primary hover:underline">Open →</a>
+              </div>
+            </div>
+            <div class="flex gap-3 pt-1">
+              <a href="ncert" class="btn-primary-gradient px-5 py-2 rounded-xl text-white text-sm font-bold shadow-lg shadow-primary/10">Resume Learning</a>
+              <a href="leaderboard" class="bg-surface-container px-5 py-2 rounded-xl text-primary text-sm font-bold hover:bg-surface-container-high transition-colors">Leaderboard</a>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- ── Sign-Up Card ── -->
-      <div class="w-full max-w-md mx-auto lg:mr-0 glass-card rounded-xl shadow-2xl relative overflow-hidden border border-outline-variant/15" id="signupCard">
-
-        <!-- Scanning bar -->
-        <div class="absolute top-0 left-0 w-full h-[2px] bg-white/5">
-          <div class="h-full bg-gradient-to-r from-transparent via-tertiary to-transparent w-1/3 animate-[scanning_3s_infinite] translate-x-[-100%]"></div>
+      <!-- ===== NCERT CLASS 6 SUBJECTS SECTION ===== -->
+      <section class="space-y-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="editorial-header text-2xl font-bold text-indigo-900">Class 6 NCERT Subjects</h3>
+            <p class="text-sm text-on-surface-variant mt-0.5">Aligned with NCERT &amp; NEP 2020 — tap a subject to explore chapters</p>
+          </div>
+          <a href="ncert" class="btn-primary-gradient text-white text-sm font-bold px-5 py-2.5 rounded-xl shadow-md hover:-translate-y-0.5 transition-transform flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">open_in_new</span> Open NCERT
+          </a>
         </div>
+        <div id="ncert-subjects-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5"></div>
+      </section>
 
-        <!-- Scrollable inner -->
-        <div class="card-scroll overflow-y-auto max-h-[calc(100vh-140px)] p-10">
-
-          <!-- Header -->
-          <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-surface-container-highest mb-6 border border-outline-variant/20">
-              <span class="material-symbols-outlined text-primary text-3xl">person_add</span>
-            </div>
-            <h2 class="font-headline text-3xl font-bold text-on-surface tracking-tight">Create Account</h2>
-            <p class="font-label text-sm text-on-surface-variant mt-2">Initialize your RiSync identity</p>
-          </div>
-
-          <!-- Form -->
-          <form id="signupForm" novalidate class="space-y-5">
-
-            <!-- Full Name -->
-            <div class="space-y-2">
-              <label class="font-label text-sm font-medium text-on-surface-variant ml-1" for="fullname">Full Name</label>
-              <div class="relative">
-                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-lg">badge</span>
-                <input id="fullname" type="text" placeholder="Your full name"
-                  autocomplete="name" required
-                  class="w-full bg-surface-container-highest border border-outline-variant/20 rounded-md py-3.5 pl-12 pr-4 text-on-surface placeholder:text-outline/50 transition-all focus:bg-surface-bright focus:border-primary-dim/30"/>
-              </div>
-            </div>
-
-            <!-- Branch -->
-            <div class="space-y-2">
-              <label class="font-label text-sm font-medium text-on-surface-variant ml-1" for="branch">School Branch</label>
-              <div class="relative">
-                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-lg">location_city</span>
-                <select id="branch" required
-                  class="w-full bg-surface-container-highest border border-outline-variant/20 rounded-md py-3.5 pl-12 pr-10 text-on-surface transition-all focus:bg-surface-bright focus:border-primary-dim/30">
-                  <option value="" disabled selected>Select your branch</option>
-                  <option value="DCM Senior Secondary School, Ferozepur Cantt, Punjab">DCM Senior Secondary School, Ferozepur Cantt, Punjab</option>
-                  <option value="Dass & Brown World School, Ferozepur Cantt, Punjab">Dass &amp; Brown World School, Ferozepur Cantt, Punjab</option>
-                  <option value="DCM International School, Ferozepur City, Punjab">DCM International School, Ferozepur City, Punjab</option>
-                  <option value="DCM Senior Secondary School, Ambala Cantt, Haryana">DCM Senior Secondary School, Ambala Cantt, Haryana</option>
-                  <option value="DCM Presidency School, Ludhiana, Punjab">DCM Presidency School, Ludhiana, Punjab</option>
-                  <option value="DCM Presidency Elementary Campus, Ludhiana, Punjab">DCM Presidency Elementary Campus, Ludhiana, Punjab</option>
-                  <option value="DCM Young Entrepreneurs School, Ludhiana, Punjab">DCM Young Entrepreneurs School, Ludhiana, Punjab</option>
-                  <option value="DCM Land of Gods School, Solan, Himachal Pradesh">DCM Land of Gods School, Solan, Himachal Pradesh</option>
-                  <option value="Dass & Brown Experiential Learning School, Panchkula, Haryana">Dass &amp; Brown Experiential Learning School, Panchkula, Haryana</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- Class -->
-            <div class="space-y-2">
-              <label class="font-label text-sm font-medium text-on-surface-variant ml-1" for="class">Class</label>
-              <div class="relative">
-                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-lg">menu_book</span>
-                <select id="class" required
-                  class="w-full bg-surface-container-highest border border-outline-variant/20 rounded-md py-3.5 pl-12 pr-10 text-on-surface transition-all focus:bg-surface-bright focus:border-primary-dim/30">
-                  <option value="" disabled selected>Select your class</option>
-                  <option value="1">Class 1</option><option value="2">Class 2</option>
-                  <option value="3">Class 3</option><option value="4">Class 4</option>
-                  <option value="5">Class 5</option><option value="6">Class 6</option>
-                  <option value="7">Class 7</option><option value="8">Class 8</option>
-                  <option value="9">Class 9</option><option value="10">Class 10</option>
-                  <option value="11">Class 11</option><option value="12">Class 12</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- Email -->
-            <div class="space-y-2">
-              <label class="font-label text-sm font-medium text-on-surface-variant ml-1" for="email">Email Address</label>
-              <div class="relative">
-                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-lg">alternate_email</span>
-                <input id="email" type="email" placeholder="name@example.com"
-                  autocomplete="email" required
-                  class="w-full bg-surface-container-highest border border-outline-variant/20 rounded-md py-3.5 pl-12 pr-10 text-on-surface placeholder:text-outline/50 transition-all focus:bg-surface-bright focus:border-primary-dim/30"/>
-                <!-- Validation icon slot -->
-                <span id="emailIcon" class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-lg hidden"></span>
-              </div>
-              <p id="emailStatus" class="text-xs ml-1 min-h-[16px]"></p>
-            </div>
-
-            <!-- Password -->
-            <div class="space-y-2">
-              <label class="font-label text-sm font-medium text-on-surface-variant ml-1" for="password">Password</label>
-              <div class="relative">
-                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-lg">shield_lock</span>
-                <input id="password" type="password" placeholder="Min. 6 characters"
-                  autocomplete="new-password" required minlength="6"
-                  class="w-full bg-surface-container-highest border border-outline-variant/20 rounded-md py-3.5 pl-12 pr-4 text-on-surface placeholder:text-outline/50 transition-all focus:bg-surface-bright focus:border-primary-dim/30"/>
-              </div>
-            </div>
-
-            <!-- Show password -->
-            <div class="flex items-center justify-between py-1">
-              <label class="flex items-center gap-3 cursor-pointer group">
-                <div class="relative flex items-center">
-                  <input id="showPassword" type="checkbox"
-                    class="peer appearance-none w-5 h-5 rounded bg-surface-container-highest border border-outline-variant/20 checked:bg-secondary checked:border-secondary transition-all cursor-pointer"/>
-                  <span class="material-symbols-outlined absolute text-on-secondary text-[14px] opacity-0 peer-checked:opacity-100 left-1/2 -translate-x-1/2 pointer-events-none"
-                        style="font-variation-settings:'FILL' 1;">check</span>
-                </div>
-                <span class="text-sm text-on-surface-variant group-hover:text-on-surface transition-colors select-none">Show Password</span>
-              </label>
-              <div class="h-px bg-outline-variant/20 flex-grow mx-4"></div>
-              <span class="text-[10px] uppercase tracking-[0.15em] text-outline/40 font-bold">Encrypted</span>
-            </div>
-
-            <!-- Submit -->
-            <button type="submit" id="signupBtn"
-              class="w-full bg-gradient-to-r from-primary to-secondary py-4 rounded-full text-on-primary-fixed font-headline font-bold text-lg hover:shadow-[0_0_20px_rgba(167,165,255,0.3)] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2">
-              <span id="btnText">Create Account</span>
-              <span id="btnSpinner" class="material-symbols-outlined text-xl hidden animate-spin">progress_activity</span>
-            </button>
-
-          </form>
-
-          <!-- Footer links -->
-          <div class="mt-8 flex flex-col items-center gap-4">
-            <p class="text-sm text-on-surface-variant">
-              Already have an account? <a class="text-primary font-bold hover:text-secondary transition-colors" href="signin.html">Sign In</a>
-            </p>
-            <a href="../index.html"
-               class="w-full bg-surface-container-low border border-outline-variant/15 py-3 rounded-md flex items-center justify-center gap-2 text-sm font-medium hover:bg-surface-container transition-colors active:scale-95">
-              <span class="material-symbols-outlined text-outline text-lg">home</span>
-              <span class="text-outline">Back to Main Page</span>
-            </a>
-          </div>
-
-        </div><!-- /scroll -->
-      </div><!-- /card -->
-    </div>
-  </main>
-
-  <!-- ── Footer ── -->
-  <footer class="fixed bottom-0 w-full flex flex-col md:flex-row justify-center items-center gap-8 py-8 px-4 bg-transparent">
-    <div class="bg-gradient-to-t from-background to-transparent absolute inset-0 -z-10 h-full w-full opacity-80 pointer-events-none"></div>
-    <p class="font-['Inter'] text-[11px] uppercase tracking-[0.2em] font-medium text-[#a3aac4]">
-      © 2024 RiSync. Kinetic Vault Security Protocol Active.
-    </p>
-    <div class="flex gap-6 items-center">
-      <a class="font-['Inter'] text-[11px] uppercase tracking-[0.2em] font-medium text-[#40485d] hover:text-[#34b5fa] transition-colors opacity-70 hover:opacity-100" href="#">Privacy</a>
-      <div class="w-1 h-1 rounded-full bg-outline-variant/30"></div>
-      <a class="font-['Inter'] text-[11px] uppercase tracking-[0.2em] font-medium text-[#40485d] hover:text-[#34b5fa] transition-colors opacity-70 hover:opacity-100" href="#">Terms</a>
-      <div class="w-1 h-1 rounded-full bg-outline-variant/30"></div>
-      <a class="font-['Inter'] text-[11px] uppercase tracking-[0.2em] font-medium text-[#40485d] hover:text-[#34b5fa] transition-colors opacity-70 hover:opacity-100" href="#">Support</a>
-    </div>
-  </footer>
-
-  <!-- ── Smart Match Overlay (assessment → AI match → introduction) ── -->
-  <div id="matchOverlay" class="hidden fixed inset-0 z-[60] kinetic-bg flex items-center justify-center p-4">
-    <div id="matchBody" class="glass-card rounded-xl border border-outline-variant/15 w-full max-w-lg p-8 max-h-[92vh] overflow-y-auto card-scroll shadow-2xl"></div>
+    </main>
   </div>
 
-  <!-- ── Firebase Script ── -->
+  <!-- ===== AUDIO ===== -->
+  <audio id="bg-music" loop preload="none">
+    <source src="../assets/logo.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- ===== FLOATING BUTTONS ===== -->
+  <div class="fixed bottom-8 right-8 flex flex-col gap-3 z-50">
+    <button id="music-btn" title="Toggle Music"
+      class="w-12 h-12 btn-primary-gradient text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform">
+      <span class="material-symbols-outlined text-sm" id="music-icon">volume_up</span>
+    </button>
+    <button id="mic-btn" title="Voice Command"
+      class="w-14 h-14 btn-primary-gradient text-white rounded-full shadow-2xl flex items-center justify-center group hover:w-48 transition-all duration-300 overflow-hidden">
+      <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;" id="mic-icon">mic</span>
+      <span class="font-bold text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity ml-0 group-hover:ml-2">Voice Command</span>
+    </button>
+  </div>
+
+  <!-- ===== CHATBOT POPUP ===== -->
+  <div id="chatbot-popup">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 border border-slate-100 shadow-sm">
+        <img src="https://risync.in/RiSync-Web/assets/logo.png" alt="RiSync" class="w-full h-full object-contain"/>
+      </div>
+      <div>
+        <h5 class="font-black text-indigo-900 text-base editorial-header">Hello! 👋</h5>
+        <p class="text-xs text-on-surface-variant">Your RiSync assistant</p>
+      </div>
+    </div>
+    <p class="text-sm text-on-surface-variant leading-relaxed">Would you like some guidance to get started?</p>
+    <div class="flex gap-2">
+      <button id="startAssistanceBtn" class="btn-primary-gradient text-white rounded-xl px-4 py-2 text-sm font-bold flex-1 shadow-md hover:-translate-y-0.5 transition-transform">Yes, help me</button>
+      <button id="hideChatbotBtn" class="bg-surface-container text-on-surface-variant rounded-xl px-4 py-2 text-sm font-bold hover:bg-surface-container-high transition-colors">Not now</button>
+    </div>
+  </div>
+
+  <!-- ===== RIBOT SETTINGS POPUP ===== -->
+  <div id="ribot-settings-popup">
+    <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 bg-primary rounded-xl flex items-center justify-center">
+          <span class="material-symbols-outlined text-white text-sm">help</span>
+        </div>
+        <h4 class="editorial-header text-xl font-bold text-indigo-900">Help & Support</h4>
+      </div>
+      <button class="w-8 h-8 bg-surface-container rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors text-lg font-bold" id="closeRibotSettingsBtn">&times;</button>
+    </div>
+    <div>
+      <p class="text-sm text-on-surface-variant mb-3 font-medium">Choose a topic to learn more:</p>
+      <div class="ribot-options">
+        <button class="ribot-option-btn" data-option="help">What is RiSync?</button>
+        <button class="ribot-option-btn" data-option="features">Key Features</button>
+        <button class="ribot-option-btn" data-option="contact">Contact Support</button>
+        <button class="ribot-option-btn" data-option="voice">Voice Commands</button>
+      </div>
+    </div>
+    <div id="ribot-response-area" class="ribot-response" style="display:none;">
+      <p id="ribot-response-text"></p>
+    </div>
+  </div>
+
+  <!-- ===== FIREBASE MODULE SCRIPT (unchanged) ===== -->
   <script type="module">
-    import { initializeApp }    from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-    import { getAnalytics }     from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
-    import { getAuth, createUserWithEmailAndPassword, updateProfile, onAuthStateChanged }
-                                from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, collection, getDocs, addDoc, query, where, limit }
-                                from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
-      apiKey:            "AIzaSyBWAwm_TDtD1qXDtjxJu0jrDP45c3p1Bxg",
-      authDomain:        "risync-risync.firebaseapp.com",
-      projectId:         "risync-risync",
-      storageBucket:     "risync-risync.firebasestorage.app",
-      messagingSenderId: "195106250121",
-      appId:             "1:195106250121:web:57b23c5b94d5771995d558",
-      measurementId:     "G-D5WSLQ706Z"
+        apiKey: "AIzaSyBWAwm_TDtD1qXDtjxJu0jrDP45c3p1Bxg",
+        authDomain: "risync-risync.firebaseapp.com",
+        projectId: "risync-risync",
+        storageBucket: "risync-risync.firebasestorage.app",
+        messagingSenderId: "195106250121",
+        appId: "1:195106250121:web:57b23c5b94d5771995d558",
+        measurementId: "G-D5WSLQ706Z"
     };
 
-    const app  = initializeApp(firebaseConfig);
+    const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
     const auth = getAuth(app);
-    const db   = getFirestore(app);
-    let signingUp = false; // stops the auto-redirect while the match flow is running
+    const db = getFirestore(app);
 
-    // If already logged in, skip this page entirely
-    onAuthStateChanged(auth, (user) => {
-      if (user && !signingUp) {
-        saveSession(user);
-        window.location.href = 'content.html';
-      }
-    });
+    let currentUser = null;
 
-    // Save user to localStorage so homepage can read auth state
-    function saveSession(user, extra = {}) {
-      const session = {
-        name:   user.displayName || user.email.split('@')[0],
-        email:  user.email,
-        uid:    user.uid,
-        ...extra
-      };
-      localStorage.setItem('risync_session', JSON.stringify(session));
-      // Also save class separately so NCERT.html can read it instantly
-      if (extra.class) {
-        localStorage.setItem('risync_userClass', String(extra.class));
-        localStorage.setItem('risync_class_' + user.uid, String(extra.class));
-      }
-      if (extra.branch)    localStorage.setItem('risync_branch', extra.branch);
-      if (extra.fullname)  localStorage.setItem('risync_name', extra.fullname);
-      if (extra.photoURL)  localStorage.setItem('risync_photoURL', extra.photoURL);
-    }
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        const USER_ID = user.uid;
 
-    /* ── Utilities ── */
-    function debounce(fn, delay = 500) {
-      let t;
-      return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), delay); };
-    }
+        // ── Firestore-based status tracking ──
+        const statusRef = doc(db, 'monitoring', USER_ID);
+        setDoc(statusRef, {
+          state: 'online',
+          current_page: 'content',
+          tab_visible: true,
+          last_seen: serverTimestamp()
+        }, { merge: true });
 
-    async function fetchWithTimeout(resource, options = {}) {
-      const { timeout = 6000 } = options;
-      const controller = new AbortController();
-      const id = setTimeout(() => controller.abort(), timeout);
-      try {
-        const response = await fetch(resource, { ...options, signal: controller.signal });
-        return response;
-      } finally { clearTimeout(id); }
-    }
-
-    function isEmailFormatValid(email) {
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    }
-
-    async function hasMXRecord(domain) {
-      try {
-        const res = await fetchWithTimeout(`https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=MX`, { timeout: 6000 });
-        if (!res.ok) return false;
-        const data = await res.json();
-        return Array.isArray(data.Answer) && data.Answer.length > 0;
-      } catch { return true; }
-    }
-
-    async function isEmailDomainValid(email) {
-      if (!isEmailFormatValid(email)) return false;
-      const domain = email.split("@")[1].toLowerCase();
-      const lastDot = domain.lastIndexOf(".");
-      if (lastDot === -1 || domain.length - lastDot - 1 < 2) return false;
-      return await hasMXRecord(domain);
-    }
-
-    /* ══ Smart Study Match ══ */
-    // Optional: URL of YOUR server/Cloud Function that calls Claude and returns {summary, intro, icebreakers[]}.
-    // Never put an API key in this file. Empty = built-in local analysis is used.
-    const MATCH_AI_ENDPOINT = "";
-    const SUBJ = ["Maths","Science","English","Hindi","Social Studies","Computer","Coding","Art"];
-    const QS = [
-      { id:"role",   t:"What brings you to RiSync?", o:[["learn","I want help"],["teach","I want to help others"],["both","Both"]] },
-      { id:"needs",  t:"Which subjects do you want help with?", m:1, o:SUBJ },
-      { id:"strong", t:"Which subjects are you strong in?", m:1, o:SUBJ },
-      { id:"style",  t:"How do you learn best?", o:[["visual","Pictures & videos"],["talk","Talking it out"],["practice","Practice questions"],["read","Reading"]] },
-      { id:"slots",  t:"When are you usually free?", m:1, o:["Weekday evenings","Weekend mornings","Weekend afternoons","Weekend evenings"] },
-      { id:"langs",  t:"Which languages are you comfortable in?", m:1, o:["English","Hindi","Punjabi"] },
-      { id:"vibe",   t:"What's your study vibe?", o:[["calm","Calm & patient"],["fun","Fun & energetic"],["focus","Focused & quick"]] },
-    ];
-    const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-    const val = x => Array.isArray(x) ? x[0] : x, lab = x => Array.isArray(x) ? x[1] : x;
-    const arr = a => Array.isArray(a) ? a : [];
-    const inter = (a, b) => arr(a).filter(x => arr(b).includes(x));
-    const BTN = "bg-gradient-to-r from-primary to-secondary text-black font-headline font-bold rounded-full";
-
-    /* 1 — Assessment (every question optional; resolves null if skipped entirely) */
-    function askQuestions(body) {
-      return new Promise(resolve => {
-        const ans = {}; let i = -1;
-        function draw() {
-          if (i < 0) {
-            body.innerHTML = `<div class="text-center space-y-4">
-              <div class="inline-flex w-16 h-16 rounded-full bg-surface-container-highest items-center justify-center border border-outline-variant/20"><span class="material-symbols-outlined text-primary text-3xl">diversity_3</span></div>
-              <h2 class="font-headline text-2xl font-bold">Find your study match</h2>
-              <p class="text-sm text-on-surface-variant">7 quick taps and our AI pairs you with the best study partner. It's optional, but your answers make the match much better.</p>
-              <button id="mgo" class="w-full py-3.5 ${BTN}">Start (1 min)</button>
-              <button id="mskip" class="text-sm text-outline hover:text-on-surface">Skip for now</button></div>`;
-            body.querySelector("#mgo").onclick = () => { i = 0; draw(); };
-            body.querySelector("#mskip").onclick = () => resolve(null);
-            return;
-          }
-          const q = QS[i], cur = ans[q.id];
-          body.innerHTML = `<div class="h-1 bg-white/10 rounded-full mb-6"><div class="h-1 rounded-full bg-gradient-to-r from-primary to-secondary" style="width:${(i+1)/QS.length*100}%"></div></div>
-            <h2 class="font-headline text-xl font-bold">${q.t}</h2>
-            <p class="text-xs text-outline mt-1 mb-5">${q.m ? "Pick as many as you like" : "Pick one"} · or tap Next to skip this one</p>
-            <div class="flex flex-wrap gap-2 mb-8">${q.o.map(x => `<button type="button" class="chip ${(q.m ? arr(cur).includes(val(x)) : cur === val(x)) ? "on" : ""}" data-v="${esc(val(x))}">${esc(lab(x))}</button>`).join("")}</div>
-            <div class="flex items-center justify-between">
-              <button id="mskip" class="text-sm text-outline hover:text-on-surface">Skip all</button>
-              <button id="mnext" class="px-8 py-3 ${BTN}">${i === QS.length - 1 ? "Find my match" : "Next"}</button></div>`;
-          body.querySelectorAll(".chip").forEach(c => c.onclick = () => {
-            const v = c.dataset.v;
-            if (q.m) { const a = arr(ans[q.id]); ans[q.id] = a.includes(v) ? a.filter(x => x !== v) : [...a, v]; c.classList.toggle("on"); }
-            else { const was = ans[q.id] === v; body.querySelectorAll(".chip").forEach(o => o.classList.remove("on")); if (was) delete ans[q.id]; else { ans[q.id] = v; c.classList.add("on"); } }
-          });
-          body.querySelector("#mskip").onclick = () => resolve(null);
-          body.querySelector("#mnext").onclick = () => {
-            if (++i < QS.length) draw();
-            else resolve(Object.fromEntries(Object.entries(ans).filter(([, v]) => v && (!Array.isArray(v) || v.length))));
-          };
-        }
-        draw();
-      });
-    }
-
-    /* 2 — Save a PUBLIC-SAFE profile (first name, class, school, preferences; never email) */
-    async function saveProfile(user, base, answers) {
-      const prof = {
-        uid: user.uid, firstName: base.fullname.split(/\s+/)[0], class: Number(base.class), branch: base.branch,
-        answers: answers || {}, assessed: !!answers && Object.keys(answers).length > 0,
-        status: "open", updatedAt: new Date().toISOString()
-      };
-      await setDoc(doc(db, "matchProfiles", user.uid), prof);
-      await setDoc(doc(db, "users", user.uid), { matchAssessed: prof.assessed }, { merge: true });
-      return prof;
-    }
-
-    /* 3 — Scoring. Skipped answers are ignored (not punished); class + school always count. */
-    function score(me, o) {
-      const A = me.answers, B = o.answers, why = []; let pts = 0, max = 0;
-      const add = (w, v) => { max += w; pts += w * v; };
-      const d = Math.abs(me.class - o.class);
-      add(15, [1, .8, .55, .3][d] ?? 0);
-      if (d === 0) why.push("You're in the same class"); else if (d === 1) why.push("You're just one class apart");
-      add(5, me.branch === o.branch ? 1 : 0);
-      if (me.branch === o.branch) why.push("You study at the same school");
-      const a2b = inter(A.needs, B.strong), b2a = inter(B.needs, A.strong), parts = [];
-      if (arr(A.needs).length) parts.push(a2b.length / A.needs.length);
-      if (arr(B.needs).length) parts.push(b2a.length / B.needs.length);
-      if (parts.length) add(40, parts.reduce((x, y) => x + y) / parts.length);
-      a2b.forEach(s => why.unshift(`${o.firstName} is strong in ${s}, which you want help with`));
-      b2a.forEach(s => why.unshift(`You can help ${o.firstName} with ${s}`));
-      if (arr(A.slots).length && arr(B.slots).length) {
-        const sl = inter(A.slots, B.slots); add(20, Math.min(1, sl.length / 2));
-        if (sl.length) why.push(`You're both free on ${sl[0].toLowerCase()}`);
-      }
-      if (arr(A.langs).length && arr(B.langs).length) {
-        const lg = inter(A.langs, B.langs); add(10, lg.length ? 1 : 0);
-        if (lg.length) why.push(`You both speak ${lg.join(" & ")}`);
-      }
-      if (A.style && B.style) add(5, A.style === B.style ? 1 : .4);
-      if (A.vibe && B.vibe) add(5, A.vibe === B.vibe ? 1 : .5);
-      if (A.role && B.role) add(10, A.role === "both" || B.role === "both" || A.role !== B.role ? 1 : .2);
-      return { pct: Math.round(pts / max * 100), why: why.slice(0, 5), topic: a2b[0] || b2a[0] || "" };
-    }
-
-    async function findMatch(me) {
-      const snap = await getDocs(query(collection(db, "matchProfiles"), where("status", "==", "open"), limit(60)));
-      let best = null;
-      snap.forEach(d => {
-        const o = d.data(); if (o.uid === me.uid) return;
-        const s = score(me, o); if (!best || s.pct > best.pct) best = { other: o, ...s };
-      });
-      return best && best.pct >= 40 ? best : null;
-    }
-
-    /* 4 — AI analysis + introduction (server AI if configured, else local fallback) */
-    async function analyze(me, m) {
-      const o = m.other;
-      const local = {
-        summary: `${m.pct}% match. ${m.why[0] || "You're at a similar level, so you can learn side by side."}`,
-        intro: `RiSync thinks ${me.firstName} (Class ${me.class}) and ${o.firstName} (Class ${o.class}) will make great study partners. ${m.why[0] ? m.why[0] + "." : ""} Say hi and plan a friendly 20-minute first session!`,
-        icebreakers: [
-          m.topic ? `What's one ${m.topic} topic that feels confusing right now?` : "What's one subject you'd love to get better at?",
-          "What's your favourite trick for remembering things?",
-          "Which day this week works for a 20-minute study session?"
-        ]
-      };
-      if (!MATCH_AI_ENDPOINT) return local;
-      try {
-        const pub = p => ({ firstName: p.firstName, class: p.class, answers: p.answers });
-        const r = await fetchWithTimeout(MATCH_AI_ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ a: pub(me), b: pub(o), score: m.pct, reasons: m.why }), timeout: 15000 });
-        if (r.ok) { const j = await r.json(); return { ...local, ...j }; }
-      } catch (e) { console.warn("AI endpoint unavailable, using local analysis", e); }
-      return local;
-    }
-
-    /* 5 — Align the two students: one shared match record, both profiles marked matched */
-    async function createMatch(me, m, ai) {
-      const o = m.other;
-      const ref = await addDoc(collection(db, "matches"), {
-        members: [me.uid, o.uid], names: { [me.uid]: me.firstName, [o.uid]: o.firstName },
-        score: m.pct, reasons: m.why, summary: ai.summary, intro: ai.intro, icebreakers: ai.icebreakers,
-        status: "introduced", helpEnabled: true, createdAt: new Date().toISOString()
-      });
-      await setDoc(doc(db, "matchProfiles", me.uid), { status: "matched", matchId: ref.id }, { merge: true });
-      await setDoc(doc(db, "matchProfiles", o.uid),  { status: "matched", matchId: ref.id }, { merge: true });
-      localStorage.setItem("risync_matchId", ref.id);
-    }
-
-    /* 6 — Result screen */
-    function showDone(body, r, assessed) {
-      return new Promise(resolve => {
-        const go = `<button id="mdone" class="w-full mt-6 py-3.5 ${BTN}">Enter my portal</button>`;
-        const tip = assessed ? "" : `<p class="text-xs text-outline mt-4">You skipped the questions, so this uses only your class and school. Answering them later gives a sharper match.</p>`;
-        if (!r) {
-          body.innerHTML = `<div class="text-center space-y-3"><span class="material-symbols-outlined text-secondary text-5xl">hourglass_top</span>
-            <h2 class="font-headline text-2xl font-bold">You're on the list!</h2>
-            <p class="text-sm text-on-surface-variant">No one compatible has joined yet. As soon as a great match appears, we'll introduce you both.</p>${tip}${go}</div>`;
-        } else {
-          const { me, m, ai } = r, o = m.other, av = (n, c) => `<div class="w-14 h-14 rounded-full bg-${c}/20 border border-${c}/40 flex items-center justify-center font-headline font-black text-xl text-${c}">${esc(n[0])}</div>`;
-          body.innerHTML = `<div class="text-center"><div class="flex items-center justify-center gap-3 mb-4">${av(me.firstName, "primary")}<span class="material-symbols-outlined text-secondary">sync_alt</span>${av(o.firstName, "secondary")}</div>
-            <p class="text-xs uppercase tracking-widest text-secondary font-bold">${m.pct}% match</p>
-            <h2 class="font-headline text-2xl font-bold">Meet ${esc(o.firstName)}</h2>
-            <p class="text-sm text-on-surface-variant">Class ${esc(o.class)} · ${esc(String(o.branch).split(",")[0])}</p></div>
-            <ul class="mt-5 space-y-2 text-sm">${m.why.map(w => `<li class="flex gap-2"><span class="material-symbols-outlined text-emerald-400 text-lg">check_circle</span>${esc(w)}</li>`).join("")}</ul>
-            <div class="mt-5 p-4 rounded-lg bg-surface-container-highest border border-outline-variant/20 text-sm text-on-surface-variant">${esc(ai.intro)}</div>
-            <p class="mt-5 text-xs uppercase tracking-widest text-outline font-bold">Conversation starters</p>
-            <ul class="mt-2 space-y-1.5 text-sm text-on-surface-variant list-disc pl-5">${arr(ai.icebreakers).map(x => `<li>${esc(x)}</li>`).join("")}</ul>${tip}${go}`;
-        }
-        body.querySelector("#mdone").onclick = () => resolve();
-      });
-    }
-
-    async function runMatchFlow(user, base) {
-      const overlay = document.getElementById("matchOverlay"), body = document.getElementById("matchBody");
-      overlay.classList.remove("hidden");
-      try {
-        const answers = await askQuestions(body);
-        body.innerHTML = `<div class="text-center py-10"><span class="material-symbols-outlined text-primary text-5xl animate-spin">progress_activity</span><p class="mt-4 text-sm text-on-surface-variant">AI is finding your best match…</p></div>`;
-        const me = await saveProfile(user, base, answers);
-        const m = await findMatch(me);
-        if (!m) return await showDone(body, null, me.assessed);
-        const ai = await analyze(me, m);
-        await createMatch(me, m, ai);
-        await showDone(body, { me, m, ai }, me.assessed);
-      } catch (e) { console.error("Match flow failed (signup still succeeded):", e); }
-    }
-
-    /* ── DOM refs ── */
-    const emailInput  = document.getElementById("email");
-    const emailStatus = document.getElementById("emailStatus");
-    const emailIcon   = document.getElementById("emailIcon");
-    const signupBtn   = document.getElementById("signupBtn");
-    const btnText     = document.getElementById("btnText");
-    const btnSpinner  = document.getElementById("btnSpinner");
-
-    /* ── Email status UI ── */
-    function showEmailStatus(msg, ok) {
-      emailStatus.textContent = msg;
-      emailStatus.className = "text-xs ml-1 min-h-[16px] " + (ok ? "text-emerald-400" : "text-error");
-      emailInput.classList.toggle("border-emerald-400/40", ok);
-      emailInput.classList.toggle("border-error/40", !ok);
-      emailIcon.textContent = ok ? "check_circle" : "cancel";
-      emailIcon.className = "material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-lg " + (ok ? "text-emerald-400" : "text-error");
-    }
-    function clearEmailStatus() {
-      emailStatus.textContent = "";
-      emailStatus.className = "text-xs ml-1 min-h-[16px]";
-      emailInput.classList.remove("border-emerald-400/40", "border-error/40");
-      emailIcon.className = "material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-lg hidden";
-    }
-
-    /* ── Loading helpers ── */
-    function setLoading(on) {
-      signupBtn.disabled = on;
-      btnText.textContent = on ? "Creating Account…" : "Create Account";
-      btnSpinner.classList.toggle("hidden", !on);
-    }
-
-    /* ── Shake card ── */
-    function shakeCard() {
-      const card = document.getElementById("signupCard");
-      card.classList.add("shake");
-      card.addEventListener("animationend", () => card.classList.remove("shake"), { once: true });
-    }
-
-    /* ── Live email validation ── */
-    emailInput.addEventListener("input", debounce(async () => {
-      const email = emailInput.value.trim().toLowerCase();
-      if (!email) { clearEmailStatus(); signupBtn.disabled = false; return; }
-      if (!isEmailFormatValid(email)) {
-        showEmailStatus("That doesn't look like an email. Try name@school.edu.in", false);
-        signupBtn.disabled = true; return;
-      }
-      signupBtn.disabled = true;
-      showEmailStatus("Checking domain…", false);
-      const ok = await isEmailDomainValid(email);
-      if (ok) { showEmailStatus("Domain can receive emails ✓", true); signupBtn.disabled = false; }
-      else    { showEmailStatus("This domain can't receive mail. Try your school email.", false); signupBtn.disabled = true; }
-    }, 600));
-
-    /* ── Show password ── */
-    document.getElementById("showPassword").addEventListener("change", function () {
-      document.getElementById("password").type = this.checked ? "text" : "password";
-    });
-
-    /* ── Pre-select class from URL ── */
-    document.addEventListener("DOMContentLoaded", () => {
-      const params = new URLSearchParams(window.location.search);
-      const sel = params.get("class");
-      if (sel) {
-        const opt = document.querySelector(`#class option[value="${sel}"]`);
-        if (opt) opt.selected = true;
-      }
-    });
-
-    /* ── Form submission ── */
-    document.getElementById("signupForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const fullname  = document.getElementById("fullname").value.trim();
-      const branch    = document.getElementById("branch").value;
-      const userClass = document.getElementById("class").value;
-      const email     = emailInput.value.trim().toLowerCase();
-      const password  = document.getElementById("password").value;
-
-      if (!fullname || !branch || !userClass || !email || !password) {
-        alert("Please fill in all fields."); return;
-      }
-      if (password.length < 6) {
-        alert("Password must be at least 6 characters."); return;
-      }
-
-      setLoading(true);
-
-      const mxOk = await isEmailDomainValid(email);
-      if (!mxOk) {
-        showEmailStatus("This email domain isn't valid.", false);
-        setLoading(false); shakeCard(); return;
-      }
-
-      try {
-        signingUp = true;
-        const cred = await createUserWithEmailAndPassword(auth, email, password);
-        await updateProfile(cred.user, { displayName: fullname });
-
-        const now = new Date().toISOString();
-        const userDoc = {
-          // Core identity
-          uid:          cred.user.uid,
-          fullname:     fullname,
-          displayName:  fullname,
-          email:        email,
-          // Academic info
-          class:        userClass,      // numeric string e.g. "7"
-          grade:        userClass,      // alias so both field names work
-          branch:       branch,
-          school:       branch,         // alias
-          // Timestamps
-          createdAt:    now,
-          updatedAt:    now,
-          lastLoginAt:  now,
-          // Progress defaults (so NCERT.html never reads undefined)
-          ncertProgress:          0,
-          ncertTotalPoints:       0,
-          ncertQuizzesAttempted:  0,
-          ncertCompletedSubjects: 0,
-          ncertAverageScore:      0,
-          ncertTotalLessons:      0,
-          // Account meta
-          role:         "student",
-          isActive:     true,
-          photoURL:     cred.user.photoURL || null,
-          provider:     "email",
-        };
-
-        await setDoc(doc(db, "users", cred.user.uid), userDoc);
-
-        // Save everything to localStorage so other pages can read without Firestore
-        saveSession(cred.user, {
-          class:    userClass,
-          grade:    userClass,
-          branch:   branch,
-          fullname: fullname,
+        // Mark offline on page unload (best-effort with Firestore)
+        window.addEventListener('beforeunload', () => {
+          navigator.sendBeacon && navigator.sendBeacon('/dev/null'); // keep event loop alive
+          setDoc(statusRef, { state: 'offline', last_seen: serverTimestamp() }, { merge: true });
         });
 
-        await runMatchFlow(cred.user, { fullname, class: userClass, branch });
-        window.location.href = "content.html";
-      } catch (err) {
-        console.error(err);
-        signingUp = false;
-        setLoading(false);
-        shakeCard();
-        if (err.code === "auth/email-already-in-use") {
-          showEmailStatus("This email is already registered. Sign in instead.", false);
-        } else if (err.code === "auth/weak-password") {
-          alert("Password is too weak. Please use a stronger one.");
-        } else {
-          alert("Error creating account: " + err.message);
+        // ── Firestore-based activity logging ──
+        const logsRef = collection(db, 'monitoring', USER_ID, 'logs');
+
+        async function log(action, details) {
+          try {
+            await addDoc(logsRef, { action, details, timestamp: serverTimestamp() });
+          } catch (e) { /* non-critical */ }
+          const lsData = JSON.parse(localStorage.getItem('risync_logs') || "[]");
+          lsData.push({ action, details, time: Date.now() });
+          localStorage.setItem('risync_logs', JSON.stringify(lsData.slice(-50)));
         }
+        log("PAGE_VIEW", "Opened Content Page");
+
+        document.addEventListener("visibilitychange", () => {
+          setDoc(statusRef, { tab_visible: !document.hidden, last_seen: serverTimestamp() }, { merge: true });
+          log(document.hidden ? "TAB_HIDDEN" : "TAB_FOCUS", document.hidden ? "User switched tabs" : "User returned");
+        });
+
+        let maxScroll = 0;
+        window.addEventListener("scroll", () => {
+          const scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
+          if (scrollPercent > maxScroll + 10) {
+            maxScroll = scrollPercent;
+            setDoc(statusRef, { scroll_depth: maxScroll }, { merge: true });
+            if (maxScroll % 25 === 0) log("READING_PROGRESS", `Scrolled to ${maxScroll}%`);
+          }
+        });
+
+        document.addEventListener("click", (e) => {
+          const target = e.target.closest('button, a, video, input');
+          if (target) {
+            const id = target.id || target.className || target.innerText.substring(0, 20);
+            log("INTERACTION", `Clicked: ${id}`);
+          }
+        });
+
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const userData = docSnap.data();
+          const welcomeMsg = document.getElementById('welcome-message');
+          if (welcomeMsg) welcomeMsg.textContent = userData.fullname || "Welcome back";
+          if (userData.branch) document.getElementById('displayBranch').innerText = userData.branch;
+          if (userData.todos) renderTodos(userData.todos);
+
+          // Read NCERT progress — prefer root-doc fields (written by updated NCERT),
+          // fall back to computing from the subcollection for users who haven't opened NCERT yet.
+          console.log('[RiSync] userData keys:', Object.keys(userData));
+          console.log('[RiSync] ncertProgress raw:', userData.ncertProgress, '| totalPoints raw:', userData.ncertTotalPoints);
+          if (typeof userData.ncertProgress === 'number') {
+            // Fast path: fields already written by NCERT
+            updateProgressUI(userData.ncertProgress);
+            renderSubjectStats({
+              ncertPoints:   userData.ncertTotalPoints       || 0,
+              ncertQuizzes:  userData.ncertQuizzesAttempted  || 0,
+              ncertSubjDone: userData.ncertCompletedSubjects || 0,
+              ncertAvg:      userData.ncertAverageScore      || 0,
+              ncertProgress: userData.ncertProgress          || 0,
+              ncertTotal:    userData.ncertTotalLessons       || 0
+            });
+          } else {
+            // Fallback: compute from subcollection (pre-update data)
+            try {
+              const classNum  = userData.class || userData.grade || userData.className || '6';
+              console.log('[RiSync] Fetching subcollection for class:', classNum, '| uid:', user.uid);
+              const ncertRef  = doc(db, 'users', user.uid, 'ncert', `class${classNum}progress`);
+              const ncertSnap = await getDoc(ncertRef);
+              console.log('[RiSync] Subcollection exists:', ncertSnap.exists());
+              if (ncertSnap.exists()) {
+                console.log('[RiSync] Subcollection data keys:', Object.keys(ncertSnap.data()));
+                console.log('[RiSync] performance:', JSON.stringify(ncertSnap.data().performance).substring(0, 200));
+                const ncertData    = ncertSnap.data();
+                const performance  = ncertData.performance || {};
+                const subjects     = typeof ncertSubjects !== 'undefined' ? ncertSubjects : [];
+                const totalLessons = subjects.reduce((sum, s) => sum + s.chapters.length, 0) || 1;
+                let completedQuizzes = 0, totalScore = 0, completedSubjects = 0;
+                for (const subjectKey in performance) {
+                  let allDone = true;
+                  for (const lessonIdx in performance[subjectKey]) {
+                    const perf = performance[subjectKey][lessonIdx];
+                    if (perf && typeof perf.score === 'number' && !isNaN(perf.score)) {
+                      completedQuizzes++;
+                      totalScore += perf.score;
+                    } else if (!perf) { allDone = false; }
+                  }
+                  if (allDone) completedSubjects++;
+                }
+                const avg      = completedQuizzes > 0 ? totalScore / completedQuizzes : 0;
+                const progress = Math.round((completedQuizzes / totalLessons) * 100);
+                updateProgressUI(progress);
+                renderSubjectStats({
+                  ncertPoints:   ncertData.totalPoints || 0,
+                  ncertQuizzes:  completedQuizzes,
+                  ncertSubjDone: completedSubjects,
+                  ncertAvg:      avg,
+                  ncertProgress: progress,
+                  ncertTotal:    totalLessons
+                });
+              } else {
+                updateProgressUI(0);
+                renderSubjectStats({});
+              }
+            } catch (e) {
+              console.warn('NCERT progress fallback failed:', e);
+              updateProgressUI(0);
+              renderSubjectStats({});
+            }
+          }
+        }
+      } else {
+        window.location.href = "signin";
       }
     });
+
+    const logoutBtn = document.getElementById('logoutButton');
+    if (logoutBtn) logoutBtn.addEventListener('click', () => signOut(auth).then(() => window.location.href = "signin"));
+    const logoutBtnMenu = document.getElementById('logoutButtonMenu');
+    if (logoutBtnMenu) logoutBtnMenu.addEventListener('click', () => signOut(auth).then(() => window.location.href = "signin"));
+
+    const todoInput = document.getElementById('todo-input');
+    const addTodoBtn = document.getElementById('add-todo-btn');
+    const todoList = document.getElementById('todo-list');
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+
+    function getCurrentTodos() {
+      const todos = [];
+      todoList.querySelectorAll('li').forEach(li => {
+        todos.push({ text: li.querySelector('span').textContent, completed: li.classList.contains('completed') });
+      });
+      return todos;
+    }
+
+    async function saveTodosToFirestore() {
+        if (!currentUser) return;
+        const todos = getCurrentTodos();
+        const totalTasks = todos.length;
+        const completedTasks = todos.filter(t => t.completed).length;
+        const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+        try {
+            await updateDoc(doc(db, "users", currentUser.uid), { todos, progress });
+            updateProgressUI(progress);
+        } catch (e) { console.error("Error saving todos:", e); }
+    }
+
+    function updateProgressUI(progress) {
+        progressBar.style.width = `${progress}%`;
+        progressText.textContent = `${progress}% Complete`;
+        const el = document.getElementById('progress-percent');
+        if (el) el.textContent = `${progress}%`;
+        const circle = document.getElementById('progress-circle');
+        if (circle) {
+            const circumference = 169.6;
+            circle.style.strokeDashoffset = circumference - (progress / 100) * circumference;
+        }
+    }
+
+    function renderTodos(todos) {
+        todoList.innerHTML = '';
+        todos.forEach(todo => addTodoToDOM(todo.text, todo.completed, false));
+    }
+
+    function addTodoToDOM(task, isCompleted = false, shouldSave = true) {
+      const li = document.createElement('li');
+      const span = document.createElement('span');
+      span.textContent = task;
+      li.appendChild(span);
+      const removeBtn = document.createElement('button');
+      removeBtn.classList.add('remove-btn');
+      removeBtn.innerHTML = '&times;';
+      removeBtn.addEventListener('click', (e) => { e.stopPropagation(); li.remove(); saveTodosToFirestore(); });
+      li.appendChild(removeBtn);
+      if (isCompleted) li.classList.add('completed');
+      li.addEventListener('click', () => { li.classList.toggle('completed'); saveTodosToFirestore(); });
+      todoList.appendChild(li);
+      if (shouldSave) saveTodosToFirestore();
+    }
+
+    addTodoBtn.addEventListener('click', () => {
+        const task = todoInput.value.trim();
+        if (task) { addTodoToDOM(task, false, true); todoInput.value = ''; }
+    });
+    todoInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addTodoBtn.click(); });
+
+    window.risyncAuth = auth;
+    window.risyncDb = db;
+  </script>
+
+  <!-- ===== NON-MODULE SCRIPT ===== -->
+  <script>
+    // Sidebar toggle
+    const menuToggle = document.querySelector('.menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const mainWrapper = document.querySelector('.main-wrapper');
+    const overlay = document.getElementById('overlay');
+
+    function toggleMenu() {
+      sidebar.classList.toggle('open');
+      mainWrapper.classList.toggle('sidebar-open');
+    }
+    if (menuToggle) menuToggle.addEventListener('click', toggleMenu);
+    if (overlay) overlay.addEventListener('click', toggleMenu);
+
+    // Settings dropdown
+    const settingsIcon = document.getElementById('settingsIcon');
+    const settingsMenu = document.getElementById('settingsMenu');
+    settingsIcon.addEventListener('click', (e) => { e.stopPropagation(); settingsMenu.classList.toggle('active'); });
+    document.addEventListener('click', (e) => {
+      if (!settingsMenu.contains(e.target) && e.target !== settingsIcon) settingsMenu.classList.remove('active');
+    });
+
+    // Profile image
+    const profileIcon = document.getElementById('profileIcon');
+    const profileUpload = document.getElementById('profileUpload');
+    function loadProfileImage() {
+      const stored = localStorage.getItem('profileImage');
+      if (stored) profileIcon.src = stored;
+    }
+    profileIcon.addEventListener('click', () => profileUpload.click());
+    profileUpload.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => { profileIcon.src = e.target.result; localStorage.setItem('profileImage', e.target.result); };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Nav search filter
+    const searchInput = document.getElementById('searchInput');
+    const navButtons = document.querySelectorAll('.nav-menu .nav-button');
+    if (searchInput) {
+      searchInput.addEventListener('keyup', (event) => {
+        const term = event.target.value.toLowerCase();
+        navButtons.forEach(btn => {
+          btn.style.display = btn.textContent.toLowerCase().includes(term) ? 'flex' : 'none';
+        });
+      });
+    }
+
+    // Music toggle — updated to use Material Symbols textContent
+    const musicBtn = document.getElementById('music-btn');
+    const musicIcon = document.getElementById('music-icon');
+    const bgMusic = document.getElementById('bg-music');
+    let isPlaying = false;
+
+    function setMusicIcon(playing) {
+      musicIcon.textContent = playing ? 'volume_off' : 'volume_up';
+    }
+
+    musicBtn.addEventListener('click', () => {
+      if (isPlaying) {
+        bgMusic.pause();
+        setMusicIcon(false);
+      } else {
+        bgMusic.play().catch(() => {});
+        setMusicIcon(true);
+      }
+      isPlaying = !isPlaying;
+    });
+
+    // Voice commands
+    let isListening = false;
+    const micBtn = document.getElementById('mic-btn');
+
+    micBtn.addEventListener('click', () => {
+      if (!isListening) startVoiceRecognition();
+      else stopVoiceRecognition();
+    });
+
+    function startVoiceRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) { alert('Speech Recognition not supported. Try Chrome or Edge.'); return; }
+      const recognition = new SpeechRecognition();
+      if (window.RiWake) RiWake.pause(); // free the mic for the command
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+      micBtn.classList.add('active');
+      isListening = true;
+      recognition.onresult = (event) => {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) transcript += event.results[i][0].transcript;
+        if (event.results[event.results.length - 1].isFinal) processVoiceCommand(transcript.toLowerCase());
+      };
+      recognition.onerror = (event) => {
+        showVoiceAlert('Error', event.error);
+        micBtn.classList.remove('active'); isListening = false;
+      };
+      recognition.onend = () => { micBtn.classList.remove('active'); isListening = false; if (window.RiWake) RiWake.resume(); };
+      try { recognition.start(); } catch(e) {}
+    }
+
+    function stopVoiceRecognition() { isListening = false; micBtn.classList.remove('active'); }
+
+    function showVoiceAlert(title, message) {
+      const popup = document.createElement('div');
+      popup.style.cssText = 'position:fixed;top:20px;right:20px;background:white;padding:14px 18px;border-radius:12px;box-shadow:0 4px 20px rgba(21,21,125,0.15);z-index:10000;max-width:300px;font-family:Inter,sans-serif;font-size:13px;border:1.5px solid #c7c5d4;';
+      popup.innerHTML = `<strong>${title}</strong><br>${message}`;
+      document.body.appendChild(popup);
+      setTimeout(() => popup.remove(), 3000);
+    }
+
+    function processVoiceCommand(command) {
+      const navCommands = {
+        'chat': 'RiSync-CHAT', 'monitor': 'monitor', 'books': 'books',
+        'calendar': 'calendar', 'database': 'database', 'subjects': 'subjects',
+        'ncert': 'ncert', 'whiteboard': 'whiteboard', 'calculator': 'calculator',
+        'bot': 'gpt', 'leaderboard': 'leaderboard', 'ppt': 'ppt', 'design': 'design'
+      };
+      for (let [key, url] of Object.entries(navCommands)) {
+        if (command.includes(key)) { showVoiceAlert('Navigating', `Opening ${key}…`); window.location.href = url; return; }
+      }
+      if (command.includes('ribot') || command.includes('help')) { document.getElementById('ribotSettingsBtn').click(); return; }
+      if (command.includes('profile')) { document.getElementById('profileBtn').click(); return; }
+      if (command.includes('music') || command.includes('audio')) { musicBtn.click(); return; }
+      if (command.includes('logout') || command.includes('sign out')) {
+        if (confirm('Are you sure you want to logout?')) document.getElementById('logoutButton').click();
+        return;
+      }
+      if (command.includes('progress')) {
+        const pt = document.getElementById('progress-text').textContent;
+        showVoiceAlert('Your Progress', pt);
+        window.speechSynthesis.speak(new SpeechSynthesisUtterance(`Your current ${pt}`));
+        return;
+      }
+      if (command.includes('add task') || command.includes('new task')) {
+        showVoiceAlert('Add Task', 'Please type your task in the input box');
+        document.getElementById('todo-input').focus();
+        return;
+      }
+      showVoiceAlert('Not Recognized', `"${command}" — say "help" for commands`);
+    }
+
+    // "Hey RiSync" wake word: always listening in the background, no button needed. Says the phrase -> voice command starts.
+    window.RiWake = (function () {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) return { pause() {}, resume() {} };
+      // Matches how speech engines usually write it: "hey risync", "hey rise sync", "hi ri sync", "okay rice sink"...
+      const WAKE = /\b(?:hey|hi|hello|ok|okay)\s*(?:r\s?i|rye|rai|ray|are\s?i|rise|rice|risk|ris|rhi)\s*(?:sync|sink|zinc|sing|sinc|cinc)\b/i;
+      let rec = null, paused = false, busy = false, blocked = false, warned = false, delay = 300, ctx = null;
+
+      function ui() { micBtn.classList.toggle('wake-on', !!rec && !paused); } // green dot on the mic = "listening for Hey RiSync"
+      function chime() {
+        try {
+          ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+          if (ctx.state === 'suspended') ctx.resume();
+          const o = ctx.createOscillator(), g = ctx.createGain();
+          o.frequency.value = 880; g.gain.setValueAtTime(.15, ctx.currentTime);
+          g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + .25);
+          o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime + .25);
+        } catch (e) {}
+      }
+      function stopRec() {
+        if (!rec) return;
+        const r = rec; rec = null; r.onend = null; r.onresult = null; r.onerror = null;
+        try { r.abort(); } catch (e) {}
+        ui();
+      }
+      function begin() {
+        if (paused || busy || blocked || rec || document.hidden) return;
+        rec = new SR();
+        rec.continuous = true; rec.interimResults = true; rec.lang = 'en-IN';
+        rec.onresult = (e) => {
+          if (busy) return;
+          let t = '';
+          for (let i = e.resultIndex; i < e.results.length; i++) if (e.results[i].isFinal) t += e.results[i][0].transcript + ' ';
+          const m = t.match(WAKE);
+          if (m) wake(t.slice(m.index + m[0].length).replace(/^[\s,.!?]+/, '').trim());
+        };
+        rec.onerror = (e) => {
+          if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+            blocked = true; stopRec();
+            if (!warned) { warned = true; showVoiceAlert('Hey RiSync', 'Allow the microphone (or tap anywhere once) to use "Hey RiSync".'); }
+            // some browsers only allow the mic after a tap: retry on the next touch/click/key
+            const retry = () => { blocked = false; begin(); };
+            ['pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, retry, { once: true }));
+          } else if (e.error !== 'no-speech' && e.error !== 'aborted') delay = 3000; // e.g. network: back off
+        };
+        rec.onend = () => { rec = null; ui(); const d = delay; delay = 300; setTimeout(begin, d); }; // Chrome ends sessions on silence: restart
+        try { rec.start(); } catch (e) { rec = null; }
+        ui();
+      }
+      function wake(rest) {
+        busy = true; stopRec(); chime();
+        if (rest.length > 2) {                       // "Hey RiSync, open calendar" in one go
+          showVoiceAlert('Hey RiSync', rest);
+          setTimeout(() => { processVoiceCommand(rest.toLowerCase()); resume(); }, 250);
+        } else {                                      // just "Hey RiSync": start listening for the command
+          showVoiceAlert('Hey RiSync', "Yes? I'm listening…");
+          startVoiceRecognition();                    // its onend calls resume()
+        }
+      }
+      function pause()  { paused = true; stopRec(); }
+      function resume() { paused = false; busy = false; setTimeout(begin, 400); }
+
+      document.addEventListener('visibilitychange', () => { document.hidden ? stopRec() : begin(); }); // no mic use in background tabs
+      begin(); // starts by itself on page load
+      return { pause, resume };
+    })();
+
+    // Chatbot & RiBot popups
+    const chatbotPopup = document.getElementById('chatbot-popup');
+    const startAssistanceBtn = document.getElementById('startAssistanceBtn');
+    const hideChatbotBtn = document.getElementById('hideChatbotBtn');
+    const ribotSettingsBtn = document.getElementById('ribotSettingsBtn');
+    const ribotSettingsMenuBtn = document.getElementById('ribotSettingsMenuBtn');
+    const profileBtn = document.getElementById('profileBtn');
+    const ribotSettingsPopup = document.getElementById('ribot-settings-popup');
+    const closeRibotSettingsBtn = document.getElementById('closeRibotSettingsBtn');
+    const ribotResponseArea = document.getElementById('ribot-response-area');
+    const ribotResponseText = document.getElementById('ribot-response-text');
+
+    function showChatbotPopup() { chatbotPopup.classList.add('active'); }
+    function hideChatbotPopup() { chatbotPopup.classList.remove('active'); }
+    function showRibotSettings() { ribotSettingsPopup.classList.add('active'); }
+    function hideRibotSettings() { ribotSettingsPopup.classList.remove('active'); }
+
+    hideChatbotBtn.addEventListener('click', hideChatbotPopup);
+    closeRibotSettingsBtn.addEventListener('click', hideRibotSettings);
+    ribotSettingsBtn.addEventListener('click', (e) => { e.preventDefault(); settingsMenu.classList.remove('active'); showRibotSettings(); });
+    if (ribotSettingsMenuBtn) ribotSettingsMenuBtn.addEventListener('click', () => { settingsMenu.classList.remove('active'); showRibotSettings(); });
+
+    profileBtn.addEventListener('click', () => {
+        settingsMenu.classList.remove('active');
+        const username = prompt('Enter your username:');
+        if (username && window.risyncAuth && window.risyncAuth.currentUser) {
+            const userRef = doc(window.risyncDb, "users", window.risyncAuth.currentUser.uid);
+            updateDoc(userRef, { fullname: username });
+        }
+    });
+
+    const ribotAnswers = {
+        "help": "RiSync is an all-in-one educational platform designed to help you organize your studies, collaborate with peers, and access learning resources all in one place.",
+        "features": "Key features include Peer Chat for collaboration, Calendar for scheduling, Whiteboard for real-time problem solving, Database for resources, NCERT textbooks, Calculator, AI assistant, and more!",
+        "contact": "Contact support at support@risync.com or visit the help section. You can also use the Chat feature to reach out to students and mentors.",
+        "voice": "Say 'Hey RiSync' and then say 'Go to Chat', 'Open Calendar', 'Show Progress', 'RiBot Help', 'Toggle Music', or any feature name to navigate instantly!"
+    };
+
+    document.querySelectorAll('.ribot-option-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const option = btn.getAttribute('data-option');
+            ribotResponseText.textContent = ribotAnswers[option] || "Option not found.";
+            ribotResponseArea.style.display = 'block';
+        });
+    });
+
+    startAssistanceBtn.addEventListener('click', () => {
+        showRibotSettings();
+        hideChatbotPopup();
+        const synth = window.speechSynthesis;
+        synth.speak(new SpeechSynthesisUtterance("Welcome! I am RiBot. Choose an option from the menu."));
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadProfileImage();
+      setTimeout(showChatbotPopup, 3000);
+    });
+
+    // =============================================
+    // FULL-PAGE TRANSLATION ENGINE
+    // =============================================
+    const ALL_LANGUAGES = [
+      { code: 'en', name: 'English', native: 'English' },
+      { code: 'hi', name: 'Hindi', native: 'हिन्दी' },
+      { code: 'bn', name: 'Bengali', native: 'বাংলা' },
+      { code: 'te', name: 'Telugu', native: 'తెలుగు' },
+      { code: 'mr', name: 'Marathi', native: 'मराठी' },
+      { code: 'ta', name: 'Tamil', native: 'தமிழ்' },
+      { code: 'gu', name: 'Gujarati', native: 'ગુજરાતી' },
+      { code: 'kn', name: 'Kannada', native: 'ಕನ್ನಡ' },
+      { code: 'ml', name: 'Malayalam', native: 'മലയാളം' },
+      { code: 'pa', name: 'Punjabi', native: 'ਪੰਜਾਬੀ' },
+      { code: 'or', name: 'Odia', native: 'ଓଡ଼ିଆ' },
+      { code: 'ur', name: 'Urdu', native: 'اردو' },
+      { code: 'as', name: 'Assamese', native: 'অসমীয়া' },
+      { code: 'ne', name: 'Nepali', native: 'नेपाली' },
+      { code: 'si', name: 'Sinhala', native: 'සිංහල' },
+      { code: 'zh-CN', name: 'Chinese (Simplified)', native: '简体中文' },
+      { code: 'zh-TW', name: 'Chinese (Traditional)', native: '繁體中文' },
+      { code: 'ja', name: 'Japanese', native: '日本語' },
+      { code: 'ko', name: 'Korean', native: '한국어' },
+      { code: 'ar', name: 'Arabic', native: 'العربية' },
+      { code: 'fa', name: 'Persian', native: 'فارسی' },
+      { code: 'ru', name: 'Russian', native: 'Русский' },
+      { code: 'fr', name: 'French', native: 'Français' },
+      { code: 'de', name: 'German', native: 'Deutsch' },
+      { code: 'es', name: 'Spanish', native: 'Español' },
+      { code: 'pt', name: 'Portuguese', native: 'Português' },
+      { code: 'it', name: 'Italian', native: 'Italiano' },
+      { code: 'nl', name: 'Dutch', native: 'Nederlands' },
+      { code: 'pl', name: 'Polish', native: 'Polski' },
+      { code: 'tr', name: 'Turkish', native: 'Türkçe' },
+      { code: 'vi', name: 'Vietnamese', native: 'Tiếng Việt' },
+      { code: 'th', name: 'Thai', native: 'ภาษาไทย' },
+      { code: 'id', name: 'Indonesian', native: 'Bahasa Indonesia' },
+      { code: 'ms', name: 'Malay', native: 'Bahasa Melayu' },
+      { code: 'sw', name: 'Swahili', native: 'Kiswahili' },
+      { code: 'uk', name: 'Ukrainian', native: 'Українська' },
+      { code: 'he', name: 'Hebrew', native: 'עברית' },
+      { code: 'el', name: 'Greek', native: 'Ελληνικά' },
+      { code: 'cs', name: 'Czech', native: 'Čeština' },
+      { code: 'ro', name: 'Romanian', native: 'Română' },
+      { code: 'hu', name: 'Hungarian', native: 'Magyar' },
+      { code: 'sv', name: 'Swedish', native: 'Svenska' },
+      { code: 'no', name: 'Norwegian', native: 'Norsk' },
+      { code: 'fi', name: 'Finnish', native: 'Suomi' },
+      { code: 'da', name: 'Danish', native: 'Dansk' },
+      { code: 'fil', name: 'Filipino', native: 'Filipino' },
+    ];
+
+    const RTL_LANGS = new Set(['ar', 'he', 'ur', 'fa']);
+    const translationCache = {};
+    const SKIP_TAGS = new Set(['SCRIPT','STYLE','NOSCRIPT','META','LINK','OPTION','SELECT']);
+    const SKIP_IDS  = new Set(['language-dropdown-list','language-dropdown-container','translate-overlay']);
+
+    function collectNodes() {
+      const nodes = [];
+      function walk(node) {
+        if (!node) return;
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          if (SKIP_TAGS.has(node.tagName)) return;
+          if (node.id && SKIP_IDS.has(node.id)) return;
+          if (node.tagName === 'INPUT' && node.placeholder) nodes.push({ type: 'placeholder', el: node });
+          for (const child of node.childNodes) walk(child);
+        } else if (node.nodeType === Node.TEXT_NODE) {
+          const t = node.textContent.trim();
+          if (t.length > 1 && !/^[\d%.,]+$/.test(t)) nodes.push({ type: 'text', node });
+        }
+      }
+      walk(document.body);
+      return nodes;
+    }
+
+    let snapshot = null;
+    function takeSnapshot() {
+      if (snapshot) return;
+      snapshot = collectNodes().map(item => {
+        if (item.type === 'text') return { ...item, original: item.node.textContent };
+        if (item.type === 'placeholder') return { ...item, original: item.el.placeholder };
+      });
+    }
+
+    function restoreEnglish() {
+      if (!snapshot) return;
+      snapshot.forEach(item => {
+        try {
+          if (item.type === 'text') item.node.textContent = item.original;
+          if (item.type === 'placeholder') item.el.placeholder = item.original;
+        } catch(e) {}
+      });
+    }
+
+    async function gtranslate(text, targetLang) {
+      const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${encodeURIComponent(targetLang)}&dt=t&q=${encodeURIComponent(text)}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('GT error ' + res.status);
+      const data = await res.json();
+      return data[0].map(chunk => chunk[0]).join('');
+    }
+
+    async function translateBatch(strings, targetLang) {
+      const SEP = ' |||RISYNC||| ';
+      const joined = strings.join(SEP);
+      const result = await gtranslate(joined, targetLang);
+      const parts = result.split(/\s*\|\|\|RISYNC\|\|\|\s*/);
+      while (parts.length < strings.length) parts.push('');
+      return parts.slice(0, strings.length);
+    }
+
+    function showOverlay(langName) {
+      let ov = document.getElementById('translate-overlay');
+      if (!ov) {
+        ov = document.createElement('div');
+        ov.id = 'translate-overlay';
+        ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(21,21,125,0.8);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;color:#fff;font-family:Inter,sans-serif;backdrop-filter:blur(8px);transition:opacity .3s';
+        ov.innerHTML = `<div style="width:54px;height:54px;border-radius:50%;border:4px solid rgba(255,255,255,0.2);border-top-color:#c0c1ff;animation:_spin .8s linear infinite"></div><div id="_ov_msg" style="font-size:20px;font-weight:800">Translating…</div><div id="_ov_sub" style="font-size:13px;opacity:.55">Please wait</div><style>@keyframes _spin{to{transform:rotate(360deg)}}</style>`;
+        document.body.appendChild(ov);
+      }
+      document.getElementById('_ov_msg').textContent = `Translating to ${langName}…`;
+      document.getElementById('_ov_sub').textContent = 'Powered by Google Translate 🌐';
+      ov.style.opacity = '1'; ov.style.display = 'flex';
+    }
+
+    function hideOverlay() {
+      const ov = document.getElementById('translate-overlay');
+      if (!ov) return;
+      ov.style.opacity = '0';
+      setTimeout(() => ov.style.display = 'none', 300);
+    }
+
+    async function translatePageTo(langCode, langName) {
+      restoreEnglish();
+      document.documentElement.dir = RTL_LANGS.has(langCode) ? 'rtl' : 'ltr';
+      if (langCode === 'en') return;
+      if (translationCache[langCode]) { applyMap(translationCache[langCode]); return; }
+      showOverlay(langName);
+      try {
+        const items = collectNodes();
+        const strings = items.map(item => item.type === 'text' ? item.node.textContent.trim() : item.el.placeholder);
+        const unique = [...new Set(strings.filter(s => s.length > 1))];
+        const CHUNK = 40; const map = {};
+        for (let i = 0; i < unique.length; i += CHUNK) {
+          const chunk = unique.slice(i, i + CHUNK);
+          const result = await translateBatch(chunk, langCode);
+          chunk.forEach((orig, j) => { map[orig] = result[j] || orig; });
+        }
+        translationCache[langCode] = map;
+        applyMap(map);
+      } catch (err) {
+        console.error('Translation error:', err);
+        hideOverlay();
+        alert('Translation failed. Check your internet connection.');
+        return;
+      }
+      hideOverlay();
+    }
+
+    function applyMap(map) {
+      collectNodes().forEach(item => {
+        try {
+          if (item.type === 'text') { const k = item.node.textContent.trim(); if (map[k]) item.node.textContent = map[k]; }
+          else if (item.type === 'placeholder') { const k = item.el.placeholder; if (map[k]) item.el.placeholder = map[k]; }
+        } catch(e) {}
+      });
+    }
+
+    const languageListEl    = document.getElementById('language-dropdown-list');
+    const selectedLangEl    = document.getElementById('selected-language');
+    const languageContainer = document.getElementById('language-dropdown-container');
+    let currentLangCode = 'en';
+
+    function populateLanguages() {
+      languageListEl.innerHTML = '';
+      ALL_LANGUAGES.forEach(lang => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span style="font-weight:700">${lang.native}</span><span style="opacity:.5;font-size:11px;margin-left:6px">${lang.name}</span>`;
+        li.style.cssText = 'display:flex;align-items:center;justify-content:space-between';
+        li.addEventListener('click', async () => {
+          languageContainer.classList.remove('active');
+          if (lang.code === currentLangCode) return;
+          currentLangCode = lang.code;
+          const span = selectedLangEl.querySelector('span');
+          if (span) span.textContent = lang.native;
+          await translatePageTo(lang.code, lang.name);
+        });
+        languageListEl.appendChild(li);
+      });
+    }
+
+    selectedLangEl.addEventListener('click', () => languageContainer.classList.toggle('active'));
+    document.addEventListener('click', e => {
+      if (!languageContainer.contains(e.target)) languageContainer.classList.remove('active');
+    });
+
+    takeSnapshot();
+    populateLanguages();
+  </script>
+
+  <!-- ===== NCERT SUBJECTS RENDERING SCRIPT ===== -->
+  <script>
+    const ncertSubjects = [
+      {
+        key: 'mathematics',
+        icon: 'calculate',
+        title: 'Mathematics',
+        bookTitle: 'Ganita Prakash',
+        description: 'Explore numbers, algebra, and geometry with interactive lessons.',
+        accent: { bg: '#eff4ff', border: '#c0c1ff', icon: '#15157d', badge: '#2e3192', badgeText: '#fff' },
+        chapters: [
+          { num:1,  title:'Patterns in Mathematics',         url:'ncert' },
+          { num:2,  title:'Lines and Angles',                url:'ncert' },
+          { num:3,  title:'Number Play',                     url:'ncert' },
+          { num:4,  title:'Data Handling and Presentation',  url:'ncert' },
+          { num:5,  title:'Prime Time',                      url:'ncert' },
+          { num:6,  title:'Perimeter and Area',              url:'ncert' },
+          { num:7,  title:'Fractions',                       url:'ncert' },
+          { num:8,  title:'Playing with Constructions',      url:'ncert' },
+          { num:9,  title:'Symmetry',                        url:'ncert' },
+          { num:10, title:'The Other Side of Zero',          url:'ncert' },
+        ]
+      },
+      {
+        key: 'science',
+        icon: 'science',
+        title: 'Science',
+        bookTitle: 'Curiosity',
+        description: 'Discover the natural world through observation and experimentation.',
+        accent: { bg: '#e6faf5', border: '#68dba9', icon: '#006c4a', badge: '#006c4a', badgeText: '#fff' },
+        chapters: [
+          { num:1,  title:'Food: Where Does It Come From?',             url:'ncert' },
+          { num:2,  title:'Sorting Materials into Groups',               url:'ncert' },
+          { num:3,  title:'Components of Food',                          url:'ncert' },
+          { num:4,  title:'Fibre to Fabric',                             url:'ncert' },
+          { num:5,  title:'Separation of Substances',                    url:'ncert' },
+          { num:6,  title:'Changes Around Us',                           url:'ncert' },
+          { num:7,  title:'Getting to Know Plants',                      url:'ncert' },
+          { num:8,  title:'Body Movements',                              url:'ncert' },
+          { num:9,  title:'Living Organisms and Their Surroundings',     url:'ncert' },
+          { num:10, title:'Motion and Measurement of Distances',         url:'ncert' },
+          { num:11, title:'Light, Shadows and Reflections',              url:'ncert' },
+          { num:12, title:'Electricity and Circuits',                    url:'ncert' },
+        ]
+      },
+      {
+        key: 'social_science',
+        icon: 'public',
+        title: 'Social Science',
+        bookTitle: 'Exploring Society: India and Beyond',
+        description: 'Understand history, geography, civics and social structures.',
+        accent: { bg: '#fff3eb', border: '#ffdcc3', icon: '#623200', badge: '#623200', badgeText: '#f99028' },
+        chapters: [
+          { num:1,  title:'Locating Places on the Earth',                                           url:'ncert' },
+          { num:2,  title:'Oceans and Continents',                                                  url:'ncert' },
+          { num:3,  title:'Landforms and Life',                                                     url:'ncert' },
+          { num:4,  title:'Timeline and Sources of History',                                        url:'ncert' },
+          { num:5,  title:'India, That Is Bharat',                                                  url:'ncert' },
+          { num:6,  title:'The Beginnings of Indian Civilisation',                                  url:'ncert' },
+          { num:7,  title:"India's Cultural Roots",                                                 url:'ncert' },
+          { num:8,  title:'Unity in Diversity',                                                     url:'ncert' },
+          { num:9,  title:'Family and Community',                                                   url:'ncert' },
+          { num:10, title:'Grassroots Democracy – Part 1: Governance',                              url:'ncert' },
+          { num:11, title:'Grassroots Democracy – Part 2: Local Government in Rural Areas',        url:'ncert' },
+          { num:12, title:'Grassroots Democracy – Part 3: Local Government in Urban Areas',        url:'ncert' },
+          { num:13, title:'The Value of Work',                                                      url:'ncert' },
+          { num:14, title:'Economic Activities Around Us',                                          url:'ncert' },
+        ]
+      },
+      {
+        key: 'english',
+        icon: 'menu_book',
+        title: 'English',
+        bookTitle: 'Poorvi',
+        description: 'Explore stories, poems, and language skills through the NCERT Poorvi textbook.',
+        accent: { bg: '#f0f0ff', border: '#c0c1ff', icon: '#15157d', badge: '#15157d', badgeText: '#fff' },
+        chapters: [
+          { num:1, title:'A Bottle of Dew',       url:'ncert' },
+          { num:2, title:'The Kite',               url:'ncert' },
+          { num:3, title:'Rama to the Rescue',     url:'ncert' },
+          { num:4, title:'The Giving Tree',        url:'ncert' },
+          { num:5, title:'Colours of the Rainbow', url:'ncert' },
+        ]
+      },
+      {
+        key: 'hindi',
+        icon: 'translate',
+        title: 'Hindi',
+        bookTitle: 'वसंत / Vasant',
+        description: 'Learn the fundamentals of Hindi grammar, vocabulary, and sentence formation.',
+        accent: { bg: '#fdeaea', border: '#ffdad6', icon: '#ba1a1a', badge: '#ba1a1a', badgeText: '#fff' },
+        chapters: [
+          { num:1, title:'संज्ञा (Nouns)',        url:'ncert' },
+          { num:2, title:'सर्वनाम (Pronouns)',    url:'ncert' },
+          { num:3, title:'क्रिया (Verbs)',        url:'ncert' },
+          { num:4, title:'विशेषण (Adjectives)',   url:'ncert' },
+          { num:5, title:'वाक्य रचना (Sentence Structure)', url:'ncert' },
+        ]
+      }
+    ];
+
+    // ---- Render quick stats in the progress widget ----
+    function renderSubjectStats(stats) {
+      const container = document.getElementById('ncert-subject-stats');
+      if (!container) return;
+      const s = stats || {};
+      const points   = s.ncertPoints   || 0;
+      const quizzes  = s.ncertQuizzes  || 0;
+      const subjDone = s.ncertSubjDone || 0;
+      const avg      = s.ncertAvg      || 0;
+      const pct      = s.ncertProgress || 0;
+      const total    = s.ncertTotal    || 0;
+      container.innerHTML = `
+        <!-- Live stats grid -->
+        <div class="grid grid-cols-2 gap-2 pb-3 border-b border-slate-100">
+          <div class="bg-surface-bright rounded-lg p-2.5 text-center">
+            <p class="text-lg font-extrabold editorial-header text-primary leading-none">${points}</p>
+            <p class="text-[10px] text-on-surface-variant font-medium mt-0.5">Points Earned</p>
+          </div>
+          <div class="bg-surface-bright rounded-lg p-2.5 text-center">
+            <p class="text-lg font-extrabold editorial-header text-secondary leading-none">${quizzes}${total ? '<span class="text-xs font-medium text-on-surface-variant">/' + total + '</span>' : ''}</p>
+            <p class="text-[10px] text-on-surface-variant font-medium mt-0.5">Quizzes Done</p>
+          </div>
+          <div class="bg-surface-bright rounded-lg p-2.5 text-center">
+            <p class="text-lg font-extrabold editorial-header text-on-tertiary-container leading-none">${subjDone}</p>
+            <p class="text-[10px] text-on-surface-variant font-medium mt-0.5">Subjects Done</p>
+          </div>
+          <div class="bg-surface-bright rounded-lg p-2.5 text-center">
+            <p class="text-lg font-extrabold editorial-header text-primary leading-none">${avg > 0 ? avg.toFixed(1) + '%' : '—'}</p>
+            <p class="text-[10px] text-on-surface-variant font-medium mt-0.5">Avg Score</p>
+          </div>
+        </div>
+        <!-- Subject chapter counts -->
+        ${ncertSubjects.map(subj => `
+          <div class="flex items-center justify-between text-xs py-1.5 border-b border-slate-50 last:border-0">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-sm" style="color:${subj.accent.icon}">${subj.icon}</span>
+              <span class="font-semibold text-on-surface">${subj.title}</span>
+            </div>
+            <span class="font-bold" style="color:${subj.accent.icon}">${subj.chapters.length} ch</span>
+          </div>
+        `).join('')}
+      `;
+    }
+
+    // ---- Render full subject cards ----
+    function renderNCERTSubjects() {
+      const grid = document.getElementById('ncert-subjects-grid');
+      if (!grid) return;
+
+      ncertSubjects.forEach((subj, si) => {
+        const card = document.createElement('div');
+        card.className = 'bg-surface-container-lowest rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.06)] overflow-hidden border';
+        card.style.borderColor = subj.accent.border;
+
+        const chaptersHTML = subj.chapters.map(ch => `
+          <a href="${ch.url}" class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors group border-b border-slate-50 last:border-0">
+            <span class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-extrabold flex-shrink-0"
+              style="background:${subj.accent.badge};color:${subj.accent.badgeText}">${ch.num}</span>
+            <span class="text-sm text-on-surface font-medium group-hover:text-primary transition-colors leading-snug">${ch.title}</span>
+            <span class="material-symbols-outlined text-sm text-slate-300 group-hover:text-primary ml-auto flex-shrink-0 transition-colors">chevron_right</span>
+          </a>
+        `).join('');
+
+        card.innerHTML = `
+          <!-- Card Header -->
+          <div class="p-5 cursor-pointer select-none" onclick="toggleNCERTCard(${si})" style="background:${subj.accent.bg}">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style="background:${subj.accent.badge}">
+                  <span class="material-symbols-outlined text-white">${subj.icon}</span>
+                </div>
+                <div>
+                  <h4 class="editorial-header text-base font-extrabold text-indigo-900 leading-tight">${subj.title}</h4>
+                  <p class="text-[10px] uppercase tracking-widest font-bold mt-0.5" style="color:${subj.accent.icon}">${subj.bookTitle}</p>
+                </div>
+              </div>
+              <div class="flex flex-col items-end gap-1 flex-shrink-0">
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:${subj.accent.badge};color:${subj.accent.badgeText}">${subj.chapters.length} Chapters</span>
+                <span class="material-symbols-outlined text-sm transition-transform duration-200" id="ncert-chevron-${si}" style="color:${subj.accent.icon}">expand_more</span>
+              </div>
+            </div>
+            <p class="text-xs text-on-surface-variant mt-3 leading-relaxed">${subj.description}</p>
+          </div>
+          <!-- Chapter List (collapsed by default) -->
+          <div id="ncert-chapters-${si}" class="hidden">
+            <div class="px-4 py-2.5 flex items-center justify-between bg-surface-bright border-b" style="border-color:${subj.accent.border}">
+              <span class="text-[10px] uppercase tracking-widest font-bold" style="color:${subj.accent.icon}">All Chapters</span>
+              <a href="ncert" class="text-[10px] font-bold hover:underline" style="color:${subj.accent.icon}">Open Subject →</a>
+            </div>
+            <div class="max-h-64 overflow-y-auto">
+              ${chaptersHTML}
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function toggleNCERTCard(index) {
+      const list = document.getElementById('ncert-chapters-' + index);
+      const chevron = document.getElementById('ncert-chevron-' + index);
+      const isHidden = list.classList.contains('hidden');
+      list.classList.toggle('hidden', !isHidden);
+      chevron.style.transform = isHidden ? 'rotate(180deg)' : '';
+    }
+
+    renderSubjectStats();
+    renderNCERTSubjects();
   </script>
 </body>
 </html>
