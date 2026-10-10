@@ -84,6 +84,10 @@
       cursor: pointer;
     }
     select option { background: #0f1930; color: #dee5ff; }
+    /* Smart match */
+    .chip { border:1px solid rgba(64,72,93,.4); background:#192540; color:#a3aac4; padding:.55rem .95rem; border-radius:9999px; font-size:.85rem; cursor:pointer; transition:all .2s; }
+    .chip:hover { border-color:rgba(167,165,255,.5); color:#dee5ff; }
+    .chip.on { background:linear-gradient(90deg,#a7a5ff,#34b5fa); color:#000; border-color:transparent; font-weight:600; }
     @keyframes scanning {
       0%   { transform: translateX(-100%); }
       50%  { transform: translateX(300%); }
@@ -260,6 +264,8 @@
                   <option value="3">Class 3</option><option value="4">Class 4</option>
                   <option value="5">Class 5</option><option value="6">Class 6</option>
                   <option value="7">Class 7</option><option value="8">Class 8</option>
+                  <option value="9">Class 9</option><option value="10">Class 10</option>
+                  <option value="11">Class 11</option><option value="12">Class 12</option>
                 </select>
               </div>
             </div>
@@ -345,13 +351,18 @@
     </div>
   </footer>
 
+  <!-- ── Smart Match Overlay (assessment → AI match → introduction) ── -->
+  <div id="matchOverlay" class="hidden fixed inset-0 z-[60] kinetic-bg flex items-center justify-center p-4">
+    <div id="matchBody" class="glass-card rounded-xl border border-outline-variant/15 w-full max-w-lg p-8 max-h-[92vh] overflow-y-auto card-scroll shadow-2xl"></div>
+  </div>
+
   <!-- ── Firebase Script ── -->
   <script type="module">
     import { initializeApp }    from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
     import { getAnalytics }     from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
     import { getAuth, createUserWithEmailAndPassword, updateProfile, onAuthStateChanged }
                                 from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc }
+    import { getFirestore, doc, setDoc, collection, getDocs, addDoc, query, where, limit }
                                 from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -368,21 +379,33 @@
     const analytics = getAnalytics(app);
     const auth = getAuth(app);
     const db   = getFirestore(app);
+    let signingUp = false; // stops the auto-redirect while the match flow is running
 
     // If already logged in, skip this page entirely
     onAuthStateChanged(auth, (user) => {
-      if (user) {
+      if (user && !signingUp) {
         saveSession(user);
         window.location.href = 'content.html';
       }
     });
 
     // Save user to localStorage so homepage can read auth state
-    function saveSession(user) {
-      localStorage.setItem('risync_session', JSON.stringify({
-        name:  user.displayName || user.email.split('@')[0],
-        email: user.email
-      }));
+    function saveSession(user, extra = {}) {
+      const session = {
+        name:   user.displayName || user.email.split('@')[0],
+        email:  user.email,
+        uid:    user.uid,
+        ...extra
+      };
+      localStorage.setItem('risync_session', JSON.stringify(session));
+      // Also save class separately so NCERT.html can read it instantly
+      if (extra.class) {
+        localStorage.setItem('risync_userClass', String(extra.class));
+        localStorage.setItem('risync_class_' + user.uid, String(extra.class));
+      }
+      if (extra.branch)    localStorage.setItem('risync_branch', extra.branch);
+      if (extra.fullname)  localStorage.setItem('risync_name', extra.fullname);
+      if (extra.photoURL)  localStorage.setItem('risync_photoURL', extra.photoURL);
     }
 
     /* ── Utilities ── */
@@ -420,6 +443,190 @@
       const lastDot = domain.lastIndexOf(".");
       if (lastDot === -1 || domain.length - lastDot - 1 < 2) return false;
       return await hasMXRecord(domain);
+    }
+
+    /* ══ Smart Study Match ══ */
+    // Optional: URL of YOUR server/Cloud Function that calls Claude and returns {summary, intro, icebreakers[]}.
+    // Never put an API key in this file. Empty = built-in local analysis is used.
+    const MATCH_AI_ENDPOINT = "";
+    const SUBJ = ["Maths","Science","English","Hindi","Social Studies","Computer","Coding","Art"];
+    const QS = [
+      { id:"role",   t:"What brings you to RiSync?", o:[["learn","I want help"],["teach","I want to help others"],["both","Both"]] },
+      { id:"needs",  t:"Which subjects do you want help with?", m:1, o:SUBJ },
+      { id:"strong", t:"Which subjects are you strong in?", m:1, o:SUBJ },
+      { id:"style",  t:"How do you learn best?", o:[["visual","Pictures & videos"],["talk","Talking it out"],["practice","Practice questions"],["read","Reading"]] },
+      { id:"slots",  t:"When are you usually free?", m:1, o:["Weekday evenings","Weekend mornings","Weekend afternoons","Weekend evenings"] },
+      { id:"langs",  t:"Which languages are you comfortable in?", m:1, o:["English","Hindi","Punjabi"] },
+      { id:"vibe",   t:"What's your study vibe?", o:[["calm","Calm & patient"],["fun","Fun & energetic"],["focus","Focused & quick"]] },
+    ];
+    const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+    const val = x => Array.isArray(x) ? x[0] : x, lab = x => Array.isArray(x) ? x[1] : x;
+    const arr = a => Array.isArray(a) ? a : [];
+    const inter = (a, b) => arr(a).filter(x => arr(b).includes(x));
+    const BTN = "bg-gradient-to-r from-primary to-secondary text-black font-headline font-bold rounded-full";
+
+    /* 1 — Assessment (every question optional; resolves null if skipped entirely) */
+    function askQuestions(body) {
+      return new Promise(resolve => {
+        const ans = {}; let i = -1;
+        function draw() {
+          if (i < 0) {
+            body.innerHTML = `<div class="text-center space-y-4">
+              <div class="inline-flex w-16 h-16 rounded-full bg-surface-container-highest items-center justify-center border border-outline-variant/20"><span class="material-symbols-outlined text-primary text-3xl">diversity_3</span></div>
+              <h2 class="font-headline text-2xl font-bold">Find your study match</h2>
+              <p class="text-sm text-on-surface-variant">7 quick taps and our AI pairs you with the best study partner. It's optional, but your answers make the match much better.</p>
+              <button id="mgo" class="w-full py-3.5 ${BTN}">Start (1 min)</button>
+              <button id="mskip" class="text-sm text-outline hover:text-on-surface">Skip for now</button></div>`;
+            body.querySelector("#mgo").onclick = () => { i = 0; draw(); };
+            body.querySelector("#mskip").onclick = () => resolve(null);
+            return;
+          }
+          const q = QS[i], cur = ans[q.id];
+          body.innerHTML = `<div class="h-1 bg-white/10 rounded-full mb-6"><div class="h-1 rounded-full bg-gradient-to-r from-primary to-secondary" style="width:${(i+1)/QS.length*100}%"></div></div>
+            <h2 class="font-headline text-xl font-bold">${q.t}</h2>
+            <p class="text-xs text-outline mt-1 mb-5">${q.m ? "Pick as many as you like" : "Pick one"} · or tap Next to skip this one</p>
+            <div class="flex flex-wrap gap-2 mb-8">${q.o.map(x => `<button type="button" class="chip ${(q.m ? arr(cur).includes(val(x)) : cur === val(x)) ? "on" : ""}" data-v="${esc(val(x))}">${esc(lab(x))}</button>`).join("")}</div>
+            <div class="flex items-center justify-between">
+              <button id="mskip" class="text-sm text-outline hover:text-on-surface">Skip all</button>
+              <button id="mnext" class="px-8 py-3 ${BTN}">${i === QS.length - 1 ? "Find my match" : "Next"}</button></div>`;
+          body.querySelectorAll(".chip").forEach(c => c.onclick = () => {
+            const v = c.dataset.v;
+            if (q.m) { const a = arr(ans[q.id]); ans[q.id] = a.includes(v) ? a.filter(x => x !== v) : [...a, v]; c.classList.toggle("on"); }
+            else { const was = ans[q.id] === v; body.querySelectorAll(".chip").forEach(o => o.classList.remove("on")); if (was) delete ans[q.id]; else { ans[q.id] = v; c.classList.add("on"); } }
+          });
+          body.querySelector("#mskip").onclick = () => resolve(null);
+          body.querySelector("#mnext").onclick = () => {
+            if (++i < QS.length) draw();
+            else resolve(Object.fromEntries(Object.entries(ans).filter(([, v]) => v && (!Array.isArray(v) || v.length))));
+          };
+        }
+        draw();
+      });
+    }
+
+    /* 2 — Save a PUBLIC-SAFE profile (first name, class, school, preferences; never email) */
+    async function saveProfile(user, base, answers) {
+      const prof = {
+        uid: user.uid, firstName: base.fullname.split(/\s+/)[0], class: Number(base.class), branch: base.branch,
+        answers: answers || {}, assessed: !!answers && Object.keys(answers).length > 0,
+        status: "open", updatedAt: new Date().toISOString()
+      };
+      await setDoc(doc(db, "matchProfiles", user.uid), prof);
+      await setDoc(doc(db, "users", user.uid), { matchAssessed: prof.assessed }, { merge: true });
+      return prof;
+    }
+
+    /* 3 — Scoring. Skipped answers are ignored (not punished); class + school always count. */
+    function score(me, o) {
+      const A = me.answers, B = o.answers, why = []; let pts = 0, max = 0;
+      const add = (w, v) => { max += w; pts += w * v; };
+      const d = Math.abs(me.class - o.class);
+      add(15, [1, .8, .55, .3][d] ?? 0);
+      if (d === 0) why.push("You're in the same class"); else if (d === 1) why.push("You're just one class apart");
+      add(5, me.branch === o.branch ? 1 : 0);
+      if (me.branch === o.branch) why.push("You study at the same school");
+      const a2b = inter(A.needs, B.strong), b2a = inter(B.needs, A.strong), parts = [];
+      if (arr(A.needs).length) parts.push(a2b.length / A.needs.length);
+      if (arr(B.needs).length) parts.push(b2a.length / B.needs.length);
+      if (parts.length) add(40, parts.reduce((x, y) => x + y) / parts.length);
+      a2b.forEach(s => why.unshift(`${o.firstName} is strong in ${s}, which you want help with`));
+      b2a.forEach(s => why.unshift(`You can help ${o.firstName} with ${s}`));
+      if (arr(A.slots).length && arr(B.slots).length) {
+        const sl = inter(A.slots, B.slots); add(20, Math.min(1, sl.length / 2));
+        if (sl.length) why.push(`You're both free on ${sl[0].toLowerCase()}`);
+      }
+      if (arr(A.langs).length && arr(B.langs).length) {
+        const lg = inter(A.langs, B.langs); add(10, lg.length ? 1 : 0);
+        if (lg.length) why.push(`You both speak ${lg.join(" & ")}`);
+      }
+      if (A.style && B.style) add(5, A.style === B.style ? 1 : .4);
+      if (A.vibe && B.vibe) add(5, A.vibe === B.vibe ? 1 : .5);
+      if (A.role && B.role) add(10, A.role === "both" || B.role === "both" || A.role !== B.role ? 1 : .2);
+      return { pct: Math.round(pts / max * 100), why: why.slice(0, 5), topic: a2b[0] || b2a[0] || "" };
+    }
+
+    async function findMatch(me) {
+      const snap = await getDocs(query(collection(db, "matchProfiles"), where("status", "==", "open"), limit(60)));
+      let best = null;
+      snap.forEach(d => {
+        const o = d.data(); if (o.uid === me.uid) return;
+        const s = score(me, o); if (!best || s.pct > best.pct) best = { other: o, ...s };
+      });
+      return best && best.pct >= 40 ? best : null;
+    }
+
+    /* 4 — AI analysis + introduction (server AI if configured, else local fallback) */
+    async function analyze(me, m) {
+      const o = m.other;
+      const local = {
+        summary: `${m.pct}% match. ${m.why[0] || "You're at a similar level, so you can learn side by side."}`,
+        intro: `RiSync thinks ${me.firstName} (Class ${me.class}) and ${o.firstName} (Class ${o.class}) will make great study partners. ${m.why[0] ? m.why[0] + "." : ""} Say hi and plan a friendly 20-minute first session!`,
+        icebreakers: [
+          m.topic ? `What's one ${m.topic} topic that feels confusing right now?` : "What's one subject you'd love to get better at?",
+          "What's your favourite trick for remembering things?",
+          "Which day this week works for a 20-minute study session?"
+        ]
+      };
+      if (!MATCH_AI_ENDPOINT) return local;
+      try {
+        const pub = p => ({ firstName: p.firstName, class: p.class, answers: p.answers });
+        const r = await fetchWithTimeout(MATCH_AI_ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ a: pub(me), b: pub(o), score: m.pct, reasons: m.why }), timeout: 15000 });
+        if (r.ok) { const j = await r.json(); return { ...local, ...j }; }
+      } catch (e) { console.warn("AI endpoint unavailable, using local analysis", e); }
+      return local;
+    }
+
+    /* 5 — Align the two students: one shared match record, both profiles marked matched */
+    async function createMatch(me, m, ai) {
+      const o = m.other;
+      const ref = await addDoc(collection(db, "matches"), {
+        members: [me.uid, o.uid], names: { [me.uid]: me.firstName, [o.uid]: o.firstName },
+        score: m.pct, reasons: m.why, summary: ai.summary, intro: ai.intro, icebreakers: ai.icebreakers,
+        status: "introduced", helpEnabled: true, createdAt: new Date().toISOString()
+      });
+      await setDoc(doc(db, "matchProfiles", me.uid), { status: "matched", matchId: ref.id }, { merge: true });
+      await setDoc(doc(db, "matchProfiles", o.uid),  { status: "matched", matchId: ref.id }, { merge: true });
+      localStorage.setItem("risync_matchId", ref.id);
+    }
+
+    /* 6 — Result screen */
+    function showDone(body, r, assessed) {
+      return new Promise(resolve => {
+        const go = `<button id="mdone" class="w-full mt-6 py-3.5 ${BTN}">Enter my portal</button>`;
+        const tip = assessed ? "" : `<p class="text-xs text-outline mt-4">You skipped the questions, so this uses only your class and school. Answering them later gives a sharper match.</p>`;
+        if (!r) {
+          body.innerHTML = `<div class="text-center space-y-3"><span class="material-symbols-outlined text-secondary text-5xl">hourglass_top</span>
+            <h2 class="font-headline text-2xl font-bold">You're on the list!</h2>
+            <p class="text-sm text-on-surface-variant">No one compatible has joined yet. As soon as a great match appears, we'll introduce you both.</p>${tip}${go}</div>`;
+        } else {
+          const { me, m, ai } = r, o = m.other, av = (n, c) => `<div class="w-14 h-14 rounded-full bg-${c}/20 border border-${c}/40 flex items-center justify-center font-headline font-black text-xl text-${c}">${esc(n[0])}</div>`;
+          body.innerHTML = `<div class="text-center"><div class="flex items-center justify-center gap-3 mb-4">${av(me.firstName, "primary")}<span class="material-symbols-outlined text-secondary">sync_alt</span>${av(o.firstName, "secondary")}</div>
+            <p class="text-xs uppercase tracking-widest text-secondary font-bold">${m.pct}% match</p>
+            <h2 class="font-headline text-2xl font-bold">Meet ${esc(o.firstName)}</h2>
+            <p class="text-sm text-on-surface-variant">Class ${esc(o.class)} · ${esc(String(o.branch).split(",")[0])}</p></div>
+            <ul class="mt-5 space-y-2 text-sm">${m.why.map(w => `<li class="flex gap-2"><span class="material-symbols-outlined text-emerald-400 text-lg">check_circle</span>${esc(w)}</li>`).join("")}</ul>
+            <div class="mt-5 p-4 rounded-lg bg-surface-container-highest border border-outline-variant/20 text-sm text-on-surface-variant">${esc(ai.intro)}</div>
+            <p class="mt-5 text-xs uppercase tracking-widest text-outline font-bold">Conversation starters</p>
+            <ul class="mt-2 space-y-1.5 text-sm text-on-surface-variant list-disc pl-5">${arr(ai.icebreakers).map(x => `<li>${esc(x)}</li>`).join("")}</ul>${tip}${go}`;
+        }
+        body.querySelector("#mdone").onclick = () => resolve();
+      });
+    }
+
+    async function runMatchFlow(user, base) {
+      const overlay = document.getElementById("matchOverlay"), body = document.getElementById("matchBody");
+      overlay.classList.remove("hidden");
+      try {
+        const answers = await askQuestions(body);
+        body.innerHTML = `<div class="text-center py-10"><span class="material-symbols-outlined text-primary text-5xl animate-spin">progress_activity</span><p class="mt-4 text-sm text-on-surface-variant">AI is finding your best match…</p></div>`;
+        const me = await saveProfile(user, base, answers);
+        const m = await findMatch(me);
+        if (!m) return await showDone(body, null, me.assessed);
+        const ai = await analyze(me, m);
+        await createMatch(me, m, ai);
+        await showDone(body, { me, m, ai }, me.assessed);
+      } catch (e) { console.error("Match flow failed (signup still succeeded):", e); }
     }
 
     /* ── DOM refs ── */
@@ -516,16 +723,55 @@
       }
 
       try {
+        signingUp = true;
         const cred = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(cred.user, { displayName: fullname });
-        await setDoc(doc(db, "users", cred.user.uid), {
-          fullname, branch, class: userClass, email,
-          createdAt: new Date().toISOString()
+
+        const now = new Date().toISOString();
+        const userDoc = {
+          // Core identity
+          uid:          cred.user.uid,
+          fullname:     fullname,
+          displayName:  fullname,
+          email:        email,
+          // Academic info
+          class:        userClass,      // numeric string e.g. "7"
+          grade:        userClass,      // alias so both field names work
+          branch:       branch,
+          school:       branch,         // alias
+          // Timestamps
+          createdAt:    now,
+          updatedAt:    now,
+          lastLoginAt:  now,
+          // Progress defaults (so NCERT.html never reads undefined)
+          ncertProgress:          0,
+          ncertTotalPoints:       0,
+          ncertQuizzesAttempted:  0,
+          ncertCompletedSubjects: 0,
+          ncertAverageScore:      0,
+          ncertTotalLessons:      0,
+          // Account meta
+          role:         "student",
+          isActive:     true,
+          photoURL:     cred.user.photoURL || null,
+          provider:     "email",
+        };
+
+        await setDoc(doc(db, "users", cred.user.uid), userDoc);
+
+        // Save everything to localStorage so other pages can read without Firestore
+        saveSession(cred.user, {
+          class:    userClass,
+          grade:    userClass,
+          branch:   branch,
+          fullname: fullname,
         });
-        saveSession(cred.user);
+
+        await runMatchFlow(cred.user, { fullname, class: userClass, branch });
         window.location.href = "content.html";
       } catch (err) {
         console.error(err);
+        signingUp = false;
         setLoading(false);
         shakeCard();
         if (err.code === "auth/email-already-in-use") {
