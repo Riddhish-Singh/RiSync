@@ -1166,7 +1166,7 @@
     window.RiWake = (function () {
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SR) return { pause() {}, resume() {} };
-      // Matches how speech engines usually write it: "hey risync", "hey rise sync", "hi ri sync", "okay rice sink"...
+      // Matches how speech engines usually write it: "hey resync", "hey rise sync", "hi ri sync", "okay rice sink"...
       const WAKE = /\b(?:hey|hi|hello|ok|okay)\s*(?:r\s?i|rye|rai|ray|are\s?i|rise|rice|risk|ris|rhi)\s*(?:sync|sink|zinc|sing|sinc|cinc)\b/i;
       let rec = null, paused = false, busy = false, blocked = false, warned = false, delay = 300, ctx = null;
 
