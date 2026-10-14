@@ -827,12 +827,12 @@
       function closeM() {
         $("#ov")?.remove();
       }
-      function form(ent, id, pre = {}) {
+      function openForm(ent, id, pre = {}) {
         if (!id) {
           const n = need(ent);
           if (n) {
             toast("Add a " + E[n].t.toLowerCase() + " first");
-            return form(
+            return openForm(
               n,
               null,
               n == "policies" && pre.customerId ? { customerId: pre.customerId } : {},
@@ -997,7 +997,7 @@
       }
       function followUp(pid) {
         const p = by("policies", pid);
-        form("tasks", null, {
+        openForm("tasks", null, {
           title: "Renewal follow-up: " + p.no,
           customerId: p.customerId,
           due: ad(2),
@@ -1006,7 +1006,7 @@
       }
       function payFor(pid) {
         const p = by("policies", pid);
-        form("payments", null, { customerId: p.customerId, policyId: p.id, amount: p.premium });
+        openForm("payments", null, { customerId: p.customerId, policyId: p.id, amount: p.premium });
       }
       function renewP(pid) {
         const p = by("policies", pid);
@@ -1061,7 +1061,7 @@
       function acts(k, imp) {
         const n = need(k) || k;
         return (
-          `<button class="p" onclick="form('${n}')">+ Add ${E[n].t}</button>` +
+          `<button class="p" onclick="openForm('${n}')">+ Add ${E[n].t}</button>` +
           (imp ? `<button onclick="location.hash='#io'">Import Excel</button>` : "")
         );
       }
@@ -1123,7 +1123,7 @@
           ["Documents", D.docs.length],
           ["Activities", D.acts.length],
         ];
-        return `<div class="card es" style="margin-top:6vh;max-width:640px"><div class="ic">◆</div><h2>Welcome to InsureOS</h2><p><b>Your workspace is ready.</b><br>Add your first customer to get started, or bring in your existing records from Excel.</p><div class="bar" style="justify-content:center;margin:0"><button class="p" onclick="form('customers')">+ Add Customer</button><button onclick="location.hash='#io'">Import Excel</button></div><div class="cnt">${n.map((x) => `<div><b>${x[1]}</b>${x[0]}</div>`).join("")}</div></div>`;
+        return `<div class="card es" style="margin-top:6vh;max-width:640px"><div class="ic">◆</div><h2>Welcome to InsureOS</h2><p><b>Your workspace is ready.</b><br>Add your first customer to get started, or bring in your existing records from Excel.</p><div class="bar" style="justify-content:center;margin:0"><button class="p" onclick="openForm('customers')">+ Add Customer</button><button onclick="location.hash='#io'">Import Excel</button></div><div class="cnt">${n.map((x) => `<div><b>${x[1]}</b>${x[0]}</div>`).join("")}</div></div>`;
       }
       /* ---- table helper ---- */
       function table(cols, rows, empty = "Nothing here yet") {
@@ -1143,7 +1143,7 @@
               JSON.stringify(Object.values(x)).toLowerCase().includes(st.s.toLowerCase()) ||
               (x.customerId && cn(x.customerId).toLowerCase().includes(st.s.toLowerCase()))),
         );
-        return `<div class="bar"><div><h1>${title}</h1><p class="sub" style="margin:0">${rows.length} of ${D[k].length} records</p></div><span class="sp"></span><input placeholder="Filter…" value="${esc(st.s)}" oninput="Q['${k}']={...q('${k}'),s:this.value};rl('${k}')" id="fs-${k}">${filtOpts ? `<select onchange="Q['${k}']={...q('${k}'),f:this.value};render()"><option value="">All</option>${filtOpts.map((o) => `<option ${o == st.f ? "selected" : ""}>${o}</option>`).join("")}</select>` : ""}${extra}<button onclick="exportSheet('${k}')">Export</button><button class="p" onclick="form('${k}')">+ Add</button></div><div id="lst-${k}">${D[k].length ? table(cols, rows) : emptyFor(k)}</div>`;
+        return `<div class="bar"><div><h1>${title}</h1><p class="sub" style="margin:0">${rows.length} of ${D[k].length} records</p></div><span class="sp"></span><input placeholder="Filter…" value="${esc(st.s)}" oninput="Q['${k}']={...q('${k}'),s:this.value};rl('${k}')" id="fs-${k}">${filtOpts ? `<select onchange="Q['${k}']={...q('${k}'),f:this.value};render()"><option value="">All</option>${filtOpts.map((o) => `<option ${o == st.f ? "selected" : ""}>${o}</option>`).join("")}</select>` : ""}${extra}<button onclick="exportSheet('${k}')">Export</button><button class="p" onclick="openForm('${k}')">+ Add</button></div><div id="lst-${k}">${D[k].length ? table(cols, rows) : emptyFor(k)}</div>`;
       }
       function rl(k) {
         const el = $("#lst-" + k);
@@ -1158,7 +1158,7 @@
         }
       }
       const fl = (r) => r.data ? `<a href="${r.data}" download="${esc(r.name)}">📄 ${esc(r.name)}</a>` : "📄 " + esc(r.name);
-      const ed = (k) => (r) => `<button class="s" onclick="form('${k}','${r.id}')">Edit</button>`;
+      const ed = (k) => (r) => `<button class="s" onclick="openForm('${k}','${r.id}')">Edit</button>`;
       /* ---- pages ---- */
       const PG = {
         dashboard() {
@@ -1228,7 +1228,7 @@
               "#tasks",
             ],
           ];
-          return `<div class="bar"><div><h1>Good ${now.getHours() < 12 ? "morning" : now.getHours() < 17 ? "afternoon" : "evening"}${D.set.user ? ", " + esc(D.set.user) : ""}</h1><p class="sub" style="margin:0">Here's what needs attention today — ${now.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}</p></div><span class="sp"></span><button onclick="location.hash='#io'">Import / Export</button><button class="p" onclick="form('customers')">+ Customer</button></div>
+          return `<div class="bar"><div><h1>Good ${now.getHours() < 12 ? "morning" : now.getHours() < 17 ? "afternoon" : "evening"}${D.set.user ? ", " + esc(D.set.user) : ""}</h1><p class="sub" style="margin:0">Here's what needs attention today — ${now.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}</p></div><span class="sp"></span><button onclick="location.hash='#io'">Import / Export</button><button class="p" onclick="openForm('customers')">+ Customer</button></div>
  <div class="grid g4" style="margin-bottom:12px">${att.map((a) => `<div class="card kpi ${a[0]}" onclick="location.hash='${a[3]}'"><b>${a[1]}</b><span>${a[2]}</span></div>`).join("")}</div>
  <div class="grid g4" style="margin-bottom:12px"><div class="card"><span class="m">Customers</span><b style="font-size:20px;display:block">${D.customers.length}</b></div><div class="card"><span class="m">Active policies</span><b style="font-size:20px;display:block">${dueList().length}</b></div><div class="card"><span class="m">Premium collected (this month)</span><b style="font-size:20px;display:block">${inr(mp)}</b><span class="m">${D.set.target > 0 ? Math.round((mp / D.set.target) * 100) + "% of " + inr(D.set.target) + " goal" : '<a class="lk" href="#settings">Set a monthly goal</a>'}</span></div><div class="card"><span class="m">Annual premium book</span><b style="font-size:20px;display:block">${inr(sum(dueList(), "premium"))}</b></div></div>
  <div class="grid g2"><div class="grid"><div class="card"><h3>My Work Today</h3>${workList()}</div><div class="card"><h3>Premium collected — last 6 months</h3>${mons.some((m) => m.v) ? `<svg viewBox="0 0 420 150" width="100%">${mons.map((m, i) => `<rect x="${i * 70 + 16}" y="${120 - (m.v / mx) * 100}" width="36" height="${(m.v / mx) * 100}" rx="3" fill="var(--b)"/><text x="${i * 70 + 34}" y="136" text-anchor="middle">${m.l}</text><text x="${i * 70 + 34}" y="${114 - (m.v / mx) * 100}" text-anchor="middle">${m.v ? Math.round(m.v / 1000) + "k" : ""}</text>`).join("")}</svg>` : '<div class="empty">Collections will appear here once you record payments.</div>'}</div></div>
@@ -1383,7 +1383,7 @@
             );
           const o = D.tasks.filter((t) => t.status == "Open");
           return (
-            `<div class="bar"><div><h1>My Work Today</h1><p class="sub" style="margin:0">${o.filter((t) => dd(t.due) < 0).length} overdue · ${o.filter((t) => t.due == TD).length} today · ${o.filter((t) => dd(t.due) > 0).length} upcoming</p></div><span class="sp"></span><button class="p" onclick="form('tasks')">+ Task</button></div><div class="card">${workList(1)}</div><h3 style="margin-top:18px">All tasks</h3>` +
+            `<div class="bar"><div><h1>My Work Today</h1><p class="sub" style="margin:0">${o.filter((t) => dd(t.due) < 0).length} overdue · ${o.filter((t) => t.due == TD).length} today · ${o.filter((t) => dd(t.due) > 0).length} upcoming</p></div><span class="sp"></span><button class="p" onclick="openForm('tasks')">+ Task</button></div><div class="card">${workList(1)}</div><h3 style="margin-top:18px">All tasks</h3>` +
             table(
               [
                 ["Task", (r) => esc(r.title)],
@@ -1589,7 +1589,7 @@
             );
         if (tab == "Policies")
           b =
-            `<div class="bar"><span class="sp"></span><button class="p" onclick="form('policies',null,{customerId:'${id}'})">+ Policy</button></div>` +
+            `<div class="bar"><span class="sp"></span><button class="p" onclick="openForm('policies',null,{customerId:'${id}'})">+ Policy</button></div>` +
             table(
               [
                 ["Policy", (r) => pl(r.id)],
@@ -1633,7 +1633,7 @@
           );
         if (tab == "Payments")
           b =
-            `<div class="bar"><span class="sp"></span><button class="p" onclick="form('payments',null,{customerId:'${id}',policyId:'${P[0]?.id || ""}'})">+ Payment</button></div>` +
+            `<div class="bar"><span class="sp"></span><button class="p" onclick="openForm('payments',null,{customerId:'${id}',policyId:'${P[0]?.id || ""}'})">+ Payment</button></div>` +
             table(
               [
                 ["Date", (r) => fd(r.date)],
@@ -1647,7 +1647,7 @@
             );
         if (tab == "Claims")
           b =
-            `<div class="bar"><span class="sp"></span><button class="p" onclick="form('claims',null,{customerId:'${id}',policyId:'${P[0]?.id || ""}'})">+ Claim</button></div>` +
+            `<div class="bar"><span class="sp"></span><button class="p" onclick="openForm('claims',null,{customerId:'${id}',policyId:'${P[0]?.id || ""}'})">+ Claim</button></div>` +
             table(
               [
                 ["Date", (r) => fd(r.date)],
@@ -1662,7 +1662,7 @@
             );
         if (tab == "Documents")
           b =
-            `<div class="bar"><span class="sp"></span><button class="p" onclick="form('docs',null,{customerId:'${id}'})">+ Document</button></div>` +
+            `<div class="bar"><span class="sp"></span><button class="p" onclick="openForm('docs',null,{customerId:'${id}'})">+ Document</button></div>` +
             table(
               [
                 ["File", fl],
@@ -1681,7 +1681,7 @@
             .map((x) => x[0])
             .join("")
             .slice(0, 2),
-        )}</div><div><h1 style="margin:0">${esc(c.name)}</h1><span class="m">${esc(c.phone)} · ${esc(c.email || "no email")} · ${esc(c.city)} · client since ${fd(c.since)}</span></div><span class="sp"></span><a class="btn" href="tel:+91${c.phone}" onclick="log('call','Called ${esc(c.name)}','${id}');save()">Call</a><a class="btn" target="_blank" href="https://wa.me/91${c.phone}" onclick="log('call','WhatsApp opened for ${esc(c.name)}','${id}');save()">WhatsApp</a><a class="btn" href="mailto:${esc(c.email)}">Email</a><button onclick="form('tasks',null,{customerId:'${id}'})">+ Task</button><button onclick="form('customers','${id}')">Edit</button></div></div><div class="tabs">${tabs.map((t) => `<a class="${t == tab ? "on" : ""}" onclick="C360['${id}']='${t}';render()">${t}</a>`).join("")}</div>${b}`;
+        )}</div><div><h1 style="margin:0">${esc(c.name)}</h1><span class="m">${esc(c.phone)} · ${esc(c.email || "no email")} · ${esc(c.city)} · client since ${fd(c.since)}</span></div><span class="sp"></span><a class="btn" href="tel:+91${c.phone}" onclick="log('call','Called ${esc(c.name)}','${id}');save()">Call</a><a class="btn" target="_blank" href="https://wa.me/91${c.phone}" onclick="log('call','WhatsApp opened for ${esc(c.name)}','${id}');save()">WhatsApp</a><a class="btn" href="mailto:${esc(c.email)}">Email</a><button onclick="openForm('tasks',null,{customerId:'${id}'})">+ Task</button><button onclick="openForm('customers','${id}')">Edit</button></div></div><div class="tabs">${tabs.map((t) => `<a class="${t == tab ? "on" : ""}" onclick="C360['${id}']='${t}';render()">${t}</a>`).join("")}</div>${b}`;
       }
       function addNote(id) {
         const v = $("#nt").value.trim();
@@ -1722,7 +1722,7 @@
           b = bucket(p);
         modal(`<h3>${esc(p.no)} ${tg(p.status)}</h3><div class="row"><span class="m">Customer</span>${cl(p.customerId)}</div><div class="row"><span class="m">Insurer / plan</span><span>${esc(p.insurer)} · ${esc(p.plan)}</span></div><div class="row"><span class="m">Cover / premium</span><span>${inr(p.sum)} / ${inr(p.premium)} ${esc(p.mode)}</span></div><div class="row"><span class="m">Next due</span><span>${fd(p.due)} ${b ? tg({ overdue: "Overdue", d7: "7 days", d30: "30 days", d60: "60 days", renewed: "Renewed" }[b]) : ""}</span></div>
  <h3 style="margin-top:12px">Payments (${pay.length})</h3>${pay.map((x) => `<div class="row"><span>${fd(x.date)} · ${inr(x.amount)}</span>${tg(x.status)}</div>`).join("") || '<span class="m">None</span>'}<h3 style="margin-top:12px">Claims (${cl2.length})</h3>${cl2.map((x) => `<div class="row"><span>${esc(x.type)} · ${inr(x.amount)}</span>${tg(x.status)}</div>`).join("") || '<span class="m">None</span>'}<h3 style="margin-top:12px">Documents (${dc.length})</h3>${dc.map((x) => `<div class="row"><span>${esc(x.name)}</span></div>`).join("") || '<span class="m">None</span>'}
- <div class="bar" style="margin:14px 0 0"><button onclick="closeM()">Close</button><span class="sp"></span><button onclick="form('policies','${id}')">Edit</button><button onclick="closeM();form('claims',null,{customerId:'${p.customerId}',policyId:'${id}'})">+ Claim</button><button class="p" onclick="closeM();renewP('${id}')">Renew</button></div>`);
+ <div class="bar" style="margin:14px 0 0"><button onclick="closeM()">Close</button><span class="sp"></span><button onclick="openForm('policies','${id}')">Edit</button><button onclick="closeM();openForm('claims',null,{customerId:'${p.customerId}',policyId:'${id}'})">+ Claim</button><button class="p" onclick="closeM();renewP('${id}')">Renew</button></div>`);
       }
       /* ---- Excel ---- */
       const SH = {
@@ -2059,7 +2059,7 @@
         modal(
           '<h3>Create new</h3><div class="grid" style="grid-template-columns:1fr 1fr">' +
             ["customers", "policies", "payments", "claims", "leads", "tasks", "docs"]
-              .map((k) => `<button onclick="form('${k}')">${E[k].t}</button>`)
+              .map((k) => `<button onclick="openForm('${k}')">${E[k].t}</button>`)
               .join("") +
             "</div>",
         );
