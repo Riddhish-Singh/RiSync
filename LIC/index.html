@@ -1,0 +1,2292 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <title>InsureOS — Insurance Business OS</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <style>
+      :root {
+        --bg: #f6f8fb;
+        --c: #fff;
+        --t: #0f172a;
+        --m: #64748b;
+        --l: #e2e8f0;
+        --n: #0f1f3d;
+        --b: #2456d6;
+        --r: #dc2626;
+        --a: #d97706;
+        --g: #059669;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0b1220;
+          --c: #111a2e;
+          --t: #e6ebf5;
+          --m: #94a3b8;
+          --l: #223152;
+          --n: #070d1a;
+          --b: #5b8cff;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        font:
+          13px/1.45 Inter,
+          system-ui,
+          sans-serif;
+        background: var(--bg);
+        color: var(--t);
+        display: flex;
+      }
+      aside {
+        width: 224px;
+        background: var(--n);
+        color: #cbd5e1;
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        padding-top: env(safe-area-inset-top);
+      }
+      .logo {
+        padding: 16px 18px;
+        font-weight: 700;
+        font-size: 15px;
+        color: #fff;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .logo i {
+        width: 26px;
+        height: 26px;
+        border-radius: 6px;
+        background: var(--b);
+        display: grid;
+        place-items: center;
+        font-style: normal;
+      }
+      nav {
+        overflow: auto;
+        flex: 1;
+        padding: 4px 10px;
+      }
+      nav a {
+        display: flex;
+        justify-content: space-between;
+        padding: 7px 10px;
+        border-radius: 6px;
+        color: #cbd5e1;
+        text-decoration: none;
+        cursor: pointer;
+        margin: 1px 0;
+      }
+      nav a:hover {
+        background: #ffffff14;
+      }
+      nav a.on {
+        background: #ffffff22;
+        color: #fff;
+        font-weight: 600;
+      }
+      nav small {
+        background: #ffffff22;
+        border-radius: 9px;
+        padding: 0 7px;
+      }
+      nav small.hot {
+        background: var(--r);
+        color: #fff;
+      }
+      .sec {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #7d8fb0;
+        padding: 12px 10px 4px;
+      }
+      .main {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+      header {
+        height: 52px;
+        background: var(--c);
+        border-bottom: 1px solid var(--l);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 18px;
+        padding-top: env(safe-area-inset-top);
+      }
+      #menu {
+        display: none;
+      }
+      .srch {
+        flex: 1;
+        max-width: 420px;
+        text-align: left;
+        color: var(--m);
+        background: var(--bg);
+        border: 1px solid var(--l);
+        border-radius: 6px;
+        padding: 7px 10px;
+        cursor: pointer;
+        font: inherit;
+      }
+      .srch kbd {
+        float: right;
+        font-size: 10px;
+        border: 1px solid var(--l);
+        padding: 0 5px;
+        border-radius: 4px;
+      }
+      #v {
+        flex: 1;
+        overflow: auto;
+        padding: 20px 22px 40px;
+      }
+      h1 {
+        font-size: 20px;
+        margin: 0 0 2px;
+        letter-spacing: -0.01em;
+      }
+      h3 {
+        margin: 0 0 10px;
+        font-size: 13px;
+      }
+      .sub {
+        color: var(--m);
+        margin: 0 0 16px;
+      }
+      .bar {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+      }
+      .bar .sp {
+        flex: 1;
+      }
+      .card {
+        background: var(--c);
+        border: 1px solid var(--l);
+        border-radius: 8px;
+        padding: 14px;
+      }
+      .grid {
+        display: grid;
+        gap: 12px;
+      }
+      .g4 {
+        grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      }
+      .g2 {
+        grid-template-columns: 2fr 1fr;
+      }
+      .g3 {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      }
+      .kpi b {
+        display: block;
+        font-size: 22px;
+        margin-top: 2px;
+      }
+      .kpi span {
+        color: var(--m);
+        font-size: 12px;
+      }
+      .kpi.bad {
+        border-left: 3px solid var(--r);
+      }
+      .kpi.warn {
+        border-left: 3px solid var(--a);
+      }
+      .kpi.ok {
+        border-left: 3px solid var(--g);
+      }
+      .kpi.info {
+        border-left: 3px solid var(--b);
+      }
+      .kpi {
+        cursor: pointer;
+      }
+      button,
+      .btn {
+        font: inherit;
+        border: 1px solid var(--l);
+        background: var(--c);
+        color: var(--t);
+        border-radius: 6px;
+        padding: 6px 11px;
+        cursor: pointer;
+        font-weight: 500;
+      }
+      button:hover {
+        border-color: var(--b);
+      }
+      button.p {
+        background: var(--b);
+        border-color: var(--b);
+        color: #fff;
+      }
+      button.d {
+        color: var(--r);
+      }
+      button.s {
+        padding: 3px 8px;
+        font-size: 12px;
+      }
+      input,
+      select,
+      textarea {
+        font: inherit;
+        border: 1px solid var(--l);
+        border-radius: 6px;
+        padding: 7px 9px;
+        background: var(--c);
+        color: var(--t);
+        width: 100%;
+      }
+      .bar input,
+      .bar select {
+        width: auto;
+      }
+      .tw {
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--c);
+      }
+      th {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--m);
+        text-align: left;
+        padding: 8px 10px;
+        border-bottom: 1px solid var(--l);
+        white-space: nowrap;
+      }
+      td {
+        padding: 8px 10px;
+        border-bottom: 1px solid var(--l);
+        white-space: nowrap;
+      }
+      tr:hover td {
+        background: color-mix(in srgb, var(--b) 5%, transparent);
+      }
+      td a,
+      .lk {
+        color: var(--b);
+        cursor: pointer;
+        text-decoration: none;
+        font-weight: 500;
+      }
+      .r {
+        text-align: right;
+      }
+      .tag {
+        display: inline-block;
+        padding: 1px 8px;
+        border-radius: 10px;
+        font-size: 11px;
+        font-weight: 600;
+        background: var(--l);
+        color: var(--m);
+      }
+      .t-r {
+        background: #fee2e2;
+        color: #b91c1c;
+      }
+      .t-a {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .t-g {
+        background: #d1fae5;
+        color: #065f46;
+      }
+      .t-b {
+        background: #dbeafe;
+        color: #1e40af;
+      }
+      .tabs {
+        display: flex;
+        gap: 2px;
+        border-bottom: 1px solid var(--l);
+        margin: 14px 0;
+        overflow-x: auto;
+      }
+      .tabs a {
+        padding: 8px 13px;
+        cursor: pointer;
+        color: var(--m);
+        border-bottom: 2px solid transparent;
+        white-space: nowrap;
+      }
+      .tabs a.on {
+        color: var(--b);
+        border-color: var(--b);
+        font-weight: 600;
+      }
+      .cols {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(230px, 1fr));
+        gap: 10px;
+        overflow-x: auto;
+      }
+      .col {
+        background: color-mix(in srgb, var(--l) 40%, transparent);
+        border-radius: 8px;
+        padding: 8px;
+      }
+      .col h4 {
+        margin: 2px 4px 8px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+      }
+      .rc {
+        background: var(--c);
+        border: 1px solid var(--l);
+        border-radius: 6px;
+        padding: 9px;
+        margin-bottom: 8px;
+      }
+      .rc .a {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+        margin-top: 7px;
+      }
+      .row {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 7px 0;
+        border-bottom: 1px solid var(--l);
+      }
+      .row:last-child {
+        border: 0;
+      }
+      .m {
+        color: var(--m);
+      }
+      .empty {
+        color: var(--m);
+        text-align: center;
+        padding: 22px;
+      }
+      .ov {
+        position: fixed;
+        inset: 0;
+        background: #0f172a99;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 6vh 12px;
+        z-index: 50;
+        overflow: auto;
+      }
+      .md {
+        background: var(--c);
+        border-radius: 10px;
+        padding: 18px;
+        width: 100%;
+        max-width: 520px;
+      }
+      .md h3 {
+        font-size: 15px;
+      }
+      .fg {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .fg label {
+        font-size: 11px;
+        color: var(--m);
+        font-weight: 600;
+        display: block;
+      }
+      .fg .w {
+        grid-column: 1/-1;
+      }
+      #pal input {
+        margin-bottom: 8px;
+        font-size: 15px;
+      }
+      .hit {
+        padding: 8px 10px;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+      }
+      .hit:hover,
+      .hit.on {
+        background: color-mix(in srgb, var(--b) 12%, transparent);
+      }
+      #toast {
+        position: fixed;
+        bottom: 18px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--n);
+        color: #fff;
+        padding: 9px 16px;
+        border-radius: 8px;
+        z-index: 99;
+        display: none;
+      }
+      #sbx {
+        display: none;
+        margin-left: auto;
+        background: transparent;
+        border: 0;
+        color: #cbd5e1;
+        font-size: 18px;
+        line-height: 1;
+        padding: 4px 8px;
+      }
+      #sbk {
+        display: none;
+      }
+      .es {
+        text-align: center;
+        max-width: 560px;
+        margin: 20px auto;
+        padding: 38px 24px;
+      }
+      .es .ic {
+        width: 46px;
+        height: 46px;
+        border-radius: 10px;
+        background: var(--n);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        margin: 0 auto 14px;
+        font-size: 20px;
+      }
+      .es h2 {
+        margin: 0 0 6px;
+        font-size: 20px;
+        letter-spacing: -0.01em;
+      }
+      .es p {
+        color: var(--m);
+        margin: 0 0 18px;
+        line-height: 1.55;
+      }
+      .cnt {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+        gap: 8px;
+        margin-top: 22px;
+        padding-top: 18px;
+        border-top: 1px solid var(--l);
+      }
+      .cnt div {
+        font-size: 11px;
+        color: var(--m);
+      }
+      .cnt b {
+        display: block;
+        font-size: 18px;
+        color: var(--t);
+      }
+      .hbar {
+        height: 8px;
+        background: var(--b);
+        border-radius: 4px;
+      }
+      svg text {
+        fill: var(--m);
+        font-size: 10px;
+      }
+      @media (max-width: 860px) {
+        aside {
+          position: fixed;
+          inset: 0 auto 0 0;
+          z-index: 40;
+          transform: translateX(-100%);
+          transition: 0.2s;
+        }
+        aside.open {
+          transform: none;
+        }
+        aside.open ~ #sbk {
+          display: block;
+          position: fixed;
+          inset: 0;
+          background: #0f172a99;
+          z-index: 39;
+        }
+        #sbx {
+          display: block;
+        }
+        #menu {
+          display: inline-block;
+        }
+        .g2 {
+          grid-template-columns: 1fr;
+        }
+        #v {
+          padding: 14px 12px 40px;
+        }
+        .fg {
+          grid-template-columns: 1fr;
+        }
+      }
+          #gate{position:fixed;inset:0;z-index:999;background:var(--bg);display:none;align-items:center;justify-content:center;padding:16px}
+      #gate .gc{background:var(--c);border:1px solid var(--l);border-radius:14px;padding:24px;width:100%;max-width:420px;box-shadow:0 10px 40px rgba(15,23,42,.12)}
+      #gate h2{margin:0 0 8px}#gate input,#gate textarea{width:100%;margin:6px 0;box-sizing:border-box}
+      .gerr{color:var(--r);font-size:13px;min-height:18px;margin:4px 0}
+</style>
+  </head>
+  <body>
+    <aside id="sb">
+      <div class="logo">
+        <i>◆</i>InsureOS<button
+          id="sbx"
+          aria-label="Close menu"
+          onclick="sb.classList.remove('open')"
+        >
+          ✕
+        </button>
+      </div>
+      <nav id="nav"></nav>
+    </aside>
+    <div id="sbk" onclick="sb.classList.remove('open')"></div>
+    <div class="main">
+      <header>
+        <button id="menu" onclick="sb.classList.toggle('open')">☰</button
+        ><button class="srch" onclick="pal()">
+          Search customers, policies, claims… <kbd>Ctrl K</kbd></button
+        ><span style="flex: 1"></span><button class="p" onclick="quick()">+ New</button>
+      </header>
+      <div id="v"></div>
+    </div>
+    <div id="toast"></div>
+    <script>
+      const $ = (s) => document.querySelector(s),
+        T = new Date();
+      T.setHours(0, 0, 0, 0);
+      const iso = (d) =>
+          new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10),
+        ad = (n) => {
+          const d = new Date(T);
+          d.setDate(d.getDate() + n);
+          return iso(d);
+        },
+        TD = iso(T);
+      const dd = (s) => Math.round((new Date(s + "T00:00:00") - T) / 864e5),
+        esc = (s) =>
+          String(s ?? "").replace(
+            /[&<>"]/g,
+            (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
+          );
+      const inr = (n) => "₹" + (+n || 0).toLocaleString("en-IN"),
+        uid = (p) => p + Math.random().toString(36).slice(2, 8),
+        fd = (s) =>
+          s
+            ? new Date(s + "T00:00:00").toLocaleDateString("en-IN", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+              })
+            : "—";
+      let D,
+        KEY = "insureos_v1";
+      const blank = () => ({
+        customers: [],
+        policies: [],
+        payments: [],
+        claims: [],
+        leads: [],
+        tasks: [],
+        docs: [],
+        acts: [],
+        set: { org: "", user: "", target: 0 },
+      });
+      function norm(x) {
+        const b = blank();
+        if (!x || typeof x != "object" || x.demo) return b;
+        Object.keys(b).forEach((k) => {
+          if (k != "set" && !Array.isArray(x[k])) x[k] = b[k];
+        });
+        const s = x.set || {};
+        x.set = {
+          org: s.org || "",
+          user: s.user && s.user != "Admin" ? s.user : "",
+          target: +s.target || 0,
+        };
+        delete x.demo;
+        return x;
+      }
+      function legacy() {
+        try {
+          const x = JSON.parse(localStorage.getItem(KEY));
+          return x && !x.demo ? norm(x) : null;
+        } catch (e) { return null; }
+      }
+      function load() { D = blank(); }
+      function save() {
+        if (LOCAL) { try { localStorage.setItem(KEY, JSON.stringify(D)); } catch (e) { toast('Browser storage full: ' + e.message); } }
+        else sync();
+      }
+      const by = (a, id) => D[a].find((x) => x.id == id),
+        cn = (id) => by("customers", id)?.name || "—",
+        pn = (id) => by("policies", id)?.no || "—";
+      function log(type, text, customerId, policyId) {
+        D.acts.unshift({ id: uid("a"), at: Date.now(), type, text, customerId, policyId });
+      }
+      function toast(m) {
+        const t = $("#toast");
+        t.textContent = m;
+        t.style.display = "block";
+        clearTimeout(toast.h);
+        toast.h = setTimeout(() => (t.style.display = "none"), 2600);
+      }
+      const cls = (s) =>
+          ({
+            Overdue: "t-r",
+            Rejected: "t-r",
+            Lapsed: "t-r",
+            Lost: "t-r",
+            High: "t-r",
+            "Docs Pending": "t-a",
+            Pending: "t-a",
+            Medium: "t-a",
+            Quoted: "t-a",
+            Intimated: "t-b",
+            Open: "t-b",
+            "Under Review": "t-b",
+            New: "t-b",
+            Settled: "t-g",
+            Approved: "t-g",
+            Received: "t-g",
+            Won: "t-g",
+            Done: "t-g",
+            Active: "t-g",
+          })[s] || "",
+        tg = (s) => `<span class="tag ${cls(s)}">${esc(s)}</span>`;
+      /* ---- entity config ---- */
+      const cOpts = () => D.customers.map((c) => [c.id, c.name]),
+        pOpts = () => D.policies.map((p) => [p.id, p.no + " · " + cn(p.customerId)]);
+      const E = {
+        customers: {
+          t: "Customer",
+          f: [
+            ["name", "Full name", "text", 1],
+            ["phone", "Mobile", "tel", 1],
+            ["email", "Email", "email"],
+            ["city", "City", "text"],
+            ["dob", "Date of birth", "date"],
+            ["notes", "Notes", "textarea"],
+          ],
+        },
+        policies: {
+          t: "Policy",
+          f: [
+            ["no", "Policy no.", "text", 1],
+            ["customerId", "Customer", "select", 1, cOpts],
+            ["insurer", "Insurer", "text", 1],
+            ["type", "Type", "select", 1, ["Life", "Health", "Motor", "General"]],
+            ["plan", "Plan", "text"],
+            ["sum", "Sum assured (₹)", "number"],
+            ["premium", "Premium (₹)", "number", 1],
+            ["mode", "Mode", "select", 0, ["Yearly", "Half-yearly", "Quarterly", "Monthly"]],
+            ["start", "Start date", "date"],
+            ["due", "Next due date", "date", 1],
+            ["status", "Status", "select", 0, ["Active", "Lapsed", "Matured"]],
+          ],
+        },
+        payments: {
+          t: "Payment",
+          f: [
+            ["customerId", "Customer", "select", 1, cOpts],
+            ["policyId", "Policy", "select", 1, pOpts],
+            ["amount", "Amount (₹)", "number", 1],
+            ["date", "Date", "date", 1],
+            ["mode", "Mode", "select", 0, ["UPI", "Cheque", "Cash", "Online"]],
+            ["status", "Status", "select", 0, ["Received", "Pending"]],
+            ["receipt", "Receipt no.", "text"],
+          ],
+        },
+        claims: {
+          t: "Claim",
+          f: [
+            ["customerId", "Customer", "select", 1, cOpts],
+            ["policyId", "Policy", "select", 1, pOpts],
+            ["type", "Claim type", "text", 1],
+            ["amount", "Amount (₹)", "number"],
+            ["date", "Date", "date", 1],
+            [
+              "status",
+              "Status",
+              "select",
+              0,
+              ["Intimated", "Docs Pending", "Under Review", "Approved", "Settled", "Rejected"],
+            ],
+            ["notes", "Notes", "textarea"],
+          ],
+        },
+        leads: {
+          t: "Lead",
+          f: [
+            ["name", "Name", "text", 1],
+            ["phone", "Mobile", "tel", 1],
+            ["interest", "Interest", "text"],
+            ["source", "Source", "select", 0, ["Referral", "Website", "Walk-in", "Camp", "Social"]],
+            ["stage", "Stage", "select", 0, ["New", "Contacted", "Quoted", "Won", "Lost"]],
+            ["value", "Est. premium (₹)", "number"],
+            ["next", "Next follow-up", "date"],
+          ],
+        },
+        tasks: {
+          t: "Task",
+          f: [
+            ["title", "Task", "text", 1],
+            ["customerId", "Customer", "select", 0, cOpts],
+            ["due", "Due date", "date", 1],
+            ["priority", "Priority", "select", 0, ["High", "Medium", "Low"]],
+            ["status", "Status", "select", 0, ["Open", "Done"]],
+          ],
+        },
+        docs: {
+          t: "Document",
+          f: [
+            ["name", "File name", "text", 0],
+            [
+              "type",
+              "Type",
+              "select",
+              0,
+              [
+                "Aadhaar",
+                "PAN",
+                "Policy Bond",
+                "Premium Receipt",
+                "Claim Form",
+                "Discharge Summary",
+                "Bank Proof",
+                "Photo",
+                "Other",
+              ],
+            ],
+            ["customerId", "Customer", "select", 1, cOpts],
+            ["policyId", "Policy", "select", 0, pOpts],
+            ["claimId", "Claim", "select", 0, () => D.claims.map((c) => [c.id, c.type + " · " + cn(c.customerId)])],
+            ["size", "Size", "text"],
+          ],
+        },
+      };
+      const DEF = {
+        customers: {},
+        policies: { mode: "Yearly", status: "Active", type: "Life" },
+        payments: { date: TD, mode: "UPI", status: "Received" },
+        claims: { date: TD, status: "Intimated" },
+        leads: { stage: "New", source: "Referral", next: ad(2) },
+        tasks: { due: TD, priority: "Medium", status: "Open" },
+        docs: { type: "Other" },
+      };
+      function modal(html) {
+        closeM();
+        const o = document.createElement("div");
+        o.className = "ov";
+        o.id = "ov";
+        o.innerHTML = '<div class="md">' + html + "</div>";
+        o.onclick = (e) => {
+          if (e.target == o) closeM();
+        };
+        document.body.appendChild(o);
+      }
+      function closeM() {
+        $("#ov")?.remove();
+      }
+      function form(ent, id, pre = {}) {
+        if (!id) {
+          const n = need(ent);
+          if (n) {
+            toast("Add a " + E[n].t.toLowerCase() + " first");
+            return form(
+              n,
+              null,
+              n == "policies" && pre.customerId ? { customerId: pre.customerId } : {},
+            );
+          }
+        }
+        const c = E[ent],
+          rec = id ? by(ent, id) : { ...DEF[ent], ...pre };
+        const fs = c.f
+          .map(([k, l, t, req, o]) => {
+            const v = rec[k] ?? "";
+            let i;
+            if (t == "select") {
+              const op = typeof o == "function" ? o() : o;
+              i = `<select name="${k}">${
+                (req ? "" : '<option value="">—</option>') +
+                op
+                  .map((x) => {
+                    const [a, b] = Array.isArray(x) ? x : [x, x];
+                    return `<option value="${esc(a)}" ${a == v ? "selected" : ""}>${esc(b)}</option>`;
+                  })
+                  .join("")
+              }</select>`;
+            } else if (t == "textarea") i = `<textarea name="${k}" rows="3">${esc(v)}</textarea>`;
+            else i = `<input name="${k}" type="${t}" value="${esc(v)}" ${req ? "required" : ""}>`;
+            return `<div class="${t == "textarea" ? "w" : ""}"><label>${l}${req ? " *" : ""}</label>${i}</div>`;
+          })
+          .join("");
+        modal(
+          `<h3>${id ? "Edit" : "New"} ${c.t}</h3><form id="fm"><div class="fg">${fs}${ent == "docs" ? '<div class="w"><label>Attach file (optional, max 600 KB)</label><input type="file" name="__f"></div>' : ""}</div><div class="bar" style="margin:14px 0 0"><button type="button" onclick="closeM()">Cancel</button><span class="sp"></span>${id ? `<button type="button" class="d" onclick="del('${ent}','${id}')">Delete</button>` : ""}<button class="p">Save</button></div></form>`,
+        );
+        $("#fm").onsubmit = async (e) => {
+          e.preventDefault();
+          const r = Object.fromEntries(new FormData(e.target));
+          const fl0 = r.__f;
+          delete r.__f;
+          if (fl0 && fl0.size) {
+            if (fl0.size > 6e5) return toast("File too large (max 600 KB)");
+            r.data = await new Promise((res) => { const x = new FileReader(); x.onload = () => res(x.result); x.readAsDataURL(fl0); });
+            if (!r.name) r.name = fl0.name;
+            r.size = Math.round(fl0.size / 1024) + " KB";
+          }
+          if (ent == "docs" && !r.name) return toast("Enter a file name or attach a file");
+          ["sum", "premium", "amount", "value"].forEach((k) => {
+            if (k in r) r[k] = +r[k] || 0;
+          });
+          if (ent == "policies" && D.policies.some((p) => p.no == r.no && p.id != id))
+            return toast("Policy number already exists");
+          if (ent == "payments" || ent == "claims") {
+            const p = by("policies", r.policyId);
+            if (p) r.customerId = p.customerId;
+          }
+          if (id) Object.assign(rec, r);
+          else {
+            Object.assign(r, {
+              id: uid(ent[0]),
+              ...(ent == "customers" ? { family: [], since: TD } : {}),
+              ...(ent == "docs" ? { date: TD } : {}),
+            });
+            D[ent].push(r);
+            log(
+              ent.slice(0, -1),
+              "New " + c.t.toLowerCase() + " added: " + (r.name || r.no || r.title || r.type || ""),
+              r.customerId || (ent == "customers" ? r.id : ""),
+              r.policyId || "",
+            );
+          }
+          if (id)
+            log(
+              ent.slice(0, -1),
+              c.t + " updated: " + (rec.name || rec.no || rec.title || rec.type || ""),
+              rec.customerId || (ent == "customers" ? rec.id : ""),
+              rec.policyId || "",
+            );
+          save();
+          closeM();
+          toast(c.t + " saved");
+          render();
+        };
+      }
+      function del(ent, id) {
+        if (
+          !confirm(
+            "Delete this " +
+              E[ent].t.toLowerCase() +
+              (ent == "customers" || ent == "policies" ? " and all linked records" : "") +
+              "?",
+          )
+        )
+          return;
+        if (ent == "customers") {
+          ["policies", "payments", "claims", "docs"].forEach(
+            (k) => (D[k] = D[k].filter((x) => x.customerId != id)),
+          );
+          D.tasks = D.tasks.filter((x) => x.customerId != id);
+          D.acts = D.acts.filter((x) => x.customerId != id);
+        }
+        if (ent == "policies") {
+          ["payments", "claims", "docs"].forEach(
+            (k) => (D[k] = D[k].filter((x) => x.policyId != id)),
+          );
+        }
+        D[ent] = D[ent].filter((x) => x.id != id);
+        save();
+        closeM();
+        toast("Deleted");
+        if (location.hash.startsWith("#customer/") && ent == "customers")
+          location.hash = "#customers";
+        else render();
+      }
+      /* ---- renewals ---- */
+      const dueList = () => D.policies.filter((p) => p.status == "Active");
+      function bucket(p) {
+        if (p.renewedOn && -dd(p.renewedOn) <= 60 && dd(p.due) > 60) return "renewed";
+        const n = dd(p.due);
+        return n < 0 ? "overdue" : n <= 7 ? "d7" : n <= 30 ? "d30" : n <= 60 ? "d60" : null;
+      }
+      const BK = [
+        ["overdue", "Overdue", "var(--r)"],
+        ["d7", "Due in 7 days", "var(--a)"],
+        ["d30", "Due in 30 days", "var(--b)"],
+        ["d60", "Due in 60 days", "#64748b"],
+        ["renewed", "Renewed", "var(--g)"],
+      ];
+      const bk = (k) =>
+        dueList()
+          .filter((p) => bucket(p) == k)
+          .sort((a, b) => (a.due > b.due ? 1 : -1));
+      const sum = (a, k) => a.reduce((s, x) => s + (+x[k] || 0), 0);
+      function ract(p) {
+        const c = by("customers", p.customerId);
+        return `<button class="s" onclick="act('call','${p.id}')">Call</button><button class="s" onclick="act('wa','${p.id}')">WhatsApp</button><button class="s" onclick="act('mail','${p.id}')">Email</button><button class="s" onclick="followUp('${p.id}')">Follow-up</button><button class="s" onclick="payFor('${p.id}')">Payment</button><button class="s p" onclick="renewP('${p.id}')">Renew</button>`;
+      }
+      function act(k, pid) {
+        const p = by("policies", pid),
+          c = by("customers", p.customerId);
+        const msg = `Dear ${c.name}, your ${p.insurer} policy ${p.no} premium of ${inr(p.premium)} is due on ${fd(p.due)}. Please pay to keep your cover active.${D.set.org ? " — " + D.set.org : ""}`;
+        if (k == "call") location.href = "tel:+91" + c.phone;
+        if (k == "wa")
+          window.open("https://wa.me/91" + c.phone + "?text=" + encodeURIComponent(msg), "_blank");
+        if (k == "mail")
+          location.href =
+            "mailto:" +
+            c.email +
+            "?subject=" +
+            encodeURIComponent("Premium due: " + p.no) +
+            "&body=" +
+            encodeURIComponent(msg);
+        log(
+          k == "call" ? "call" : "renewal",
+          { call: "Called ", wa: "WhatsApp reminder sent to ", mail: "Email reminder sent to " }[
+            k
+          ] +
+            c.name +
+            " (" +
+            p.no +
+            ")",
+          c.id,
+          p.id,
+        );
+        save();
+      }
+      function followUp(pid) {
+        const p = by("policies", pid);
+        form("tasks", null, {
+          title: "Renewal follow-up: " + p.no,
+          customerId: p.customerId,
+          due: ad(2),
+          priority: "High",
+        });
+      }
+      function payFor(pid) {
+        const p = by("policies", pid);
+        form("payments", null, { customerId: p.customerId, policyId: p.id, amount: p.premium });
+      }
+      function renewP(pid) {
+        const p = by("policies", pid);
+        modal(
+          `<h3>Renew ${esc(p.no)}</h3><p class="m">${esc(cn(p.customerId))} · ${esc(p.insurer)} · due ${fd(p.due)}</p><form id="rf"><div class="fg"><div><label>Premium received (₹)</label><input name="a" type="number" value="${p.premium}" required></div><div><label>Mode</label><select name="m"><option>UPI</option><option>Cheque</option><option>Cash</option><option>Online</option></select></div></div><p class="m">Records a payment, extends due date by 12 months and logs activity.</p><div class="bar"><button type="button" onclick="closeM()">Cancel</button><span class="sp"></span><button class="p">Confirm renewal</button></div></form>`,
+        );
+        $("#rf").onsubmit = (e) => {
+          e.preventDefault();
+          const f = Object.fromEntries(new FormData(e.target)),
+            nd = new Date(p.due + "T00:00:00");
+          nd.setFullYear(nd.getFullYear() + 1);
+          D.payments.push({
+            id: uid("pay"),
+            customerId: p.customerId,
+            policyId: p.id,
+            amount: +f.a,
+            date: TD,
+            mode: f.m,
+            status: "Received",
+            receipt: "RC" + Date.now().toString().slice(-5),
+          });
+          p.due = iso(nd);
+          p.renewedOn = TD;
+          D.tasks.forEach((t) => {
+            if (t.status == "Open" && t.title.includes(p.no)) t.status = "Done";
+          });
+          log(
+            "renewal",
+            "Policy " + p.no + " renewed, " + inr(f.a) + " received",
+            p.customerId,
+            p.id,
+          );
+          save();
+          closeM();
+          toast("Renewed — next due " + fd(p.due));
+          render();
+        };
+      }
+      /* ---- empty states ---- */
+      const isEmpty = () =>
+        ["customers", "policies", "payments", "claims", "leads", "tasks", "docs", "acts"].every(
+          (k) => !D[k].length,
+        );
+      function need(k) {
+        if (k == "customers" || k == "leads" || k == "tasks") return "";
+        if (!D.customers.length) return "customers";
+        if ((k == "payments" || k == "claims") && !D.policies.length) return "policies";
+        return "";
+      }
+      const emptyCard = (t, m, b) =>
+        `<div class="card es"><div class="ic">◆</div><h2>${t}</h2><p>${m}</p><div class="bar" style="justify-content:center;margin:0">${b}</div></div>`;
+      function acts(k, imp) {
+        const n = need(k) || k;
+        return (
+          `<button class="p" onclick="form('${n}')">+ Add ${E[n].t}</button>` +
+          (imp ? `<button onclick="location.hash='#io'">Import Excel</button>` : "")
+        );
+      }
+      const EM = {
+        customers: [
+          "No customers yet",
+          "Customers are the heart of your workspace. Add them one at a time or import your existing list from Excel.",
+          1,
+        ],
+        policies: [
+          "No policies yet",
+          "Every policy is linked to a customer. Add a policy or import your policy list from Excel — renewals, payments and reports build on it.",
+          1,
+        ],
+        payments: [
+          "No payments yet",
+          "Record premium receipts here. Each payment links to a customer and policy and feeds your collection figures.",
+          0,
+        ],
+        claims: [
+          "No claims yet",
+          "Register a claim against a policy to track its status, amount and supporting documents.",
+          0,
+        ],
+        leads: [
+          "No leads yet",
+          "Track prospects from first contact to conversion. Won leads can be converted into customers in one click.",
+          0,
+        ],
+        tasks: [
+          "No tasks yet",
+          "Create follow-ups, reminders and to-dos. Tasks due today or overdue appear on your dashboard.",
+          0,
+        ],
+        docs: [
+          "No documents yet",
+          "Keep a register of KYC papers, policy bonds, receipts and claim forms against each customer or policy.",
+          0,
+        ],
+      };
+      function emptyFor(k) {
+        const [t, m, i] = EM[k],
+          n = need(k);
+        return emptyCard(
+          t,
+          m + (n ? ` You will need at least one ${E[n].t.toLowerCase()} first.` : ""),
+          acts(k, i),
+        );
+      }
+      function welcome() {
+        const n = [
+          ["Customers", D.customers.length],
+          ["Policies", D.policies.length],
+          ["Renewals", BK.reduce((s, x) => s + bk(x[0]).length, 0)],
+          ["Payments", D.payments.length],
+          ["Claims", D.claims.length],
+          ["Leads", D.leads.length],
+          ["Tasks", D.tasks.length],
+          ["Documents", D.docs.length],
+          ["Activities", D.acts.length],
+        ];
+        return `<div class="card es" style="margin-top:6vh;max-width:640px"><div class="ic">◆</div><h2>Welcome to InsureOS</h2><p><b>Your workspace is ready.</b><br>Add your first customer to get started, or bring in your existing records from Excel.</p><div class="bar" style="justify-content:center;margin:0"><button class="p" onclick="form('customers')">+ Add Customer</button><button onclick="location.hash='#io'">Import Excel</button></div><div class="cnt">${n.map((x) => `<div><b>${x[1]}</b>${x[0]}</div>`).join("")}</div></div>`;
+      }
+      /* ---- table helper ---- */
+      function table(cols, rows, empty = "Nothing here yet") {
+        if (!rows.length) return `<div class="card empty">${empty}</div>`;
+        return `<div class="card tw" style="padding:0"><table><thead><tr>${cols.map((c) => `<th class="${c[2] || ""}">${c[0]}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${cols.map((c) => `<td class="${c[2] || ""}">${c[1](r)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+      }
+      const cl = (id) => (id ? `<a href="#customer/${id}">${esc(cn(id))}</a>` : "—"),
+        pl = (id) => (id ? `<a onclick="p360('${id}')">${esc(pn(id))}</a>` : "—");
+      let Q = {};
+      const q = (k) => Q[k] || { s: "", f: "" };
+      function listPage(k, title, cols, filt, filtOpts, extra = "") {
+        const st = q(k);
+        let rows = D[k].filter(
+          (x) =>
+            (!st.f || filt(x) == st.f) &&
+            (!st.s ||
+              JSON.stringify(Object.values(x)).toLowerCase().includes(st.s.toLowerCase()) ||
+              (x.customerId && cn(x.customerId).toLowerCase().includes(st.s.toLowerCase()))),
+        );
+        return `<div class="bar"><div><h1>${title}</h1><p class="sub" style="margin:0">${rows.length} of ${D[k].length} records</p></div><span class="sp"></span><input placeholder="Filter…" value="${esc(st.s)}" oninput="Q['${k}']={...q('${k}'),s:this.value};rl('${k}')" id="fs-${k}">${filtOpts ? `<select onchange="Q['${k}']={...q('${k}'),f:this.value};render()"><option value="">All</option>${filtOpts.map((o) => `<option ${o == st.f ? "selected" : ""}>${o}</option>`).join("")}</select>` : ""}${extra}<button onclick="exportSheet('${k}')">Export</button><button class="p" onclick="form('${k}')">+ Add</button></div><div id="lst-${k}">${D[k].length ? table(cols, rows) : emptyFor(k)}</div>`;
+      }
+      function rl(k) {
+        const el = $("#lst-" + k);
+        if (!el) return;
+        const f = document.activeElement;
+        const h = location.hash;
+        render();
+        const n = $("#fs-" + k);
+        if (n) {
+          n.focus();
+          n.setSelectionRange(n.value.length, n.value.length);
+        }
+      }
+      const fl = (r) => r.data ? `<a href="${r.data}" download="${esc(r.name)}">📄 ${esc(r.name)}</a>` : "📄 " + esc(r.name);
+      const ed = (k) => (r) => `<button class="s" onclick="form('${k}','${r.id}')">Edit</button>`;
+      /* ---- pages ---- */
+      const PG = {
+        dashboard() {
+          if (isEmpty()) return welcome();
+          const od = bk("overdue"),
+            d7 = bk("d7"),
+            cp = D.claims.filter((c) => ["Intimated", "Docs Pending"].includes(c.status)),
+            pp = D.payments.filter((p) => p.status == "Pending"),
+            tk = D.tasks.filter((t) => t.status == "Open" && dd(t.due) <= 0),
+            now = new Date(),
+            mk = iso(new Date(now.getFullYear(), now.getMonth(), 1)),
+            mp = sum(
+              D.payments.filter((p) => p.status == "Received" && p.date >= mk),
+              "amount",
+            );
+          const mons = [...Array(6)].map((_, i) => {
+            const d = new Date(now.getFullYear(), now.getMonth() - 5 + i, 1);
+            return {
+              l: d.toLocaleString("en", { month: "short" }),
+              k: d.getFullYear() * 12 + d.getMonth(),
+            };
+          });
+          mons.forEach(
+            (m) =>
+              (m.v = sum(
+                D.payments.filter(
+                  (p) =>
+                    p.status == "Received" &&
+                    ((a) => a.getFullYear() * 12 + a.getMonth())(new Date(p.date)) == m.k,
+                ),
+                "amount",
+              )),
+          );
+          const mx = Math.max(...mons.map((m) => m.v), 1);
+          const tys = ["Life", "Health", "Motor", "General"].map((t) => [
+              t,
+              sum(
+                dueList().filter((p) => p.type == t),
+                "premium",
+              ),
+            ]),
+            tm = Math.max(...tys.map((t) => t[1]), 1);
+          const att = [
+            [
+              od.length ? "bad" : "ok",
+              od.length + " overdue renewals",
+              inr(sum(od, "premium")) + " at lapse risk",
+              "#renewals",
+            ],
+            [
+              "warn",
+              d7.length + " due in 7 days",
+              inr(sum(d7, "premium")) + " to collect",
+              "#renewals",
+            ],
+            ["warn", cp.length + " claims need action", "Docs pending / just intimated", "#claims"],
+            [
+              "info",
+              pp.length + " pending payments",
+              inr(sum(pp, "amount")) + " unreceived",
+              "#payments",
+            ],
+            [
+              tk.length ? "bad" : "ok",
+              tk.length + " tasks due / overdue",
+              "Open My Work Today",
+              "#tasks",
+            ],
+          ];
+          return `<div class="bar"><div><h1>Good ${now.getHours() < 12 ? "morning" : now.getHours() < 17 ? "afternoon" : "evening"}${D.set.user ? ", " + esc(D.set.user) : ""}</h1><p class="sub" style="margin:0">Here's what needs attention today — ${now.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}</p></div><span class="sp"></span><button onclick="location.hash='#io'">Import / Export</button><button class="p" onclick="form('customers')">+ Customer</button></div>
+ <div class="grid g4" style="margin-bottom:12px">${att.map((a) => `<div class="card kpi ${a[0]}" onclick="location.hash='${a[3]}'"><b>${a[1]}</b><span>${a[2]}</span></div>`).join("")}</div>
+ <div class="grid g4" style="margin-bottom:12px"><div class="card"><span class="m">Customers</span><b style="font-size:20px;display:block">${D.customers.length}</b></div><div class="card"><span class="m">Active policies</span><b style="font-size:20px;display:block">${dueList().length}</b></div><div class="card"><span class="m">Premium collected (this month)</span><b style="font-size:20px;display:block">${inr(mp)}</b><span class="m">${D.set.target > 0 ? Math.round((mp / D.set.target) * 100) + "% of " + inr(D.set.target) + " goal" : '<a class="lk" href="#settings">Set a monthly goal</a>'}</span></div><div class="card"><span class="m">Annual premium book</span><b style="font-size:20px;display:block">${inr(sum(dueList(), "premium"))}</b></div></div>
+ <div class="grid g2"><div class="grid"><div class="card"><h3>My Work Today</h3>${workList()}</div><div class="card"><h3>Premium collected — last 6 months</h3>${mons.some((m) => m.v) ? `<svg viewBox="0 0 420 150" width="100%">${mons.map((m, i) => `<rect x="${i * 70 + 16}" y="${120 - (m.v / mx) * 100}" width="36" height="${(m.v / mx) * 100}" rx="3" fill="var(--b)"/><text x="${i * 70 + 34}" y="136" text-anchor="middle">${m.l}</text><text x="${i * 70 + 34}" y="${114 - (m.v / mx) * 100}" text-anchor="middle">${m.v ? Math.round(m.v / 1000) + "k" : ""}</text>`).join("")}</svg>` : '<div class="empty">Collections will appear here once you record payments.</div>'}</div></div>
+ <div class="grid"><div class="card"><h3>Premium book by line</h3>${!dueList().length ? '<div class="empty">Add policies to see your premium book.</div>' : tys.map((t) => `<div style="margin-bottom:9px"><div class="row" style="border:0;padding:0"><span>${t[0]}</span><b>${inr(t[1])}</b></div><div class="hbar" style="width:${(t[1] / tm) * 100}%"></div></div>`).join("")}</div><div class="card"><h3>Recent activity</h3>${actList(D.acts.slice(0, 7))}</div></div></div>`;
+        },
+        renewals() {
+          if (!D.policies.length)
+            return (
+              `<h1>Renewal Command Center</h1><p class="sub">Track overdue and upcoming renewals</p>` +
+              emptyCard(
+                "No renewals to track yet",
+                "Renewals are generated automatically from your policies and their due dates. Add a policy or import your policy list and they will appear here.",
+                acts("policies", 1),
+              )
+            );
+          const st = q("ren"),
+            ins = st.f || "";
+          const L = (k) => bk(k).filter((p) => !ins || p.insurer == ins);
+          const insurers = [...new Set(D.policies.map((p) => p.insurer))];
+          return `<div class="bar"><div><h1>Renewal Command Center</h1><p class="sub" style="margin:0">${L("overdue").length} overdue · ${L("d7").length} due this week · ${inr(sum(L("d30").concat(L("d7"), L("overdue")), "premium"))} in play</p></div><span class="sp"></span><select onchange="Q.ren={f:this.value};render()"><option value="">All insurers</option>${insurers.map((i) => `<option ${i == ins ? "selected" : ""}>${i}</option>`).join("")}</select><button onclick="exportRen()">Export</button></div>
+ <div class="cols">${BK.map(([k, l, c]) => {
+   const a = L(k);
+   return `<div class="col"><h4><span style="color:${c}">● ${l} <span class="m">${a.length}</span></span><span>${inr(sum(a, "premium"))}</span></h4>${a.length ? a.map((p) => `<div class="rc"><div class="row" style="border:0;padding:0"><a onclick="p360('${p.id}')"><b>${esc(p.no)}</b></a><span class="m">${k == "renewed" ? "✓ " + fd(p.renewedOn) : dd(p.due) < 0 ? -dd(p.due) + "d late" : dd(p.due) + "d"}</span></div>${cl(p.customerId)}<div class="m">${esc(p.insurer)} · ${esc(p.type)} · ${inr(p.premium)}</div>${k != "renewed" ? `<div class="a">${ract(p)}</div>` : ""}</div>`).join("") : '<div class="empty">None</div>'}</div>`;
+ }).join("")}</div>`;
+        },
+        customers() {
+          return listPage("customers", "Customers", [
+            ["Name", (r) => cl(r.id)],
+            ["Mobile", (r) => esc(r.phone)],
+            ["City", (r) => esc(r.city)],
+            ["Policies", (r) => D.policies.filter((p) => p.customerId == r.id).length, "r"],
+            [
+              "Annual premium",
+              (r) =>
+                inr(
+                  sum(
+                    D.policies.filter((p) => p.customerId == r.id),
+                    "premium",
+                  ),
+                ),
+              "r",
+            ],
+            ["", ed("customers")],
+          ]);
+        },
+        policies() {
+          return listPage(
+            "policies",
+            "Policies",
+            [
+              ["Policy", (r) => pl(r.id)],
+              ["Customer", (r) => cl(r.customerId)],
+              ["Insurer", (r) => esc(r.insurer)],
+              ["Type", (r) => esc(r.type)],
+              ["Premium", (r) => inr(r.premium), "r"],
+              ["Next due", (r) => fd(r.due)],
+              ["Status", (r) => tg(r.status)],
+              ["", ed("policies")],
+            ],
+            (r) => r.type,
+            ["Life", "Health", "Motor", "General"],
+          );
+        },
+        payments() {
+          const pe = sum(
+            D.payments.filter((p) => p.status == "Pending"),
+            "amount",
+          );
+          return listPage(
+            "payments",
+            "Payments",
+            [
+              ["Date", (r) => fd(r.date)],
+              ["Customer", (r) => cl(r.customerId)],
+              ["Policy", (r) => pl(r.policyId)],
+              ["Amount", (r) => inr(r.amount), "r"],
+              ["Mode", (r) => esc(r.mode)],
+              ["Receipt", (r) => esc(r.receipt || "—")],
+              ["Status", (r) => tg(r.status)],
+              [
+                "",
+                (r) =>
+                  (r.status == "Pending"
+                    ? `<button class="s p" onclick="markPaid('${r.id}')">Mark received</button> `
+                    : "") + ed("payments")(r),
+              ],
+            ],
+            (r) => r.status,
+            ["Received", "Pending"],
+            `<span class="tag t-a">Pending ${inr(pe)}</span>`,
+          );
+        },
+        claims() {
+          return listPage(
+            "claims",
+            "Claims",
+            [
+              ["Date", (r) => fd(r.date)],
+              ["Customer", (r) => cl(r.customerId)],
+              ["Policy", (r) => pl(r.policyId)],
+              ["Type", (r) => esc(r.type)],
+              ["Amount", (r) => inr(r.amount), "r"],
+              [
+                "Status",
+                (r) =>
+                  `<select onchange="setSt('claims','${r.id}',this.value)" style="width:auto;padding:2px 6px">${["Intimated", "Docs Pending", "Under Review", "Approved", "Settled", "Rejected"].map((s) => `<option ${s == r.status ? "selected" : ""}>${s}</option>`).join("")}</select>`,
+              ],
+              ["Docs", (r) => D.docs.filter((d) => d.claimId == r.id).length, "r"],
+              ["", ed("claims")],
+            ],
+            (r) => r.status,
+            ["Intimated", "Docs Pending", "Under Review", "Approved", "Settled", "Rejected"],
+          );
+        },
+        leads() {
+          return listPage(
+            "leads",
+            "Leads",
+            [
+              ["Name", (r) => esc(r.name)],
+              ["Mobile", (r) => `<a href="tel:+91${r.phone}">${esc(r.phone)}</a>`],
+              ["Interest", (r) => esc(r.interest)],
+              ["Source", (r) => esc(r.source)],
+              ["Est. premium", (r) => inr(r.value), "r"],
+              [
+                "Follow-up",
+                (r) =>
+                  `<span class="${dd(r.next) < 0 && !["Won", "Lost"].includes(r.stage) ? "tag t-r" : ""}">${fd(r.next)}</span>`,
+              ],
+              [
+                "Stage",
+                (r) =>
+                  `<select onchange="setSt('leads','${r.id}',this.value)" style="width:auto;padding:2px 6px">${["New", "Contacted", "Quoted", "Won", "Lost"].map((s) => `<option ${s == r.stage ? "selected" : ""}>${s}</option>`).join("")}</select>`,
+              ],
+              [
+                "",
+                (r) =>
+                  (r.stage == "Won"
+                    ? `<button class="s p" onclick="toCust('${r.id}')">Convert</button> `
+                    : "") + ed("leads")(r),
+              ],
+            ],
+            (r) => r.stage,
+            ["New", "Contacted", "Quoted", "Won", "Lost"],
+          );
+        },
+        tasks() {
+          if (!D.tasks.length)
+            return (
+              `<div class="bar"><div><h1>My Work Today</h1><p class="sub" style="margin:0">Your follow-ups and to-dos in one place</p></div></div>` +
+              emptyFor("tasks")
+            );
+          const o = D.tasks.filter((t) => t.status == "Open");
+          return (
+            `<div class="bar"><div><h1>My Work Today</h1><p class="sub" style="margin:0">${o.filter((t) => dd(t.due) < 0).length} overdue · ${o.filter((t) => t.due == TD).length} today · ${o.filter((t) => dd(t.due) > 0).length} upcoming</p></div><span class="sp"></span><button class="p" onclick="form('tasks')">+ Task</button></div><div class="card">${workList(1)}</div><h3 style="margin-top:18px">All tasks</h3>` +
+            table(
+              [
+                ["Task", (r) => esc(r.title)],
+                ["Customer", (r) => cl(r.customerId)],
+                ["Due", (r) => fd(r.due)],
+                ["Priority", (r) => tg(r.priority)],
+                ["Status", (r) => tg(r.status)],
+                ["", ed("tasks")],
+              ],
+              [...D.tasks].sort((a, b) => (a.due > b.due ? 1 : -1)),
+            )
+          );
+        },
+        documents() {
+          return listPage(
+            "docs",
+            "Documents",
+            [
+              ["File", fl],
+              ["Type", (r) => esc(r.type)],
+              ["Customer", (r) => cl(r.customerId)],
+              ["Policy", (r) => pl(r.policyId)],
+              ["Claim", (r) => esc(r.claimId ? "#" + r.claimId : "—")],
+              ["Added", (r) => fd(r.date)],
+              ["", ed("docs")],
+            ],
+            (r) => r.type,
+            [
+              "Aadhaar",
+              "PAN",
+              "Policy Bond",
+              "Premium Receipt",
+              "Claim Form",
+              "Discharge Summary",
+              "Bank Proof",
+              "Photo",
+              "Other",
+            ],
+          );
+        },
+        reports() {
+          const ins = [...new Set(D.policies.map((p) => p.insurer))].map((i) => {
+              const a = D.policies.filter((p) => p.insurer == i);
+              return { i, n: a.length, p: sum(a, "premium"), s: sum(a, "sum") };
+            }),
+            cs = [
+              "Intimated",
+              "Docs Pending",
+              "Under Review",
+              "Approved",
+              "Settled",
+              "Rejected",
+            ].map((s) => [
+              s,
+              D.claims.filter((c) => c.status == s).length,
+              sum(
+                D.claims.filter((c) => c.status == s),
+                "amount",
+              ),
+            ]),
+            rn = dueList().filter((p) => p.renewedOn).length,
+            od = bk("overdue").length;
+          if (!D.policies.length && !D.claims.length && !D.leads.length && !D.payments.length)
+            return (
+              `<h1>Reports & MIS</h1><p class="sub">Business summary from live data</p>` +
+              emptyCard(
+                "No data to report yet",
+                "Reports are calculated only from your real records. Add or import customers and policies and this page fills in automatically.",
+                acts("policies", 1),
+              )
+            );
+          return `<div class="bar"><div><h1>Reports & MIS</h1><p class="sub" style="margin:0">Business summary from live data</p></div><span class="sp"></span><button class="p" onclick="exportAll()">Export MIS workbook</button></div><div class="grid g4" style="margin-bottom:12px"><div class="card"><span class="m">Renewal conversion</span><b style="font-size:20px;display:block">${Math.round((rn / Math.max(rn + od + bk("d7").length, 1)) * 100)}%</b></div><div class="card"><span class="m">Premium book</span><b style="font-size:20px;display:block">${inr(sum(dueList(), "premium"))}</b></div><div class="card"><span class="m">Claims value</span><b style="font-size:20px;display:block">${inr(sum(D.claims, "amount"))}</b></div><div class="card"><span class="m">Lead win rate</span><b style="font-size:20px;display:block">${Math.round((D.leads.filter((l) => l.stage == "Won").length / Math.max(D.leads.length, 1)) * 100)}%</b></div></div>
+ <h3>By insurer</h3>${table(
+   [
+     ["Insurer", (r) => esc(r.i)],
+     ["Policies", (r) => r.n, "r"],
+     ["Premium", (r) => inr(r.p), "r"],
+     ["Sum assured", (r) => inr(r.s), "r"],
+   ],
+   ins,
+ )}<h3 style="margin-top:16px">Claims by status</h3>${table(
+   [
+     ["Status", (r) => tg(r[0])],
+     ["Count", (r) => r[1], "r"],
+     ["Amount", (r) => inr(r[2]), "r"],
+   ],
+   cs,
+ )}`;
+        },
+        io() {
+          return `<h1>Excel Import / Export</h1><p class="sub">Move data in and out of InsureOS using .xlsx or .csv files.</p><div class="grid g3"><div class="card"><h3>Export</h3><p class="m">Download everything as one Excel workbook (one sheet per module).</p><button class="p" onclick="exportAll()">Export all data</button></div><div class="card"><h3>Import</h3><p class="m">Pick a module and choose an .xlsx or .csv file. You get a validated preview before anything is saved. Existing mobile numbers (customers, leads) and policy numbers are updated, not duplicated. Import customers before policies, payments or claims.</p><select id="ie" style="margin-bottom:8px">${Object.keys(SH).map((k)=>`<option value="${k}">${SH[k]}</option>`).join("")}</select><input type="file" id="fi" accept=".xlsx,.xls,.csv"><div id="ir" class="m" style="margin-top:8px"></div></div><div class="card"><h3>Template</h3><p class="m">Download a blank template with the right columns.</p><button onclick="tmpl($('#ie').value)">Download template for selected module</button></div></div>`;
+        },
+        settings() {
+          return `<h1>Settings</h1><p class="sub">Organization profile, targets and data.</p><div class="grid g3"><div class="card"><h3>Profile</h3><form id="sf"><div class="fg"><div class="w"><label>Organization name</label><input name="org" value="${esc(D.set.org)}" placeholder="Your organization or business name"></div><div><label>Your name</label><input name="user" value="${esc(D.set.user)}" placeholder="Used in your dashboard greeting"></div><div><label>Monthly premium goal (₹)</label><input name="target" type="number" min="0" value="${D.set.target || ""}" placeholder="Optional"></div></div><button class="p" style="margin-top:12px">Save</button></form></div><div class="card"><h3>Data</h3><p class="m">${LOCAL ? "Saved in this browser only. Sign out to switch to cloud sync." : "Saved to your Firebase account" + (FBU ? " (" + esc(FBU.email) + ")" : "") + " and synced across devices."}</p><div class="bar"><button onclick="backup()">Backup (JSON)</button><button onclick="$('#rb').click()">Restore</button><input id="rb" type="file" accept=".json" hidden></div><div class="bar"><button onclick="fbOut()">Sign out</button></div><div class="bar"><button class="d" onclick="if(confirm('Delete ALL data and start fresh?')){D=blank();save();toast('Workspace cleared');render()}">Clear all data</button></div></div></div>`;
+        },
+      };
+      function workList(full) {
+        const o = D.tasks
+          .filter((t) => t.status == "Open" && (full || dd(t.due) <= 1))
+          .sort((a, b) => (a.due > b.due ? 1 : -1));
+        return o.length
+          ? o
+              .map(
+                (t) =>
+                  `<div class="row"><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" style="width:auto" onchange="setSt('tasks','${t.id}','Done')"><span><b>${esc(t.title)}</b><br><span class="m">${t.customerId ? esc(cn(t.customerId)) + " · " : ""}${dd(t.due) < 0 ? '<span style="color:var(--r)">' + -dd(t.due) + "d overdue</span>" : t.due == TD ? "Today" : fd(t.due)}</span></span></label>${tg(t.priority)}</div>`,
+              )
+              .join("")
+          : '<div class="empty">All clear — nothing due 🎉</div>';
+      }
+      function actList(a) {
+        return a.length
+          ? a
+              .map(
+                (x) =>
+                  `<div class="row"><span>${esc(x.text)}${x.customerId ? " · " + cl(x.customerId) : ""}</span><span class="m">${new Date(x.at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</span></div>`,
+              )
+              .join("")
+          : '<div class="empty">No activity yet</div>';
+      }
+      function setSt(k, id, v) {
+        const r = by(k, id);
+        r[k == "leads" ? "stage" : "status"] = v;
+        log(
+          k.slice(0, -1),
+          E[k].t + " → " + v + ": " + (r.name || r.title || r.type),
+          r.customerId,
+          r.policyId,
+        );
+        save();
+        toast("Updated");
+        render();
+      }
+      function markPaid(id) {
+        const p = by("payments", id);
+        p.status = "Received";
+        p.receipt = p.receipt || "RC" + Date.now().toString().slice(-5);
+        log("payment", "Payment received " + inr(p.amount), p.customerId, p.policyId);
+        save();
+        toast("Marked received");
+        render();
+      }
+      function toCust(id) {
+        const l = by("leads", id);
+        D.customers.push({
+          id: uid("c"),
+          name: l.name,
+          phone: l.phone,
+          email: "",
+          city: "",
+          dob: "",
+          since: TD,
+          notes: "Converted from lead (" + l.interest + ")",
+          family: [],
+        });
+        D.leads = D.leads.filter((x) => x.id != id);
+        log("customer", "Lead converted: " + l.name, D.customers.at(-1).id);
+        save();
+        toast("Converted to customer");
+        location.hash = "#customer/" + D.customers.at(-1).id;
+      }
+      /* ---- Customer 360 / Policy 360 ---- */
+      let C360 = {};
+      function c360(id) {
+        const c = by("customers", id);
+        if (!c)
+          return '<div class="empty">Customer not found. <a href="#customers" class="lk">Back</a></div>';
+        const tab = C360[id] || "Overview",
+          P = D.policies.filter((p) => p.customerId == id),
+          Pa = D.payments.filter((p) => p.customerId == id),
+          Cl = D.claims.filter((p) => p.customerId == id),
+          Dc = D.docs.filter((p) => p.customerId == id),
+          A = D.acts.filter((a) => a.customerId == id),
+          Tk = D.tasks.filter((t) => t.customerId == id && t.status == "Open"),
+          R = P.filter((p) => ["overdue", "d7", "d30", "d60", "renewed"].includes(bucket(p)));
+        const tabs = [
+          "Overview",
+          "Family",
+          "Policies",
+          "Renewals",
+          "Payments",
+          "Claims",
+          "Documents",
+          "Activities",
+        ];
+        let b = "";
+        if (tab == "Overview")
+          b = `<div class="grid g4" style="margin-bottom:12px"><div class="card"><span class="m">Active policies</span><b style="font-size:20px;display:block">${P.filter((p) => p.status == "Active").length}</b></div><div class="card"><span class="m">Annual premium</span><b style="font-size:20px;display:block">${inr(sum(P, "premium"))}</b></div><div class="card"><span class="m">Total cover</span><b style="font-size:20px;display:block">${inr(sum(P, "sum"))}</b></div><div class="card"><span class="m">Open claims</span><b style="font-size:20px;display:block">${Cl.filter((x) => !["Settled", "Rejected"].includes(x.status)).length}</b></div></div><div class="grid g2"><div class="card"><h3>Needs attention</h3>${[...R.filter((p) => ["overdue", "d7"].includes(bucket(p))).map((p) => `<div class="row"><span>Renewal ${pl(p.id)} ${dd(p.due) < 0 ? "overdue" : "due in " + dd(p.due) + "d"}</span><button class="s p" onclick="renewP('${p.id}')">Renew</button></div>`), ...Tk.map((t) => `<div class="row"><span>${esc(t.title)}</span><span class="m">${fd(t.due)}</span></div>`), ...Cl.filter((x) => x.status == "Docs Pending").map((x) => `<div class="row"><span>Claim ${x.id}: documents pending</span>${tg(x.status)}</div>`)].join("") || '<div class="empty">Nothing urgent</div>'}</div><div class="card"><h3>Notes</h3><p>${esc(c.notes || "No notes yet.")}</p><textarea id="nt" rows="2" placeholder="Add a note…"></textarea><button class="s" style="margin-top:6px" onclick="addNote('${id}')">Save note</button></div></div>`;
+        if (tab == "Family")
+          b =
+            `<div class="bar"><span class="sp"></span><button class="p" onclick="famForm('${id}')">+ Add member</button></div>` +
+            table(
+              [
+                ["Name", (r) => esc(r.name)],
+                ["Relation", (r) => esc(r.rel)],
+                ["DOB", (r) => fd(r.dob)],
+                [
+                  "",
+                  (r) => `<button class="s d" onclick="famDel('${id}','${r.id}')">Remove</button>`,
+                ],
+              ],
+              c.family,
+              "No family members added",
+            );
+        if (tab == "Policies")
+          b =
+            `<div class="bar"><span class="sp"></span><button class="p" onclick="form('policies',null,{customerId:'${id}'})">+ Policy</button></div>` +
+            table(
+              [
+                ["Policy", (r) => pl(r.id)],
+                ["Insurer", (r) => esc(r.insurer)],
+                ["Type", (r) => esc(r.type)],
+                ["Cover", (r) => inr(r.sum), "r"],
+                ["Premium", (r) => inr(r.premium), "r"],
+                ["Due", (r) => fd(r.due)],
+                ["Status", (r) => tg(r.status)],
+              ],
+              P,
+              "No policies yet",
+            );
+        if (tab == "Renewals")
+          b = table(
+            [
+              ["Policy", (r) => pl(r.id)],
+              ["Due", (r) => fd(r.due)],
+              [
+                "Stage",
+                (r) =>
+                  tg(
+                    {
+                      overdue: "Overdue",
+                      d7: "7 days",
+                      d30: "30 days",
+                      d60: "60 days",
+                      renewed: "Renewed",
+                    }[bucket(r)],
+                  ),
+              ],
+              ["Premium", (r) => inr(r.premium), "r"],
+              [
+                "",
+                (r) =>
+                  `<div style="display:flex;gap:4px">${bucket(r) == "renewed" ? "" : ract(r)}</div>`,
+              ],
+            ],
+            R,
+            "No renewals in the next 60 days",
+          );
+        if (tab == "Payments")
+          b =
+            `<div class="bar"><span class="sp"></span><button class="p" onclick="form('payments',null,{customerId:'${id}',policyId:'${P[0]?.id || ""}'})">+ Payment</button></div>` +
+            table(
+              [
+                ["Date", (r) => fd(r.date)],
+                ["Policy", (r) => pl(r.policyId)],
+                ["Amount", (r) => inr(r.amount), "r"],
+                ["Mode", (r) => esc(r.mode)],
+                ["Status", (r) => tg(r.status)],
+              ],
+              Pa,
+              "No payments yet",
+            );
+        if (tab == "Claims")
+          b =
+            `<div class="bar"><span class="sp"></span><button class="p" onclick="form('claims',null,{customerId:'${id}',policyId:'${P[0]?.id || ""}'})">+ Claim</button></div>` +
+            table(
+              [
+                ["Date", (r) => fd(r.date)],
+                ["Policy", (r) => pl(r.policyId)],
+                ["Type", (r) => esc(r.type)],
+                ["Amount", (r) => inr(r.amount), "r"],
+                ["Status", (r) => tg(r.status)],
+                ["", ed("claims")],
+              ],
+              Cl,
+              "No claims",
+            );
+        if (tab == "Documents")
+          b =
+            `<div class="bar"><span class="sp"></span><button class="p" onclick="form('docs',null,{customerId:'${id}'})">+ Document</button></div>` +
+            table(
+              [
+                ["File", fl],
+                ["Type", (r) => esc(r.type)],
+                ["Policy", (r) => pl(r.policyId)],
+                ["Added", (r) => fd(r.date)],
+                ["", ed("docs")],
+              ],
+              Dc,
+              "No documents",
+            );
+        if (tab == "Activities") b = `<div class="card">${actList(A)}</div>`;
+        return `<div class="m"><a class="lk" href="#customers">Customers</a> / ${esc(c.name)}</div><div class="card" style="margin:10px 0"><div class="bar" style="margin:0"><div style="width:46px;height:46px;border-radius:10px;background:var(--n);color:#fff;display:grid;place-items:center;font-weight:700">${esc(
+          c.name
+            .split(" ")
+            .map((x) => x[0])
+            .join("")
+            .slice(0, 2),
+        )}</div><div><h1 style="margin:0">${esc(c.name)}</h1><span class="m">${esc(c.phone)} · ${esc(c.email || "no email")} · ${esc(c.city)} · client since ${fd(c.since)}</span></div><span class="sp"></span><a class="btn" href="tel:+91${c.phone}" onclick="log('call','Called ${esc(c.name)}','${id}');save()">Call</a><a class="btn" target="_blank" href="https://wa.me/91${c.phone}" onclick="log('call','WhatsApp opened for ${esc(c.name)}','${id}');save()">WhatsApp</a><a class="btn" href="mailto:${esc(c.email)}">Email</a><button onclick="form('tasks',null,{customerId:'${id}'})">+ Task</button><button onclick="form('customers','${id}')">Edit</button></div></div><div class="tabs">${tabs.map((t) => `<a class="${t == tab ? "on" : ""}" onclick="C360['${id}']='${t}';render()">${t}</a>`).join("")}</div>${b}`;
+      }
+      function addNote(id) {
+        const v = $("#nt").value.trim();
+        if (!v) return;
+        const c = by("customers", id);
+        c.notes = v;
+        log("note", "Note added: " + v.slice(0, 50), id);
+        save();
+        render();
+      }
+      function famForm(id) {
+        modal(
+          `<h3>Add family member</h3><form id="ff"><div class="fg"><div><label>Name *</label><input name="name" required></div><div><label>Relation</label><select name="rel"><option>Spouse</option><option>Child</option><option>Parent</option><option>Sibling</option></select></div><div><label>DOB</label><input type="date" name="dob"></div></div><div class="bar" style="margin-top:14px"><button type="button" onclick="closeM()">Cancel</button><span class="sp"></span><button class="p">Add</button></div></form>`,
+        );
+        $("#ff").onsubmit = (e) => {
+          e.preventDefault();
+          by("customers", id).family.push({
+            id: uid("f"),
+            ...Object.fromEntries(new FormData(e.target)),
+          });
+          save();
+          closeM();
+          render();
+        };
+      }
+      function famDel(c, f) {
+        const x = by("customers", c);
+        x.family = x.family.filter((m) => m.id != f);
+        save();
+        render();
+      }
+      function p360(id) {
+        const p = by("policies", id);
+        if (!p) return;
+        const pay = D.payments.filter((x) => x.policyId == id),
+          cl2 = D.claims.filter((x) => x.policyId == id),
+          dc = D.docs.filter((x) => x.policyId == id),
+          b = bucket(p);
+        modal(`<h3>${esc(p.no)} ${tg(p.status)}</h3><div class="row"><span class="m">Customer</span>${cl(p.customerId)}</div><div class="row"><span class="m">Insurer / plan</span><span>${esc(p.insurer)} · ${esc(p.plan)}</span></div><div class="row"><span class="m">Cover / premium</span><span>${inr(p.sum)} / ${inr(p.premium)} ${esc(p.mode)}</span></div><div class="row"><span class="m">Next due</span><span>${fd(p.due)} ${b ? tg({ overdue: "Overdue", d7: "7 days", d30: "30 days", d60: "60 days", renewed: "Renewed" }[b]) : ""}</span></div>
+ <h3 style="margin-top:12px">Payments (${pay.length})</h3>${pay.map((x) => `<div class="row"><span>${fd(x.date)} · ${inr(x.amount)}</span>${tg(x.status)}</div>`).join("") || '<span class="m">None</span>'}<h3 style="margin-top:12px">Claims (${cl2.length})</h3>${cl2.map((x) => `<div class="row"><span>${esc(x.type)} · ${inr(x.amount)}</span>${tg(x.status)}</div>`).join("") || '<span class="m">None</span>'}<h3 style="margin-top:12px">Documents (${dc.length})</h3>${dc.map((x) => `<div class="row"><span>${esc(x.name)}</span></div>`).join("") || '<span class="m">None</span>'}
+ <div class="bar" style="margin:14px 0 0"><button onclick="closeM()">Close</button><span class="sp"></span><button onclick="form('policies','${id}')">Edit</button><button onclick="closeM();form('claims',null,{customerId:'${p.customerId}',policyId:'${id}'})">+ Claim</button><button class="p" onclick="closeM();renewP('${id}')">Renew</button></div>`);
+      }
+      /* ---- Excel ---- */
+      const SH = {
+        customers: "Customers",
+        policies: "Policies",
+        payments: "Payments",
+        claims: "Claims",
+        leads: "Leads",
+        tasks: "Tasks",
+        docs: "Documents",
+      };
+      const flat = (k) =>
+        D[k].map((r) => {
+          const o = {};
+          E[k].f.forEach(([f, l, t]) => {
+            let v = r[f];
+            if (f == "customerId") v = cn(v);
+            if (f == "policyId") v = pn(v);
+            o[l] = v ?? "";
+          });
+          return o;
+        });
+      function dl(name, blob) {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = name;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 999);
+      }
+      function toCSV(rows) {
+        if (!rows.length) return "";
+        const h = Object.keys(rows[0]);
+        return [h, ...rows.map((r) => h.map((k) => r[k]))]
+          .map((r) => r.map((v) => '"' + String(v ?? "").replace(/"/g, '""') + '"').join(","))
+          .join("\n");
+      }
+      function exportRows(name, sheets) {
+        if (window.XLSX) {
+          const wb = XLSX.utils.book_new();
+          sheets.forEach(([n, r]) =>
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(r.length ? r : [{}]), n),
+          );
+          XLSX.writeFile(wb, name + ".xlsx");
+        } else
+          sheets.forEach(([n, r]) =>
+            dl(name + "-" + n + ".csv", new Blob([toCSV(r)], { type: "text/csv" })),
+          );
+        toast("Export ready");
+      }
+      function exportSheet(k) {
+        exportRows("insureos-" + k, [[SH[k], flat(k)]]);
+      }
+      function exportAll() {
+        exportRows(
+          "insureos-mis-" + TD,
+          Object.keys(SH).map((k) => [SH[k], flat(k)]),
+        );
+      }
+      function exportRen() {
+        const ins = q("ren").f;
+        exportRows(
+          "renewals-" + TD,
+          BK.map(([k, l]) => [
+            l,
+            bk(k)
+              .filter((p) => !ins || p.insurer == ins)
+              .map((p) => ({
+                Policy: p.no,
+                Customer: cn(p.customerId),
+                Mobile: by("customers", p.customerId).phone,
+                Insurer: p.insurer,
+                Premium: p.premium,
+                Due: p.due,
+              })),
+          ]),
+        );
+      }
+      function tmpl(k) {
+        exportRows(k + "-template", [
+          [
+            SH[k],
+            [
+              Object.fromEntries(
+                E[k].f.map((f) => [f[1], ""]),
+              ),
+            ],
+          ],
+        ]);
+      }
+      let IMP = null;
+      const IKEY = { customers: "phone", policies: "no", leads: "phone" };
+      function importRows(k, rows) {
+        const dt = (v) =>
+          typeof v == "number"
+            ? iso(new Date(Math.round((v - 25569) * 864e5)))
+            : v instanceof Date
+              ? iso(v)
+              : String(v || "").trim().slice(0, 10);
+        const g = (r, l) => {
+          const key = Object.keys(r).find((x) => x.trim().toLowerCase() == l.toLowerCase());
+          return key ? r[key] : "";
+        };
+        const out = [];
+        rows.forEach((r, i) => {
+          if (!Object.values(r).some((v) => String(v).trim())) return;
+          const o = {},
+            err = [];
+          E[k].f.forEach(([f, l, t, req, opts]) => {
+            let v = g(r, l);
+            const empty = String(v ?? "").trim() === "";
+            if (f == "customerId" || f == "policyId") {
+              const m = (f == "customerId" ? D.customers : D.policies).find(
+                (x) =>
+                  String(f == "customerId" ? x.name : x.no).toLowerCase() ==
+                  String(v).trim().toLowerCase(),
+              );
+              if (m) o[f] = m.id;
+              else if (!empty) err.push("Unknown " + l.toLowerCase() + " “" + v + "”");
+              else if (req) err.push(l + " required");
+              return;
+            }
+            if (t == "date") v = dt(v);
+            else v = empty ? "" : typeof v == "string" ? v.trim() : v;
+            if (!v && v !== 0) {
+              if (req) err.push(l + " required");
+              else if (t == "select") o[f] = Array.isArray(opts) ? opts[0] : "";
+              else o[f] = t == "number" ? 0 : "";
+              return;
+            }
+            if (t == "number") {
+              if (isNaN(+v) || +v < 0) err.push(l + " must be a number");
+              else o[f] = +v;
+            } else if (t == "date") {
+              if (!/^\d{4}-\d{2}-\d{2}$/.test(v) || isNaN(new Date(v)))
+                err.push(l + " must be a valid date");
+              else o[f] = v;
+            } else if (Array.isArray(opts)) {
+              const m = opts.find((x) => String(x).toLowerCase() == String(v).toLowerCase());
+              m ? (o[f] = m) : err.push("Invalid " + l.toLowerCase() + " “" + v + "”");
+            } else o[f] = String(v);
+          });
+          const kf = IKEY[k],
+            ex = kf && o[kf] && D[k].find((x) => String(x[kf]) == String(o[kf]));
+          out.push({ n: i + 2, o, err, ex: ex ? ex.id : null });
+        });
+        IMP = { k, out };
+        const ok = out.filter((x) => !x.err.length),
+          bad = out.length - ok.length,
+          upd = ok.filter((x) => x.ex).length,
+          lab = (x) => esc(x.o.name || x.o.no || x.o.title || x.o.type || x.o.receipt || "Row");
+        $("#ir").innerHTML = out.length
+          ? `<div class="row"><span><b style="color:var(--g)">${ok.length - upd} new</b> · <b>${upd} update</b> · <b style="color:var(--r)">${bad} with errors</b></span></div>` +
+            out
+              .slice(0, 8)
+              .map(
+                (x) =>
+                  `<div class="row"><span>Row ${x.n} · ${lab(x)}</span>${x.err.length ? `<span style="color:var(--r)">${esc(x.err[0])}</span>` : `<span class="tag ${x.ex ? "t-a" : "t-g"}">${x.ex ? "Update" : "New"}</span>`}</div>`,
+              )
+              .join("") +
+            (out.length > 8 ? `<div class="m">…and ${out.length - 8} more rows</div>` : "") +
+            `<div class="bar" style="margin-top:10px"><button class="p" ${ok.length ? "" : "disabled"} onclick="commitImport()">Import ${ok.length} valid row${ok.length == 1 ? "" : "s"}</button><button onclick="IMP=null;$('#ir').innerHTML=''">Cancel</button></div>${bad ? '<div class="m">Rows with errors are skipped.</div>' : ""}`
+          : '<span style="color:var(--r)">No data rows found. Use the template for the correct columns.</span>';
+      }
+      function commitImport() {
+        if (!IMP) return;
+        const { k, out } = IMP;
+        let a = 0,
+          u = 0;
+        out.forEach((x) => {
+          if (x.err.length) return;
+          if (x.ex) {
+            Object.assign(by(k, x.ex), x.o);
+            u++;
+          } else {
+            const base = { id: uid(k[0]) };
+            if (k == "customers") Object.assign(base, { since: TD, family: [] });
+            if (k == "policies") base.renewedOn = "";
+            D[k].push({ ...base, ...x.o });
+            a++;
+          }
+        });
+        const sk = out.filter((x) => x.err.length).length;
+        IMP = null;
+        log("import", "Excel import: " + a + " added, " + u + " updated into " + k);
+        save();
+        render();
+        toast("Import complete");
+        const r = $("#ir");
+        if (r)
+          r.innerHTML = `<b style="color:var(--g)">${a} added, ${u} updated</b>${sk ? `, <span style="color:var(--r)">${sk} skipped</span>` : ""}`;
+      }
+      function readFile(f) {
+        const k = $("#ie").value;
+        if (!f) return;
+        const rd = new FileReader();
+        if (window.XLSX) {
+          rd.onload = (e) => {
+            try {
+              const wb = XLSX.read(e.target.result, { type: "array" }),
+                n =
+                  wb.SheetNames.find((s) => s.toLowerCase() == SH[k].toLowerCase()) ||
+                  wb.SheetNames[0];
+              importRows(k, XLSX.utils.sheet_to_json(wb.Sheets[n], { defval: "" }));
+            } catch (x) {
+              $("#ir").textContent = "Could not read file: " + x.message;
+            }
+          };
+          rd.readAsArrayBuffer(f);
+        } else {
+          rd.onload = (e) => {
+            const L = e.target.result
+              .split(/\r?\n/)
+              .filter(Boolean)
+              .map((l) =>
+                l
+                  .match(/("([^"]|"")*"|[^,]*)(,|$)/g)
+                  .map((c) => c.replace(/,$/, "").replace(/^"|"$/g, "").replace(/""/g, '"')),
+              );
+            const h = L.shift();
+            importRows(
+              k,
+              L.map((r) => Object.fromEntries(h.map((x, i) => [x, r[i]]))),
+            );
+          };
+          rd.readAsText(f);
+        }
+      }
+      function backup() {
+        dl(
+          "insureos-backup-" + TD + ".json",
+          new Blob([JSON.stringify(D)], { type: "application/json" }),
+        );
+      }
+      /* ---- search / palette / quick add ---- */
+      function pal() {
+        modal(
+          '<div id="pal"><input id="ps" placeholder="Search customers, policies, claims, payments, leads, tasks…" autocomplete="off"><div id="ph"></div></div>',
+        );
+        const i = $("#ps");
+        let sel = 0,
+          hits = [];
+        const run = () => {
+            const s = i.value.toLowerCase().trim();
+            hits = [];
+            if (s) {
+              D.customers.forEach(
+                (c) =>
+                  (c.name + c.phone + c.email).toLowerCase().includes(s) &&
+                  hits.push(["Customer", c.name, c.phone, "#customer/" + c.id]),
+              );
+              D.policies.forEach(
+                (p) =>
+                  (p.no + p.insurer + p.plan + cn(p.customerId)).toLowerCase().includes(s) &&
+                  hits.push(["Policy", p.no, cn(p.customerId) + " · " + p.insurer, "p:" + p.id]),
+              );
+              D.claims.forEach(
+                (c) =>
+                  (c.id + c.type + cn(c.customerId) + c.status).toLowerCase().includes(s) &&
+                  hits.push([
+                    "Claim",
+                    c.type + " · " + c.status,
+                    cn(c.customerId),
+                    "#customer/" + c.customerId,
+                  ]),
+              );
+              D.payments.forEach(
+                (p) =>
+                  (p.receipt + cn(p.customerId) + p.amount + p.mode).toLowerCase().includes(s) &&
+                  hits.push([
+                    "Payment",
+                    inr(p.amount) + " · " + fd(p.date),
+                    cn(p.customerId),
+                    "#customer/" + p.customerId,
+                  ]),
+              );
+              D.docs.forEach(
+                (d) =>
+                  (d.name + d.type).toLowerCase().includes(s) &&
+                  hits.push(["Document", d.name, cn(d.customerId), "#customer/" + d.customerId]),
+              );
+              D.leads.forEach(
+                (l) =>
+                  (l.name + l.phone + l.interest + l.stage).toLowerCase().includes(s) &&
+                  hits.push(["Lead", l.name, l.stage + " · " + l.phone, "#leads"]),
+              );
+              D.tasks.forEach(
+                (t) =>
+                  (t.title + cn(t.customerId) + t.status).toLowerCase().includes(s) &&
+                  hits.push(["Task", t.title, t.status + " · " + fd(t.due), "#tasks"]),
+              );
+              hits = hits.slice(0, 14);
+            }
+            sel = 0;
+            draw();
+          },
+          draw = () => {
+            $("#ph").innerHTML = hits.length
+              ? hits
+                  .map(
+                    (h, j) =>
+                      `<div class="hit ${j == sel ? "on" : ""}" data-j="${j}"><span><span class="tag">${h[0]}</span> ${esc(h[1])}</span><span class="m">${esc(h[2])}</span></div>`,
+                  )
+                  .join("")
+              : `<div class="empty">${i.value ? "No matches" : "Type to search across everything"}</div>`;
+            $("#ph")
+              .querySelectorAll(".hit")
+              .forEach((e) => (e.onclick = () => go(+e.dataset.j)));
+          },
+          go = (j) => {
+            const h = hits[j];
+            if (!h) return;
+            closeM();
+            h[3].startsWith("p:") ? p360(h[3].slice(2)) : (location.hash = h[3]);
+          };
+        i.oninput = run;
+        i.onkeydown = (e) => {
+          if (e.key == "ArrowDown") {
+            sel = Math.min(sel + 1, hits.length - 1);
+            draw();
+            e.preventDefault();
+          }
+          if (e.key == "ArrowUp") {
+            sel = Math.max(sel - 1, 0);
+            draw();
+            e.preventDefault();
+          }
+          if (e.key == "Enter") go(sel);
+          if (e.key == "Escape") closeM();
+        };
+        run();
+        i.focus();
+      }
+      function quick() {
+        modal(
+          '<h3>Create new</h3><div class="grid" style="grid-template-columns:1fr 1fr">' +
+            ["customers", "policies", "payments", "claims", "leads", "tasks", "docs"]
+              .map((k) => `<button onclick="form('${k}')">${E[k].t}</button>`)
+              .join("") +
+            "</div>",
+        );
+      }
+      document.addEventListener("keydown", (e) => {
+        if (e.key == "Escape") sb.classList.remove("open");
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() == "k") {
+          e.preventDefault();
+          pal();
+        }
+        if (e.key == "Escape") closeM();
+      });
+      /* ---- router ---- */
+      const NAV = [
+        ["dashboard", "Dashboard"],
+        ["tasks", "My Work Today", "t"],
+        ["sec", "Customers & Policies"],
+        ["customers", "Customers"],
+        ["policies", "Policies"],
+        ["renewals", "Renewals", "r"],
+        ["payments", "Payments"],
+        ["claims", "Claims"],
+        ["sec", "Growth"],
+        ["leads", "Leads"],
+        ["documents", "Documents"],
+        ["sec", "Insights"],
+        ["reports", "Reports / MIS"],
+        ["io", "Excel Import/Export"],
+        ["settings", "Settings"],
+      ];
+      function render() {
+        const h = (location.hash || "#dashboard").slice(1),
+          pg = h.split("/")[0],
+          sc = $("#v").scrollTop;
+        const cnt = {
+          r: bk("overdue").length + bk("d7").length,
+          t: D.tasks.filter((t) => t.status == "Open" && dd(t.due) <= 0).length,
+        };
+        $("#nav").innerHTML = NAV.map((n) =>
+          n[0] == "sec"
+            ? `<div class="sec">${n[1]}</div>`
+            : `<a class="${pg == n[0] || (pg == "customer" && n[0] == "customers") ? "on" : ""}" href="#${n[0]}">${n[1]}${n[2] && cnt[n[2]] ? `<small class="hot">${cnt[n[2]]}</small>` : ""}</a>`,
+        ).join("");
+        sb.classList.remove("open");
+        $("#v").innerHTML = pg == "customer" ? c360(h.split("/")[1]) : (PG[pg] || PG.dashboard)();
+        $("#v").scrollTop = sc;
+      }
+      window.addEventListener("hashchange", () => {
+        $("#v").scrollTop = 0;
+        render();
+      });
+      document.addEventListener("submit", (e) => {
+        if (e.target.id == "sf") {
+          e.preventDefault();
+          const f = Object.fromEntries(new FormData(e.target));
+          f.target = +f.target || 0;
+          Object.assign(D.set, f);
+          save();
+          toast("Settings saved");
+          render();
+        }
+      });
+      document.addEventListener("change", (e) => {
+        if (e.target.id == "fi") readFile(e.target.files[0]);
+        if (e.target.id == "rb") {
+          const r = new FileReader();
+          r.onload = (x) => {
+            try {
+              D = norm(JSON.parse(x.target.result));
+              save();
+              toast("Backup restored");
+              render();
+            } catch (_) {
+              toast("Invalid backup file");
+            }
+          };
+          r.readAsText(e.target.files[0]);
+        }
+      });
+      /* ---- Firebase cloud sync (Auth + Firestore: users/{uid}/{collection}/{id}) ---- */
+      const ENT = ["customers", "policies", "payments", "claims", "leads", "tasks", "docs", "acts"];
+      let LOCAL = false, FBU = null, FDB = null, FAUTH = null, SNAP = {}, ready = false, seq = 0, unsubs = [], rT;
+      const FB_DEFAULT = {
+        apiKey: "AIzaSyDNC0tNqjZclNAfTbz6mNhdtN1WM2nfS6o",
+        authDomain: "lic-a2e04.firebaseapp.com",
+        projectId: "lic-a2e04",
+        storageBucket: "lic-a2e04.firebasestorage.app",
+        messagingSenderId: "615396701390",
+        appId: "1:615396701390:web:c06837a221ff68e4ea0c9f",
+        measurementId: "G-RL21YSZQP6",
+      };
+      const fbcfg = () => FB_DEFAULT;
+      function gate(h) {
+        let g = $("#gate");
+        if (!g) { g = document.createElement("div"); g.id = "gate"; document.body.appendChild(g); }
+        g.innerHTML = '<div class="gc"><h2>InsureOS</h2>' + h + "</div>";
+        g.style.display = "flex";
+      }
+      const gateOff = () => { const g = $("#gate"); if (g) g.style.display = "none"; };
+      function loginGate(msg) {
+        gate(`<p class="m">Sign in to open your workspace.</p><input id="le" type="email" placeholder="Email" autocomplete="username" onkeydown="if(event.key=='Enter')$('#lp').focus()"><input id="lp" type="password" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key=='Enter')fbAuth()"><div id="ge" class="gerr">${esc(msg || "")}</div><button class="p" style="width:100%" onclick="fbAuth()">Sign in</button><button style="width:100%;margin-top:8px" onclick="fbSignUp()">Create account</button><div class="bar" style="margin:8px 0 0"><button class="s" onclick="fbReset()">Forgot password?</button><span class="sp"></span></div>${OFF}`);
+      }
+      function fbAuth() {
+        const e = $("#le").value.trim(), p = $("#lp").value;
+        if (!e || !p) return ($("#ge").textContent = "Enter your email and password");
+        $("#ge").textContent = "";
+        FAUTH.signInWithEmailAndPassword(e, p).catch((x) => {
+          $("#ge").textContent = fbErr(x);
+        });
+      }
+      const OFF = '<button style="width:100%;margin-top:8px" onclick="goLocal()">Continue without account (this browser only)</button>';
+      function startLocal() {
+        LOCAL = true;
+        try { D = norm(JSON.parse(localStorage.getItem(KEY))); } catch (e) { D = blank(); }
+        gateOff();
+        render();
+      }
+      function goLocal() { localStorage.setItem("insureos_local", "1"); startLocal(); }
+      const fbErr = (x) => {
+        const c = x.code || "";
+        return /invalid-credential|wrong-password|user-not-found|invalid-email/.test(c) ? "Incorrect email or password"
+          : /email-already/.test(c) ? "Account already exists. Use Sign in."
+          : /weak-password/.test(c) ? "Password must be at least 6 characters"
+          : /operation-not-allowed/.test(c) ? "Email/Password sign-in is not enabled in Firebase Authentication"
+          : /too-many/.test(c) ? "Too many attempts. Try again later." : String(x.message || x).replace("Firebase: ", "");
+      };
+      function fbSignUp() {
+        const e = $("#le").value.trim(), p = $("#lp").value;
+        if (!e || !p) return ($("#ge").textContent = "Enter an email and a password (min 6 characters)");
+        $("#ge").textContent = "";
+        FAUTH.createUserWithEmailAndPassword(e, p).catch((x) => ($("#ge").textContent = fbErr(x)));
+      }
+      function fbReset() {
+        const e = $("#le").value.trim();
+        if (!e) return ($("#ge").textContent = "Enter your email first");
+        FAUTH.sendPasswordResetEmail(e).then(() => ($("#ge").textContent = "Reset link sent to " + e)).catch((x) => ($("#ge").textContent = fbErr(x)));
+      }
+      function fbOut() {
+        if (LOCAL) { localStorage.removeItem("insureos_local"); location.reload(); return; }
+        FAUTH && FAUTH.signOut();
+      }
+      function sync() {
+        if (!FDB || !FBU || !ready) return;
+        const root = FDB.collection("users").doc(FBU.uid), ops = [];
+        ENT.forEach((k) => {
+          const old = SNAP[k] || (SNAP[k] = {}), now = {};
+          D[k].forEach((r) => {
+            if (!r._c) r._c = Date.now() * 1000 + (seq++ % 1000);
+            const j = JSON.stringify(r);
+            now[r.id] = j;
+            if (old[r.id] !== j) ops.push((b) => b.set(root.collection(k).doc(r.id), JSON.parse(j)));
+          });
+          Object.keys(old).forEach((id) => { if (!(id in now)) ops.push((b) => b.delete(root.collection(k).doc(id))); });
+          SNAP[k] = now;
+        });
+        const sj = JSON.stringify(D.set);
+        if (SNAP.set !== sj) { SNAP.set = sj; ops.push((b) => b.set(root.collection("meta").doc("settings"), JSON.parse(sj))); }
+        for (let i = 0; i < ops.length; i += 400) {
+          const b = FDB.batch();
+          ops.slice(i, i + 400).forEach((f) => f(b));
+          b.commit().catch((e) => toast("Cloud sync failed: " + e.message));
+        }
+      }
+      function listen() {
+        const root = FDB.collection("users").doc(FBU.uid);
+        let pend = ENT.length + 1;
+        const done = () => {
+          if (--pend) return;
+          ready = true;
+          gateOff();
+          const L = legacy();
+          if (L && ENT.every((k) => !D[k].length) && ENT.some((k) => L[k].length) &&
+              confirm("Found data saved in this browser. Upload it to your Firebase account?")) {
+            D = norm({ ...L }); sync();
+            localStorage.removeItem(KEY);
+          }
+          render();
+        };
+        ENT.forEach((k) => {
+          let first = true;
+          unsubs.push(root.collection(k).onSnapshot((s) => {
+            let ch = false;
+            s.docChanges().forEach((c) => {
+              if (c.doc.metadata.hasPendingWrites) return;
+              const id = c.doc.id, i = D[k].findIndex((x) => x.id == id);
+              (SNAP[k] || (SNAP[k] = {}));
+              if (c.type == "removed") { if (i >= 0) D[k].splice(i, 1); delete SNAP[k][id]; }
+              else {
+                const r = c.doc.data();
+                SNAP[k][id] = JSON.stringify(r);
+                i >= 0 ? (D[k][i] = r) : D[k].push(r);
+              }
+              ch = true;
+            });
+            if (ch) D[k].sort((a, b) => (k == "acts" ? b.at - a.at : (a._c || 0) - (b._c || 0)));
+            if (first) { first = false; done(); } else if (ch && ready) { clearTimeout(rT); rT = setTimeout(render, 150); }
+          }, (e) => loginGate("Cloud error: " + e.message + " (check Firestore rules)")));
+        });
+        let f2 = true;
+        unsubs.push(root.collection("meta").doc("settings").onSnapshot((s) => {
+          if (s.exists && !s.metadata.hasPendingWrites) {
+            const v = s.data();
+            D.set = { org: v.org || "", user: v.user || "", target: +v.target || 0 };
+            SNAP.set = JSON.stringify(D.set);
+            if (!f2 && ready) render();
+          }
+          if (f2) { f2 = false; done(); }
+        }));
+      }
+      function boot() {
+        load();
+        if (localStorage.getItem("insureos_local") == "1") return startLocal();
+        const c = fbcfg();
+        if (!window.firebase) return gate('<p class="m">Could not load cloud sync. Check your connection, or continue offline.</p>' + OFF);
+        try {
+          firebase.initializeApp(c);
+          FAUTH = firebase.auth();
+          FDB = firebase.firestore();
+        } catch (e) { return gate('<p class="m">Firebase error: ' + esc(e.message) + "</p>" + OFF); }
+        gate('<p class="m">Loading…</p>');
+        FAUTH.onAuthStateChanged((u) => {
+          unsubs.forEach((f) => f()); unsubs = [];
+          ready = false; SNAP = {}; D = blank(); FBU = u;
+          u ? (gate('<p class="m">Loading your data…</p>'), listen()) : loginGate();
+        });
+      }
+      boot();
+    </script>
+  </body>
+</html>
