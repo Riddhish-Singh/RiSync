@@ -1934,7 +1934,7 @@ svg rect.bar-old:hover{fill:color-mix(in srgb,var(--b) 55%,var(--c))}
       }
       const gateOff = () => { const g = $("#gate"); if (g) g.style.display = "none"; };
       function loginGate(msg) {
-        gate(`<p class="m">Sign in to open your workspace.</p><input id="le" type="email" placeholder="Email" autocomplete="username" onkeydown="if(event.key=='Enter')$('#lp').focus()"><input id="lp" type="password" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key=='Enter')fbAuth()"><div id="ge" class="gerr">${esc(msg || "")}</div><button class="p" style="width:100%" onclick="fbAuth()">Sign in</button><button style="width:100%;margin-top:8px" onclick="fbSignUp()">Create account</button><div class="bar" style="margin:8px 0 0"><button class="s" onclick="fbReset()">Forgot password?</button><span class="sp"></span></div>${OFF}`);
+        gate(`<p class="m">Sign in to open your workspace.</p><input id="le" type="email" placeholder="Email" autocomplete="username" onkeydown="if(event.key=='Enter')$('#lp').focus()"><input id="lp" type="password" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key=='Enter')fbAuth()"><div id="ge" class="gerr">${esc(msg || "")}</div><button class="p" style="width:100%" onclick="fbAuth()">Sign in</button><div class="bar" style="margin:8px 0 0"><button class="s" onclick="fbReset()">Forgot password?</button><span class="sp"></span></div>${OFF}`);
       }
       function fbAuth() {
         const e = $("#le").value.trim(), p = $("#lp").value;
@@ -1960,12 +1960,6 @@ svg rect.bar-old:hover{fill:color-mix(in srgb,var(--b) 55%,var(--c))}
           : /operation-not-allowed/.test(c) ? "Email/Password sign-in is not enabled in Firebase Authentication"
           : /too-many/.test(c) ? "Too many attempts. Try again later." : String(x.message || x).replace("Firebase: ", "");
       };
-      function fbSignUp() {
-        const e = $("#le").value.trim(), p = $("#lp").value;
-        if (!e || !p) return ($("#ge").textContent = "Enter an email and a password (min 6 characters)");
-        $("#ge").textContent = "";
-        FAUTH.createUserWithEmailAndPassword(e, p).catch((x) => ($("#ge").textContent = fbErr(x)));
-      }
       function fbReset() {
         const e = $("#le").value.trim();
         if (!e) return ($("#ge").textContent = "Enter your email first");
