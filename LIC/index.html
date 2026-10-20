@@ -1944,7 +1944,7 @@ svg rect.bar-old:hover{fill:color-mix(in srgb,var(--b) 55%,var(--c))}
           $("#ge").textContent = fbErr(x);
         });
       }
-      const OFF = '<button style="width:100%;margin-top:8px" onclick="goLocal()">Continue without account (this browser only)</button>';
+      const OFF = '';
       function startLocal() {
         LOCAL = true;
         try { D = norm(JSON.parse(localStorage.getItem(KEY))); } catch (e) { D = blank(); }
@@ -2039,9 +2039,9 @@ svg rect.bar-old:hover{fill:color-mix(in srgb,var(--b) 55%,var(--c))}
       }
       function boot() {
         load();
-        if (localStorage.getItem("insureos_local") == "1") return startLocal();
+        localStorage.removeItem("insureos_local");
         const c = fbcfg();
-        if (!window.firebase) return gate('<p class="m">Could not load cloud sync. Check your connection, or continue offline.</p>' + OFF);
+        if (!window.firebase) return gate('<p class="m">Could not load cloud sync. Check your connection and reload.</p>' + OFF);
         try {
           firebase.initializeApp(c);
           FAUTH = firebase.auth();
