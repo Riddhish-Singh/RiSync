@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Riki Connect - The digital network for farmers, buyers and agricultural businesses</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
@@ -244,7 +244,7 @@ body{padding-bottom:calc(68px + env(safe-area-inset-bottom));}
 <style id="rk-redesign">:root{--g1:#166534;--g2:#22C55E;--g3:#14532D;--earth:#8B5E34;--cream:#FAF8F2;--warm:#F7F5EF;--ink:#172016;--mute:#64748B}
 body{background:var(--warm)!important;color:var(--ink)}
 header{box-shadow:none!important;border-bottom:1px solid #e7e3d8!important;background:var(--cream)!important}
-#main-nav-dashboard,header .relative.hidden.xl\:block,header button[onclick="switchTab('community')"].relative span{display:none!important}
+header .relative.hidden.xl\:block,header button[onclick="switchTab('community')"].relative span{display:none!important}
 .rk-wrap{max-width:1200px;margin:0 auto;padding:0 20px}.rk-section{padding-top:48px;padding-bottom:8px}
 .rk-hero{background:linear-gradient(180deg,var(--cream),var(--warm));padding:48px 0 32px}
 .rk-hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
@@ -394,6 +394,63 @@ body.rc-msg-chat #rc-phone-bottom-nav{display:none!important}
 .rai-sheet{position:fixed;inset:0;z-index:250;background:rgba(15,23,42,.5);display:flex;align-items:flex-end;justify-content:center}.rai-sheet[hidden]{display:none}
 .rai-sc{background:#fff;width:100%;max-width:640px;max-height:90vh;overflow-y:auto;border-radius:20px 20px 0 0;padding-bottom:env(safe-area-inset-bottom)}
 </style>
+
+<style id="riki-ai-live-status">
+  .rk-live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;margin-right:6px;box-shadow:0 0 0 3px rgba(34,197,94,.16)}
+</style>
+
+<style id="riki-responsive-overhaul">
+/* Riki Connect responsive device overhaul */
+html{overflow-x:hidden}body{min-width:0;overflow-x:hidden}
+img,video,canvas,svg{max-width:100%;height:auto}
+button,input,select,textarea{max-width:100%;font:inherit}
+@media (max-width:1024px){
+  .max-w-7xl{max-width:100%}.px-4,.px-6,.sm\:px-6{padding-left:16px!important;padding-right:16px!important}
+  .grid-cols-4{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .lg\:grid-cols-3{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .lg\:grid-cols-4{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .lg\:flex-row{flex-direction:column!important}
+}
+@media (max-width:768px){
+  body{font-size:14px}
+  header .max-w-7xl{padding-left:12px!important;padding-right:12px!important}
+  nav{gap:4px!important}
+  .grid-cols-2,.grid-cols-3,.grid-cols-4,.sm\:grid-cols-2,.md\:grid-cols-2,.md\:grid-cols-3,.lg\:grid-cols-3,.lg\:grid-cols-4{grid-template-columns:1fr!important}
+  .sm\:flex-row,.md\:flex-row{flex-direction:column!important}
+  .sm\:items-center,.md\:items-center{align-items:stretch!important}
+  .overflow-x-auto{scrollbar-width:thin}
+  table{min-width:640px}
+  .rk-wrap{width:100%!important}
+  .rk-two{grid-template-columns:1fr!important}
+  .rk-ai{grid-template-columns:1fr!important}
+  .rk-reqgrid{grid-template-columns:1fr!important}
+  .rai{padding:12px!important}
+  .rai .rai-shell,.rai .rai-card{width:100%!important;max-width:100%!important}
+  .rai input,.rai textarea{font-size:16px!important}
+  .rk-search{width:100%!important}
+  .rk-search input{min-width:0!important;width:100%!important}
+  .rk-search button{flex:0 0 auto}
+  .fixed{max-width:100vw}
+}
+@media (max-width:480px){
+  h1{font-size:clamp(1.65rem,8vw,2.25rem)!important;line-height:1.08}
+  h2{font-size:clamp(1.25rem,6vw,1.7rem)!important}
+  .text-4xl{font-size:2rem!important}.text-3xl{font-size:1.65rem!important}.text-2xl{font-size:1.4rem!important}
+  .p-8{padding:16px!important}.p-6{padding:14px!important}.p-5{padding:12px!important}
+  .px-8{padding-left:14px!important;padding-right:14px!important}
+  .py-8{padding-top:18px!important;padding-bottom:18px!important}
+  .gap-8{gap:16px!important}.gap-6{gap:14px!important}
+  button{min-height:42px}
+  input,select,textarea{min-height:44px}
+  .rk-pill{font-size:11px}
+  .rk-btn{width:100%;justify-content:center}
+  footer .grid{grid-template-columns:1fr!important}
+}
+/* Safe-area support for phones */
+@supports(padding:max(0px)){
+  body{padding-bottom:max(0px,env(safe-area-inset-bottom))}
+}
+</style>
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans antialiased min-h-screen flex flex-col selection:bg-brand-100 selection:text-brand-900">
 <!-- ======================================================== -->
@@ -541,9 +598,9 @@ body.rc-msg-chat #rc-phone-bottom-nav{display:none!important}
 <div class="rk-two"><button class="rk-panel" onclick="switchTab('profile')"><b>🤝 Riki Network</b><span>Farmers, businesses, FPOs and agriculture experts in one place.</span><em>Browse the network &rarr;</em></button><button class="rk-panel" onclick="switchTab('community')"><b>💬 Community</b><span>Farming, ideas, market, experience and questions.</span><em>Join the discussion &rarr;</em></button></div>
 <p class="rk-note">Live activity will appear here as the network grows.</p></section>
 <section class="rk-wrap rk-section"><div class="rk-ai">
-<div><span class="rk-pill">Riki AI &mdash; Coming Soon</span><h2>🤖 Ask Riki</h2><p>Your agricultural intelligence layer across Riki Connect.</p><ul class="rk-aicaps"><li>Agriculture Q&amp;A</li><li>Produce discovery</li><li>Buyer-farmer matching</li><li>Translation</li><li>Market insights</li></ul></div>
-<div><div class="rk-search rk-ai-in"><input id="riki-ai-demo-input" placeholder="Ask Riki..." aria-label="Ask Riki"><button type="button" onclick="showRikiAiComingSoon()">Ask</button></div>
-<div class="rk-chips"><button onclick="showRikiAiComingSoon()">🌾 Farming Help</button><button onclick="showRikiAiComingSoon()">📊 Market Discovery</button><button onclick="showRikiAiComingSoon()">🔎 Find Buyers</button><button onclick="showRikiAiComingSoon()">🌐 Translate</button><button onclick="showRikiAiComingSoon()">📚 Learn</button></div></div>
+<div><span class="rk-pill"><span class="rk-live-dot"></span>Riki AI &mdash; Live Assistant</span><h2>🤖 Ask Riki</h2><p>Your agricultural intelligence layer across Riki Connect.</p><ul class="rk-aicaps"><li>Agriculture Q&amp;A</li><li>Produce discovery</li><li>Buyer-farmer matching</li><li>Translation</li><li>Market insights</li></ul></div>
+<div><div class="rk-search rk-ai-in"><input id="riki-ai-demo-input" placeholder="Ask naturally — e.g. tomato price, how to sell my wheat..." aria-label="Ask Riki" onkeydown="if(event.key==='Enter'){event.preventDefault();askRikiFromHome()}"><button type="button" onclick="askRikiFromHome()">Ask Riki</button></div>
+<div class="rk-chips"><button onclick="askRikiFromHome('AG')">🌾 Farming Help</button><button onclick="askRikiFromHome('MARKET')">📊 Market Discovery</button><button onclick="askRikiFromHome('BUYERS')">🔎 Find Buyers</button><button onclick="askRikiFromHome('TRANS')">🌐 Translate</button><button onclick="askRikiFromHome('HLIST')">📚 How do I list?</button></div></div>
 </div></section>
 
 <!-- How Riki Connect Works -->
@@ -1908,40 +1965,75 @@ body.rc-msg-chat #rc-phone-bottom-nav{display:none!important}
     } catch (e) { console.error(e); toast("Could not send order request."); }
   };
 
-  /* ---- Dashboard (profile tab): live counts from Firestore ---- */
+  /* ---- Farmer Dashboard: simple, visual, live Firestore data ---- */
   let dashUnsubs = [];
   function startDashboard() {
     dashUnsubs.forEach(u=>u()); dashUnsubs = [];
     $("rc-dashboard")?.remove();
     if (!currentUser) return;
-    const anchor = $("profile-batches-grid")?.parentElement; if (!anchor) return;
+    const anchor = $("profile-batches-grid"); if (!anchor) return;
+    const host = anchor.parentElement; if (!host) return;
     const box = document.createElement("section");
     box.id = "rc-dashboard";
-    box.className = "bg-white rounded-2xl border border-slate-200 p-5 mb-6";
-    anchor.insertAdjacentElement("beforebegin", box);
-    const data = {enqIn:[],enqOut:[],sample:[],quote:[],ordIn:[],ordOut:[],saved:[],notes:[]};
+    box.className = "w-full bg-white rounded-3xl border border-slate-200 p-4 sm:p-6 mb-6 shadow-sm";
+    host.insertBefore(box, host.firstElementChild);
+
+    const data = {batches:[], ordersIn:[], enquiries:[], notes:[]};
+    const money = n => "₹" + Math.max(0,Number(n)||0).toLocaleString("en-IN",{maximumFractionDigits:0});
+    const qty = n => Number(n)||0;
+    const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0,0,0,0);
+    const isDone = o => /^(COMPLETED|DELIVERED|PAID|ACCEPTED)$/i.test(String(o.status||""));
+    const orderValue = o => Number(o.total||o.amount||0) || (Array.isArray(o.items)?o.items.reduce((t,x)=>t+(Number(x.price)||0)*(Number(x.quantity)||1),0):0);
+
     const paint = () => {
-      const pend = data.enqIn.filter(x=>x.status==="ENQUIRY").length;
+      const active = data.batches.filter(b=>b.status!=="paused");
+      const listedQty = active.reduce((t,b)=>t+qty(b.volume),0);
+      const monthOrders = data.ordersIn.filter(o=>{
+        const d=o.createdAt?.toDate?.() || (o.createdAt?new Date(o.createdAt):null);
+        return d && d>=monthStart;
+      });
+      const completed = data.ordersIn.filter(isDone);
+      const sales = completed.reduce((t,o)=>t+orderValue(o),0);
+      const monthSales = monthOrders.filter(isDone).reduce((t,o)=>t+orderValue(o),0);
+      const pending = data.ordersIn.filter(o=>!isDone(o) && !/cancel|reject|close/i.test(String(o.status||""))).length;
+      const interest = data.enquiries.length;
       const unread = data.notes.filter(n=>!n.read).length;
-      const cell = (n,l)=>`<div class="bg-slate-50 rounded-xl p-3 text-center"><div class="text-xl font-extrabold text-brand-800">${n}</div><div class="text-[10px] font-bold text-slate-500 mt-0.5">${l}</div></div>`;
-      box.innerHTML = `<h3 class="font-extrabold text-slate-900 mb-3">My Activity</h3><div class="grid grid-cols-3 md:grid-cols-6 gap-2">${cell(data.enqIn.length,"Enquiries received")}${cell(pend,"Pending")}${cell(data.enqOut.length,"Enquiries sent")}${cell(data.sample.length+data.quote.length,"Samples / quotes")}${cell(data.ordIn.length+data.ordOut.length,"Order requests")}${cell(data.saved.length,"Saved")}</div>
-      <div class="mt-4 flex items-center justify-between"><b class="text-xs text-slate-700">Notifications${unread?` (${unread} new)`:""}</b>${unread?`<button onclick="markNotesRead()" class="text-[11px] font-bold text-brand-800">Mark all read</button>`:""}</div>
-      <div class="mt-2 space-y-1.5">${data.notes.slice(0,5).map(n=>`<div class="text-xs ${n.read?"text-slate-400":"text-slate-800 font-semibold"}">• ${escapeHtml(n.text)} <span class="text-[10px] text-slate-400">${escapeHtml(formatDate(n.createdAt))}</span></div>`).join("")||'<div class="text-xs text-slate-400">No notifications yet.</div>'}</div>`;
+      const maxBar = Math.max(1,...active.map(b=>Number(b.volume)||0));
+      const card=(icon,label,value,sub,extra="")=>`<div class="rounded-2xl border border-slate-100 bg-slate-50 p-4 ${extra}"><div class="flex items-center justify-between"><span class="text-2xl">${icon}</span><span class="text-[10px] font-extrabold uppercase tracking-wide text-slate-400">${sub}</span></div><div class="mt-2 text-2xl font-black text-slate-900">${value}</div><div class="mt-1 text-xs font-bold text-slate-500">${label}</div></div>`;
+      const listingRows=active.slice(0,5).map(b=>{
+        const v=Number(b.volume)||0, pct=Math.round(v/maxBar*100);
+        return `<div class="py-3 border-b border-slate-100 last:border-0"><div class="flex items-center justify-between gap-3"><div><div class="font-extrabold text-sm text-slate-900">${escapeHtml(b.produceName||"Produce")}</div><div class="text-[11px] text-slate-500">${v?escapeHtml(String(v)):"—"} ${escapeHtml(b.unit||"kg")} available · ${money(b.price||0)}/${escapeHtml(b.unit||"kg")}</div></div><div class="text-xs font-black text-brand-800">${v?money((b.price||0)*v):"—"}</div></div><div class="mt-2 h-2 rounded-full bg-slate-200 overflow-hidden"><div class="h-full rounded-full bg-brand-700" style="width:${Math.max(4,pct)}%"></div></div></div>`;
+      }).join("") || `<div class="py-5 text-sm text-slate-400">No produce listed yet. Tap <b>+ Post Produce</b> to start.</div>`;
+      const noteRows=data.notes.slice(0,4).map(n=>`<div class="text-xs py-2 border-b border-slate-100 last:border-0 ${n.read?"text-slate-400":"text-slate-800 font-semibold"}">• ${escapeHtml(n.text||"")}</div>`).join("") || `<div class="text-xs text-slate-400 py-3">No new updates.</div>`;
+      box.innerHTML=`
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+          <div><div class="text-[11px] font-extrabold uppercase tracking-widest text-emerald-700">Farmer Dashboard</div><h3 class="text-2xl font-black text-slate-900 mt-1">Your farm at a glance 🌾</h3><p class="text-xs text-slate-500 mt-1">Simple numbers that help you see what you listed, what buyers want and what you are selling.</p></div>
+          <button onclick="switchTab('marketplace')" class="rounded-xl bg-brand-800 text-white px-4 py-2 text-xs font-extrabold">Find More Buyers →</button>
+        </div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          ${card("💰","Sales completed",money(sales),"All time")}
+          ${card("📅","This month's sales",money(monthSales),"This month")}
+          ${card("📦","Active produce",active.length,"Listings")}
+          ${card("🤝","Buyer interest",interest,"Enquiries")}
+        </div>
+        <div class="grid lg:grid-cols-2 gap-4 mt-4">
+          <div class="rounded-2xl border border-slate-100 p-4"><div class="flex items-center justify-between"><div><b class="text-sm text-slate-900">My Produce</b><div class="text-[11px] text-slate-500">${listedQty?listedQty.toLocaleString("en-IN"):0} units listed</div></div><span class="text-xs font-bold text-slate-400">${active.length} active</span></div>${listingRows}</div>
+          <div class="rounded-2xl border border-slate-100 p-4"><div class="flex items-center justify-between"><div><b class="text-sm text-slate-900">Orders & Buyer Activity</b><div class="text-[11px] text-slate-500">${pending} request${pending===1?"":"s"} waiting</div></div><span class="text-xs font-bold text-emerald-700">${data.ordersIn.length} total orders</span></div><div class="grid grid-cols-2 gap-2 mt-4"><div class="rounded-xl bg-emerald-50 p-3"><div class="text-xl font-black text-emerald-800">${completed.length}</div><div class="text-[10px] font-bold text-emerald-700">Completed sales</div></div><div class="rounded-xl bg-amber-50 p-3"><div class="text-xl font-black text-amber-800">${pending}</div><div class="text-[10px] font-bold text-amber-700">Pending requests</div></div></div><div class="mt-4"><div class="text-xs font-extrabold text-slate-700 mb-1">Recent updates ${unread?`· ${unread} new`:""}</div>${noteRows}</div></div>
+        </div>
+        <div class="mt-4 rounded-2xl bg-slate-900 text-white p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"><div><div class="text-sm font-black">💡 Your opportunity</div><div class="text-xs text-slate-300 mt-1">${active.length?`You have ${active.length} active listing${active.length===1?"":"s"}. More buyers can mean more chances to sell.`:"List your first crop so buyers can discover you."}</div></div><button onclick="switchTab('profile')" class="rounded-xl bg-white text-slate-900 px-4 py-2 text-xs font-extrabold">Manage My Produce</button></div>`;
     };
-    const watch = (col, field, key) => dashUnsubs.push(onSnapshot(query(collection(db,col), where(field,"==",currentUser.uid), limit(100)), s=>{ data[key]=s.docs.map(d=>({id:d.id,...d.data()})); if(key==="notes") data.notes.sort((a,b)=>(b.createdAt?.toMillis?.()||0)-(a.createdAt?.toMillis?.()||0)); paint(); }, ()=>{}));
-    watch("enquiries","sellerId","enqIn"); watch("enquiries","buyerId","enqOut");
-    watch("sampleRequests","buyerId","sample"); watch("quotes","buyerId","quote");
-    watch("orders","sellerId","ordIn"); watch("orders","buyerId","ordOut");
-    watch("savedListings","userId","saved"); watch("notifications","userId","notes");
+    const watch=(col,field,key)=>dashUnsubs.push(onSnapshot(query(collection(db,col),where(field,"==",currentUser.uid),limit(100)),s=>{data[key]=s.docs.map(d=>({id:d.id,...d.data()}));data[key].sort((a,b)=>(b.createdAt?.toMillis?.()||0)-(a.createdAt?.toMillis?.()||0));paint();},()=>{}));
+    watch("batches","farmerId","batches");
+    watch("orders","sellerId","ordersIn");
+    watch("enquiries","sellerId","enquiries");
+    watch("notifications","userId","notes");
     paint();
   }
-  window.markNotesRead = function() {
-    document.querySelectorAll("#rc-dashboard").length && getDocsUnread();
-  };
-  async function getDocsUnread() {
+  window.markNotesRead = function(){ if($("rc-dashboard")) getDocsUnread(); };
+  async function getDocsUnread(){
     const { getDocs } = await import("https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js");
-    const s = await getDocs(query(collection(db,"notifications"), where("userId","==",currentUser.uid), limit(100)));
-    s.docs.filter(d=>!d.data().read).forEach(d=>updateDoc(d.ref,{read:true}));
+    const s=await getDocs(query(collection(db,"notifications"),where("userId","==",currentUser.uid),limit(100)));
+    await Promise.all(s.docs.filter(d=>!d.data().read).map(d=>updateDoc(d.ref,{read:true})));
   }
 
 
@@ -2446,10 +2538,33 @@ body.rc-msg-chat #rc-phone-bottom-nav{display:none!important}
   refreshUserUI();
 
 /* Riki Connect multilingual UI: English / Hindi / Punjabi */
-window.showRikiAiComingSoon=function(){
+window.askRikiFromHome=function(intent){
   const q=document.getElementById('riki-ai-demo-input');
-  const question=(q?.value||'').trim();
-  toast(question ? 'Riki AI is a prototype feature — responses are coming next.' : 'Enter a question to try the Riki AI prototype.');
+  let question=(q?.value||'').trim();
+
+  const presets={
+    AG:'How can I get help with my crop?',
+    MARKET:'What produce is available in the market?',
+    BUYERS:'How can I find buyers for my produce?',
+    TRANS:'Translate this for me',
+    HLIST:'How do I list my produce?'
+  };
+
+  if(!question && intent) question=presets[intent]||'Hello Riki';
+  if(!question){
+    toast('Type a question for RikiAI.');
+    q?.focus();
+    return;
+  }
+
+  switchTab('rikiai');
+  setTimeout(()=>{
+    if(typeof raiAsk==='function'){
+      raiAsk('home',question,intent||undefined);
+    }else{
+      toast('RikiAI is still loading. Please try again.');
+    }
+  },60);
 };
 
 const RC_T={
@@ -2567,7 +2682,7 @@ Object.assign(RC_T.pa,{"Select a conversation":"ਗੱਲਬਾਤ ਚੁਣੋ"
    language -> intent -> context (profile, own listings, marketplace data) -> response -> optional voice.
    To connect a real model later, call it from rikiAI() where intent is 'AG' or 'FB'. */
 const RAI_S={
-en:{sub:'Your agricultural assistant',hi:"Hello! I'm RikiAI.",intro:'Ask me about farming, crops, the market or Riki Connect.',speak:'Speak to RikiAI',tap:'Tap to speak',lis:'Listening… tap to stop',ph:'Type your question…',send:'Send',ear:'Listen',q1:'My Crop',q2:'Crop Help',q3:'Sell Produce',q4:'Find Buyers',q5:'Market',q6:'Learn',q7:'Translate',photo:'Photograph your crop',soon:'Coming Soon',novoice:"Voice input isn't available in this browser or language. Please type your question.",nospeak:'This device has no voice for this language.',signin:'Please sign in to Riki Connect first.',mc0:"I don't have any crop information for you yet. Produce you list on Riki Connect will appear here.",mc1:'Produce you have listed:',ml0:"You haven't listed any produce yet.",sa:'Which produce do you want to sell, and how much? For example: 500 kg tomatoes.',sq:'How much do you have? Please include the unit, for example: 500 kg.',sd:'I can help you create a listing on Riki Connect. Check the details:',lp:'Produce',lq:'Quantity',ll:'Location',b0:"Buyer requirements aren't available in Riki Connect yet, so I can't tell you whether anyone wants to buy. You can browse the marketplace.",m0:"Live mandi prices aren't connected yet.",m1:'Riki Connect has {n} active {p} listing(s), priced ₹{a}–₹{b} per {u}. These are listed prices, not mandi rates.',ag:"RikiAI's farming advice is coming soon. I can't yet identify crop problems or recommend sprays or fertilisers. For diseases, pests or chemicals, please ask a qualified agriculture expert or your nearest Krishi Vigyan Kendra (KVK), and follow the product label.",tr:'Translation is coming soon.',hl:'To list produce: 1) Sign in. 2) Tap "+ Post Produce". 3) Fill in the name, price, quantity and location. 4) Post it.',hc:'To talk to a buyer, open their listing or profile and start a chat. Conversations appear in the Messages tab.',po:'Your profile is ready to open.',fb:"I can't answer that yet. Right now I can show your listings, help you create a listing, and explain how to use Riki Connect. Full AI answers are coming soon.",priv:'Answers here are private to you. Nothing is sent to the other person.',chat:'Chat with',a1:'Create Listing',a2:'View Marketplace',a3:'Ask the Community',a4:'Open My Profile',a5:'My Listings',a6:'Sign in',x:'Close'},
+en:{sub:'Your agricultural assistant',hi:"Hello! I'm RikiAI.",intro:'Ask me about farming, crops, the market or Riki Connect.',speak:'Speak to RikiAI',tap:'Tap to speak',lis:'Listening… tap to stop',ph:'Type your question…',send:'Send',ear:'Listen',q1:'My Crop',q2:'Crop Help',q3:'Sell Produce',q4:'Find Buyers',q5:'Market',q6:'Learn',q7:'Translate',photo:'Photograph your crop',soon:'Coming Soon',novoice:"Voice input isn't available in this browser or language. Please type your question.",nospeak:'This device has no voice for this language.',signin:'Please sign in to Riki Connect first.',mc0:"I don't have any crop information for you yet. Produce you list on Riki Connect will appear here.",mc1:'Produce you have listed:',ml0:"You haven't listed any produce yet.",sa:'Which produce do you want to sell, and how much? For example: 500 kg tomatoes.',sq:'How much do you have? Please include the unit, for example: 500 kg.',sd:'I can help you create a listing on Riki Connect. Check the details:',lp:'Produce',lq:'Quantity',ll:'Location',b0:"Buyer requirements aren't available in Riki Connect yet, so I can't tell you whether anyone wants to buy. You can browse the marketplace.",m0:"Live mandi prices aren't connected yet.",m1:'Riki Connect has {n} active {p} listing(s), priced ₹{a}–₹{b} per {u}. These are listed prices, not mandi rates.',ag:"RikiAI's farming advice is coming soon. I can't yet identify crop problems or recommend sprays or fertilisers. For diseases, pests or chemicals, please ask a qualified agriculture expert or your nearest Krishi Vigyan Kendra (KVK), and follow the product label.",tr:'Translation is coming soon.',hl:'To list produce: 1) Sign in. 2) Tap "+ Post Produce". 3) Fill in the name, price, quantity and location. 4) Post it.',hc:'To talk to a buyer, open their listing or profile and start a chat. Conversations appear in the Messages tab.',po:'Your profile is ready to open.',fb:"I want to make sure I understand you correctly. You can say it naturally — for example, ‘I have 200 kg wheat and want to sell it’, ‘find buyers for my tomatoes’, ‘what is the price of wheat?’, or ‘how do I list my produce?’",priv:'Answers here are private to you. Nothing is sent to the other person.',chat:'Chat with',a1:'Create Listing',a2:'View Marketplace',a3:'Ask the Community',a4:'Open My Profile',a5:'My Listings',a6:'Sign in',x:'Close'},
 pa:{sub:'ਤੁਹਾਡਾ ਖੇਤੀ ਸਹਾਇਕ',hi:'ਸਤ ਸ੍ਰੀ ਅਕਾਲ! ਮੈਂ RikiAI ਹਾਂ।',intro:'ਤੁਸੀਂ ਖੇਤੀ, ਫਸਲ, ਮਾਰਕੀਟ ਜਾਂ Riki Connect ਬਾਰੇ ਕੁਝ ਵੀ ਪੁੱਛ ਸਕਦੇ ਹੋ।',speak:'RikiAI ਨਾਲ ਬੋਲੋ',tap:'ਬੋਲਣ ਲਈ ਦਬਾਓ',lis:'ਸੁਣ ਰਿਹਾ ਹਾਂ… ਰੋਕਣ ਲਈ ਦਬਾਓ',ph:'ਆਪਣਾ ਸਵਾਲ ਲਿਖੋ…',send:'ਭੇਜੋ',ear:'ਸੁਣੋ',q1:'ਮੇਰੀ ਫਸਲ',q2:'ਫਸਲ ਮਦਦ',q3:'ਉਪਜ ਵੇਚੋ',q4:'ਖਰੀਦਦਾਰ ਲੱਭੋ',q5:'ਮਾਰਕੀਟ',q6:'ਸਿੱਖੋ',q7:'ਅਨੁਵਾਦ',photo:'ਫਸਲ ਦੀ ਫੋਟੋ ਖਿੱਚੋ',soon:'ਜਲਦ ਆ ਰਿਹਾ ਹੈ',novoice:'ਇਸ ਬ੍ਰਾਊਜ਼ਰ ਜਾਂ ਭਾਸ਼ਾ ਵਿੱਚ ਆਵਾਜ਼ ਨਾਲ ਪੁੱਛਣਾ ਉਪਲਬਧ ਨਹੀਂ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਆਪਣਾ ਸਵਾਲ ਲਿਖੋ।',nospeak:'ਇਸ ਡਿਵਾਈਸ ਉੱਤੇ ਇਸ ਭਾਸ਼ਾ ਦੀ ਆਵਾਜ਼ ਉਪਲਬਧ ਨਹੀਂ ਹੈ।',signin:'ਕਿਰਪਾ ਕਰਕੇ ਪਹਿਲਾਂ Riki Connect ਵਿੱਚ ਸਾਈਨ ਇਨ ਕਰੋ।',mc0:'ਮੇਰੇ ਕੋਲ ਹਾਲੇ ਤੁਹਾਡੀ ਫਸਲ ਦੀ ਕੋਈ ਜਾਣਕਾਰੀ ਨਹੀਂ ਹੈ। Riki Connect ਉੱਤੇ ਜੋ ਉਪਜ ਤੁਸੀਂ ਪਾਓਗੇ, ਉਹ ਇੱਥੇ ਦਿਖੇਗੀ।',mc1:'ਤੁਹਾਡੀ ਪਾਈ ਹੋਈ ਉਪਜ:',ml0:'ਤੁਸੀਂ ਹਾਲੇ ਕੋਈ ਉਪਜ ਨਹੀਂ ਪਾਈ।',sa:'ਤੁਸੀਂ ਕਿਹੜੀ ਉਪਜ ਅਤੇ ਕਿੰਨੀ ਵੇਚਣੀ ਹੈ? ਜਿਵੇਂ: 500 ਕਿਲੋ ਟਮਾਟਰ।',sq:'ਤੁਹਾਡੇ ਕੋਲ ਕਿੰਨੀ ਹੈ? ਇਕਾਈ ਵੀ ਦੱਸੋ, ਜਿਵੇਂ: 500 ਕਿਲੋ।',sd:"ਮੈਂ ਤੁਹਾਨੂੰ Riki Connect 'ਤੇ listing ਬਣਾਉਣ ਵਿੱਚ ਮਦਦ ਕਰ ਸਕਦਾ ਹਾਂ। ਵੇਰਵੇ ਵੇਖੋ:",lp:'ਉਪਜ',lq:'ਮਾਤਰਾ',ll:'ਥਾਂ',b0:'Riki Connect ਵਿੱਚ ਅਜੇ buyer requirements ਦੀ ਸਹੂਲਤ ਨਹੀਂ ਹੈ, ਇਸ ਲਈ ਮੈਂ ਨਹੀਂ ਦੱਸ ਸਕਦਾ ਕਿ ਕੋਈ ਖਰੀਦਣਾ ਚਾਹੁੰਦਾ ਹੈ ਜਾਂ ਨਹੀਂ। ਤੁਸੀਂ ਮਾਰਕੀਟਪਲੇਸ ਵੇਖ ਸਕਦੇ ਹੋ।',m0:'ਲਾਈਵ ਮੰਡੀ ਭਾਅ ਅਜੇ ਜੁੜੇ ਨਹੀਂ ਹਨ।',m1:'Riki Connect ਉੱਤੇ {p} ਦੀਆਂ {n} listing ਹਨ, ਭਾਅ ₹{a}–₹{b} ਪ੍ਰਤੀ {u}। ਇਹ listing ਦੇ ਭਾਅ ਹਨ, ਮੰਡੀ ਦੇ ਭਾਅ ਨਹੀਂ।',ag:'RikiAI ਦੀ ਖੇਤੀ ਸਲਾਹ ਜਲਦ ਆ ਰਹੀ ਹੈ। ਮੈਂ ਅਜੇ ਫਸਲ ਦੀ ਸਮੱਸਿਆ ਨਹੀਂ ਪਛਾਣ ਸਕਦਾ ਅਤੇ ਨਾ ਹੀ ਸਪਰੇਅ ਜਾਂ ਖਾਦ ਦੱਸ ਸਕਦਾ ਹਾਂ। ਬਿਮਾਰੀ, ਕੀੜੇ ਜਾਂ ਦਵਾਈਆਂ ਬਾਰੇ ਕਿਰਪਾ ਕਰਕੇ ਖੇਤੀ ਮਾਹਿਰ ਜਾਂ ਆਪਣੇ ਨੇੜਲੇ ਕ੍ਰਿਸ਼ੀ ਵਿਗਿਆਨ ਕੇਂਦਰ (KVK) ਤੋਂ ਪੁੱਛੋ, ਅਤੇ ਪੈਕੇਟ ਉੱਤੇ ਲਿਖੀਆਂ ਹਦਾਇਤਾਂ ਮੰਨੋ।',tr:'ਅਨੁਵਾਦ ਦੀ ਸਹੂਲਤ ਜਲਦ ਆ ਰਹੀ ਹੈ।',hl:'ਉਪਜ ਪਾਉਣ ਲਈ: 1) ਸਾਈਨ ਇਨ ਕਰੋ। 2) "+ Post Produce" ਦਬਾਓ। 3) ਨਾਮ, ਭਾਅ, ਮਾਤਰਾ ਅਤੇ ਥਾਂ ਭਰੋ। 4) ਪੋਸਟ ਕਰੋ।',hc:'ਖਰੀਦਦਾਰ ਨਾਲ ਗੱਲ ਕਰਨ ਲਈ ਉਸ ਦੀ listing ਜਾਂ ਪ੍ਰੋਫਾਈਲ ਖੋਲ੍ਹੋ ਅਤੇ ਚੈਟ ਸ਼ੁਰੂ ਕਰੋ। ਗੱਲਬਾਤ ਸੁਨੇਹੇ ਟੈਬ ਵਿੱਚ ਦਿਖੇਗੀ।',po:'ਤੁਹਾਡੀ ਪ੍ਰੋਫਾਈਲ ਖੋਲ੍ਹਣ ਲਈ ਤਿਆਰ ਹੈ।',fb:'ਮੈਂ ਅਜੇ ਇਸ ਦਾ ਜਵਾਬ ਨਹੀਂ ਦੇ ਸਕਦਾ। ਹੁਣ ਮੈਂ ਤੁਹਾਡੀਆਂ listings ਦਿਖਾ ਸਕਦਾ ਹਾਂ, listing ਬਣਾਉਣ ਵਿੱਚ ਮਦਦ ਕਰ ਸਕਦਾ ਹਾਂ ਅਤੇ Riki Connect ਵਰਤਣਾ ਸਮਝਾ ਸਕਦਾ ਹਾਂ। ਪੂਰੇ AI ਜਵਾਬ ਜਲਦ ਆ ਰਹੇ ਹਨ।',priv:'ਇੱਥੋਂ ਦੇ ਜਵਾਬ ਸਿਰਫ਼ ਤੁਹਾਨੂੰ ਦਿਖਦੇ ਹਨ। ਦੂਜੇ ਵਿਅਕਤੀ ਨੂੰ ਕੁਝ ਨਹੀਂ ਭੇਜਿਆ ਜਾਂਦਾ।',chat:'ਗੱਲਬਾਤ:',a1:'Listing ਬਣਾਓ',a2:'ਮਾਰਕੀਟਪਲੇਸ ਵੇਖੋ',a3:'ਕਮਿਊਨਿਟੀ ਤੋਂ ਪੁੱਛੋ',a4:'ਮੇਰੀ ਪ੍ਰੋਫਾਈਲ ਖੋਲ੍ਹੋ',a5:'ਮੇਰੀਆਂ listings',a6:'ਸਾਈਨ ਇਨ',x:'ਬੰਦ ਕਰੋ'},
 hi:{sub:'आपका कृषि सहायक',hi:'नमस्ते! मैं RikiAI हूँ।',intro:'आप खेती, फसल, मंडी या Riki Connect के बारे में कुछ भी पूछ सकते हैं।',speak:'RikiAI से बोलें',tap:'बोलने के लिए दबाएँ',lis:'सुन रहा हूँ… रोकने के लिए दबाएँ',ph:'अपना सवाल लिखें…',send:'भेजें',ear:'सुनें',q1:'मेरी फसल',q2:'फसल सहायता',q3:'उपज बेचें',q4:'खरीदार खोजें',q5:'मंडी भाव',q6:'सीखें',q7:'अनुवाद',photo:'फसल की फ़ोटो लें',soon:'जल्द आ रहा है',novoice:'इस ब्राउज़र या भाषा में आवाज़ से पूछना उपलब्ध नहीं है। कृपया अपना सवाल लिखें।',nospeak:'इस डिवाइस पर इस भाषा की आवाज़ उपलब्ध नहीं है।',signin:'कृपया पहले Riki Connect में साइन इन करें।',mc0:'मेरे पास अभी आपकी फसल की कोई जानकारी नहीं है। Riki Connect पर आप जो उपज डालेंगे, वह यहाँ दिखेगी।',mc1:'आपकी डाली हुई उपज:',ml0:'आपने अभी तक कोई उपज नहीं डाली है।',sa:'आप कौन-सी उपज और कितनी बेचना चाहते हैं? जैसे: 500 किलो टमाटर।',sq:'आपके पास कितनी है? इकाई भी बताएँ, जैसे: 500 किलो।',sd:'मैं Riki Connect पर listing बनाने में आपकी मदद कर सकता हूँ। विवरण देखें:',lp:'उपज',lq:'मात्रा',ll:'जगह',b0:'Riki Connect में अभी खरीदार की माँग (requirements) की सुविधा नहीं है, इसलिए मैं नहीं बता सकता कि कोई खरीदना चाहता है या नहीं। आप मार्केटप्लेस देख सकते हैं।',m0:'लाइव मंडी भाव अभी जुड़े नहीं हैं।',m1:'Riki Connect पर {p} की {n} listing हैं, भाव ₹{a}–₹{b} प्रति {u}। ये listing के भाव हैं, मंडी के भाव नहीं।',ag:'RikiAI की खेती संबंधी सलाह जल्द आ रही है। मैं अभी फसल की समस्या पहचान नहीं सकता और न ही स्प्रे या खाद बता सकता हूँ। बीमारी, कीट या दवाओं के बारे में कृपया किसी योग्य कृषि विशेषज्ञ या अपने नज़दीकी कृषि विज्ञान केंद्र (KVK) से पूछें, और पैकेट पर लिखे निर्देश मानें।',tr:'अनुवाद की सुविधा जल्द आ रही है।',hl:'उपज डालने के लिए: 1) साइन इन करें। 2) "+ Post Produce" दबाएँ। 3) नाम, भाव, मात्रा और जगह भरें। 4) पोस्ट करें।',hc:'खरीदार से बात करने के लिए उसकी listing या प्रोफ़ाइल खोलकर चैट शुरू करें। बातचीत संदेश टैब में दिखेगी।',po:'आपकी प्रोफ़ाइल खोलने के लिए तैयार है।',fb:'मैं अभी इसका जवाब नहीं दे सकता। अभी मैं आपकी listings दिखा सकता हूँ, listing बनाने में मदद कर सकता हूँ और Riki Connect का उपयोग समझा सकता हूँ। पूरे AI जवाब जल्द आ रहे हैं।',priv:'यहाँ के जवाब सिर्फ़ आपको दिखते हैं। दूसरे व्यक्ति को कुछ नहीं भेजा जाता।',chat:'बातचीत:',a1:'Listing बनाएँ',a2:'मार्केटप्लेस देखें',a3:'कम्युनिटी से पूछें',a4:'मेरी प्रोफ़ाइल खोलें',a5:'मेरी listings',a6:'साइन इन',x:'बंद करें'}
 };
@@ -2580,38 +2695,331 @@ const RAI_SC=[[/[\u0A00-\u0A7F]/,'pa'],[/[\u0900-\u097F]/,'hi'],[/[\u0980-\u09FF
 function raiLang(t,pref){const h=RAI_SC.find(([re])=>re.test(t||''));const d=h?h[1]:pref;return RAI_S[d]?d:(RAI_S[pref]?pref:'en')}
 const RAI_BCP={en:'en-IN',hi:'hi-IN',pa:'pa-IN',bn:'bn-IN',gu:'gu-IN',kn:'kn-IN',ml:'ml-IN',mr:'mr-IN',ne:'ne-NP',or:'or-IN',ta:'ta-IN',te:'te-IN',ur:'ur-PK'};
 const raiDig=s=>String(s||'').replace(/[\u0966-\u096F]/g,c=>c.charCodeAt(0)-0x0966).replace(/[\u0A66-\u0A6F]/g,c=>c.charCodeAt(0)-0x0A66);
-const RAI_CROPS={Tomato:['tomato','ਟਮਾਟਰ','टमाटर'],Potato:['potato','ਆਲੂ','आलू'],Onion:['onion','ਪਿਆਜ਼','प्याज'],Wheat:['wheat','ਕਣਕ','गेहूं','गेहू'],Paddy:['paddy','ਝੋਨਾ','धान'],Rice:['rice','ਚੌਲ','चावल'],Maize:['maize','corn','ਮੱਕੀ','मक्का'],Cauliflower:['cauliflower','ਫੁੱਲ ਗੋਭੀ','फूलगोभी'],Cabbage:['cabbage','ਬੰਦ ਗੋਭੀ','बंदगोभी'],Carrot:['carrot','ਗਾਜਰ','गाजर'],Spinach:['spinach','ਪਾਲਕ','पालक'],Peas:['peas','ਮਟਰ','मटर'],Garlic:['garlic','ਲਸਣ','लहसुन'],Sugarcane:['sugarcane','ਗੰਨਾ','गन्ना'],Mustard:['mustard','ਸਰੋਂ','सरसों'],Cotton:['cotton','ਕਪਾਹ','ਨਰਮਾ','कपास'],Banana:['banana','ਕੇਲਾ','केला'],Mango:['mango','ਅੰਬ','आम'],Apple:['apple','ਸੇਬ','सेब'],Kinnow:['kinnow','ਕਿੰਨੂ','किन्नू'],Chilli:['chilli','chili','ਮਿਰਚ','मिर्च'],Brinjal:['brinjal','ਬੈਂਗਣ','बैंगन'],Okra:['okra','ਭਿੰਡੀ','भिंडी'],Cucumber:['cucumber','ਖੀਰਾ','खीरा'],Ginger:['ginger','ਅਦਰਕ','अदरक'],Lemon:['lemon','ਨਿੰਬੂ','नींबू']};
-function raiProduct(t){const s=String(t||'').toLowerCase();const hit=w=>/^[a-z]+$/.test(w)?new RegExp('\\b'+w+'s?\\b').test(s):s.includes(w);for(const [n,ws] of Object.entries(RAI_CROPS))if(ws.some(hit))return n;const b=allBatches.find(x=>rkHas(x.produceName)&&(' '+rkStem(s)+' ').includes(' '+rkStem(x.produceName)+' '));return b?b.produceName:null}
-function raiQty(t){const m=raiDig(t).match(/(\d+(?:\.\d+)?)\s*(kgs?|kilos?|kilograms?|किलो|ਕਿਲੋ|quintals?|qtl|क्विंटल|ਕੁਇੰਟਲ|tonnes?|tons?|टन|ਟਨ)/i);if(!m)return null;const u=m[2].toLowerCase();return m[1]+' '+(/^(q|क्व|ਕੁ)/.test(u)?'quintal':/^(t|ट|ਟ)/.test(u)?'tonne':'kg')}
-const RAI_I=[['MYCROP',/^\s*(my crops?|ਮੇਰੀ ਫਸਲ|मेरी फसल)\s*$/],['MYLIST',/my (listings?|produce|batches)|(ਮੇਰੀਆਂ|ਮੇਰੀ) ?(listing|ਲਿਸਟਿੰਗ|ਉਪਜ)|मेरी (listing|लिस्टिंग|उपज)/],['AG',/when.*sell|ਕਦੋਂ|कब.*बेच/],['SELL',/\b(sell|selling)\b|ਵੇਚ|बेच/],['PROFILE',/profile|ਪ੍ਰੋਫਾਈਲ|प्रोफ़ाइल|प्रोफाइल/],['BUYERS',/buyers?|requirement|ਖਰੀਦ|खरीद|ग्राहक|ਗਾਹਕ/],['HLIST',/how.*(list|post)|ਕਿਵੇਂ.*(ਪਾ|listing)|कैसे.*(डाल|लिस्ट|listing)/],['HCONTACT',/contact|ਸੰਪਰਕ|संपर्क/],['TRANS',/translat|ਅਨੁਵਾਦ|अनुवाद/],['GREET',/^\s*(hi|hello|hey|namaste)\b|ਸਤ ਸ੍ਰੀ ਅਕਾਲ|नमस्ते/],['MARKET',/price|rate|market|mandi|ਭਾਅ|ਮੰਡੀ|ਮਾਰਕੀਟ|भाव|मंडी|बाज़ार|बाजार/],['AG',/crop|disease|pest|leaf|leaves|yellow|irrigat|water|seed|fertili[sz]|spray|weather|rain|ਫਸਲ|ਪੱਤ|ਬਿਮਾਰੀ|ਕੀੜ|ਖਾਦ|ਬੀਜ|ਸਿੰਚਾਈ|ਮੌਸਮ|ਮੀਂਹ|फसल|पत्त|बीमारी|कीट|खाद|बीज|सिंचाई|मौसम|बारिश/]];
-const raiIntent=t=>{t=String(t||'').toLowerCase();const h=RAI_I.find(([,re])=>re.test(t));return h?h[0]:'FB'};
-function rikiAI(x){
+const RAI_CROPS={Tomato:['tomato','tomatos','tamato','tamoto','tomatto','टमाटर','टमाटर','ਟਮਾਟਰ'],Potato:['potato','potatos','patato','poteto','आलू','ਆਲੂ'],Onion:['onion','onions','onoin','onionn','प्याज','ਪਿਆਜ਼'],Wheat:['wheat','wheet','weat','गेहूं','गेहू','ਕਣਕ'],Paddy:['paddy','padyy','padi','धान','ਝੋਨਾ'],Rice:['rice','ric','राइस','चावल','ਚੌਲ'],Maize:['maize','maiz','mize','corn','कॉर्न','मक्का','ਮੱਕੀ'],Cauliflower:['cauliflower','caulifower','caulflower','फूलगोभी','ਫੁੱਲ ਗੋਭੀ'],Cabbage:['cabbage','cabage','cabbeg','बंदगोभी','ਬੰਦ ਗੋਭੀ'],Carrot:['carrot','carot','gajar','गाजर','ਗਾਜਰ'],Spinach:['spinach','spinich','palak','पालक','ਪਾਲਕ'],Peas:['peas','pea','pees','matar','मटर','ਮਟਰ'],Garlic:['garlic','garlick','lasun','लहसुन','ਲਸਣ'],Sugarcane:['sugarcane','sugar cane','sugercane','गन्ना','ਗੰਨਾ'],Mustard:['mustard','musterd','sarso','सरसों','ਸਰੋਂ'],Cotton:['cotton','coton','kapas','नरमा','कपास','ਕਪਾਹ'],Banana:['banana','bananna','kela','केला','ਕੇਲਾ'],Mango:['mango','manggo','aam','आम','ਅੰਬ'],Apple:['apple','aple','seb','सेब','ਸੇਬ'],Kinnow:['kinnow','kinoo','kinnu','किन्नू','ਕਿੰਨੂ'],Chilli:['chilli','chili','chilly','mirchi','मिर्च','ਮਿਰਚ'],Brinjal:['brinjal','brinjel','baingan','बैंगन','ਬੈਂਗਣ'],Okra:['okra','okara','bhindi','भिंडी','ਭਿੰਡੀ'],Cucumber:['cucumber','cucmber','kheera','खीरा','ਖੀਰਾ'],Ginger:['ginger','ginger','adrak','अदरक','ਅਦਰਕ'],Lemon:['lemon','lemon','nimbu','नींबू','ਨਿੰਬੂ']};
+const RAI_SYNONYMS={
+ price:['price','rate','cost','bhav','bhā','भाव','भاؤ','ਭਾਅ','ਰੇਟ','ਕੀ ਰੇਟ'],
+ market:['market','mandi','bazaar','बाजार','मंडी','ਮੰਡੀ','ਮਾਰਕੀਟ','ਬਾਜ਼ਾਰ'],
+ sell:['sell','sale','selling','bech','बेच','ਵੇਚ','ਵੇਚਣਾ'],
+ buyer:['buyer','buyers','customer','customers','grahak','खरीदार','ग्राहक','ਖਰੀਦਦਾਰ','ਗਾਹਕ'],
+ crop:['crop','farming','farm','fasal','खेती','फसल','ਖੇਤੀ','ਫਸਲ'],
+ help:['help','problem','issue','how','what','why','can you','madad','मदद','ਮਦਦ'],
+ listing:['listing','list','post','upload','add produce','लिस्टिंग','डाल','ਪੋਸਟ','ਲਿਸਟਿੰਗ'],
+ greeting:['hi','hello','hey','namaste','sat sri akal','ਸਤ ਸ੍ਰੀ ਅਕਾਲ','नमस्ते'],
+ thanks:['thanks','thank you','thx','धन्यवाद','ਧੰਨਵਾਦ','शुक्रिया'],
+ identity:['who are you','what are you','your name','आप कौन','ਤੁਸੀਂ ਕੌਣ'],
+ capabilities:['what can you do','help me','capabilities','क्या कर सकते','ਕੀ ਕਰ ਸਕਦੇ']
+};
+function raiTokens(t){return String(t||'').toLowerCase().normalize('NFKC').replace(/[^\p{L}\p{N}\s.-]/gu,' ').split(/\s+/).filter(Boolean)}
+function raiLev(a,b){a=String(a||'');b=String(b||'');if(a===b)return 0;if(!a)return b.length;if(!b)return a.length;let p=Array(b.length+1).fill(0),q=Array(b.length+1).fill(0);for(let j=0;j<=b.length;j++)p[j]=j;for(let i=1;i<=a.length;i++){q[0]=i;for(let j=1;j<=b.length;j++)q[j]=Math.min(q[j-1]+1,p[j]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));[p,q]=[q,p]}return p[b.length]}
+function raiCloseWord(a,b){a=String(a||'').toLowerCase();b=String(b||'').toLowerCase();if(!a||!b)return false;if(a===b)return true;if(a.includes(b)||b.includes(a))return true;const d=raiLev(a,b),m=Math.max(a.length,b.length);return d<=Math.max(1,Math.floor(m*.34))}
+function raiProduct(t){
+  const s=String(t||'').toLowerCase(), toks=raiTokens(s);
+  for(const [n,ws] of Object.entries(RAI_CROPS)){
+    if(ws.some(w=>s.includes(String(w).toLowerCase())))return n;
+    if(toks.some(tok=>ws.some(w=>/^[a-z]+$/.test(String(w))&&raiCloseWord(tok,w))))return n;
+  }
+  const b=allBatches.find(x=>rkHas(x.produceName)&&raiTokens(s).some(tok=>raiCloseWord(tok,rkStem(x.produceName))));
+  return b?b.produceName:null
+}
+function raiQty(t){const m=raiDig(t).match(/(\d+(?:\.\d+)?)\s*(kgs?|kilos?|kilograms?|kg|किलो|ਕਿਲੋ|quintals?|qtl|क्विंटल|ਕੁਇੰਟਲ|tonnes?|tons?|ton|टन|ਟਨ)/i);if(!m)return null;const u=m[2].toLowerCase();return m[1]+' '+(/^(q|क्व|ਕੁ)/.test(u)?'quintal':/^(t|ट|ਟ)/.test(u)?'tonne':'kg')}
+function raiHas(t,list){const s=String(t||'').toLowerCase();return list.some(w=>s.includes(w.toLowerCase()))}
+// Conversational sell patterns: intent comes from sentence structure, not just a keyword.
+const RIKI_SELL_PATTERNS=[
+  /\b(i|we)\s+(want|wanna|need|would like|plan)\s+to\s+(sell|sale|selling)\b/i,
+  /\b(i|we)\s+(have|got)\s+.*\b(to\s+sell|for\s+sale)\b/i,
+  /\b(can|could|how\s+can)\s+i\s+(sell|list|post)\b/i,
+  /\b(help|help me)\s+(me\s+)?(sell|list|post)\b/i,
+  /\b(put|place)\s+.*\b(for\s+sale|on\s+the\s+market)\b/i,
+  /\b(i|we)\s+need\s+(a\s+)?buyer/i
+];
+function rikiStrongIntent(t){
+  const s=String(t||'');
+  if(RIKI_SELL_PATTERNS.some(r=>r.test(s))) return 'SELL';
+  return null;
+}
+
+const RAI_I=[
+ ['GREET',/^(hi|hello|hey|namaste|good morning|good evening|ਸਤ ਸ੍ਰੀ ਅਕਾਲ|नमस्ते)\b/],
+ ['THANKS',/thank|thanks|धन्यवाद|ਸ਼ੁਕਰੀਆ|ਧੰਨਵਾਦ/],
+ ['IDENTITY',/who are you|what are you|your name|आप कौन|तुम कौन|ਤੁਸੀਂ ਕੌਣ/],
+ ['CAPS',/what can you do|what do you do|capabilit|क्या कर सकते|ਕੀ ਕਰ ਸਕਦੇ/],
+ ['MYCROP',/my crops?|मेरी फसल|ਮੇਰੀ ਫਸਲ/],
+ ['MYLIST',/my (listings?|produce|batches)|मेरी (listing|लिस्टिंग|उपज)|ਮੇਰੀਆਂ? (listing|ਲਿਸਟਿੰਗ|ਉਪਜ)/],
+ ['SELL',/\b(sell|selling|sale)\b|वेच|बेच|ਵੇਚ|ਵੇਚਣਾ/],
+ ['BUYERS',/buyers?|buyer|customer|customers|requirement|खरीदार|ग्राहक|ਖਰੀਦਦਾਰ|ਗਾਹਕ/],
+ ['HLIST',/how.*(list|post|upload|add)|कैसे.*(डाल|लिस्ट|पोस्ट)|ਕਿਵੇਂ.*(ਪਾ|ਲਿਸਟ|ਪੋਸਟ)/],
+ ['HCONTACT',/contact|talk to buyer|message buyer|संपर्क|बात.*खरीदार|ਸੰਪਰਕ|ਖਰੀਦਦਾਰ.*ਗੱਲ/],
+ ['TRANS',/translat|अनुवाद|ਅਨੁਵਾਦ/],
+ ['MARKET',/price|rate|cost|market|mandi|bhav|भाव|मंडी|बाज़ार|ਬਾਜ਼ਾਰ|ਮੰਡੀ|ਮਾਰਕੀਟ|ਭਾਅ|ਰੇਟ/],
+ ['AG',/crop|farming|farm|disease|pest|leaf|leaves|yellow|irrigat|water|seed|fertili[sz]|spray|weather|rain|soil|कीट|फसल|खेती|पत्त|बीमारी|खाद|बीज|सिंचाई|मौसम|बारिश|ਮੌਸਮ|ਮੀਂਹ|ਫਸਲ|ਕੀੜ|ਬਿਮਾਰੀ|ਖਾਦ|ਬੀਜ|ਸਿੰਚਾਈ|ਪਾਣੀ/]
+];
+function raiIntent(t){
+  t=String(t||'').toLowerCase();
+  const direct=RAI_I.find(([,re])=>re.test(t)); if(direct)return direct[0];
+  // Soft intent matching: tolerate short/misspelled words instead of requiring exact phrases.
+  if(raiHas(t,RAI_SYNONYMS.thanks))return 'THANKS';
+  if(raiHas(t,RAI_SYNONYMS.identity))return 'IDENTITY';
+  if(raiHas(t,RAI_SYNONYMS.capabilities))return 'CAPS';
+  if(raiHas(t,RAI_SYNONYMS.price)||raiHas(t,RAI_SYNONYMS.market))return 'MARKET';
+  if(raiHas(t,RAI_SYNONYMS.buyer))return 'BUYERS';
+  if(raiHas(t,RAI_SYNONYMS.sell))return 'SELL';
+  if(raiHas(t,RAI_SYNONYMS.listing))return 'HLIST';
+  return 'FB';
+}
+function raiCorrectedText(t){
+  const p=raiProduct(t); if(!p)return '';
+  const raw=raiTokens(t).find(tok=>Object.values(RAI_CROPS).flat().some(w=>/^[a-z]+$/.test(String(w))&&raiCloseWord(tok,w)));
+  if(raw&&raw.toLowerCase()!==p.toLowerCase())return `I think you mean **${p}**. `;
+  return '';
+}
+function raiGeneralAnswer(t,L){
+  const s=String(t||'').toLowerCase(),p=raiProduct(s);
+  if(raiHas(s,RAI_SYNONYMS.identity))return {t:L==='pa'?'ਮੈਂ RikiAI ਹਾਂ — Riki Connect ਦਾ ਖੇਤੀ ਸਹਾਇਕ। ਮੈਂ ਤੁਹਾਡੀ ਭਾਸ਼ਾ ਸਮਝਣ, ਉਪਜ ਲੱਭਣ, listing ਬਣਾਉਣ ਅਤੇ marketplace ਦੀ ਜਾਣਕਾਰੀ ਦੇਣ ਵਿੱਚ ਮਦਦ ਕਰਦਾ ਹਾਂ।':L==='hi'?'मैं RikiAI हूँ — Riki Connect का कृषि सहायक। मैं आपकी भाषा समझने, उपज खोजने, listing बनाने और marketplace की जानकारी देने में मदद करता हूँ।':'I’m RikiAI — the agricultural assistant inside Riki Connect. I can understand natural questions, help with listings, find produce, and work with marketplace information.'};
+  if(raiHas(s,RAI_SYNONYMS.capabilities))return {t:L==='pa'?'ਤੁਸੀਂ ਮੈਨੂੰ ਸਧਾਰਣ ਤਰੀਕੇ ਨਾਲ ਪੁੱਛ ਸਕਦੇ ਹੋ — ਜਿਵੇਂ “ਟਮਾਟਰ ਦਾ ਕੀ ਭਾਅ ਹੈ?”, “ਮੇਰੀਆਂ listings ਦਿਖਾਓ”, “ਮੈਨੂੰ ਖਰੀਦਦਾਰ ਲੱਭਣੇ ਹਨ” ਜਾਂ “500 ਕਿਲੋ ਕਣਕ ਵੇਚਣੀ ਹੈ।”':'I can understand normal sentences — for example, “What’s the tomato price?”, “Show my listings”, “I need buyers”, or “I want to sell 500 kg wheat.” You don’t need special commands.'};
+  if(raiHas(s,RAI_SYNONYMS.thanks))return {t:L==='pa'?'ਜੀ ਆਇਆਂ ਨੂੰ! 😊 ਹੋਰ ਕੁਝ ਪੁੱਛਣਾ ਹੋਵੇ ਤਾਂ ਦੱਸੋ।':L==='hi'?'कोई बात नहीं! 😊 अगर कुछ और पूछना है तो बताइए।':'You’re welcome! 😊 If there’s anything else you want to know, just ask.'};
+  const facts={
+    Tomato:'Tomatoes are a warm-season crop. Riki Connect can help you discover tomato listings and listed prices; for crop-specific disease or spray advice, use a qualified agriculture expert.',
+    Potato:'Potato is a cool-season tuber crop. Riki Connect can help you discover potato listings and listed prices; crop treatment advice should come from a qualified agriculture expert.',
+    Wheat:'Wheat is a major cereal crop. Riki Connect can help you discover wheat listings, quantities and listed prices.',
+    Paddy:'Paddy is rice grown in the field before milling. Riki Connect can help you discover paddy listings and listed prices.',
+    Rice:'Rice is the grain obtained from paddy after processing. Riki Connect can help you discover rice listings and listed prices.',
+    Maize:'Maize, also called corn, is a cereal crop used for food, feed and other products. Riki Connect can help you discover maize listings and prices.'
+  };
+  if(/\b(what|which|tell me about|what is|what are)\b/.test(s)&&p&&facts[p])return {t:(L==='pa'?'ਤੁਸੀਂ '+p+' ਬਾਰੇ ਪੁੱਛ ਰਹੇ ਹੋ। ':L==='hi'?'आप '+p+' के बारे में पूछ रहे हैं। ':'You’re asking about '+p+'. ')+facts[p]};
+  if(/\b(what|which|tell me about)\b/.test(s)&&p)return {t:L==='pa'?`ਤੁਸੀਂ ${p} ਬਾਰੇ ਪੁੱਛ ਰਹੇ ਹੋ। ਮੈਂ Riki Connect ਦੀਆਂ listings, ਮਾਤਰਾ ਅਤੇ listed prices ਬਾਰੇ ਜਾਣਕਾਰੀ ਦੇ ਸਕਦਾ ਹਾਂ।`:`You’re asking about ${p}. I can give you the Riki Connect information available for it — listings, quantities and listed prices.`};
+  return null;
+}
+/* ===== RikiAI English NLP layer — dictionary + rulebook + pattern scoring =====
+   This runs locally before the product-specific intent engine.
+   It does NOT guess from one random word: it scores the whole sentence,
+   recognises grammar patterns, normalises spelling, and keeps conversation state. */
+const RIKI_EN_DICT={
+  sell:['sell','selling','sale','sellable','seller','sellers','dispose'],
+  buy:['buy','buying','purchase','purchasing','buyer','buyers','source','sourcing'],
+  market:['market','markets','mandi','bazaar','price','prices','rate','rates','cost','worth','value'],
+  list:['list','listing','listings','post','posting','upload','add','publish','advertise'],
+  crop:['crop','crops','produce','harvest','yield','farm','farming','farmer','agriculture'],
+  buyer:['buyer','buyers','customer','customers','client','clients','trader','traders','wholesaler','wholesalers'],
+  help:['help','assist','guide','explain','tell','show','how','what','where','when','why','can','could','should'],
+  greeting:['hi','hello','hey','hiya','namaste','morning','afternoon','evening'],
+  thanks:['thanks','thank','thx','appreciate'],
+  identity:['who','your name','what are you'],
+  my:['my','mine','i have','i own','i listed','i posted'],
+  quantity:['kg','kgs','kilo','kilos','kilogram','kilograms','quintal','quintals','ton','tons','tonne','tonnes']
+};
+const RIKI_EN_SPELLING={
+  swll:'sell',sll:'sell',sel:'sell',sall:'sell',salling:'selling',sellling:'selling',
+  buuy:'buy',bue:'buy',purhcase:'purchase',purchse:'purchase',
+  prce:'price',pirce:'price',ratee:'rate',mrket:'market',mkt:'market',
+  lising:'listing',listng:'listing',lsting:'listing',postng:'posting',uplod:'upload',
+  tomatos:'tomatoes',tomatoe:'tomato',tamato:'tomato',tamatos:'tomatoes',
+  poteto:'potato',potatos:'potatoes',patato:'potato',wheet:'wheat',weat:'wheat',
+  onoin:'onion',onionss:'onions',carot:'carrot',carrots:'carrots',
+  helpme:'help me',plz:'please',pls:'please',u:'you',ur:'your',wanna:'want to',gonna:'going to',
+  somthing:'something',somethng:'something',anyon:'anyone',neaby:'nearby',nearbyy:'nearby',
+  qnty:'quantity',quanity:'quantity',quantty:'quantity'
+};
+const RIKI_EN_RULES=[
+  {id:'SELL_DIRECT',intent:'SELL',w:8,re:/\b(?:i|we)\s+(?:want|need|would like|plan|intend|am going)\s+(?:to\s+)?sell\b/i},
+  {id:'SELL_OBJECT',intent:'SELL',w:7,re:/\b(?:i|we)\s+(?:have|got|need to|get to)\b.{0,60}\b(?:sell|selling|sale)\b/i},
+  {id:'SELL_HOW',intent:'SELL',w:7,re:/\b(?:how|where|can)\b.{0,40}\b(?:sell|selling|sale)\b/i},
+  {id:'SELL_IMPERATIVE',intent:'SELL',w:6,re:/\b(?:help|help me|want)\b.{0,25}\b(?:sell|selling)\b/i},
+  {id:'BUY_DIRECT',intent:'BUYERS',w:7,re:/\b(?:i|we)\s+(?:want|need|am looking|looking)\b.{0,50}\b(?:buyer|buyers|customer|customers|trader|traders)\b/i},
+  {id:'BUY_WHO',intent:'BUYERS',w:7,re:/\b(?:who|where|how)\b.{0,40}\b(?:buy|buys|buyer|buyers|purchase)\b/i},
+  {id:'MARKET_PRICE',intent:'MARKET',w:7,re:/\b(?:what(?:'s| is)?|tell me|show me|give me|check)\b.{0,50}\b(?:price|prices|rate|rates|cost|worth|value)\b/i},
+  {id:'MARKET_WHAT',intent:'MARKET',w:5,re:/\b(?:market|mandi)\b.{0,25}\b(?:price|rate|selling|available)\b/i},
+  {id:'MY_LIST',intent:'MYLIST',w:7,re:/\b(?:show|see|view|check|find)\b.{0,30}\bmy\b.{0,20}\b(?:listing|listings|produce|posts)\b/i},
+  {id:'MY_CROP',intent:'MYCROP',w:7,re:/\b(?:what|which|show|tell me)\b.{0,20}\bmy\b.{0,20}\b(?:crop|crops|produce)\b/i},
+  {id:'HOW_LIST',intent:'HLIST',w:7,re:/\b(?:how|where|can)\b.{0,35}\b(?:list|listing|post|upload|publish)\b/i},
+  {id:'GREETING',intent:'GREET',w:6,re:/^(?:hi|hello|hey|hiya|good\s+(?:morning|afternoon|evening)|namaste)[!.\s]*$/i},
+  {id:'THANKS',intent:'THANKS',w:6,re:/^(?:thanks|thank you|thx|appreciate it)[!.\s]*$/i},
+  {id:'IDENTITY',intent:'IDENTITY',w:7,re:/\b(?:who are you|what are you|what's your name|what is your name)\b/i},
+  {id:'CAPS',intent:'CAPS',w:7,re:/\b(?:what can you do|what do you do|how can you help me)\b/i}
+];
+function rikiEnglishTokens(t){return String(t||'').toLowerCase().normalize('NFKC').replace(/[^a-z0-9\s']/g,' ').split(/\s+/).filter(Boolean)}
+function rikiEnglishNormalize(raw){
+  let text=String(raw||'').trim();
+  const corrections=[];
+  text=text.replace(/\b(?:i'm|im)\s+gonna\b/gi,'I am going to');
+  text=text.replace(/\b(?:i|we)\s+wanna\b/gi,m=>m.toLowerCase().startsWith('we')?'we want to':'I want to');
+  for(const [bad,good] of Object.entries(RIKI_EN_SPELLING)){
+    const re=new RegExp('\\b'+bad.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\$&')+'\\b','gi');
+    if(re.test(text)){ text=text.replace(re,good); corrections.push(`${bad} → ${good}`); }
+  }
+  // Lightweight morphology: plurals and common verb forms map to a canonical concept.
+  text=text.replace(/\bsell(?:s|ed)\b/gi,'sell').replace(/\bselling\b/gi,'selling');
+  text=text.replace(/\bbuying\b/gi,'buy').replace(/\bpurchasing\b/gi,'purchase');
+  text=text.replace(/\blistings?\b/gi,'listing').replace(/\bposts?\b/gi,'post');
+  return {text,corrections,changed:text!==String(raw||'').trim()};
+}
+function rikiEnglishScore(text){
+  const scores={SELL:0,BUYERS:0,MARKET:0,MYLIST:0,MYCROP:0,HLIST:0,GREET:0,THANKS:0,IDENTITY:0,CAPS:0,AG:0,FB:0};
+  const reasons={};
+  for(const r of RIKI_EN_RULES){if(r.re.test(text)){scores[r.intent]=(scores[r.intent]||0)+r.w;(reasons[r.intent]??=[]).push(r.id)}}
+  const toks=rikiEnglishTokens(text);
+  const has=(arr)=>arr.some(w=>toks.includes(w));
+  if(has(RIKI_EN_DICT.sell))scores.SELL+=2;
+  if(has(RIKI_EN_DICT.buyer))scores.BUYERS+=2;
+  if(has(RIKI_EN_DICT.market))scores.MARKET+=2;
+  if(has(RIKI_EN_DICT.list))scores.HLIST+=1;
+  if(has(RIKI_EN_DICT.crop))scores.AG+=1;
+  if(has(RIKI_EN_DICT.my)) {scores.MYLIST+=1;scores.MYCROP+=1}
+  const sorted=Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+  const best=sorted[0],second=sorted[1];
+  // Require meaningful evidence; don't let a single generic word decide the intent.
+  const confident=best[1]>=5 && (best[1]-second[1]>=2 || best[1]>=7);
+  return {intent:confident?best[0]:'FB',score:best[1],scores,reasons};
+}
+/* ===== RikiAI Knowledge Brain v4 =====
+   Local, auditable knowledge database: dictionary + phrase examples + rule pages.
+   No random guessing: retrieval is based on weighted semantic overlap, fuzzy word similarity,
+   sentence patterns and conversation context. IndexedDB caches the knowledge base locally. */
+const RIKI_KB_VERSION='4.0.0';
+const RIKI_KB=[
+ {id:'sell',intent:'SELL',title:'Selling produce',patterns:[
+  'i want to sell something','i want to sell my crop','i need to sell my produce','i have produce to sell',
+  'i have something for sale','how can i sell','how do i sell my crop','where can i sell my harvest',
+  'help me sell','put my produce up for sale','post my crop for sale','find a place to sell my crop',
+  'i would like to sell','i need a buyer for my produce','i want to sell vegetables','i have wheat to sell',
+  'can i sell produce here','i want to list something for sale','i want to post produce','sell my harvest'
+ ],words:['sell','selling','sale','offer','harvest','produce','post','listing','list','seller'],answer:'I can help you sell produce on Riki Connect. Tell me what you have and how much you want to sell, for example “I have 200 kg wheat to sell.”'},
+ {id:'buyers',intent:'BUYERS',title:'Finding buyers',patterns:[
+  'i need a buyer','i need buyers','find buyers for my crop','who will buy my produce','where can i find buyers',
+  'i am looking for customers','find a customer for my wheat','connect me with buyers','are there buyers for tomatoes',
+  'who buys this crop','i want someone to buy my produce','help me find a buyer','i need a trader','find traders for my crop'
+ ],words:['buyer','buyers','customer','customers','trader','traders','wholesaler','purchase','purchaser','demand'],answer:'I can help you look for buyers through the Riki Connect marketplace. I will only show buyer information that exists in the app; I will not invent a buyer.'},
+ {id:'market',intent:'MARKET',title:'Market and prices',patterns:[
+  'what is the price','what is the market price','what is the rate','what is todays rate','check the price',
+  'how much is wheat selling for','how much are tomatoes','tell me the price of my crop','what is the mandi rate',
+  'what is the current rate','show me market prices','what is this crop worth','how much can i sell it for',
+  'is the price good','compare prices','what are people listing this for'
+ ],words:['price','prices','rate','rates','cost','worth','value','market','mandi','price','pricing'],answer:'I can check prices from Riki Connect marketplace listings when listing data is available. Marketplace listing prices are not the same as official mandi prices.'},
+ {id:'listing',intent:'HLIST',title:'How to list produce',patterns:[
+  'how do i make a listing','how do i create a listing','how can i post produce','how do i upload my crop',
+  'how do i put my produce on the marketplace','where do i list my crop','how can i publish my produce',
+  'how do i add a product','how do i sell on riki connect','how do i post something for sale'
+ ],words:['listing','list','post','upload','publish','add','marketplace','produce'],answer:'To list produce on Riki Connect: sign in, choose “Post Produce”, enter the produce, quantity, price and location, then publish the listing.'},
+ {id:'mylist',intent:'MYLIST',title:'My listings',patterns:['show my listings','what did i list','show my produce','show my posts','what am i selling','my active listings','check my listings','see my produce'],words:['my','listing','listings','posts','posted','selling'],answer:'I can show the active produce you have listed on Riki Connect.'},
+ {id:'mycrop',intent:'MYCROP',title:'My crops',patterns:['what crops do i have','show my crops','what produce do i have','tell me my crops','what did i grow','my crop'],words:['my','crop','crops','produce','harvest','grow','grown'],answer:'I can show the crop/produce information available in your Riki Connect profile and active listings.'},
+ {id:'profile',intent:'PROFILE',title:'Profile',patterns:['show my profile','open my profile','what is on my profile','check my profile','my account'],words:['profile','account','farmer profile'],answer:'I can open your Riki Connect profile.'},
+ {id:'contact',intent:'HCONTACT',title:'Contact a buyer',patterns:['how do i contact a buyer','how can i message a buyer','how do i talk to a buyer','send a message to buyer','chat with a buyer'],words:['contact','message','chat','talk','buyer'],answer:'Open the relevant marketplace listing or profile and start a chat. The conversation will appear in Messages.'},
+ {id:'greeting',intent:'GREET',title:'Greeting',patterns:['hi','hello','hey','good morning','good afternoon','good evening','namaste','hello riki','hi riki'],words:['hi','hello','hey','namaste','morning','afternoon','evening'],answer:"Hi! I’m RikiAI. Tell me naturally what you want to do — sell produce, find buyers, check prices, create a listing, or ask about Riki Connect."},
+ {id:'identity',intent:'IDENTITY',title:'Identity',patterns:['who are you','what are you','what is your name','tell me about yourself','who is riki ai'],words:['who','name','riki','assistant','ai'],answer:'I’m RikiAI, the agricultural assistant inside Riki Connect. I can understand natural requests and help with marketplace and produce tasks.'},
+ {id:'capabilities',intent:'CAPS',title:'Capabilities',patterns:['what can you do','how can you help','what do you help with','what can riki do','what are your features'],words:['help','can','do','features','capabilities'],answer:'I can help you manage produce listings, understand what you want to sell, find marketplace information, check available listing prices, explain Riki Connect, and guide you through actions.'},
+ {id:'thanks',intent:'THANKS',title:'Thanks',patterns:['thanks','thank you','thankyou','thx','appreciate it','great thanks'],words:['thanks','thank','appreciate'],answer:'You’re welcome! Tell me what you want to do next.'},
+ {id:'help',intent:'AG',title:'General help',patterns:['i need help','help me with my crop','i have a crop problem','my crop has a problem','what should i do about my crop'],words:['help','crop','problem','disease','pest','insect','leaf','plant'],answer:'I can help explain general farming information, but I should not invent a diagnosis or chemical treatment. For a crop problem, describe the crop and symptoms or ask a qualified agriculture expert.'}
+];
+const RIKI_KB_SYNONYMS={
+ sell:['sell','selling','sale','offer','dispose','market','offload'], buy:['buy','buying','purchase','purchasing','source','procure'],
+ buyer:['buyer','buyers','customer','customers','trader','traders','wholesaler','purchaser','purchasers'],
+ market:['market','marketplace','mandi','bazaar','rate','price','prices','pricing','cost','worth','value'],
+ list:['list','listing','post','posting','upload','publish','advertise','offer'], crop:['crop','crops','produce','harvest','yield','farm','farming'],
+ my:['my','mine','i have','i own','i posted','i listed','myself'], help:['help','guide','explain','assist','support'],
+ contact:['contact','message','chat','talk','call','reach']
+};
+const RIKI_KB_STOP=new Set(['a','an','the','to','for','of','on','in','at','is','are','am','i','me','my','you','your','do','does','can','could','would','should','want','need','please','tell','show','give','with','and','or','it','this','that','something','some','how','what','where','who','when','why']);
+function rikiKBWords(s){return String(s||'').toLowerCase().normalize('NFKC').replace(/[^a-z0-9\s']/g,' ').split(/\s+/).filter(Boolean)}
+function rikiKBStem(w){w=String(w||'').toLowerCase(); if(w.length>5&&/(ing|ed|es)$/.test(w))w=w.replace(/(ing|ed|es)$/,''); if(w.endsWith('s')&&w.length>4)w=w.slice(0,-1); return w}
+function rikiKBCosineLike(a,b){
+ const A=new Set(a.filter(x=>!RIKI_KB_STOP.has(x)).map(rikiKBStem)),B=new Set(b.filter(x=>!RIKI_KB_STOP.has(x)).map(rikiKBStem));
+ let hit=0;for(const x of A)if(B.has(x))hit++; return hit/Math.max(1,Math.sqrt(A.size*B.size));
+}
+function rikiKBEdit(a,b){
+ a=rikiKBStem(a);b=rikiKBStem(b);if(a===b)return 1;if(!a||!b||Math.min(a.length,b.length)<3)return 0;let prev=Array.from({length:b.length+1},(_,i)=>i);
+ for(let i=1;i<=a.length;i++){const cur=[i];for(let j=1;j<=b.length;j++)cur[j]=Math.min(cur[j-1]+1,prev[j]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));prev=cur}return 1-prev[b.length]/Math.max(a.length,b.length);
+}
+function rikiKBQuery(raw){
+ const n=rikiEnglishNormalize(raw), q=n.text.toLowerCase(); const qt=rikiKBWords(q); const scored=[];
+ for(const e of RIKI_KB){let best=0;for(const p of e.patterns){best=Math.max(best,rikiKBCosineLike(qt,rikiKBWords(p))*0.72);if(q===p)best=1;}
+  const wordHits=e.words.reduce((s,w)=>s+(qt.some(x=>rikiKBStem(x)===rikiKBStem(w))?1:0),0); best+=Math.min(.28,wordHits*.07);
+  for(const [group,vals] of Object.entries(RIKI_KB_SYNONYMS)){if(e.words.some(w=>vals.includes(w))&&qt.some(x=>vals.includes(x)))best+=.04}
+  scored.push({...e,score:best}); }
+ scored.sort((a,b)=>b.score-a.score);return {normalized:n,results:scored,top:scored[0],second:scored[1]};
+}
+function rikiKBIntent(raw){
+ const r=rikiKBQuery(raw), top=r.top, second=r.second; if(!top)return {intent:'FB',confidence:0,results:[]};
+ const gap=top.score-(second?.score||0); const confident=top.score>=.42 && (gap>=.06||top.score>=.7); return {intent:confident?top.intent:'FB',confidence:top.score,gap,results:r.results,normalized:r.normalized};
+}
+async function rikiKBSeed(){
+ try{const db=indexedDB.open('RikiAI_KnowledgeDB',1);db.onupgradeneeded=()=>{const d=db.result;if(!d.objectStoreNames.contains('knowledge'))d.createObjectStore('knowledge',{keyPath:'id'});};db.onsuccess=()=>{try{const tx=db.result.transaction('knowledge','readwrite'),st=tx.objectStore('knowledge');RIKI_KB.forEach(x=>st.put({...x,version:RIKI_KB_VERSION}));}catch(e){}};
+ }catch(e){}
+}
+setTimeout(rikiKBSeed,0);
+function rikiNormalizeMessage(raw){
+  const n=rikiEnglishNormalize(raw), kb=rikiKBIntent(n.text), scored=rikiEnglishScore(n.text);
+  const p=raiProduct(n.text), q=raiQty(n.text);
+  // The knowledge base is the primary classifier; the older rules are a secondary signal.
+  const strong=rikiStrongIntent(n.text);
+  const intent=strong || (kb.intent!=='FB'?kb.intent:scored.intent);
+  return {text:n.text,corrected:n.changed,corrections:n.corrections,intent,score:Math.max(kb.confidence,scored.score/10),scores:scored.scores,product:p,quantity:q,kb};
+}
+function rikiNaturalReply(x,n){
+  const y={...x,userMessage:n.text};
+  if(n.intent!=='FB') y.intent=n.intent;
+  const r=rikiAI(y,true);
+  if(n.corrected && n.corrections.length) r.t=`I understood you. (${n.corrections.join(', ')})\n\n`+r.t;
+  // If the app router has no useful response, answer from the audited knowledge base instead of saying 'full AI coming soon'.
+  if(n.intent==='FB' && n.kb?.results?.[0]?.score>=.30){
+    const top=n.kb.results[0]; r.t=top.answer; r.kb={source:top.title,confidence:n.kb.results[0].score};
+  }
+  return r;
+}
+
+function rikiAI(x, _normalized){
+  if(!_normalized){
+    const n = rikiNormalizeMessage(x?.userMessage || "");
+    if(n.text && (n.text !== String(x?.userMessage || "").trim() || n.intent)){
+      return rikiNaturalReply(x, n);
+    }
+  }
   const L=raiLang(x.userMessage,x.preferredLanguage),S=k=>raiS(k,L),t=x.userMessage||'',data=x.relevantMarketplaceData||[],uid=currentUser?.uid;
   const mine=data.filter(b=>b.farmerId===uid&&(b.status||'active')==='active'),R=(k,e)=>({l:L,t:S(k),...e});
   let it=x.intent||raiIntent(t);
   if(!x.intent&&RAI.flow&&(it==='FB'||raiProduct(t)||raiQty(t)))it='SELL';
   if(it!=='SELL')RAI.flow=null;
+  const corr=raiCorrectedText(t);
   if(['MYCROP','MYLIST','SELL','PROFILE'].includes(it)&&!currentUser)return R('signin',{acts:[{k:'signin'}]});
   const cards=mine.slice(0,5).map(b=>b.id);
   switch(it){
+    case 'GREET':return {l:L,t:S('hi')+'\n'+S('intro')+' '+(L==='pa'?'ਤੁਸੀਂ ਆਮ ਤਰੀਕੇ ਨਾਲ ਸਵਾਲ ਪੁੱਛੋ — ਮੈਂ ਸਮਝਣ ਦੀ ਕੋਸ਼ਿਸ਼ ਕਰਾਂਗਾ।':'Just ask naturally — you don’t need to use exact commands.')};
+    case 'THANKS': return {l:L,t:raiGeneralAnswer(t,L).t};
+    case 'IDENTITY':case 'CAPS': return {l:L,t:raiGeneralAnswer(t,L).t};
     case 'MYCROP':return mine.length?{l:L,t:S('mc1')+'\n'+[...new Set(mine.map(b=>b.produceName))].join(', '),cards,acts:[{k:'market'}]}:R('mc0',{acts:[{k:'create'}]});
     case 'MYLIST':return mine.length?R('mc1',{cards,acts:[{k:'market'}]}):R('ml0',{acts:[{k:'create'}]});
-    case 'SELL':{const f=RAI.flow||(RAI.flow={p:null,q:null,n:0});f.n++;const p=raiProduct(t),q=raiQty(t);if(p)f.p=p;if(q)f.q=q;
-      if(!f.p&&f.n>1&&!q){const c=raiDig(t).replace(/[^\p{L} ]/gu,' ').trim();if(c&&c.length<=30)f.p=c.replace(/(^|\s)\S/g,m=>m.toUpperCase())}
-      if(!f.p)return R('sa');if(!f.q)return R('sq');
-      RAI.flow=null;return R('sd',{draft:{p:f.p,q:f.q,loc:currentProfile?.district||''},acts:[{k:'create',d:{p:f.p,q:f.q}}]})}
-    case 'BUYERS':return R('b0',{acts:[{k:'market'}]}); /* no buyer-requirements data exists yet: never invent demand */
+    case 'SELL':{
+      const f=RAI.flow||(RAI.flow={p:null,q:null,n:0}); f.n++;
+      const p=raiProduct(t), q=raiQty(t);
+      if(p) f.p=p; if(q) f.q=q;
+      // NEVER turn the user's whole sentence into a crop name. Words such as
+      // 'something', 'anything', 'stuff', 'produce' and 'crop' are placeholders,
+      // not produce entities. A quantity-only reply must therefore keep asking
+      // for the missing crop instead of creating a bogus listing.
+      const generic=/^(something|anything|stuff|produce|crop|item|items|it|this|that|them)$/i;
+      if(!f.p){
+        const cleaned=raiDig(t).replace(/[^\p{L} ]/gu,' ').trim();
+        const words=cleaned.split(/\s+/).filter(Boolean);
+        const candidate=words.length===1?words[0]:'';
+        if(candidate && !generic.test(candidate) && candidate.length<=24 && !raiQty(t)){
+          const cp=raiProduct(candidate); if(cp) f.p=cp;
+        }
+      }
+      if(!f.p) return R('sa');
+      if(!f.q) return R('sq');
+      const draft={p:f.p,q:f.q,loc:currentProfile?.district||''};
+      RAI.flow=null;
+      return R('sd',{t:corr+S('sd'),draft,acts:[{k:'create',d:draft}]});
+    }
+    case 'BUYERS':return R('b0',{acts:[{k:'market'}]});
     case 'MARKET':{const p=raiProduct(t),ms=p?data.filter(b=>(b.status||'active')==='active'&&rkHas(b.produceName)&&rkStem(b.produceName)===rkStem(p)&&Number(b.price)>0):[];
-      if(!ms.length)return R('m0',{acts:[{k:'market'}]});
+      if(!ms.length)return R('m0',{t:corr+S('m0'),acts:[{k:'market'}]});
       const u=rkUnit(ms[0]),ps=ms.filter(b=>rkUnit(b)===u).map(b=>Number(b.price));
-      return {l:L,t:S('m1').replace('{p}',p).replace('{n}',ps.length).replace('{a}',Math.min(...ps)).replace('{b}',Math.max(...ps)).replace('{u}',u),cards:ms.slice(0,5).map(b=>b.id),acts:[{k:'market'}]}}
-    case 'AG':return R('ag',{acts:[{k:'community'}]}); /* no LLM: safe "coming soon" + expert referral, never guessed advice */
+      return {l:L,t:corr+S('m1').replace('{p}',p).replace('{n}',ps.length).replace('{a}',Math.min(...ps)).replace('{b}',Math.max(...ps)).replace('{u}',u),cards:ms.slice(0,5).map(b=>b.id),acts:[{k:'market'}]}}
+    case 'AG':return R('ag',{acts:[{k:'community'}]});
     case 'TRANS':return R('tr');
     case 'HLIST':return R('hl',{acts:[{k:'create'}]});
     case 'HCONTACT':return R('hc',{acts:[{k:'market'}]});
     case 'PROFILE':return R('po',{acts:[{k:'profile'}]});
-    case 'GREET':return {l:L,t:S('hi')+'\n'+S('intro')};
-    default:return R('fb',{acts:[{k:'mylist'},{k:'create'}]});
+    default:{const g=raiGeneralAnswer(t,L);if(g)return {l:L,t:g.t};return R('fb',{acts:[{k:'mylist'},{k:'create'},{k:'market'},{k:'community'}]});}
   }
 }
 const raiKey=sc=>sc==='chat'?(RAI.sheet||'chat'):'home';
