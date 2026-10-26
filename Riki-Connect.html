@@ -452,7 +452,29 @@ button,input,select,textarea{max-width:100%;font:inherit}
   body{padding-bottom:max(0px,env(safe-area-inset-bottom))}
 }
   </style>
- </head>
+
+<style id="riki-zapier-integration-fix">
+  #tab-rikiai .rai{max-width:none;padding:0}
+  #tab-rikiai #rai-root{width:100%;min-height:640px}
+  #tab-rikiai .riki-zapier-ai{max-width:1100px;margin:0 auto;padding:28px 24px 40px}
+  #tab-rikiai .riki-zapier-frame{width:100%;min-height:600px;background:#fff;border:1px solid #d1e7d5;border-radius:18px;overflow:hidden;box-shadow:0 8px 24px rgba(15,23,42,.06)}
+  #tab-rikiai .riki-zapier-frame iframe{display:block;width:100%;height:600px;border:0;background:#fff}
+  @media(max-width:640px){
+    #tab-rikiai .riki-zapier-ai{padding:18px 10px 28px}
+    #tab-rikiai .riki-zapier-frame,
+    #tab-rikiai .riki-zapier-frame iframe{min-height:560px;height:560px}
+  }
+</style>
+<style id="riki-zapier-css">
+.riki-zapier-ai{max-width:760px;margin:0 auto;padding:16px}
+.riki-zapier-header{display:flex;align-items:center;margin-bottom:12px}
+.riki-zapier-header strong{display:block;font-size:22px;color:#14532d}
+.riki-zapier-header span{display:block;margin-top:2px;color:#64748b;font-size:12px}
+.riki-zapier-frame{width:100%;min-height:600px;background:#fff;border:1px solid #d1e7d5;border-radius:16px;overflow:hidden;box-shadow:0 8px 24px rgba(15,23,42,.06)}
+.riki-zapier-frame iframe{display:block;width:100%;height:600px;border:0}
+@media(max-width:640px){.riki-zapier-ai{padding:10px}.riki-zapier-frame,.riki-zapier-frame iframe{min-height:560px}}
+</style>
+</head>
  <body class="bg-slate-50 text-slate-900 font-sans antialiased min-h-screen flex flex-col selection:bg-brand-100 selection:text-brand-900">
   <!-- ======================================================== -->
   <!-- MAIN APPLICATION HEADER                                  -->
@@ -1950,7 +1972,25 @@ button,input,select,textarea{max-width:100%;font:inherit}
   <!-- ======================================================== -->
   <main class="tab-view flex-1 bg-slate-50" id="tab-rikiai">
    <div class="rai" id="rai-root">
-   </div>
+      <div id="riki-zapier-ai" class="riki-zapier-ai">
+        <div class="riki-zapier-header">
+          <div>
+            <strong>🌱 RikiAI</strong>
+            <span>AI Assistant for Riki Connect</span>
+          </div>
+        </div>
+        <div class="riki-zapier-frame">
+          <iframe
+            src="https://interfaces.zapier.com/embed/chatbot/cmvowgp2m00348e6z02rlf31y"
+            title="RikiAI - Riki Connect AI Assistant"
+            height="600"
+            width="100%"
+            allow="clipboard-write *"
+            style="border:none;display:block;width:100%;height:600px;">
+          </iframe>
+        </div>
+      </div>
+    </div>
   </main>
   <main class="tab-view flex-1 bg-slate-50 py-8" id="tab-profile">
    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
@@ -2399,7 +2439,6 @@ button,input,select,textarea{max-width:100%;font:inherit}
     if (tab === "community") renderCommunity();
     if (tab === "profile") renderProfile();
     if (tab === "messages") renderMessages();
-    if (tab === "rikiai" && window.raiRender) window.raiRender();
     document.body.classList.toggle("rc-msg", tab === "messages");
     if (tab !== "messages") document.body.classList.remove("rc-msg-chat");
     document.querySelectorAll("#rc-phone-bottom-nav button").forEach(b => { const on = b.dataset.tab === tab || (tab === "detail" && b.dataset.tab === "marketplace"); b.classList.toggle("on", on); on ? b.setAttribute("aria-current","page") : b.removeAttribute("aria-current"); });
@@ -4191,7 +4230,7 @@ function raiDraw(r,sc){
    +(chat?'':`<div class="rai-q">${[['q1','MYCROP'],['q2','AG'],['q3','SELL'],['q4','BUYERS'],['q5','MARKET'],['q6','AG'],['q7','TRANS']].map(([q,i])=>`<button type="button" onclick="raiQuick('${sc}','${i}','${q}')">${esc(U(q))}</button>`).join('')}</div><button type="button" class="rai-photo" onclick="showToast('${esc(U('photo'))} · ${esc(U('soon'))}')">📷 ${esc(U('photo'))} · ${esc(U('soon'))}</button>`);
   const lg=r.querySelector('.rai-log');if(lg)lg.scrollTop=lg.scrollHeight;
 }
-window.raiRender=()=>{[['rai-root','home'],['rai-sheet-root','chat']].forEach(([id,sc])=>{const r=$(id);if(r)raiDraw(r,sc)})};
+window.raiRender=()=>{const r=$('rai-sheet-root');if(r)raiDraw(r,'chat')};
 function raiAsk(sc,text,intent){
   const log=RAI.log[raiKey(sc)]=RAI.log[raiKey(sc)]||[],chat=sc==='chat',conv=chat?{id:RAI.sheet,with:messageTarget?.name||null}:null;
   log.push({r:'u',t:text});
