@@ -474,6 +474,74 @@ button,input,select,textarea{max-width:100%;font:inherit}
 .riki-zapier-frame iframe{display:block;width:100%;height:600px;border:0}
 @media(max-width:640px){.riki-zapier-ai{padding:10px}.riki-zapier-frame,.riki-zapier-frame iframe{min-height:560px}}
 </style>
+
+<style id="riki-rikiai-fullscreen-fix">
+  /* RikiAI should feel native to Riki Connect */
+  body.rc-rikiai #tab-rikiai{
+    padding-top:0!important;
+    padding-bottom:0!important;
+    min-height:0!important;
+  }
+  body.rc-rikiai #tab-rikiai .riki-zapier-ai{
+    max-width:1200px;
+    margin:0 auto;
+    padding:18px 20px 12px;
+  }
+  body.rc-rikiai #tab-rikiai .riki-zapier-header{
+    display:none!important;
+  }
+
+  /* The Zapier iframe is cross-origin, so its own "Built on Zapier"
+     footer cannot be DOM-hidden. We crop that last strip at the wrapper. */
+  body.rc-rikiai #tab-rikiai .riki-zapier-frame{
+    height:560px!important;
+    min-height:560px!important;
+    overflow:hidden!important;
+    border-radius:18px!important;
+  }
+  body.rc-rikiai #tab-rikiai .riki-zapier-frame iframe{
+    height:600px!important;
+    min-height:600px!important;
+    display:block!important;
+  }
+
+  /* Compact Riki Connect footer only while RikiAI is open,
+     so the browser viewport shows header + AI + footer together. */
+  body.rc-rikiai > footer{
+    margin-top:0!important;
+    padding-top:12px!important;
+    padding-bottom:12px!important;
+  }
+  body.rc-rikiai > footer .grid{
+    gap:10px!important;
+  }
+  body.rc-rikiai > footer .space-y-8{
+    gap:10px!important;
+  }
+  body.rc-rikiai > footer .space-y-3{
+    gap:4px!important;
+  }
+  body.rc-rikiai > footer p,
+  body.rc-rikiai > footer h3,
+  body.rc-rikiai > footer ul{
+    margin-top:0!important;
+    margin-bottom:0!important;
+  }
+
+  @media(max-width:767px){
+    body.rc-rikiai #tab-rikiai .riki-zapier-ai{
+      padding:10px 8px 8px!important;
+    }
+    body.rc-rikiai #tab-rikiai .riki-zapier-frame{
+      height:calc(100dvh - 150px)!important;
+      min-height:460px!important;
+    }
+    body.rc-rikiai #tab-rikiai .riki-zapier-frame iframe{
+      height:calc(100dvh - 110px)!important;
+      min-height:500px!important;
+    }
+  }
+</style>
 </head>
  <body class="bg-slate-50 text-slate-900 font-sans antialiased min-h-screen flex flex-col selection:bg-brand-100 selection:text-brand-900">
   <!-- ======================================================== -->
@@ -2440,6 +2508,7 @@ button,input,select,textarea{max-width:100%;font:inherit}
     if (tab === "profile") renderProfile();
     if (tab === "messages") renderMessages();
     document.body.classList.toggle("rc-msg", tab === "messages");
+    document.body.classList.toggle("rc-rikiai", tab === "rikiai");
     if (tab !== "messages") document.body.classList.remove("rc-msg-chat");
     document.querySelectorAll("#rc-phone-bottom-nav button").forEach(b => { const on = b.dataset.tab === tab || (tab === "detail" && b.dataset.tab === "marketplace"); b.classList.toggle("on", on); on ? b.setAttribute("aria-current","page") : b.removeAttribute("aria-current"); });
   };
