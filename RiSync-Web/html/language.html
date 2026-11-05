@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RiSync Languages — Learn from Zero</title>
+<style>
+:root{--green:#58cc02;--green-dark:#46a302;--blue:#1cb0f6;--purple:#8b5cf6;--gold:#ffc800;--red:#ff4b4b;--ink:#202124;--muted:#777;--line:#e5e5e5;--bg:#fff;--soft:#f7f7f7;--good:#e8f8df;--bad:#fff0f0}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:var(--bg)}button{font:inherit;cursor:pointer}button:disabled{cursor:not-allowed;opacity:.55}.app{min-height:100vh;display:grid;grid-template-columns:250px minmax(0,1fr) 300px}.sidebar{position:sticky;top:0;height:100vh;border-right:1px solid var(--line);padding:25px 18px;background:#fff;z-index:10}.brand{font-size:30px;font-weight:900;color:var(--green);letter-spacing:-1.5px;margin:0 12px 30px}.brand span{color:var(--blue)}.nav{display:flex;flex-direction:column;gap:8px}.nav button{border:0;background:transparent;text-align:left;padding:13px 14px;border-radius:14px;font-weight:800;color:#555;display:flex;gap:14px;align-items:center;width:100%}.nav button:hover,.nav button.active{background:#eefbea;color:#3e9200}.icon{font-size:23px;width:28px;text-align:center}.sidebar-bottom{position:absolute;bottom:25px;left:18px;right:18px}.small-card{border:1px solid var(--line);border-radius:16px;padding:14px;background:#fafafa;font-size:13px}.main{max-width:850px;width:100%;margin:auto;padding:28px 30px 80px}.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;gap:15px}.course-select{border:2px solid var(--line);border-radius:14px;padding:10px 14px;font-weight:800;background:#fff}.topstats{display:flex;gap:18px;font-weight:800;color:#666}.stat{display:flex;gap:7px;align-items:center}.hero{border:2px solid var(--line);border-radius:20px;padding:25px;background:linear-gradient(135deg,#f4fff0,#fff);display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}.hero h1{margin:0 0 6px;font-size:28px}.hero p{margin:0;color:#777}.xpbar{margin-top:18px;height:12px;background:#e9e9e9;border-radius:10px;overflow:hidden;width:min(430px,65vw)}.xpbar div{height:100%;width:0;background:var(--green);transition:width .35s}.avatar{width:82px;height:82px;border-radius:50%;background:#eaf9df;display:grid;place-items:center;font-size:43px;border:3px solid #cdeeb9}.start-card{border:2px solid #d9efcc;border-radius:20px;padding:22px;background:#fbfff8;margin-bottom:25px}.start-card h2{margin:0 0 6px}.start-card p{color:#666;margin:0 0 15px;line-height:1.55}.primary{border:0;background:var(--green);color:#fff;border-radius:14px;padding:13px 18px;font-weight:900;box-shadow:0 4px 0 var(--green-dark)}.secondary{border:2px solid var(--line);background:#fff;border-radius:14px;padding:11px 16px;font-weight:900}.path{position:relative;padding:4px 0}.unit{margin:20px 0 30px}.unit-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.unit h2{font-size:20px;margin:0}.unit small{color:#888}.lesson-row{display:flex;justify-content:center;gap:30px;position:relative;flex-wrap:wrap}.lesson-row:before{content:"";position:absolute;left:12%;right:12%;top:43px;border-top:5px dotted #dcdcdc;z-index:0}.lesson{position:relative;z-index:1;border:0;background:transparent;width:120px;display:flex;flex-direction:column;align-items:center;gap:8px}.lesson .bubble{width:78px;height:78px;border-radius:50%;display:grid;place-items:center;background:var(--green);border:5px solid #3f9d00;box-shadow:0 5px 0 #358900;color:#fff;font-size:30px}.lesson.locked .bubble{background:#ddd;border-color:#c7c7c7;box-shadow:0 5px 0 #bbb;color:#888}.lesson.done .bubble{background:#ffc800;border-color:#e1a900;box-shadow:0 5px 0 #bf8e00}.lesson span{font-size:13px;font-weight:800}.rightbar{border-left:1px solid var(--line);padding:28px 22px;background:#fff}.side-title{font-size:18px;font-weight:900;margin:0 0 15px}.panel{border:1px solid var(--line);border-radius:18px;padding:17px;margin-bottom:16px}.streak{display:flex;align-items:center;gap:14px}.streak strong{font-size:26px}.friend{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #eee}.friend:last-child{border-bottom:0}.league{display:flex;justify-content:space-between;color:#666;font-size:14px;margin:9px 0}.progress{height:8px;background:#eee;border-radius:8px;overflow:hidden}.progress div{height:100%;background:var(--blue);transition:width .3s}.pill{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);border-radius:999px;padding:5px 9px;font-size:12px;font-weight:800;background:#fff}.muted{color:var(--muted)}
+/* course modal */.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:40;align-items:center;justify-content:center;padding:20px}.modal.show{display:flex}.modal-box{background:#fff;border-radius:22px;width:min(720px,100%);max-height:90vh;overflow:auto;padding:25px}.modal-head{display:flex;justify-content:space-between;align-items:center}.close{border:0;background:#f1f1f1;border-radius:50%;width:38px;height:38px;font-size:20px}.languages{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:20px}.lang{border:2px solid var(--line);background:#fff;border-radius:16px;padding:17px;display:flex;align-items:center;gap:14px;text-align:left;font-weight:800}.lang:hover,.lang.selected{border-color:var(--green);background:#f7fff2}.flag{font-size:30px}
+.chapter-start{border:0;background:#eef9ff;color:#1688c0;border-radius:10px;padding:7px 11px;font-weight:900;cursor:pointer}.chapter-start:disabled{opacity:.45;cursor:not-allowed}.chapter-start:hover:not(:disabled){background:#dff4ff}
+/* learning screen */.lesson-screen{display:none;position:fixed;inset:0;background:#fff;z-index:50;overflow:auto;padding:20px 20px 110px}.lesson-screen.show{display:block}.lesson-wrap{max-width:780px;margin:auto}.lesson-top{display:flex;gap:14px;align-items:center}.back{border:0;background:#f2f2f2;border-radius:12px;padding:10px 15px;font-weight:900}.lesson-progress{height:13px;background:#eee;border-radius:10px;flex:1;overflow:hidden}.lesson-progress div{width:0;height:100%;background:var(--green);transition:width .25s}.heart{font-weight:900;color:var(--red);white-space:nowrap}.teach{margin:45px auto 25px;border:2px solid var(--line);border-radius:22px;padding:25px;max-width:720px;background:#fff}.teach-kicker{font-size:12px;font-weight:900;color:var(--blue);letter-spacing:.08em}.teach h1{font-size:32px;margin:8px 0}.teach .target{font-size:22px;font-weight:800;margin:15px 0}.teach .meaning{font-size:18px;color:#555}.tip{padding:13px 15px;background:#f7fbff;border-left:5px solid var(--blue);border-radius:10px;line-height:1.5;margin-top:18px}.speak{border:2px solid #dceffd;background:#fff;border-radius:12px;padding:9px 13px;font-weight:900;color:#1688c0;margin-top:14px}.question{margin:35px 0 25px}.question h2{font-size:27px}.question p{color:#777}.choices{display:grid;gap:12px}.choice{border:2px solid #ddd;background:#fff;border-radius:16px;padding:18px;text-align:left;font-weight:800;min-height:58px}.choice:hover{background:#f7fff2;border-color:var(--green)}.choice.selected{border-color:var(--blue);background:#eef9ff}.choice.correct{border-color:var(--green);background:var(--good)}.choice.wrong{border-color:var(--red);background:var(--bad)}.feedback{margin-top:16px;border-radius:14px;padding:14px;font-weight:700;line-height:1.5;display:none}.feedback.show{display:block}.feedback.good{background:var(--good);color:#2e7800}.feedback.bad{background:var(--bad);color:#a00000}.lesson-footer{position:fixed;bottom:0;left:0;right:0;border-top:1px solid var(--line);background:#fff;padding:16px;z-index:55}.footer-inner{max-width:780px;margin:auto;display:flex;gap:12px}.check{flex:1;background:var(--green);color:#fff;border:0;border-radius:15px;padding:15px;font-weight:900;font-size:17px;box-shadow:0 4px 0 var(--green-dark)}
+/* placement */.placement{display:none}.placement.show{display:block}.level-options{display:grid;grid-template-columns:1fr 1fr;gap:12px}.level-card{border:2px solid var(--line);border-radius:18px;background:#fff;padding:18px;text-align:left}.level-card:hover{border-color:var(--green)}.level-card h3{margin:0 0 6px}.level-card p{margin:0;color:#777;line-height:1.45}
+/* chapter exercises */
+.chapter-exercise{max-width:780px;margin:35px auto 25px;border:2px solid var(--line);border-radius:22px;padding:25px;background:#fff}.exercise-type{font-size:12px;font-weight:900;color:var(--purple);letter-spacing:.08em}.exercise-counter{display:flex;justify-content:space-between;align-items:center;margin:10px 0 18px;color:#666;font-weight:800}.exercise-track{height:9px;background:#eee;border-radius:8px;overflow:hidden}.exercise-track div{height:100%;background:var(--purple);transition:width .25s}.sentence-builder{display:flex;flex-wrap:wrap;gap:10px;min-height:58px;padding:14px;border:2px dashed #cfcfcf;border-radius:15px;background:#fafafa;margin:15px 0}.word-chip{border:2px solid #ddd;background:#fff;border-radius:12px;padding:10px 13px;font-weight:900}.word-chip.used{opacity:.45}.built-sentence{min-height:55px;padding:12px;border:2px solid #dceffd;border-radius:14px;background:#f7fcff;font-size:20px;font-weight:800;line-height:1.6}.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}.match-item{border:2px solid #ddd;border-radius:14px;padding:15px;background:#fff}.match-item strong{display:block;margin-bottom:10px}.match-select{width:100%;border:2px solid #ddd;border-radius:11px;padding:10px;background:#fff;font-weight:800}.chapter-test-badge{display:inline-block;background:#fff3c4;border:1px solid #f0d56a;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:900}.chapter-complete{border:2px solid #cdeeb9;background:#f8fff4;border-radius:18px;padding:20px;text-align:center}.chapter-score{font-size:34px;font-weight:950;color:var(--green-dark)}
+/* RiSync character system */
+.characters-panel{border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:16px;background:linear-gradient(180deg,#fbfff8,#fff)}.character-list{display:grid;grid-template-columns:1fr 1fr;gap:9px}.character-card{border:2px solid var(--line);background:#fff;border-radius:15px;padding:10px 8px;text-align:center;transition:.18s;position:relative}.character-card:hover,.character-card.selected{border-color:var(--green);background:#f5fff0;transform:translateY(-2px)}.character-face{width:64px;height:64px;margin:0 auto 6px;border-radius:18px;display:grid;place-items:center;border:2px solid #dfead8;background:#f4faef;overflow:hidden}.character-face svg{width:100%;height:100%;display:block}.avatar{overflow:hidden}.avatar svg{width:100%;height:100%;display:block}.guide-face{overflow:hidden}.guide-face svg{width:100%;height:100%;display:block}.character-name{font-size:12px;font-weight:900}.character-role{font-size:10px;color:#777;margin-top:2px}.character-card .char-star{position:absolute;right:6px;top:5px;font-size:11px;display:none}.character-card.selected .char-star{display:block}.lesson-guide{display:flex;align-items:flex-start;gap:12px;margin:18px auto -20px;max-width:720px}.guide-face{width:58px;height:58px;flex:0 0 58px;border-radius:20px;display:grid;place-items:center;font-size:34px;background:#f4faef;border:3px solid #d7ecc9;box-shadow:0 3px 0 #c7dfb8}.guide-bubble{position:relative;background:#fff;border:2px solid var(--line);border-radius:17px;padding:12px 15px;box-shadow:0 3px 0 #eee;font-weight:800;line-height:1.4}.guide-bubble:before{content:"";position:absolute;left:-9px;top:17px;width:14px;height:14px;background:#fff;border-left:2px solid var(--line);border-bottom:2px solid var(--line);transform:rotate(45deg)}.character-reaction{animation:charPop .28s ease-out}.character-reaction .guide-face{animation:charBounce .55s ease-out}@keyframes charPop{from{opacity:.4;transform:translateY(5px)}to{opacity:1;transform:none}}@keyframes charBounce{0%{transform:scale(.9)}50%{transform:scale(1.08) rotate(-3deg)}100%{transform:scale(1)}}
+/* mobile */@media(max-width:1050px){.app{grid-template-columns:210px 1fr}.rightbar{display:none}}@media(max-width:720px){.app{display:block}.sidebar{height:auto;position:sticky;top:0;border-right:0;border-bottom:1px solid var(--line);padding:10px 14px}.brand{display:inline-block;margin:5px 10px 10px}.nav{display:flex;flex-direction:row;overflow:auto}.nav button{white-space:nowrap;padding:9px 11px;width:auto}.nav button .text{display:none}.sidebar-bottom{display:none}.main{padding:18px 14px 50px}.hero{padding:18px}.hero h1{font-size:23px}.avatar{width:65px;height:65px;font-size:32px}.lesson-row{gap:7px}.lesson{width:90px}.lesson .bubble{width:65px;height:65px;font-size:25px}.lesson-row:before{top:36px;left:8%;right:8%}.topstats{gap:9px;font-size:12px}.topbar{gap:8px}.languages{grid-template-columns:1fr}.level-options{grid-template-columns:1fr}.teach{margin-top:30px;padding:20px}.teach h1{font-size:26px}.question h2{font-size:23px}.lesson-screen{padding:15px 15px 105px}.footer-inner{flex-direction:column}.check{width:100%}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand">Ri<span>Sync</span></div>
+  <nav class="nav">
+    <button class="active" onclick="showHome()"><span class="icon">🏠</span><span class="text">Learn</span></button>
+    <button onclick="showCourse()"><span class="icon">🌐</span><span class="text">Languages</span></button>
+    <button onclick="openPractice()"><span class="icon">🎯</span><span class="text">Practice</span></button>
+    <button onclick="showStats()"><span class="icon">📊</span><span class="text">Progress</span></button>
+  </nav>
+  <div class="sidebar-bottom"><div class="small-card"><b>RiSync Learning</b><br>Start from zero. Understand first, then practise, speak and remember.</div></div>
+</aside>
+
+<main class="main" id="homeView">
+  <div class="topbar">
+    <button class="course-select" onclick="showCourse()" id="courseBtn">🇫🇷 French ▾</button>
+    <div class="topstats"><span class="stat">🔥 <b id="streakTop">0</b></span><span class="stat">💎 <b id="gemsTop">120</b></span><span class="stat">⚡ <b id="xpTop">0 XP</b></span><span class="stat" id="firebaseStatus" title="Progress sync status">☁️ Local</span></div>
+  </div>
+
+  <section class="hero">
+    <div><h1 id="welcomeTitle">French from Zero</h1><p id="heroSubtitle">We teach the idea first, then you practise it.</p><div class="xpbar"><div id="xpBar"></div></div></div>
+    <div class="avatar" id="heroCharacter" aria-label="Your RiSync learning character"></div>
+  </section>
+
+  <section class="start-card" id="startCard">
+    <h2>🌱 Your first step</h2>
+    <p id="startText">You do not need to know French. RiSync starts with simple words, meaning, pronunciation and examples before asking you anything.</p>
+    <button class="primary" onclick="startNextLesson()">Start learning →</button>
+    <button class="secondary" style="margin-left:8px" onclick="chooseLevel()">I already know some</button>
+  </section>
+
+  <section class="path">
+    <div id="chapterList"></div>
+  </section>
+</main>
+
+<aside class="rightbar">
+  <h3 class="side-title">Daily Goal</h3>
+  <div class="panel"><div class="streak"><span style="font-size:34px">🔥</span><div><strong id="streakSide">0 day streak</strong><br><small id="goalText">Start your first lesson.</small></div></div><div style="margin-top:15px" class="progress"><div id="dailyProgress" style="width:0"></div></div><small id="dailyText">0 / 20 XP today</small></div>
+  <h3 class="side-title">Your Skills</h3>
+  <div class="panel"><div class="league"><span>Vocabulary</span><b id="vocabSkill">0%</b></div><div class="progress"><div id="vocabBar" style="width:0"></div></div><div class="league"><span>Listening</span><b id="listenSkill">0%</b></div><div class="progress"><div id="listenBar" style="width:0"></div></div><div class="league"><span>Sentence Building</span><b id="sentenceSkill">0%</b></div><div class="progress"><div id="sentenceBar" style="width:0"></div></div></div>
+  <h3 class="side-title">RiSync Crew</h3>
+  <div class="characters-panel"><div style="font-size:13px;color:#666;margin-bottom:10px">Choose your learning buddy. They will guide you through lessons.</div><div class="character-list" id="characterList"></div></div>
+  <h3 class="side-title">Learning rule</h3>
+  <div class="panel" style="line-height:1.55;color:#666">🧠 <b>Understand → Recall → Use.</b><br>RiSync won't assume you already know the language. New concepts are taught before the practice question.</div>
+</aside>
+</div>
+
+<!-- LANGUAGE PICKER -->
+<div class="modal" id="courseModal" onclick="if(event.target===this)closeCourse()"><div class="modal-box"><div class="modal-head"><div><h2 style="margin:0">Choose a language</h2><p style="color:#777;margin-bottom:0">Every course starts from the absolute basics.</p></div><button class="close" onclick="closeCourse()">×</button></div><div class="languages">
+<button class="lang" data-lang="French" onclick="selectLang('French','🇫🇷')"><span class="flag">🇫🇷</span><span>French<br><small>Français</small></span></button>
+<button class="lang" data-lang="Hindi" onclick="selectLang('Hindi','🇮🇳')"><span class="flag">🇮🇳</span><span>Hindi<br><small>हिन्दी</small></span></button>
+<button class="lang" data-lang="Punjabi" onclick="selectLang('Punjabi','🪯')"><span class="flag">🪯</span><span>Punjabi<br><small>ਪੰਜਾਬੀ</small></span></button>
+<button class="lang" data-lang="Spanish" onclick="selectLang('Spanish','🇪🇸')"><span class="flag">🇪🇸</span><span>Spanish<br><small>Español</small></span></button>
+<button class="lang" data-lang="English" onclick="selectLang('English','🇬🇧')"><span class="flag">🇬🇧</span><span>English<br><small>English</small></span></button>
+<button class="lang" data-lang="Japanese" onclick="selectLang('Japanese','🇯🇵')"><span class="flag">🇯🇵</span><span>Japanese<br><small>日本語</small></span></button>
+<button class="lang" data-lang="Korean" onclick="selectLang('Korean','🇰🇷')"><span class="flag">🇰🇷</span><span>Korean<br><small>한국어</small></span></button>
+</div></div></div>
+
+<!-- LEVEL PICKER -->
+<div class="modal" id="levelModal" onclick="if(event.target===this)closeLevel()"><div class="modal-box"><div class="modal-head"><div><h2 style="margin:0">Where should we start?</h2><p style="color:#777">Be honest. You can always restart from zero.</p></div><button class="close" onclick="closeLevel()">×</button></div><div class="level-options" style="margin-top:20px">
+<button class="level-card" onclick="setLevel('beginner')"><h3>🌱 Start from zero</h3><p>I know little or nothing. Teach me step by step.</p></button>
+<button class="level-card" onclick="setLevel('starter')"><h3>🌿 I know a few words</h3><p>I can recognise some words but cannot form sentences confidently.</p></button>
+<button class="level-card" onclick="setLevel('intermediate')"><h3>🌳 I can have simple conversations</h3><p>I understand basic sentences and want to improve fluency.</p></button>
+<button class="level-card" onclick="setLevel('advanced')"><h3>🚀 I want a challenge</h3><p>Skip the basics and focus on comprehension, grammar and expression.</p></button>
+</div></div></div>
+
+<!-- LESSON -->
+<div class="lesson-screen" id="lessonScreen"><div class="lesson-wrap">
+  <div class="lesson-top"><button class="back" onclick="closeLesson()">← Exit</button><div class="lesson-progress"><div id="lessonProgress"></div></div><span class="heart">♥ <b id="hearts">5</b></span></div>
+  <div class="lesson-guide" id="lessonGuide"><div class="guide-face" id="guideFace"></div><div class="guide-bubble" id="guideBubble">Let's learn this step together!</div></div>
+  <div id="teachArea" class="teach"></div>
+  <div class="question" id="questionArea"></div>
+  <div id="chapterExerciseArea"></div>
+  <div class="choices" id="choices"></div>
+  <div class="feedback" id="feedback"></div>
+</div><div class="lesson-footer"><div class="footer-inner"><button class="secondary" onclick="speakCurrent()">🔊 Listen</button><button class="check" id="lessonAction" onclick="lessonAction()">I understand →</button></div></div></div>
+
+<script>
+/* ========================= RI SYNC LANGUAGE ENGINE ========================= */
+const COURSE={
+ French:{flag:'🇫🇷',speech:'fr-FR',name:'French',native:'Français',units:[
+  {title:'First Words',sub:'Greetings, meaning and pronunciation',lessons:[
+   {name:'Hello',icon:'👋',teach:{target:'Bonjour',meaning:'Hello / Good day',note:'Bonjour is a common polite greeting. You can use it when meeting someone during the day.',example:'Bonjour ! Comment ça va ?',exampleMeaning:'Hello! How are you?'},q:{type:'meaning',prompt:'What does “Bonjour” mean?',options:['Hello / Good day','Good night','Thank you','See you tomorrow'],answer:0}},
+   {name:'Thank You',icon:'🙏',teach:{target:'Merci',meaning:'Thank you',note:'Merci is one of the most useful French words. The final i is pronounced clearly.',example:'Merci beaucoup !',exampleMeaning:'Thank you very much!'},q:{type:'meaning',prompt:'What does “Merci” mean?',options:['Please','Thank you','Sorry','Goodbye'],answer:1}},
+   {name:'Please',icon:'✨',teach:{target:"S’il vous plaît",meaning:'Please (polite)',note:'This is a polite expression. Learn it as one useful chunk before worrying about grammar.',example:'Un café, s’il vous plaît.',exampleMeaning:'A coffee, please.'},q:{type:'meaning',prompt:'Which expression means “please” politely?',options:["S’il vous plaît",'Merci beaucoup','À bientôt','Bonjour'],answer:0}},
+   {name:'Goodbye',icon:'👋',teach:{target:'Au revoir',meaning:'Goodbye',note:'Au revoir is a standard way to say goodbye. You will meet shorter informal alternatives later.',example:'Au revoir ! À demain.',exampleMeaning:'Goodbye! See you tomorrow.'},q:{type:'meaning',prompt:'You are leaving politely. Which phrase fits?',options:['Bonjour','Au revoir','Merci','S’il vous plaît'],answer:1}}
+  ]},
+  {title:'Simple Sentences',sub:'Build useful patterns',lessons:[
+   {name:'I am',icon:'🧩',teach:{target:'Je suis',meaning:'I am',note:'Je means “I”. Suis is the form of “to be” used with je. Learn the whole pattern first.',example:'Je suis étudiant(e).',exampleMeaning:'I am a student.'},q:{type:'meaning',prompt:'Complete: “Je ___ étudiant(e).”',options:['suis','es','est','sommes'],answer:0}},
+   {name:'My name is',icon:'🙋',teach:{target:"Je m’appelle…",meaning:'My name is… / I am called…',note:'This is the natural beginner expression for introducing your name.',example:'Je m’appelle Riya.',exampleMeaning:'My name is Riya.'},q:{type:'meaning',prompt:'Which phrase introduces your name?',options:["Je m’appelle…",'Je suis merci','Au revoir…','S’il vous plaît…'],answer:0}},
+   {name:'How are you?',icon:'💬',teach:{target:'Ça va ?',meaning:'How are you? / Are you okay?',note:'Ça va is extremely common in everyday French. The same expression can also answer “I’m fine.”',example:'— Ça va ? — Ça va bien !',exampleMeaning:'— How are you? — I’m fine!'},q:{type:'meaning',prompt:'What can “Ça va ?” mean in a greeting?',options:['How are you?','Where is it?','What is your name?','What time is it?'],answer:0}},
+   {name:'I like',icon:'❤️',teach:{target:"J’aime…",meaning:'I like… / I love…',note:'J’aime is used to say you like something. It is followed by the thing you like.',example:"J’aime la musique.",exampleMeaning:'I like music.'},q:{type:'meaning',prompt:'How do you begin “I like music” in French?',options:["J’aime…",'Je vais…','Je suis…','J’ai…'],answer:0}}
+  ]},
+  {title:'Everyday Conversation',sub:'Understand and respond',lessons:[
+   {name:'Numbers',icon:'🔢',teach:{target:'un · deux · trois',meaning:'one · two · three',note:'French numbers are best learned in small groups. Say them aloud and connect each sound to the number.',example:'un, deux, trois',exampleMeaning:'one, two, three'},q:{type:'meaning',prompt:'Which French word means “three”?',options:['un','deux','trois','quatre'],answer:2}},
+   {name:'Yes / No',icon:'✅',teach:{target:'Oui · Non',meaning:'Yes · No',note:'These two words are essential for simple conversations.',example:'Oui, merci. / Non, merci.',exampleMeaning:'Yes, thank you. / No, thank you.'},q:{type:'meaning',prompt:'Which pair means “Yes / No”?',options:['Oui / Non','Bonjour / Merci','Je / Tu','Un / Deux'],answer:0}},
+   {name:'Where?',icon:'📍',teach:{target:'Où ?',meaning:'Where?',note:'Où is the common question word for asking about a place or location.',example:'Où est la gare ?',exampleMeaning:'Where is the station?'},q:{type:'meaning',prompt:'Which French word asks “Where?”',options:['Qui','Quand','Où','Pourquoi'],answer:2}},
+   {name:'Mini Conversation',icon:'🗣️',teach:{target:'Bonjour ! Ça va ?',meaning:'Hello! How are you?',note:'Now combine two patterns you already learned. Real language comes from combining small pieces.',example:'Bonjour ! Ça va ? — Ça va bien, merci !',exampleMeaning:'Hello! How are you? — I’m fine, thank you!'},q:{type:'meaning',prompt:'What is a natural reply to “Ça va ?”',options:['Ça va bien, merci.','Au revoir demain.','Je m’appelle Où.','Non est bonjour.'],answer:0}}
+  ]}
+ ]},
+ Hindi:{flag:'🇮🇳',speech:'hi-IN',name:'Hindi',native:'हिन्दी',units:[
+  {title:'First Words',sub:'Greetings and everyday words',lessons:[
+   {name:'Hello',icon:'👋',teach:{target:'नमस्ते',meaning:'Hello / Greetings',note:'Namaste is a common respectful greeting. It can be used when meeting someone.',example:'नमस्ते! आप कैसे हैं?',exampleMeaning:'Hello! How are you?'},q:{type:'meaning',prompt:'What does “नमस्ते” mean?',options:['Hello / Greetings','Good night','Thank you','Water'],answer:0}},
+   {name:'Thank You',icon:'🙏',teach:{target:'धन्यवाद',meaning:'Thank you',note:'This is a standard Hindi word for expressing thanks.',example:'धन्यवाद!',exampleMeaning:'Thank you!'},q:{type:'meaning',prompt:'Which word means “Thank you”?',options:['नमस्ते','धन्यवाद','पानी','अच्छा'],answer:1}},
+   {name:'Yes / No',icon:'✅',teach:{target:'हाँ · नहीं',meaning:'Yes · No',note:'Learn these as a pair. They help you respond to very simple questions.',example:'हाँ, ठीक है। / नहीं, धन्यवाद।',exampleMeaning:'Yes, okay. / No, thank you.'},q:{type:'meaning',prompt:'Which pair means “Yes / No”?',options:['हाँ / नहीं','नमस्ते / धन्यवाद','मैं / आप','एक / दो'],answer:0}},
+   {name:'Please',icon:'✨',teach:{target:'कृपया',meaning:'Please',note:'कृपया is a polite word used when making a request.',example:'कृपया बैठिए।',exampleMeaning:'Please sit.'},q:{type:'meaning',prompt:'Which Hindi word means “Please”?',options:['कृपया','धन्यवाद','नहीं','पानी'],answer:0}}
+  ]},
+  {title:'Simple Sentences',sub:'Introduce yourself and ask simple questions',lessons:[
+   {name:'I am',icon:'🧩',teach:{target:'मैं हूँ',meaning:'I am',note:'मैं means “I” and हूँ is the “am” form used with मैं.',example:'मैं छात्र हूँ।',exampleMeaning:'I am a student.'},q:{type:'meaning',prompt:'Complete: “मैं ___।” for “I am a student.”',options:['हूँ','है','हैं','हो'],answer:0}},
+   {name:'My name is',icon:'🙋',teach:{target:'मेरा नाम … है',meaning:'My name is …',note:'Mera naam literally means “my name”; है completes the basic pattern.',example:'मेरा नाम रिया है।',exampleMeaning:'My name is Riya.'},q:{type:'meaning',prompt:'Which phrase means “My name is Riya”?',options:['मेरा नाम रिया है।','मैं रिया नहीं।','रिया धन्यवाद है।','नमस्ते नाम मेरा।'],answer:0}},
+   {name:'How are you?',icon:'💬',teach:{target:'आप कैसे हैं?',meaning:'How are you? (polite)',note:'आप is a polite “you”. कैसे हैं? asks how someone is.',example:'नमस्ते! आप कैसे हैं?',exampleMeaning:'Hello! How are you?'},q:{type:'meaning',prompt:'What does “आप कैसे हैं?” mean?',options:['How are you?','What is your name?','Where are you?','What do you like?'],answer:0}},
+   {name:'I like',icon:'❤️',teach:{target:'मुझे … पसंद है',meaning:'I like …',note:'This common pattern expresses a preference. Learn it as a useful phrase before analysing every word.',example:'मुझे संगीत पसंद है।',exampleMeaning:'I like music.'},q:{type:'meaning',prompt:'Which pattern means “I like …”?',options:['मुझे … पसंद है','मैं … जा रहा हूँ','आप … कहाँ हैं','मेरा नाम … है'],answer:0}}
+  ]},
+  {title:'Everyday Conversation',sub:'Build confidence in common exchanges',lessons:[
+   {name:'Numbers',icon:'🔢',teach:{target:'एक · दो · तीन',meaning:'one · two · three',note:'Learn numbers in small groups and say them aloud.',example:'एक, दो, तीन',exampleMeaning:'one, two, three'},q:{type:'meaning',prompt:'Which Hindi word means “three”?',options:['एक','दो','तीन','चार'],answer:2}},
+   {name:'Where?',icon:'📍',teach:{target:'कहाँ?',meaning:'Where?',note:'कहाँ is the common question word for location.',example:'आप कहाँ हैं?',exampleMeaning:'Where are you?'},q:{type:'meaning',prompt:'Which Hindi word asks “Where?”',options:['कौन','कब','कहाँ','क्यों'],answer:2}},
+   {name:'Good',icon:'⭐',teach:{target:'अच्छा',meaning:'Good / Okay',note:'अच्छा is common in everyday speech and can have slightly different meanings depending on context.',example:'अच्छा! ठीक है।',exampleMeaning:'Okay! All right.'},q:{type:'meaning',prompt:'What can “अच्छा” mean?',options:['Good / Okay','Goodbye only','Where','Thank you'],answer:0}},
+   {name:'Mini Conversation',icon:'🗣️',teach:{target:'नमस्ते! आप कैसे हैं?',meaning:'Hello! How are you?',note:'You are now combining the greeting and question you already learned.',example:'— नमस्ते! आप कैसे हैं? — मैं ठीक हूँ, धन्यवाद।',exampleMeaning:'— Hello! How are you? — I am fine, thank you!'},q:{type:'meaning',prompt:'Which is a natural reply?',options:['मैं ठीक हूँ, धन्यवाद।','कहाँ नाम है।','तीन नमस्ते है।','नहीं मेरा नाम।'],answer:0}}
+  ]}
+ ]},
+ Punjabi:{flag:'🪯',speech:'pa-IN',name:'Punjabi',native:'ਪੰਜਾਬੀ',units:[
+  {title:'First Words',sub:'Greetings and useful words',lessons:[
+   {name:'Hello',icon:'👋',teach:{target:'ਸਤ ਸ੍ਰੀ ਅਕਾਲ',meaning:'Hello / respectful greeting',note:'Sat Sri Akaal is a common Punjabi greeting. Learn the full expression as one unit.',example:'ਸਤ ਸ੍ਰੀ ਅਕਾਲ! ਤੁਸੀਂ ਕਿਵੇਂ ਹੋ?',exampleMeaning:'Hello! How are you?'},q:{type:'meaning',prompt:'What is “ਸਤ ਸ੍ਰੀ ਅਕਾਲ” used for?',options:['A greeting','A number','A food word','A goodbye only'],answer:0}},
+   {name:'Thank You',icon:'🙏',teach:{target:'ਧੰਨਵਾਦ',meaning:'Thank you',note:'Dhannvaad is a standard way to express thanks.',example:'ਧੰਨਵਾਦ!',exampleMeaning:'Thank you!'},q:{type:'meaning',prompt:'Which word means “Thank you”?',options:['ਸਤ ਸ੍ਰੀ ਅਕਾਲ','ਧੰਨਵਾਦ','ਪਾਣੀ','ਹਾਂ'],answer:1}},
+   {name:'Yes / No',icon:'✅',teach:{target:'ਹਾਂ · ਨਹੀਂ',meaning:'Yes · No',note:'These are essential response words.',example:'ਹਾਂ, ਠੀਕ ਹੈ। / ਨਹੀਂ, ਧੰਨਵਾਦ।',exampleMeaning:'Yes, okay. / No, thank you.'},q:{type:'meaning',prompt:'Which pair means “Yes / No”?',options:['ਹਾਂ / ਨਹੀਂ','ਇੱਕ / ਦੋ','ਧੰਨਵਾਦ / ਪਾਣੀ','ਮੈਂ / ਤੁਸੀਂ'],answer:0}},
+   {name:'Please',icon:'✨',teach:{target:'ਕਿਰਪਾ ਕਰਕੇ',meaning:'Please',note:'This is a polite expression used when asking for something.',example:'ਕਿਰਪਾ ਕਰਕੇ ਬੈਠੋ।',exampleMeaning:'Please sit.'},q:{type:'meaning',prompt:'Which expression means “Please”?',options:['ਕਿਰਪਾ ਕਰਕੇ','ਧੰਨਵਾਦ','ਸਤ ਸ੍ਰੀ ਅਕਾਲ','ਨਹੀਂ'],answer:0}}
+  ]},
+  {title:'Simple Sentences',sub:'Introduce yourself and express simple ideas',lessons:[
+   {name:'I am',icon:'🧩',teach:{target:'ਮੈਂ ਹਾਂ',meaning:'I am',note:'ਮੈਂ means “I”; ਹਾਂ is the “am” form used with it.',example:'ਮੈਂ ਵਿਦਿਆਰਥੀ ਹਾਂ।',exampleMeaning:'I am a student.'},q:{type:'meaning',prompt:'Complete “ਮੈਂ ___।” for “I am …”',options:['ਹਾਂ','ਹੈ','ਹਨ','ਹੋ'],answer:0}},
+   {name:'My name is',icon:'🙋',teach:{target:'ਮੇਰਾ ਨਾਮ … ਹੈ',meaning:'My name is …',note:'This is a beginner-friendly way to introduce your name.',example:'ਮੇਰਾ ਨਾਮ ਰੀਆ ਹੈ।',exampleMeaning:'My name is Riya.'},q:{type:'meaning',prompt:'Which means “My name is Riya”?',options:['ਮੇਰਾ ਨਾਮ ਰੀਆ ਹੈ।','ਮੈਂ ਰੀਆ ਨਹੀਂ।','ਰੀਆ ਧੰਨਵਾਦ ਹੈ।','ਨਾਮ ਕਿੱਥੇ ਹੈ।'],answer:0}},
+   {name:'How are you?',icon:'💬',teach:{target:'ਤੁਸੀਂ ਕਿਵੇਂ ਹੋ?',meaning:'How are you?',note:'ਤੁਸੀਂ is a polite “you”; ਕਿਵੇਂ asks “how”; ਹੋ completes the phrase.',example:'ਸਤ ਸ੍ਰੀ ਅਕਾਲ! ਤੁਸੀਂ ਕਿਵੇਂ ਹੋ?',exampleMeaning:'Hello! How are you?'},q:{type:'meaning',prompt:'What does “ਤੁਸੀਂ ਕਿਵੇਂ ਹੋ?” mean?',options:['How are you?','Where are you?','What is your name?','What do you like?'],answer:0}},
+   {name:'I like',icon:'❤️',teach:{target:'ਮੈਨੂੰ … ਪਸੰਦ ਹੈ',meaning:'I like …',note:'Learn this as a useful preference pattern.',example:'ਮੈਨੂੰ ਸੰਗੀਤ ਪਸੰਦ ਹੈ।',exampleMeaning:'I like music.'},q:{type:'meaning',prompt:'Which pattern means “I like …”?',options:['ਮੈਨੂੰ … ਪਸੰਦ ਹੈ','ਮੇਰਾ ਨਾਮ … ਹੈ','ਤੁਸੀਂ ਕਿੱਥੇ ਹੋ','ਮੈਂ … ਹਾਂ'],answer:0}}
+  ]},
+  {title:'Everyday Conversation',sub:'Use what you know in context',lessons:[
+   {name:'Numbers',icon:'🔢',teach:{target:'ਇੱਕ · ਦੋ · ਤਿੰਨ',meaning:'one · two · three',note:'Numbers become easier when learned in small groups.',example:'ਇੱਕ, ਦੋ, ਤਿੰਨ',exampleMeaning:'one, two, three'},q:{type:'meaning',prompt:'Which Punjabi word means “three”?',options:['ਇੱਕ','ਦੋ','ਤਿੰਨ','ਚਾਰ'],answer:2}},
+   {name:'Where?',icon:'📍',teach:{target:'ਕਿੱਥੇ?',meaning:'Where?',note:'ਕਿੱਥੇ is used when asking about location.',example:'ਤੁਸੀਂ ਕਿੱਥੇ ਹੋ?',exampleMeaning:'Where are you?'},q:{type:'meaning',prompt:'Which word asks “Where?”',options:['ਕੌਣ','ਕਦੋਂ','ਕਿੱਥੇ','ਕਿਉਂ'],answer:2}},
+   {name:'Good',icon:'⭐',teach:{target:'ਚੰਗਾ',meaning:'Good',note:'ਚੰਗਾ is a common word for “good”. Context can change the form used.',example:'ਚੰਗਾ ਹੈ।',exampleMeaning:'It is good.'},q:{type:'meaning',prompt:'What does “ਚੰਗਾ” mean?',options:['Good','Where','Thank you','Tomorrow'],answer:0}},
+   {name:'Mini Conversation',icon:'🗣️',teach:{target:'ਤੁਸੀਂ ਕਿਵੇਂ ਹੋ? — ਮੈਂ ਠੀਕ ਹਾਂ।',meaning:'How are you? — I am fine.',note:'This combines the question and the “I am” pattern.',example:'ਸਤ ਸ੍ਰੀ ਅਕਾਲ! ਤੁਸੀਂ ਕਿਵੇਂ ਹੋ? — ਮੈਂ ਠੀਕ ਹਾਂ।',exampleMeaning:'Hello! How are you? — I am fine.'},q:{type:'meaning',prompt:'Which is a natural reply?',options:['ਮੈਂ ਠੀਕ ਹਾਂ।','ਕਿੱਥੇ ਨਾਮ ਹੈ।','ਤਿੰਨ ਧੰਨਵਾਦ।','ਨਹੀਂ ਮੇਰਾ ਨਾਮ।'],answer:0}}
+  ]}
+ ]},
+ Spanish:{flag:'🇪🇸',speech:'es-ES',name:'Spanish',native:'Español',units:[
+  {title:'First Words',sub:'Greetings and useful words',lessons:[
+   {name:'Hello',icon:'👋',teach:{target:'Hola',meaning:'Hello',note:'Hola is the basic Spanish greeting and is useful in almost every beginner conversation.',example:'¡Hola! ¿Cómo estás?',exampleMeaning:'Hello! How are you?'},q:{type:'meaning',prompt:'What does “Hola” mean?',options:['Hello','Goodbye','Thank you','Please'],answer:0}},
+   {name:'Thank You',icon:'🙏',teach:{target:'Gracias',meaning:'Thank you',note:'Gracias is the standard word for thanks.',example:'¡Gracias!',exampleMeaning:'Thank you!'},q:{type:'meaning',prompt:'Which word means “Thank you”?',options:['Hola','Gracias','Adiós','Por favor'],answer:1}},
+   {name:'Please',icon:'✨',teach:{target:'Por favor',meaning:'Please',note:'Por favor is a very useful polite expression.',example:'Agua, por favor.',exampleMeaning:'Water, please.'},q:{type:'meaning',prompt:'Which phrase means “Please”?',options:['Por favor','Gracias','Adiós','Hola'],answer:0}},
+   {name:'Goodbye',icon:'👋',teach:{target:'Adiós',meaning:'Goodbye',note:'Adiós is a common way to say goodbye.',example:'¡Adiós! Hasta mañana.',exampleMeaning:'Goodbye! See you tomorrow.'},q:{type:'meaning',prompt:'Which word means “Goodbye”?',options:['Hola','Gracias','Adiós','Por favor'],answer:2}}
+  ]},
+  {title:'Simple Sentences',sub:'Build sentences you can use',lessons:[
+   {name:'I am',icon:'🧩',teach:{target:'Yo soy',meaning:'I am',note:'Yo means “I”; soy is used with ser for identity or description.',example:'Yo soy estudiante.',exampleMeaning:'I am a student.'},q:{type:'meaning',prompt:'Complete: “Yo ___ estudiante.”',options:['soy','eres','es','somos'],answer:0}},
+   {name:'My name is',icon:'🙋',teach:{target:'Me llamo…',meaning:'My name is…',note:'Me llamo literally relates to “I call myself”; it is the natural beginner introduction.',example:'Me llamo Riya.',exampleMeaning:'My name is Riya.'},q:{type:'meaning',prompt:'Which phrase introduces your name?',options:['Me llamo…','Soy gracias…','Adiós…','Por favor…'],answer:0}},
+   {name:'How are you?',icon:'💬',teach:{target:'¿Cómo estás?',meaning:'How are you?',note:'This is a common informal greeting question.',example:'Hola, ¿cómo estás?',exampleMeaning:'Hello, how are you?'},q:{type:'meaning',prompt:'What does “¿Cómo estás?” mean?',options:['How are you?','Where are you?','What is your name?','What do you like?'],answer:0}},
+   {name:'I like',icon:'❤️',teach:{target:'Me gusta…',meaning:'I like…',note:'Me gusta is a common pattern for saying you like something.',example:'Me gusta la música.',exampleMeaning:'I like music.'},q:{type:'meaning',prompt:'Which begins “I like music”?',options:['Me gusta…','Yo voy…','Yo soy…','Tengo…'],answer:0}}
+  ]},
+  {title:'Everyday Conversation',sub:'Move from words to real exchanges',lessons:[
+   {name:'Numbers',icon:'🔢',teach:{target:'uno · dos · tres',meaning:'one · two · three',note:'Learn numbers in small chunks and say them aloud.',example:'uno, dos, tres',exampleMeaning:'one, two, three'},q:{type:'meaning',prompt:'Which Spanish word means “three”?',options:['uno','dos','tres','cuatro'],answer:2}},
+   {name:'Yes / No',icon:'✅',teach:{target:'Sí · No',meaning:'Yes · No',note:'These are essential conversation words.',example:'Sí, gracias. / No, gracias.',exampleMeaning:'Yes, thank you. / No, thank you.'},q:{type:'meaning',prompt:'Which pair means “Yes / No”?',options:['Sí / No','Hola / Gracias','Uno / Dos','Yo / Tú'],answer:0}},
+   {name:'Where?',icon:'📍',teach:{target:'¿Dónde?',meaning:'Where?',note:'Dónde is used to ask about location.',example:'¿Dónde está la estación?',exampleMeaning:'Where is the station?'},q:{type:'meaning',prompt:'Which word asks “Where?”',options:['Quién','Cuándo','Dónde','Por qué'],answer:2}},
+   {name:'Mini Conversation',icon:'🗣️',teach:{target:'Hola, ¿cómo estás? — Muy bien, gracias.',meaning:'Hello, how are you? — Very well, thank you.',note:'Now combine a greeting, question and reply.',example:'Hola, ¿cómo estás? — Muy bien, gracias.',exampleMeaning:'Hello, how are you? — Very well, thank you.'},q:{type:'meaning',prompt:'Which is a natural reply to “¿Cómo estás?”',options:['Muy bien, gracias.','Adiós mañana.','Yo dónde.','No es hola.'],answer:0}}
+  ]}
+ ]},
+ English:{flag:'🇬🇧',speech:'en-US',name:'English',native:'English',units:[
+  {title:'First Words',sub:'Greetings and useful expressions',lessons:[
+   {name:'Hello',icon:'👋',teach:{target:'Hello',meaning:'A greeting',note:'Hello is a neutral, widely used greeting.',example:'Hello! How are you?',exampleMeaning:'A greeting followed by a question about someone’s wellbeing.'},q:{type:'meaning',prompt:'Which word is a basic English greeting?',options:['Hello','Goodbye','Thanks','Please'],answer:0}},
+   {name:'Thank You',icon:'🙏',teach:{target:'Thank you',meaning:'A polite expression of thanks',note:'Thank you is used when you want to show gratitude.',example:'Thank you for your help.',exampleMeaning:'You are expressing gratitude for someone’s help.'},q:{type:'meaning',prompt:'Which phrase expresses thanks?',options:['Thank you','Goodbye','Where are you?','Please sit'],answer:0}},
+   {name:'Please',icon:'✨',teach:{target:'Please',meaning:'A polite request word',note:'Please makes many requests sound more polite.',example:'Water, please.',exampleMeaning:'A polite request for water.'},q:{type:'meaning',prompt:'Which word can make a request more polite?',options:['Please','Goodbye','Yesterday','Hello'],answer:0}},
+   {name:'Goodbye',icon:'👋',teach:{target:'Goodbye',meaning:'A way to say you are leaving',note:'Goodbye is used when ending an interaction or leaving.',example:'Goodbye! See you tomorrow.',exampleMeaning:'A farewell plus a future meeting.'},q:{type:'meaning',prompt:'Which word is used when leaving?',options:['Hello','Goodbye','Please','Thanks'],answer:1}}
+  ]},
+  {title:'Simple Sentences',sub:'Understand how beginner sentences work',lessons:[
+   {name:'I am',icon:'🧩',teach:{target:'I am',meaning:'A basic identity or description pattern',note:'“I” is the subject. “am” is the present form of “be” used with I.',example:'I am a student.',exampleMeaning:'The speaker identifies themself as a student.'},q:{type:'meaning',prompt:'Complete: “I ___ a student.”',options:['am','is','are','be'],answer:0}},
+   {name:'My name is',icon:'🙋',teach:{target:'My name is…',meaning:'A way to introduce your name',note:'This is a standard beginner pattern for introducing yourself.',example:'My name is Riya.',exampleMeaning:'The speaker gives their name.'},q:{type:'meaning',prompt:'Which phrase introduces your name?',options:['My name is…','I goodbye…','Please name…','Where thanks…'],answer:0}},
+   {name:'How are you?',icon:'💬',teach:{target:'How are you?',meaning:'A common greeting question',note:'It asks about someone’s current wellbeing.',example:'Hello! How are you?',exampleMeaning:'A greeting and a wellbeing question.'},q:{type:'meaning',prompt:'What does “How are you?” ask about?',options:['Someone’s wellbeing','Someone’s address','The time','The weather only'],answer:0}},
+   {name:'I like',icon:'❤️',teach:{target:'I like…',meaning:'A way to express a preference',note:'Use “I like” before something you enjoy or prefer.',example:'I like music.',exampleMeaning:'The speaker expresses a preference for music.'},q:{type:'meaning',prompt:'Which begins “I like music”?',options:['I like…','I am…','I have…','I go…'],answer:0}}
+  ]},
+  {title:'Everyday Conversation',sub:'Use language in real situations',lessons:[
+   {name:'Numbers',icon:'🔢',teach:{target:'one · two · three',meaning:'1 · 2 · 3',note:'Numbers are useful for time, prices, age and everyday tasks.',example:'one, two, three',exampleMeaning:'1, 2, 3'},q:{type:'meaning',prompt:'Which word means 3?',options:['one','two','three','four'],answer:2}},
+   {name:'Yes / No',icon:'✅',teach:{target:'Yes · No',meaning:'Positive and negative responses',note:'These two words are core conversation tools.',example:'Yes, thank you. / No, thank you.',exampleMeaning:'Two simple responses.'},q:{type:'meaning',prompt:'Which pair means “Yes / No”?',options:['Yes / No','Hello / Thanks','One / Two','I / You'],answer:0}},
+   {name:'Where?',icon:'📍',teach:{target:'Where?',meaning:'A question about location',note:'Use “where” when asking about a place or position.',example:'Where is the station?',exampleMeaning:'A question about the station’s location.'},q:{type:'meaning',prompt:'Which word asks about location?',options:['Who','When','Where','Why'],answer:2}},
+   {name:'Mini Conversation',icon:'🗣️',teach:{target:'Hello! How are you? — I’m fine, thank you.',meaning:'A basic greeting exchange',note:'You can combine small patterns to create a real interaction.',example:'Hello! How are you? — I’m fine, thank you.',exampleMeaning:'A greeting, question and simple reply.'},q:{type:'meaning',prompt:'Which is a natural reply?',options:["I’m fine, thank you.",'Where goodbye?','Three hello.','No my name.'],answer:0}}
+  ]}
+ ]},
+ Japanese:{flag:'🇯🇵',speech:'ja-JP',name:'Japanese',native:'日本語',units:[
+  {title:'First Words',sub:'Greetings and the writing system',lessons:[
+   {name:'Hello',icon:'👋',teach:{target:'こんにちは',meaning:'Hello',note:'こんにちは is a common daytime greeting. We start with the meaning and sound before teaching the script in depth.',example:'こんにちは！',exampleMeaning:'Hello!'},q:{type:'meaning',prompt:'What does “こんにちは” mean?',options:['Hello','Thank you','Goodbye','Please'],answer:0}},
+   {name:'Thank You',icon:'🙏',teach:{target:'ありがとう',meaning:'Thank you',note:'ありがとう is a common way to say thank you. A more polite form will come later.',example:'ありがとう！',exampleMeaning:'Thank you!'},q:{type:'meaning',prompt:'Which phrase means “Thank you”?',options:['こんにちは','ありがとう','さようなら','はい'],answer:1}},
+   {name:'Yes / No',icon:'✅',teach:{target:'はい · いいえ',meaning:'Yes · No',note:'Learn these as a pair for simple responses.',example:'はい。 / いいえ。',exampleMeaning:'Yes. / No.'},q:{type:'meaning',prompt:'Which pair means “Yes / No”?',options:['はい / いいえ','こんにちは / ありがとう','いち / に','わたし / あなた'],answer:0}},
+   {name:'Goodbye',icon:'👋',teach:{target:'さようなら',meaning:'Goodbye',note:'さようなら is a standard farewell. Everyday casual farewells will be introduced later.',example:'さようなら！',exampleMeaning:'Goodbye!'},q:{type:'meaning',prompt:'Which phrase means “Goodbye”?',options:['こんにちは','ありがとう','さようなら','はい'],answer:2}}
+  ]},
+  {title:'Build the Basics',sub:'Pronouns, simple patterns and polite speech',lessons:[
+   {name:'I',icon:'🧩',teach:{target:'わたし',meaning:'I / me',note:'わたし is a common neutral word for “I”. Japanese often omits pronouns when context is clear.',example:'わたしは学生です。',exampleMeaning:'I am a student.'},q:{type:'meaning',prompt:'What does “わたし” mean?',options:['I / me','You','Hello','Thank you'],answer:0}},
+   {name:'Student',icon:'📚',teach:{target:'学生',meaning:'Student',note:'学生 is made from kanji. Do not worry about memorising every character immediately; recognise the word first.',example:'わたしは学生です。',exampleMeaning:'I am a student.'},q:{type:'meaning',prompt:'What does “学生” mean?',options:['Teacher','Student','Friend','School'],answer:1}},
+   {name:'I am',icon:'🙋',teach:{target:'わたしは … です',meaning:'I am … / As for me, …',note:'は marks the topic in this beginner pattern; です makes the statement polite.',example:'わたしは学生です。',exampleMeaning:'I am a student.'},q:{type:'meaning',prompt:'Which pattern can mean “I am …” politely?',options:['わたしは … です','ありがとう …','こんにちは …','さようなら …'],answer:0}},
+   {name:'Where?',icon:'📍',teach:{target:'どこ',meaning:'Where',note:'どこ is the basic question word for location.',example:'トイレはどこですか。',exampleMeaning:'Where is the toilet?'},q:{type:'meaning',prompt:'Which Japanese word means “where”?',options:['だれ','いつ','どこ','なに'],answer:2}}
+  ]},
+  {title:'Everyday Conversation',sub:'Start reading, listening and responding',lessons:[
+   {name:'Numbers',icon:'🔢',teach:{target:'いち · に · さん',meaning:'one · two · three',note:'These are common readings for the numbers 1, 2 and 3.',example:'いち、に、さん',exampleMeaning:'one, two, three'},q:{type:'meaning',prompt:'Which means “three”?',options:['いち','に','さん','よん'],answer:2}},
+   {name:'What?',icon:'❓',teach:{target:'なに',meaning:'What',note:'なに is a basic question word. Its pronunciation can change slightly in compounds; learn the basic form first.',example:'これはなに？',exampleMeaning:'What is this?'},q:{type:'meaning',prompt:'What does “なに” mean?',options:['What','Where','Who','When'],answer:0}},
+   {name:'Who?',icon:'👤',teach:{target:'だれ',meaning:'Who',note:'だれ asks about a person.',example:'だれですか。',exampleMeaning:'Who is it? / Who are you?'},q:{type:'meaning',prompt:'Which word asks “Who?”',options:['だれ','どこ','なに','いつ'],answer:0}},
+   {name:'Mini Conversation',icon:'🗣️',teach:{target:'こんにちは。わたしはリヤです。',meaning:'Hello. I am Riya.',note:'You are combining a greeting with the beginner identity pattern.',example:'こんにちは。わたしはリヤです。',exampleMeaning:'Hello. I am Riya.'},q:{type:'meaning',prompt:'Which sentence uses the polite “I am …” pattern?',options:['わたしはリヤです。','ありがとうリヤ。','どこリヤ。','こんにちはですか。'],answer:0}}
+  ]}
+ ]},
+ Korean:{flag:'🇰🇷',speech:'ko-KR',name:'Korean',native:'한국어',units:[
+  {title:'First Words',sub:'Greetings and useful expressions',lessons:[
+   {name:'Hello',icon:'👋',teach:{target:'안녕하세요',meaning:'Hello',note:'안녕하세요 is the common polite greeting you will hear constantly in beginner Korean.',example:'안녕하세요!',exampleMeaning:'Hello!'},q:{type:'meaning',prompt:'What does “안녕하세요” mean?',options:['Hello','Thank you','Goodbye','Please'],answer:0}},
+   {name:'Thank You',icon:'🙏',teach:{target:'감사합니다',meaning:'Thank you',note:'감사합니다 is a polite, widely useful expression of thanks.',example:'감사합니다!',exampleMeaning:'Thank you!'},q:{type:'meaning',prompt:'Which phrase means “Thank you”?',options:['안녕하세요','감사합니다','안녕히 가세요','네'],answer:1}},
+   {name:'Yes / No',icon:'✅',teach:{target:'네 · 아니요',meaning:'Yes · No',note:'These are essential beginner response words.',example:'네. / 아니요.',exampleMeaning:'Yes. / No.'},q:{type:'meaning',prompt:'Which pair means “Yes / No”?',options:['네 / 아니요','안녕하세요 / 감사합니다','하나 / 둘','저 / 당신'],answer:0}},
+   {name:'Goodbye',icon:'👋',teach:{target:'안녕히 가세요',meaning:'Goodbye (to someone leaving)',note:'Korean has different goodbye expressions depending on who is leaving. We start with this polite form.',example:'안녕히 가세요!',exampleMeaning:'Goodbye! (said to the person leaving.)'},q:{type:'meaning',prompt:'Which expression is a polite goodbye to someone who is leaving?',options:['안녕하세요','감사합니다','안녕히 가세요','네'],answer:2}}
+  ]},
+  {title:'Build the Basics',sub:'Identity and simple questions',lessons:[
+   {name:'I / me',icon:'🧩',teach:{target:'저',meaning:'I / me (polite)',note:'저 is the polite/humble first-person pronoun used in beginner polite speech.',example:'저는 학생이에요.',exampleMeaning:'I am a student.'},q:{type:'meaning',prompt:'What does “저” mean in polite beginner speech?',options:['I / me','You','Student','Teacher'],answer:0}},
+   {name:'Student',icon:'📚',teach:{target:'학생',meaning:'Student',note:'학생 is a common Korean word for student.',example:'저는 학생이에요.',exampleMeaning:'I am a student.'},q:{type:'meaning',prompt:'What does “학생” mean?',options:['Student','School','Teacher','Friend'],answer:0}},
+   {name:'I am',icon:'🙋',teach:{target:'저는 … 이에요/예요',meaning:'I am …',note:'저는 sets the topic as “I”. 이에요/예요 is a polite ending used after nouns; which form appears depends on the noun ending.',example:'저는 학생이에요.',exampleMeaning:'I am a student.'},q:{type:'meaning',prompt:'Which pattern can mean “I am a student”?',options:['저는 학생이에요.','감사합니다 학생.','안녕하세요 학생.','아니요 학생.'],answer:0}},
+   {name:'Where?',icon:'📍',teach:{target:'어디',meaning:'Where',note:'어디 is the basic question word for location.',example:'어디예요?',exampleMeaning:'Where is it? / Where are you?'},q:{type:'meaning',prompt:'Which Korean word means “where”?',options:['누구','언제','어디','무엇'],answer:2}}
+  ]},
+  {title:'Everyday Conversation',sub:'Combine words into real exchanges',lessons:[
+   {name:'Numbers',icon:'🔢',teach:{target:'하나 · 둘 · 셋',meaning:'one · two · three (native Korean forms)',note:'Korean uses more than one number system. We begin with these common native Korean forms.',example:'하나, 둘, 셋',exampleMeaning:'one, two, three'},q:{type:'meaning',prompt:'Which means “three” in this set?',options:['하나','둘','셋','넷'],answer:2}},
+   {name:'What?',icon:'❓',teach:{target:'뭐',meaning:'What? (common spoken form)',note:'뭐 is a very common conversational form meaning “what”.',example:'이게 뭐예요?',exampleMeaning:'What is this?'},q:{type:'meaning',prompt:'What does “뭐” mean?',options:['What','Where','Who','When'],answer:0}},
+   {name:'Who?',icon:'👤',teach:{target:'누구',meaning:'Who',note:'누구 asks about a person.',example:'누구예요?',exampleMeaning:'Who is it? / Who is that?'},q:{type:'meaning',prompt:'Which word asks “Who?”',options:['누구','어디','뭐','언제'],answer:0}},
+   {name:'Mini Conversation',icon:'🗣️',teach:{target:'안녕하세요. 저는 리야예요.',meaning:'Hello. I am Riya.',note:'This combines the greeting and beginner identity pattern.',example:'안녕하세요. 저는 리야예요.',exampleMeaning:'Hello. I am Riya.'},q:{type:'meaning',prompt:'Which sentence uses the beginner “I am …” pattern?',options:['저는 리야예요.','감사합니다 리야.','어디 리야.','안녕하세요예요.'],answer:0}}
+  ]}
+ ]}
+};
+
+
+/* ========================= 100-CHAPTER CURRICULUM ========================= */
+const CHAPTER_TITLES=[
+ 'Greetings & First Words','Polite Expressions','Yes, No & Basic Answers','Numbers 1–10','People Around You','My Name & Identity','Family Basics','Classroom Words','Colours','Everyday Objects',
+ 'Days & Time','Months & Dates','Weather','Food Basics','Drinks & Ordering','At Home','My Room','Daily Routine','Hobbies','Likes & Dislikes',
+ 'Friends & Social Life','Describing People','Clothes','Body & Health Words','Feelings','School Life','Subjects','Study Habits','Technology','Online Life',
+ 'Work & Jobs','Places in Town','Directions','Transport','Travel Basics','Hotel & Accommodation','At the Restaurant','Shopping','Money & Prices','Asking for Help',
+ 'Nature','Animals','Plants & Garden','Environment','Sports','Music','Books & Stories','Movies & Media','Celebrations','Holidays',
+ 'Present Tense Foundations','Past Tense Foundations','Future Plans','Questions','Negatives','Pronouns','Articles & Gender','Adjectives','Adverbs','Prepositions',
+ 'Connectors','Comparisons','Requests','Permission','Ability','Obligation','Suggestions','Preferences','Frequency','Quantity',
+ 'Making Longer Sentences','Explaining Reasons','Giving Opinions','Agreeing & Disagreeing','Telling a Story','Describing Experiences','Making Plans','Solving Problems','Real-Life Dialogue','Listening for Meaning',
+ 'Reading Short Texts','Writing Simple Messages','Conversation Starters','Follow-Up Questions','Polite Conversation','Informal Conversation','Formal Situations','Travel Conversation','School & Work Conversation','Social Conversation',
+ 'Common Mistakes','Confusing Words','Pronunciation Practice','Fast Recognition','Mixed Review','Everyday Fluency','Story Challenge','Conversation Challenge','Real-World Review','RiSync Mastery'
+];
+const ICONS=['👋','✨','💬','🔢','👥','🙋','🏠','📚','🎨','📦','📅','🗓️','☀️','🍎','🥤','🏡','🛏️','⏰','🎮','❤️','🤝','🙂','👕','🩺','😊','🏫','📖','📝','💻','🌐','💼','🏙️','🧭','🚌','✈️','🏨','🍽️','🛍️','💰','🆘','🌳','🐶','🌱','♻️','⚽','🎵','📚','🎬','🎉','🏖️','🟢','⏮️','🔮','❓','🚫','🧑','🧩','📐','⚡','📍','🔗','⚖️','🙏','🔐','💪','📌','👍','⭐','🔁','🔢','🧱','💡','🗣️','📖','🧠','🗓️','🛠️','🗨️','👂','📄','✍️','💭','❓','🤝','😄','🎓','✈️','💼','👨‍👩‍👧','⚠️','🔤','🎧','⚡','🔄','🌟','📕','🗣️','🌍','🏆'];
+const BANK={
+ French:[['Bonjour','Hello','Bonjour !','Hello!'],['Merci','Thank you','Merci beaucoup.','Thank you very much.'],['Oui','Yes','Oui, bien sûr.','Yes, of course.'],['Non','No','Non, merci.','No, thank you.'],['un','one','un, deux, trois','one, two, three'],['deux','two','deux personnes','two people'],['trois','three','trois livres','three books'],['ami','friend','Mon ami est ici.','My friend is here.'],['famille','family','Ma famille est grande.','My family is big.'],['maison','house','Je suis à la maison.','I am at home.'],['eau','water','Je voudrais de l’eau.','I would like some water.'],['pain','bread','J’aime le pain.','I like bread.'],['école','school','Je vais à l’école.','I go to school.'],['livre','book','Je lis un livre.','I read a book.'],['musique','music','J’aime la musique.','I like music.'],['aujourd’hui','today','Aujourd’hui, je travaille.','Today, I work.'],['demain','tomorrow','À demain !','See you tomorrow!'],['où','where','Où est la gare ?','Where is the station?'],['pourquoi','why','Pourquoi ?','Why?'],['parce que','because','Parce que c’est important.','Because it is important.']],
+ Hindi:[['नमस्ते','hello','नमस्ते!','Hello!'],['धन्यवाद','thank you','धन्यवाद बहुत।','Thank you very much.'],['हाँ','yes','हाँ, बिल्कुल।','Yes, of course.'],['नहीं','no','नहीं, धन्यवाद।','No, thank you.'],['एक','one','एक, दो, तीन','one, two, three'],['दो','two','दो लोग','two people'],['तीन','three','तीन किताबें','three books'],['दोस्त','friend','मेरा दोस्त यहाँ है।','My friend is here.'],['परिवार','family','मेरा परिवार बड़ा है।','My family is big.'],['घर','house','मैं घर पर हूँ।','I am at home.'],['पानी','water','मुझे पानी चाहिए।','I want water.'],['रोटी','bread','मुझे रोटी पसंद है।','I like bread.'],['स्कूल','school','मैं स्कूल जाता हूँ।','I go to school.'],['किताब','book','मैं किताब पढ़ता हूँ।','I read a book.'],['संगीत','music','मुझे संगीत पसंद है।','I like music.'],['आज','today','आज मैं पढ़ता हूँ।','Today I study.'],['कल','tomorrow','कल मिलते हैं।','See you tomorrow.'],['कहाँ','where','स्टेशन कहाँ है?','Where is the station?'],['क्यों','why','क्यों?','Why?'],['क्योंकि','because','क्योंकि यह ज़रूरी है।','Because it is important.']],
+ Punjabi:[['ਸਤ ਸ੍ਰੀ ਅਕਾਲ','hello','ਸਤ ਸ੍ਰੀ ਅਕਾਲ!','Hello!'],['ਧੰਨਵਾਦ','thank you','ਬਹੁਤ ਧੰਨਵਾਦ।','Thank you very much.'],['ਹਾਂ','yes','ਹਾਂ, ਬਿਲਕੁਲ।','Yes, of course.'],['ਨਹੀਂ','no','ਨਹੀਂ, ਧੰਨਵਾਦ।','No, thank you.'],['ਇੱਕ','one','ਇੱਕ, ਦੋ, ਤਿੰਨ','one, two, three'],['ਦੋ','two','ਦੋ ਲੋਕ','two people'],['ਤਿੰਨ','three','ਤਿੰਨ ਕਿਤਾਬਾਂ','three books'],['ਦੋਸਤ','friend','ਮੇਰਾ ਦੋਸਤ ਇੱਥੇ ਹੈ।','My friend is here.'],['ਪਰਿਵਾਰ','family','ਮੇਰਾ ਪਰਿਵਾਰ ਵੱਡਾ ਹੈ।','My family is big.'],['ਘਰ','house','ਮੈਂ ਘਰ ਵਿੱਚ ਹਾਂ।','I am at home.'],['ਪਾਣੀ','water','ਮੈਨੂੰ ਪਾਣੀ ਚਾਹੀਦਾ ਹੈ।','I want water.'],['ਰੋਟੀ','bread','ਮੈਨੂੰ ਰੋਟੀ ਪਸੰਦ ਹੈ।','I like bread.'],['ਸਕੂਲ','school','ਮੈਂ ਸਕੂਲ ਜਾਂਦਾ ਹਾਂ।','I go to school.'],['ਕਿਤਾਬ','book','ਮੈਂ ਕਿਤਾਬ ਪੜ੍ਹਦਾ ਹਾਂ।','I read a book.'],['ਸੰਗੀਤ','music','ਮੈਨੂੰ ਸੰਗੀਤ ਪਸੰਦ ਹੈ।','I like music.'],['ਅੱਜ','today','ਅੱਜ ਮੈਂ ਪੜ੍ਹਦਾ ਹਾਂ।','Today I study.'],['ਕੱਲ੍ਹ','tomorrow','ਕੱਲ੍ਹ ਮਿਲਦੇ ਹਾਂ।','See you tomorrow.'],['ਕਿੱਥੇ','where','ਸਟੇਸ਼ਨ ਕਿੱਥੇ ਹੈ?','Where is the station?'],['ਕਿਉਂ','why','ਕਿਉਂ?','Why?'],['ਕਿਉਂਕਿ','because','ਕਿਉਂਕਿ ਇਹ ਜ਼ਰੂਰੀ ਹੈ।','Because it is important.']],
+ Spanish:[['Hola','hello','¡Hola!','Hello!'],['Gracias','thank you','Muchas gracias.','Thank you very much.'],['Sí','yes','Sí, claro.','Yes, of course.'],['No','no','No, gracias.','No, thank you.'],['uno','one','uno, dos, tres','one, two, three'],['dos','two','dos personas','two people'],['tres','three','tres libros','three books'],['amigo','friend','Mi amigo está aquí.','My friend is here.'],['familia','family','Mi familia es grande.','My family is big.'],['casa','house','Estoy en casa.','I am at home.'],['agua','water','Quiero agua.','I want water.'],['pan','bread','Me gusta el pan.','I like bread.'],['escuela','school','Voy a la escuela.','I go to school.'],['libro','book','Leo un libro.','I read a book.'],['música','music','Me gusta la música.','I like music.'],['hoy','today','Hoy estudio.','Today I study.'],['mañana','tomorrow','Hasta mañana.','See you tomorrow.'],['dónde','where','¿Dónde está la estación?','Where is the station?'],['por qué','why','¿Por qué?','Why?'],['porque','because','Porque es importante.','Because it is important.']],
+ English:[['Hello','hello','Hello!','Hello!'],['Thank you','thank you','Thank you very much.','Thank you very much.'],['Yes','yes','Yes, of course.','Yes, of course.'],['No','no','No, thank you.','No, thank you.'],['one','one','one, two, three','one, two, three'],['two','two','two people','two people'],['three','three','three books','three books'],['friend','friend','My friend is here.','My friend is here.'],['family','family','My family is big.','My family is big.'],['house','house','I am at home.','I am at home.'],['water','water','I would like water.','I would like water.'],['bread','bread','I like bread.','I like bread.'],['school','school','I go to school.','I go to school.'],['book','book','I read a book.','I read a book.'],['music','music','I like music.','I like music.'],['today','today','Today I study.','Today I study.'],['tomorrow','tomorrow','See you tomorrow.','See you tomorrow.'],['where','where','Where is the station?','Where is the station?'],['why','why','Why?','Why?'],['because','because','Because it is important.','Because it is important.']],
+ Japanese:[['こんにちは','hello','こんにちは！','Hello!'],['ありがとう','thank you','ありがとう！','Thank you!'],['はい','yes','はい、そうです。','Yes, that is right.'],['いいえ','no','いいえ、ちがいます。','No, that is not right.'],['いち','one','いち、に、さん','one, two, three'],['に','two','に人','two people'],['さん','three','さん冊','three books'],['ともだち','friend','ともだちはここです。','My friend is here.'],['かぞく','family','かぞくは大きいです。','My family is big.'],['いえ','house','いえにいます。','I am at home.'],['みず','water','みずをください。','Water, please.'],['パン','bread','パンがすきです。','I like bread.'],['がっこう','school','がっこうへ行きます。','I go to school.'],['ほん','book','ほんを読みます。','I read a book.'],['おんがく','music','おんがくがすきです。','I like music.'],['きょう','today','きょう勉強します。','I study today.'],['あした','tomorrow','またあした。','See you tomorrow.'],['どこ','where','えきはどこですか。','Where is the station?'],['なぜ','why','なぜですか。','Why?'],['だから','because','だから大切です。','Because it is important.']],
+ Korean:[['안녕하세요','hello','안녕하세요!','Hello!'],['감사합니다','thank you','감사합니다.','Thank you.'],['네','yes','네, 맞아요.','Yes, that is right.'],['아니요','no','아니요, 괜찮아요.','No, it is okay.'],['하나','one','하나, 둘, 셋','one, two, three'],['둘','two','두 사람','two people'],['셋','three','세 권','three books'],['친구','friend','제 친구가 여기 있어요.','My friend is here.'],['가족','family','우리 가족은 커요.','My family is big.'],['집','house','집에 있어요.','I am at home.'],['물','water','물 주세요.','Water, please.'],['빵','bread','빵을 좋아해요.','I like bread.'],['학교','school','학교에 가요.','I go to school.'],['책','book','책을 읽어요.','I read a book.'],['음악','music','음악을 좋아해요.','I like music.'],['오늘','today','오늘 공부해요.','I study today.'],['내일','tomorrow','내일 만나요.','See you tomorrow.'],['어디','where','역이 어디예요?','Where is the station?'],['왜','why','왜요?','Why?'],['왜냐하면','because','왜냐하면 중요해요.','Because it is important.']]
+};
+const LEVEL_NAMES=['Foundation','Beginner','Elementary','Pre-Intermediate','Intermediate','Upper-Intermediate','Advanced','Fluency','Mastery','Challenge'];
+function makeGeneratedLesson(lang,chapterNo,lessonNo){
+  const b=BANK[lang]||BANK.English;
+  const seed=(chapterNo*10+lessonNo)%b.length;
+  const item=b[seed];
+  const [target,meaning,example,exampleMeaning]=item;
+  // Never make the correct answer always option A. This keeps recall practice honest.
+  const wrong=[];
+  for(let step=1;wrong.length<3;step++){
+    const candidate=b[(seed+step)%b.length][1];
+    if(candidate!==meaning && !wrong.includes(candidate)) wrong.push(candidate);
+  }
+  const options=[meaning,...wrong];
+  const answer=(chapterNo*7+lessonNo*3)%4;
+  [options[0],options[answer]]=[options[answer],options[0]];
+  return {
+    name:`${themeFor(chapterNo)} · Word ${lessonNo+1}`,
+    icon:ICONS[(chapterNo+lessonNo)%ICONS.length],
+    teach:{
+      target,meaning,
+      note:`This is one of the 10 words in Chapter ${chapterNo}. First understand the meaning, then look at the example, listen to the pronunciation, and only then test your memory.`,
+      example,exampleMeaning
+    },
+    q:{type:'meaning',prompt:`What does “${target}” mean?`,options,answer}
+  };
+}
+function themeFor(chapterNo){return CHAPTER_TITLES[Math.max(0,Math.min(99,chapterNo-1))]}
+
+function expandTo100Chapters(){
+  for(const [lang,c] of Object.entries(COURSE)){
+    const originalUnits=c.units.slice(0,3);
+    const chapters=[];
+    for(let i=0;i<100;i++){
+      const lessons=[];
+      const seedLessons=originalUnits[i]?.lessons||[];
+      for(let n=0;n<10;n++){
+        // The first chapters keep their carefully written beginner lessons, then
+        // fill the remaining slots with the same lesson engine. Every chapter
+        // therefore contains exactly 10 vocabulary lessons/words.
+        if(n<seedLessons.length) lessons.push(seedLessons[n]);
+        else lessons.push(makeGeneratedLesson(lang,i+1,n));
+      }
+      chapters.push({
+        title:CHAPTER_TITLES[i],
+        sub:`${LEVEL_NAMES[Math.floor(i/10)]} · 10 words · Learn, listen, recall and use`,
+        lessons
+      });
+    }
+    c.units=chapters;
+  }
+}
+expandTo100Chapters();
+
+const state={lang:localStorage.getItem('risync_language')||'French',level:localStorage.getItem('risync_language_level')||'beginner',xp:Number(localStorage.getItem('risync_lang_xp')||0),streak:Number(localStorage.getItem('risync_lang_streak')||0),gems:Number(localStorage.getItem('risync_lang_gems')||120),completed:JSON.parse(localStorage.getItem('risync_lang_completed')||'{}'),dailyXP:Number(localStorage.getItem('risync_lang_daily_xp')||0),lastDay:localStorage.getItem('risync_lang_day')||'',skills:JSON.parse(localStorage.getItem('risync_lang_skills')||'{"vocab":0,"listen":0,"sentence":0}'),chapterExercises:JSON.parse(localStorage.getItem('risync_lang_chapter_exercises')||'{}')};
+let currentLesson=null,currentStep='teach',selectedAnswer=null,hearts=5,questionStart=0,chapterExercise=null,chapterExerciseMode=false;
+const flags={French:'🇫🇷',Hindi:'🇮🇳',Punjabi:'🪯',Spanish:'🇪🇸',English:'🇬🇧',Japanese:'🇯🇵',Korean:'🇰🇷'};
+const CHARACTERS=[
+ {id:'ria',name:'Ria',role:'The Explorer',color:'#fff3d6',skin:'#c98b62',hair:'#3b2418',shirt:'#ff8a3d',accent:'#ffd166'},
+ {id:'neo',name:'Neo',role:'The Builder',color:'#e8f7ff',skin:'#b96f4f',hair:'#242424',shirt:'#3b82f6',accent:'#7dd3fc'},
+ {id:'mira',name:'Mira',role:'The Storyteller',color:'#f1eaff',skin:'#d59b78',hair:'#5b315d',shirt:'#8b5cf6',accent:'#c4b5fd'},
+ {id:'kai',name:'Kai',role:'The Challenger',color:'#eef8ee',skin:'#8d5a3b',hair:'#171717',shirt:'#22a06b',accent:'#86efac'},
+ {id:'zoya',name:'Zoya',role:'The Coach',color:'#fff0e8',skin:'#a96f4d',hair:'#3a1f17',shirt:'#ef476f',accent:'#ffb4c6'},
+ {id:'pip',name:'Pip',role:'The Cheerleader',color:'#eaf7ff',skin:'#e0ae8c',hair:'#7b4b2a',shirt:'#f59e0b',accent:'#fde68a'}
+];
+function characterSVG(c, pose='idle'){
+ const eye=pose==='happy'?'^':'•';
+ const mouth=pose==='happy'?'<path d="M37 43 Q50 54 63 43" fill="none" stroke="#4b2e24" stroke-width="3" stroke-linecap="round"/>':'<path d="M39 47 Q50 51 61 47" fill="none" stroke="#4b2e24" stroke-width="3" stroke-linecap="round"/>';
+ return `<svg viewBox="0 0 100 100" role="img" aria-label="${c.name}, ${c.role}" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="50" cy="50" r="49" fill="${c.color}"/>
+  <path d="M22 100 Q24 70 50 68 Q76 70 78 100" fill="${c.shirt}"/>
+  <circle cx="50" cy="45" r="27" fill="${c.skin}"/>
+  <path d="M23 42 Q20 16 49 14 Q78 15 77 43 Q67 28 50 29 Q34 28 23 42Z" fill="${c.hair}"/>
+  <path d="M25 30 Q29 12 48 12 Q67 12 75 29" fill="none" stroke="${c.hair}" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="40" cy="43" r="3.5" fill="#2d241f"/><circle cx="60" cy="43" r="3.5" fill="#2d241f"/>
+  ${mouth}
+  <path d="M35 72 Q50 82 65 72" fill="${c.accent}" opacity=".9"/>
+  <circle cx="79" cy="22" r="8" fill="${c.accent}"/>
+  <path d="M76 22 l3 3 5-7" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+ </svg>`;
+}
+const CHARACTER_LINES={
+ teach:['Let’s learn this step together!','Look, listen, and understand first.','No rush — build the idea first.'],
+ question:['Your turn! What do you remember?','Think before you tap. You’ve got this!','Use the example you just learned.'],
+ correct:['Brilliant! That one is locked in. 🎉','Yes! Your memory is getting stronger.','Nice work — keep the streak going!'],
+ wrong:['Almost! Let’s look at it once more.','Good attempt. Mistakes are part of learning.','Try again — focus on the meaning first.'],
+ complete:['Chapter step complete! Great work. 🚀','You learned it and used it — that’s real progress!','Nice! Ready for the next challenge?']
+};
+let selectedCharacter=localStorage.getItem('risync_language_character')||'ria';
+function activeCharacter(){return CHARACTERS.find(c=>c.id===selectedCharacter)||CHARACTERS[0]}
+function renderCharacters(){const host=document.getElementById('characterList');if(!host)return;host.innerHTML=CHARACTERS.map(c=>`<button class="character-card ${c.id===selectedCharacter?'selected':''}" onclick="selectCharacter('${c.id}')"><span class="char-star">★</span><div class="character-face" style="background:${c.color}">${characterSVG(c)}</div><div class="character-name">${c.name}</div><div class="character-role">${c.role}</div></button>`).join('');const c=activeCharacter();document.getElementById('heroCharacter').innerHTML=characterSVG(c);document.getElementById('guideFace').innerHTML=characterSVG(c)}
+function selectCharacter(id){selectedCharacter=id;localStorage.setItem('risync_language_character',id);renderCharacters();setGuide('teach');}
+function setGuide(type){const c=activeCharacter();const lines=CHARACTER_LINES[type]||CHARACTER_LINES.teach;const line=lines[Math.floor(Math.random()*lines.length)];const wrap=document.getElementById('lessonGuide');if(!wrap)return;document.getElementById('guideFace').innerHTML=characterSVG(c,type==='correct'||type==='complete'?'happy':'idle');document.getElementById('guideBubble').textContent=line;wrap.classList.remove('character-reaction');void wrap.offsetWidth;wrap.classList.add('character-reaction');}
+
+function today(){return new Date().toISOString().slice(0,10)}
+function course(){return COURSE[state.lang]||COURSE.French}
+function saveLocal(){localStorage.setItem('risync_language',state.lang);localStorage.setItem('risync_language_level',state.level);localStorage.setItem('risync_lang_xp',state.xp);localStorage.setItem('risync_lang_streak',state.streak);localStorage.setItem('risync_lang_gems',state.gems);localStorage.setItem('risync_lang_completed',JSON.stringify(state.completed));localStorage.setItem('risync_lang_daily_xp',state.dailyXP);localStorage.setItem('risync_lang_day',state.lastDay);localStorage.setItem('risync_lang_skills',JSON.stringify(state.skills));localStorage.setItem('risync_lang_chapter_exercises',JSON.stringify(state.chapterExercises||{}));updateUI()}
+function markDaily(){const d=today();if(state.lastDay!==d){state.dailyXP=0;state.lastDay=d}}
+function completedCount(){return (state.completed[state.lang]||[]).length}
+function totalLessons(){return course().units.reduce((n,u)=>n+u.lessons.length,0)}
+function isDone(index){return (state.completed[state.lang]||[]).includes(index)}
+function indexFor(u,l){let n=0;for(let i=0;i<u;i++)n+=course().units[i].lessons.length;return n+l}
+function renderPath(){const c=course(),host=document.getElementById('chapterList');host.innerHTML=c.units.map((u,ui)=>{const doneCount=u.lessons.filter((_,li)=>isDone(indexFor(ui,li))).length;const first=indexFor(ui,0);const prevUnit=ui>0?c.units[ui-1]:null;const prevFirst=ui>0?indexFor(ui-1,0):0;const prevChapterDone=ui===0||(prevUnit.lessons.every((_,li)=>isDone(indexFor(ui-1,li)))&&!!(state.chapterExercises&&state.chapterExercises[state.lang+'-'+(ui-1)]?.completed));const allPrev=first===0||prevChapterDone;const lessons=u.lessons.map((lesson,li)=>{const idx=indexFor(ui,li),done=isDone(idx),unlocked=idx===0?allPrev:isDone(idx-1);return `<button class="lesson ${done?'done':''} ${unlocked?'':'locked'}" ${unlocked?`onclick="startLesson(${idx})"`:''}><div class="bubble">${done?'✓':unlocked?lesson.icon:'🔒'}</div><span>${escapeHtml(lesson.name)}</span></button>`}).join('');return `<div class="unit" id="chapter-${ui+1}"><div class="unit-head"><div><h2>Chapter ${ui+1} · ${escapeHtml(u.title)}</h2><small>${escapeHtml(u.sub)}</small></div><div style="display:flex;align-items:center;gap:10px"><b>${doneCount} / 10</b><button class="chapter-start" onclick="startChapter(${ui})" ${allPrev?'':'disabled'}>${doneCount===10?'Review':'Start'}</button></div></div><div class="lesson-row">${lessons}</div></div>`}).join('')}
+function updateUI(){markDaily();const c=course();const fs=document.getElementById('firebaseStatus');if(fs)fs.textContent=firebaseReady&&firebaseAuth?.currentUser?'☁️ Synced':'☁️ Local';document.getElementById('courseBtn').textContent=c.flag+' '+c.name+' ▾';document.getElementById('welcomeTitle').textContent=c.name+' from Zero';document.getElementById('heroSubtitle').textContent='Understand first. Then practise, speak and remember.';document.getElementById('xpTop').textContent=state.xp+' XP';document.getElementById('streakTop').textContent=state.streak;document.getElementById('gemsTop').textContent=state.gems;document.getElementById('streakSide').textContent=state.streak+' day streak';document.getElementById('dailyText').textContent=state.dailyXP+' / 20 XP today';document.getElementById('goalText').textContent=state.dailyXP>=20?'Daily goal complete!':'Earn '+Math.max(0,20-state.dailyXP)+' more XP today.';document.getElementById('dailyProgress').style.width=Math.min(100,state.dailyXP/20*100)+'%';const pct=totalLessons()?completedCount()/totalLessons()*100:0;document.getElementById('xpBar').style.width=Math.min(100,(state.xp%100))+'%';['vocab','listen','sentence'].forEach(k=>{document.getElementById(k+'Skill').textContent=state.skills[k]+'%';document.getElementById(k+'Bar').style.width=state.skills[k]+'%'});document.getElementById('startText').textContent=state.level==='beginner'?'You do not need to know '+c.name+'. RiSync teaches the meaning, gives you an example, then asks you to recall it.':'Your course will adapt around what you already know. You can still restart any unlocked lesson.';renderPath();highlightLanguage();renderCharacters()}
+function showHome(){document.getElementById('homeView').scrollIntoView({behavior:'smooth'})}
+function showCourse(){document.getElementById('courseModal').classList.add('show');highlightLanguage()}
+function closeCourse(){document.getElementById('courseModal').classList.remove('show')}
+function highlightLanguage(){document.querySelectorAll('.lang').forEach(b=>b.classList.toggle('selected',b.dataset.lang===state.lang))}
+function selectLang(name){state.lang=name;state.completed[state.lang]=state.completed[state.lang]||[];state.xp=Number(localStorage.getItem('risync_lang_xp_'+name)||0);localStorage.setItem('risync_language',name);saveLocal();closeCourse();}
+function chooseLevel(){document.getElementById('levelModal').classList.add('show')}
+function closeLevel(){document.getElementById('levelModal').classList.remove('show')}
+function setLevel(level){state.level=level;saveLocal();closeLevel();if(level!=='beginner')alert('RiSync will still teach the essentials, but your path can move faster. You can always return to zero.');}
+function flattenLesson(idx){let n=0;for(const u of course().units){for(const l of u.lessons){if(n===idx)return l;n++}}return null}
+function startNextLesson(){
+  const done=completedCount();
+  const next=Math.min(done,totalLessons()-1);
+  startLesson(next);
+}
+function startChapter(unitIndex){
+  const c=course(), unit=c.units[unitIndex];
+  if(!unit)return;
+  const first=indexFor(unitIndex,0);
+  const previousDone=first===0||(unitIndex>0&&course().units[unitIndex-1].lessons.every((_,li)=>isDone(indexFor(unitIndex-1,li)))&&!!(state.chapterExercises&&state.chapterExercises[state.lang+'-'+(unitIndex-1)]?.completed));
+  if(!previousDone){alert('Finish the previous chapter first 🌱');return;}
+  const chapterDone=unit.lessons.every((_,li)=>isDone(indexFor(unitIndex,li)));
+  if(chapterDone){startChapterExercises(unitIndex);return;}
+  startLesson(first);
+}
+function startLesson(idx){const lesson=flattenLesson(idx);if(!lesson)return;currentLesson={idx,lesson};currentStep='teach';selectedAnswer=null;hearts=5;questionStart=Date.now();const action=document.getElementById('lessonAction');action.dataset.done='0';action.onclick=lessonAction;document.getElementById('hearts').textContent=hearts;document.getElementById('lessonScreen').classList.add('show');setGuide('teach');renderTeach()}
+function renderTeach(){const l=currentLesson.lesson,t=l.teach;document.getElementById('lessonProgress').style.width='25%';document.getElementById('teachArea').innerHTML=`<div class="teach-kicker">LEARN FIRST · ${course().name.toUpperCase()}</div><h1>${escapeHtml(l.name)}</h1><div class="target">${escapeHtml(t.target)}</div><div class="meaning">${escapeHtml(t.meaning)}</div><button class="speak" onclick="speakText(${JSON.stringify(t.target)})">🔊 Hear it</button><div class="tip">🧠 ${escapeHtml(t.note)}</div><div style="margin-top:18px;padding-top:15px;border-top:1px solid var(--line)"><b>Example</b><div style="font-size:20px;margin-top:7px">${escapeHtml(t.example)}</div><div class="muted" style="margin-top:4px">${escapeHtml(t.exampleMeaning)}</div></div>`;document.getElementById('questionArea').innerHTML='<h2>Ready to practise?</h2><p>When you understand the idea, continue to the recall question.</p>';document.getElementById('choices').innerHTML='';document.getElementById('feedback').className='feedback';document.getElementById('lessonAction').textContent='I understand →'}
+function renderQuestion(){const q=currentLesson.lesson.q;setGuide('question');const action=document.getElementById('lessonAction');action.dataset.done='0';action.onclick=lessonAction;document.getElementById('lessonProgress').style.width='75%';document.getElementById('teachArea').innerHTML=`<div class="teach-kicker">RECALL · ${course().name.toUpperCase()}</div><div style="font-size:16px;color:#666">Try without looking back at the lesson.</div><button class="speak" onclick="speakCurrent()">🔊 Hear the key phrase again</button>`;document.getElementById('questionArea').innerHTML=`<h2>${escapeHtml(q.prompt)}</h2><p>Choose the best answer.</p>`;document.getElementById('choices').innerHTML=q.options.map((x,i)=>`<button class="choice" data-i="${i}" onclick="chooseAnswer(${i})">${escapeHtml(x)}</button>`).join('');document.getElementById('feedback').className='feedback';document.getElementById('lessonAction').textContent='CHECK';selectedAnswer=null}
+function chooseAnswer(i){if(document.getElementById('lessonAction').dataset.done==='1')return;selectedAnswer=i;document.querySelectorAll('.choice').forEach((b,n)=>b.classList.toggle('selected',n===i))}
+function lessonAction(){const action=document.getElementById('lessonAction');if(action.dataset.done==='1'){completeLesson();return}if(currentStep==='teach'){currentStep='question';renderQuestion();return}checkAnswer()}
+function checkAnswer(){
+  if(selectedAnswer===null){alert('Choose an answer first 🙂');return}
+  const q=currentLesson.lesson.q;
+  const good=selectedAnswer===q.answer;
+  document.querySelectorAll('.choice').forEach((b,n)=>{
+    b.disabled=true;
+    if(n===q.answer)b.classList.add('correct');
+    if(n===selectedAnswer&&n!==q.answer)b.classList.add('wrong');
+  });
+  const fb=document.getElementById('feedback');
+  fb.className='feedback show '+(good?'good':'bad');
+  fb.textContent=good
+    ?'Great recall! You connected the meaning to the new word. +10 XP'
+    :'Not quite. Study the highlighted answer, listen once more, and try again. No XP is lost.';
+  if(good){
+    awardXP(10);
+    document.getElementById('lessonAction').textContent='Continue →';
+    document.getElementById('lessonAction').dataset.done='1';
+    setGuide('correct');
+    // Wait for the learner to press Continue; do not auto-advance.
+    return;
+  }else{
+    hearts=Math.max(0,hearts-1);
+    document.getElementById('hearts').textContent=hearts;
+    document.getElementById('lessonAction').textContent='Try again';
+    document.getElementById('lessonAction').dataset.done='0';
+    setGuide('wrong');
+    document.getElementById('lessonAction').onclick=()=>{
+      currentStep='question';
+      renderQuestion();
+      document.getElementById('lessonAction').onclick=lessonAction;
+    };
+  }
+}
+
+function completeLesson(){setGuide('complete');
+  const idx=currentLesson.idx;
+  state.completed[state.lang]=state.completed[state.lang]||[];
+  if(!state.completed[state.lang].includes(idx)){
+    state.completed[state.lang].push(idx);
+    state.skills.vocab=Math.min(100,state.skills.vocab+3);
+    state.skills.listen=Math.min(100,state.skills.listen+1);
+    state.skills.sentence=Math.min(100,state.skills.sentence+(idx>=4?3:1));
+    if(state.streak===0)state.streak=1;
+  }
+  saveLocal();syncFirebase();
+  const unitIndex=chapterIndexForLesson(idx);
+  const unit=course().units[unitIndex];
+  const chapterFinished=unit && unit.lessons.every((_,li)=>isDone(indexFor(unitIndex,li)));
+  setTimeout(()=>{
+    if(chapterFinished){startChapterExercises(unitIndex);return;}
+    if(completedCount()<totalLessons())startLesson(completedCount());
+    else closeLesson();
+  },300);
+}
+function chapterIndexForLesson(idx){let n=0;for(let i=0;i<course().units.length;i++){if(idx>=n&&idx<n+course().units[i].lessons.length)return i;n+=course().units[i].lessons.length}return 0}
+
+/* ========================= CHAPTER: 20 EXERCISES ========================= */
+function startChapterExercises(unitIndex){
+  const unit=course().units[unitIndex];
+  if(!unit)return;
+  chapterExerciseMode=true;
+  chapterExercise={unitIndex,index:0,score:0,built:[],matches:{},selected:null,done:false};
+  currentLesson=null;currentStep='exercise';selectedAnswer=null;hearts=5;
+  document.getElementById('lessonScreen').classList.add('show');
+  document.getElementById('hearts').textContent=hearts;
+  document.getElementById('teachArea').innerHTML='';
+  document.getElementById('questionArea').innerHTML='';
+  document.getElementById('choices').innerHTML='';
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('lessonAction').dataset.done='0';
+  document.getElementById('lessonAction').onclick=chapterExerciseAction;
+  renderChapterExercise();
+}
+function chapterExercises(unitIndex){
+  const unit=course().units[unitIndex], ls=unit.lessons;
+  const sentence=ls.slice(0,5).map((l,i)=>({type:'sentence',source:l,number:i+1}));
+  const pairs=ls.slice(0,4).map((l,i)=>({type:'match',source:l,number:i+1}));
+  const test=ls.map((l,i)=>({type:'test',source:l,number:i+1}));
+  return [
+    ...sentence,
+    ...pairs,
+    ...test,
+    {type:'recap',source:ls[0],number:1}
+  ];
+}
+function chapterExerciseAction(){
+  if(!chapterExercise)return;
+  const action=document.getElementById('lessonAction');
+  if(action.dataset.done==='1'){
+    chapterExercise.index++;
+    action.dataset.done='0';
+    if(chapterExercise.index>=20){finishChapterExercises();return;}
+    renderChapterExercise();
+    return;
+  }
+  const ex=chapterExercises(chapterExercise.unitIndex)[chapterExercise.index];
+  if(ex.type==='sentence')return checkSentenceExercise();
+  if(ex.type==='match')return checkMatchExercise();
+  if(ex.type==='test')return checkTestExercise();
+  return checkRecapExercise();
+}
+function renderChapterExercise(){
+  const list=chapterExercises(chapterExercise.unitIndex), ex=list[chapterExercise.index];
+  const total=20, num=chapterExercise.index+1;
+  const pct=(num/total)*100;
+  document.getElementById('lessonProgress').style.width=pct+'%';
+  document.getElementById('hearts').textContent=hearts;
+  document.getElementById('lessonAction').dataset.done='0';
+  document.getElementById('lessonAction').onclick=chapterExerciseAction;
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('feedback').textContent='';
+  document.getElementById('chapterExerciseArea').innerHTML=`<div class="chapter-exercise"><div class="exercise-type">CHAPTER ${chapterExercise.unitIndex+1} · ${ex.type==='sentence'?'SENTENCE FORMATION':ex.type==='match'?'MATCH THE FOLLOWING':ex.type==='test'?'CHAPTER TEST':'FINAL RECALL'}</div><div class="exercise-counter"><span>Exercise ${num} of ${total}</span><span class="chapter-test-badge">${ex.type==='test'?'10-question test':'Practice'}</span></div><div class="exercise-track"><div style="width:${pct}%"></div></div><div id="chapterExerciseBody" style="margin-top:22px"></div></div>`;
+  const body=document.getElementById('chapterExerciseBody');
+  if(ex.type==='sentence')renderSentenceExercise(body,ex);
+  else if(ex.type==='match')renderMatchExercise(body,ex);
+  else if(ex.type==='test')renderTestExercise(body,ex);
+  else renderRecapExercise(body,ex);
+}
+function sentenceTokens(text){
+  const clean=String(text).trim();
+  if(/\s/.test(clean))return clean.split(/\s+/).filter(Boolean);
+  const chunks=[];
+  for(let i=0;i<clean.length;i+=2)chunks.push(clean.slice(i,i+2));
+  return chunks;
+}
+function renderSentenceExercise(body,ex){
+  const target=ex.source.teach.example;
+  chapterExercise.built=[];
+  const tokens=sentenceTokens(target).map((x,i)=>({x,i}));
+  tokens.sort(()=>Math.random()-.5);
+  body.innerHTML=`<h2>Build the sentence</h2><p>Tap the pieces in the correct order.</p><div class="built-sentence" id="builtSentence">Your sentence will appear here…</div><div class="sentence-builder" id="sentenceBuilder">${tokens.map(t=>`<button class="word-chip" data-token="${t.i}" onclick="pickSentenceToken(${t.i})">${escapeHtml(t.x)}</button>`).join('')}</div><div class="muted">Meaning: ${escapeHtml(ex.source.teach.exampleMeaning)}</div>`;
+  chapterExercise.sentenceTokens=tokens.map(t=>t.x);
+  chapterExercise.sentenceOriginal=sentenceTokens(target);
+  chapterExercise.sentenceSeparator=/\s/.test(target)?' ':'';
+  document.getElementById('lessonAction').textContent='CHECK SENTENCE';
+}
+function pickSentenceToken(i){
+  if(!chapterExercise||chapterExercise.index>=20)return;
+  const btn=document.querySelector(`.word-chip[data-token="${i}"]`);
+  if(!btn||btn.classList.contains('used'))return;
+  btn.classList.add('used');
+  chapterExercise.built.push(i);
+  const words=chapterExercise.built.map(n=>chapterExercise.sentenceOriginal[n]);
+  document.getElementById('builtSentence').textContent=words.join(chapterExercise.sentenceSeparator);
+}
+function checkSentenceExercise(){
+  const expected=chapterExercise.sentenceOriginal.join(chapterExercise.sentenceSeparator), got=chapterExercise.built.map(i=>chapterExercise.sentenceOriginal[i]).join(chapterExercise.sentenceSeparator);
+  if(!got){alert('Build the sentence first 🙂');return;}
+  const good=got===expected;
+  showExerciseFeedback(good,good?'Excellent! The sentence is in the correct order. +10 XP':'Not quite. Try the sentence again.');
+  if(good){chapterExercise.score++;awardXP(10);}else{hearts=Math.max(0,hearts-1);document.getElementById('hearts').textContent=hearts;renderSentenceExercise(document.getElementById('chapterExerciseBody'),chapterExercises(chapterExercise.unitIndex)[chapterExercise.index]);}
+}
+function renderMatchExercise(body,ex){
+  const unit=course().units[chapterExercise.unitIndex];
+  const pairs=unit.lessons.slice(0,4).map(l=>({left:l.teach.target,right:l.teach.meaning}));
+  const options=[...pairs.map(p=>p.right)].sort(()=>Math.random()-.5);
+  chapterExercise.matchPairs=pairs;
+  chapterExercise.matchOptions=options;
+  chapterExercise.matchAnswers={};
+  body.innerHTML=`<h2>Match the following</h2><p>Match each new word or phrase with its meaning.</p><div class="match-grid">${pairs.map((p,i)=>`<div class="match-item"><strong>${escapeHtml(p.left)}</strong><select class="match-select" id="match-${i}"><option value="">Choose meaning…</option>${options.map((o,j)=>`<option value="${j}">${escapeHtml(o)}</option>`).join('')}</select></div>`).join('')}</div>`;
+  document.getElementById('lessonAction').textContent='CHECK MATCHES';
+}
+function checkMatchExercise(){
+  const pairs=chapterExercise.matchPairs;let all=true,score=0;
+  pairs.forEach((p,i)=>{const sel=document.getElementById('match-'+i);const ok=sel&&sel.value!==''&&optionsMeaning(sel.value)===p.right;if(!ok)all=false;else score++;});
+  if(!all){showExerciseFeedback(false,`You matched ${score}/4 correctly. Review the meanings and try again.`);hearts=Math.max(0,hearts-1);document.getElementById('hearts').textContent=hearts;return;}
+  showExerciseFeedback(true,'Perfect! All 4 matches are correct. +10 XP');chapterExercise.score++;awardXP(10);
+}
+function optionsMeaning(v){return chapterExercise.matchOptions[Number(v)];}
+function renderTestExercise(body,ex){
+  const q=ex.source.q;
+  body.innerHTML=`<h2>Chapter test · Question ${ex.number} of 10</h2><p>${escapeHtml(q.prompt)}</p><div class="choices" id="chapterTestChoices">${q.options.map((o,i)=>`<button class="choice" onclick="pickTestAnswer(${i})">${escapeHtml(o)}</button>`).join('')}</div>`;
+  chapterExercise.testAnswer=null;
+  document.getElementById('lessonAction').textContent='CHECK ANSWER';
+}
+function pickTestAnswer(i){chapterExercise.testAnswer=i;document.querySelectorAll('#chapterTestChoices .choice').forEach((b,n)=>b.classList.toggle('selected',n===i));}
+function checkTestExercise(){
+  const q=chapterExercises(chapterExercise.unitIndex)[chapterExercise.index].source.q;
+  if(chapterExercise.testAnswer===null){alert('Choose an answer first 🙂');return;}
+  const good=chapterExercise.testAnswer===q.answer;
+  if(good){chapterExercise.score++;awardXP(10);showExerciseFeedback(true,'Correct! +10 XP');}
+  else {showExerciseFeedback(false,`Not quite. The correct answer is “${q.options[q.answer]}”.`);hearts=Math.max(0,hearts-1);document.getElementById('hearts').textContent=hearts;}
+}
+function renderRecapExercise(body,ex){
+  body.innerHTML=`<h2>Final recall</h2><p>What is the key word you learned first in this chapter?</p><div class="choices">${[ex.source.teach.target,ex.source.teach.meaning,ex.source.teach.exampleMeaning,'A completely unrelated word'].map((x,i)=>`<button class="choice" onclick="pickRecap(${i})">${escapeHtml(x)}</button>`).join('')}</div>`;
+  chapterExercise.recapAnswer=null;document.getElementById('lessonAction').textContent='CHECK RECALL';
+}
+function pickRecap(i){chapterExercise.recapAnswer=i;document.querySelectorAll('#chapterExerciseBody .choice').forEach((b,n)=>b.classList.toggle('selected',n===i));}
+function checkRecapExercise(){
+  if(chapterExercise.recapAnswer===null){alert('Choose an answer first 🙂');return;}
+  const good=chapterExercise.recapAnswer===0;
+  if(good){chapterExercise.score++;awardXP(10);showExerciseFeedback(true,'Great recall! Chapter complete. +10 XP');}
+  else showExerciseFeedback(false,'Choose the key word itself, not its meaning or translation.');
+}
+function showExerciseFeedback(good,text){const fb=document.getElementById('feedback');fb.className='feedback show '+(good?'good':'bad');fb.textContent=text;document.getElementById('lessonAction').textContent=good?'Continue →':'Try again';if(good)document.getElementById('lessonAction').dataset.done='1';}
+function finishChapterExercises(){
+  const unit=course().units[chapterExercise.unitIndex];
+  state.chapterExercises=state.chapterExercises||{};
+  const key=state.lang+'-'+chapterExercise.unitIndex;
+  state.chapterExercises[key]={completed:true,score:chapterExercise.score,completedAt:new Date().toISOString()};
+  state.skills.sentence=Math.min(100,state.skills.sentence+5);
+  saveLocal();syncFirebase();
+  const score=chapterExercise.score;
+  document.getElementById('chapterExerciseArea').innerHTML=`<div class="chapter-exercise chapter-complete"><div class="exercise-type">CHAPTER COMPLETE</div><h2>${escapeHtml(unit.title)}</h2><div class="chapter-score">${score}/20</div><p>You completed 20 chapter exercises: 5 sentence formations, 4 matching tasks, 10 test questions, and 1 final recall.</p><button class="primary" onclick="closeLesson();updateUI()">Back to course</button></div>`;
+  document.getElementById('teachArea').innerHTML='';document.getElementById('questionArea').innerHTML='';document.getElementById('choices').innerHTML='';document.getElementById('feedback').className='feedback';
+  document.getElementById('lessonAction').textContent='Chapter complete';document.getElementById('lessonAction').dataset.done='1';document.getElementById('lessonAction').onclick=()=>{};
+}
+
+function awardXP(n){markDaily();state.xp+=n;state.dailyXP+=n;localStorage.setItem('risync_lang_xp_'+state.lang,state.xp);saveLocal();syncFirebase()}
+function closeLesson(){const a=document.getElementById('lessonAction');document.getElementById('lessonScreen').classList.remove('show');a.onclick=lessonAction;delete a.dataset.done;chapterExerciseMode=false;chapterExercise=null;document.getElementById('chapterExerciseArea').innerHTML='';}
+function speakText(text){if(!('speechSynthesis'in window)){alert('Speech is not supported by this browser.');return}window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang=course().speech;u.rate=.78;window.speechSynthesis.speak(u)}
+function speakCurrent(){if(currentLesson)speakText(currentLesson.lesson.teach.target)}
+function openPractice(){if(!currentLesson)startNextLesson();else startLesson(currentLesson.idx)}
+function showStats(){alert('RiSync progress: '+completedCount()+'/'+totalLessons()+' lessons completed · '+state.xp+' XP · '+state.streak+' day streak.')}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+
+/* Firebase: saves each learner's language progress under their own UID. */
+window.saveLanguageProgress=async function(){await syncFirebase()};
+let firebaseAuth=null,firebaseDb=null,firebaseReady=false;
+async function syncFirebase(){if(!firebaseReady||!firebaseAuth?.currentUser||!firebaseDb)return;try{const {doc,setDoc,serverTimestamp}=window._riSyncFirestore;await setDoc(doc(firebaseDb,'users',firebaseAuth.currentUser.uid),{languageLearning:{currentLang:state.lang,level:state.level,xp:state.xp,streak:state.streak,gems:state.gems,completed:state.completed,dailyXP:state.dailyXP,lastDay:state.lastDay,skills:state.skills,chapterExercises:state.chapterExercises||{},lastUpdated:serverTimestamp()}},{merge:true})}catch(e){console.warn('RiSync Firebase save failed:',e)}}
+(async()=>{try{const app=window.risyncFirebaseApp;const cfg={apiKey:'AIzaSyBWAwm_TDtD1qXDtjxJu0jrDP45c3p1Bxg',authDomain:'risync-risync.firebaseapp.com',projectId:'risync-risync',storageBucket:'risync-risync.firebasestorage.app',messagingSenderId:'195106250121',appId:'1:195106250121:web:57b23c5b94d5771995d558'};const [{initializeApp},{getAuth,onAuthStateChanged},{getFirestore,doc,getDoc,setDoc,serverTimestamp}]=await Promise.all([import('https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js'),import('https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js'),import('https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js')]);const fb=app||initializeApp(cfg);firebaseAuth=getAuth(fb);firebaseDb=getFirestore(fb);window._riSyncFirestore={doc,getDoc,setDoc,serverTimestamp};firebaseReady=true;const fs=document.getElementById('firebaseStatus');if(fs)fs.textContent='☁️ Waiting for sign-in';onAuthStateChanged(firebaseAuth,async user=>{if(!user){const fs=document.getElementById('firebaseStatus');if(fs)fs.textContent='☁️ Local';return;}try{const snap=await getDoc(doc(firebaseDb,'users',user.uid));const fs=document.getElementById('firebaseStatus');if(fs)fs.textContent='☁️ Synced';if(snap.exists()){const p=snap.data().languageLearning||{};if(p.currentLang&&COURSE[p.currentLang])state.lang=p.currentLang;if(p.level)state.level=p.level;if(p.xp!=null)state.xp=Number(p.xp);if(p.streak!=null)state.streak=Number(p.streak);if(p.gems!=null)state.gems=Number(p.gems);if(p.completed)state.completed=p.completed;if(p.dailyXP!=null)state.dailyXP=Number(p.dailyXP);if(p.lastDay)state.lastDay=p.lastDay;if(p.skills)state.skills={...state.skills,...p.skills};if(p.chapterExercises)state.chapterExercises=p.chapterExercises;saveLocal()}else syncFirebase()}catch(e){const fs=document.getElementById('firebaseStatus');if(fs)fs.textContent='☁️ Offline';console.warn('RiSync Firebase load failed:',e)}})}catch(e){console.warn('Firebase unavailable; local progress still works.',e)}})();
+
+window.addEventListener('beforeunload',()=>{try{saveLocal();syncFirebase()}catch(e){}});
+(function init(){markDaily();updateUI()})();
+</script>
+</body>
+</html>
