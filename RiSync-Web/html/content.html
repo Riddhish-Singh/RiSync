@@ -394,6 +394,13 @@
     }
     #profileIcon:hover { box-shadow: 0 0 0 3px #c0c1ff; }
 
+
+    /* ---- Profile modal ---- */
+    #profileModal { display:none; position:fixed; inset:0; z-index:1100; background:rgba(13,28,46,.55); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:16px; }
+    #profileModal.active { display:flex; }
+    .profile-panel { width:min(620px,100%); max-height:90vh; overflow:auto; background:#fff; border:1px solid #dce3f2; border-radius:22px; box-shadow:0 24px 70px rgba(13,28,46,.22); }
+    .profile-field { width:100%; border:1px solid #dce3f2; background:#f8f9ff; border-radius:11px; padding:11px 13px; font-size:14px; outline:none; }
+    .profile-field:focus { border-color:#15157d; box-shadow:0 0 0 3px rgba(21,21,125,.10); }
     /* ---- Page fade in ---- */
     @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
     .content-area { animation: fadeIn 0.4s ease-out; }
@@ -455,6 +462,10 @@
       <a href="subjects" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
         <span class="material-symbols-outlined">subject</span>
         <span class="text-sm font-medium">Subjects</span>
+      </a>
+      <a href="language.html" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">translate</span>
+        <span class="text-sm font-medium">Learn Language</span>
       </a>
       <a href="NCERT" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
         <span class="material-symbols-outlined">library_books</span>
@@ -763,6 +774,61 @@
     </main>
   </div>
 
+
+  <!-- ===== PROFILE MODAL ===== -->
+  <div id="profileModal" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle">
+    <div class="profile-panel">
+      <div class="p-6 md:p-8">
+        <div class="flex items-start justify-between gap-4 mb-6">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-widest text-orange-500 mb-1">Your account</p>
+            <h2 id="profileModalTitle" class="editorial-header text-2xl font-extrabold text-indigo-950">My Profile</h2>
+            <p class="text-sm text-slate-500 mt-1">Manage your personal and learning details.</p>
+          </div>
+          <button id="closeProfileModal" class="w-9 h-9 rounded-xl bg-slate-100 text-slate-600 text-xl" aria-label="Close">&times;</button>
+        </div>
+        <div class="flex items-center gap-4 p-4 rounded-2xl bg-indigo-50 mb-6">
+          <img id="profilePreview" src="https://placehold.co/80x80/15157d/ffffff?text=U" class="w-16 h-16 rounded-full object-cover border-2 border-white shadow" alt="Profile photo"/>
+          <div>
+            <p id="profileDisplayName" class="font-bold text-indigo-950">Your name</p>
+            <p id="profileDisplayEmail" class="text-xs text-slate-500">Your account email</p>
+            <button type="button" id="changeProfilePhoto" class="text-xs font-bold text-indigo-700 mt-2 hover:underline">Change profile photo</button>
+          </div>
+        </div>
+        <form id="profileForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <label class="text-xs font-bold text-slate-600">Full name
+            <input id="profileFullname" class="profile-field mt-1.5" maxlength="80" placeholder="Your full name"/>
+          </label>
+          <label class="text-xs font-bold text-slate-600">Username
+            <input id="profileUsername" class="profile-field mt-1.5" maxlength="30" placeholder="Choose a username"/>
+          </label>
+          <label class="text-xs font-bold text-slate-600">Email
+            <input id="profileEmail" type="email" class="profile-field mt-1.5" readonly/>
+          </label>
+          <label class="text-xs font-bold text-slate-600">Class / Grade
+            <input id="profileClass" class="profile-field mt-1.5" maxlength="30" placeholder="e.g. Class 7"/>
+          </label>
+          <label class="text-xs font-bold text-slate-600">School / Institution
+            <input id="profileSchool" class="profile-field mt-1.5" maxlength="100" placeholder="School or institution"/>
+          </label>
+          <label class="text-xs font-bold text-slate-600">Branch
+            <input id="profileBranch" class="profile-field mt-1.5" maxlength="80" placeholder="Branch (if applicable)"/>
+          </label>
+          <label class="text-xs font-bold text-slate-600 md:col-span-2">About me
+            <textarea id="profileBio" class="profile-field mt-1.5" rows="3" maxlength="300" placeholder="Tell your peers a little about yourself..."></textarea>
+          </label>
+          <div class="md:col-span-2 flex items-center justify-between gap-3 pt-3 border-t border-slate-100">
+            <p id="profileSaveStatus" class="text-xs text-slate-500" aria-live="polite">Your details are private to your account.</p>
+            <div class="flex gap-2">
+              <button type="button" id="cancelProfile" class="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-sm font-bold">Cancel</button>
+              <button type="submit" id="saveProfile" class="px-5 py-2.5 rounded-xl bg-indigo-900 text-white text-sm font-bold shadow-md">Save Profile</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== AUDIO ===== -->
   <audio id="bg-music" loop preload="none">
     <source src="../assets/logo.mp3" type="audio/mpeg">
@@ -908,6 +974,7 @@
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           const userData = docSnap.data();
+          window.risyncUserData = userData;
           const welcomeMsg = document.getElementById('welcome-message');
           if (welcomeMsg) welcomeMsg.textContent = userData.fullname || "Welcome back";
           if (userData.branch) document.getElementById('displayBranch').innerText = userData.branch;
@@ -1054,6 +1121,10 @@
 
     window.risyncAuth = auth;
     window.risyncDb = db;
+    window.risyncSaveProfile = async (profileData) => {
+      if (!auth.currentUser) throw new Error("Please sign in again.");
+      await setDoc(doc(db, "users", auth.currentUser.uid), profileData, { merge: true });
+    };
   </script>
 
   <!-- ===== NON-MODULE SCRIPT ===== -->
@@ -1094,6 +1165,70 @@
         reader.onload = (e) => { profileIcon.src = e.target.result; localStorage.setItem('profileImage', e.target.result); };
         reader.readAsDataURL(file);
       }
+    });
+
+    // Profile modal and account details
+    const profileModal = document.getElementById('profileModal');
+    const profileUploadInput = document.getElementById('profileUpload');
+    const profileFields = {
+      fullname: 'profileFullname', username: 'profileUsername', class: 'profileClass',
+      school: 'profileSchool', branch: 'profileBranch', bio: 'profileBio'
+    };
+    function openProfileModal() {
+      const user = window.risyncAuth && window.risyncAuth.currentUser;
+      const data = window.risyncUserData || {};
+      Object.entries(profileFields).forEach(([key, id]) => {
+        document.getElementById(id).value = data[key] || (key === 'fullname' && user ? (user.displayName || '') : '');
+      });
+      document.getElementById('profileEmail').value = (user && user.email) || data.email || '';
+      document.getElementById('profileDisplayName').textContent = data.fullname || (user && user.displayName) || 'Your profile';
+      document.getElementById('profileDisplayEmail').textContent = (user && user.email) || '';
+      const avatar = data.photoURL || localStorage.getItem('profileImage') || 'https://placehold.co/80x80/15157d/ffffff?text=U';
+      document.getElementById('profilePreview').src = avatar;
+      profileIcon.src = avatar;
+      document.getElementById('profileSaveStatus').textContent = 'Your details are private to your account.';
+      profileModal.classList.add('active');
+    }
+    function closeProfileModal() { profileModal.classList.remove('active'); }
+    document.getElementById('closeProfileModal').addEventListener('click', closeProfileModal);
+    document.getElementById('cancelProfile').addEventListener('click', closeProfileModal);
+    profileModal.addEventListener('click', e => { if (e.target === profileModal) closeProfileModal(); });
+    document.getElementById('changeProfilePhoto').addEventListener('click', () => profileUploadInput.click());
+    document.getElementById('profileForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const saveBtn = document.getElementById('saveProfile');
+      const status = document.getElementById('profileSaveStatus');
+      const profileData = {};
+      Object.entries(profileFields).forEach(([key, id]) => profileData[key] = document.getElementById(id).value.trim());
+      profileData.updatedAt = new Date().toISOString();
+      saveBtn.disabled = true; saveBtn.textContent = 'Saving...'; status.textContent = 'Saving your profile...';
+      try {
+        if (!window.risyncSaveProfile) throw new Error('Account connection is still loading. Please try again.');
+        await window.risyncSaveProfile(profileData);
+        window.risyncUserData = { ...(window.risyncUserData || {}), ...profileData };
+        document.getElementById('welcome-message').textContent = profileData.fullname || 'Welcome back';
+        document.getElementById('profileDisplayName').textContent = profileData.fullname || 'Your profile';
+        status.textContent = 'Profile saved successfully.';
+        setTimeout(closeProfileModal, 700);
+      } catch (err) {
+        console.error(err); status.textContent = err.message || 'Could not save. Please try again.';
+      } finally { saveBtn.disabled = false; saveBtn.textContent = 'Save Profile'; }
+    });
+    profileUploadInput.addEventListener('change', event => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      if (!file.type.startsWith('image/')) { alert('Please choose an image file.'); return; }
+      if (file.size > 2 * 1024 * 1024) { alert('Please choose an image under 2 MB.'); return; }
+      const reader = new FileReader();
+      reader.onload = async e => {
+        const dataUrl = e.target.result;
+        profileIcon.src = dataUrl;
+        document.getElementById('profilePreview').src = dataUrl;
+        localStorage.setItem('profileImage', dataUrl);
+        // Photo is kept in this browser; profile text fields sync to the signed-in account. 
+        document.getElementById('profileSaveStatus').textContent = 'Profile photo updated on this device.';
+      };
+      reader.readAsDataURL(file);
     });
 
     // Nav search filter
@@ -1293,11 +1428,7 @@
 
     profileBtn.addEventListener('click', () => {
         settingsMenu.classList.remove('active');
-        const username = prompt('Enter your username:');
-        if (username && window.risyncAuth && window.risyncAuth.currentUser) {
-            const userRef = doc(window.risyncDb, "users", window.risyncAuth.currentUser.uid);
-            updateDoc(userRef, { fullname: username });
-        }
+        openProfileModal();
     });
 
     const ribotAnswers = {
