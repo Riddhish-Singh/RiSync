@@ -667,13 +667,13 @@
             </a>
           </div>
           <!-- Pro Tip -->
-          <div class="bg-orange-50 border border-orange-200 p-6 rounded-xl relative overflow-hidden">
-            <span class="material-symbols-outlined absolute -right-4 -bottom-4 text-7xl text-orange-500/10">lightbulb</span>
+          <div class="bg-[#003366] p-6 rounded-xl relative overflow-hidden border border-[#1E4F7A]">
+            <span class="material-symbols-outlined absolute -right-4 -bottom-4 text-7xl text-[#FF8A32]/20">lightbulb</span>
             <div class="flex items-center gap-2 mb-2">
-              <span class="material-symbols-outlined text-orange-600">tips_and_updates</span>
-              <span class="font-bold text-xs uppercase tracking-widest text-orange-700">Pro Tip</span>
+              <span class="material-symbols-outlined text-[#FF8A32]">tips_and_updates</span>
+              <span class="font-bold text-xs uppercase tracking-widest text-white">Pro Tip</span>
             </div>
-            <p class="text-indigo-950 text-sm font-medium leading-relaxed">
+            <p class="text-white/90 text-sm font-medium leading-relaxed">
               Collaborate with peers using the Whiteboard feature to solve complex problems together in real-time!
             </p>
           </div>
@@ -761,7 +761,7 @@
       <section class="space-y-5">
         <div class="flex items-center justify-between">
           <div>
-            <h3 class="editorial-header text-2xl font-bold text-indigo-900">Class 6 NCERT Subjects</h3>
+            <h3 class="editorial-header text-2xl font-bold text-indigo-900">Your NCERT Subjects</h3>
             <p class="text-sm text-on-surface-variant mt-0.5">Aligned with NCERT &amp; NEP 2020 — tap a subject to explore chapters</p>
           </div>
           <a href="ncert" class="btn-primary-gradient text-white text-sm font-bold px-5 py-2.5 rounded-xl shadow-md hover:-translate-y-0.5 transition-transform flex items-center gap-2">
@@ -774,6 +774,32 @@
     </main>
   </div>
 
+
+  <!-- ===== IN-APP NCERT PDF READER ===== -->
+  <div id="ncertPdfModal" class="fixed inset-0 z-[100] hidden bg-slate-950/80 p-2 md:p-6" role="dialog" aria-modal="true" aria-labelledby="ncertPdfTitle">
+    <div class="mx-auto flex h-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+      <div class="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-3 md:px-6">
+        <div class="min-w-0">
+          <h2 id="ncertPdfTitle" class="truncate text-base font-extrabold text-indigo-950">NCERT Textbook</h2>
+          <p id="ncertPdfSubtitle" class="text-xs text-slate-500">Read your chapter inside RiSync</p>
+        </div>
+        <div class="flex shrink-0 items-center gap-2">
+          <a id="ncertPdfDownload" href="#" download target="_blank" rel="noopener" class="hidden rounded-lg bg-indigo-50 px-3 py-2 text-xs font-bold text-indigo-800 hover:bg-indigo-100">Download PDF</a>
+          <button type="button" onclick="closeNCERTPDF()" class="rounded-lg bg-slate-100 px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-200" aria-label="Close PDF reader">✕ <span class="hidden sm:inline">Close</span></button>
+        </div>
+      </div>
+      <div id="ncertPdfStage" class="min-h-0 flex-1 bg-slate-100">
+        <iframe id="ncertPdfFrame" title="NCERT textbook PDF" class="h-full w-full border-0" loading="lazy" allow="fullscreen" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        <div id="ncertPdfUnavailable" class="hidden h-full items-center justify-center p-8 text-center">
+          <div class="max-w-md rounded-2xl bg-white p-7 shadow-sm">
+            <div class="mb-3 text-4xl">📘</div>
+            <h3 class="text-lg font-extrabold text-indigo-950">Chapter preview unavailable</h3>
+            <p class="mt-2 text-sm leading-6 text-slate-600">The selected chapter does not currently have a verified PDF address. No external page has been opened.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- ===== PROFILE MODAL ===== -->
   <div id="profileModal" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle">
@@ -806,7 +832,7 @@
             <input id="profileEmail" type="email" class="profile-field mt-1.5" readonly/>
           </label>
           <label class="text-xs font-bold text-slate-600">Class / Grade
-            <input id="profileClass" class="profile-field mt-1.5" maxlength="30" placeholder="e.g. Class 7"/>
+            <select id="profileClass" class="profile-field mt-1.5"><option value="">Select class</option><option value="Class 1">Class 1</option><option value="Class 2">Class 2</option><option value="Class 3">Class 3</option><option value="Class 4">Class 4</option><option value="Class 5">Class 5</option><option value="Class 6">Class 6</option><option value="Class 7">Class 7</option><option value="Class 8">Class 8</option><option value="Class 9">Class 9</option><option value="Class 10">Class 10</option><option value="Class 11">Class 11</option><option value="Class 12">Class 12</option></select>
           </label>
           <label class="text-xs font-bold text-slate-600">School / Institution
             <input id="profileSchool" class="profile-field mt-1.5" maxlength="100" placeholder="School or institution"/>
@@ -975,6 +1001,8 @@
         if (docSnap.exists()) {
           const userData = docSnap.data();
           window.risyncUserData = userData;
+          const activeClassNum = String(userData.class || userData.grade || userData.className || '6').match(/\d{1,2}/)?.[0] || '6';
+          applyProfileCurriculum(activeClassNum);
           const welcomeMsg = document.getElementById('welcome-message');
           if (welcomeMsg) welcomeMsg.textContent = userData.fullname || "Welcome back";
           if (userData.branch) document.getElementById('displayBranch').innerText = userData.branch;
@@ -984,7 +1012,7 @@
           // fall back to computing from the subcollection for users who haven't opened NCERT yet.
           console.log('[RiSync] userData keys:', Object.keys(userData));
           console.log('[RiSync] ncertProgress raw:', userData.ncertProgress, '| totalPoints raw:', userData.ncertTotalPoints);
-          if (typeof userData.ncertProgress === 'number') {
+          if (typeof userData.ncertProgress === 'number' && String(userData.ncertProgressClass || '') === activeClassNum) {
             // Fast path: fields already written by NCERT
             updateProgressUI(userData.ncertProgress);
             renderSubjectStats({
@@ -998,7 +1026,7 @@
           } else {
             // Fallback: compute from subcollection (pre-update data)
             try {
-              const classNum  = userData.class || userData.grade || userData.className || '6';
+              const classNum = activeClassNum;
               console.log('[RiSync] Fetching subcollection for class:', classNum, '| uid:', user.uid);
               const ncertRef  = doc(db, 'users', user.uid, 'ncert', `class${classNum}progress`);
               const ncertSnap = await getDoc(ncertRef);
@@ -1081,16 +1109,20 @@
     }
 
     function updateProgressUI(progress) {
-        progressBar.style.width = `${progress}%`;
-        progressText.textContent = `${progress}% Complete`;
+        const safeProgress = Math.max(0, Math.min(100, Number(progress) || 0));
+        if (progressBar) progressBar.style.width = `${safeProgress}%`;
+        if (progressText) progressText.textContent = `${safeProgress}% Complete`;
         const el = document.getElementById('progress-percent');
-        if (el) el.textContent = `${progress}%`;
+        if (el) el.textContent = `${safeProgress}%`;
         const circle = document.getElementById('progress-circle');
         if (circle) {
             const circumference = 169.6;
-            circle.style.strokeDashoffset = circumference - (progress / 100) * circumference;
+            circle.style.strokeDashoffset = circumference - (safeProgress / 100) * circumference;
         }
     }
+    // Expose the module-scoped function for the profile/TODO scripts below.
+    // Classic scripts cannot directly access declarations scoped inside this module.
+    window.updateProgressUI = updateProgressUI;
 
     function renderTodos(todos) {
         todoList.innerHTML = '';
@@ -1178,7 +1210,9 @@
       const user = window.risyncAuth && window.risyncAuth.currentUser;
       const data = window.risyncUserData || {};
       Object.entries(profileFields).forEach(([key, id]) => {
-        document.getElementById(id).value = data[key] || (key === 'fullname' && user ? (user.displayName || '') : '');
+        document.getElementById(id).value = key === 'class'
+          ? (data[key] ? `Class ${String(data[key]).match(/\d{1,2}/)?.[0] || ''}` : '')
+          : (data[key] || (key === 'fullname' && user ? (user.displayName || '') : ''));
       });
       document.getElementById('profileEmail').value = (user && user.email) || data.email || '';
       document.getElementById('profileDisplayName').textContent = data.fullname || (user && user.displayName) || 'Your profile';
@@ -1206,6 +1240,9 @@
         if (!window.risyncSaveProfile) throw new Error('Account connection is still loading. Please try again.');
         await window.risyncSaveProfile(profileData);
         window.risyncUserData = { ...(window.risyncUserData || {}), ...profileData };
+        applyProfileCurriculum(profileData.class || '6');
+        window.updateProgressUI(0);
+        renderSubjectStats({});
         document.getElementById('welcome-message').textContent = profileData.fullname || 'Welcome back';
         document.getElementById('profileDisplayName').textContent = profileData.fullname || 'Your profile';
         status.textContent = 'Profile saved successfully.';
@@ -1710,7 +1747,54 @@
 
   <!-- ===== NCERT SUBJECTS RENDERING SCRIPT ===== -->
   <script>
-    const ncertSubjects = [
+    // Exact NCERT chapter-PDF URL builder; volume chapter numbers restart at 01.
+    const ncertPdf = (bookCode, chapterNo) => `https://ncert.nic.in/textbook/pdf/${bookCode}${String(chapterNo).padStart(2,'0')}.pdf`;
+
+
+    // Primary-stage NCERT catalogue (Classes 1–5). Chapter numbering follows the
+    // official NCERT catalogue; PDF files remain hosted by NCERT.
+    const primaryGrade = (grade) => {
+      const activePrimaryGrade = String(grade);
+      const configs = {
+        '1': [
+          ['english','English','Mridang','aemr1',9,'menu_book','english','0-9'],
+          ['mathematics','Mathematics','Joyful Mathematics','aejm1',13,'calculate','math','1-13'],
+          ['hindi','Hindi','Sarangi','asar1',12,'translate','hindi','0-12']
+        ],
+        '2': [
+          ['english','English','Mridang','bemr1',9,'menu_book','english','0-9'],
+          ['mathematics','Mathematics','Joyful Mathematics','bejm1',11,'calculate','math','2-11'],
+          ['hindi','Hindi','Sarangi','bsar1',12,'translate','hindi','0-12']
+        ],
+        '3': [
+          ['english','English','Santoor','cesa1',12,'menu_book','english','1-12'],
+          ['mathematics','Mathematics','Maths Mela','cemm1',14,'calculate','math','0-14'],
+          ['hindi','Hindi','Veena','chve1',18,'translate','hindi','4-18'],
+          ['environment','Environmental Studies','Our Wondrous World','ceev1',12,'public','social','0-12']
+        ],
+        '4': [
+          ['english','English','Santoor','desa1',12,'menu_book','english','9-12'],
+          ['mathematics','Mathematics','Maths Mela','demm1',14,'calculate','math','6-14'],
+          ['hindi','Hindi','Veena','dhve1',18,'translate','hindi','4-18'],
+          ['environment','Environmental Studies','Looking Around','deap1',27,'public','social','0-27']
+        ],
+        '5': [
+          ['english','English','Santoor','eesa1',10,'menu_book','english','0-10'],
+          ['mathematics','Mathematics','Maths Mela','eemm1',14,'calculate','math','0-14'],
+          ['hindi','Hindi','Veena','ehve1',12,'translate','hindi','0-12'],
+          ['environment','Environmental Studies','Looking Around','eeap1',22,'public','social','0-22']
+        ]
+      };
+      return (configs[activePrimaryGrade] || []).map(([key,title,book,code,count,icon,accent,range]) => ({
+        key,icon,title,bookTitle:book,
+        description:`NCERT Class ${activePrimaryGrade} · ${book}`,
+        accent:palette[accent],
+        catalogUrl:`https://ncert.nic.in/textbook.php?${code}=${range}`,
+        chapters:Array.from({length:count},(_,i)=>({num:i+1,title:`Chapter ${i+1}`,url:'ncert',pdfUrl:ncertPdf(code,i+1)}))
+      }));
+    };
+
+    const class6Subjects = [
       {
         key: 'mathematics',
         icon: 'calculate',
@@ -1719,16 +1803,16 @@
         description: 'Explore numbers, algebra, and geometry with interactive lessons.',
         accent: { bg: '#eff4ff', border: '#c0c1ff', icon: '#15157d', badge: '#2e3192', badgeText: '#fff' },
         chapters: [
-          { num:1,  title:'Patterns in Mathematics',         url:'ncert' },
-          { num:2,  title:'Lines and Angles',                url:'ncert' },
-          { num:3,  title:'Number Play',                     url:'ncert' },
-          { num:4,  title:'Data Handling and Presentation',  url:'ncert' },
-          { num:5,  title:'Prime Time',                      url:'ncert' },
-          { num:6,  title:'Perimeter and Area',              url:'ncert' },
-          { num:7,  title:'Fractions',                       url:'ncert' },
-          { num:8,  title:'Playing with Constructions',      url:'ncert' },
-          { num:9,  title:'Symmetry',                        url:'ncert' },
-          { num:10, title:'The Other Side of Zero',          url:'ncert' },
+          { num:1, title:'Patterns in Mathematics', url:'ncert', pdfUrl:ncertPdf('fegp1',1) },
+          { num:2, title:'Lines and Angles', url:'ncert', pdfUrl:ncertPdf('fegp1',2) },
+          { num:3, title:'Number Play', url:'ncert', pdfUrl:ncertPdf('fegp1',3) },
+          { num:4, title:'Data Handling and Presentation', url:'ncert', pdfUrl:ncertPdf('fegp1',4) },
+          { num:5, title:'Prime Time', url:'ncert', pdfUrl:ncertPdf('fegp1',5) },
+          { num:6, title:'Perimeter and Area', url:'ncert', pdfUrl:ncertPdf('fegp1',6) },
+          { num:7, title:'Fractions', url:'ncert', pdfUrl:ncertPdf('fegp1',7) },
+          { num:8, title:'Playing with Constructions', url:'ncert', pdfUrl:ncertPdf('fegp1',8) },
+          { num:9, title:'Symmetry', url:'ncert', pdfUrl:ncertPdf('fegp1',9) },
+          { num:10, title:'The Other Side of Zero', url:'ncert', pdfUrl:ncertPdf('fegp1',10) }
         ]
       },
       {
@@ -1739,18 +1823,18 @@
         description: 'Discover the natural world through observation and experimentation.',
         accent: { bg: '#e6faf5', border: '#68dba9', icon: '#006c4a', badge: '#006c4a', badgeText: '#fff' },
         chapters: [
-          { num:1,  title:'Food: Where Does It Come From?',             url:'ncert' },
-          { num:2,  title:'Sorting Materials into Groups',               url:'ncert' },
-          { num:3,  title:'Components of Food',                          url:'ncert' },
-          { num:4,  title:'Fibre to Fabric',                             url:'ncert' },
-          { num:5,  title:'Separation of Substances',                    url:'ncert' },
-          { num:6,  title:'Changes Around Us',                           url:'ncert' },
-          { num:7,  title:'Getting to Know Plants',                      url:'ncert' },
-          { num:8,  title:'Body Movements',                              url:'ncert' },
-          { num:9,  title:'Living Organisms and Their Surroundings',     url:'ncert' },
-          { num:10, title:'Motion and Measurement of Distances',         url:'ncert' },
-          { num:11, title:'Light, Shadows and Reflections',              url:'ncert' },
-          { num:12, title:'Electricity and Circuits',                    url:'ncert' },
+          { num:1, title:'The Wonderful World of Science', url:'ncert', pdfUrl:ncertPdf('fecu1',1) },
+          { num:2, title:'Diversity in the Living World', url:'ncert', pdfUrl:ncertPdf('fecu1',2) },
+          { num:3, title:'Mindful Eating: A Path to a Healthy Body', url:'ncert', pdfUrl:ncertPdf('fecu1',3) },
+          { num:4, title:'Exploring Magnets', url:'ncert', pdfUrl:ncertPdf('fecu1',4) },
+          { num:5, title:'Measurement of Length and Motion', url:'ncert', pdfUrl:ncertPdf('fecu1',5) },
+          { num:6, title:'Materials Around Us', url:'ncert', pdfUrl:ncertPdf('fecu1',6) },
+          { num:7, title:'Temperature and its Measurement', url:'ncert', pdfUrl:ncertPdf('fecu1',7) },
+          { num:8, title:'A Journey through States of Water', url:'ncert', pdfUrl:ncertPdf('fecu1',8) },
+          { num:9, title:'Methods of Separation in Everyday Life', url:'ncert', pdfUrl:ncertPdf('fecu1',9) },
+          { num:10, title:'Living Creatures: Exploring their Characteristics', url:'ncert', pdfUrl:ncertPdf('fecu1',10) },
+          { num:11, title:"Nature's Treasures", url:'ncert', pdfUrl:ncertPdf('fecu1',11) },
+          { num:12, title:'Beyond Earth', url:'ncert', pdfUrl:ncertPdf('fecu1',12) }
         ]
       },
       {
@@ -1761,20 +1845,20 @@
         description: 'Understand history, geography, civics and social structures.',
         accent: { bg: '#fff3eb', border: '#ffdcc3', icon: '#623200', badge: '#623200', badgeText: '#f99028' },
         chapters: [
-          { num:1,  title:'Locating Places on the Earth',                                           url:'ncert' },
-          { num:2,  title:'Oceans and Continents',                                                  url:'ncert' },
-          { num:3,  title:'Landforms and Life',                                                     url:'ncert' },
-          { num:4,  title:'Timeline and Sources of History',                                        url:'ncert' },
-          { num:5,  title:'India, That Is Bharat',                                                  url:'ncert' },
-          { num:6,  title:'The Beginnings of Indian Civilisation',                                  url:'ncert' },
-          { num:7,  title:"India's Cultural Roots",                                                 url:'ncert' },
-          { num:8,  title:'Unity in Diversity',                                                     url:'ncert' },
-          { num:9,  title:'Family and Community',                                                   url:'ncert' },
-          { num:10, title:'Grassroots Democracy – Part 1: Governance',                              url:'ncert' },
-          { num:11, title:'Grassroots Democracy – Part 2: Local Government in Rural Areas',        url:'ncert' },
-          { num:12, title:'Grassroots Democracy – Part 3: Local Government in Urban Areas',        url:'ncert' },
-          { num:13, title:'The Value of Work',                                                      url:'ncert' },
-          { num:14, title:'Economic Activities Around Us',                                          url:'ncert' },
+          { num:1, title:'Locating Places on the Earth', url:'ncert', pdfUrl:ncertPdf('fees1',1) },
+          { num:2, title:'Oceans and Continents', url:'ncert', pdfUrl:ncertPdf('fees1',2) },
+          { num:3, title:'Landforms and Life', url:'ncert', pdfUrl:ncertPdf('fees1',3) },
+          { num:4, title:'Timeline and Sources of History', url:'ncert', pdfUrl:ncertPdf('fees1',4) },
+          { num:5, title:'India, That Is Bharat', url:'ncert', pdfUrl:ncertPdf('fees1',5) },
+          { num:6, title:'The Beginnings of Indian Civilisation', url:'ncert', pdfUrl:ncertPdf('fees1',6) },
+          { num:7, title:"India's Cultural Roots", url:'ncert', pdfUrl:ncertPdf('fees1',7) },
+          { num:8, title:'Unity in Diversity', url:'ncert', pdfUrl:ncertPdf('fees1',8) },
+          { num:9, title:'Family and Community', url:'ncert', pdfUrl:ncertPdf('fees1',9) },
+          { num:10, title:'Grassroots Democracy – Part 1: Governance', url:'ncert', pdfUrl:ncertPdf('fees1',10) },
+          { num:11, title:'Grassroots Democracy – Part 2: Local Government in Rural Areas', url:'ncert', pdfUrl:ncertPdf('fees1',11) },
+          { num:12, title:'Grassroots Democracy – Part 3: Local Government in Urban Areas', url:'ncert', pdfUrl:ncertPdf('fees1',12) },
+          { num:13, title:'The Value of Work', url:'ncert', pdfUrl:ncertPdf('fees1',13) },
+          { num:14, title:'Economic Activities Around Us', url:'ncert', pdfUrl:ncertPdf('fees1',14) }
         ]
       },
       {
@@ -1785,11 +1869,11 @@
         description: 'Explore stories, poems, and language skills through the NCERT Poorvi textbook.',
         accent: { bg: '#f0f0ff', border: '#c0c1ff', icon: '#15157d', badge: '#15157d', badgeText: '#fff' },
         chapters: [
-          { num:1, title:'A Bottle of Dew',       url:'ncert' },
-          { num:2, title:'The Kite',               url:'ncert' },
-          { num:3, title:'Rama to the Rescue',     url:'ncert' },
-          { num:4, title:'The Giving Tree',        url:'ncert' },
-          { num:5, title:'Colours of the Rainbow', url:'ncert' },
+          { num:1, title:'A Bottle of Dew', url:'ncert', pdfUrl:ncertPdf('fepr1',1) },
+          { num:2, title:'The Kite', url:'ncert', pdfUrl:ncertPdf('fepr1',2) },
+          { num:3, title:'Rama to the Rescue', url:'ncert', pdfUrl:ncertPdf('fepr1',3) },
+          { num:4, title:'The Giving Tree', url:'ncert', pdfUrl:ncertPdf('fepr1',4) },
+          { num:5, title:'Colours of the Rainbow', url:'ncert', pdfUrl:ncertPdf('fepr1',5) }
         ]
       },
       {
@@ -1808,6 +1892,186 @@
         ]
       }
     ];
+
+    const class7Subjects = [
+      {key:'mathematics',icon:'calculate',title:'Mathematics',bookTitle:'Ganita Prakash (Part I & II)',description:'NCERT Grade 7 Mathematics · Reprint 2026–27',accent:{bg:'#eff4ff',border:'#c0c1ff',icon:'#15157d',badge:'#2e3192',badgeText:'#fff'},chapters:[
+        'Large Numbers Around Us','Arithmetic Expressions','A Peek Beyond the Point','Expressions using Letter-Numbers','Parallel and Intersecting Lines','Number Play','A Tale of Three Intersecting Lines','Working with Fractions',
+        'Geometric Twins','Operations with Integers','Finding Common Ground','Another Peek Beyond the Point','Connecting the Dots...','Constructions and Tilings','Finding the Unknown'
+      ].map((title,i)=>({num:i+1,title,url:'https://ncert.nic.in/textbook.php',pdfUrl:ncertPdf(i<8?'gegp1':'gegp2',i<8?i+1:i-7)}))},
+      {key:'science',icon:'science',title:'Science',bookTitle:'Curiosity',description:'NCERT Grade 7 Science · 12 chapters',accent:{bg:'#e6faf5',border:'#68dba9',icon:'#006c4a',badge:'#006c4a',badgeText:'#fff'},chapters:[
+        'The Ever-Evolving World of Science','Exploring Substances: Acidic, Basic, and Neutral','Electricity: Circuits and their Components','The World of Metals and Non-metals','Changes Around Us: Physical and Chemical','Adolescence: A Stage of Growth and Change','Heat Transfer in Nature','Measurement of Time and Motion','Life Processes in Animals','Life Processes in Plants','Light: Shadows and Reflection','Earth, Moon, and the Sun'
+      ].map((title,i)=>({num:i+1,title,url:'https://ncert.nic.in/textbook.php',pdfUrl:ncertPdf('gecu1',i+1)}))},
+      {key:'social_science',icon:'public',title:'Social Science',bookTitle:'Exploring Society: India and Beyond (Parts I & II)',description:'NCERT Grade 7 Social Science · 20 chapters',accent:{bg:'#fff3eb',border:'#ffdcc3',icon:'#623200',badge:'#623200',badgeText:'#fff'},chapters:[
+        'Geographical Diversity of India','Understanding the Weather','Climates of India','New Beginnings: Cities and States','The Rise of Empires','The Age of Reorganisation','The Gupta Era: An Age of Tireless Creativity','How the Land Becomes Sacred','From the Rulers to the Ruled: Types of Governments','The Constitution of India — An Introduction','From Barter to Money','Understanding Markets','The Story of Indian Farming','India and Her Neighbours','Empires and Kingdoms: 6th to 10th Centuries','Turning Tides: 11th and 12th Centuries','India, a Home to Many','The State, the Government, and You',"Infrastructure: Engine of India’s Development",'Banks and the Magic of Finance'
+      ].map((title,i)=>({num:i+1,title,url:'https://ncert.nic.in/textbook.php',pdfUrl:i<8?ncertPdf('gees1',i+1):(title==='The Story of Indian Farming'?ncertPdf('gees2',1):'')}))},
+      {key:'english',icon:'menu_book',title:'English',bookTitle:'Poorvi',description:'NCERT Grade 7 English · 5 units',accent:{bg:'#f0f0ff',border:'#c0c1ff',icon:'#15157d',badge:'#15157d',badgeText:'#fff'},chapters:[
+        'Learning Together','Wit and Humour','Dreams and Discoveries','Travel and Adventure','Bravehearts'
+      ].map((title,i)=>({num:i+1,title,url:'https://ncert.nic.in/textbook.php',pdfUrl:ncertPdf('gepr1',i+1)}))},
+      {key:'hindi',icon:'translate',title:'Hindi',bookTitle:'Malhar',description:'NCERT Grade 7 Hindi · 10 chapters',accent:{bg:'#fdeaea',border:'#ffdad6',icon:'#ba1a1a',badge:'#ba1a1a',badgeText:'#fff'},chapters:[
+        'माँ, कह एक कहानी','तीन बुद्धिमान','फूल और काँटा','पानी रे पानी','नहीं होना बीमार','गिरिधर कविराय की कुंडलिया','वर्षा-बहार','बिरजू महाराज से साक्षात्कार','चिड़िया','मीरा के पद'
+      ].map((title,i)=>({num:i+1,title,url:'https://ncert.nic.in/textbook.php',pdfUrl:ncertPdf('ghml1',i+1)}))},
+      {key:'sanskrit',icon:'translate',title:'Sanskrit',bookTitle:'Deepakam',description:'NCERT Grade 7 Sanskrit · lessons and appendices',accent:{bg:'#fff7e8',border:'#f4d7a1',icon:'#925b00',badge:'#925b00',badgeText:'#fff'},chapters:[
+        'वन्दे भारतमातरम्','नित्यं पिबामः सुभाषितरसम्','मित्राय नमः','न लभ्यते चेत् आम्लं द्राक्षाफलम्','सेवा हि परमो धर्मः','क्रीडाम वयं श्लोकान्त्याक्षरीम्','ईशावास्यम् इदं सर्वम्','हितं मनोहारि च दुर्लभं वचः','अन्नाद् भवन्ति भूतानि','दशमः कः?','द्वीपेषु रम्यः द्वीपोऽण्डमानः','वीराङ्गना पन्नाधाया','वर्णमात्रा-परिचयः','परिशिष्टम् १: शब्दरूपाणि','परिशिष्टम् २: धातुरूपाणि'
+      ].map((title,i)=>({num:i+1,title,url:'https://ncert.nic.in/textbook.php',pdfUrl:ncertPdf('gsde1',i+1)}))}
+    ];
+
+    const class8Subjects = [
+      {key:'mathematics',icon:'calculate',title:'Mathematics',bookTitle:'Ganita Prakash (Part I & II)',description:'NCERT Class 8 Mathematics · Reprint 2026–27',accent:{bg:'#eff4ff',border:'#c0c1ff',icon:'#15157d',badge:'#2e3192',badgeText:'#fff'},chapters:[
+        'A Square and A Cube','Power Play','A Story of Numbers','Quadrilaterals','Number Play','We Distribute, Yet Things Multiply','Proportional Reasoning-1',
+        'Fractions in Disguise','The Baudhāyana-Pythagoras Theorem','Proportional Reasoning-2','Exploring Some Geometric Themes','Tales by Dots and Lines','Algebra Play','Area'
+      ].map((title,i)=>({num:i+1,title,url:'https://ncert.nic.in/textbook.php',pdfUrl:ncertPdf(i<7?'hegp1':'hegp2',i<7?i+1:i-6)}))},
+      {key:'science',icon:'science',title:'Science',bookTitle:'Curiosity',description:'NCERT Class 8 Science · 13 chapters',accent:{bg:'#e6faf5',border:'#68dba9',icon:'#006c4a',badge:'#006c4a',badgeText:'#fff'},chapters:[
+        'Exploring the Investigative World of Science','The Invisible Living World: Beyond Our Naked Eye','Health: The Ultimate Treasure','Electricity: Magnetic and Heating Effects','Exploring Forces','Pressure, Winds, Storms, and Cyclones','Particulate Nature of Matter','Nature of Matter: Elements, Compounds, and Mixtures','The Amazing World of Solutes, Solvents, and Solutions','Light: Mirrors and Lenses','Keeping Time with the Skies','How Nature Works in Harmony','Our Home: Earth, a Unique Life Sustaining Planet'
+      ].map((title,i)=>({num:i+1,title,url:'https://ncert.nic.in/textbook.php',pdfUrl:ncertPdf('hecu1',i+1)}))},
+      {key:'social_science',icon:'public',title:'Social Science',bookTitle:'Exploring Society: India and Beyond (Parts I & II)',description:'NCERT Class 8 Social Science · 15 chapters',accent:{bg:'#fff3eb',border:'#ffdcc3',icon:'#623200',badge:'#623200',badgeText:'#fff'},chapters:[
+        'Natural Resources and Their Use','Reshaping India’s Political Map','The Rise of the Marathas','The Colonial Era in India','Universal Franchise and India’s Electoral System','The Parliamentary System: Legislature and Executive','Factors of Production',
+        'World Geography: Some Glimpses',"India's Long Road to Independence",'A Journey Through Indian Architecture','The Role of the Judiciary in Our Society','Citizenship: Rights and Duties','Dynamics of Population',"India's Urban Landscape",'Cultural Currents: 13th to 17th Centuries'
+      ].map((title,i)=>({num:i+1,title,url:'https://ncert.nic.in/textbook.php',pdfUrl:ncertPdf(i<7?'hees1':'hees2',i<7?i+1:i-6)}))},
+      {key:'english',icon:'menu_book',title:'English',bookTitle:'Poorvi',description:'NCERT Class 8 English · 5 units',accent:{bg:'#f0f0ff',border:'#c0c1ff',icon:'#15157d',badge:'#15157d',badgeText:'#fff'},chapters:[
+        'Wit and Wisdom','Values and Dispositions','Mystery and Magic','Environment','Science and Curiosity'
+      ].map((title,i)=>({num:i+1,title,url:'https://ncert.nic.in/textbook.php',pdfUrl:ncertPdf('hepr1',i+1)}))},
+      {key:'hindi',icon:'translate',title:'Hindi',bookTitle:'Malhar',description:'NCERT Class 8 Hindi · 10 chapters',accent:{bg:'#fdeaea',border:'#ffdad6',icon:'#ba1a1a',badge:'#ba1a1a',badgeText:'#fff'},chapters:[
+        'स्वदेश','दो गौरैया','एक आशीर्वाद','हरिद्वार','कबीर के दोहे','एक टोकरी भर मिट्टी','मत बाँधो','नए मेहमान','आदमी का अनुपात','तरुण के स्वप्न'
+      ].map((title,i)=>({num:i+1,title,url:'https://ncert.nic.in/textbook.php',pdfUrl:ncertPdf('hhml1',i+1)}))},
+      {key:'sanskrit',icon:'translate',title:'Sanskrit',bookTitle:'Deepakam',description:'NCERT Class 8 Sanskrit · chapter titles transcribed from the available contents listing; printed numbering retained',accent:{bg:'#fff7e8',border:'#f4d7a1',icon:'#925b00',badge:'#925b00',badgeText:'#fff'},chapters:[
+        {num:1,title:'संगच्छध्वं संवदध्वम्'},{num:2,title:'अल्पानामपि वस्तूनां संहतिः कार्यसाधिका'},{num:3,title:'सुभाषितरसं पीत्वा जीवनं सफलं कुरु'},{num:4,title:'प्रणम्यो देशभक्तोऽयं गोपबन्धुर्महामनाः'},{num:5,title:'गीता सुगीता कर्तव्या'},{num:6,title:'डिजिभारतम् - युगपरिवर्तनम्'},{num:7,title:'मञ्जुलमञ्जूषा सुन्दरसुरभाषा'},{num:8,title:'पश्यत कोणमैशान्यं भारतस्य मनोहरम्'},{num:9,title:'कोऽरुक् ? कोऽरुक् ? कोऽरुक् ?'},{num:10,title:'सन्निमित्ते वरं त्यागः (क-भागः)'},{num:11,title:'सन्निमित्ते वरं त्यागः (ख-भागः)'},{num:12,title:'सम्यग्वर्णप्रयोगेण ब्रह्मलोके महीयते'},{num:13,title:'वर्णोच्चारण-शिक्षा १'},{num:14,title:'व्याकरणम्'},{num:16,title:'धातुरूपाणि'}
+      ].map((ch,i)=>({...ch,url:'https://ncert.nic.in/textbook.php',pdfUrl:ncertPdf('hsde1',ch.num)}))}
+    ];
+
+
+    // Upper-secondary NCERT curriculum datasets. These are selected strictly by
+    // the student's profile class; no other grade's chapters are reused.
+    const makeChapters = (titles, code) => titles.map((title,i)=>({
+      num:i+1,title,url:'https://ncert.nic.in/textbook.php',
+      pdfUrl: code ? `https://ncert.nic.in/textbook/pdf/${code}${String(i+1).padStart(2,'0')}.pdf` : ''
+    }));
+    const palette = {
+      math:{bg:'#eff4ff',border:'#c0c1ff',icon:'#15157d',badge:'#2e3192',badgeText:'#fff'},
+      science:{bg:'#e6faf5',border:'#68dba9',icon:'#006c4a',badge:'#006c4a',badgeText:'#fff'},
+      social:{bg:'#fff3eb',border:'#ffdcc3',icon:'#623200',badge:'#623200',badgeText:'#fff'},
+      english:{bg:'#f0f0ff',border:'#c0c1ff',icon:'#15157d',badge:'#15157d',badgeText:'#fff'},
+      hindi:{bg:'#fdeaea',border:'#ffdad6',icon:'#ba1a1a',badge:'#ba1a1a',badgeText:'#fff'},
+      commerce:{bg:'#fff7e8',border:'#f4d7a1',icon:'#925b00',badge:'#925b00',badgeText:'#fff'}
+    };
+    const subject = (key,title,bookTitle,description,icon,titles,code,accent='math') => ({
+      key,icon,title,bookTitle,description,accent:palette[accent],chapters:makeChapters(titles,code)
+    });
+
+    const class9Subjects = [
+      {...subject('mathematics','Mathematics','Ganita Manjari','NCERT Class 9 · Mathematics','calculate',[
+        'Number Systems','Introduction to Linear Polynomials','Coordinate Geometry','Linear Equations in Two Variables','Introduction to Euclid’s Geometry','Lines and Angles','Triangles','Quadrilaterals','Areas of Parallelograms and Triangles','Circles','Constructions','Heron’s Formula','Surface Areas and Volumes','Statistics'
+      ],'iemh1','math'), chapters:makeChapters(['Orienting Yourself: The Use of Coordinates','Introduction to Linear Polynomials','Coordinate Geometry','Linear Equations in Two Variables','Introduction to Euclid’s Geometry','Lines and Angles','Triangles','Quadrilaterals','Areas of Parallelograms and Triangles','Circles','Constructions','Heron’s Formula','Surface Areas and Volumes','Statistics'],'iemh1').map((ch,i)=>({...ch,pdfUrl:ncertPdf(i<8?'iemh1':'iemh2',i<8?i+1:i-7)})) },
+      subject('science','Science','Exploration','NCERT Class 9 · Science · 2026–27','science',[
+        'Exploring Mixtures and their Separation','Cell: The Building Block of Life','Tissues in Action','Describing Motion Around Us','Exploring Mixtures and their Separation','How Forces Affect Motion','Work, Energy, and Simple Machines','Journey Inside the Atom','Atomic Foundations of Matter','Sound Waves: Characteristics and Applications','Reproduction: How Life Continues','Patterns in Life: Diversity and Classification','Earth as a System: Energy, Matter, and Life'
+      ],'iesc1','science'),
+      subject('social_science','Social Science','India and the Contemporary World · Contemporary India · Democratic Politics · Economics','NCERT Class 9 · Social Science','public',[
+        'The French Revolution','Socialism in Europe and the Russian Revolution','Nazism and the Rise of Hitler','Forest Society and Colonialism','Pastoralists in the Modern World','India – Size and Location','Physical Features of India','Drainage','Climate','Natural Vegetation and Wildlife','Population','What is Democracy? Why Democracy?','Constitutional Design','Electoral Politics','Working of Institutions','Democratic Rights','The Story of Village Palampur','People as Resource','Poverty as a Challenge','Food Security in India'
+      ],'iess1','social'),
+      subject('english','English','Kaveri','NCERT Class 9 · English','menu_book',[
+        'How I Taught My Grandmother to Read','The Pot Maker','A Journey to the Hills','The World of Books','The Girl Who Was a Friend','The Adventures of Toto','The Last Leaf','A House Is Not a Home'
+      ],'iebe1','english')
+    ];
+
+    const class10Subjects = [
+      subject('mathematics','Mathematics','Mathematics','NCERT Class 10 · Mathematics','calculate',[
+        'Real Numbers','Polynomials','Pair of Linear Equations in Two Variables','Quadratic Equations','Arithmetic Progressions','Triangles','Coordinate Geometry','Introduction to Trigonometry','Some Applications of Trigonometry','Circles','Areas Related to Circles','Surface Areas and Volumes','Statistics','Probability'
+      ],'jemh1','math'),
+      subject('science','Science','Science','NCERT Class 10 · Science','science',[
+        'Chemical Reactions and Equations','Acids, Bases and Salts','Metals and Non-metals','Carbon and its Compounds','Life Processes','Control and Coordination','How do Organisms Reproduce?','Heredity','Light – Reflection and Refraction','The Human Eye and the Colourful World','Electricity','Magnetic Effects of Electric Current','Our Environment'
+      ],'jesc1','science'),
+      subject('social_science','Social Science','India and the Contemporary World · Contemporary India · Democratic Politics · Understanding Economic Development','NCERT Class 10 · Social Science','public',[
+        'The Rise of Nationalism in Europe','Nationalism in India','The Making of a Global World','The Age of Industrialisation','Print Culture and the Modern World','Resources and Development','Forest and Wildlife Resources','Water Resources','Agriculture','Minerals and Energy Resources','Manufacturing Industries','Lifelines of National Economy','Power Sharing','Federalism','Gender, Religion and Caste','Political Parties','Outcomes of Democracy','Development','Sectors of the Indian Economy','Money and Credit','Globalisation and the Indian Economy','Consumer Rights'
+      ],'jess1','social'),
+      subject('english','English','First Flight · Footprints Without Feet','NCERT Class 10 · English','menu_book',[
+        'A Letter to God','Nelson Mandela: Long Walk to Freedom','Two Stories about Flying','From the Diary of Anne Frank','Glimpses of India','Mijbil the Otter','Madam Rides the Bus','The Sermon at Benares','The Proposal','A Triumph of Surgery','The Thief’s Story','The Midnight Visitor','A Question of Trust','Footprints Without Feet','The Making of a Scientist','The Necklace','Bholi','The Book That Saved the Earth'
+      ],'jeff1','english')
+    ];
+
+    const class11Subjects = [
+      subject('mathematics','Mathematics','Mathematics','NCERT Class 11 · Mathematics','calculate',[
+        'Sets','Relations and Functions','Trigonometric Functions','Complex Numbers and Quadratic Equations','Linear Inequalities','Permutations and Combinations','Binomial Theorem','Sequences and Series','Straight Lines','Conic Sections','Introduction to Three Dimensional Geometry','Limits and Derivatives','Statistics','Probability'
+      ],'kemh1','math'),
+      subject('physics','Physics','Physics Part I & II','NCERT Class 11 · Physics','science',[
+        'Units and Measurements','Motion in a Straight Line','Motion in a Plane','Laws of Motion','Work, Energy and Power','System of Particles and Rotational Motion','Gravitation','Mechanical Properties of Solids','Mechanical Properties of Fluids','Thermal Properties of Matter','Thermodynamics','Kinetic Theory','Oscillations','Waves'
+      ],'keph1','science'),
+      subject('chemistry','Chemistry','Chemistry Part I & II','NCERT Class 11 · Chemistry','science',[
+        'Some Basic Concepts of Chemistry','Structure of Atom','Classification of Elements and Periodicity in Properties','Chemical Bonding and Molecular Structure','Chemical Thermodynamics','Equilibrium','Redox Reactions','Organic Chemistry: Some Basic Principles and Techniques','Hydrocarbons'
+      ],'kech1','science'),
+      subject('biology','Biology','Biology','NCERT Class 11 · Biology','science',[
+        'The Living World','Biological Classification','Plant Kingdom','Animal Kingdom','Morphology of Flowering Plants','Anatomy of Flowering Plants','Structural Organisation in Animals','Cell: The Unit of Life','Biomolecules','Cell Cycle and Cell Division','Photosynthesis in Higher Plants','Respiration in Plants','Plant Growth and Development','Breathing and Exchange of Gases','Body Fluids and Circulation','Excretory Products and their Elimination','Locomotion and Movement','Neural Control and Coordination','Chemical Coordination and Integration'
+      ],'kebo1','science'),
+      subject('english','English','Hornbill · Snapshots','NCERT Class 11 · English','menu_book',[
+        'The Portrait of a Lady','We’re Not Afraid to Die…','Discovering Tut: The Saga Continues','Landscape of the Soul','The Ailing Planet','The Browning Version','The Adventure','Silk Road','The Summer of the Beautiful White Horse','The Address','Ranga’s Marriage','Albert Einstein at School','Mother’s Day','The Ghat of the Only World','Birth','The Tale of Melon City'
+      ],'kehb1','english'),
+      subject('commerce','Accountancy','Financial Accounting Part I & II','NCERT Class 11 · Commerce','account_balance',[
+        'Introduction to Accounting','Theory Base of Accounting','Recording of Transactions – I','Recording of Transactions – II','Bank Reconciliation Statement','Trial Balance and Rectification of Errors','Depreciation, Provisions and Reserves','Bills of Exchange','Financial Statements – I','Financial Statements – II','Accounts from Incomplete Records'
+      ],'keac1','commerce'),
+      subject('business_studies','Business Studies','Business Studies','NCERT Class 11 · Commerce','business',[
+        'Nature and Purpose of Business','Forms of Business Organisations','Private, Public and Global Enterprises','Business Services','Emerging Modes of Business','Social Responsibilities of Business and Business Ethics','Formation of a Company','Sources of Business Finance','Small Business','Internal Trade','International Business'
+      ],'kebs1','commerce'),
+      subject('economics','Economics','Statistics for Economics · Indian Economic Development','NCERT Class 11 · Economics','monitoring',[
+        'Introduction','Collection of Data','Organisation of Data','Presentation of Data','Measures of Central Tendency','Measures of Dispersion','Correlation','Index Numbers','Use of Statistical Tools','Indian Economy on the Eve of Independence','Indian Economy 1950–1990','Liberalisation, Privatisation and Globalisation','Poverty','Human Capital Formation','Rural Development','Employment','Infrastructure','Environment and Sustainable Development','Comparative Development Experiences'
+      ],'kest1','commerce')
+    ];
+
+    const class12Subjects = [
+      subject('mathematics','Mathematics','Mathematics Part I & II','NCERT Class 12 · Mathematics','calculate',[
+        'Relations and Functions','Inverse Trigonometric Functions','Matrices','Determinants','Continuity and Differentiability','Applications of Derivatives','Integrals','Applications of Integrals','Differential Equations','Vector Algebra','Three Dimensional Geometry','Linear Programming','Probability'
+      ],'lemh1','math'),
+      subject('physics','Physics','Physics Part I & II','NCERT Class 12 · Physics','science',[
+        'Electric Charges and Fields','Electrostatic Potential and Capacitance','Current Electricity','Moving Charges and Magnetism','Magnetism and Matter','Electromagnetic Induction','Alternating Current','Electromagnetic Waves','Ray Optics and Optical Instruments','Wave Optics','Dual Nature of Radiation and Matter','Atoms','Nuclei','Semiconductor Electronics'
+      ],'leph1','science'),
+      subject('chemistry','Chemistry','Chemistry Part I & II','NCERT Class 12 · Chemistry','science',[
+        'Solutions','Electrochemistry','Chemical Kinetics','The d- and f-Block Elements','Coordination Compounds','Haloalkanes and Haloarenes','Alcohols, Phenols and Ethers','Aldehydes, Ketones and Carboxylic Acids','Amines','Biomolecules'
+      ],'lech1','science'),
+      subject('biology','Biology','Biology','NCERT Class 12 · Biology','science',[
+        'Sexual Reproduction in Flowering Plants','Human Reproduction','Reproductive Health','Principles of Inheritance and Variation','Molecular Basis of Inheritance','Evolution','Human Health and Disease','Microbes in Human Welfare','Biotechnology: Principles and Processes','Biotechnology and its Applications','Organisms and Populations','Ecosystem','Biodiversity and Conservation'
+      ],'lebo1','science'),
+      subject('english','English','Flamingo · Vistas','NCERT Class 12 · English','menu_book',[
+        'The Last Lesson','Lost Spring','Deep Water','The Rattrap','Indigo','Poets and Pancakes','The Interview','Going Places','My Mother at Sixty-Six','Keeping Quiet','A Thing of Beauty','A Roadside Stand','Aunt Jennifer’s Tigers','The Third Level','The Tiger King','Journey to the End of the Earth','The Enemy','On the Face of It','Memories of Childhood'
+      ],'lefl1','english'),
+      subject('accountancy','Accountancy','Accountancy Part I & II','NCERT Class 12 · Commerce','account_balance',[
+        'Accounting for Not-for-Profit Organisation','Accounting for Partnership Firms – Fundamentals','Goodwill: Nature and Valuation','Change in Profit-Sharing Ratio','Admission of a Partner','Retirement and Death of a Partner','Dissolution of Partnership Firm','Accounting for Share Capital','Issue and Redemption of Debentures','Financial Statements of a Company','Analysis of Financial Statements','Accounting Ratios','Cash Flow Statement'
+      ],'leac1','commerce'),
+      subject('business_studies','Business Studies','Business Studies Part I & II','NCERT Class 12 · Commerce','business',[
+        'Nature and Significance of Management','Principles of Management','Business Environment','Planning','Organising','Staffing','Directing','Controlling','Financial Management','Financial Markets','Marketing Management','Consumer Protection'
+      ],'lebs1','commerce'),
+      subject('economics','Economics','Introductory Macroeconomics · Indian Economic Development','NCERT Class 12 · Economics','monitoring',[
+        'Introduction','National Income Accounting','Money and Banking','Determination of Income and Employment','Government Budget and the Economy','Open Economy Macroeconomics','Indian Economy on the Eve of Independence','Indian Economy 1950–1990','Liberalisation, Privatisation and Globalisation','Poverty','Human Capital Formation','Rural Development','Employment','Infrastructure','Environment and Sustainable Development','Comparative Development Experiences'
+      ],'lemi1','commerce')
+    ];
+
+    let ncertSubjects = class6Subjects;
+    let activeCurriculumClass = '6';
+    function normalizeClass(value) {
+      const match = String(value || '').match(/\d{1,2}/);
+      return match ? String(Math.min(12,Math.max(1,Number(match[0])))) : '6';
+    }
+    function applyProfileCurriculum(value) {
+      const grade = normalizeClass(value);
+      activeCurriculumClass = grade;
+      const heading = document.querySelector('#ncert-subjects-grid')?.closest('section')?.querySelector('h3');
+      const note = heading?.parentElement?.querySelector('p');
+      const curriculumByGrade = {
+        '1': primaryGrade('1'), '2': primaryGrade('2'), '3': primaryGrade('3'),
+        '4': primaryGrade('4'), '5': primaryGrade('5'),
+        '6': class6Subjects, '7': class7Subjects, '8': class8Subjects,
+        '9': class9Subjects, '10': class10Subjects,
+        '11': class11Subjects, '12': class12Subjects
+      };
+      const supported = Boolean(curriculumByGrade[grade]);
+      ncertSubjects = curriculumByGrade[grade] || [];
+      if (heading) heading.textContent = `Class ${grade} NCERT Subjects`;
+      if (note) note.textContent = supported
+        ? `NCERT curriculum · subject books and chapter links for Class ${grade}.`
+        : `No NCERT catalogue is configured for this class yet.`;
+      const grid = document.getElementById('ncert-subjects-grid');
+      if (grid) grid.innerHTML = '';
+      renderSubjectStats({});
+      if (supported) renderNCERTSubjects();
+      else if (grid) grid.innerHTML = `<div class="col-span-full rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-600">Curriculum is not available for this profile selection.</div>`;
+    }
+
 
     // ---- Render quick stats in the progress widget ----
     function renderSubjectStats(stats) {
@@ -1854,6 +2118,14 @@
     }
 
     // ---- Render full subject cards ----
+    function getNCERTCatalogueUrl(subject) {
+      if (subject.catalogUrl) return subject.catalogUrl;
+      const firstPdf = subject.chapters?.find(ch => ch.pdfUrl)?.pdfUrl || '';
+      const filePart = firstPdf.split('/textbook/pdf/')[1] || '';
+      const match = filePart.match(/^([a-z]{4}[0-9])[0-9]{2}\.pdf$/i);
+      return match ? `https://ncert.nic.in/textbook.php?${match[1]}=0-${Math.max(1, subject.chapters.length)}` : '';
+    }
+
     function renderNCERTSubjects() {
       const grid = document.getElementById('ncert-subjects-grid');
       if (!grid) return;
@@ -1863,13 +2135,14 @@
         card.className = 'bg-surface-container-lowest rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.06)] overflow-hidden border';
         card.style.borderColor = subj.accent.border;
 
+        const subjectCatalogueUrl = getNCERTCatalogueUrl(subj);
         const chaptersHTML = subj.chapters.map(ch => `
-          <a href="${ch.url}" class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors group border-b border-slate-50 last:border-0">
+          <button type="button" onclick="openNCERTPDF(decodeURIComponent('${encodeURIComponent(ch.title).replace(/'/g,'%27')}'), '${encodeURIComponent(ch.pdfUrl || '').replace(/'/g,'%27')}', decodeURIComponent('${encodeURIComponent(subj.bookTitle).replace(/'/g,'%27')}'), decodeURIComponent('${encodeURIComponent(subjectCatalogueUrl).replace(/'/g,'%27')}'))" class="w-full text-left flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors group border-b border-slate-50 last:border-0">
             <span class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-extrabold flex-shrink-0"
               style="background:${subj.accent.badge};color:${subj.accent.badgeText}">${ch.num}</span>
             <span class="text-sm text-on-surface font-medium group-hover:text-primary transition-colors leading-snug">${ch.title}</span>
-            <span class="material-symbols-outlined text-sm text-slate-300 group-hover:text-primary ml-auto flex-shrink-0 transition-colors">chevron_right</span>
-          </a>
+            <span class="material-symbols-outlined text-sm text-slate-300 group-hover:text-primary ml-auto flex-shrink-0 transition-colors">picture_as_pdf</span>
+          </button>
         `).join('');
 
         card.innerHTML = `
@@ -1897,7 +2170,7 @@
           <div id="ncert-chapters-${si}" class="hidden">
             <div class="px-4 py-2.5 flex items-center justify-between bg-surface-bright border-b" style="border-color:${subj.accent.border}">
               <span class="text-[10px] uppercase tracking-widest font-bold" style="color:${subj.accent.icon}">All Chapters</span>
-              <a href="ncert" class="text-[10px] font-bold hover:underline" style="color:${subj.accent.icon}">Open Subject →</a>
+              <span class="text-[10px] font-semibold" style="color:${subj.accent.icon}">PDF reader opens inside RiSync</span>
             </div>
             <div class="max-h-64 overflow-y-auto">
               ${chaptersHTML}
@@ -1908,6 +2181,58 @@
       });
     }
 
+    function openNCERTPDF(title, pdfUrl, bookTitle, catalogUrl) {
+      const modal = document.getElementById('ncertPdfModal');
+      const frame = document.getElementById('ncertPdfFrame');
+      const unavailable = document.getElementById('ncertPdfUnavailable');
+      const download = document.getElementById('ncertPdfDownload');
+      const subtitle = document.getElementById('ncertPdfSubtitle');
+      document.getElementById('ncertPdfTitle').textContent = title || 'NCERT Textbook';
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+
+      const isDirectPDF = pdfUrl && /^https:\/\/ncert\.nic\.in\/textbook\/pdf\/[a-z0-9]+\.pdf(?:$|[?#])/i.test(pdfUrl);
+      const fallbackCatalogue = catalogUrl && /^https:\/\/ncert\.nic\.in\/textbook\.php\?[a-z0-9]+=[a-z0-9-]+$/i.test(catalogUrl);
+      if (isDirectPDF) {
+        subtitle.textContent = (bookTitle || 'NCERT textbook') + ' · RiSync PDF Reader';
+        unavailable.classList.add('hidden');
+        unavailable.classList.remove('flex');
+        frame.classList.remove('hidden');
+        frame.src = pdfUrl + (pdfUrl.includes('#') ? '' : '#toolbar=1&navpanes=0&view=FitH');
+        download.href = pdfUrl;
+        download.textContent = 'Download PDF';
+        download.classList.remove('hidden');
+      } else if (fallbackCatalogue) {
+        // Never strand the learner on a dead-end error panel. If an individual
+        // chapter URL is absent, show the official NCERT book catalogue in-app.
+        subtitle.textContent = (bookTitle || 'NCERT textbook') + ' · NCERT chapter catalogue';
+        unavailable.classList.add('hidden');
+        unavailable.classList.remove('flex');
+        frame.classList.remove('hidden');
+        frame.src = catalogUrl;
+        download.href = catalogUrl;
+        download.textContent = 'Open NCERT';
+        download.classList.toggle('hidden', !fallbackCatalogue);
+      } else {
+        subtitle.textContent = 'NCERT preview link needs verification';
+        frame.removeAttribute('src');
+        frame.classList.add('hidden');
+        unavailable.classList.remove('hidden');
+        unavailable.classList.add('flex');
+        download.classList.add('hidden');
+        const msg = unavailable.querySelector('p');
+        if (msg) msg.textContent = 'This chapter has no verified NCERT PDF or catalogue address yet.';
+      }
+    }
+    function closeNCERTPDF() {
+      const modal = document.getElementById('ncertPdfModal');
+      const frame = document.getElementById('ncertPdfFrame');
+      if (frame) frame.removeAttribute('src');
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', event => { if (event.key === 'Escape') closeNCERTPDF(); });
+
     function toggleNCERTCard(index) {
       const list = document.getElementById('ncert-chapters-' + index);
       const chevron = document.getElementById('ncert-chevron-' + index);
@@ -1916,8 +2241,7 @@
       chevron.style.transform = isHidden ? 'rotate(180deg)' : '';
     }
 
-    renderSubjectStats();
-    renderNCERTSubjects();
+    applyProfileCurriculum((window.risyncUserData && (window.risyncUserData.class || window.risyncUserData.grade || window.risyncUserData.className)) || '6');
   </script>
 </body>
 </html>
