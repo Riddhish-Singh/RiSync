@@ -789,7 +789,7 @@
         </div>
       </div>
       <div id="ncertPdfStage" class="min-h-0 flex-1 bg-slate-100">
-        <iframe id="ncertPdfFrame" title="NCERT textbook PDF" class="h-full w-full border-0" loading="lazy" allow="fullscreen" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        <iframe id="ncertPdfFrame" title="NCERT textbook PDF" class="h-full w-full border-0" loading="eager" allow="fullscreen" referrerpolicy="strict-origin-when-cross-origin"></iframe>
         <div id="ncertPdfUnavailable" class="hidden h-full items-center justify-center p-8 text-center">
           <div class="max-w-md rounded-2xl bg-white p-7 shadow-sm">
             <div class="mb-3 text-4xl">📘</div>
@@ -2171,54 +2171,37 @@
     }
 
     function openNCERTPDF(title, pdfUrl, bookTitle, catalogUrl) {
-      // NCERT may block its pages from being embedded in third-party iframes.
-      // Open verified chapter PDFs directly in the browser instead.
+      // Keep the student inside content.html. The Google Docs viewer is used
+      // only as an embedded renderer because NCERT may deny direct iframe embedding.
       try { pdfUrl = decodeURIComponent(pdfUrl || ''); } catch(e) {}
       const safePdfUrl = pdfUrl && /^https:\/\/ncert\.nic\.in\/textbook\/pdf\/[a-z0-9_-]+\.pdf(?:[?#].*)?$/i.test(pdfUrl)
         ? pdfUrl : '';
 
-      if (safePdfUrl) {
-        const opened = window.open(safePdfUrl, '_blank', 'noopener,noreferrer');
-        if (!opened) {
-          // Popup blockers can prevent a new tab; reveal the direct link as a fallback.
-          const modal = document.getElementById('ncertPdfModal');
-          const frame = document.getElementById('ncertPdfFrame');
-          const unavailable = document.getElementById('ncertPdfUnavailable');
-          const download = document.getElementById('ncertPdfDownload');
-          document.getElementById('ncertPdfTitle').textContent = title || 'NCERT Textbook';
-          document.getElementById('ncertPdfSubtitle').textContent = (bookTitle || 'NCERT textbook') + ' · Official NCERT PDF';
-          frame.classList.add('hidden');
-          frame.removeAttribute('src');
-          unavailable.classList.remove('hidden');
-          unavailable.classList.add('flex');
-          const message = unavailable.querySelector('p');
-          if (message) message.textContent = 'Your browser blocked the new tab. Use the button above to open the chapter PDF.';
-          download.href = safePdfUrl;
-          download.textContent = 'Open chapter PDF';
-          download.classList.remove('hidden');
-          modal.classList.remove('hidden');
-          document.body.style.overflow = 'hidden';
-        }
-        return;
-      }
-
-      // Do not load the NCERT catalogue in an iframe. A direct chapter PDF
-      // must be mapped for this entry before it can be opened from RiSync.
       const modal = document.getElementById('ncertPdfModal');
       const frame = document.getElementById('ncertPdfFrame');
       const unavailable = document.getElementById('ncertPdfUnavailable');
       const download = document.getElementById('ncertPdfDownload');
       document.getElementById('ncertPdfTitle').textContent = title || 'NCERT Textbook';
-      document.getElementById('ncertPdfSubtitle').textContent = (bookTitle || 'NCERT textbook') + ' · Direct PDF link not mapped yet';
-      frame.classList.add('hidden');
-      frame.removeAttribute('src');
-      unavailable.classList.remove('hidden');
-      unavailable.classList.add('flex');
-      const message = unavailable.querySelector('p');
-      if (message) message.textContent = 'A verified direct PDF link has not been added for this chapter yet.';
-      download.removeAttribute('href');
-      download.textContent = 'PDF link unavailable';
+      document.getElementById('ncertPdfSubtitle').textContent = (bookTitle || 'NCERT textbook') + ' · RiSync in-page reader';
+      unavailable.classList.add('hidden');
+      unavailable.classList.remove('flex');
       download.classList.add('hidden');
+      download.removeAttribute('href');
+
+      if (!safePdfUrl) {
+        frame.classList.add('hidden');
+        frame.removeAttribute('src');
+        unavailable.classList.remove('hidden');
+        unavailable.classList.add('flex');
+        const message = unavailable.querySelector('p');
+        if (message) message.textContent = 'A verified direct PDF link has not been mapped for this chapter yet.';
+      } else {
+        // Embedded viewer: content.html remains the active page; no new tab or redirect.
+        const viewerUrl = 'https://docs.google.com/gview?embedded=1&url=' + encodeURIComponent(safePdfUrl);
+        frame.classList.remove('hidden');
+        frame.src = viewerUrl;
+      }
+
       modal.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
     }
