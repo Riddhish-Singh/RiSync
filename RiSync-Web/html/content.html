@@ -1750,50 +1750,6 @@
     // Exact NCERT chapter-PDF URL builder; volume chapter numbers restart at 01.
     const ncertPdf = (bookCode, chapterNo) => `https://ncert.nic.in/textbook/pdf/${bookCode}${String(chapterNo).padStart(2,'0')}.pdf`;
 
-
-    // Primary-stage NCERT catalogue (Classes 1–5). Chapter numbering follows the
-    // official NCERT catalogue; PDF files remain hosted by NCERT.
-    const primaryGrade = (grade) => {
-      const activePrimaryGrade = String(grade);
-      const configs = {
-        '1': [
-          ['english','English','Mridang','aemr1',9,'menu_book','english','0-9'],
-          ['mathematics','Mathematics','Joyful Mathematics','aejm1',13,'calculate','math','1-13'],
-          ['hindi','Hindi','Sarangi','asar1',12,'translate','hindi','0-12']
-        ],
-        '2': [
-          ['english','English','Mridang','bemr1',9,'menu_book','english','0-9'],
-          ['mathematics','Mathematics','Joyful Mathematics','bejm1',11,'calculate','math','2-11'],
-          ['hindi','Hindi','Sarangi','bsar1',12,'translate','hindi','0-12']
-        ],
-        '3': [
-          ['english','English','Santoor','cesa1',12,'menu_book','english','1-12'],
-          ['mathematics','Mathematics','Maths Mela','cemm1',14,'calculate','math','0-14'],
-          ['hindi','Hindi','Veena','chve1',18,'translate','hindi','4-18'],
-          ['environment','Environmental Studies','Our Wondrous World','ceev1',12,'public','social','0-12']
-        ],
-        '4': [
-          ['english','English','Santoor','desa1',12,'menu_book','english','9-12'],
-          ['mathematics','Mathematics','Maths Mela','demm1',14,'calculate','math','6-14'],
-          ['hindi','Hindi','Veena','dhve1',18,'translate','hindi','4-18'],
-          ['environment','Environmental Studies','Looking Around','deap1',27,'public','social','0-27']
-        ],
-        '5': [
-          ['english','English','Santoor','eesa1',10,'menu_book','english','0-10'],
-          ['mathematics','Mathematics','Maths Mela','eemm1',14,'calculate','math','0-14'],
-          ['hindi','Hindi','Veena','ehve1',12,'translate','hindi','0-12'],
-          ['environment','Environmental Studies','Looking Around','eeap1',22,'public','social','0-22']
-        ]
-      };
-      return (configs[activePrimaryGrade] || []).map(([key,title,book,code,count,icon,accent,range]) => ({
-        key,icon,title,bookTitle:book,
-        description:`NCERT Class ${activePrimaryGrade} · ${book}`,
-        accent:palette[accent],
-        catalogUrl:`https://ncert.nic.in/textbook.php?${code}=${range}`,
-        chapters:Array.from({length:count},(_,i)=>({num:i+1,title:`Chapter ${i+1}`,url:'ncert',pdfUrl:ncertPdf(code,i+1)}))
-      }));
-    };
-
     const class6Subjects = [
       {
         key: 'mathematics',
@@ -1953,6 +1909,48 @@
       hindi:{bg:'#fdeaea',border:'#ffdad6',icon:'#ba1a1a',badge:'#ba1a1a',badgeText:'#fff'},
       commerce:{bg:'#fff7e8',border:'#f4d7a1',icon:'#925b00',badge:'#925b00',badgeText:'#fff'}
     };
+
+    // NCERT primary-stage catalogue (Classes 1–5).
+    // Chapter names are kept neutral where NCERT's chapter titles are not exposed
+    // by the catalogue index; the official chapter PDF/catalogue remains the source.
+    const primaryPalette = { math:palette.math, english:palette.english, hindi:palette.hindi, evs:palette.science };
+    const primarySubject = (key,title,bookTitle,description,icon,count,pdfCode,catalogUrl,accentKey) => ({
+      key,title,bookTitle,description,icon,accent:primaryPalette[accentKey],
+      chapters:Array.from({length:count},(_,i)=>({
+        num:i+1,title:`Chapter ${i+1}`,
+        pdfUrl:pdfCode?ncertPdf(pdfCode,i+1):'',
+        catalogUrl:catalogUrl||'https://ncert.nic.in/textbook.php'
+      }))
+    });
+    const class1Subjects = [
+      primarySubject('hindi','Hindi','Sarangi','NCERT Class 1 Hindi · Sarangi','translate',19,'ahsr1','https://ncert.nic.in/textbook.php?ahsr1=0-19','hindi'),
+      primarySubject('english','English','Mridang','NCERT Class 1 English · Mridang','menu_book',9,'aemr1','https://ncert.nic.in/textbook.php?aemr1=0-9','english'),
+      primarySubject('mathematics','Mathematics','Joyful Mathematics','NCERT Class 1 Mathematics · Joyful Mathematics','calculate',11,'aejm1','https://ncert.nic.in/textbook.php?aejm1=1-11','math')
+    ];
+    const class2Subjects = [
+      primarySubject('hindi','Hindi','Sarangi','NCERT Class 2 Hindi · Sarangi','translate',19,'bhsr1','https://ncert.nic.in/textbook.php?bhsr1=0-19','hindi'),
+      primarySubject('english','English','Mridang','NCERT Class 2 English · Mridang','menu_book',9,'bemr1','https://ncert.nic.in/textbook.php?bemr1=0-9','english'),
+      primarySubject('mathematics','Mathematics','Joyful Mathematics','NCERT Class 2 Mathematics · Joyful Mathematics','calculate',11,'bejm1','https://ncert.nic.in/textbook.php?bejm1=0-11','math')
+    ];
+    const class3Subjects = [
+      primarySubject('hindi','Hindi','Veena','NCERT Class 3 Hindi · Veena','translate',14,'chve1','https://ncert.nic.in/textbook.php','hindi'),
+      primarySubject('english','English','Santoor','NCERT Class 3 English · Santoor','menu_book',10,'','https://ncert.nic.in/textbook.php','english'),
+      primarySubject('mathematics','Mathematics','Maths Mela','NCERT Class 3 Mathematics · Maths Mela','calculate',14,'cemm1','https://ncert.nic.in/textbook.php?cemm1=0-14','math'),
+      primarySubject('environmental_studies','Environmental Studies','Our Wondrous World','NCERT Class 3 EVS · Our Wondrous World','science',10,'','https://ncert.nic.in/textbook.php','evs')
+    ];
+    const class4Subjects = [
+      primarySubject('hindi','Hindi','Veena','NCERT Class 4 Hindi · Veena','translate',14,'dhve1','https://ncert.nic.in/textbook.php','hindi'),
+      primarySubject('english','English','Santoor','NCERT Class 4 English · Santoor','menu_book',10,'','https://ncert.nic.in/textbook.php','english'),
+      primarySubject('mathematics','Mathematics','Maths Mela','NCERT Class 4 Mathematics · Maths Mela','calculate',14,'demm1','https://ncert.nic.in/textbook.php','math'),
+      primarySubject('environmental_studies','Environmental Studies','Our Wondrous World','NCERT Class 4 EVS · Our Wondrous World','science',10,'','https://ncert.nic.in/textbook.php','evs')
+    ];
+    const class5Subjects = [
+      primarySubject('hindi','Hindi','Veena','NCERT Class 5 Hindi · Veena','translate',14,'ehve1','https://ncert.nic.in/textbook.php','hindi'),
+      primarySubject('english','English','Santoor','NCERT Class 5 English · Santoor','menu_book',10,'','https://ncert.nic.in/textbook.php','english'),
+      primarySubject('mathematics','Mathematics','Maths Mela','NCERT Class 5 Mathematics · Maths Mela','calculate',14,'eemm1','https://ncert.nic.in/textbook.php','math'),
+      primarySubject('environmental_studies','Environmental Studies','Our Wondrous World','NCERT Class 5 EVS · Our Wondrous World','science',10,'','https://ncert.nic.in/textbook.php','evs')
+    ];
+
     const subject = (key,title,bookTitle,description,icon,titles,code,accent='math') => ({
       key,icon,title,bookTitle,description,accent:palette[accent],chapters:makeChapters(titles,code)
     });
@@ -1969,7 +1967,7 @@
       ],'iess1','social'),
       subject('english','English','Kaveri','NCERT Class 9 · English','menu_book',[
         'How I Taught My Grandmother to Read','The Pot Maker','A Journey to the Hills','The World of Books','The Girl Who Was a Friend','The Adventures of Toto','The Last Leaf','A House Is Not a Home'
-      ],'iebe1','english')
+      ],'ieka1','english')
     ];
 
     const class10Subjects = [
@@ -2053,8 +2051,8 @@
       const heading = document.querySelector('#ncert-subjects-grid')?.closest('section')?.querySelector('h3');
       const note = heading?.parentElement?.querySelector('p');
       const curriculumByGrade = {
-        '1': primaryGrade('1'), '2': primaryGrade('2'), '3': primaryGrade('3'),
-        '4': primaryGrade('4'), '5': primaryGrade('5'),
+        '1': class1Subjects, '2': class2Subjects, '3': class3Subjects,
+        '4': class4Subjects, '5': class5Subjects,
         '6': class6Subjects, '7': class7Subjects, '8': class8Subjects,
         '9': class9Subjects, '10': class10Subjects,
         '11': class11Subjects, '12': class12Subjects
@@ -2063,8 +2061,8 @@
       ncertSubjects = curriculumByGrade[grade] || [];
       if (heading) heading.textContent = `Class ${grade} NCERT Subjects`;
       if (note) note.textContent = supported
-        ? `NCERT curriculum · subject books and chapter links for Class ${grade}.`
-        : `No NCERT catalogue is configured for this class yet.`;
+        ? `NCERT curriculum · books and chapters for Class ${grade}. Senior-secondary subjects include major NCERT streams.`
+        : `NCERT subject catalogue is not available for this profile selection.`;
       const grid = document.getElementById('ncert-subjects-grid');
       if (grid) grid.innerHTML = '';
       renderSubjectStats({});
@@ -2118,14 +2116,6 @@
     }
 
     // ---- Render full subject cards ----
-    function getNCERTCatalogueUrl(subject) {
-      if (subject.catalogUrl) return subject.catalogUrl;
-      const firstPdf = subject.chapters?.find(ch => ch.pdfUrl)?.pdfUrl || '';
-      const filePart = firstPdf.split('/textbook/pdf/')[1] || '';
-      const match = filePart.match(/^([a-z]{4}[0-9])[0-9]{2}\.pdf$/i);
-      return match ? `https://ncert.nic.in/textbook.php?${match[1]}=0-${Math.max(1, subject.chapters.length)}` : '';
-    }
-
     function renderNCERTSubjects() {
       const grid = document.getElementById('ncert-subjects-grid');
       if (!grid) return;
@@ -2135,9 +2125,8 @@
         card.className = 'bg-surface-container-lowest rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.06)] overflow-hidden border';
         card.style.borderColor = subj.accent.border;
 
-        const subjectCatalogueUrl = getNCERTCatalogueUrl(subj);
         const chaptersHTML = subj.chapters.map(ch => `
-          <button type="button" onclick="openNCERTPDF(decodeURIComponent('${encodeURIComponent(ch.title).replace(/'/g,'%27')}'), '${encodeURIComponent(ch.pdfUrl || '').replace(/'/g,'%27')}', decodeURIComponent('${encodeURIComponent(subj.bookTitle).replace(/'/g,'%27')}'), decodeURIComponent('${encodeURIComponent(subjectCatalogueUrl).replace(/'/g,'%27')}'))" class="w-full text-left flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors group border-b border-slate-50 last:border-0">
+          <button type="button" onclick="openNCERTPDF(decodeURIComponent('${encodeURIComponent(ch.title).replace(/'/g,'%27')}'), '${encodeURIComponent(ch.pdfUrl || '').replace(/'/g,'%27')}', decodeURIComponent('${encodeURIComponent(subj.bookTitle).replace(/'/g,'%27')}'), '${encodeURIComponent(ch.catalogUrl || 'https://ncert.nic.in/textbook.php').replace(/'/g,'%27')}')" class="w-full text-left flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors group border-b border-slate-50 last:border-0">
             <span class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-extrabold flex-shrink-0"
               style="background:${subj.accent.badge};color:${subj.accent.badgeText}">${ch.num}</span>
             <span class="text-sm text-on-surface font-medium group-hover:text-primary transition-colors leading-snug">${ch.title}</span>
@@ -2170,7 +2159,7 @@
           <div id="ncert-chapters-${si}" class="hidden">
             <div class="px-4 py-2.5 flex items-center justify-between bg-surface-bright border-b" style="border-color:${subj.accent.border}">
               <span class="text-[10px] uppercase tracking-widest font-bold" style="color:${subj.accent.icon}">All Chapters</span>
-              <span class="text-[10px] font-semibold" style="color:${subj.accent.icon}">PDF reader opens inside RiSync</span>
+              <span class="text-[10px] font-semibold" style="color:${subj.accent.icon}">Opens the official NCERT PDF</span>
             </div>
             <div class="max-h-64 overflow-y-auto">
               ${chaptersHTML}
@@ -2182,47 +2171,56 @@
     }
 
     function openNCERTPDF(title, pdfUrl, bookTitle, catalogUrl) {
+      // NCERT may block its pages from being embedded in third-party iframes.
+      // Open verified chapter PDFs directly in the browser instead.
+      try { pdfUrl = decodeURIComponent(pdfUrl || ''); } catch(e) {}
+      const safePdfUrl = pdfUrl && /^https:\/\/ncert\.nic\.in\/textbook\/pdf\/[a-z0-9_-]+\.pdf(?:[?#].*)?$/i.test(pdfUrl)
+        ? pdfUrl : '';
+
+      if (safePdfUrl) {
+        const opened = window.open(safePdfUrl, '_blank', 'noopener,noreferrer');
+        if (!opened) {
+          // Popup blockers can prevent a new tab; reveal the direct link as a fallback.
+          const modal = document.getElementById('ncertPdfModal');
+          const frame = document.getElementById('ncertPdfFrame');
+          const unavailable = document.getElementById('ncertPdfUnavailable');
+          const download = document.getElementById('ncertPdfDownload');
+          document.getElementById('ncertPdfTitle').textContent = title || 'NCERT Textbook';
+          document.getElementById('ncertPdfSubtitle').textContent = (bookTitle || 'NCERT textbook') + ' · Official NCERT PDF';
+          frame.classList.add('hidden');
+          frame.removeAttribute('src');
+          unavailable.classList.remove('hidden');
+          unavailable.classList.add('flex');
+          const message = unavailable.querySelector('p');
+          if (message) message.textContent = 'Your browser blocked the new tab. Use the button above to open the chapter PDF.';
+          download.href = safePdfUrl;
+          download.textContent = 'Open chapter PDF';
+          download.classList.remove('hidden');
+          modal.classList.remove('hidden');
+          document.body.style.overflow = 'hidden';
+        }
+        return;
+      }
+
+      // Do not load the NCERT catalogue in an iframe. A direct chapter PDF
+      // must be mapped for this entry before it can be opened from RiSync.
       const modal = document.getElementById('ncertPdfModal');
       const frame = document.getElementById('ncertPdfFrame');
       const unavailable = document.getElementById('ncertPdfUnavailable');
       const download = document.getElementById('ncertPdfDownload');
-      const subtitle = document.getElementById('ncertPdfSubtitle');
       document.getElementById('ncertPdfTitle').textContent = title || 'NCERT Textbook';
+      document.getElementById('ncertPdfSubtitle').textContent = (bookTitle || 'NCERT textbook') + ' · Direct PDF link not mapped yet';
+      frame.classList.add('hidden');
+      frame.removeAttribute('src');
+      unavailable.classList.remove('hidden');
+      unavailable.classList.add('flex');
+      const message = unavailable.querySelector('p');
+      if (message) message.textContent = 'A verified direct PDF link has not been added for this chapter yet.';
+      download.removeAttribute('href');
+      download.textContent = 'PDF link unavailable';
+      download.classList.add('hidden');
       modal.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
-
-      const isDirectPDF = pdfUrl && /^https:\/\/ncert\.nic\.in\/textbook\/pdf\/[a-z0-9]+\.pdf(?:$|[?#])/i.test(pdfUrl);
-      const fallbackCatalogue = catalogUrl && /^https:\/\/ncert\.nic\.in\/textbook\.php\?[a-z0-9]+=[a-z0-9-]+$/i.test(catalogUrl);
-      if (isDirectPDF) {
-        subtitle.textContent = (bookTitle || 'NCERT textbook') + ' · RiSync PDF Reader';
-        unavailable.classList.add('hidden');
-        unavailable.classList.remove('flex');
-        frame.classList.remove('hidden');
-        frame.src = pdfUrl + (pdfUrl.includes('#') ? '' : '#toolbar=1&navpanes=0&view=FitH');
-        download.href = pdfUrl;
-        download.textContent = 'Download PDF';
-        download.classList.remove('hidden');
-      } else if (fallbackCatalogue) {
-        // Never strand the learner on a dead-end error panel. If an individual
-        // chapter URL is absent, show the official NCERT book catalogue in-app.
-        subtitle.textContent = (bookTitle || 'NCERT textbook') + ' · NCERT chapter catalogue';
-        unavailable.classList.add('hidden');
-        unavailable.classList.remove('flex');
-        frame.classList.remove('hidden');
-        frame.src = catalogUrl;
-        download.href = catalogUrl;
-        download.textContent = 'Open NCERT';
-        download.classList.toggle('hidden', !fallbackCatalogue);
-      } else {
-        subtitle.textContent = 'NCERT preview link needs verification';
-        frame.removeAttribute('src');
-        frame.classList.add('hidden');
-        unavailable.classList.remove('hidden');
-        unavailable.classList.add('flex');
-        download.classList.add('hidden');
-        const msg = unavailable.querySelector('p');
-        if (msg) msg.textContent = 'This chapter has no verified NCERT PDF or catalogue address yet.';
-      }
     }
     function closeNCERTPDF() {
       const modal = document.getElementById('ncertPdfModal');
