@@ -788,13 +788,31 @@
           <button type="button" onclick="closeNCERTPDF()" class="rounded-lg bg-slate-100 px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-200" aria-label="Close PDF reader">✕ <span class="hidden sm:inline">Close</span></button>
         </div>
       </div>
-      <div id="ncertPdfStage" class="min-h-0 flex-1 bg-slate-100">
-        <iframe id="ncertPdfFrame" title="NCERT textbook PDF" class="h-full w-full border-0" loading="eager" allow="fullscreen" referrerpolicy="strict-origin-when-cross-origin"></iframe>
-        <div id="ncertPdfUnavailable" class="hidden h-full items-center justify-center p-8 text-center">
-          <div class="max-w-md rounded-2xl bg-white p-7 shadow-sm">
+      <div id="ncertPdfStage" class="min-h-0 flex-1 bg-slate-100 flex flex-col">
+        <div id="ncertPdfToolbar" class="hidden shrink-0 items-center justify-center gap-2 border-b border-slate-200 bg-white px-3 py-2">
+          <button type="button" id="ncertPrevPage" class="rounded-lg bg-slate-100 px-3 py-2 text-sm font-bold text-slate-700 disabled:opacity-40">Previous</button>
+          <span class="text-sm font-semibold text-slate-700">Page <span id="ncertPageNum">1</span> of <span id="ncertPageCount">—</span></span>
+          <button type="button" id="ncertNextPage" class="rounded-lg bg-slate-100 px-3 py-2 text-sm font-bold text-slate-700 disabled:opacity-40">Next</button>
+          <button type="button" id="ncertZoomOut" class="rounded-lg bg-slate-100 px-3 py-2 text-sm font-bold text-slate-700">−</button>
+          <button type="button" id="ncertZoomIn" class="rounded-lg bg-slate-100 px-3 py-2 text-sm font-bold text-slate-700">+</button>
+        </div>
+        <div id="ncertPdfCanvasWrap" class="hidden min-h-0 flex-1 overflow-auto p-3 md:p-6">
+          <div class="mx-auto w-fit max-w-full rounded-lg bg-white shadow-lg">
+            <canvas id="ncertPdfCanvas" class="block max-w-full"></canvas>
+          </div>
+        </div>
+        <div id="ncertPdfLoading" class="hidden flex-1 items-center justify-center p-8 text-center">
+          <div class="rounded-2xl bg-white p-7 shadow-sm">
+            <div class="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-700"></div>
+            <p class="font-bold text-indigo-950">Loading chapter…</p>
+            <p class="mt-2 text-sm text-slate-500">RiSync is fetching the official NCERT PDF.</p>
+          </div>
+        </div>
+        <div id="ncertPdfUnavailable" class="hidden flex-1 items-center justify-center p-8 text-center">
+          <div class="max-w-lg rounded-2xl bg-white p-7 shadow-sm">
             <div class="mb-3 text-4xl">📘</div>
             <h3 class="text-lg font-extrabold text-indigo-950">Chapter preview unavailable</h3>
-            <p class="mt-2 text-sm leading-6 text-slate-600">The selected chapter does not currently have a verified PDF address. No external page has been opened.</p>
+            <p id="ncertPdfError" class="mt-2 text-sm leading-6 text-slate-600">The PDF could not be loaded.</p>
           </div>
         </div>
       </div>
@@ -2170,48 +2188,134 @@
       });
     }
 
-    function openNCERTPDF(title, pdfUrl, bookTitle, catalogUrl) {
-      // Keep the student inside content.html. The Google Docs viewer is used
-      // only as an embedded renderer because NCERT may deny direct iframe embedding.
+    // Configure this after deploying ncert-pdf-proxy-worker.js to Cloudflare.
+    // Example: https://risync-ncert-proxy.<your-account-subdomain>.workers.dev
+    const RISYNC_NCERT_PROXY = 'https://YOUR-WORKER-NAME.YOUR-SUBDOMAIN.workers.dev';
+    const PDFJS_VERSION = '4.10.38';
+    let risyncPdfDoc = null;
+    let risyncPdfPage = 1;
+    let risyncPdfScale = 1.15;
+    let risyncPdfRenderTask = null;
+    let risyncPdfJsPromise = null;
+
+    function getPdfJs() {
+      if (!risyncPdfJsPromise) {
+        risyncPdfJsPromise = import(`https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}/build/pdf.min.mjs`)
+          .then(pdfjsLib => {
+            pdfjsLib.GlobalWorkerOptions.workerSrc =
+              `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.min.mjs`;
+            return pdfjsLib;
+          });
+      }
+      return risyncPdfJsPromise;
+    }
+
+    function setPdfReaderState(state, message) {
+      const toolbar = document.getElementById('ncertPdfToolbar');
+      const canvasWrap = document.getElementById('ncertPdfCanvasWrap');
+      const loading = document.getElementById('ncertPdfLoading');
+      const unavailable = document.getElementById('ncertPdfUnavailable');
+      toolbar.classList.toggle('hidden', state !== 'ready');
+      toolbar.classList.toggle('flex', state === 'ready');
+      canvasWrap.classList.toggle('hidden', state !== 'ready');
+      loading.classList.toggle('hidden', state !== 'loading');
+      loading.classList.toggle('flex', state === 'loading');
+      unavailable.classList.toggle('hidden', state !== 'error');
+      unavailable.classList.toggle('flex', state === 'error');
+      if (message) document.getElementById('ncertPdfError').textContent = message;
+    }
+
+    async function renderRiSyncPdfPage() {
+      if (!risyncPdfDoc) return;
+      if (risyncPdfRenderTask) {
+        try { risyncPdfRenderTask.cancel(); } catch (e) {}
+        risyncPdfRenderTask = null;
+      }
+      const page = await risyncPdfDoc.getPage(risyncPdfPage);
+      const canvas = document.getElementById('ncertPdfCanvas');
+      const context = canvas.getContext('2d');
+      const viewport = page.getViewport({ scale: risyncPdfScale });
+      const finalViewport = page.getViewport({ scale: risyncPdfScale });
+      const pixelRatio = window.devicePixelRatio || 1;
+      canvas.width = Math.floor(finalViewport.width * pixelRatio);
+      canvas.height = Math.floor(finalViewport.height * pixelRatio);
+      canvas.style.width = `${Math.floor(finalViewport.width)}px`;
+      canvas.style.height = `${Math.floor(finalViewport.height)}px`;
+      canvas.style.maxWidth = 'none';
+      context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+      risyncPdfRenderTask = page.render({ canvasContext: context, viewport: finalViewport });
+      await risyncPdfRenderTask.promise;
+      document.getElementById('ncertPageNum').textContent = String(risyncPdfPage);
+      document.getElementById('ncertPageCount').textContent = String(risyncPdfDoc.numPages);
+      document.getElementById('ncertPrevPage').disabled = risyncPdfPage <= 1;
+      document.getElementById('ncertNextPage').disabled = risyncPdfPage >= risyncPdfDoc.numPages;
+    }
+
+    async function openNCERTPDF(title, pdfUrl, bookTitle, catalogUrl) {
       try { pdfUrl = decodeURIComponent(pdfUrl || ''); } catch(e) {}
       const safePdfUrl = pdfUrl && /^https:\/\/ncert\.nic\.in\/textbook\/pdf\/[a-z0-9_-]+\.pdf(?:[?#].*)?$/i.test(pdfUrl)
         ? pdfUrl : '';
-
       const modal = document.getElementById('ncertPdfModal');
-      const frame = document.getElementById('ncertPdfFrame');
-      const unavailable = document.getElementById('ncertPdfUnavailable');
       const download = document.getElementById('ncertPdfDownload');
       document.getElementById('ncertPdfTitle').textContent = title || 'NCERT Textbook';
-      document.getElementById('ncertPdfSubtitle').textContent = (bookTitle || 'NCERT textbook') + ' · RiSync in-page reader';
-      unavailable.classList.add('hidden');
-      unavailable.classList.remove('flex');
-      download.classList.add('hidden');
-      download.removeAttribute('href');
-
-      if (!safePdfUrl) {
-        frame.classList.add('hidden');
-        frame.removeAttribute('src');
-        unavailable.classList.remove('hidden');
-        unavailable.classList.add('flex');
-        const message = unavailable.querySelector('p');
-        if (message) message.textContent = 'A verified direct PDF link has not been mapped for this chapter yet.';
-      } else {
-        // Embedded viewer: content.html remains the active page; no new tab or redirect.
-        const viewerUrl = 'https://docs.google.com/gview?embedded=1&url=' + encodeURIComponent(safePdfUrl);
-        frame.classList.remove('hidden');
-        frame.src = viewerUrl;
-      }
-
+      document.getElementById('ncertPdfSubtitle').textContent = (bookTitle || 'NCERT textbook') + ' · RiSync PDF reader';
       modal.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
+      setPdfReaderState('loading');
+
+      if (!safePdfUrl) {
+        setPdfReaderState('error', 'A direct NCERT PDF URL has not been mapped for this chapter yet.');
+        return;
+      }
+      if (RISYNC_NCERT_PROXY.includes('YOUR-WORKER-NAME')) {
+        setPdfReaderState('error', 'The RiSync PDF service needs its Cloudflare Worker URL configured before PDFs can load.');
+        return;
+      }
+
+      try {
+        const proxyUrl = `${RISYNC_NCERT_PROXY.replace(/\/$/, '')}/?url=${encodeURIComponent(safePdfUrl)}`;
+        download.href = proxyUrl;
+        download.classList.remove('hidden');
+        const pdfjsLib = await getPdfJs();
+        const loadingTask = pdfjsLib.getDocument({ url: proxyUrl, withCredentials: false });
+        risyncPdfDoc = await loadingTask.promise;
+        risyncPdfPage = 1;
+        risyncPdfScale = 1.15;
+        await renderRiSyncPdfPage();
+        setPdfReaderState('ready');
+        await renderRiSyncPdfPage();
+      } catch (error) {
+        console.error('RiSync NCERT PDF load error:', error);
+        setPdfReaderState('error', 'The PDF could not be loaded. Check that the Cloudflare Worker is deployed, its URL is configured here, and the NCERT PDF is reachable.');
+      }
     }
+
     function closeNCERTPDF() {
       const modal = document.getElementById('ncertPdfModal');
-      const frame = document.getElementById('ncertPdfFrame');
-      if (frame) frame.removeAttribute('src');
+      if (risyncPdfRenderTask) {
+        try { risyncPdfRenderTask.cancel(); } catch (e) {}
+        risyncPdfRenderTask = null;
+      }
+      if (risyncPdfDoc) {
+        try { risyncPdfDoc.destroy(); } catch (e) {}
+        risyncPdfDoc = null;
+      }
       modal.classList.add('hidden');
       document.body.style.overflow = '';
     }
+
+    document.getElementById('ncertPrevPage').addEventListener('click', async () => {
+      if (risyncPdfPage > 1) { risyncPdfPage--; await renderRiSyncPdfPage(); }
+    });
+    document.getElementById('ncertNextPage').addEventListener('click', async () => {
+      if (risyncPdfDoc && risyncPdfPage < risyncPdfDoc.numPages) { risyncPdfPage++; await renderRiSyncPdfPage(); }
+    });
+    document.getElementById('ncertZoomIn').addEventListener('click', async () => {
+      risyncPdfScale = Math.min(2.5, risyncPdfScale + 0.15); await renderRiSyncPdfPage();
+    });
+    document.getElementById('ncertZoomOut').addEventListener('click', async () => {
+      risyncPdfScale = Math.max(0.6, risyncPdfScale - 0.15); await renderRiSyncPdfPage();
+    });
     document.addEventListener('keydown', event => { if (event.key === 'Escape') closeNCERTPDF(); });
 
     function toggleNCERTCard(index) {
