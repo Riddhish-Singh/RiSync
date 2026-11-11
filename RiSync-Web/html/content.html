@@ -404,6 +404,22 @@
     /* ---- Page fade in ---- */
     @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
     .content-area { animation: fadeIn 0.4s ease-out; }
+    /* ===== Notifications panel ===== */
+    .notif-item { display:flex; gap:12px; padding:12px 16px; border-bottom:1px solid #f1f5f9; text-align:left; }
+    .notif-item.unread { background:#f5f5ff; }
+    .notif-icon { flex:none; width:36px; height:36px; border-radius:50%; background:#e0e0ff; color:#15157d; display:flex; align-items:center; justify-content:center; }
+    .notif-body { flex:1; min-width:0; font-size:13px; line-height:1.4; color:#334155; word-break:break-word; }
+    .notif-body b { color:#15157d; }
+    .notif-msg { margin-top:4px; padding:6px 8px; background:#f1f5f9; border-radius:8px; font-style:italic; font-size:12px; }
+    .notif-time { font-size:11px; color:#94a3b8; margin-top:4px; }
+    .notif-actions { display:flex; gap:8px; margin-top:8px; align-items:center; }
+    .notif-btn { border:none; border-radius:8px; padding:6px 14px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit; text-decoration:none; display:inline-block; }
+    .notif-btn.primary { background:#15157d; color:#fff; }
+    .notif-btn.ghost { background:#e2e8f0; color:#334155; }
+    .notif-btn:disabled { opacity:.6; cursor:default; }
+    .notif-state { font-size:12px; font-weight:700; color:#64748b; }
+    .notif-empty { padding:32px 16px; text-align:center; color:#94a3b8; font-size:13px; }
+    @media (max-width:640px) { #notifPanel { position:fixed !important; left:8px; right:8px; top:68px; width:auto !important; max-width:none !important; } }
   </style>
 </head>
 <body class="flex min-h-screen">
@@ -544,10 +560,20 @@
           </div>
           <ul class="language-dropdown-list" id="language-dropdown-list"></ul>
         </div>
-        <button class="p-2 text-slate-500 hover:bg-slate-200/50 rounded-lg transition-all relative">
-          <span class="material-symbols-outlined">notifications</span>
-          <span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
-        </button>
+        <!-- Notifications -->
+        <div class="relative" id="notifWrap">
+          <button class="p-2 text-slate-500 hover:bg-slate-200/50 rounded-lg transition-all relative" id="notifBtn" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+            <span class="material-symbols-outlined">notifications</span>
+            <span id="notifBadge" class="absolute top-0.5 right-0.5 min-w-[16px] h-4 px-1 bg-error text-white text-[10px] font-bold rounded-full items-center justify-center" style="display:none;">0</span>
+          </button>
+          <div id="notifPanel" class="absolute right-0 top-12 w-[22rem] max-w-[92vw] bg-white rounded-2xl border border-slate-200 shadow-[0_12px_42px_rgba(0,0,0,0.18)] z-50 overflow-hidden" style="display:none;">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100">
+              <span class="text-sm font-extrabold text-indigo-900">Notifications</span>
+              <button id="notifMarkAll" class="text-xs font-bold text-indigo-600 hover:underline" type="button">Mark all read</button>
+            </div>
+            <div id="notifList" class="max-h-[24rem] overflow-y-auto"></div>
+          </div>
+        </div>
         <div class="relative">
           <button class="p-2 text-slate-500 hover:bg-slate-200/50 rounded-lg transition-all" id="settingsIcon">
             <span class="material-symbols-outlined">settings</span>
@@ -788,31 +814,13 @@
           <button type="button" onclick="closeNCERTPDF()" class="rounded-lg bg-slate-100 px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-200" aria-label="Close PDF reader">✕ <span class="hidden sm:inline">Close</span></button>
         </div>
       </div>
-      <div id="ncertPdfStage" class="min-h-0 flex-1 bg-slate-100 flex flex-col">
-        <div id="ncertPdfToolbar" class="hidden shrink-0 items-center justify-center gap-2 border-b border-slate-200 bg-white px-3 py-2">
-          <button type="button" id="ncertPrevPage" class="rounded-lg bg-slate-100 px-3 py-2 text-sm font-bold text-slate-700 disabled:opacity-40">Previous</button>
-          <span class="text-sm font-semibold text-slate-700">Page <span id="ncertPageNum">1</span> of <span id="ncertPageCount">—</span></span>
-          <button type="button" id="ncertNextPage" class="rounded-lg bg-slate-100 px-3 py-2 text-sm font-bold text-slate-700 disabled:opacity-40">Next</button>
-          <button type="button" id="ncertZoomOut" class="rounded-lg bg-slate-100 px-3 py-2 text-sm font-bold text-slate-700">−</button>
-          <button type="button" id="ncertZoomIn" class="rounded-lg bg-slate-100 px-3 py-2 text-sm font-bold text-slate-700">+</button>
-        </div>
-        <div id="ncertPdfCanvasWrap" class="hidden min-h-0 flex-1 overflow-auto p-3 md:p-6">
-          <div class="mx-auto w-fit max-w-full rounded-lg bg-white shadow-lg">
-            <canvas id="ncertPdfCanvas" class="block max-w-full"></canvas>
-          </div>
-        </div>
-        <div id="ncertPdfLoading" class="hidden flex-1 items-center justify-center p-8 text-center">
-          <div class="rounded-2xl bg-white p-7 shadow-sm">
-            <div class="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-700"></div>
-            <p class="font-bold text-indigo-950">Loading chapter…</p>
-            <p class="mt-2 text-sm text-slate-500">RiSync is fetching the official NCERT PDF.</p>
-          </div>
-        </div>
-        <div id="ncertPdfUnavailable" class="hidden flex-1 items-center justify-center p-8 text-center">
-          <div class="max-w-lg rounded-2xl bg-white p-7 shadow-sm">
+      <div id="ncertPdfStage" class="min-h-0 flex-1 bg-slate-100">
+        <iframe id="ncertPdfFrame" title="NCERT textbook PDF" class="h-full w-full border-0" loading="lazy" allow="fullscreen" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        <div id="ncertPdfUnavailable" class="hidden h-full items-center justify-center p-8 text-center">
+          <div class="max-w-md rounded-2xl bg-white p-7 shadow-sm">
             <div class="mb-3 text-4xl">📘</div>
             <h3 class="text-lg font-extrabold text-indigo-950">Chapter preview unavailable</h3>
-            <p id="ncertPdfError" class="mt-2 text-sm leading-6 text-slate-600">The PDF could not be loaded.</p>
+            <p class="mt-2 text-sm leading-6 text-slate-600">The selected chapter does not currently have a verified PDF address. No external page has been opened.</p>
           </div>
         </div>
       </div>
@@ -1175,6 +1183,158 @@
       if (!auth.currentUser) throw new Error("Please sign in again.");
       await setDoc(doc(db, "users", auth.currentUser.uid), profileData, { merge: true });
     };
+  </script>
+
+  <!-- ===== Notifications (room invites from RiSync-CHAT) ===== -->
+  <script type="module">
+    import { getApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, updateDoc, onSnapshot, query, where, writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+    const app = getApp();               // default app created by the module above
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const wrap = document.getElementById('notifWrap');
+    const btn = document.getElementById('notifBtn');
+    const panel = document.getElementById('notifPanel');
+    const badge = document.getElementById('notifBadge');
+    const list = document.getElementById('notifList');
+    const markAll = document.getElementById('notifMarkAll');
+
+    let myEmail = '';
+    let items = [];
+    let unsub = null;
+
+    const encId = (s) => encodeURIComponent(s);
+    const memId = (email, roomId) => `${encId(email)}__${encId(roomId)}`;
+
+    function timeAgo(ms) {
+      const m = Math.floor((Date.now() - ms) / 60000);
+      if (m < 1) return 'Just now';
+      if (m < 60) return m + ' min ago';
+      const h = Math.floor(m / 60);
+      if (h < 24) return h + ' hr ago';
+      const d = Math.floor(h / 24);
+      return d + (d === 1 ? ' day ago' : ' days ago');
+    }
+
+    function toast(title, msg) { if (typeof showVoiceAlert === 'function') showVoiceAlert(title, msg); }
+
+    function setOpen(open) {
+      panel.style.display = open ? 'block' : 'none';
+      btn.setAttribute('aria-expanded', String(open));
+    }
+
+    function el(tag, cls, text) {
+      const e = document.createElement(tag);
+      if (cls) e.className = cls;
+      if (text !== undefined) e.textContent = text;
+      return e;
+    }
+
+    async function respond(n, accept, acceptBtn, declineBtn) {
+      acceptBtn.disabled = true; declineBtn.disabled = true;
+      try {
+        if (accept) {
+          await setDoc(doc(db, 'memberships', memId(myEmail, n.roomId)), {
+            email: myEmail, roomId: n.roomId, title: n.title || 'Group',
+            via: 'notification', invitedBy: n.fromEmail || '', joinedAt: serverTimestamp()
+          }, { merge: true });
+        }
+        await updateDoc(doc(db, 'notifications', n.id), { status: accept ? 'accepted' : 'declined', read: true });
+        toast(accept ? 'Joined' : 'Declined', accept ? `You joined ${n.title || 'the chat'}` : 'Invite declined');
+      } catch (e) {
+        console.error('Notification response failed:', e);
+        acceptBtn.disabled = false; declineBtn.disabled = false;
+        toast('Something went wrong', 'Please try again.');
+      }
+    }
+
+    function render() {
+      list.innerHTML = '';
+      const unread = items.filter(n => !n.read).length;
+      badge.textContent = unread > 9 ? '9+' : String(unread);
+      badge.style.display = unread ? 'flex' : 'none';
+      markAll.style.display = unread ? '' : 'none';
+
+      if (!items.length) { list.appendChild(el('div', 'notif-empty', 'No notifications yet')); return; }
+
+      items.forEach(n => {
+        const row = el('div', 'notif-item' + (n.read ? '' : ' unread'));
+        const icon = el('div', 'notif-icon');
+        const ic = el('span', 'material-symbols-outlined', n.type === 'room_invite' ? 'group_add' : 'notifications');
+        ic.style.fontSize = '20px';
+        icon.appendChild(ic);
+
+        const body = el('div', 'notif-body');
+        if (n.type === 'room_invite') {
+          const line = el('div');
+          line.appendChild(el('b', '', n.fromName || n.fromEmail || 'Someone'));
+          line.appendChild(document.createTextNode(' invited you to join '));
+          line.appendChild(el('b', '', n.title || 'a chat'));
+          body.appendChild(line);
+          if (n.message) body.appendChild(el('div', 'notif-msg', n.message));
+        } else {
+          if (n.title) body.appendChild(el('b', '', n.title));
+          if (n.message) body.appendChild(el('div', '', n.message));
+        }
+        body.appendChild(el('div', 'notif-time', timeAgo(n.ms)));
+
+        if (n.type === 'room_invite') {
+          const actions = el('div', 'notif-actions');
+          if (n.status === 'accepted') {
+            actions.appendChild(el('span', 'notif-state', 'Joined'));
+            const open = el('a', 'notif-btn primary', 'Open chat');
+            open.href = `RiSync-CHAT?room=${encodeURIComponent(n.roomId)}&title=${encodeURIComponent(n.title || '')}`;
+            actions.appendChild(open);
+          } else if (n.status === 'declined') {
+            actions.appendChild(el('span', 'notif-state', 'Declined'));
+          } else {
+            const acc = el('button', 'notif-btn primary', 'Accept'); acc.type = 'button';
+            const dec = el('button', 'notif-btn ghost', 'Decline'); dec.type = 'button';
+            acc.onclick = (e) => { e.stopPropagation(); respond(n, true, acc, dec); };
+            dec.onclick = (e) => { e.stopPropagation(); respond(n, false, acc, dec); };
+            actions.append(acc, dec);
+          }
+          body.appendChild(actions);
+        }
+
+        row.append(icon, body);
+        if (!n.read && !(n.type === 'room_invite' && !n.status)) {
+          row.style.cursor = 'pointer';
+          row.onclick = () => updateDoc(doc(db, 'notifications', n.id), { read: true }).catch(() => {});
+        }
+        list.appendChild(row);
+      });
+    }
+
+    btn.addEventListener('click', (e) => { e.stopPropagation(); setOpen(panel.style.display === 'none'); });
+    document.addEventListener('click', (e) => { if (!wrap.contains(e.target)) setOpen(false); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
+
+    markAll.addEventListener('click', async () => {
+      const batch = writeBatch(db);
+      let count = 0;
+      items.filter(n => !n.read).forEach(n => { batch.update(doc(db, 'notifications', n.id), { read: true }); count++; });
+      if (count) { try { await batch.commit(); } catch (e) { console.error(e); } }
+    });
+
+    onAuthStateChanged(auth, (user) => {
+      if (unsub) { unsub(); unsub = null; }
+      items = [];
+      myEmail = user && user.email ? user.email.toLowerCase() : '';
+      render();
+      if (!myEmail) return;
+      unsub = onSnapshot(query(collection(db, 'notifications'), where('toEmail', '==', myEmail)), (snap) => {
+        items = snap.docs.map(d => {
+          const data = d.data();
+          const ms = data.createdAt && data.createdAt.toMillis ? data.createdAt.toMillis() : Date.now();
+          return { id: d.id, ...data, ms };
+        }).sort((a, b) => b.ms - a.ms).slice(0, 50);
+        render();
+      }, (err) => console.error('Notifications listener:', err));
+    });
   </script>
 
   <!-- ===== NON-MODULE SCRIPT ===== -->
@@ -1768,6 +1928,50 @@
     // Exact NCERT chapter-PDF URL builder; volume chapter numbers restart at 01.
     const ncertPdf = (bookCode, chapterNo) => `https://ncert.nic.in/textbook/pdf/${bookCode}${String(chapterNo).padStart(2,'0')}.pdf`;
 
+
+    // Primary-stage NCERT catalogue (Classes 1–5). Chapter numbering follows the
+    // official NCERT catalogue; PDF files remain hosted by NCERT.
+    const primaryGrade = (grade) => {
+      const activePrimaryGrade = String(grade);
+      const configs = {
+        '1': [
+          ['english','English','Mridang','aemr1',9,'menu_book','english','0-9'],
+          ['mathematics','Mathematics','Joyful Mathematics','aejm1',13,'calculate','math','1-13'],
+          ['hindi','Hindi','Sarangi','asar1',12,'translate','hindi','0-12']
+        ],
+        '2': [
+          ['english','English','Mridang','bemr1',9,'menu_book','english','0-9'],
+          ['mathematics','Mathematics','Joyful Mathematics','bejm1',11,'calculate','math','2-11'],
+          ['hindi','Hindi','Sarangi','bsar1',12,'translate','hindi','0-12']
+        ],
+        '3': [
+          ['english','English','Santoor','cesa1',12,'menu_book','english','1-12'],
+          ['mathematics','Mathematics','Maths Mela','cemm1',14,'calculate','math','0-14'],
+          ['hindi','Hindi','Veena','chve1',18,'translate','hindi','4-18'],
+          ['environment','Environmental Studies','Our Wondrous World','ceev1',12,'public','social','0-12']
+        ],
+        '4': [
+          ['english','English','Santoor','desa1',12,'menu_book','english','9-12'],
+          ['mathematics','Mathematics','Maths Mela','demm1',14,'calculate','math','6-14'],
+          ['hindi','Hindi','Veena','dhve1',18,'translate','hindi','4-18'],
+          ['environment','Environmental Studies','Looking Around','deap1',27,'public','social','0-27']
+        ],
+        '5': [
+          ['english','English','Santoor','eesa1',10,'menu_book','english','0-10'],
+          ['mathematics','Mathematics','Maths Mela','eemm1',14,'calculate','math','0-14'],
+          ['hindi','Hindi','Veena','ehve1',12,'translate','hindi','0-12'],
+          ['environment','Environmental Studies','Looking Around','eeap1',22,'public','social','0-22']
+        ]
+      };
+      return (configs[activePrimaryGrade] || []).map(([key,title,book,code,count,icon,accent,range]) => ({
+        key,icon,title,bookTitle:book,
+        description:`NCERT Class ${activePrimaryGrade} · ${book}`,
+        accent:palette[accent],
+        catalogUrl:`https://ncert.nic.in/textbook.php?${code}=${range}`,
+        chapters:Array.from({length:count},(_,i)=>({num:i+1,title:`Chapter ${i+1}`,url:'ncert',pdfUrl:ncertPdf(code,i+1)}))
+      }));
+    };
+
     const class6Subjects = [
       {
         key: 'mathematics',
@@ -1927,48 +2131,6 @@
       hindi:{bg:'#fdeaea',border:'#ffdad6',icon:'#ba1a1a',badge:'#ba1a1a',badgeText:'#fff'},
       commerce:{bg:'#fff7e8',border:'#f4d7a1',icon:'#925b00',badge:'#925b00',badgeText:'#fff'}
     };
-
-    // NCERT primary-stage catalogue (Classes 1–5).
-    // Chapter names are kept neutral where NCERT's chapter titles are not exposed
-    // by the catalogue index; the official chapter PDF/catalogue remains the source.
-    const primaryPalette = { math:palette.math, english:palette.english, hindi:palette.hindi, evs:palette.science };
-    const primarySubject = (key,title,bookTitle,description,icon,count,pdfCode,catalogUrl,accentKey) => ({
-      key,title,bookTitle,description,icon,accent:primaryPalette[accentKey],
-      chapters:Array.from({length:count},(_,i)=>({
-        num:i+1,title:`Chapter ${i+1}`,
-        pdfUrl:pdfCode?ncertPdf(pdfCode,i+1):'',
-        catalogUrl:catalogUrl||'https://ncert.nic.in/textbook.php'
-      }))
-    });
-    const class1Subjects = [
-      primarySubject('hindi','Hindi','Sarangi','NCERT Class 1 Hindi · Sarangi','translate',19,'ahsr1','https://ncert.nic.in/textbook.php?ahsr1=0-19','hindi'),
-      primarySubject('english','English','Mridang','NCERT Class 1 English · Mridang','menu_book',9,'aemr1','https://ncert.nic.in/textbook.php?aemr1=0-9','english'),
-      primarySubject('mathematics','Mathematics','Joyful Mathematics','NCERT Class 1 Mathematics · Joyful Mathematics','calculate',11,'aejm1','https://ncert.nic.in/textbook.php?aejm1=1-11','math')
-    ];
-    const class2Subjects = [
-      primarySubject('hindi','Hindi','Sarangi','NCERT Class 2 Hindi · Sarangi','translate',19,'bhsr1','https://ncert.nic.in/textbook.php?bhsr1=0-19','hindi'),
-      primarySubject('english','English','Mridang','NCERT Class 2 English · Mridang','menu_book',9,'bemr1','https://ncert.nic.in/textbook.php?bemr1=0-9','english'),
-      primarySubject('mathematics','Mathematics','Joyful Mathematics','NCERT Class 2 Mathematics · Joyful Mathematics','calculate',11,'bejm1','https://ncert.nic.in/textbook.php?bejm1=0-11','math')
-    ];
-    const class3Subjects = [
-      primarySubject('hindi','Hindi','Veena','NCERT Class 3 Hindi · Veena','translate',14,'chve1','https://ncert.nic.in/textbook.php','hindi'),
-      primarySubject('english','English','Santoor','NCERT Class 3 English · Santoor','menu_book',10,'','https://ncert.nic.in/textbook.php','english'),
-      primarySubject('mathematics','Mathematics','Maths Mela','NCERT Class 3 Mathematics · Maths Mela','calculate',14,'cemm1','https://ncert.nic.in/textbook.php?cemm1=0-14','math'),
-      primarySubject('environmental_studies','Environmental Studies','Our Wondrous World','NCERT Class 3 EVS · Our Wondrous World','science',10,'','https://ncert.nic.in/textbook.php','evs')
-    ];
-    const class4Subjects = [
-      primarySubject('hindi','Hindi','Veena','NCERT Class 4 Hindi · Veena','translate',14,'dhve1','https://ncert.nic.in/textbook.php','hindi'),
-      primarySubject('english','English','Santoor','NCERT Class 4 English · Santoor','menu_book',10,'','https://ncert.nic.in/textbook.php','english'),
-      primarySubject('mathematics','Mathematics','Maths Mela','NCERT Class 4 Mathematics · Maths Mela','calculate',14,'demm1','https://ncert.nic.in/textbook.php','math'),
-      primarySubject('environmental_studies','Environmental Studies','Our Wondrous World','NCERT Class 4 EVS · Our Wondrous World','science',10,'','https://ncert.nic.in/textbook.php','evs')
-    ];
-    const class5Subjects = [
-      primarySubject('hindi','Hindi','Veena','NCERT Class 5 Hindi · Veena','translate',14,'ehve1','https://ncert.nic.in/textbook.php','hindi'),
-      primarySubject('english','English','Santoor','NCERT Class 5 English · Santoor','menu_book',10,'','https://ncert.nic.in/textbook.php','english'),
-      primarySubject('mathematics','Mathematics','Maths Mela','NCERT Class 5 Mathematics · Maths Mela','calculate',14,'eemm1','https://ncert.nic.in/textbook.php','math'),
-      primarySubject('environmental_studies','Environmental Studies','Our Wondrous World','NCERT Class 5 EVS · Our Wondrous World','science',10,'','https://ncert.nic.in/textbook.php','evs')
-    ];
-
     const subject = (key,title,bookTitle,description,icon,titles,code,accent='math') => ({
       key,icon,title,bookTitle,description,accent:palette[accent],chapters:makeChapters(titles,code)
     });
@@ -1985,7 +2147,7 @@
       ],'iess1','social'),
       subject('english','English','Kaveri','NCERT Class 9 · English','menu_book',[
         'How I Taught My Grandmother to Read','The Pot Maker','A Journey to the Hills','The World of Books','The Girl Who Was a Friend','The Adventures of Toto','The Last Leaf','A House Is Not a Home'
-      ],'ieka1','english')
+      ],'iebe1','english')
     ];
 
     const class10Subjects = [
@@ -2069,8 +2231,8 @@
       const heading = document.querySelector('#ncert-subjects-grid')?.closest('section')?.querySelector('h3');
       const note = heading?.parentElement?.querySelector('p');
       const curriculumByGrade = {
-        '1': class1Subjects, '2': class2Subjects, '3': class3Subjects,
-        '4': class4Subjects, '5': class5Subjects,
+        '1': primaryGrade('1'), '2': primaryGrade('2'), '3': primaryGrade('3'),
+        '4': primaryGrade('4'), '5': primaryGrade('5'),
         '6': class6Subjects, '7': class7Subjects, '8': class8Subjects,
         '9': class9Subjects, '10': class10Subjects,
         '11': class11Subjects, '12': class12Subjects
@@ -2079,8 +2241,8 @@
       ncertSubjects = curriculumByGrade[grade] || [];
       if (heading) heading.textContent = `Class ${grade} NCERT Subjects`;
       if (note) note.textContent = supported
-        ? `NCERT curriculum · books and chapters for Class ${grade}. Senior-secondary subjects include major NCERT streams.`
-        : `NCERT subject catalogue is not available for this profile selection.`;
+        ? `NCERT curriculum · subject books and chapter links for Class ${grade}.`
+        : `No NCERT catalogue is configured for this class yet.`;
       const grid = document.getElementById('ncert-subjects-grid');
       if (grid) grid.innerHTML = '';
       renderSubjectStats({});
@@ -2134,6 +2296,14 @@
     }
 
     // ---- Render full subject cards ----
+    function getNCERTCatalogueUrl(subject) {
+      if (subject.catalogUrl) return subject.catalogUrl;
+      const firstPdf = subject.chapters?.find(ch => ch.pdfUrl)?.pdfUrl || '';
+      const filePart = firstPdf.split('/textbook/pdf/')[1] || '';
+      const match = filePart.match(/^([a-z]{4}[0-9])[0-9]{2}\.pdf$/i);
+      return match ? `https://ncert.nic.in/textbook.php?${match[1]}=0-${Math.max(1, subject.chapters.length)}` : '';
+    }
+
     function renderNCERTSubjects() {
       const grid = document.getElementById('ncert-subjects-grid');
       if (!grid) return;
@@ -2143,8 +2313,9 @@
         card.className = 'bg-surface-container-lowest rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.06)] overflow-hidden border';
         card.style.borderColor = subj.accent.border;
 
+        const subjectCatalogueUrl = getNCERTCatalogueUrl(subj);
         const chaptersHTML = subj.chapters.map(ch => `
-          <button type="button" onclick="openNCERTPDF(decodeURIComponent('${encodeURIComponent(ch.title).replace(/'/g,'%27')}'), '${encodeURIComponent(ch.pdfUrl || '').replace(/'/g,'%27')}', decodeURIComponent('${encodeURIComponent(subj.bookTitle).replace(/'/g,'%27')}'), '${encodeURIComponent(ch.catalogUrl || 'https://ncert.nic.in/textbook.php').replace(/'/g,'%27')}')" class="w-full text-left flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors group border-b border-slate-50 last:border-0">
+          <button type="button" onclick="openNCERTPDF(decodeURIComponent('${encodeURIComponent(ch.title).replace(/'/g,'%27')}'), '${encodeURIComponent(ch.pdfUrl || '').replace(/'/g,'%27')}', decodeURIComponent('${encodeURIComponent(subj.bookTitle).replace(/'/g,'%27')}'), decodeURIComponent('${encodeURIComponent(subjectCatalogueUrl).replace(/'/g,'%27')}'))" class="w-full text-left flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors group border-b border-slate-50 last:border-0">
             <span class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-extrabold flex-shrink-0"
               style="background:${subj.accent.badge};color:${subj.accent.badgeText}">${ch.num}</span>
             <span class="text-sm text-on-surface font-medium group-hover:text-primary transition-colors leading-snug">${ch.title}</span>
@@ -2177,7 +2348,7 @@
           <div id="ncert-chapters-${si}" class="hidden">
             <div class="px-4 py-2.5 flex items-center justify-between bg-surface-bright border-b" style="border-color:${subj.accent.border}">
               <span class="text-[10px] uppercase tracking-widest font-bold" style="color:${subj.accent.icon}">All Chapters</span>
-              <span class="text-[10px] font-semibold" style="color:${subj.accent.icon}">Opens the official NCERT PDF</span>
+              <span class="text-[10px] font-semibold" style="color:${subj.accent.icon}">PDF reader opens inside RiSync</span>
             </div>
             <div class="max-h-64 overflow-y-auto">
               ${chaptersHTML}
@@ -2188,134 +2359,56 @@
       });
     }
 
-    // Configure this after deploying ncert-pdf-proxy-worker.js to Cloudflare.
-    // Example: https://risync-ncert-proxy.<your-account-subdomain>.workers.dev
-    const RISYNC_NCERT_PROXY = 'https://YOUR-WORKER-NAME.YOUR-SUBDOMAIN.workers.dev';
-    const PDFJS_VERSION = '4.10.38';
-    let risyncPdfDoc = null;
-    let risyncPdfPage = 1;
-    let risyncPdfScale = 1.15;
-    let risyncPdfRenderTask = null;
-    let risyncPdfJsPromise = null;
-
-    function getPdfJs() {
-      if (!risyncPdfJsPromise) {
-        risyncPdfJsPromise = import(`https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}/build/pdf.min.mjs`)
-          .then(pdfjsLib => {
-            pdfjsLib.GlobalWorkerOptions.workerSrc =
-              `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.min.mjs`;
-            return pdfjsLib;
-          });
-      }
-      return risyncPdfJsPromise;
-    }
-
-    function setPdfReaderState(state, message) {
-      const toolbar = document.getElementById('ncertPdfToolbar');
-      const canvasWrap = document.getElementById('ncertPdfCanvasWrap');
-      const loading = document.getElementById('ncertPdfLoading');
-      const unavailable = document.getElementById('ncertPdfUnavailable');
-      toolbar.classList.toggle('hidden', state !== 'ready');
-      toolbar.classList.toggle('flex', state === 'ready');
-      canvasWrap.classList.toggle('hidden', state !== 'ready');
-      loading.classList.toggle('hidden', state !== 'loading');
-      loading.classList.toggle('flex', state === 'loading');
-      unavailable.classList.toggle('hidden', state !== 'error');
-      unavailable.classList.toggle('flex', state === 'error');
-      if (message) document.getElementById('ncertPdfError').textContent = message;
-    }
-
-    async function renderRiSyncPdfPage() {
-      if (!risyncPdfDoc) return;
-      if (risyncPdfRenderTask) {
-        try { risyncPdfRenderTask.cancel(); } catch (e) {}
-        risyncPdfRenderTask = null;
-      }
-      const page = await risyncPdfDoc.getPage(risyncPdfPage);
-      const canvas = document.getElementById('ncertPdfCanvas');
-      const context = canvas.getContext('2d');
-      const viewport = page.getViewport({ scale: risyncPdfScale });
-      const finalViewport = page.getViewport({ scale: risyncPdfScale });
-      const pixelRatio = window.devicePixelRatio || 1;
-      canvas.width = Math.floor(finalViewport.width * pixelRatio);
-      canvas.height = Math.floor(finalViewport.height * pixelRatio);
-      canvas.style.width = `${Math.floor(finalViewport.width)}px`;
-      canvas.style.height = `${Math.floor(finalViewport.height)}px`;
-      canvas.style.maxWidth = 'none';
-      context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-      risyncPdfRenderTask = page.render({ canvasContext: context, viewport: finalViewport });
-      await risyncPdfRenderTask.promise;
-      document.getElementById('ncertPageNum').textContent = String(risyncPdfPage);
-      document.getElementById('ncertPageCount').textContent = String(risyncPdfDoc.numPages);
-      document.getElementById('ncertPrevPage').disabled = risyncPdfPage <= 1;
-      document.getElementById('ncertNextPage').disabled = risyncPdfPage >= risyncPdfDoc.numPages;
-    }
-
-    async function openNCERTPDF(title, pdfUrl, bookTitle, catalogUrl) {
-      try { pdfUrl = decodeURIComponent(pdfUrl || ''); } catch(e) {}
-      const safePdfUrl = pdfUrl && /^https:\/\/ncert\.nic\.in\/textbook\/pdf\/[a-z0-9_-]+\.pdf(?:[?#].*)?$/i.test(pdfUrl)
-        ? pdfUrl : '';
+    function openNCERTPDF(title, pdfUrl, bookTitle, catalogUrl) {
       const modal = document.getElementById('ncertPdfModal');
+      const frame = document.getElementById('ncertPdfFrame');
+      const unavailable = document.getElementById('ncertPdfUnavailable');
       const download = document.getElementById('ncertPdfDownload');
+      const subtitle = document.getElementById('ncertPdfSubtitle');
       document.getElementById('ncertPdfTitle').textContent = title || 'NCERT Textbook';
-      document.getElementById('ncertPdfSubtitle').textContent = (bookTitle || 'NCERT textbook') + ' · RiSync PDF reader';
       modal.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
-      setPdfReaderState('loading');
 
-      if (!safePdfUrl) {
-        setPdfReaderState('error', 'A direct NCERT PDF URL has not been mapped for this chapter yet.');
-        return;
-      }
-      if (RISYNC_NCERT_PROXY.includes('YOUR-WORKER-NAME')) {
-        setPdfReaderState('error', 'The RiSync PDF service needs its Cloudflare Worker URL configured before PDFs can load.');
-        return;
-      }
-
-      try {
-        const proxyUrl = `${RISYNC_NCERT_PROXY.replace(/\/$/, '')}/?url=${encodeURIComponent(safePdfUrl)}`;
-        download.href = proxyUrl;
+      const isDirectPDF = pdfUrl && /^https:\/\/ncert\.nic\.in\/textbook\/pdf\/[a-z0-9]+\.pdf(?:$|[?#])/i.test(pdfUrl);
+      const fallbackCatalogue = catalogUrl && /^https:\/\/ncert\.nic\.in\/textbook\.php\?[a-z0-9]+=[a-z0-9-]+$/i.test(catalogUrl);
+      if (isDirectPDF) {
+        subtitle.textContent = (bookTitle || 'NCERT textbook') + ' · RiSync PDF Reader';
+        unavailable.classList.add('hidden');
+        unavailable.classList.remove('flex');
+        frame.classList.remove('hidden');
+        frame.src = pdfUrl + (pdfUrl.includes('#') ? '' : '#toolbar=1&navpanes=0&view=FitH');
+        download.href = pdfUrl;
+        download.textContent = 'Download PDF';
         download.classList.remove('hidden');
-        const pdfjsLib = await getPdfJs();
-        const loadingTask = pdfjsLib.getDocument({ url: proxyUrl, withCredentials: false });
-        risyncPdfDoc = await loadingTask.promise;
-        risyncPdfPage = 1;
-        risyncPdfScale = 1.15;
-        await renderRiSyncPdfPage();
-        setPdfReaderState('ready');
-        await renderRiSyncPdfPage();
-      } catch (error) {
-        console.error('RiSync NCERT PDF load error:', error);
-        setPdfReaderState('error', 'The PDF could not be loaded. Check that the Cloudflare Worker is deployed, its URL is configured here, and the NCERT PDF is reachable.');
+      } else if (fallbackCatalogue) {
+        // Never strand the learner on a dead-end error panel. If an individual
+        // chapter URL is absent, show the official NCERT book catalogue in-app.
+        subtitle.textContent = (bookTitle || 'NCERT textbook') + ' · NCERT chapter catalogue';
+        unavailable.classList.add('hidden');
+        unavailable.classList.remove('flex');
+        frame.classList.remove('hidden');
+        frame.src = catalogUrl;
+        download.href = catalogUrl;
+        download.textContent = 'Open NCERT';
+        download.classList.toggle('hidden', !fallbackCatalogue);
+      } else {
+        subtitle.textContent = 'NCERT preview link needs verification';
+        frame.removeAttribute('src');
+        frame.classList.add('hidden');
+        unavailable.classList.remove('hidden');
+        unavailable.classList.add('flex');
+        download.classList.add('hidden');
+        const msg = unavailable.querySelector('p');
+        if (msg) msg.textContent = 'This chapter has no verified NCERT PDF or catalogue address yet.';
       }
     }
-
     function closeNCERTPDF() {
       const modal = document.getElementById('ncertPdfModal');
-      if (risyncPdfRenderTask) {
-        try { risyncPdfRenderTask.cancel(); } catch (e) {}
-        risyncPdfRenderTask = null;
-      }
-      if (risyncPdfDoc) {
-        try { risyncPdfDoc.destroy(); } catch (e) {}
-        risyncPdfDoc = null;
-      }
+      const frame = document.getElementById('ncertPdfFrame');
+      if (frame) frame.removeAttribute('src');
       modal.classList.add('hidden');
       document.body.style.overflow = '';
     }
-
-    document.getElementById('ncertPrevPage').addEventListener('click', async () => {
-      if (risyncPdfPage > 1) { risyncPdfPage--; await renderRiSyncPdfPage(); }
-    });
-    document.getElementById('ncertNextPage').addEventListener('click', async () => {
-      if (risyncPdfDoc && risyncPdfPage < risyncPdfDoc.numPages) { risyncPdfPage++; await renderRiSyncPdfPage(); }
-    });
-    document.getElementById('ncertZoomIn').addEventListener('click', async () => {
-      risyncPdfScale = Math.min(2.5, risyncPdfScale + 0.15); await renderRiSyncPdfPage();
-    });
-    document.getElementById('ncertZoomOut').addEventListener('click', async () => {
-      risyncPdfScale = Math.max(0.6, risyncPdfScale - 0.15); await renderRiSyncPdfPage();
-    });
     document.addEventListener('keydown', event => { if (event.key === 'Escape') closeNCERTPDF(); });
 
     function toggleNCERTCard(index) {
