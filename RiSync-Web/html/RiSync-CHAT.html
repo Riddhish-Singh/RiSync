@@ -1001,6 +1001,28 @@
         color:var(--wa-text-secondary);
     }
 
+    /* ===== ADD PEOPLE ===== */
+    .ap-wrap { text-align: left; width: min(420px, 82vw); }
+    .ap-room { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--wa-text-secondary); margin-bottom: 12px; }
+    .ap-room strong { color: var(--modal-text); }
+    .ap-tabs { display: flex; border-bottom: 1px solid var(--wa-border); margin-bottom: 14px; }
+    .ap-tab { flex: 1; background: none; border: none; border-bottom: 2px solid transparent; padding: 10px 6px; font-size: 13.5px; cursor: pointer; color: var(--wa-text-secondary); font-family: inherit; }
+    .ap-tab.active { color: var(--wa-green); border-bottom-color: var(--wa-green); font-weight: 600; }
+    .ap-hint { font-size: 12.5px; color: var(--wa-text-secondary); line-height: 1.45; margin: 0 0 10px; }
+    .ap-linkrow { display: flex; gap: 8px; }
+    .ap-linkrow input { flex: 1; min-width: 0; margin-top: 0; font-size: 12.5px; }
+    .ap-btn { background: var(--wa-green); color: #fff; border: none; border-radius: 6px; padding: 9px 14px; font-size: 13px; cursor: pointer; font-family: inherit; white-space: nowrap; }
+    .ap-btn:hover { background: var(--wa-green-dark); }
+    .ap-btn:disabled { opacity: .6; cursor: default; }
+    .ap-btn.ghost { background: var(--wa-input-bg); color: var(--wa-text-primary); }
+    .ap-btn.ghost:hover { background: var(--wa-border); }
+    .ap-row-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .ap-textarea { resize: vertical; min-height: 70px; font-family: inherit; font-size: 13.5px; }
+    .ap-results { margin-top: 10px; font-size: 12.5px; display: flex; flex-direction: column; gap: 4px; }
+    .ap-results .ok { color: var(--wa-green); }
+    .ap-results .bad { color: #e5484d; }
+    .ap-results .info { color: var(--wa-text-secondary); }
+    .ap-status { font-size: 12.5px; margin-top: 8px; min-height: 16px; color: var(--wa-text-secondary); }
   </style>
 </head>
 <body>
@@ -1114,6 +1136,7 @@
 
       </div>
       <div class="header-icons">
+        <i class="fas fa-user-plus" id="addPeopleBtn" title="Add people" onclick="openModal('addPeople')"></i>
         <i class="fas fa-stopwatch" title="Start Focus Session" onclick="openModal('timerSetup')"></i>
         <i class="fas fa-search" onclick="openModal('searchMsg')"></i>
         <i class="fas fa-ellipsis-v" onclick="toggleDropdown('chatDropdown')"></i>
@@ -1121,6 +1144,7 @@
 
       <div class="dropdown-menu" id="chatDropdown">
         <div class="dropdown-item" onclick="clearLocalChat()">Clear View</div>
+        <div class="dropdown-item" onclick="openModal('addPeople')">Add people</div>
         <div class="dropdown-item" onclick="openModal('contactInfo')">Group Info</div>
     </div>
     </header>
@@ -1275,16 +1299,17 @@
     // Files will now be encoded to Base64 and stored in Firestore.
 
     const firebaseConfig = {
-        apiKey: "AIzaSyBWAwm_TDtD1qXDtjxJu0jrDP45c3p1Bxg",
-        authDomain: "risync-risync.firebaseapp.com",
-        projectId: "risync-risync",
-        storageBucket: "risync-risync.firebasestorage.app",
-        messagingSenderId: "195106250121",
-        appId: "1:195106250121:web:57b23c5b94d5771995d558",
-        measurementId: "G-D5WSLQ706Z"
+        apiKey: "AIzaSyC667ajtfBEfsqOk5PZQVJOLOQaBbf8VKM",
+        authDomain: "richat-risync.firebaseapp.com",
+        projectId: "richat-risync",
+        storageBucket: "richat-risync.firebasestorage.app",
+        messagingSenderId: "152864251884",
+        appId: "1:152864251884:web:587948dcadf65ed2596ac9",
+        measurementId: "G-R9DS3XR122"
     };
 
-    const app = initializeApp(firebaseConfig);
+    // Named app: lets the shared RiSync project (auth + notifications) own the default app below.
+    const app = initializeApp(firebaseConfig, "chat");
     const db = getFirestore(app);
     // const storage = getStorage(app); // Removed
     const messagesRef = collection(db, "messages");
@@ -2354,6 +2379,7 @@
 
   function loadRoom(identifier, title, isSenior = false) {
     let roomId = typeof identifier === 'number' ? `risync-class-${identifier}` : `risync-${identifier}`;
+    window.currentRoomMeta = { roomId, title };
     
     document.getElementById("roomTitle").textContent = title;
     document.getElementById("roomSub").textContent = isSenior ? "Senior Help Room" : "Active Now";
@@ -2415,6 +2441,45 @@
     const letter = isSenior ? "S" : title.charAt(0).toUpperCase();
     div.innerHTML = `<img src="https://placehold.co/49x49/${color}/ffffff?text=${letter}" alt="Chat"><div class="chat-info"><div class="chat-top"><span class="chat-name">${title}</span><span class="chat-time">Now</span></div><div class="chat-msg"><span>Tap to open...</span></div></div>`;
     document.getElementById("chatList").appendChild(div);
+  }
+
+  // Rooms the user was added to (via invite link or notification) - safe DOM building, titles come from other users
+  function addJoinedSidebarItem(roomId, title) {
+    if (roomId === `risync-class-${myClass}`) return null;
+    const existing = [...document.querySelectorAll('#chatList .chat-item')].find(el => el.dataset.roomId === roomId);
+    if (existing) return existing;
+    const safeTitle = title || 'Group';
+    const div = document.createElement('div');
+    div.className = 'chat-item';
+    div.dataset.roomId = roomId;
+    div.onclick = () => openJoinedRoom(roomId, safeTitle);
+    const img = document.createElement('img');
+    img.alt = 'Chat';
+    img.src = `https://placehold.co/49x49/00a884/ffffff?text=${encodeURIComponent(safeTitle.charAt(0).toUpperCase())}`;
+    const info = document.createElement('div'); info.className = 'chat-info';
+    const top = document.createElement('div'); top.className = 'chat-top';
+    const nm = document.createElement('span'); nm.className = 'chat-name'; nm.textContent = safeTitle;
+    const tm = document.createElement('span'); tm.className = 'chat-time'; tm.textContent = 'Joined';
+    top.append(nm, tm);
+    const msg = document.createElement('div'); msg.className = 'chat-msg';
+    const sp = document.createElement('span'); sp.textContent = 'Tap to open...';
+    msg.appendChild(sp);
+    info.append(top, msg);
+    div.append(img, info);
+    document.getElementById('chatList').appendChild(div);
+    return div;
+  }
+  function openJoinedRoom(roomId, title) {
+    if (roomId === `risync-class-${myClass}`) { returnToMyClass(); return; }
+    const safeTitle = title || 'Group';
+    window.currentRoomMeta = { roomId, title: safeTitle };
+    document.getElementById("roomTitle").textContent = safeTitle;
+    document.getElementById("roomSub").textContent = "Group chat";
+    document.getElementById("roomAvatar").src = `https://placehold.co/40x40/00a884/ffffff?text=${encodeURIComponent(safeTitle.charAt(0).toUpperCase())}`;
+    document.querySelectorAll('.chat-item').forEach(i => i.classList.remove('active'));
+    const item = addJoinedSidebarItem(roomId, safeTitle);
+    if (item) item.classList.add('active');
+    waitForFirebaseAndConnect(roomId);
   }
 
   function returnToMyClass() { loadRoom(myClass, `Class ${myClass} Group`); }
@@ -2498,6 +2563,43 @@
               <button class="modal-btn" style="background:#eee; color:#333; margin-top:10px; font-size:12px;" onclick="addPollOptionInput()">+ Add Option</button>
           `;
           actions.innerHTML = `<button class="modal-btn" onclick="createPoll()">Create Poll</button> <button class="modal-btn" style="background:#ccc" onclick="closeModal()">Cancel</button>`;
+      } else if (type === 'addPeople') {
+          title.textContent = "Add people";
+          content.innerHTML = `
+              <div class="ap-wrap">
+                  <div class="ap-room"><i class="fas fa-users"></i><span>Adding to <strong id="apRoomName"></strong></span></div>
+                  <div class="ap-tabs">
+                      <button class="ap-tab active" data-tab="link"><i class="fas fa-link"></i> Invite by link</button>
+                      <button class="ap-tab" data-tab="notify"><i class="fas fa-bell"></i> Notify people</button>
+                  </div>
+
+                  <div id="apPaneLink">
+                      <p class="ap-hint">Anyone with this link can join this chat after signing in to RiSync.</p>
+                      <div class="ap-linkrow">
+                          <input type="text" id="apLinkInput" class="modal-input" readonly placeholder="Creating link...">
+                          <button class="ap-btn" id="apCopyBtn" type="button">Copy</button>
+                      </div>
+                      <div class="ap-row-actions">
+                          <button class="ap-btn ghost" id="apShareBtn" type="button" style="display:none"><i class="fas fa-share-alt"></i> Share</button>
+                          <button class="ap-btn ghost" id="apResetBtn" type="button"><i class="fas fa-sync-alt"></i> Reset link</button>
+                      </div>
+                      <div class="ap-status" id="apLinkStatus"></div>
+                  </div>
+
+                  <div id="apPaneNotify" style="display:none">
+                      <p class="ap-hint">Enter their RiSync sign-in email(s). They get a notification on their dashboard and can accept to join.</p>
+                      <textarea id="apEmails" class="modal-input ap-textarea" placeholder="friend@example.com, classmate@example.com"></textarea>
+                      <input type="text" id="apNote" class="modal-input" maxlength="200" placeholder="Add a message (optional)">
+                      <div class="ap-row-actions">
+                          <button class="ap-btn" id="apSendBtn" type="button"><i class="fas fa-paper-plane"></i> Send invite</button>
+                      </div>
+                      <div class="ap-results" id="apResults"></div>
+                  </div>
+              </div>
+          `;
+          actions.innerHTML = `<button class="modal-btn" onclick="closeModal()">Done</button>`;
+          if (window.RiInvite) window.RiInvite.initAddPeople();
+          else document.getElementById("apLinkStatus").textContent = "Still connecting... close this and try again in a moment.";
       } else {
           title.textContent = "Alert";
           content.innerHTML = `<p>${msg}</p>`;
@@ -2529,8 +2631,7 @@
     projectId: "risync-risync",
     storageBucket: "risync-risync.firebasestorage.app",
     messagingSenderId: "195106250121",
-    appId: "1:195106250121:web:57b23c5b94d5771995d558",
-    measurementId: "G-D5WSLQ706Z"
+    appId: "1:195106250121:web:57b23c5b94d5771995d558"
   };
 
   const app = initializeApp(firebaseConfig);
@@ -2552,6 +2653,261 @@
   // Make db and auth accessible to your other scripts
   window.risyncAuth = auth;
   window.risyncDb = db;
+</script>
+<script type="module">
+  // ===== ADD PEOPLE: invite by link + notify by email (shared RiSync project, read by content.html) =====
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+  import { collection, doc, getDoc, setDoc, updateDoc, onSnapshot, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+  const auth = window.risyncAuth;
+  const db = window.risyncDb;
+  const $ = (id) => document.getElementById(id);
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const PENDING_KEY = "risync_pending_join";
+
+  // Remember an invite link across the sign-in redirect
+  const qs = new URLSearchParams(location.search);
+  if (qs.get("join")) {
+    try { localStorage.setItem(PENDING_KEY, JSON.stringify({ token: qs.get("join"), ts: Date.now() })); } catch (e) {}
+  }
+  let pendingOpenRoom = qs.get("room") || null;   // set when arriving from a dashboard notification
+  let me = null;
+
+  if (!auth || !db) {
+    console.error("RiSync auth/db not available - Add people is disabled.");
+    window.RiInvite = {
+      initAddPeople() { const el = $("apLinkStatus"); if (el) el.textContent = "Sign-in service unavailable. Please reload the page."; }
+    };
+  } else {
+    setup();
+  }
+
+  function setup() {
+    const encId = (s) => encodeURIComponent(s);
+    const memId = (email, roomId) => `${encId(email)}__${encId(roomId)}`;
+
+    function localProfile() {
+      try {
+        const e = localStorage.getItem("currentUserEmail");
+        return (JSON.parse(localStorage.getItem("users")) || []).find(u => u.email === e) || null;
+      } catch (e) { return null; }
+    }
+
+    function randomToken() {
+      const b = new Uint8Array(16);
+      crypto.getRandomValues(b);
+      return Array.from(b, x => x.toString(16).padStart(2, "0")).join("");
+    }
+    const linkFor = (token) => `${location.origin}${location.pathname}?join=${token}`;
+
+    // ---------- invite by link ----------
+    async function createOrGetLink() {
+      const meta = window.currentRoomMeta;
+      if (!meta || !meta.roomId) throw new Error("Open a chat first.");
+      const cacheKey = "risync_invite_" + meta.roomId;
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        try {
+          const snap = await getDoc(doc(db, "roomInvites", cached));
+          if (snap.exists() && snap.data().active !== false) return linkFor(cached);
+        } catch (e) { /* fall through and make a new one */ }
+      }
+      const token = randomToken();
+      await setDoc(doc(db, "roomInvites", token), {
+        roomId: meta.roomId,
+        title: meta.title || "Group",
+        createdBy: me.email,
+        createdByName: me.name,
+        active: true,
+        createdAt: serverTimestamp()
+      });
+      localStorage.setItem(cacheKey, token);
+      return linkFor(token);
+    }
+
+    async function revokeLink() {
+      const meta = window.currentRoomMeta;
+      if (!meta || !meta.roomId) return;
+      const cacheKey = "risync_invite_" + meta.roomId;
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        try { await updateDoc(doc(db, "roomInvites", cached), { active: false }); } catch (e) { console.error(e); }
+        localStorage.removeItem(cacheKey);
+      }
+    }
+
+    async function loadLink() {
+      const input = $("apLinkInput"), status = $("apLinkStatus");
+      if (!input) return;
+      input.value = "";
+      input.placeholder = "Creating link...";
+      status.textContent = "";
+      try {
+        input.value = await createOrGetLink();
+      } catch (e) {
+        console.error(e);
+        input.placeholder = "";
+        status.textContent = "Could not create the link. " + (e.message || "");
+      }
+    }
+
+    async function copyLink() {
+      const input = $("apLinkInput"), btn = $("apCopyBtn");
+      if (!input || !input.value) return;
+      try { await navigator.clipboard.writeText(input.value); }
+      catch (e) { input.select(); document.execCommand("copy"); }
+      btn.textContent = "Copied!";
+      setTimeout(() => { btn.textContent = "Copy"; }, 1500);
+    }
+
+    async function shareLink() {
+      const input = $("apLinkInput");
+      if (!input || !input.value || !navigator.share) return;
+      const meta = window.currentRoomMeta || {};
+      try { await navigator.share({ title: "Join " + (meta.title || "my RiSync chat"), text: "Join my chat on RiSync", url: input.value }); }
+      catch (e) { /* user cancelled */ }
+    }
+
+    // ---------- notify people ----------
+    async function sendInvites() {
+      const meta = window.currentRoomMeta;
+      const out = $("apResults"), btn = $("apSendBtn");
+      out.innerHTML = "";
+      const addLine = (cls, text) => { const d = document.createElement("div"); d.className = cls; d.textContent = text; out.appendChild(d); };
+      if (!meta || !meta.roomId) { addLine("bad", "Open a chat first."); return; }
+
+      const emails = [...new Set($("apEmails").value.split(/[\s,;]+/).map(x => x.trim().toLowerCase()).filter(Boolean))];
+      if (!emails.length) { addLine("bad", "Enter at least one email."); return; }
+      if (emails.length > 20) { addLine("bad", "Please invite at most 20 people at a time."); return; }
+
+      const note = $("apNote").value.trim().slice(0, 200);
+      btn.disabled = true;
+      for (const email of emails) {
+        try {
+          if (!EMAIL_RE.test(email)) { addLine("bad", `${email} - not a valid email`); continue; }
+          if (email === me.email) { addLine("info", `${email} - that's you`); continue; }
+          let already = false;
+          try { already = (await getDoc(doc(db, "memberships", memId(email, meta.roomId)))).exists(); } catch (e) {}
+          if (already) { addLine("info", `${email} - already in this chat`); continue; }
+          await setDoc(doc(db, "notifications", `invite__${encId(email)}__${encId(meta.roomId)}`), {
+            type: "room_invite",
+            toEmail: email,
+            fromEmail: me.email,
+            fromName: me.name,
+            roomId: meta.roomId,
+            title: meta.title || "Group",
+            message: note,
+            status: "pending",
+            read: false,
+            createdAt: serverTimestamp()
+          });
+          addLine("ok", `${email} - invite sent`);
+        } catch (e) {
+          console.error(e);
+          addLine("bad", `${email} - could not send`);
+        }
+      }
+      btn.disabled = false;
+    }
+
+    // ---------- joining ----------
+    async function joinRoom(roomId, title, via, invitedBy) {
+      await setDoc(doc(db, "memberships", memId(me.email, roomId)), {
+        email: me.email, roomId, title, via, invitedBy: invitedBy || "", joinedAt: serverTimestamp()
+      }, { merge: true });
+      window.addJoinedSidebarItem(roomId, title);
+      window.openJoinedRoom(roomId, title);
+    }
+
+    function showJoinDialog(invite) {
+      $("alertModal").style.display = "flex";
+      $("modalTitle").textContent = "Join chat";
+      const c = $("modalContent"); c.innerHTML = "";
+      const p = document.createElement("p");
+      p.style.margin = "10px 0";
+      p.textContent = `${invite.createdByName || "Someone"} invited you to join "${invite.title || "a group"}".`;
+      c.appendChild(p);
+      const a = $("modalActions"); a.innerHTML = "";
+      const join = document.createElement("button"); join.className = "modal-btn"; join.textContent = "Join";
+      const no = document.createElement("button"); no.className = "modal-btn"; no.textContent = "Not now"; no.style.background = "#ccc"; no.style.marginLeft = "8px";
+      no.onclick = () => window.closeModal();
+      join.onclick = async () => {
+        join.disabled = true;
+        try { await joinRoom(invite.roomId, invite.title, "link", invite.createdBy); window.closeModal(); }
+        catch (e) { console.error(e); join.disabled = false; p.textContent = "Could not join right now. Please try again."; }
+      };
+      a.append(join, no);
+    }
+
+    async function handlePendingJoin() {
+      let token = null;
+      try {
+        const raw = JSON.parse(localStorage.getItem(PENDING_KEY) || "null");
+        if (raw && raw.token && Date.now() - raw.ts < 7 * 24 * 3600 * 1000) token = raw.token;
+      } catch (e) {}
+      if (!token) return;
+      localStorage.removeItem(PENDING_KEY);
+      history.replaceState(null, "", location.pathname);
+      try {
+        const snap = await getDoc(doc(db, "roomInvites", token));
+        if (!snap.exists() || snap.data().active === false) { window.openModal("alert", "This invite link is invalid or has been reset."); return; }
+        showJoinDialog(snap.data());
+      } catch (e) {
+        console.error(e);
+        window.openModal("alert", "Could not open this invite link.");
+      }
+    }
+
+    function listenMemberships() {
+      onSnapshot(query(collection(db, "memberships"), where("email", "==", me.email)), (snap) => {
+        snap.forEach(d => {
+          const m = d.data();
+          if (!m.roomId) return;
+          window.addJoinedSidebarItem(m.roomId, m.title);
+          if (pendingOpenRoom && m.roomId === pendingOpenRoom) {
+            pendingOpenRoom = null;
+            history.replaceState(null, "", location.pathname);
+            window.openJoinedRoom(m.roomId, m.title);
+          }
+        });
+      }, (err) => console.error("Memberships listener:", err));
+    }
+
+    // ---------- modal wiring ----------
+    function initAddPeople() {
+      const meta = window.currentRoomMeta || {};
+      $("apRoomName").textContent = meta.title || "this chat";
+      document.querySelectorAll(".ap-tab").forEach(tab => {
+        tab.onclick = () => {
+          document.querySelectorAll(".ap-tab").forEach(t => t.classList.toggle("active", t === tab));
+          const linkTab = tab.dataset.tab === "link";
+          $("apPaneLink").style.display = linkTab ? "block" : "none";
+          $("apPaneNotify").style.display = linkTab ? "none" : "block";
+        };
+      });
+      $("apCopyBtn").onclick = copyLink;
+      $("apSendBtn").onclick = sendInvites;
+      $("apResetBtn").onclick = async () => {
+        if (!confirm("The current link will stop working. Create a new one?")) return;
+        $("apResetBtn").disabled = true;
+        await revokeLink();
+        await loadLink();
+        $("apResetBtn").disabled = false;
+      };
+      if (navigator.share) { $("apShareBtn").style.display = ""; $("apShareBtn").onclick = shareLink; }
+      loadLink();
+    }
+
+    window.RiInvite = { initAddPeople };
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) { me = null; return; }
+      const email = (user.email || "").toLowerCase();
+      me = { email, name: (localProfile() && localProfile().fullname) || user.displayName || email.split("@")[0] };
+      listenMemberships();
+      handlePendingJoin();
+    });
+  }
 </script>
 </body>
 </html>
