@@ -660,6 +660,8 @@
             <h3 id="bestMatchName" class="editorial-header text-xl font-extrabold text-indigo-950"></h3>
             <p id="bestMatchMeta" class="text-sm text-slate-600 mt-0.5"></p>
             <div id="bestMatchReasons" class="flex flex-wrap gap-2 mt-2"></div>
+            <p id="bestMatchChain" class="hidden text-xs text-slate-500 mt-3"></p>
+            <p id="bestMatchIncoming" class="hidden text-xs font-semibold text-emerald-700 mt-1"></p>
           </div>
           <div class="flex flex-col items-center gap-2">
             <div class="text-center">
@@ -1009,6 +1011,16 @@
       return { score: Math.min(100, score), reasons };
     }
 
+    function bestOf(person, pool) {
+      let best = null;
+      pool.forEach(u => {
+        const r = scoreMatch(person, u);
+        if (r && (!best || r.score > best.score)) best = { user: u, score: r.score, reasons: r.reasons };
+      });
+      return best;
+    }
+    const matchLabel = u => u.fullname || u.displayName || 'Classmate';
+
     async function loadBestMatch(me) {
       const section = document.getElementById('bestMatchSection');
       if (!section) return;
@@ -1016,14 +1028,12 @@
         const cls = String(me.class || me.grade || '');
         if (!cls) return;
         const snap = await getDocs(query(collection(db, 'users'), where('class', '==', cls), limit(60)));
-        let best = null;
-        snap.forEach(d => {
-          const u = d.data();
-          const r = scoreMatch(me, u);
-          if (r && (!best || r.score > best.score)) best = { user: u, score: r.score, reasons: r.reasons };
-        });
+        const pool = [];
+        snap.forEach(d => { const u = d.data(); pool.push({ ...u, uid: u.uid || d.id }); });
+
+        const best = bestOf(me, pool);
         if (!best || best.score < MATCH_THRESHOLD) { section.classList.add('hidden'); return; }
-        const name = best.user.fullname || best.user.displayName || 'Classmate';
+        const name = matchLabel(best.user);
         document.getElementById('bestMatchAvatar').textContent = name.charAt(0).toUpperCase();
         document.getElementById('bestMatchName').textContent = name;
         document.getElementById('bestMatchMeta').textContent = [best.user.class ? 'Class ' + best.user.class : '', best.user.branch || ''].filter(Boolean).join(' · ');
@@ -1037,6 +1047,38 @@
           reasonsEl.appendChild(chip);
         });
         document.getElementById('bestMatchTalk').href = 'RiSync-CHAT?dm=' + encodeURIComponent(best.user.email) + '&name=' + encodeURIComponent(name);
+
+        // Reverse view: people who have ME as their perfect match (e.g. "for A, you are the perfect match")
+        const incoming = [];
+        pool.forEach(u => {
+          if (!u.email || u.email === me.email) return;
+          const ub = bestOf(u, pool.concat(pool.some(p => p.email === me.email) ? [] : [me]));
+          if (ub && ub.score >= MATCH_THRESHOLD && ub.user.email === me.email) incoming.push(matchLabel(u));
+        });
+        const inEl = document.getElementById('bestMatchIncoming');
+        if (incoming.length) {
+          inEl.textContent = 'You are the perfect match for: ' + incoming.join(', ');
+          inEl.classList.remove('hidden');
+        } else inEl.classList.add('hidden');
+
+        // Chain: you -> your match -> their match -> ...
+        const names = ['You', name];
+        const seen = new Set([me.email, best.user.email]);
+        let cur = best.user;
+        for (let i = 0; i < 4; i++) {
+          const nb = bestOf(cur, pool);
+          if (!nb || nb.score < MATCH_THRESHOLD) break;
+          if (seen.has(nb.user.email)) { names.push(nb.user.email === me.email ? 'You' : matchLabel(nb.user)); break; }
+          seen.add(nb.user.email);
+          names.push(matchLabel(nb.user));
+          cur = nb.user;
+        }
+        const chainEl = document.getElementById('bestMatchChain');
+        if (names.length > 2) {
+          chainEl.textContent = 'Match chain: ' + names.join(' → ');
+          chainEl.classList.remove('hidden');
+        } else chainEl.classList.add('hidden');
+
         section.classList.remove('hidden');
       } catch (e) { console.warn('Best match unavailable:', e); }
     }
