@@ -649,6 +649,37 @@
         </div>
       </section>
 
+      <!-- Update preferences -->
+      <section class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-indigo-100 bg-white p-4 shadow-sm">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined text-indigo-900">tune</span>
+          <div>
+            <p class="text-sm font-bold text-indigo-950">Your match preferences</p>
+            <p id="prefSummary" class="text-xs text-slate-500">Tell us what you like to study so we can find a better match.</p>
+          </div>
+        </div>
+        <button id="prefOpenBtn" type="button" class="inline-flex items-center gap-2 rounded-xl bg-indigo-900 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-800">
+          <span class="material-symbols-outlined text-base">edit</span> Update your preferences
+        </button>
+      </section>
+
+      <div id="prefModal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4">
+        <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+          <h3 class="text-lg font-extrabold text-indigo-950 mb-4">Update your preferences</h3>
+          <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Subjects you like</p>
+          <div id="prefSubjects" class="flex flex-wrap gap-2 mb-4"></div>
+          <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Best study time</p>
+          <div id="prefTime" class="flex flex-wrap gap-2 mb-4"></div>
+          <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Study style</p>
+          <div id="prefStyle" class="flex flex-wrap gap-2 mb-5"></div>
+          <p id="prefMsg" class="text-sm mb-3 hidden"></p>
+          <div class="flex justify-end gap-2">
+            <button id="prefCancel" type="button" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-600">Cancel</button>
+            <button id="prefSave" type="button" class="rounded-xl bg-indigo-900 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-800">Save</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Best Match (filled by script when a good peer match exists) -->
       <section id="bestMatchSection" class="hidden relative overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-r from-emerald-50 via-white to-indigo-50 p-6 shadow-[0_12px_42px_rgba(0,0,0,0.06)]">
         <div class="flex flex-wrap items-center gap-5">
@@ -996,18 +1027,24 @@
     const MATCH_THRESHOLD = 60;
     function scoreMatch(me, other) {
       if (!other || !other.email || other.uid === me.uid || other.email === me.email) return null;
-      if (String(other.class || other.grade) !== String(me.class || me.grade)) return null;
+      if (String(other.class || other.grade) !== String(me.class || me.grade)) return null; // peers = same class
       let score = 40;
-      const reasons = ['Same class'];
-      if (me.branch && other.branch === me.branch) { score += 30; reasons.push('Same school branch'); }
+      const reasons = ["Same class"];
+      if (me.branch && other.branch === me.branch) { score += 25; reasons.push("Same school branch"); }
       const a = Number(me.ncertAverageScore) || 0, b = Number(other.ncertAverageScore) || 0;
       if (a > 0 && b > 0) {
         const closeness = Math.max(0, 1 - Math.abs(a - b) / 100);
-        score += Math.round(closeness * 15);
-        if (closeness > 0.8) reasons.push('Similar quiz level');
+        score += Math.round(closeness * 10);
+        if (closeness > 0.8) reasons.push("Similar quiz level");
       }
-      const last = Date.parse(other.lastLoginAt || other.updatedAt || '');
-      if (last && Date.now() - last < 14 * 24 * 3600 * 1000) { score += 15; reasons.push('Recently active'); }
+      const last = Date.parse(other.lastLoginAt || other.updatedAt || "");
+      if (last && Date.now() - last < 14 * 24 * 3600 * 1000) { score += 10; reasons.push("Recently active"); }
+      // Preferences (set from "Update your preferences" on the dashboard)
+      const mp = me.preferences || {}, op = other.preferences || {};
+      const shared = (mp.subjects || []).filter(s => (op.subjects || []).includes(s));
+      if (shared.length) { score += Math.min(8, shared.length * 4); reasons.push("Shared subjects: " + shared.slice(0, 3).join(", ")); }
+      if (mp.studyTime && mp.studyTime === op.studyTime) { score += 4; reasons.push("Same study time"); }
+      if (mp.studyStyle && mp.studyStyle === op.studyStyle) { score += 3; reasons.push("Same study style"); }
       return { score: Math.min(100, score), reasons };
     }
 
@@ -1083,6 +1120,135 @@
       } catch (e) { console.warn('Best match unavailable:', e); }
     }
 
+
+
+    // ---- Write matches to Firebase (notifications for both sides + bestMatch on my profile) ----
+    async function sendMatchNote(to, about, best, title, message) {
+      await setDoc(doc(db, 'notifications', 'match__' + to.uid + '__' + about.uid), {
+        type: 'match_suggestion',
+        toEmail: to.email,
+        fromEmail: about.email,
+        title,
+        message,
+        matchName: matchLabel(about),
+        matchEmail: about.email,
+        matchScore: best.score,
+        read: false,
+        createdAt: new Date()
+      });
+    }
+    async function syncMatchesToFirebase(me) {
+      const cls = String(me.class || me.grade || '');
+      if (!cls) return { written: 0, errors: ['No class on profile'] };
+      const snap = await getDocs(query(collection(db, 'users'), where('class', '==', cls), limit(60)));
+      const pool = [];
+      snap.forEach(d => { const u = d.data(); pool.push({ ...u, uid: u.uid || d.id }); });
+      const idx = pool.findIndex(u => u.email === me.email);
+      if (idx >= 0) pool[idx] = { ...pool[idx], ...me }; else pool.push(me);   // use my freshest preferences
+      let written = 0; const errors = [];
+      const seen = new Set([me.email]);
+      let cur = me;
+      for (let depth = 0; depth < 5; depth++) {
+        const best = bestOf(cur, pool);
+        if (!best || best.score < MATCH_THRESHOLD) break;
+        const next = best.user;
+        const why = best.reasons.join(', ');
+        try {
+          await sendMatchNote(cur, next, best, 'You have a best match!', `${matchLabel(next)} (${best.score}% match) - ${why}`);
+          await sendMatchNote(next, cur, best, "You're someone's perfect match!", `${matchLabel(cur)} sees you as their perfect match (${best.score}% match) - ${why}`);
+          written += 2;
+        } catch (e) { console.warn('Match note failed:', e); errors.push(e.message || String(e)); }
+        if (depth === 0) {
+          try {
+            await setDoc(doc(db, 'users', me.uid), {
+              bestMatch: { email: next.email, name: matchLabel(next), score: best.score, reasons: best.reasons },
+              matchesUpdatedAt: new Date().toISOString()
+            }, { merge: true });
+          } catch (e) { console.warn('bestMatch save failed:', e); errors.push(e.message || String(e)); }
+        }
+        if (seen.has(next.email)) break;
+        seen.add(next.email);
+        cur = next;
+      }
+      return { written, errors };
+    }
+
+    // ---- Update preferences ----
+    const PREF_SUBJECTS = ['Maths', 'Science', 'English', 'Social Science', 'Hindi', 'Computer'];
+    const PREF_TIMES = ['Morning', 'Afternoon', 'Evening', 'Night'];
+    const PREF_STYLES = ['Solo', 'Study group', '1-0-1 with a partner'];
+    let prefState = { subjects: [], studyTime: '', studyStyle: '' };
+
+    function prefChip(label, on, onClick) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = label;
+      b.className = 'rounded-lg border px-3 py-1.5 text-sm font-semibold transition ' +
+        (on ? 'bg-indigo-900 text-white border-indigo-900' : 'bg-white text-indigo-900 border-indigo-200 hover:bg-indigo-50');
+      b.onclick = onClick;
+      return b;
+    }
+    function renderPrefs() {
+      const subj = document.getElementById('prefSubjects'); subj.innerHTML = '';
+      PREF_SUBJECTS.forEach(s => subj.appendChild(prefChip(s, prefState.subjects.includes(s), () => {
+        prefState.subjects = prefState.subjects.includes(s) ? prefState.subjects.filter(x => x !== s) : prefState.subjects.concat(s);
+        renderPrefs();
+      })));
+      const t = document.getElementById('prefTime'); t.innerHTML = '';
+      PREF_TIMES.forEach(x => t.appendChild(prefChip(x, prefState.studyTime === x, () => { prefState.studyTime = prefState.studyTime === x ? '' : x; renderPrefs(); })));
+      const st = document.getElementById('prefStyle'); st.innerHTML = '';
+      PREF_STYLES.forEach(x => st.appendChild(prefChip(x, prefState.studyStyle === x, () => { prefState.studyStyle = prefState.studyStyle === x ? '' : x; renderPrefs(); })));
+    }
+    function updatePrefSummary() {
+      const p = (window.risyncUserData && window.risyncUserData.preferences) || {};
+      const parts = [];
+      if (p.subjects && p.subjects.length) parts.push(p.subjects.join(', '));
+      if (p.studyTime) parts.push(p.studyTime);
+      if (p.studyStyle) parts.push(p.studyStyle);
+      document.getElementById('prefSummary').textContent = parts.length ? parts.join(' · ') : 'Tell us what you like to study so we can find a better match.';
+    }
+    function initPreferences() {
+      const modal = document.getElementById('prefModal');
+      const msg = document.getElementById('prefMsg');
+      document.getElementById('prefOpenBtn').onclick = () => {
+        const p = (window.risyncUserData && window.risyncUserData.preferences) || {};
+        prefState = { subjects: [...(p.subjects || [])], studyTime: p.studyTime || '', studyStyle: p.studyStyle || '' };
+        msg.classList.add('hidden');
+        renderPrefs();
+        modal.classList.remove('hidden');
+      };
+      document.getElementById('prefCancel').onclick = () => modal.classList.add('hidden');
+      modal.addEventListener('click', e => { if (e.target === modal) modal.classList.add('hidden'); });
+      document.getElementById('prefSave').onclick = async () => {
+        const btn = document.getElementById('prefSave');
+        btn.disabled = true; btn.textContent = 'Saving...';
+        try {
+          const user = auth.currentUser;
+          if (!user) throw new Error('Not signed in');
+          const preferences = { ...prefState };
+          // 1) save preferences to Firebase (merge, so it works even if fields are missing)
+          await setDoc(doc(db, 'users', user.uid), { preferences, updatedAt: new Date().toISOString() }, { merge: true });
+          window.risyncUserData = { ...(window.risyncUserData || {}), preferences };
+          updatePrefSummary();
+          const d = window.risyncUserData;
+          const me = { ...d, uid: user.uid, email: (d.email || user.email || '').toLowerCase() };
+          // 2) recompute matches and write them to Firebase too
+          btn.textContent = 'Updating matches...';
+          const res = await syncMatchesToFirebase(me);
+          modal.classList.add('hidden');
+          loadBestMatch(me);
+          if (res.errors.length) console.warn('Saved preferences, but some match writes failed:', res.errors);
+          toast('Preferences saved', res.errors.length ? 'Saved, but some match updates were blocked by Firebase rules.' : 'Your matches were updated.');
+        } catch (e) {
+          console.error('Save preferences failed:', e);
+          msg.textContent = 'Could not save: ' + (e.message || e);
+          msg.className = 'text-sm mb-3 text-red-600';
+        } finally { btn.disabled = false; btn.textContent = 'Save'; }
+      };
+      updatePrefSummary();
+    }
+    initPreferences();
+
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         currentUser = user;
@@ -1144,6 +1310,7 @@
         if (docSnap.exists()) {
           const userData = docSnap.data();
           window.risyncUserData = userData;
+          updatePrefSummary();
           const activeClassNum = String(userData.class || userData.grade || userData.className || '6').match(/\d{1,2}/)?.[0] || '6';
           applyProfileCurriculum(activeClassNum);
           const welcomeMsg = document.getElementById('welcome-message');
