@@ -680,6 +680,16 @@
         </div>
       </div>
 
+      <div id="certModal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4">
+        <div class="w-full max-w-3xl rounded-2xl bg-white p-4 shadow-2xl">
+          <img id="certImg" alt="Certificate" class="w-full rounded-lg border border-slate-200">
+          <div class="flex justify-end gap-2 mt-3">
+            <a id="certDownload" download="RiSync-Certificate.png" class="rounded-xl bg-indigo-900 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-800">Download</a>
+            <button id="certClose" type="button" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-600">Close</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Best Match (filled by script when a good peer match exists) -->
       <section id="bestMatchSection" class="hidden relative overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-r from-emerald-50 via-white to-indigo-50 p-6 shadow-[0_12px_42px_rgba(0,0,0,0.06)]">
         <div class="flex flex-wrap items-center gap-5">
@@ -702,6 +712,28 @@
             <a id="bestMatchTalk" href="RiSync-CHAT" class="inline-flex items-center gap-2 rounded-xl bg-indigo-900 px-5 py-3 text-sm font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-indigo-800">
               <span class="material-symbols-outlined text-base">forum</span> Talk 1-0-1
             </a>
+          </div>
+        </div>
+
+        <div id="matchActions" class="mt-5 border-t border-emerald-100 pt-5 space-y-4">
+          <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p id="ratingPrompt" class="text-sm font-bold text-indigo-950"></p>
+              <div id="ratingStars" class="flex gap-1 mt-1"></div>
+              <p id="ratingNote" class="text-xs text-slate-500 mt-1"></p>
+            </div>
+            <button id="findAnotherBtn" type="button" class="inline-flex items-center gap-2 rounded-xl border border-indigo-200 bg-white px-4 py-2 text-sm font-bold text-indigo-900 hover:bg-indigo-50">
+              <span class="material-symbols-outlined text-base">autorenew</span> Find another best match
+            </button>
+          </div>
+          <div class="rounded-xl bg-white/80 border border-indigo-100 p-4">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <p id="levelTitle" class="text-sm font-extrabold text-indigo-950"></p>
+              <p id="levelFee" class="text-xs font-bold text-emerald-700"></p>
+            </div>
+            <div class="h-2 rounded-full bg-slate-200 mt-2 overflow-hidden"><div id="levelBar" class="h-2 bg-secondary" style="width:0%"></div></div>
+            <p id="levelNext" class="text-xs text-slate-500 mt-1"></p>
+            <div id="certList" class="flex flex-wrap gap-2 mt-3"></div>
           </div>
         </div>
       </section>
@@ -1028,6 +1060,7 @@
     function scoreMatch(me, other) {
       if (!other || !other.email || other.uid === me.uid || other.email === me.email) return null;
       if (String(other.class || other.grade) !== String(me.class || me.grade)) return null; // peers = same class
+      if ((me.skippedMatches || []).includes(other.email)) return null; // user chose "find another"
       let score = 40;
       const reasons = ["Same class"];
       if (me.branch && other.branch === me.branch) { score += 25; reasons.push("Same school branch"); }
@@ -1068,8 +1101,10 @@
         const pool = [];
         snap.forEach(d => { const u = d.data(); pool.push({ ...u, uid: u.uid || d.id }); });
 
+        lastPool = pool; currentMe = me;
         const best = bestOf(me, pool);
         if (!best || best.score < MATCH_THRESHOLD) { section.classList.add('hidden'); return; }
+        currentBest = best;
         const name = matchLabel(best.user);
         document.getElementById('bestMatchAvatar').textContent = name.charAt(0).toUpperCase();
         document.getElementById('bestMatchName').textContent = name;
@@ -1117,6 +1152,7 @@
         } else chainEl.classList.add('hidden');
 
         section.classList.remove('hidden');
+        loadRatingPanel(me, best).catch(e => console.warn('Rating panel failed:', e));
       } catch (e) { console.warn('Best match unavailable:', e); }
     }
 
@@ -1172,6 +1208,168 @@
       }
       return { written, errors };
     }
+
+
+    // ================= Daily rating, certificates, levels & monthly fee =================
+    const BASE_FEE = 500;            // Rs per month
+    const MAX_DISCOUNT = 35;         // max % off
+    const CERT_MIN_RATING = 4;       // certificate when rating is MORE than this (i.e. 5 stars)
+    const LEVELS = [
+      { lvl: 0, name: 'Unranked', min: 0,  disc: 0 },
+      { lvl: 1, name: 'Starter',  min: 1,  disc: 5 },
+      { lvl: 2, name: 'Bronze',   min: 4,  disc: 10 },
+      { lvl: 3, name: 'Silver',   min: 8,  disc: 15 },
+      { lvl: 4, name: 'Gold',     min: 12, disc: 20 },
+      { lvl: 5, name: 'Platinum', min: 16, disc: 25 },
+      { lvl: 6, name: 'Diamond',  min: 20, disc: 30 },
+      { lvl: 7, name: 'Champion', min: 24, disc: 35 }
+    ];
+    let currentBest = null, currentMe = null, lastPool = [], monthCerts = [], billingChecked = false;
+
+    const pad2 = n => String(n).padStart(2, '0');
+    const dateStr = d => d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+    const monthStr = d => d.getFullYear() + '-' + pad2(d.getMonth() + 1);
+    function levelFor(count) { let l = LEVELS[0]; LEVELS.forEach(x => { if (count >= x.min) l = x; }); return l; }
+    function feeFor(disc) {
+      const d = Math.min(MAX_DISCOUNT, disc);
+      return { discountAmount: Math.round(BASE_FEE * d / 100), amountDue: Math.round(BASE_FEE * (100 - d) / 100), discountPercent: d };
+    }
+
+    function buildCertificate(d) {
+      const c = document.createElement('canvas'); c.width = 1200; c.height = 850;
+      const g = c.getContext('2d');
+      g.fillStyle = '#fffdf7'; g.fillRect(0, 0, 1200, 850);
+      g.strokeStyle = '#312e81'; g.lineWidth = 14; g.strokeRect(30, 30, 1140, 790);
+      g.strokeStyle = '#10b981'; g.lineWidth = 4; g.strokeRect(55, 55, 1090, 740);
+      g.textAlign = 'center';
+      g.fillStyle = '#312e81'; g.font = 'bold 30px Georgia, serif'; g.fillText('RISYNC', 600, 130);
+      g.font = 'bold 62px Georgia, serif'; g.fillText('Certificate of Excellence', 600, 225);
+      g.fillStyle = '#475569'; g.font = 'italic 28px Georgia, serif'; g.fillText('is proudly presented to', 600, 300);
+      let size = 60; g.fillStyle = '#065f46';
+      do { g.font = 'bold ' + size + 'px Georgia, serif'; size -= 2; } while (g.measureText(d.name).width > 980 && size > 24);
+      g.fillText(d.name, 600, 390);
+      g.fillStyle = '#334155'; g.font = '26px Georgia, serif';
+      g.fillText('for an outstanding study partnership with ' + d.matchName, 600, 460);
+      g.fillText('and a ' + d.rating + '-star rating on ' + d.date, 600, 505);
+      g.beginPath(); g.arc(600, 625, 72, 0, Math.PI * 2); g.fillStyle = '#312e81'; g.fill();
+      g.fillStyle = '#ffffff'; g.font = 'bold 22px Georgia, serif'; g.fillText('LEVEL ' + d.level.lvl, 600, 620);
+      g.font = '18px Georgia, serif'; g.fillText(d.level.name, 600, 648);
+      g.fillStyle = '#065f46'; g.font = 'bold 24px Georgia, serif';
+      g.fillText('Monthly discount unlocked: ' + d.level.disc + '%', 600, 745);
+      return c.toDataURL('image/png');
+    }
+    function showCertificate(d) {
+      const url = buildCertificate(d);
+      document.getElementById('certImg').src = url;
+      const dl = document.getElementById('certDownload');
+      dl.href = url; dl.download = 'RiSync-Certificate-' + d.date + '.png';
+      document.getElementById('certModal').classList.remove('hidden');
+    }
+
+    async function ensureBilling(me) {
+      if (billingChecked) return; billingChecked = true;
+      const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - 1);
+      const prev = monthStr(d);
+      const bref = doc(db, 'users', me.uid, 'billing', prev);
+      if ((await getDoc(bref)).exists()) return;
+      const snap = await getDocs(query(collection(db, 'users', me.uid, 'matchRatings'), where('month', '==', prev)));
+      let n = 0; snap.forEach(x => { if (x.data().certificate) n++; });
+      if (!n) return;
+      const lv = levelFor(n), f = feeFor(lv.disc);
+      await setDoc(bref, {
+        month: prev, certificates: n, level: lv.lvl, levelName: lv.name,
+        baseAmount: BASE_FEE, discountPercent: f.discountPercent, discountAmount: f.discountAmount,
+        amountDue: f.amountDue, currency: 'INR', status: 'pending', computedAt: new Date().toISOString()
+      });
+    }
+
+    async function loadRatingPanel(me, best) {
+      const today = dateStr(new Date()), month = today.slice(0, 7);
+      const name = matchLabel(best.user);
+      const [todaySnap, monthSnap] = await Promise.all([
+        getDoc(doc(db, 'users', me.uid, 'matchRatings', today)),
+        getDocs(query(collection(db, 'users', me.uid, 'matchRatings'), where('month', '==', month)))
+      ]);
+      monthCerts = [];
+      monthSnap.forEach(x => { const v = x.data(); if (v.certificate) monthCerts.push(v); });
+      monthCerts.sort((p, q) => p.date.localeCompare(q.date));
+      const count = monthCerts.length, lv = levelFor(count), next = LEVELS[lv.lvl + 1];
+
+      // rating row
+      const stars = document.getElementById('ratingStars'); stars.innerHTML = '';
+      const prompt = document.getElementById('ratingPrompt'), note = document.getElementById('ratingNote');
+      if (todaySnap.exists()) {
+        const r = todaySnap.data();
+        prompt.textContent = 'Today\'s rating for ' + (r.matchName || name);
+        for (let i = 1; i <= 5; i++) { const s = document.createElement('span'); s.textContent = '★'; s.className = 'text-2xl ' + (i <= r.rating ? 'text-amber-400' : 'text-slate-300'); stars.appendChild(s); }
+        note.textContent = r.certificate ? 'Certificate earned today - tap it below to view or download.' : 'Thanks! Rate again tomorrow. A rating above ' + CERT_MIN_RATING + ' earns a certificate.';
+      } else {
+        prompt.textContent = 'Rate your best match for today: how was studying with ' + name + '?';
+        for (let i = 1; i <= 5; i++) {
+          const b = document.createElement('button'); b.type = 'button'; b.textContent = '★';
+          b.className = 'text-3xl text-slate-300 hover:text-amber-400 transition';
+          b.onmouseenter = () => [...stars.children].forEach((x, j) => x.className = 'text-3xl transition ' + (j < i ? 'text-amber-400' : 'text-slate-300'));
+          b.onmouseleave = () => [...stars.children].forEach(x => x.className = 'text-3xl text-slate-300 hover:text-amber-400 transition');
+          b.onclick = () => submitRating(i);
+          stars.appendChild(b);
+        }
+        note.textContent = 'One rating per day. Rate above ' + CERT_MIN_RATING + ' (5 stars) to earn today\'s certificate.';
+      }
+
+      // level / fee row
+      const f = feeFor(lv.disc);
+      document.getElementById('levelTitle').textContent = 'Level ' + lv.lvl + ' · ' + lv.name + ' — ' + count + ' certificate' + (count === 1 ? '' : 's') + ' this month';
+      document.getElementById('levelFee').textContent = 'Month-end fee: ₹' + f.amountDue + ' (₹' + BASE_FEE + ' − ' + f.discountPercent + '%)';
+      const pct = next ? Math.round(((count - lv.min) / (next.min - lv.min)) * 100) : 100;
+      document.getElementById('levelBar').style.width = pct + '%';
+      document.getElementById('levelNext').textContent = next
+        ? (next.min - count) + ' more certificate' + (next.min - count === 1 ? '' : 's') + ' to reach Level ' + next.lvl + ' (' + next.disc + '% off). Max discount ' + MAX_DISCOUNT + '% = ₹' + feeFor(MAX_DISCOUNT).discountAmount + '.'
+        : 'Top level reached - maximum ' + MAX_DISCOUNT + '% discount!';
+      const list = document.getElementById('certList'); list.innerHTML = '';
+      monthCerts.forEach(v => {
+        const chip = document.createElement('button'); chip.type = 'button';
+        chip.className = 'rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 hover:bg-emerald-100';
+        chip.textContent = '🏅 ' + v.date.slice(5);
+        chip.onclick = () => showCertificate({ name: me.fullname || me.displayName || 'Student', matchName: v.matchName || 'a classmate', rating: v.rating, date: v.date, level: levelFor(monthCerts.filter(x => x.date <= v.date).length) });
+        list.appendChild(chip);
+      });
+      ensureBilling(me).catch(e => console.warn('Billing check skipped:', e));
+    }
+
+    async function submitRating(r) {
+      if (!currentMe || !currentBest) return;
+      const today = dateStr(new Date());
+      const ref = doc(db, 'users', currentMe.uid, 'matchRatings', today);
+      const note = document.getElementById('ratingNote');
+      try {
+        if ((await getDoc(ref)).exists()) { await loadRatingPanel(currentMe, currentBest); return; }
+        const cert = r > CERT_MIN_RATING;
+        const matchName = matchLabel(currentBest.user);
+        await setDoc(ref, { date: today, month: today.slice(0, 7), rating: r, certificate: cert, matchEmail: currentBest.user.email, matchName, ratedAt: new Date().toISOString() });
+        await loadRatingPanel(currentMe, currentBest);
+        if (cert) showCertificate({ name: currentMe.fullname || currentMe.displayName || 'Student', matchName, rating: r, date: today, level: levelFor(monthCerts.length) });
+      } catch (e) { console.error('Rating failed:', e); note.textContent = 'Could not save rating: ' + (e.message || e); note.className = 'text-xs text-red-600 mt-1'; }
+    }
+
+    async function findAnotherMatch() {
+      if (!currentMe || !currentBest) return;
+      const btn = document.getElementById('findAnotherBtn');
+      const skipped = [...new Set([...(currentMe.skippedMatches || []), currentBest.user.email])];
+      const me2 = { ...currentMe, skippedMatches: skipped };
+      const alt = bestOf(me2, lastPool);
+      if (!alt || alt.score < MATCH_THRESHOLD) { toast('No other match', 'There is no other good match in your class right now.'); return; }
+      btn.disabled = true;
+      try {
+        await setDoc(doc(db, 'users', me2.uid), { skippedMatches: skipped, updatedAt: new Date().toISOString() }, { merge: true });
+        window.risyncUserData = { ...(window.risyncUserData || {}), skippedMatches: skipped };
+        await loadBestMatch(me2);
+        syncMatchesToFirebase(me2).catch(e => console.warn('Match sync failed:', e));
+      } catch (e) { console.error('Find another failed:', e); toast('Could not change match', e.message || String(e)); }
+      finally { btn.disabled = false; }
+    }
+    document.getElementById('findAnotherBtn').onclick = findAnotherMatch;
+    document.getElementById('certClose').onclick = () => document.getElementById('certModal').classList.add('hidden');
+    document.getElementById('certModal').addEventListener('click', e => { if (e.target.id === 'certModal') e.target.classList.add('hidden'); });
 
     // ---- Update preferences ----
     const PREF_SUBJECTS = ['Maths', 'Science', 'English', 'Social Science', 'Hindi', 'Computer'];
