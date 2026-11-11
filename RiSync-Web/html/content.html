@@ -726,16 +726,27 @@
               <span class="material-symbols-outlined text-base">autorenew</span> Find another best match
             </button>
           </div>
-          <div class="rounded-xl bg-white/80 border border-indigo-100 p-4">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <p id="levelTitle" class="text-sm font-extrabold text-indigo-950"></p>
-              <p id="levelFee" class="text-xs font-bold text-emerald-700"></p>
-            </div>
-            <div class="h-2 rounded-full bg-slate-200 mt-2 overflow-hidden"><div id="levelBar" class="h-2 bg-secondary" style="width:0%"></div></div>
-            <p id="levelNext" class="text-xs text-slate-500 mt-1"></p>
-            <div id="certList" class="flex flex-wrap gap-2 mt-3"></div>
+        </div>
+      </section>
+
+      <!-- Tutor level, certificates & monthly subscription (certificates are earned when classmates rate YOU above 4) -->
+      <section id="tutorLevelSection" class="rounded-2xl border border-indigo-100 bg-white p-6 shadow-sm">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <span class="inline-flex items-center gap-1 rounded-full bg-indigo-900 px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest text-white mb-2">
+              <span class="material-symbols-outlined text-xs">workspace_premium</span> Your Tutor Level
+            </span>
+            <p id="levelTitle" class="text-sm font-extrabold text-indigo-950">Loading...</p>
+          </div>
+          <div class="text-right">
+            <p id="levelFee" class="text-sm font-extrabold text-emerald-700"></p>
+            <p class="text-[11px] text-slate-500">Subscription ₹500 / month · up to 35% off at month end</p>
           </div>
         </div>
+        <div class="h-2 rounded-full bg-slate-200 mt-3 overflow-hidden"><div id="levelBar" class="h-2 bg-secondary" style="width:0%"></div></div>
+        <p id="levelNext" class="text-xs text-slate-500 mt-1"></p>
+        <p class="text-xs text-slate-500 mt-1">Each day a classmate rates you above 4 stars, you earn a certificate. More certificates = higher level = bigger discount.</p>
+        <div id="certList" class="flex flex-wrap gap-2 mt-3"></div>
       </section>
 
       <!-- Bento Grid -->
@@ -1243,13 +1254,13 @@
       g.strokeStyle = '#10b981'; g.lineWidth = 4; g.strokeRect(55, 55, 1090, 740);
       g.textAlign = 'center';
       g.fillStyle = '#312e81'; g.font = 'bold 30px Georgia, serif'; g.fillText('RISYNC', 600, 130);
-      g.font = 'bold 62px Georgia, serif'; g.fillText('Certificate of Excellence', 600, 225);
+      g.font = 'bold 54px Georgia, serif'; g.fillText('Tutor Certificate of Excellence', 600, 225);
       g.fillStyle = '#475569'; g.font = 'italic 28px Georgia, serif'; g.fillText('is proudly presented to', 600, 300);
       let size = 60; g.fillStyle = '#065f46';
       do { g.font = 'bold ' + size + 'px Georgia, serif'; size -= 2; } while (g.measureText(d.name).width > 980 && size > 24);
       g.fillText(d.name, 600, 390);
       g.fillStyle = '#334155'; g.font = '26px Georgia, serif';
-      g.fillText('for an outstanding study partnership with ' + d.matchName, 600, 460);
+      g.fillText('for outstanding tutoring, as rated by ' + d.matchName, 600, 460);
       g.fillText('and a ' + d.rating + '-star rating on ' + d.date, 600, 505);
       g.beginPath(); g.arc(600, 625, 72, 0, Math.PI * 2); g.fillStyle = '#312e81'; g.fill();
       g.fillStyle = '#ffffff'; g.font = 'bold 22px Georgia, serif'; g.fillText('LEVEL ' + d.level.lvl, 600, 620);
@@ -1266,14 +1277,20 @@
       document.getElementById('certModal').classList.remove('hidden');
     }
 
+    async function getMonthCerts(uid, month) {
+      const snap = await getDocs(query(collection(db, 'users', uid, 'certificates'), where('month', '==', month)));
+      const byDate = {};
+      snap.forEach(x => { const v = x.data(); if (v.date && !byDate[v.date]) byDate[v.date] = v; }); // max one certificate per day
+      return Object.values(byDate).sort((p, q) => p.date.localeCompare(q.date));
+    }
+
     async function ensureBilling(me) {
       if (billingChecked) return; billingChecked = true;
       const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - 1);
       const prev = monthStr(d);
       const bref = doc(db, 'users', me.uid, 'billing', prev);
       if ((await getDoc(bref)).exists()) return;
-      const snap = await getDocs(query(collection(db, 'users', me.uid, 'matchRatings'), where('month', '==', prev)));
-      let n = 0; snap.forEach(x => { if (x.data().certificate) n++; });
+      const n = (await getMonthCerts(me.uid, prev)).length;
       if (!n) return;
       const lv = levelFor(n), f = feeFor(lv.disc);
       await setDoc(bref, {
@@ -1284,27 +1301,20 @@
     }
 
     async function loadRatingPanel(me, best) {
-      const today = dateStr(new Date()), month = today.slice(0, 7);
+      const today = dateStr(new Date());
       const name = matchLabel(best.user);
-      const [todaySnap, monthSnap] = await Promise.all([
-        getDoc(doc(db, 'users', me.uid, 'matchRatings', today)),
-        getDocs(query(collection(db, 'users', me.uid, 'matchRatings'), where('month', '==', month)))
-      ]);
-      monthCerts = [];
-      monthSnap.forEach(x => { const v = x.data(); if (v.certificate) monthCerts.push(v); });
-      monthCerts.sort((p, q) => p.date.localeCompare(q.date));
-      const count = monthCerts.length, lv = levelFor(count), next = LEVELS[lv.lvl + 1];
+      const todaySnap = await getDoc(doc(db, 'users', me.uid, 'matchRatings', today));
 
-      // rating row
       const stars = document.getElementById('ratingStars'); stars.innerHTML = '';
       const prompt = document.getElementById('ratingPrompt'), note = document.getElementById('ratingNote');
+      note.className = 'text-xs text-slate-500 mt-1';
       if (todaySnap.exists()) {
         const r = todaySnap.data();
         prompt.textContent = 'Today\'s rating for ' + (r.matchName || name);
         for (let i = 1; i <= 5; i++) { const s = document.createElement('span'); s.textContent = '★'; s.className = 'text-2xl ' + (i <= r.rating ? 'text-amber-400' : 'text-slate-300'); stars.appendChild(s); }
-        note.textContent = r.certificate ? 'Certificate earned today - tap it below to view or download.' : 'Thanks! Rate again tomorrow. A rating above ' + CERT_MIN_RATING + ' earns a certificate.';
+        note.textContent = r.certificate ? 'Great! A certificate was awarded to ' + (r.matchName || name) + ' for today. Rate again tomorrow.' : 'Thanks! Rate again tomorrow. A rating above ' + CERT_MIN_RATING + ' earns your tutor a certificate.';
       } else {
-        prompt.textContent = 'Rate your best match for today: how was studying with ' + name + '?';
+        prompt.textContent = '⭐ Daily rating due: how was studying with ' + name + ' today?';
         for (let i = 1; i <= 5; i++) {
           const b = document.createElement('button'); b.type = 'button'; b.textContent = '★';
           b.className = 'text-3xl text-slate-300 hover:text-amber-400 transition';
@@ -1313,10 +1323,15 @@
           b.onclick = () => submitRating(i);
           stars.appendChild(b);
         }
-        note.textContent = 'One rating per day. Rate above ' + CERT_MIN_RATING + ' (5 stars) to earn today\'s certificate.';
+        note.textContent = 'Rate your best match after each day. One rating per day; above ' + CERT_MIN_RATING + ' stars gives ' + name + ' a certificate. Not a good fit? Find another best match.';
       }
+    }
 
-      // level / fee row
+    // Tutor's own level: certificates received from classmates this month -> level -> month-end discount
+    async function loadTutorLevel(me) {
+      const month = monthStr(new Date());
+      monthCerts = await getMonthCerts(me.uid, month);
+      const count = monthCerts.length, lv = levelFor(count), next = LEVELS[lv.lvl + 1];
       const f = feeFor(lv.disc);
       document.getElementById('levelTitle').textContent = 'Level ' + lv.lvl + ' · ' + lv.name + ' — ' + count + ' certificate' + (count === 1 ? '' : 's') + ' this month';
       document.getElementById('levelFee').textContent = 'Month-end fee: ₹' + f.amountDue + ' (₹' + BASE_FEE + ' − ' + f.discountPercent + '%)';
@@ -1326,11 +1341,12 @@
         ? (next.min - count) + ' more certificate' + (next.min - count === 1 ? '' : 's') + ' to reach Level ' + next.lvl + ' (' + next.disc + '% off). Max discount ' + MAX_DISCOUNT + '% = ₹' + feeFor(MAX_DISCOUNT).discountAmount + '.'
         : 'Top level reached - maximum ' + MAX_DISCOUNT + '% discount!';
       const list = document.getElementById('certList'); list.innerHTML = '';
+      if (!count) list.innerHTML = '<p class="text-xs text-slate-400">No certificates yet this month.</p>';
       monthCerts.forEach(v => {
         const chip = document.createElement('button'); chip.type = 'button';
         chip.className = 'rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 hover:bg-emerald-100';
         chip.textContent = '🏅 ' + v.date.slice(5);
-        chip.onclick = () => showCertificate({ name: me.fullname || me.displayName || 'Student', matchName: v.matchName || 'a classmate', rating: v.rating, date: v.date, level: levelFor(monthCerts.filter(x => x.date <= v.date).length) });
+        chip.onclick = () => showCertificate({ name: me.fullname || me.displayName || 'Student', matchName: v.fromName || 'a classmate', rating: v.rating, date: v.date, level: levelFor(monthCerts.filter(x => x.date <= v.date).length) });
         list.appendChild(chip);
       });
       ensureBilling(me).catch(e => console.warn('Billing check skipped:', e));
@@ -1344,10 +1360,23 @@
       try {
         if ((await getDoc(ref)).exists()) { await loadRatingPanel(currentMe, currentBest); return; }
         const cert = r > CERT_MIN_RATING;
-        const matchName = matchLabel(currentBest.user);
-        await setDoc(ref, { date: today, month: today.slice(0, 7), rating: r, certificate: cert, matchEmail: currentBest.user.email, matchName, ratedAt: new Date().toISOString() });
+        const tutor = currentBest.user, matchName = matchLabel(tutor);
+        await setDoc(ref, { date: today, month: today.slice(0, 7), rating: r, certificate: cert, matchEmail: tutor.email, matchUid: tutor.uid || '', matchName, ratedAt: new Date().toISOString() });
+        let delivered = true;
+        if (cert) {
+          try {
+            await setDoc(doc(db, 'users', tutor.uid, 'certificates', today + '__' + currentMe.uid), {
+              date: today, month: today.slice(0, 7), rating: r,
+              fromUid: currentMe.uid, fromName: currentMe.fullname || currentMe.displayName || 'A classmate',
+              tutorUid: tutor.uid, issuedAt: new Date().toISOString()
+            });
+          } catch (e) { delivered = false; console.warn('Certificate delivery failed (check Firestore rules):', e); }
+        }
         await loadRatingPanel(currentMe, currentBest);
-        if (cert) showCertificate({ name: currentMe.fullname || currentMe.displayName || 'Student', matchName, rating: r, date: today, level: levelFor(monthCerts.length) });
+        if (cert) {
+          if (delivered) toast('Certificate awarded', matchName + ' earned today\'s certificate for your ' + r + '-star rating!');
+          else { note.textContent = 'Rating saved, but the certificate could not be delivered to ' + matchName + ' (Firestore rules).'; note.className = 'text-xs text-red-600 mt-1'; }
+        }
       } catch (e) { console.error('Rating failed:', e); note.textContent = 'Could not save rating: ' + (e.message || e); note.className = 'text-xs text-red-600 mt-1'; }
     }
 
@@ -1516,6 +1545,7 @@
           if (userData.branch) document.getElementById('displayBranch').innerText = userData.branch;
           if (userData.todos) renderTodos(userData.todos);
           loadBestMatch({ ...userData, uid: user.uid, email: (userData.email || user.email || '').toLowerCase() });
+          loadTutorLevel({ ...userData, uid: user.uid }).catch(e => console.warn('Tutor level unavailable:', e));
 
           // Read NCERT progress — prefer root-doc fields (written by updated NCERT),
           // fall back to computing from the subcollection for users who haven't opened NCERT yet.
