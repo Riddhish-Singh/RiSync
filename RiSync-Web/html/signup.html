@@ -510,32 +510,54 @@
       if (last && Date.now() - last < 14 * 24 * 3600 * 1000) { score += 15; reasons.push("Recently active"); }
       return { score: Math.min(100, score), reasons };
     }
-    async function findBestMatch(me) {
-      const snap = await getDocs(query(collection(db, "users"), where("class", "==", String(me.class)), limit(60)));
+    const matchName = u => u.fullname || u.displayName || "Classmate";
+    function bestOf(person, pool) {
       let best = null;
-      snap.forEach(d => {
-        const u = d.data();
-        const r = scoreMatch(me, u);
+      pool.forEach(u => {
+        const r = scoreMatch(person, u);
         if (r && (!best || r.score > best.score)) best = { user: u, score: r.score, reasons: r.reasons };
       });
       return best;
     }
-    async function notifyBestMatch(me) {
+    // one notification for `to`, about `about` (id is unique per pair so nothing is overwritten)
+    async function sendMatchNote(to, about, best, title, message) {
       try {
-        const best = await findBestMatch(me);
-        if (!best || best.score < MATCH_THRESHOLD) return;
-        await setDoc(doc(db, "notifications", "match__" + me.uid), {
+        await setDoc(doc(db, "notifications", "match__" + to.uid + "__" + about.uid), {
           type: "match_suggestion",
-          toEmail: me.email,
-          fromEmail: best.user.email,
-          title: "You have a best match!",
-          message: `${best.user.fullname || best.user.displayName || "A classmate"} (${best.score}% match) - ${best.reasons.join(", ")}`,
-          matchName: best.user.fullname || best.user.displayName || "Classmate",
-          matchEmail: best.user.email,
+          toEmail: to.email,
+          fromEmail: about.email,
+          title,
+          message,
+          matchName: matchName(about),
+          matchEmail: about.email,
           matchScore: best.score,
           read: false,
           createdAt: new Date()
         });
+      } catch (e) { console.warn("Match note skipped:", e); }
+    }
+    /* Chain: A's best match is B  -> A is told "B is your match", B is told "you are A's perfect match".
+       Then B's own best match is C -> B is told "C is your match", C is told "you are B's perfect match", and so on. */
+    async function notifyBestMatch(me) {
+      try {
+        const snap = await getDocs(query(collection(db, "users"), where("class", "==", String(me.class)), limit(60)));
+        const pool = [];
+        snap.forEach(d => { const u = d.data(); pool.push({ ...u, uid: u.uid || d.id }); });
+        if (!pool.some(u => u.email === me.email)) pool.push(me);
+        const seen = new Set([me.email]);
+        let cur = me;
+        for (let depth = 0; depth < 5; depth++) {
+          const best = bestOf(cur, pool);
+          if (!best || best.score < MATCH_THRESHOLD) break;
+          const next = best.user;
+          await sendMatchNote(cur, next, best, "You have a best match!",
+            `${matchName(next)} (${best.score}% match) - ${best.reasons.join(", ")}`);
+          await sendMatchNote(next, cur, best, "You're someone's perfect match!",
+            `${matchName(cur)} sees you as their perfect match (${best.score}% match) - ${best.reasons.join(", ")}`);
+          if (seen.has(next.email)) break;   // chain looped back, stop
+          seen.add(next.email);
+          cur = next;
+        }
       } catch (e) { console.warn("Match suggestion skipped:", e); }
     }
 
