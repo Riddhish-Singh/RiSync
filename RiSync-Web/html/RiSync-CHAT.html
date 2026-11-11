@@ -2858,6 +2858,41 @@
       }
     }
 
+    // ---------- 1-0-1 direct chat (from Best Match on the dashboard / notification) ----------
+    const dmRoomId = (a, b) => "risync-dm-" + [a, b].sort().map(encId).join("__");
+
+    async function openDirectChat(partnerEmail, partnerName) {
+      partnerEmail = (partnerEmail || "").trim().toLowerCase();
+      history.replaceState(null, "", location.pathname);
+      if (!EMAIL_RE.test(partnerEmail) || partnerEmail === me.email) return;
+      const roomId = dmRoomId(me.email, partnerEmail);
+      const title = (partnerName || partnerEmail.split("@")[0]).slice(0, 60);
+      try {
+        // Make sure the other person gets an invite (never reset one they already answered)
+        const nid = `invite__${encId(partnerEmail)}__${encId(roomId)}`;
+        let exists = false;
+        try { exists = (await getDoc(doc(db, "notifications", nid))).exists(); } catch (e) {}
+        let partnerMember = false;
+        try { partnerMember = (await getDoc(doc(db, "memberships", memId(partnerEmail, roomId)))).exists(); } catch (e) {}
+        if (!exists && !partnerMember) {
+          await setDoc(doc(db, "notifications", nid), {
+            type: "room_invite",
+            toEmail: partnerEmail,
+            fromEmail: me.email,
+            fromName: me.name,
+            roomId,
+            title: me.name,                       // their sidebar will show my name for this 1-0-1 chat
+            message: "wants to talk 1-0-1 (best match)",
+            status: "pending",
+            read: false,
+            createdAt: serverTimestamp()
+          });
+        }
+      } catch (e) { console.error("1-0-1 invite failed:", e); }
+      try { await joinRoom(roomId, title, "dm", partnerEmail); }
+      catch (e) { console.error(e); window.openModal("alert", "Could not open the 1-0-1 chat. Please try again."); }
+    }
+
     function listenMemberships() {
       onSnapshot(query(collection(db, "memberships"), where("email", "==", me.email)), (snap) => {
         snap.forEach(d => {
@@ -2906,6 +2941,7 @@
       me = { email, name: (localProfile() && localProfile().fullname) || user.displayName || email.split("@")[0] };
       listenMemberships();
       handlePendingJoin();
+      if (qs.get("dm")) openDirectChat(qs.get("dm"), qs.get("name") || "");
     });
   }
 </script>
