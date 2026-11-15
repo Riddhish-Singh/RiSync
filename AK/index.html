@@ -1,0 +1,3093 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>AK Operations &amp; Performance Deck</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+      rel="stylesheet"
+    />
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        overscroll-behavior: none;
+      }
+      ::-webkit-scrollbar {
+        display: none;
+      }
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400;
+      }
+      [data-role="employee"] [data-admin] {
+        display: none !important;
+      }
+      [data-role="employee"] #quickCard {
+        grid-column: 1/-1;
+      }
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      .fade-up {
+        animation: fadeUp 0.45s ease both;
+      }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              "body-md": ["Inter", "sans-serif"],
+              "headline-sm": ["Plus Jakarta Sans", "sans-serif"],
+              "headline-md": ["Plus Jakarta Sans", "sans-serif"],
+              "headline-lg": ["Plus Jakarta Sans", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body
+    class="bg-slate-50 font-body-md text-slate-800 antialiased selection:bg-orange-500 selection:text-white"
+  >
+    <!-- Sidebar -->
+    <aside
+      class="fixed left-0 top-0 h-full w-64 bg-white border-r border-slate-200 z-50 flex flex-col justify-between py-5 shadow-sm"
+    >
+      <div class="flex flex-col gap-6">
+        <div class="px-5 flex items-center gap-3">
+          <div
+            class="w-11 h-11 rounded-full bg-orange-500 text-white font-headline-sm font-extrabold flex items-center justify-center shadow-md flex-shrink-0"
+          >
+            AK
+          </div>
+          <div class="flex flex-col">
+            <span
+              class="font-headline-sm font-bold text-slate-900 uppercase tracking-tight text-base"
+              >AK Studio</span
+            ><span
+              class="font-mono text-[10px] text-slate-500 uppercase tracking-wider font-semibold"
+              >Ops &amp; Performance</span
+            >
+          </div>
+        </div>
+        <div class="px-5"><div class="h-px w-full bg-slate-200"></div></div>
+        <div class="px-3">
+          <span
+            class="px-3 font-mono text-[11px] text-slate-400 font-bold uppercase tracking-wider block mb-2"
+            >Operations Deck</span
+          >
+          <nav class="flex flex-col gap-1" id="sideNav">
+            <a
+              href="#"
+              data-nav="tab-daily-pulse"
+              class="side-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
+              ><span class="material-symbols-outlined text-[20px]">radar</span
+              ><span>Overview &amp; Daily Pulse</span></a
+            >
+            <a
+              href="#"
+              data-nav="tab-weekly-performance"
+              data-admin
+              class="side-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
+              ><span class="material-symbols-outlined text-[20px]">stacked_line_chart</span
+              ><span>Weekly Performance</span></a
+            >
+            <a
+              href="#"
+              data-nav="tab-monthly-scorecard"
+              data-admin
+              class="side-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
+              ><span class="material-symbols-outlined text-[20px]">table_chart</span
+              ><span>Monthly Scorecard</span></a
+            >
+            <a
+              href="#"
+              data-nav="tab-yearly-retrospective"
+              data-admin
+              class="side-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
+              ><span class="material-symbols-outlined text-[20px]">history_edu</span
+              ><span>Yearly Retrospective</span></a
+            >
+            <a
+              href="#"
+              data-nav="tab-employee-work-submissions"
+              class="side-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
+              ><span class="material-symbols-outlined text-[20px]">assignment_turned_in</span
+              ><span>Employee Submissions</span></a
+            >
+            <a
+              href="#"
+              data-nav="tab-to-do-and-tasks-master"
+              class="side-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
+              ><span class="material-symbols-outlined text-[20px]">checklist</span
+              ><span>To-Do &amp; Tasks Master</span></a
+            >
+          </nav>
+        </div>
+      </div>
+      <div class="px-4 flex flex-col gap-2">
+        <p class="text-[11px] text-slate-400 px-1 leading-snug">Synced live with Firebase.</p>
+        <button
+          type="button"
+          data-act="clear-all"
+          data-admin
+          class="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-200 text-slate-600 hover:text-red-700 text-xs font-semibold transition-colors"
+        >
+          <span class="material-symbols-outlined text-[16px]">delete_sweep</span>Clear all data
+        </button>
+      </div>
+    </aside>
+
+    <div class="pl-64">
+      <!-- Top bar -->
+      <header
+        class="fixed top-0 left-64 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm z-40 flex items-center justify-between px-8"
+      >
+        <div class="relative w-full max-w-sm">
+          <span
+            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]"
+            >search</span
+          >
+          <input
+            id="globalSearch"
+            class="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white text-slate-800 placeholder:text-slate-400 text-sm pl-9 pr-3 py-1.5 rounded-lg border border-slate-200 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all"
+            placeholder="Search tasks, submissions, segments..."
+            type="text"
+          />
+        </div>
+        <div class="flex items-center gap-3">
+          <button
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors border border-slate-200"
+            data-nav="tab-to-do-and-tasks-master"
+            data-admin
+            type="button"
+          >
+            <span class="material-symbols-outlined text-[17px] text-orange-600">add_task</span
+            ><span>Add Task</span>
+          </button>
+          <button
+            class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold shadow-sm transition-all"
+            data-nav="tab-employee-work-submissions"
+            type="button"
+          >
+            <span class="material-symbols-outlined text-[17px]">send</span><span>Submit Work</span>
+          </button>
+          <div class="h-6 w-px bg-slate-200"></div>
+          <button
+            id="bellBtn"
+            title="Pending reviews"
+            class="relative p-2 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+            data-nav="tab-employee-work-submissions"
+            type="button"
+          >
+            <span class="material-symbols-outlined text-[20px]">notifications</span
+            ><span
+              id="bellDot"
+              class="hidden absolute top-1 right-1 min-w-[16px] h-4 px-1 rounded-full bg-orange-500 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white"
+              >0</span
+            >
+          </button>
+          <div class="flex items-center gap-2.5 pl-1">
+            <div
+              id="meAvatar"
+              class="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center text-[11px] font-bold"
+            >
+              AK
+            </div>
+            <div class="flex flex-col leading-tight">
+              <span id="meName" class="text-xs font-bold text-slate-900"></span
+              ><span
+                id="meRole"
+                class="text-[10px] font-bold text-orange-600 uppercase tracking-tight font-mono"
+              ></span>
+            </div>
+            <button
+              id="signOutBtn"
+              type="button"
+              title="Sign out"
+              class="p-2 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+            >
+              <span class="material-symbols-outlined text-[20px]">logout</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main class="relative pt-20 bg-slate-50 min-h-screen w-full px-8 py-6">
+        <div class="flex flex-col w-full max-w-[1600px] mx-auto">
+          <!-- Header + tab nav -->
+          <div
+            class="relative w-full rounded-2xl bg-white border border-slate-200/90 p-6 shadow-sm overflow-hidden mb-6"
+          >
+            <div
+              class="absolute -right-16 -top-16 w-72 h-72 rounded-full bg-orange-100/60 blur-3xl pointer-events-none"
+            ></div>
+            <div class="relative z-10 flex flex-col gap-1">
+              <div class="flex items-center gap-2">
+                <span class="font-mono text-xs uppercase tracking-wider text-orange-600 font-bold"
+                  >AK Talk Show Command Suite</span
+                ><span class="w-1 h-1 rounded-full bg-slate-300"></span
+                ><span class="text-xs text-slate-500 font-medium">Production Studio Control</span>
+              </div>
+              <h1
+                class="font-headline-lg text-2xl lg:text-3xl text-slate-900 tracking-tight font-extrabold"
+              >
+                Operations &amp; Performance Deck
+              </h1>
+              <p id="greet" class="text-sm text-slate-500 mt-1"></p>
+            </div>
+            <div class="relative z-10 mt-5 pt-3 border-t border-slate-100">
+              <nav class="flex items-center gap-2 overflow-x-auto" id="masterTabTrack">
+                <button
+                  class="tab-trigger flex items-center gap-2 px-4 py-2 rounded-xl text-xs whitespace-nowrap transition-all"
+                  data-tab-id="tab-daily-pulse"
+                  type="button"
+                >
+                  <span class="material-symbols-outlined text-[18px]">radar</span
+                  ><span>Daily Pulse &amp; Actions</span>
+                </button>
+                <button
+                  class="tab-trigger flex items-center gap-2 px-4 py-2 rounded-xl text-xs whitespace-nowrap transition-all"
+                  data-tab-id="tab-weekly-performance"
+                  data-admin
+                  type="button"
+                >
+                  <span class="material-symbols-outlined text-[18px]">stacked_line_chart</span
+                  ><span>Weekly Performance</span>
+                </button>
+                <button
+                  class="tab-trigger flex items-center gap-2 px-4 py-2 rounded-xl text-xs whitespace-nowrap transition-all"
+                  data-tab-id="tab-monthly-scorecard"
+                  data-admin
+                  type="button"
+                >
+                  <span class="material-symbols-outlined text-[18px]">table_chart</span
+                  ><span>Monthly Scorecard</span>
+                </button>
+                <button
+                  class="tab-trigger flex items-center gap-2 px-4 py-2 rounded-xl text-xs whitespace-nowrap transition-all"
+                  data-tab-id="tab-yearly-retrospective"
+                  data-admin
+                  type="button"
+                >
+                  <span class="material-symbols-outlined text-[18px]">history_edu</span
+                  ><span>Yearly Retrospective</span>
+                </button>
+                <button
+                  class="tab-trigger flex items-center gap-2 px-4 py-2 rounded-xl text-xs whitespace-nowrap transition-all"
+                  data-tab-id="tab-employee-work-submissions"
+                  type="button"
+                >
+                  <span class="material-symbols-outlined text-[18px]">assignment_turned_in</span
+                  ><span>Work Submissions</span>
+                </button>
+                <button
+                  class="tab-trigger flex items-center gap-2 px-4 py-2 rounded-xl text-xs whitespace-nowrap transition-all"
+                  data-tab-id="tab-to-do-and-tasks-master"
+                  type="button"
+                >
+                  <span class="material-symbols-outlined text-[18px]">checklist</span
+                  ><span>To-Do &amp; Tasks Master</span>
+                </button>
+              </nav>
+            </div>
+          </div>
+
+          <input
+            type="file"
+            id="importFile"
+            accept=".txt,.csv,text/plain,text/csv"
+            class="hidden"
+          />
+
+          <!-- TAB 1: DAILY PULSE -->
+          <section class="tab-pane hidden flex-col gap-6 w-full" id="tab-daily-pulse">
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5" id="pulseKpis"></div>
+            <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+              <!-- Quick dispatch -->
+              <div
+                id="quickCard"
+                class="xl:col-span-5 bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col gap-4 self-start"
+              >
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-orange-600 text-[22px]">bolt</span>
+                  <h2 id="quickHeading" class="font-headline-sm text-base text-slate-900 font-bold">
+                    Quick Task Dispatch
+                  </h2>
+                </div>
+                <form class="flex flex-col gap-3" id="quickTaskForm" data-admin>
+                  <input
+                    class="w-full bg-slate-50 text-slate-900 placeholder:text-slate-400 text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 outline-none focus:bg-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+                    id="quickTaskTitle"
+                    placeholder="Type a new task and press enter..."
+                    required
+                    type="text"
+                  />
+                  <div class="grid grid-cols-2 gap-3">
+                    <select
+                      class="assignee-select bg-slate-50 text-slate-800 text-xs font-medium px-3 py-2 rounded-xl border border-slate-200 outline-none focus:bg-white focus:border-orange-500"
+                      id="quickTaskAssignee"
+                    ></select>
+                    <select
+                      class="bg-slate-50 text-slate-800 text-xs font-medium px-3 py-2 rounded-xl border border-slate-200 outline-none focus:bg-white focus:border-orange-500"
+                      id="quickTaskPriority"
+                    >
+                      <option value="Urgent">Urgent</option>
+                      <option value="High">High</option>
+                      <option value="Normal" selected>Normal</option>
+                    </select>
+                  </div>
+                  <button
+                    class="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition-all shadow-sm"
+                    type="submit"
+                  >
+                    <span class="material-symbols-outlined text-[18px]">add_task</span
+                    ><span>Add Task</span>
+                  </button>
+                </form>
+                <div
+                  data-admin
+                  class="rounded-xl bg-slate-50 border-2 border-dashed border-slate-200 p-4 flex flex-col items-center text-center cursor-pointer hover:border-orange-400 hover:bg-orange-50/30 transition-all"
+                  data-act="pick-file"
+                >
+                  <span class="material-symbols-outlined text-orange-500 text-[26px] mb-1"
+                    >drive_folder_upload</span
+                  >
+                  <span class="text-xs font-bold text-slate-800">Import a .txt or .csv file</span>
+                  <span class="text-[11px] text-slate-500"
+                    >One task per line (CSV: title, assignee, priority)</span
+                  >
+                </div>
+                <div class="flex flex-col gap-2">
+                  <span
+                    class="font-mono text-[11px] uppercase tracking-wider text-slate-400 font-bold"
+                    >Open Tasks</span
+                  >
+                  <div
+                    class="flex flex-col gap-1.5 max-h-56 overflow-y-auto pr-1"
+                    id="quickTaskList"
+                  ></div>
+                </div>
+              </div>
+              <!-- Rundown + activity -->
+              <div data-admin class="xl:col-span-7 flex flex-col gap-5">
+                <div
+                  class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col gap-4"
+                >
+                  <div class="flex items-center justify-between gap-3 flex-wrap">
+                    <div class="flex items-center gap-2">
+                      <span class="material-symbols-outlined text-orange-600 text-[22px]"
+                        >live_tv</span
+                      >
+                      <h2 class="font-headline-sm text-base text-slate-900 font-bold">
+                        Episode Rundown
+                      </h2>
+                    </div>
+                    <input
+                      id="episodeTitle"
+                      class="bg-slate-50 text-slate-900 placeholder:text-slate-400 text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:bg-white focus:border-orange-500 w-64"
+                      placeholder="Episode name / number"
+                      type="text"
+                    />
+                  </div>
+                  <form id="segForm" data-admin class="grid grid-cols-2 md:grid-cols-5 gap-2">
+                    <input
+                      id="segBlock"
+                      class="bg-slate-50 text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:bg-white focus:border-orange-500"
+                      placeholder="Block (A-01)"
+                      type="text"
+                    />
+                    <input
+                      id="segName"
+                      class="md:col-span-2 bg-slate-50 text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:bg-white focus:border-orange-500"
+                      placeholder="Segment name"
+                      required
+                      type="text"
+                    />
+                    <input
+                      id="segTc"
+                      class="bg-slate-50 text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:bg-white focus:border-orange-500"
+                      placeholder="00:00 - 06:15"
+                      type="text"
+                    />
+                    <input
+                      id="segTalent"
+                      class="bg-slate-50 text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:bg-white focus:border-orange-500"
+                      placeholder="Talent / Cam"
+                      type="text"
+                    />
+                    <button
+                      class="md:col-span-5 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-800 text-xs font-bold"
+                      type="submit"
+                    >
+                      <span class="material-symbols-outlined text-[16px] text-orange-600">add</span
+                      >Add Segment
+                    </button>
+                  </form>
+                  <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                      <thead>
+                        <tr
+                          class="bg-slate-50 text-slate-500 font-mono text-[11px] uppercase border-y border-slate-200"
+                        >
+                          <th class="py-2.5 px-3">Block</th>
+                          <th class="py-2.5 px-3">Segment</th>
+                          <th class="py-2.5 px-3">Timecode</th>
+                          <th class="py-2.5 px-3">Talent / Cam</th>
+                          <th class="py-2.5 px-3">Status</th>
+                          <th class="py-2.5 px-3"></th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-slate-100 text-xs" id="segBody"></tbody>
+                    </table>
+                  </div>
+                </div>
+                <div
+                  class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col gap-3"
+                >
+                  <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-orange-600 text-[22px]"
+                      >stream</span
+                    >
+                    <h2 class="font-headline-sm text-base text-slate-900 font-bold">
+                      Recent Activity
+                    </h2>
+                  </div>
+                  <div class="flex flex-col gap-2" id="activityFeed"></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- TAB 2: WEEKLY -->
+          <section class="tab-pane hidden flex-col gap-6 w-full" id="tab-weekly-performance">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+              <h2 class="font-headline-md text-xl text-slate-900 font-bold">This Week</h2>
+              <span class="text-xs text-slate-500" id="weeklyRange"></span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5" id="weeklyTiles"></div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+              <div
+                class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col gap-3"
+              >
+                <h3 class="font-headline-sm text-base text-slate-900 font-bold">
+                  Individual Output
+                </h3>
+                <div id="weeklyPeople"></div>
+              </div>
+              <div
+                class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col gap-3"
+              >
+                <h3 class="font-headline-sm text-base text-slate-900 font-bold">
+                  Department Approvals
+                </h3>
+                <div id="weeklyDepts"></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- TAB 3: MONTHLY -->
+          <section class="tab-pane hidden flex-col gap-6 w-full" id="tab-monthly-scorecard">
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+              <span class="font-mono text-xs uppercase tracking-wider text-orange-600 font-bold"
+                >Executive Operations Scorecard</span
+              >
+              <h2
+                class="font-headline-lg text-2xl text-slate-900 font-extrabold mt-1"
+                id="monthlyTitle"
+              ></h2>
+            </div>
+            <div
+              class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5"
+              id="monthlyTiles"
+            ></div>
+            <div
+              class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col gap-3"
+            >
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-amber-500 text-[22px]"
+                  >military_tech</span
+                >
+                <h3 class="font-headline-sm text-base text-slate-900 font-bold">
+                  Monthly Leaderboard
+                </h3>
+              </div>
+              <div id="monthlyBoard"></div>
+            </div>
+          </section>
+
+          <!-- TAB 4: YEARLY -->
+          <section class="tab-pane hidden flex-col gap-6 w-full" id="tab-yearly-retrospective">
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+              <span class="font-mono text-xs uppercase tracking-wider text-orange-600 font-bold"
+                >Annual Retrospective</span
+              >
+              <h2
+                class="font-headline-lg text-2xl text-slate-900 font-extrabold mt-1"
+                id="yearlyTitle"
+              ></h2>
+            </div>
+            <div
+              class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5"
+              id="yearlyTiles"
+            ></div>
+            <div
+              class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col gap-4"
+            >
+              <h3 class="font-headline-sm text-base text-slate-900 font-bold">Output by Quarter</h3>
+              <div class="flex flex-col gap-3" id="yearlyQuarters"></div>
+            </div>
+          </section>
+
+          <!-- TAB 5: SUBMISSIONS -->
+          <section class="tab-pane hidden flex-col gap-6 w-full" id="tab-employee-work-submissions">
+            <div
+              class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col gap-4"
+            >
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-10 h-10 rounded-xl bg-orange-50 border border-orange-200 text-orange-600 flex items-center justify-center"
+                >
+                  <span class="material-symbols-outlined text-[22px]">cloud_upload</span>
+                </div>
+                <div>
+                  <h2 class="font-headline-sm text-base text-slate-900 font-bold">
+                    Deliverable Submission
+                  </h2>
+                  <span class="text-xs text-slate-500"
+                    >Log cuts, audio, artwork or scripts for lead review</span
+                  >
+                </div>
+              </div>
+              <form
+                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                id="submissionUploadForm"
+              >
+                <div class="flex flex-col gap-1.5">
+                  <label class="font-mono text-[11px] text-slate-500 uppercase font-bold"
+                    >Submitter</label
+                  ><select
+                    class="assignee-select-req bg-slate-50 text-slate-900 text-xs font-medium px-3 py-2.5 rounded-xl border border-slate-200 outline-none focus:bg-white focus:border-orange-500"
+                    id="subEmployee"
+                    required
+                  ></select>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="font-mono text-[11px] text-slate-500 uppercase font-bold"
+                    >Department</label
+                  ><select
+                    class="bg-slate-50 text-slate-900 text-xs font-medium px-3 py-2.5 rounded-xl border border-slate-200 outline-none focus:bg-white focus:border-orange-500"
+                    id="subDept"
+                  >
+                    <option>Post-Production Video</option>
+                    <option>Audio Engineering</option>
+                    <option>Thumbnail &amp; Key Art</option>
+                    <option>Guest Research &amp; Briefs</option>
+                    <option>Social Media Clips</option>
+                  </select>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="font-mono text-[11px] text-slate-500 uppercase font-bold"
+                    >Episode</label
+                  ><input
+                    class="bg-slate-50 text-slate-900 placeholder:text-slate-400 text-xs font-medium px-3 py-2.5 rounded-xl border border-slate-200 outline-none focus:bg-white focus:border-orange-500"
+                    id="subEpisode"
+                    placeholder="e.g. EP-12"
+                    type="text"
+                  />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="font-mono text-[11px] text-slate-500 uppercase font-bold"
+                    >Submission Type</label
+                  ><select
+                    class="bg-slate-50 text-slate-900 text-xs font-medium px-3 py-2.5 rounded-xl border border-slate-200 outline-none focus:bg-white focus:border-orange-500"
+                    id="subType"
+                  >
+                    <option>Full Video Cut</option>
+                    <option>Short Snippet</option>
+                    <option>Audio Stems</option>
+                    <option>Thumbnail Design</option>
+                    <option>Host Script</option>
+                  </select>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="font-mono text-[11px] text-slate-500 uppercase font-bold"
+                    >Related Task (optional)</label
+                  ><select
+                    class="bg-slate-50 text-slate-900 text-xs font-medium px-3 py-2.5 rounded-xl border border-slate-200 outline-none focus:bg-white focus:border-orange-500"
+                    id="subTask"
+                  ></select>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="font-mono text-[11px] text-slate-500 uppercase font-bold"
+                    >Deliverable Name</label
+                  ><input
+                    class="bg-slate-50 text-slate-900 placeholder:text-slate-400 text-xs font-medium px-3 py-2.5 rounded-xl border border-slate-200 outline-none focus:bg-white focus:border-orange-500"
+                    id="subTitle"
+                    placeholder="File name or title"
+                    required
+                    type="text"
+                  />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="font-mono text-[11px] text-slate-500 uppercase font-bold"
+                    >Link for large files (optional)</label
+                  ><input
+                    class="bg-slate-50 text-slate-900 placeholder:text-slate-400 text-xs font-medium px-3 py-2.5 rounded-xl border border-slate-200 outline-none focus:bg-white focus:border-orange-500"
+                    id="subLink"
+                    placeholder="Google Drive / Dropbox / WeTransfer link"
+                    type="url"
+                  />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="font-mono text-[11px] text-slate-500 uppercase font-bold"
+                    >Notes (optional)</label
+                  ><input
+                    class="bg-slate-50 text-slate-900 placeholder:text-slate-400 text-xs font-medium px-3 py-2.5 rounded-xl border border-slate-200 outline-none focus:bg-white focus:border-orange-500"
+                    id="subNotes"
+                    placeholder="Timecodes, remarks..."
+                    type="text"
+                  />
+                </div>
+                <div
+                  class="md:col-span-2 lg:col-span-3 flex items-center justify-between gap-3 flex-wrap"
+                >
+                  <label class="flex items-center gap-2 text-xs text-slate-600 cursor-pointer"
+                    ><span
+                      class="px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-200 font-semibold text-slate-700 flex items-center gap-1.5"
+                      ><span class="material-symbols-outlined text-[16px] text-orange-600"
+                        >attach_file</span
+                      ><span id="attachTxt">Attach file (max 4 MB)</span></span
+                    ><input type="file" id="subFile" class="hidden" /><span
+                      id="subFileName"
+                      class="text-[11px] text-slate-500"
+                    ></span
+                  ></label>
+                  <button
+                    class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition-all shadow-sm"
+                    type="submit"
+                  >
+                    <span class="material-symbols-outlined text-[18px]">publish</span
+                    ><span>Submit for Review</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+            <div
+              class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col gap-4"
+            >
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-orange-600 text-[22px]"
+                    >fact_check</span
+                  >
+                  <h3 class="font-headline-sm text-base text-slate-900 font-bold">
+                    Review Pipeline
+                  </h3>
+                </div>
+                <div
+                  class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl"
+                  id="subFilters"
+                ></div>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                  <thead>
+                    <tr
+                      class="bg-slate-50 text-slate-500 font-mono text-[11px] uppercase border-y border-slate-200"
+                    >
+                      <th class="py-2.5 px-3">Employee</th>
+                      <th class="py-2.5 px-3">Deliverable</th>
+                      <th class="py-2.5 px-3">Episode</th>
+                      <th class="py-2.5 px-3">Submitted</th>
+                      <th class="py-2.5 px-3">Status</th>
+                      <th class="py-2.5 px-3 text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 text-xs" id="submissionTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- TAB 6: TASKS -->
+          <section class="tab-pane hidden flex-col gap-6 w-full" id="tab-to-do-and-tasks-master">
+            <div data-admin class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+              <div
+                class="lg:col-span-7 bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col gap-4"
+              >
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-orange-600 text-[22px]"
+                    >edit_note</span
+                  >
+                  <h2 class="font-headline-sm text-base text-slate-900 font-bold">Add a Task</h2>
+                </div>
+                <form class="flex flex-col gap-3" id="masterTaskForm">
+                  <div class="flex flex-col gap-1">
+                    <label class="font-mono text-[11px] text-slate-500 uppercase font-bold"
+                      >Task</label
+                    ><input
+                      class="w-full bg-slate-50 text-slate-900 placeholder:text-slate-400 text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 outline-none focus:bg-white focus:border-orange-500"
+                      id="masterTaskTitle"
+                      placeholder="Describe the task"
+                      required
+                      type="text"
+                    />
+                  </div>
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="flex flex-col gap-1">
+                      <label class="font-mono text-[11px] text-slate-500 uppercase font-bold"
+                        >Assignee</label
+                      ><select
+                        class="assignee-select bg-slate-50 text-slate-800 text-xs font-medium px-3 py-2 rounded-xl border border-slate-200 outline-none focus:bg-white"
+                        id="masterTaskAssignee"
+                      ></select>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="font-mono text-[11px] text-slate-500 uppercase font-bold"
+                        >Priority</label
+                      ><select
+                        class="bg-slate-50 text-slate-800 text-xs font-medium px-3 py-2 rounded-xl border border-slate-200 outline-none focus:bg-white"
+                        id="masterTaskPriority"
+                      >
+                        <option value="Urgent">Urgent</option>
+                        <option value="High">High</option>
+                        <option value="Normal" selected>Normal</option>
+                      </select>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="font-mono text-[11px] text-slate-500 uppercase font-bold"
+                        >Tag</label
+                      ><select
+                        class="bg-slate-50 text-slate-800 text-xs font-medium px-3 py-2 rounded-xl border border-slate-200 outline-none focus:bg-white"
+                        id="masterTaskTag"
+                      >
+                        <option value="#VideoCut">#VideoCut</option>
+                        <option value="#Thumbnail">#Thumbnail</option>
+                        <option value="#Audio">#Audio</option>
+                        <option value="#GuestBrief">#GuestBrief</option>
+                        <option value="#ShortForm">#ShortForm</option>
+                        <option value="#General">#General</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="flex justify-end">
+                    <button
+                      class="flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold shadow-sm"
+                      type="submit"
+                    >
+                      <span class="material-symbols-outlined text-[18px]">add_circle</span>Add to
+                      Board
+                    </button>
+                  </div>
+                </form>
+                <div class="h-px bg-slate-100" data-admin></div>
+                <div class="flex flex-col gap-2" data-admin>
+                  <label class="font-mono text-[11px] text-slate-500 uppercase font-bold"
+                    >Employees</label
+                  >
+                  <form
+                    id="empForm"
+                    class="grid grid-cols-1 sm:grid-cols-2 gap-2"
+                    autocomplete="off"
+                  >
+                    <input
+                      id="empName"
+                      class="bg-slate-50 text-xs px-3 py-2 rounded-xl border border-slate-200 outline-none focus:bg-white focus:border-orange-500"
+                      placeholder="Full name"
+                      required
+                      type="text"
+                    />
+                    <input
+                      id="empEmail"
+                      class="bg-slate-50 text-xs px-3 py-2 rounded-xl border border-slate-200 outline-none focus:bg-white focus:border-orange-500"
+                      placeholder="name@gmail.com"
+                      required
+                      type="email"
+                    />
+                    <input
+                      id="empPw"
+                      class="bg-slate-50 text-xs px-3 py-2 rounded-xl border border-slate-200 outline-none focus:bg-white focus:border-orange-500"
+                      placeholder="Temporary password (min 6)"
+                      required
+                      minlength="6"
+                      type="text"
+                      autocomplete="off"
+                    />
+                    <button
+                      id="empBtn"
+                      class="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 disabled:opacity-60 text-white text-xs font-bold"
+                      type="submit"
+                    >
+                      <span class="material-symbols-outlined text-[16px]">person_add</span>Add
+                      Employee
+                    </button>
+                  </form>
+                  <div class="flex flex-col gap-1.5" id="teamList"></div>
+                </div>
+              </div>
+              <div
+                class="lg:col-span-5 bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col gap-4 self-start"
+              >
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-orange-600 text-[22px]"
+                      >upload_file</span
+                    >
+                    <h2 class="font-headline-sm text-base text-slate-900 font-bold">Bulk Import</h2>
+                  </div>
+                  <span
+                    class="font-mono text-[11px] text-slate-500 font-bold bg-slate-100 px-2 py-0.5 rounded"
+                    >TXT • CSV</span
+                  >
+                </div>
+                <textarea
+                  class="w-full bg-slate-50 text-slate-900 placeholder:text-slate-400 text-xs p-3 rounded-xl border border-slate-200 outline-none focus:bg-white focus:border-orange-500"
+                  id="bulkTasksArea"
+                  placeholder="Paste one task per line..."
+                  rows="4"
+                ></textarea>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <button
+                    type="button"
+                    data-act="bulk-import"
+                    class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-800 text-xs font-bold"
+                  >
+                    <span class="material-symbols-outlined text-[16px] text-orange-600"
+                      >playlist_add</span
+                    >Add Lines as Tasks
+                  </button>
+                  <button
+                    type="button"
+                    data-act="pick-file"
+                    class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-800 text-xs font-bold"
+                  >
+                    <span class="material-symbols-outlined text-[16px] text-orange-600"
+                      >attach_file</span
+                    >Import File
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div
+              class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col gap-4"
+            >
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-orange-600 text-[22px]"
+                  >view_kanban</span
+                >
+                <h3 class="font-headline-sm text-base text-slate-900 font-bold">Task Board</h3>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4" id="kanban"></div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <div id="authScreen" class="fixed inset-0 z-[100] bg-slate-50 flex overflow-y-auto">
+      <div
+        class="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-orange-500 via-orange-600 to-amber-600 text-white p-14 flex-col justify-between"
+      >
+        <div class="absolute -right-24 -top-24 w-96 h-96 rounded-full bg-white/10 blur-2xl"></div>
+        <div class="absolute -left-20 bottom-0 w-80 h-80 rounded-full bg-black/10 blur-3xl"></div>
+        <div class="relative flex items-center gap-3">
+          <div
+            class="w-12 h-12 rounded-full bg-white text-orange-600 font-headline-sm font-extrabold flex items-center justify-center shadow-lg"
+          >
+            AK
+          </div>
+          <div class="flex flex-col">
+            <span class="font-headline-sm font-bold uppercase tracking-tight text-lg"
+              >AK Studio</span
+            ><span
+              class="font-mono text-[10px] uppercase tracking-wider text-orange-100 font-semibold"
+              >Ops &amp; Performance</span
+            >
+          </div>
+        </div>
+        <div class="relative fade-up">
+          <span class="font-mono text-xs uppercase tracking-wider text-orange-100 font-bold"
+            >AK Talk Show Command Suite</span
+          >
+          <h1 class="font-headline-lg text-5xl font-extrabold tracking-tight leading-tight mt-3">
+            Every episode,<br />on track.
+          </h1>
+          <p class="mt-4 text-orange-50 text-base max-w-md">
+            Tasks, rundowns and deliverable reviews for the whole production team, in one place.
+          </p>
+          <div class="mt-8 flex flex-col gap-3 text-sm text-orange-50">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-[20px]">checklist</span>Track your tasks
+              on the board
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-[20px]">assignment_turned_in</span>Submit
+              work for lead review
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-[20px]">stacked_line_chart</span>Weekly,
+              monthly and yearly performance
+            </div>
+          </div>
+        </div>
+        <span class="relative text-xs text-orange-100">&copy; AK Talk Show</span>
+      </div>
+      <div class="w-full lg:w-1/2 flex items-center justify-center p-6">
+        <div class="w-full max-w-md fade-up">
+          <div class="lg:hidden flex items-center gap-3 mb-8">
+            <div
+              class="w-11 h-11 rounded-full bg-orange-500 text-white font-headline-sm font-extrabold flex items-center justify-center shadow-md"
+            >
+              AK
+            </div>
+            <span class="font-headline-sm font-bold text-slate-900 uppercase tracking-tight"
+              >AK Studio</span
+            >
+          </div>
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
+            <div
+              class="w-12 h-12 rounded-xl bg-orange-50 border border-orange-200 text-orange-600 flex items-center justify-center mb-5"
+            >
+              <span class="material-symbols-outlined text-[26px]" id="authIcon">login</span>
+            </div>
+            <h2
+              id="authTitle"
+              class="font-headline-md text-2xl font-extrabold text-slate-900 tracking-tight mb-6"
+            >
+              Sign in
+            </h2>
+            <form id="authForm" class="flex flex-col gap-4" novalidate>
+              <div class="flex flex-col gap-1.5">
+                <label class="font-mono text-[11px] text-slate-500 uppercase font-bold"
+                  >Work email</label
+                >
+                <input
+                  id="authEmail"
+                  type="email"
+                  autocomplete="username"
+                  placeholder="name@gmail.com"
+                  class="w-full bg-slate-50 text-slate-900 placeholder:text-slate-400 text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 outline-none focus:bg-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+                />
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class="font-mono text-[11px] text-slate-500 uppercase font-bold"
+                  >Password</label
+                >
+                <input
+                  id="authPw"
+                  type="password"
+                  autocomplete="current-password"
+                  class="w-full bg-slate-50 text-slate-900 text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 outline-none focus:bg-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+                />
+              </div>
+              <div class="flex items-center justify-between">
+                <label
+                  class="flex items-center gap-2 text-xs text-slate-600 cursor-pointer select-none"
+                  ><input
+                    id="authShow"
+                    type="checkbox"
+                    class="rounded border-slate-300 text-orange-500 focus:ring-orange-500"
+                  />Show password</label
+                >
+                <button
+                  id="authForgot"
+                  type="button"
+                  class="text-xs font-semibold text-slate-500 hover:text-orange-600"
+                >
+                  Forgot password?
+                </button>
+              </div>
+              <p id="authMsgEl" class="hidden"></p>
+              <button
+                id="authBtn"
+                type="submit"
+                class="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 disabled:opacity-60 text-white text-sm font-bold shadow-sm transition-all"
+              >
+                <span id="authBtnText">Sign in</span
+                ><span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="toast"
+      class="hidden fixed bottom-6 right-6 z-[60] px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-semibold shadow-lg"
+    ></div>
+
+    <script>
+      (function () {
+        var KEY = "akops.v1"; // legacy localStorage key, used only for one-time import by the admin
+        var EMPTY = function () {
+          return { team: [], tasks: [], subs: [], segs: [], episode: "", log: [], employees: [] };
+        };
+        var S = EMPTY(),
+          subFilter = "All",
+          currentTab = "tab-daily-pulse";
+        function save() {}
+        var rq = 0;
+        function scheduleRender() {
+          if (rq) return;
+          rq = requestAnimationFrame(function () {
+            rq = 0;
+            if (ME) renderAll();
+          });
+        }
+        function fail(e) {
+          console.error(e);
+          toast(
+            e && e.code === "permission-denied"
+              ? "Not allowed by Firestore rules."
+              : "Action failed. Check your connection.",
+          );
+        }
+        function uid() {
+          return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+        }
+        var ME = null;
+        function isAdmin() {
+          return !!ME && ME.role === "admin";
+        }
+        function vTasks() {
+          return !ME
+            ? []
+            : isAdmin()
+              ? S.tasks
+              : S.tasks.filter(function (t) {
+                  return t.assigneeEmail === ME.email;
+                });
+        }
+        function vSubs() {
+          return !ME
+            ? []
+            : isAdmin()
+              ? S.subs
+              : S.subs.filter(function (x) {
+                  return x.employeeEmail === ME.email;
+                });
+        }
+        function esc(s) {
+          return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+            return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+          });
+        }
+        function $(id) {
+          return document.getElementById(id);
+        }
+        function log(t) {
+          if (!ME || !isAdmin() || !db) return;
+          db.collection("log")
+            .add({ ts: Date.now(), text: t })
+            .catch(function () {});
+        }
+        function toast(m) {
+          var t = $("toast");
+          t.textContent = m;
+          t.classList.remove("hidden");
+          clearTimeout(toast._t);
+          toast._t = setTimeout(function () {
+            t.classList.add("hidden");
+          }, 2800);
+        }
+        function ago(ts) {
+          var s = Math.floor((Date.now() - ts) / 1000);
+          if (s < 60) return "just now";
+          var m = Math.floor(s / 60);
+          if (m < 60) return m + "m ago";
+          var h = Math.floor(m / 60);
+          if (h < 24) return h + "h ago";
+          return Math.floor(h / 24) + "d ago";
+        }
+        function empty(msg) {
+          return (
+            '<div class="text-xs text-slate-400 py-6 text-center border border-dashed border-slate-200 rounded-xl">' +
+            esc(msg) +
+            "</div>"
+          );
+        }
+        function initials(n) {
+          return (
+            n
+              .split(/\s+/)
+              .filter(Boolean)
+              .map(function (p) {
+                return p[0];
+              })
+              .join("")
+              .slice(0, 2)
+              .toUpperCase() || "?"
+          );
+        }
+
+        var CARD = "bg-white p-5 rounded-2xl border border-slate-200 shadow-sm";
+        function tile(label, value, sub) {
+          return (
+            '<div class="' +
+            CARD +
+            '"><span class="font-mono text-xs uppercase tracking-wider text-slate-500 font-bold">' +
+            esc(label) +
+            '</span><div class="font-headline-lg text-4xl text-slate-900 font-extrabold my-2">' +
+            esc(value) +
+            '</div><span class="text-xs text-slate-500">' +
+            esc(sub || "") +
+            "</span></div>"
+          );
+        }
+
+        // ---------- Auth (Firebase) ----------
+        // Paste your Firebase web app config here (Firebase console > Project settings > Your apps).
+        var FIREBASE_CONFIG = {
+          apiKey: "AIzaSyAJdfoD4k6toG7qlTzF3KrXdWSMArF8eZg",
+          authDomain: "ak-talk-show.firebaseapp.com",
+          projectId: "ak-talk-show",
+          storageBucket: "ak-talk-show.firebasestorage.app",
+          messagingSenderId: "392532462931",
+          appId: "1:392532462931:web:7173e1929651971c1fe5a6",
+          measurementId: "G-8FL9BL5VM2",
+        };
+        var ADMIN_EMAIL = "admin@aktalkshow.com",
+          DOMAIN = "@aktalkshow.com";
+        var EMP_IDS = [
+          "chirag.rana",
+          "jagjit.singh",
+          "gagandeep.singh",
+          "ashmit.singh",
+          "manjeet.kaur",
+          "jagdeep.singh",
+          "swaran.kaur",
+          "geeta.arora",
+          "lovepreet.kaur",
+        ];
+        var ROSTER = {},
+          EMP_NAMES = [],
+          fbAuth = null,
+          db = null,
+          unsubs = [];
+        ROSTER[ADMIN_EMAIL] = { name: "Admin", role: "admin" };
+        EMP_IDS.forEach(function (l) {
+          var nm = l
+            .split(".")
+            .map(function (w) {
+              return w.charAt(0).toUpperCase() + w.slice(1);
+            })
+            .join(" ");
+          ROSTER[l + DOMAIN] = { name: nm, role: "employee" };
+          EMP_NAMES.push(nm);
+        });
+        var cfgOk = !!(
+          FIREBASE_CONFIG.apiKey &&
+          FIREBASE_CONFIG.apiKey.indexOf("YOUR_") !== 0 &&
+          FIREBASE_CONFIG.projectId &&
+          FIREBASE_CONFIG.projectId.indexOf("YOUR_") !== 0
+        );
+        var initErr = "";
+        if (cfgOk && window.firebase) {
+          try {
+            if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+            fbAuth = firebase.auth();
+            db = firebase.firestore();
+            try {
+              fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function () {});
+            } catch (e) {}
+          } catch (e) {
+            initErr = (e && e.message) || "init failed";
+          }
+        }
+        if (location.protocol === "file:") initErr = initErr || "file-protocol";
+        function authMsg(m, ok) {
+          var el = $("authMsgEl");
+          if (!m) {
+            el.className = "hidden";
+            return;
+          }
+          el.textContent = m;
+          el.className = "text-xs font-medium " + (ok ? "text-emerald-600" : "text-red-600");
+        }
+        function fbErr(e) {
+          var c = (e && e.code) || "";
+          if (
+            c === "auth/invalid-credential" ||
+            c === "auth/wrong-password" ||
+            c === "auth/user-not-found" ||
+            c === "auth/invalid-email"
+          )
+            return "Incorrect email or password.";
+          if (c === "auth/too-many-requests") return "Too many attempts. Try again later.";
+          if (c === "auth/network-request-failed") return "Network error. Check your connection.";
+          if (c === "auth/user-disabled") return "This account has been disabled.";
+          if (c === "auth/operation-not-allowed")
+            return "Email/Password sign-in is disabled. Enable it in Firebase console > Authentication > Sign-in method.";
+          if (
+            c === "auth/invalid-api-key" ||
+            c === "auth/api-key-not-valid.-please-pass-a-valid-api-key."
+          )
+            return "Invalid Firebase API key. Re-check the config in Firebase setup.";
+          if (c === "auth/configuration-not-found")
+            return "Authentication is not set up in this Firebase project. Click Get started in Firebase console > Authentication.";
+          if (c === "auth/unauthorized-domain")
+            return "This domain is not authorised. Add it in Firebase console > Authentication > Settings > Authorized domains.";
+          if (c === "auth/operation-not-supported-in-this-environment")
+            return "Sign-in needs http(s). Open via localhost or your hosted URL, not by double-clicking the file.";
+          return "Could not sign in. Please try again.";
+        }
+        function showLogin() {
+          $("authScreen").classList.remove("hidden");
+          $("authBtn").disabled = false;
+          $("authBtnText").textContent = "Sign in";
+        }
+        $("authShow").addEventListener("change", function (e) {
+          $("authPw").type = e.target.checked ? "text" : "password";
+        });
+        $("authForm").addEventListener("submit", function (e) {
+          e.preventDefault();
+          authMsg("");
+          var em = $("authEmail").value.trim().toLowerCase(),
+            pw = $("authPw").value;
+          if (!fbAuth) {
+            authMsg("Firebase is not configured yet. Add the Firebase config in the code.");
+            return;
+          }
+          if (!em || !pw) {
+            authMsg("Enter your email and password.");
+            return;
+          }
+
+          $("authBtn").disabled = true;
+          $("authBtnText").textContent = "Signing in...";
+          fbAuth.signInWithEmailAndPassword(em, pw).catch(function (err) {
+            authMsg(fbErr(err));
+            $("authBtn").disabled = false;
+            $("authBtnText").textContent = "Sign in";
+          });
+        });
+        $("authForgot").addEventListener("click", function () {
+          var em = $("authEmail").value.trim().toLowerCase();
+          if (!fbAuth) {
+            authMsg("Firebase is not configured yet.");
+            return;
+          }
+          if (!em) {
+            return;
+          }
+          fbAuth
+            .sendPasswordResetEmail(em)
+            .then(function () {
+              authMsg("Password reset email sent. Check your inbox.", true);
+            })
+            .catch(function (err) {
+              authMsg(fbErr(err));
+            });
+        });
+        $("signOutBtn").addEventListener("click", function () {
+          if (fbAuth) {
+            fbAuth.signOut().then(function () {
+              location.reload();
+            });
+          } else location.reload();
+        });
+        function nameFromEmail(em) {
+          return (
+            em
+              .split("@")[0]
+              .split(/[._-]+/)
+              .filter(Boolean)
+              .map(function (w) {
+                return w.charAt(0).toUpperCase() + w.slice(1);
+              })
+              .join(" ") || em
+          );
+        }
+        function stopListeners() {
+          unsubs.forEach(function (f) {
+            try {
+              f();
+            } catch (e) {}
+          });
+          unsubs = [];
+        }
+        function listen(q, key, after) {
+          unsubs.push(
+            q.onSnapshot(
+              function (snap) {
+                S[key] = snap.docs.map(function (d) {
+                  var o = d.data();
+                  o.id = d.id;
+                  return o;
+                });
+                if (after) after();
+                scheduleRender();
+              },
+              function (err) {
+                console.error(key, err);
+                toast("Could not load " + key + ". Check Firestore rules.");
+              },
+            ),
+          );
+        }
+        function startListeners() {
+          stopListeners();
+          if (isAdmin()) {
+            listen(db.collection("tasks"), "tasks", function () {
+              S.tasks.sort(function (a, b) {
+                return (b.created || 0) - (a.created || 0);
+              });
+            });
+            listen(db.collection("subs"), "subs", function () {
+              S.subs.sort(function (a, b) {
+                return (b.ts || 0) - (a.ts || 0);
+              });
+            });
+            listen(db.collection("segs"), "segs", function () {
+              S.segs.sort(function (a, b) {
+                return (a.created || 0) - (b.created || 0);
+              });
+            });
+            listen(db.collection("employees"), "employees", function () {
+              S.employees.sort(function (a, b) {
+                return a.name.localeCompare(b.name);
+              });
+              S.team = S.employees.map(function (x) {
+                return x.name;
+              });
+            });
+            listen(db.collection("log").orderBy("ts", "desc").limit(30), "log");
+            unsubs.push(
+              db
+                .collection("meta")
+                .doc("state")
+                .onSnapshot(
+                  function (d) {
+                    S.episode = (d.exists && d.data().episode) || "";
+                    scheduleRender();
+                  },
+                  function () {},
+                ),
+            );
+          } else {
+            S.team = [ME.name];
+            listen(
+              db.collection("tasks").where("assigneeEmail", "==", ME.email),
+              "tasks",
+              function () {
+                S.tasks.sort(function (a, b) {
+                  return (b.created || 0) - (a.created || 0);
+                });
+              },
+            );
+            listen(
+              db.collection("subs").where("employeeEmail", "==", ME.email),
+              "subs",
+              function () {
+                S.subs.sort(function (a, b) {
+                  return (b.ts || 0) - (a.ts || 0);
+                });
+              },
+            );
+          }
+        }
+        function adminBootstrap() {
+          var ref = db.collection("meta").doc("state");
+          ref
+            .get()
+            .then(function (d) {
+              if (d.exists && d.data().seeded) return;
+              var raw = null;
+              try {
+                raw = JSON.parse(localStorage.getItem(KEY));
+              } catch (e) {}
+              var emps = {};
+              EMP_IDS.forEach(function (l) {
+                emps[l + DOMAIN] = nameFromEmail(l);
+              });
+              ((raw && raw.employees) || []).forEach(function (x) {
+                if (x && x.email && x.name) emps[x.email] = x.name;
+              });
+              var b = db.batch();
+              Object.keys(emps).forEach(function (em) {
+                b.set(db.collection("employees").doc(em), {
+                  name: emps[em],
+                  email: em,
+                  created: Date.now(),
+                });
+              });
+              b.set(ref, { seeded: true }, { merge: true });
+              return b.commit();
+            })
+            .then(migrateLocal)
+            .catch(fail);
+        }
+        function migrateLocal() {
+          var raw = null;
+          try {
+            raw = JSON.parse(localStorage.getItem(KEY));
+          } catch (e) {}
+          if (!raw || localStorage.getItem(KEY + ".migrated")) return;
+          var n = (raw.tasks || []).length + (raw.subs || []).length + (raw.segs || []).length;
+          if (!n) return;
+          if (
+            !confirm(
+              "Found " +
+                n +
+                " tasks/submissions/segments saved in this browser from before. Upload them to the cloud database now?",
+            )
+          )
+            return;
+          var byName = {};
+          EMP_IDS.forEach(function (l) {
+            byName[nameFromEmail(l)] = l + DOMAIN;
+          });
+          (raw.employees || []).forEach(function (x) {
+            if (x && x.name && x.email) byName[x.name] = x.email;
+          });
+          var ops = [];
+          (raw.tasks || []).forEach(function (t) {
+            ops.push([
+              "tasks",
+              t.id || uid(),
+              {
+                title: t.title,
+                assignee: t.assignee || "",
+                assigneeEmail: byName[t.assignee] || "",
+                priority: t.priority || "Normal",
+                tag: t.tag || "#General",
+                status: t.status || "backlog",
+                created: t.created || Date.now(),
+                doneAt: t.doneAt || null,
+              },
+            ]);
+          });
+          (raw.subs || []).forEach(function (s) {
+            ops.push([
+              "subs",
+              s.id || uid(),
+              {
+                employee: s.employee,
+                employeeEmail: byName[s.employee] || "",
+                dept: s.dept || "",
+                episode: s.episode || "",
+                type: s.type || "",
+                title: s.title,
+                notes: s.notes || "",
+                taskId: "",
+                taskTitle: "",
+                status: s.status || "Pending",
+                ts: s.ts || Date.now(),
+                fileName: "",
+                fileSize: 0,
+                mime: "",
+                chunks: 0,
+                link: "",
+              },
+            ]);
+          });
+          (raw.segs || []).forEach(function (g, i) {
+            ops.push([
+              "segs",
+              g.id || uid(),
+              {
+                block: g.block || "",
+                name: g.name,
+                tc: g.tc || "",
+                talent: g.talent || "",
+                status: g.status || "Slated",
+                created: Date.now() + i,
+              },
+            ]);
+          });
+          var chain = Promise.resolve();
+          for (var k = 0; k < ops.length; k += 400) {
+            (function (chunk) {
+              chain = chain.then(function () {
+                var b = db.batch();
+                chunk.forEach(function (o) {
+                  b.set(db.collection(o[0]).doc(o[1]), o[2]);
+                });
+                return b.commit();
+              });
+            })(ops.slice(k, k + 400));
+          }
+          chain
+            .then(function () {
+              localStorage.setItem(KEY + ".migrated", "1");
+              toast("Imported " + ops.length + " items to the cloud");
+            })
+            .catch(fail);
+        }
+        function enterApp(em, u) {
+          var isA = em === ADMIN_EMAIL;
+          var fallback = (u && u.displayName) || nameFromEmail(em);
+          var ready = isA
+            ? Promise.resolve({ name: "Admin" })
+            : db
+                .collection("employees")
+                .doc(em)
+                .get()
+                .then(function (d) {
+                  if (!d.exists) throw { code: "not-enrolled" };
+                  return d.data();
+                });
+          ready
+            .then(function (rec) {
+              ME = {
+                email: em,
+                name: isA ? "Admin" : rec.name || fallback,
+                role: isA ? "admin" : "employee",
+              };
+              document.body.setAttribute("data-role", ME.role);
+              $("authScreen").classList.add("hidden");
+              authMsg("");
+              $("authPw").value = "";
+              $("meAvatar").textContent = isA ? "AD" : initials(ME.name);
+              $("meName").textContent = ME.name;
+              $("meRole").textContent = isA ? "Admin" : "Team Member";
+              $("quickHeading").textContent = isA ? "Quick Task Dispatch" : "My Assigned Tasks";
+              var hr = new Date().getHours();
+              $("greet").textContent =
+                (hr < 12 ? "Good morning" : hr < 17 ? "Good afternoon" : "Good evening") +
+                ", " +
+                (isA ? "Admin" : ME.name.split(" ")[0]) +
+                (isA ? ". Full studio view." : ". Showing only your assigned tasks and uploads.");
+              startListeners();
+              renderAll();
+              showTab("tab-daily-pulse");
+              if (isA) adminBootstrap();
+            })
+            .catch(function (err) {
+              authMsg(
+                err && err.code === "not-enrolled"
+                  ? "Your account has not been added to the team yet. Ask the admin."
+                  : "Could not load your profile. Check your connection and Firestore rules.",
+              );
+              fbAuth.signOut();
+            });
+        }
+        function boot() {
+          if (!fbAuth) {
+            showLogin();
+            authMsg(
+              !cfgOk
+                ? 'Firebase is not configured. Open "Firebase setup" below and paste your config.'
+                : initErr === "file-protocol"
+                  ? "Open this page via http://localhost or your hosted URL, not as a local file."
+                  : "Could not load Firebase. Check your connection and config.",
+            );
+            return;
+          }
+          if (initErr === "file-protocol")
+            authMsg("Tip: Firebase sign-in works best over http(s), not file://.");
+          fbAuth.onAuthStateChanged(function (u) {
+            var em = u && u.email ? u.email.toLowerCase() : "";
+            if (u) {
+              enterApp(em, u);
+            } else if (u) {
+              fbAuth.signOut();
+              ME = null;
+              showLogin();
+            } else {
+              stopListeners();
+              ME = null;
+              S = EMPTY();
+              document.body.removeAttribute("data-role");
+              showLogin();
+            }
+          });
+        }
+
+        // ---------- Tabs ----------
+        var ON =
+          "tab-trigger flex items-center gap-2 px-4 py-2 rounded-xl text-xs whitespace-nowrap transition-all bg-orange-500 text-white font-bold shadow-sm";
+        var OFF =
+          "tab-trigger flex items-center gap-2 px-4 py-2 rounded-xl text-xs whitespace-nowrap transition-all bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200 font-semibold";
+        var SON =
+          "side-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all bg-orange-50 text-orange-600 font-semibold";
+        var SOFF =
+          "side-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-medium";
+        function showTab(id) {
+          if (
+            ME &&
+            !isAdmin() &&
+            ["tab-weekly-performance", "tab-monthly-scorecard", "tab-yearly-retrospective"].indexOf(
+              id,
+            ) > -1
+          )
+            id = "tab-daily-pulse";
+          currentTab = id;
+          document.querySelectorAll(".tab-pane").forEach(function (p) {
+            var on = p.id === id;
+            p.classList.toggle("hidden", !on);
+            p.classList.toggle("flex", on);
+          });
+          document.querySelectorAll(".tab-trigger").forEach(function (b) {
+            b.className = b.getAttribute("data-tab-id") === id ? ON : OFF;
+          });
+          document.querySelectorAll(".side-link").forEach(function (a) {
+            a.className = a.getAttribute("data-nav") === id ? SON : SOFF;
+            var ic = a.querySelector(".material-symbols-outlined");
+            if (ic)
+              ic.className =
+                "material-symbols-outlined text-[20px]" +
+                (a.getAttribute("data-nav") === id ? " text-orange-600" : "");
+          });
+          window.scrollTo(0, 0);
+        }
+
+        // ---------- Selects ----------
+        function fillSubTasks() {
+          var st = $("subTask"),
+            v = st.value,
+            who = $("subEmployee").value;
+          var list = S.tasks.filter(function (t) {
+            return t.status !== "done" && (!isAdmin() || !who || t.assigneeEmail === who);
+          });
+          st.innerHTML =
+            '<option value="">No specific task</option>' +
+            list
+              .map(function (t) {
+                return '<option value="' + esc(t.id) + '">' + esc(t.title) + "</option>";
+              })
+              .join("");
+          st.value = v;
+        }
+        function fillSelects() {
+          var opts =
+            '<option value="">Unassigned</option>' +
+            S.employees
+              .map(function (m) {
+                return '<option value="' + esc(m.email) + '">' + esc(m.name) + "</option>";
+              })
+              .join("");
+          document.querySelectorAll(".assignee-select").forEach(function (sel) {
+            var v = sel.value;
+            sel.innerHTML = opts;
+            sel.value = v;
+          });
+          var sub = $("subEmployee"),
+            sv = sub.value;
+          sub.innerHTML =
+            '<option value="">' +
+            (S.employees.length ? "Select submitter" : "Add team members in To-Do tab first") +
+            "</option>" +
+            S.employees
+              .map(function (m) {
+                return '<option value="' + esc(m.email) + '">' + esc(m.name) + "</option>";
+              })
+              .join("");
+          sub.value = sv;
+          if (ME && !isAdmin()) {
+            var mo = '<option value="' + esc(ME.email) + '">' + esc(ME.name) + "</option>";
+            sub.innerHTML = mo;
+            sub.disabled = true;
+          }
+          fillSubTasks();
+        }
+
+        // ---------- Kanban ----------
+        var COLS = [
+          {
+            k: "backlog",
+            t: "Backlog / Inbox",
+            c: "text-slate-600",
+            b: "bg-slate-200 text-slate-800",
+          },
+          { k: "progress", t: "In Progress", c: "text-orange-700", b: "bg-orange-500 text-white" },
+          { k: "review", t: "Ready for Review", c: "text-amber-700", b: "bg-amber-500 text-white" },
+          { k: "done", t: "Completed", c: "text-emerald-700", b: "bg-emerald-600 text-white" },
+        ];
+        var PCLS = {
+          Urgent: "bg-red-100 text-red-800",
+          High: "bg-amber-100 text-amber-800",
+          Normal: "bg-slate-100 text-slate-700",
+        };
+        function taskCard(t, i) {
+          var done = t.status === "done";
+          var key = [t.title, t.assignee, t.tag].join(" ").toLowerCase();
+          return (
+            '<div data-search="' +
+            esc(key) +
+            '" class="p-3.5 rounded-xl bg-white border border-slate-200 shadow-sm flex flex-col gap-2' +
+            (t.priority === "Urgent" && !done ? " border-l-4 border-l-orange-500" : "") +
+            '">' +
+            '<div class="flex items-center justify-between"><span class="font-mono text-[11px] text-orange-700 font-bold bg-orange-50 px-2 py-0.5 rounded">' +
+            esc(t.tag) +
+            '</span><span class="px-2 py-0.5 rounded font-mono text-[10px] font-bold ' +
+            (PCLS[t.priority] || PCLS.Normal) +
+            '">' +
+            esc(t.priority) +
+            "</span></div>" +
+            '<span class="text-xs font-semibold ' +
+            (done ? "text-slate-400 line-through" : "text-slate-800") +
+            '">' +
+            esc(t.title) +
+            "</span>" +
+            '<div class="flex items-center justify-between pt-1 text-[11px] text-slate-500"><span class="font-medium">' +
+            esc(t.assignee || "Unassigned") +
+            '</span><span class="font-mono">' +
+            ago(t.doneAt || t.created) +
+            "</span></div>" +
+            (isAdmin()
+              ? '<div class="flex items-center gap-1 pt-1">' +
+                '<button type="button" title="Move back" data-act="task-prev" data-id="' +
+                t.id +
+                '" class="p-1 rounded-md hover:bg-slate-100 text-slate-500"><span class="material-symbols-outlined text-[16px]">chevron_left</span></button>' +
+                '<button type="button" title="Move forward" data-act="task-next" data-id="' +
+                t.id +
+                '" class="p-1 rounded-md hover:bg-slate-100 text-slate-500"><span class="material-symbols-outlined text-[16px]">chevron_right</span></button>' +
+                '<button type="button" title="Delete" data-act="task-del" data-id="' +
+                t.id +
+                '" class="ml-auto p-1 rounded-md hover:bg-red-50 text-slate-400 hover:text-red-600"><span class="material-symbols-outlined text-[16px]">delete</span></button>' +
+                "</div>"
+              : "") +
+            "</div>"
+          );
+        }
+        function renderKanban() {
+          $("kanban").innerHTML = COLS.map(function (c) {
+            var items = vTasks().filter(function (t) {
+              return t.status === c.k;
+            });
+            return (
+              '<div class="flex flex-col gap-3 bg-slate-50 border border-slate-200 p-4 rounded-xl"><div class="flex items-center justify-between pb-2 border-b border-slate-200"><span class="font-mono text-xs uppercase tracking-wider font-bold ' +
+              c.c +
+              '">' +
+              c.t +
+              '</span><span class="font-mono text-xs px-2 py-0.5 rounded-md font-bold ' +
+              c.b +
+              '">' +
+              items.length +
+              '</span></div><div class="flex flex-col gap-2 min-h-[120px]">' +
+              (items.length
+                ? items.map(taskCard).join("")
+                : '<div class="text-[11px] text-slate-400 text-center py-6">Nothing here</div>') +
+              "</div></div>"
+            );
+          }).join("");
+        }
+        function renderTeam() {
+          $("teamList").innerHTML = S.employees.length
+            ? S.employees
+                .map(function (m, i) {
+                  return (
+                    '<div class="flex items-center gap-2.5 px-2.5 py-2 rounded-xl bg-slate-50 border border-slate-200"><span class="w-7 h-7 rounded-full bg-orange-500 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">' +
+                    esc(initials(m.name)) +
+                    '</span><span class="flex flex-col min-w-0 flex-1"><span class="text-xs font-semibold text-slate-800 truncate">' +
+                    esc(m.name) +
+                    '</span><span class="text-[11px] text-slate-500 truncate">' +
+                    esc(m.email) +
+                    '</span></span><button type="button" data-act="member-del" data-id="' +
+                    i +
+                    '" title="Delete employee" class="p-1 rounded-lg hover:bg-red-100 text-slate-400 hover:text-red-600"><span class="material-symbols-outlined text-[18px]">delete</span></button></div>'
+                  );
+                })
+                .join("")
+            : '<span class="text-xs text-slate-400">No employees yet.</span>';
+        }
+
+        // ---------- Submissions ----------
+        var SCLS = {
+          Pending: ["bg-amber-100 text-amber-800", "Pending Review"],
+          Approved: ["bg-emerald-100 text-emerald-800", "Approved"],
+          Revision: ["bg-red-100 text-red-800", "Revision Req"],
+        };
+        function renderSubs() {
+          var counts = { All: vSubs().length, Pending: 0, Approved: 0, Revision: 0 };
+          vSubs().forEach(function (s) {
+            counts[s.status]++;
+          });
+          var FB = "sub-filter-btn px-3 py-1 rounded-lg font-semibold text-xs ";
+          $("subFilters").innerHTML = [
+            ["All", "All"],
+            ["Pending", "Pending"],
+            ["Approved", "Approved"],
+            ["Revision", "Revisions"],
+          ]
+            .map(function (f) {
+              return (
+                '<button type="button" data-act="filter" data-id="' +
+                f[0] +
+                '" class="' +
+                FB +
+                (subFilter === f[0]
+                  ? "bg-orange-500 text-white font-bold"
+                  : "text-slate-600 hover:text-slate-900") +
+                '">' +
+                f[1] +
+                " (" +
+                counts[f[0]] +
+                ")</button>"
+              );
+            })
+            .join("");
+          var rows = vSubs().filter(function (s) {
+            return subFilter === "All" || s.status === subFilter;
+          });
+          $("submissionTableBody").innerHTML = rows.length
+            ? rows
+                .map(function (s) {
+                  var sc = SCLS[s.status];
+                  var act =
+                    s.status === "Pending"
+                      ? '<button type="button" data-act="sub-approve" data-admin data-id="' +
+                        s.id +
+                        '" class="px-2.5 py-1 rounded-lg bg-orange-50 hover:bg-orange-100 border border-orange-200 text-orange-700 font-bold text-[11px]">Approve</button> <button type="button" data-act="sub-revise" data-admin data-id="' +
+                        s.id +
+                        '" class="px-2.5 py-1 rounded-lg bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 font-semibold text-[11px]">Changes</button>'
+                      : s.status === "Revision"
+                        ? '<button type="button" data-act="sub-approve" data-admin data-id="' +
+                          s.id +
+                          '" class="px-2.5 py-1 rounded-lg bg-orange-50 hover:bg-orange-100 border border-orange-200 text-orange-700 font-bold text-[11px]">Re-Verify</button>'
+                        : '<span class="text-xs text-slate-500 font-mono font-semibold">Signed off</span>';
+                  return (
+                    '<tr data-search="' +
+                    esc(
+                      [s.employee, s.title, s.episode, s.dept, s.type, s.notes]
+                        .join(" ")
+                        .toLowerCase(),
+                    ) +
+                    '" class="hover:bg-slate-50/70"><td class="py-3 px-3"><div class="flex items-center gap-2"><div class="w-7 h-7 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold text-[11px]">' +
+                    esc(initials(s.employee)) +
+                    '</div><span class="font-semibold text-slate-900">' +
+                    esc(s.employee) +
+                    '</span></div></td><td class="py-3 px-3 font-semibold text-slate-900"><div class="flex items-start gap-3">' +
+                    thumbHtml(s) +
+                    '<div class="min-w-0"><span class="block">' +
+                    esc(s.title) +
+                    (s.link
+                      ? ' <a href="' +
+                        esc(s.link) +
+                        '" target="_blank" rel="noopener" class="text-orange-600 underline text-[11px] font-bold">Open link</a>'
+                      : "") +
+                    (s.chunks > 0
+                      ? ' <button type="button" data-act="sub-download" data-id="' +
+                        s.id +
+                        '" class="text-orange-600 underline text-[11px] font-bold">Download ' +
+                        esc(s.fileName || "file") +
+                        "</button>"
+                      : "") +
+                    (s.driveId
+                      ? ' <a href="' +
+                        esc(s.driveUrl || "#") +
+                        '" target="_blank" rel="noopener" class="text-orange-600 underline text-[11px] font-bold">Open in Drive</a> <button type="button" data-act="sub-dl" data-admin data-id="' +
+                        s.id +
+                        '" class="text-orange-600 underline text-[11px] font-bold">Download ' +
+                        esc(s.fileName || "file") +
+                        "</button>"
+                      : "") +
+                    '</span><span class="text-[11px] text-slate-500 font-normal">' +
+                    esc(s.type) +
+                    " • " +
+                    esc(s.dept) +
+                    (s.notes ? " • " + esc(s.notes) : "") +
+                    '</span></div></div></td><td class="py-3 px-3 font-mono font-bold text-orange-600">' +
+                    esc(s.episode || "—") +
+                    '</td><td class="py-3 px-3 font-mono text-slate-500">' +
+                    new Date(s.ts).toLocaleString([], { dateStyle: "medium", timeStyle: "short" }) +
+                    '</td><td class="py-3 px-3"><span class="px-2.5 py-1 rounded-md text-[10px] font-bold font-mono ' +
+                    sc[0] +
+                    '">' +
+                    sc[1] +
+                    '</span></td><td class="py-3 px-3 text-right"><div class="flex items-center justify-end gap-1.5">' +
+                    act +
+                    '<button type="button" title="Delete" data-act="sub-del" data-admin data-id="' +
+                    s.id +
+                    '" class="p-1 rounded-md hover:bg-red-50 text-slate-400 hover:text-red-600"><span class="material-symbols-outlined text-[16px]">delete</span></button></div></td></tr>'
+                  );
+                })
+                .join("")
+            : '<tr><td colspan="6" class="py-8 text-center text-xs text-slate-400">' +
+              (vSubs().length ? "No submissions match this filter." : "No submissions yet.") +
+              "</td></tr>";
+        }
+
+        // ---------- Pulse ----------
+        var SEGST = ["Slated", "Queued", "Standby", "Ready", "Done"];
+        function renderPulse() {
+          var open = vTasks().filter(function (t) {
+            return t.status !== "done";
+          });
+          var urgent = open.filter(function (t) {
+            return t.priority === "Urgent";
+          }).length;
+          var pend = vSubs().filter(function (s) {
+            return s.status === "Pending";
+          }).length;
+          $("pulseKpis").innerHTML =
+            tile("Open Tasks", open.length, vTasks().length + " total on board") +
+            tile("Urgent Open", urgent, "Needs attention first") +
+            tile("Pending Reviews", pend, "Awaiting lead sign-off") +
+            (isAdmin()
+              ? tile(
+                  "Team Members",
+                  S.team.length,
+                  S.team.length ? "Registered" : "Add in To-Do tab",
+                )
+              : tile("My Submissions", vSubs().length, "Uploaded by you"));
+          $("quickTaskList").innerHTML = open.length
+            ? open
+                .slice()
+                .sort(function (a, b) {
+                  return b.created - a.created;
+                })
+                .slice(0, 8)
+                .map(function (t) {
+                  var dot =
+                    t.priority === "Urgent"
+                      ? "bg-red-500"
+                      : t.priority === "High"
+                        ? "bg-amber-500"
+                        : "bg-slate-400";
+                  return (
+                    '<div data-search="' +
+                    esc((t.title + " " + t.assignee).toLowerCase()) +
+                    '" class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200/80"><div class="flex items-center gap-2.5 min-w-0"><span class="w-2 h-2 rounded-full flex-shrink-0 ' +
+                    dot +
+                    '"></span><span class="text-xs text-slate-800 font-medium truncate">' +
+                    esc(t.title) +
+                    '</span></div><span class="font-mono text-xs font-semibold text-slate-500 flex-shrink-0 pl-2">' +
+                    esc(t.assignee || "—") +
+                    "</span></div>"
+                  );
+                })
+                .join("")
+            : empty("No open tasks.");
+          $("segBody").innerHTML = S.segs.length
+            ? S.segs
+                .map(function (g) {
+                  return (
+                    '<tr data-search="' +
+                    esc([g.block, g.name, g.tc, g.talent].join(" ").toLowerCase()) +
+                    '" class="hover:bg-slate-50/70"><td class="py-3 px-3 font-mono font-bold text-orange-600">' +
+                    esc(g.block || "—") +
+                    '</td><td class="py-3 px-3 font-semibold text-slate-900">' +
+                    esc(g.name) +
+                    '</td><td class="py-3 px-3 font-mono text-slate-500">' +
+                    esc(g.tc || "—") +
+                    '</td><td class="py-3 px-3 text-slate-600">' +
+                    esc(g.talent || "—") +
+                    '</td><td class="py-3 px-3"><select data-seg-status="' +
+                    g.id +
+                    '" class="text-[11px] font-mono font-bold bg-slate-50 rounded-md border border-slate-200 py-1 pl-2 pr-7">' +
+                    SEGST.map(function (s) {
+                      return (
+                        "<option" + (g.status === s ? " selected" : "") + ">" + s + "</option>"
+                      );
+                    }).join("") +
+                    '</select></td><td class="py-3 px-3 text-right"><button type="button" data-act="seg-del" data-admin data-id="' +
+                    g.id +
+                    '" class="p-1 rounded-md hover:bg-red-50 text-slate-400 hover:text-red-600"><span class="material-symbols-outlined text-[16px]">delete</span></button></td></tr>'
+                  );
+                })
+                .join("")
+            : '<tr><td colspan="6" class="py-6 text-center text-xs text-slate-400">No segments yet.</td></tr>';
+          var feed = S.log
+            .concat(
+              S.subs.map(function (s) {
+                return { ts: s.ts, text: s.employee + " submitted " + s.title };
+              }),
+            )
+            .sort(function (a, b) {
+              return b.ts - a.ts;
+            });
+          $("activityFeed").innerHTML = feed.length
+            ? feed
+                .slice(0, 8)
+                .map(function (l) {
+                  return (
+                    '<div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200/80"><span class="text-xs text-slate-800 font-medium">' +
+                    esc(l.text) +
+                    '</span><span class="font-mono text-[11px] text-slate-400 pl-3 flex-shrink-0">' +
+                    ago(l.ts) +
+                    "</span></div>"
+                  );
+                })
+                .join("")
+            : empty("Activity will appear here as you work.");
+          var bell = $("bellDot");
+          bell.textContent = pend;
+          bell.classList.toggle("hidden", !pend);
+        }
+
+        // ---------- Analytics ----------
+        function inR(t, a, b) {
+          return typeof t === "number" && t >= a && t < b;
+        }
+        function range(a, b) {
+          var done = S.tasks.filter(function (t) {
+            return inR(t.doneAt, a, b);
+          });
+          var subs = S.subs.filter(function (s) {
+            return inR(s.ts, a, b);
+          });
+          var ap = subs.filter(function (s) {
+              return s.status === "Approved";
+            }).length,
+            rv = subs.filter(function (s) {
+              return s.status === "Revision";
+            }).length,
+            pe = subs.filter(function (s) {
+              return s.status === "Pending";
+            }).length;
+          return {
+            done: done,
+            subs: subs,
+            ap: ap,
+            rv: rv,
+            pe: pe,
+            rate: ap + rv ? Math.round((ap / (ap + rv)) * 100) + "%" : "—",
+          };
+        }
+        function people(r) {
+          var m = {};
+          S.team.forEach(function (n) {
+            m[n] = { n: n, done: 0, subs: 0, ap: 0, rv: 0 };
+          });
+          r.done.forEach(function (t) {
+            var n = t.assignee;
+            if (!n) return;
+            m[n] = m[n] || { n: n, done: 0, subs: 0, ap: 0, rv: 0 };
+            m[n].done++;
+          });
+          r.subs.forEach(function (s) {
+            var n = s.employee;
+            m[n] = m[n] || { n: n, done: 0, subs: 0, ap: 0, rv: 0 };
+            m[n].subs++;
+            if (s.status === "Approved") m[n].ap++;
+            if (s.status === "Revision") m[n].rv++;
+          });
+          return Object.keys(m)
+            .map(function (k) {
+              return m[k];
+            })
+            .sort(function (a, b) {
+              return b.done + b.ap - (a.done + a.ap) || a.n.localeCompare(b.n);
+            });
+        }
+        function peopleTable(list) {
+          if (!list.length) return empty("No team data yet.");
+          return (
+            '<table class="w-full text-left text-xs"><thead><tr class="bg-slate-50 text-slate-500 font-mono text-[11px] uppercase border-y border-slate-200"><th class="py-2 px-3">Name</th><th class="py-2 px-3">Tasks done</th><th class="py-2 px-3">Submitted</th><th class="py-2 px-3">Approved</th><th class="py-2 px-3">Revisions</th></tr></thead><tbody class="divide-y divide-slate-100">' +
+            list
+              .map(function (p, i) {
+                return (
+                  '<tr><td class="py-2.5 px-3 font-semibold text-slate-900">' +
+                  (i + 1) +
+                  ". " +
+                  esc(p.n) +
+                  '</td><td class="py-2.5 px-3 font-mono">' +
+                  p.done +
+                  '</td><td class="py-2.5 px-3 font-mono">' +
+                  p.subs +
+                  '</td><td class="py-2.5 px-3 font-mono text-emerald-700">' +
+                  p.ap +
+                  '</td><td class="py-2.5 px-3 font-mono text-slate-500">' +
+                  p.rv +
+                  "</td></tr>"
+                );
+              })
+              .join("") +
+            "</tbody></table>"
+          );
+        }
+        function renderWeekly() {
+          var d = new Date();
+          d.setHours(0, 0, 0, 0);
+          var day = (d.getDay() + 6) % 7;
+          var a = d.getTime() - day * 864e5,
+            b = a + 7 * 864e5;
+          var f = function (t) {
+            return new Date(t).toLocaleDateString([], { month: "short", day: "numeric" });
+          };
+          $("weeklyRange").textContent = f(a) + " – " + f(b - 864e5);
+          var r = range(a, b);
+          $("weeklyTiles").innerHTML =
+            tile("Tasks Completed", r.done.length, "Moved to Completed this week") +
+            tile("Submissions", r.subs.length, r.pe + " pending review") +
+            tile("Approval Rate", r.rate, r.ap + " approved / " + r.rv + " sent back");
+          $("weeklyPeople").innerHTML = peopleTable(people(r));
+          var dm = {};
+          r.subs.forEach(function (s) {
+            dm[s.dept] = dm[s.dept] || { n: 0, ap: 0, rv: 0 };
+            dm[s.dept].n++;
+            if (s.status === "Approved") dm[s.dept].ap++;
+            if (s.status === "Revision") dm[s.dept].rv++;
+          });
+          var k = Object.keys(dm);
+          $("weeklyDepts").innerHTML = k.length
+            ? '<table class="w-full text-left text-xs"><thead><tr class="bg-slate-50 text-slate-500 font-mono text-[11px] uppercase border-y border-slate-200"><th class="py-2 px-3">Department</th><th class="py-2 px-3">Submitted</th><th class="py-2 px-3">Approved</th><th class="py-2 px-3">Revisions</th></tr></thead><tbody class="divide-y divide-slate-100">' +
+              k
+                .map(function (n) {
+                  return (
+                    '<tr><td class="py-2.5 px-3 font-semibold text-slate-900">' +
+                    esc(n) +
+                    '</td><td class="py-2.5 px-3 font-mono">' +
+                    dm[n].n +
+                    '</td><td class="py-2.5 px-3 font-mono text-emerald-700">' +
+                    dm[n].ap +
+                    '</td><td class="py-2.5 px-3 font-mono text-slate-500">' +
+                    dm[n].rv +
+                    "</td></tr>"
+                  );
+                })
+                .join("") +
+              "</tbody></table>"
+            : empty("No submissions this week.");
+        }
+        function renderMonthly() {
+          var n = new Date(),
+            a = new Date(n.getFullYear(), n.getMonth(), 1).getTime(),
+            b = new Date(n.getFullYear(), n.getMonth() + 1, 1).getTime();
+          $("monthlyTitle").textContent =
+            n.toLocaleDateString([], { month: "long", year: "numeric" }) + " • Month to Date";
+          var r = range(a, b);
+          $("monthlyTiles").innerHTML =
+            tile("Tasks Completed", r.done.length, "This month") +
+            tile("Submissions", r.subs.length, "Logged this month") +
+            tile("Approval Rate", r.rate, r.ap + " approved / " + r.rv + " sent back") +
+            tile("Pending Reviews", r.pe, "Submitted this month");
+          $("monthlyBoard").innerHTML = peopleTable(people(r));
+        }
+        function renderYearly() {
+          var y = new Date().getFullYear();
+          $("yearlyTitle").textContent = y + " Production Summary";
+          var r = range(new Date(y, 0, 1).getTime(), new Date(y + 1, 0, 1).getTime());
+          $("yearlyTiles").innerHTML =
+            tile("Tasks Completed", r.done.length, "This year") +
+            tile("Submissions", r.subs.length, "Logged this year") +
+            tile("Approved", r.ap, "Signed-off deliverables") +
+            tile("Approval Rate", r.rate, r.rv + " sent back for revision");
+          var qs = [0, 1, 2, 3].map(function (q) {
+            var x = range(new Date(y, q * 3, 1).getTime(), new Date(y, q * 3 + 3, 1).getTime());
+            return { q: q + 1, done: x.done.length, subs: x.subs.length };
+          });
+          var mx = Math.max.apply(
+            null,
+            qs
+              .map(function (q) {
+                return q.done + q.subs;
+              })
+              .concat([1]),
+          );
+          $("yearlyQuarters").innerHTML = qs
+            .map(function (q) {
+              var t = q.done + q.subs;
+              return (
+                '<div class="flex flex-col gap-1.5"><div class="flex justify-between text-xs"><span class="text-slate-800 font-semibold">Q' +
+                q.q +
+                '</span><span class="text-slate-500 font-mono">' +
+                q.done +
+                " tasks • " +
+                q.subs +
+                ' submissions</span></div><div class="w-full bg-slate-100 rounded-full h-3"><div class="bg-orange-500 h-3 rounded-full" style="width:' +
+                Math.round((t / mx) * 100) +
+                '%"></div></div></div>'
+              );
+            })
+            .join("");
+        }
+
+        // ---------- Search ----------
+        function applySearch() {
+          var q = $("globalSearch").value.trim().toLowerCase();
+          document.querySelectorAll("[data-search]").forEach(function (el) {
+            el.style.display = !q || el.getAttribute("data-search").indexOf(q) > -1 ? "" : "none";
+          });
+        }
+
+        function renderAll() {
+          fillSelects();
+          renderTeam();
+          renderKanban();
+          renderSubs();
+          renderPulse();
+          renderWeekly();
+          renderMonthly();
+          renderYearly();
+          if (document.activeElement !== $("episodeTitle"))
+            $("episodeTitle").value = S.episode || "";
+          applySearch();
+        }
+        function commit() {
+          scheduleRender();
+        }
+
+        // ---------- Task creation / import ----------
+        function addTask(title, assigneeEmail, priority, tag) {
+          title = String(title || "").trim();
+          if (!title || !isAdmin()) return false;
+          var emp = S.employees.filter(function (x) {
+            return x.email === assigneeEmail;
+          })[0];
+          db.collection("tasks")
+            .doc(uid())
+            .set({
+              title: title,
+              assignee: emp ? emp.name : "",
+              assigneeEmail: emp ? emp.email : "",
+              priority: priority || "Normal",
+              tag: tag || "#General",
+              status: "backlog",
+              created: Date.now(),
+              doneAt: null,
+            })
+            .catch(fail);
+          log("Task added: " + title);
+          return true;
+        }
+        function importLines(lines, csv) {
+          var n = 0;
+          lines.forEach(function (raw, i) {
+            var line = raw.trim();
+            if (!line) return;
+            if (csv) {
+              var p = line.split(",").map(function (x) {
+                return x.trim().replace(/^"|"$/g, "");
+              });
+              if (i === 0 && /^(task|title)/i.test(p[0]) && p.length > 1) return;
+              var e0 = S.employees.filter(function (x) {
+                return x.name === p[1] || x.email === String(p[1] || "").toLowerCase();
+              })[0];
+              var as = e0 ? e0.email : "";
+              var pr = ["Urgent", "High", "Normal"].indexOf(p[2]) > -1 ? p[2] : "Normal";
+              if (addTask(p[0], as, pr, "#General")) n++;
+            } else if (addTask(line, "", "Normal", "#General")) n++;
+          });
+          return n;
+        }
+        $("importFile").addEventListener("change", function (e) {
+          var f = e.target.files[0];
+          if (!f) return;
+          var rd = new FileReader();
+          rd.onload = function () {
+            var n = importLines(String(rd.result).split(/\r?\n/), /\.csv$/i.test(f.name));
+            commit();
+            toast(
+              n
+                ? "Imported " + n + " task" + (n > 1 ? "s" : "") + " from " + f.name
+                : "No tasks found in " + f.name,
+            );
+          };
+          rd.onerror = function () {
+            toast("Could not read " + f.name);
+          };
+          rd.readAsText(f);
+          e.target.value = "";
+        });
+
+        // ---------- Events ----------
+        document.addEventListener("click", function (e) {
+          var nav = e.target.closest("[data-nav]");
+          if (nav) {
+            e.preventDefault();
+            showTab(nav.getAttribute("data-nav"));
+            return;
+          }
+          var tb = e.target.closest(".tab-trigger");
+          if (tb) {
+            showTab(tb.getAttribute("data-tab-id"));
+            return;
+          }
+          var b = e.target.closest("[data-act]");
+          if (!b) return;
+          var act = b.getAttribute("data-act"),
+            id = b.getAttribute("data-id");
+          var ORDER = ["backlog", "progress", "review", "done"];
+          if (
+            [
+              "sub-approve",
+              "sub-revise",
+              "clear-all",
+              "seg-del",
+              "member-del",
+              "reset-pw",
+              "task-next",
+              "task-prev",
+              "task-del",
+              "sub-del",
+              "sub-dl",
+              "sub-view",
+              "bulk-import",
+              "pick-file",
+            ].indexOf(act) > -1 &&
+            !isAdmin()
+          )
+            return;
+          if (act === "pick-file") {
+            $("importFile").click();
+            return;
+          }
+          if (act === "bulk-import") {
+            var ta = $("bulkTasksArea"),
+              n = importLines(ta.value.split(/\r?\n/), false);
+            if (n) {
+              ta.value = "";
+              commit();
+              toast("Added " + n + " task" + (n > 1 ? "s" : ""));
+            } else toast("Nothing to import");
+            return;
+          }
+          if (act === "task-next" || act === "task-prev") {
+            var t = S.tasks.filter(function (x) {
+              return x.id === id;
+            })[0];
+            if (!t) return;
+            var i = ORDER.indexOf(t.status) + (act === "task-next" ? 1 : -1);
+            if (i < 0 || i > 3) return;
+            var st = ORDER[i];
+            db.collection("tasks")
+              .doc(id)
+              .update({ status: st, doneAt: st === "done" ? Date.now() : null })
+              .catch(fail);
+            if (st === "done") log("Completed: " + t.title);
+            return;
+          }
+          if (act === "task-del") {
+            db.collection("tasks").doc(id).delete().catch(fail);
+            return;
+          }
+          if (act === "member-del") {
+            var m = S.employees[+id];
+            if (!m) return;
+            if (
+              !confirm(
+                "Delete " +
+                  m.name +
+                  "? They lose access to the dashboard immediately. Their tasks become Unassigned.",
+              )
+            )
+              return;
+            var b = db.batch();
+            b.delete(db.collection("employees").doc(m.email));
+            S.tasks.forEach(function (t) {
+              if (t.assigneeEmail === m.email)
+                b.update(db.collection("tasks").doc(t.id), { assignee: "", assigneeEmail: "" });
+            });
+            b.commit()
+              .then(function () {
+                log("Removed employee " + m.name);
+                toast(m.name + " deleted");
+              })
+              .catch(fail);
+            return;
+          }
+          if (act === "filter") {
+            subFilter = id;
+            renderSubs();
+            applySearch();
+            return;
+          }
+          if (act === "sub-approve" || act === "sub-revise") {
+            var s = S.subs.filter(function (x) {
+              return x.id === id;
+            })[0];
+            if (!s) return;
+            var ok = act === "sub-approve";
+            var b2 = db.batch();
+            b2.update(db.collection("subs").doc(id), { status: ok ? "Approved" : "Revision" });
+            if (ok && s.taskId) {
+              var tk = S.tasks.filter(function (x) {
+                return x.id === s.taskId;
+              })[0];
+              if (tk && tk.status !== "done")
+                b2.update(db.collection("tasks").doc(s.taskId), {
+                  status: "done",
+                  doneAt: Date.now(),
+                });
+            }
+            b2.commit().catch(fail);
+            log((ok ? "Approved: " : "Changes requested: ") + s.title);
+            return;
+          }
+          if (act === "sub-dl") {
+            var s5 = S.subs.filter(function (x) {
+              return x.id === id;
+            })[0];
+            if (s5 && s5.driveId) downloadDrive(s5);
+            return;
+          }
+          if (act === "sub-view") {
+            var s6 = S.subs.filter(function (x) {
+              return x.id === id;
+            })[0];
+            if (s6 && s6.driveId) openLightbox(s6);
+            return;
+          }
+          if (act === "sub-download") {
+            var s4 = S.subs.filter(function (x) {
+              return x.id === id;
+            })[0];
+            if (s4) downloadSub(s4);
+            return;
+          }
+          if (act === "sub-del") {
+            var s3 = S.subs.filter(function (x) {
+              return x.id === id;
+            })[0];
+            if (!s3) return;
+            trashDrive(s3);
+            chunkRefs(s3)
+              .then(function (refs) {
+                var bd = db.batch();
+                refs.forEach(function (r) {
+                  bd.delete(r);
+                });
+                bd.delete(db.collection("subs").doc(id));
+                return bd.commit();
+              })
+              .catch(fail);
+            return;
+          }
+          if (act === "seg-del") {
+            db.collection("segs").doc(id).delete().catch(fail);
+            return;
+          }
+          if (act === "clear-all") {
+            if (
+              !confirm(
+                "Delete all tasks, submissions and rundown data for EVERYONE? Employees are kept. This cannot be undone.",
+              )
+            )
+              return;
+            var refs = [];
+            S.tasks.forEach(function (x) {
+              refs.push(db.collection("tasks").doc(x.id));
+            });
+            S.segs.forEach(function (x) {
+              refs.push(db.collection("segs").doc(x.id));
+            });
+            S.log.forEach(function (x) {
+              refs.push(db.collection("log").doc(x.id));
+            });
+            Promise.all(
+              S.subs.map(function (s) {
+                trashDrive(s);
+                return chunkRefs(s).then(function (cr) {
+                  refs.push(db.collection("subs").doc(s.id));
+                  cr.forEach(function (r) {
+                    refs.push(r);
+                  });
+                });
+              }),
+            )
+              .then(function () {
+                var ch = Promise.resolve();
+                for (var q = 0; q < refs.length; q += 400) {
+                  (function (part) {
+                    ch = ch.then(function () {
+                      var bb = db.batch();
+                      part.forEach(function (r) {
+                        bb.delete(r);
+                      });
+                      return bb.commit();
+                    });
+                  })(refs.slice(q, q + 400));
+                }
+                return ch;
+              })
+              .then(function () {
+                toast("All data cleared");
+              })
+              .catch(fail);
+            return;
+          }
+        });
+        document.addEventListener("change", function (e) {
+          var id = e.target.getAttribute && e.target.getAttribute("data-seg-status");
+          if (id) {
+            db.collection("segs").doc(id).update({ status: e.target.value }).catch(fail);
+          }
+        });
+        $("globalSearch").addEventListener("input", applySearch);
+        var epT = null;
+        $("episodeTitle").addEventListener("input", function (e) {
+          var v = e.target.value;
+          clearTimeout(epT);
+          epT = setTimeout(function () {
+            if (isAdmin())
+              db.collection("meta").doc("state").set({ episode: v }, { merge: true }).catch(fail);
+          }, 500);
+        });
+
+        $("quickTaskForm").addEventListener("submit", function (e) {
+          e.preventDefault();
+          if (
+            addTask(
+              $("quickTaskTitle").value,
+              $("quickTaskAssignee").value,
+              $("quickTaskPriority").value,
+              "#General",
+            )
+          ) {
+            $("quickTaskTitle").value = "";
+            commit();
+            toast("Task added");
+          }
+        });
+        $("masterTaskForm").addEventListener("submit", function (e) {
+          e.preventDefault();
+          if (
+            addTask(
+              $("masterTaskTitle").value,
+              $("masterTaskAssignee").value,
+              $("masterTaskPriority").value,
+              $("masterTaskTag").value,
+            )
+          ) {
+            $("masterTaskTitle").value = "";
+            commit();
+            toast("Task added to board");
+          }
+        });
+        var secApp = null;
+        function createErr(e) {
+          var c = (e && e.code) || "";
+          if (c === "auth/weak-password") return "Password must be at least 6 characters.";
+          if (c === "auth/invalid-email") return "Enter a valid email address.";
+          if (c === "auth/operation-not-allowed")
+            return "Enable Email/Password in Firebase console first.";
+          if (c === "auth/network-request-failed") return "Network error. Check your connection.";
+          return "Could not create the account.";
+        }
+        function addEmp(name, email) {
+          db.collection("employees")
+            .doc(email)
+            .set({ name: name, email: email, created: Date.now() })
+            .catch(fail);
+          log("Added employee " + name);
+        }
+        $("empForm").addEventListener("submit", function (e) {
+          e.preventDefault();
+          if (!isAdmin()) return;
+          var name = $("empName").value.trim().replace(/\s+/g, " "),
+            email = $("empEmail").value.trim().toLowerCase(),
+            pw = $("empPw").value;
+          if (!name || !email || pw.length < 6) {
+            toast("Fill name, email and a 6+ character password");
+            return;
+          }
+          if (
+            email === ADMIN_EMAIL ||
+            S.employees.some(function (x) {
+              return x.email === email;
+            })
+          ) {
+            toast("This email is already added");
+            return;
+          }
+          if (
+            S.team.some(function (x) {
+              return x.toLowerCase() === name.toLowerCase();
+            })
+          ) {
+            toast("An employee with this name exists");
+            return;
+          }
+          if (!fbAuth || !window.firebase) {
+            toast("Firebase is not available");
+            return;
+          }
+          var btn = $("empBtn");
+          btn.disabled = true;
+          var sa;
+          try {
+            if (!secApp) secApp = firebase.initializeApp(FIREBASE_CONFIG, "secondary");
+            sa = secApp.auth();
+          } catch (x) {
+            btn.disabled = false;
+            toast("Could not start account creation");
+            return;
+          }
+          sa.createUserWithEmailAndPassword(email, pw)
+            .then(function (cred) {
+              return cred.user
+                .updateProfile({ displayName: name })
+                .catch(function () {})
+                .then(function () {
+                  return sa.signOut();
+                });
+            })
+            .then(function () {
+              addEmp(name, email);
+              $("empForm").reset();
+              toast(name + " added. Share the email and password with them.");
+            })
+            .catch(function (err) {
+              if (err && err.code === "auth/email-already-in-use") {
+                addEmp(name, email);
+                $("empForm").reset();
+                toast("Account already existed. Added to the team.");
+              } else toast(createErr(err));
+            })
+            .then(function () {
+              btn.disabled = false;
+            });
+        });
+        $("segForm").addEventListener("submit", function (e) {
+          e.preventDefault();
+          if (!isAdmin()) return;
+          var nm = $("segName").value.trim();
+          if (!nm) return;
+          db.collection("segs")
+            .doc(uid())
+            .set({
+              block: $("segBlock").value.trim(),
+              name: nm,
+              tc: $("segTc").value.trim(),
+              talent: $("segTalent").value.trim(),
+              status: "Slated",
+              created: Date.now(),
+            })
+            .catch(fail);
+          ["segBlock", "segName", "segTc", "segTalent"].forEach(function (i) {
+            $(i).value = "";
+          });
+        });
+        var MAX_FILE = 4 * 1024 * 1024,
+          CHUNK = 600000,
+          MAX_DRIVE = 20 * 1024 * 1024;
+        // ---------- Google Drive storage (via Apps Script web app) ----------
+        // Paste the Web app URL (ends with /exec) after deploying drive-upload Code.gs. Leave '' to keep the old 4 MB in-database mode.
+        var DRIVE_ENDPOINT =
+          "https://script.google.com/macros/s/AKfycby8zCJe1yghQUVh5GA5rmFa_8NkMqkpNF3c6CIFb1e1GFxbDGU7sg2NaX_dWthGwBdz/exec";
+        function maxFile() {
+          return DRIVE_ENDPOINT ? MAX_DRIVE : MAX_FILE;
+        }
+        function mbTxt(n) {
+          return Math.round(n / 1048576) + " MB";
+        }
+        $("attachTxt").textContent = "Attach file (max " + mbTxt(maxFile()) + ")";
+        function driveCall(payload, onProg) {
+          return new Promise(function (res, rej) {
+            var x = new XMLHttpRequest();
+            x.open("POST", DRIVE_ENDPOINT);
+            x.setRequestHeader("Content-Type", "text/plain;charset=utf-8");
+            if (x.upload && onProg)
+              x.upload.onprogress = function (e) {
+                if (e.lengthComputable) onProg(Math.round((e.loaded / e.total) * 100));
+              };
+            x.onload = function () {
+              var r;
+              try {
+                r = JSON.parse(x.responseText);
+              } catch (err) {
+                rej(
+                  new Error(
+                    'Drive script returned an unexpected response. Re-deploy it as "Anyone" access.',
+                  ),
+                );
+                return;
+              }
+              if (r && r.ok) res(r);
+              else rej(new Error((r && r.error) || "Drive error"));
+            };
+            x.onerror = function () {
+              rej(
+                new Error("Could not reach the Drive script. Check the URL and your connection."),
+              );
+            };
+            x.send(JSON.stringify(payload));
+          });
+        }
+        function idToken() {
+          return fbAuth && fbAuth.currentUser
+            ? fbAuth.currentUser.getIdToken()
+            : Promise.reject(new Error("Not signed in"));
+        }
+        function saveB64(b64, mime, name) {
+          var bin = atob(b64),
+            arr = new Uint8Array(bin.length);
+          for (var k = 0; k < bin.length; k++) arr[k] = bin.charCodeAt(k);
+          var url = URL.createObjectURL(
+            new Blob([arr], { type: mime || "application/octet-stream" }),
+          );
+          var a = document.createElement("a");
+          a.href = url;
+          a.download = name || "download";
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(function () {
+            URL.revokeObjectURL(url);
+          }, 10000);
+        }
+        function fetchDrive(s) {
+          return idToken().then(function (t) {
+            return driveCall({ action: "get", token: t, id: s.driveId });
+          });
+        }
+        function downloadDrive(s) {
+          toast("Preparing download...");
+          fetchDrive(s)
+            .then(function (r) {
+              saveB64(r.data, r.mime || s.mime, r.name || s.fileName);
+            })
+            .catch(function (e) {
+              toast(e.message || "Download failed");
+            });
+        }
+        function trashDrive(s) {
+          if (!s || !s.driveId || !DRIVE_ENDPOINT) return;
+          idToken()
+            .then(function (t) {
+              return driveCall({ action: "trash", token: t, id: s.driveId });
+            })
+            .catch(function () {});
+        }
+        function makeThumb(f) {
+          return new Promise(function (res) {
+            if (!/^image\/(png|jpe?g|gif|webp|bmp)/i.test(f.type)) {
+              res("");
+              return;
+            }
+            var u = URL.createObjectURL(f),
+              im = new Image();
+            im.onload = function () {
+              try {
+                var m = 360,
+                  k = Math.min(1, m / Math.max(im.width, im.height)),
+                  c = document.createElement("canvas");
+                c.width = Math.max(1, Math.round(im.width * k));
+                c.height = Math.max(1, Math.round(im.height * k));
+                var g = c.getContext("2d");
+                g.fillStyle = "#fff";
+                g.fillRect(0, 0, c.width, c.height);
+                g.drawImage(im, 0, 0, c.width, c.height);
+                URL.revokeObjectURL(u);
+                res(c.toDataURL("image/jpeg", 0.72));
+              } catch (e) {
+                res("");
+              }
+            };
+            im.onerror = function () {
+              URL.revokeObjectURL(u);
+              res("");
+            };
+            im.src = u;
+          });
+        }
+        function thumbHtml(s) {
+          if (!s.driveId) return "";
+          var isImg = /^image\//.test(s.mime || "");
+          var inner = s.thumb
+            ? '<img src="' +
+              esc(s.thumb) +
+              '" alt="" class="w-14 h-14 rounded-lg object-cover border border-slate-200 bg-slate-50"/>'
+            : '<span class="w-14 h-14 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-center"><span class="material-symbols-outlined text-orange-500 text-[24px]">' +
+              (isImg ? "image" : "description") +
+              "</span></span>";
+          if (isAdmin() && isImg)
+            return (
+              '<button type="button" data-act="sub-view" data-id="' +
+              s.id +
+              '" title="Preview image" class="shrink-0 cursor-zoom-in">' +
+              inner +
+              "</button>"
+            );
+          return (
+            '<a href="' +
+            esc(s.driveUrl || "#") +
+            '" target="_blank" rel="noopener" title="Open in Drive" class="shrink-0">' +
+            inner +
+            "</a>"
+          );
+        }
+        function openLightbox(s) {
+          var old = $("lbOverlay");
+          if (old) old.remove();
+          var o = document.createElement("div");
+          o.id = "lbOverlay";
+          o.className = "fixed inset-0 z-[70] bg-slate-900/80 flex items-center justify-center p-4";
+          o.innerHTML =
+            '<div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden"><div class="flex items-center justify-between gap-3 px-4 py-3 border-b border-slate-200"><div class="min-w-0"><div class="text-sm font-bold text-slate-900 truncate">' +
+            esc(s.title) +
+            '</div><div class="text-[11px] text-slate-500 font-mono truncate">' +
+            esc(s.fileName || "") +
+            (s.fileSize ? " • " + Math.max(1, Math.round(s.fileSize / 1024)) + " KB" : "") +
+            '</div></div><div class="flex items-center gap-2 shrink-0"><button type="button" id="lbDl" disabled class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white text-xs font-bold"><span class="material-symbols-outlined text-[16px]">download</span>Download</button><a href="' +
+            esc(s.driveUrl || "#") +
+            '" target="_blank" rel="noopener" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-800 text-xs font-bold">Open in Drive</a><button type="button" id="lbClose" class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500"><span class="material-symbols-outlined text-[20px]">close</span></button></div></div><div id="lbBody" class="p-4 overflow-auto flex items-center justify-center bg-slate-50 min-h-[220px]"><div class="text-xs text-slate-500">Loading full image...</div></div></div>';
+          document.body.appendChild(o);
+          function close() {
+            o.remove();
+            document.removeEventListener("keydown", esc2);
+          }
+          function esc2(ev) {
+            if (ev.key === "Escape") close();
+          }
+          document.addEventListener("keydown", esc2);
+          o.addEventListener("click", function (ev) {
+            if (ev.target === o) close();
+          });
+          $("lbClose").onclick = close;
+          fetchDrive(s)
+            .then(function (r) {
+              var src = "data:" + (r.mime || s.mime || "image/jpeg") + ";base64," + r.data;
+              $("lbBody").innerHTML =
+                '<img src="' + src + '" alt="" class="max-w-full max-h-[70vh] rounded-lg"/>';
+              var b = $("lbDl");
+              b.disabled = false;
+              b.onclick = function () {
+                saveB64(r.data, r.mime || s.mime, r.name || s.fileName);
+              };
+            })
+            .catch(function (e) {
+              $("lbBody").innerHTML =
+                '<div class="text-xs text-red-600">' +
+                esc(e.message || "Could not load image") +
+                "</div>";
+            });
+        }
+        function chunkRefs(s) {
+          if (!(s.chunks > 0)) return Promise.resolve([]);
+          return db
+            .collection("subs")
+            .doc(s.id)
+            .collection("chunks")
+            .get()
+            .then(function (q) {
+              return q.docs.map(function (d) {
+                return d.ref;
+              });
+            });
+        }
+        function downloadSub(s) {
+          toast("Preparing download...");
+          db.collection("subs")
+            .doc(s.id)
+            .collection("chunks")
+            .get()
+            .then(function (q) {
+              var parts = q.docs
+                .map(function (d) {
+                  return d.data();
+                })
+                .sort(function (a, b) {
+                  return a.i - b.i;
+                })
+                .map(function (x) {
+                  return x.data;
+                });
+              var bin = atob(parts.join("")),
+                arr = new Uint8Array(bin.length);
+              for (var k = 0; k < bin.length; k++) arr[k] = bin.charCodeAt(k);
+              var url = URL.createObjectURL(
+                new Blob([arr], { type: s.mime || "application/octet-stream" }),
+              );
+              var a = document.createElement("a");
+              a.href = url;
+              a.download = s.fileName || "download";
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
+              setTimeout(function () {
+                URL.revokeObjectURL(url);
+              }, 10000);
+            })
+            .catch(fail);
+        }
+        $("subFile").addEventListener("change", function (e) {
+          var f = e.target.files[0];
+          if (f && f.size > maxFile()) {
+            toast("File is over " + mbTxt(maxFile()) + ". Paste a Drive/Dropbox link instead.");
+            e.target.value = "";
+            $("subFileName").textContent = "";
+            return;
+          }
+          $("subFileName").textContent = f
+            ? f.name + " (" + Math.max(1, Math.round(f.size / 1024)) + " KB)"
+            : "";
+          if (f && !$("subTitle").value) $("subTitle").value = f.name;
+        });
+        $("subEmployee").addEventListener("change", fillSubTasks);
+        $("submissionUploadForm").addEventListener("submit", function (e) {
+          e.preventDefault();
+          if (!ME) return;
+          var email = isAdmin() ? $("subEmployee").value : ME.email,
+            title = $("subTitle").value.trim();
+          var emp = S.employees.filter(function (x) {
+            return x.email === email;
+          })[0];
+          var name = isAdmin() ? emp && emp.name : ME.name;
+          if (!email || !name) {
+            toast("Select a submitter first");
+            return;
+          }
+          if (!title) return;
+          var f = $("subFile").files[0],
+            link = $("subLink").value.trim();
+          if (link && !/^https?:\/\//i.test(link)) {
+            toast("Link must start with http:// or https://");
+            return;
+          }
+          if (!f && !link) {
+            toast("Attach a file or paste a link to your completed work");
+            return;
+          }
+          var id = uid(),
+            btn = e.target.querySelector("button[type=submit]"),
+            btxt = btn.querySelector("span:last-child"),
+            orig = btxt.textContent;
+          var tid = $("subTask").value,
+            tk = S.tasks.filter(function (t) {
+              return t.id === tid;
+            })[0];
+          var d = {
+            employee: name,
+            employeeEmail: email,
+            dept: $("subDept").value,
+            episode: $("subEpisode").value.trim(),
+            type: $("subType").value,
+            title: title,
+            notes: $("subNotes").value.trim(),
+            taskId: tk ? tk.id : "",
+            taskTitle: tk ? tk.title : "",
+            status: "Pending",
+            ts: Date.now(),
+            fileName: "",
+            fileSize: 0,
+            mime: "",
+            chunks: 0,
+            link: link,
+          };
+          function done() {
+            btn.disabled = false;
+            btxt.textContent = orig;
+          }
+          function reset() {
+            ["subTitle", "subNotes", "subLink", "subFile"].forEach(function (i) {
+              $(i).value = "";
+            });
+            $("subFileName").textContent = "";
+            $("subTask").value = "";
+            toast("Submitted for review");
+          }
+          btn.disabled = true;
+          btxt.textContent = "Submitting...";
+          function save2(chunks) {
+            var b = db.batch();
+            b.set(db.collection("subs").doc(id), d);
+            chunks.forEach(function (c, n) {
+              b.set(
+                db
+                  .collection("subs")
+                  .doc(id)
+                  .collection("chunks")
+                  .doc(("000" + n).slice(-3)),
+                { i: n, data: c },
+              );
+            });
+            b.commit().then(reset).catch(fail).then(done);
+          }
+          if (!f) {
+            save2([]);
+            return;
+          }
+          if (f.size > maxFile()) {
+            toast("File is over " + mbTxt(maxFile()) + ". Use a link instead.");
+            done();
+            return;
+          }
+          var rd = new FileReader();
+          rd.onerror = function () {
+            toast("Could not read the file");
+            done();
+          };
+          function viaChunks(b64) {
+            var cs = [];
+            for (var k = 0; k < b64.length; k += CHUNK) cs.push(b64.slice(k, k + CHUNK));
+            d.fileName = f.name;
+            d.fileSize = f.size;
+            d.mime = f.type || "application/octet-stream";
+            d.chunks = cs.length;
+            save2(cs);
+          }
+          rd.onload = function () {
+            var b64 = String(rd.result).split(",")[1] || "";
+            if (!DRIVE_ENDPOINT) {
+              viaChunks(b64);
+              return;
+            }
+            var mime = f.type || "application/octet-stream";
+            btxt.textContent = "Uploading to Drive...";
+            makeThumb(f)
+              .then(function (th) {
+                return idToken()
+                  .then(function (tok) {
+                    return driveCall(
+                      {
+                        action: "upload",
+                        token: tok,
+                        name: f.name,
+                        mime: mime,
+                        data: b64,
+                        info: {
+                          employee: name,
+                          episode: d.episode,
+                          dept: d.dept,
+                          type: d.type,
+                          title: title,
+                        },
+                      },
+                      function (pc) {
+                        btxt.textContent = "Uploading " + pc + "%";
+                      },
+                    );
+                  })
+                  .then(function (r) {
+                    d.fileName = r.name || f.name;
+                    d.fileSize = f.size;
+                    d.mime = mime;
+                    d.driveId = r.id;
+                    d.driveUrl = r.url;
+                    d.thumb = th || "";
+                    d.chunks = 0;
+                    btxt.textContent = "Saving...";
+                    save2([]);
+                  });
+              })
+              .catch(function (err) {
+                if (f.size <= MAX_FILE) {
+                  toast("Drive upload failed, saved in the app instead");
+                  viaChunks(b64);
+                } else {
+                  toast((err && err.message) || "Drive upload failed");
+                  done();
+                }
+              });
+          };
+          rd.readAsDataURL(f);
+        });
+
+        boot();
+        setInterval(function () {
+          if (currentTab === "tab-daily-pulse") renderPulse();
+        }, 60000);
+      })();
+    </script>
+  </body>
+</html>
