@@ -2681,37 +2681,38 @@
           return Math.round(n / 1048576) + " MB";
         }
         $("attachTxt").textContent = "Attach file (max " + mbTxt(maxFile()) + ")";
-        function driveCall(payload, onProg) {
-          return new Promise(function (res, rej) {
-            var x = new XMLHttpRequest();
-            x.open("POST", DRIVE_ENDPOINT);
-            x.setRequestHeader("Content-Type", "text/plain;charset=utf-8");
-            if (x.upload && onProg)
-              x.upload.onprogress = function (e) {
-                if (e.lengthComputable) onProg(Math.round((e.loaded / e.total) * 100));
-              };
-            x.onload = function () {
+        function driveCall(payload) {
+          // Plain-text body = "simple" CORS request (no preflight). Apps Script cannot answer
+          // preflights, so do NOT add custom headers or upload-progress listeners here.
+          return fetch(DRIVE_ENDPOINT, {
+            method: "POST",
+            redirect: "follow",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify(payload),
+          })
+            .catch(function (e) {
+              console.error("[Drive] request failed:", e);
+              throw new Error(
+                "Drive v2: browser blocked the request (" +
+                  ((e && e.message) || "network") +
+                  "). Press F12 > Console for details.",
+              );
+            })
+            .then(function (resp) {
+              return resp.text();
+            })
+            .then(function (txt) {
               var r;
               try {
-                r = JSON.parse(x.responseText);
+                r = JSON.parse(txt);
               } catch (err) {
-                rej(
-                  new Error(
-                    'Drive script returned an unexpected response. Re-deploy it as "Anyone" access.',
-                  ),
+                throw new Error(
+                  'Drive script returned an unexpected response. Redeploy it with access set to "Anyone".',
                 );
-                return;
               }
-              if (r && r.ok) res(r);
-              else rej(new Error((r && r.error) || "Drive error"));
-            };
-            x.onerror = function () {
-              rej(
-                new Error("Could not reach the Drive script. Check the URL and your connection."),
-              );
-            };
-            x.send(JSON.stringify(payload));
-          });
+              if (r && r.ok) return r;
+              throw new Error((r && r.error) || "Drive error");
+            });
         }
         function idToken() {
           return fbAuth && fbAuth.currentUser
@@ -3052,9 +3053,6 @@
                           type: d.type,
                           title: title,
                         },
-                      },
-                      function (pc) {
-                        btxt.textContent = "Uploading " + pc + "%";
                       },
                     );
                   })
