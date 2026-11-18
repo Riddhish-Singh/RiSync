@@ -1,818 +1,716 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RiSync | Live Parent Monitor</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RiSync — Activity Monitor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: { DEFAULT: "#15157d", 50: "#eef0ff", 100: "#e0e2ff", 200: "#c7c9ff", 300: "#a5a8ff", 400: "#8184ff", 500: "#6366f1", 600: "#4f46e5", 700: "#4338ca", 800: "#3730a3", 900: "#312e81" },
+            surface: { DEFAULT: "#f8f9ff", dim: "#e8eef8", container: "#e6eeff", high: "#dce9ff" },
+            ink: { DEFAULT: "#0d1c2e", muted: "#465366", faint: "#6b7a90" }
+          },
+          fontFamily: {
+            headline: ["Manrope", "sans-serif"],
+            body: ["Inter", "sans-serif"]
+          },
+          boxShadow: {
+            soft: "0 4px 20px -4px rgba(21,21,125,0.08)",
+            glow: "0 0 40px -8px rgba(99,102,241,0.25)"
+          }
         }
+      }
+    }
+  </script>
+  <style>
+    :root {
+      --bg: #f4f6fb;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --text: #0d1c2e;
+      --muted: #64748b;
+      --accent: #4f46e5;
+      --accent-soft: #eef2ff;
+    }
+    .dark {
+      --bg: #0b1220;
+      --card: #111827;
+      --border: #1e293b;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #818cf8;
+      --accent-soft: #1e1b4b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      min-height: 100vh;
+    }
+    .font-headline { font-family: 'Manrope', sans-serif; }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      vertical-align: middle;
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+    .dark ::-webkit-scrollbar-thumb { background: #334155; }
 
-        :root {
-            --bg: #0f172a;
-            --panel: #1e293b;
-            --text: #f8fafc;
-            --mute: #94a3b8;
-            --accent: #3b82f6;
-            --green: #22c55e;
-            --red: #ef4444;
-            --orange: #f59e0b;
-            --yellow: #eab308;
-        }
+    /* Activity item animation */
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .activity-item { animation: slideIn 0.35s ease-out; }
 
-        body {
-            margin: 0;
-            background: var(--bg);
-            color: var(--text);
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            display: flex;
-            justify-content: center;
-            padding: 20px;
-            min-height: 100vh;
-        }
+    /* Pulse for live indicator */
+    @keyframes pulse-live {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+    .live-dot { animation: pulse-live 1.6s ease-in-out infinite; }
 
-        .dashboard {
-            width: 100%;
-            max-width: 900px;
-            display: grid;
-            gap: 20px;
-        }
-
-        .card {
-            background: var(--panel);
-            padding: 24px;
-            border-radius: 12px;
-            border: 1px solid #334155;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .header-info h1 {
-            font-size: 1.75rem;
-            margin: 0 0 5px 0;
-            font-weight: 700;
-        }
-
-        .header-info p {
-            margin: 0;
-            color: var(--mute);
-            font-size: 0.9rem;
-        }
-
-        .status-badge {
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-
-        .status-online {
-            background: rgba(34, 197, 94, 0.15);
-            color: var(--green);
-            border: 2px solid var(--green);
-            box-shadow: 0 0 10px rgba(34, 197, 94, 0.2);
-        }
-
-        .status-offline {
-            background: rgba(239, 68, 68, 0.15);
-            color: var(--red);
-            border: 2px solid var(--red);
-        }
-
-        .status-loading {
-            background: rgba(251, 146, 60, 0.15);
-            color: var(--orange);
-            border: 2px solid var(--orange);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        /* Stats Grid */
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .stat-box {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 18px;
-            border-radius: 10px;
-            text-align: center;
-            border: 1px solid #334155;
-            transition: all 0.3s ease;
-        }
-
-        .stat-box:hover {
-            background: rgba(59, 130, 246, 0.1);
-            border-color: var(--accent);
-        }
-
-        .stat-label {
-            font-size: 0.75rem;
-            color: var(--mute);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 600;
-        }
-
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-top: 8px;
-            color: var(--accent);
-            word-break: break-word;
-        }
-
-        .stat-value.active {
-            color: var(--green);
-        }
-
-        .stat-value.inactive {
-            color: var(--orange);
-        }
-
-        /* Activity Feed */
-        .feed-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #334155;
-        }
-
-        .feed-header h3 {
-            margin: 0;
-            font-size: 1.1rem;
-        }
-
-        .feed-controls {
-            display: flex;
-            gap: 8px;
-        }
-
-        .feed-btn {
-            padding: 6px 12px;
-            background: rgba(59, 130, 246, 0.2);
-            color: var(--accent);
-            border: 1px solid var(--accent);
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
-
-        .feed-btn:hover {
-            background: rgba(59, 130, 246, 0.3);
-        }
-
-        .feed-box {
-            height: 450px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            padding-right: 8px;
-        }
-
-        .feed-box::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .feed-box::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 3px;
-        }
-
-        .feed-box::-webkit-scrollbar-thumb {
-            background: rgba(148, 163, 184, 0.3);
-            border-radius: 3px;
-        }
-
-        .feed-box::-webkit-scrollbar-thumb:hover {
-            background: rgba(148, 163, 184, 0.5);
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--mute);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-        }
-
-        .empty-state svg {
-            width: 48px;
-            height: 48px;
-            margin-bottom: 12px;
-            opacity: 0.5;
-        }
-
-        .log {
-            display: flex;
-            gap: 12px;
-            padding: 12px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 8px;
-            border-left: 4px solid var(--mute);
-            font-size: 0.9rem;
-            transition: all 0.2s ease;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .log:hover {
-            background: rgba(255, 255, 255, 0.06);
-        }
-
-        .log.focus {
-            border-left-color: var(--green);
-            background: rgba(34, 197, 94, 0.05);
-        }
-
-        .log.blur {
-            border-left-color: var(--orange);
-            background: rgba(245, 158, 11, 0.05);
-        }
-
-        .log.navigation {
-            border-left-color: var(--accent);
-            background: rgba(59, 130, 246, 0.05);
-        }
-
-        .log-time {
-            color: var(--mute);
-            min-width: 70px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .log-detail {
-            color: var(--text);
-            flex: 1;
-        }
-
-        .log-detail strong {
-            color: var(--accent);
-        }
-
-        .error-banner {
-            padding: 12px 16px;
-            background: rgba(239, 68, 68, 0.15);
-            border: 1px solid var(--red);
-            border-radius: 8px;
-            color: var(--red);
-            margin-bottom: 15px;
-            font-size: 0.9rem;
-            display: none;
-        }
-
-        .error-banner.show {
-            display: block;
-            animation: slideDown 0.3s ease;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .connection-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.8rem;
-            padding: 2px 8px;
-            background: rgba(34, 197, 94, 0.1);
-            border-radius: 4px;
-            color: var(--green);
-        }
-
-        .connection-indicator.disconnected {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--red);
-        }
-
-        .dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: currentColor;
-            animation: blink 2s infinite;
-        }
-
-        .connection-indicator.disconnected .dot {
-            animation: none;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
-        @media (max-width: 600px) {
-            .stats {
-                grid-template-columns: 1fr;
-            }
-
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .feed-box {
-                height: 350px;
-            }
-        }
-    </style>
-</head>
-<body>
-
-    <div class="card" style="background: rgba(34, 197, 94, 0.08); border: 1px solid var(--green);">
-        <h3 style="margin-top: 0; color: var(--green);">✅ Firestore Ready — No Database URL Needed</h3>
-        <p style="margin: 10px 0; color: var(--text);">The Realtime Database URL is incorrect. Here's how to fix it:</p>
-        <ol style="margin: 10px 0; color: var(--mute); font-size: 0.9rem; padding-left: 20px;">
-            <li><strong>Go to Firebase Console:</strong> <code>https://console.firebase.google.com</code></li>
-            <li><strong>Select your project:</strong> "risync-risync"</li>
-            <li><strong>Go to Realtime Database</strong> (left sidebar)</li>
-            <li><strong>Copy the Database URL</strong> from the top (format: <code>https://your-db-name.firebaseio.com</code>)</li>
-            <li><strong>Update the script below</strong> with the correct URL</li>
-        </ol>
-        <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin-top: 12px; border-left: 3px solid var(--accent);">
-            <p style="margin: 0 0 8px 0; font-size: 0.85rem; color: var(--mute);">📋 Your Database URLs:</p>
-            <p style="margin: 4px 0; font-family: monospace; font-size: 0.8rem;">
-                <strong>RiSync:</strong> <span id="db1Url" style="color: var(--accent);">https://risync-risync-default-rtdb.firebaseio.com</span>
-            </p>
-            <p style="margin: 4px 0; font-family: monospace; font-size: 0.8rem;">
-                <strong>RiChat:</strong> <span id="db2Url" style="color: var(--accent);">https://richat-risync-default-rtdb.firebaseio.com</span>
-            </p>
-            <p style="margin: 8px 0 0 0; font-size: 0.8rem; color: var(--green);">ℹ️ Paste your actual URLs in the script config at the bottom of this page</p>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="error-banner" id="errorBanner"></div>
-
-        <!-- Debug Panel -->
-        <div style="background: rgba(0,0,0,0.5); padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #334155; display: none;" id="debugPanel">
-            <div style="font-size: 0.8rem; color: var(--mute); margin-bottom: 8px; font-weight: 600;">🐛 Debug Info:</div>
-            <div id="debugInfo" style="font-size: 0.75rem; color: #10b981; font-family: monospace; line-height: 1.6; max-height: 200px; overflow-y: auto;">
-                Initializing...
-            </div>
-            <button onclick="toggleDebug()" style="margin-top: 8px; padding: 6px 12px; background: rgba(59, 130, 246, 0.2); color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Hide Debug</button>
-        </div>
-
-        <div class="header">
-            <div class="header-info">
-                <h1>Unified Activity Monitor</h1>
-                <p>Real-time monitoring from RiSync + RiChat</p>
-            </div>
-        </div>
-
-        <div class="stats">
-            <div class="stat-box">
-                <div class="stat-label">Status</div>
-                <div class="stat-value" id="currStatus">--</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-label">Current Page</div>
-                <div class="stat-value" id="currPage">--</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-label">Scroll Depth</div>
-                <div class="stat-value" id="scrollDepth">0%</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-label">Tab Focus</div>
-                <div class="stat-value" id="tabStatus">Unknown</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-label">Last Activity</div>
-                <div class="stat-value" id="lastActivity">--</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-label">Session Duration</div>
-                <div class="stat-value" id="sessionTime">00:00</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="feed-header">
-            <h3>📊 Live Activity Feed</h3>
-            <div class="feed-controls">
-                <button class="feed-btn" onclick="clearLogs()">Clear</button>
-                <button class="feed-btn" onclick="toggleAutoScroll()">Auto-scroll</button>
-            </div>
-        </div>
-        <div class="feed-box" id="feed">
-            <div class="empty-state">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polyline points="12 6 12 12 16 14"></polyline>
-                </svg>
-                <p>Waiting for activity...</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { 
-        getFirestore, doc, collection,
-        onSnapshot, query, orderBy, limit
-    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-    // Debug logging
-    const debugLogs = [];
-    function addDebug(msg) {
-        const timestamp = new Date().toLocaleTimeString();
-        const logMsg = `[${timestamp}] ${msg}`;
-        debugLogs.push(logMsg);
-        console.log(logMsg);
-        
-        const debugEl = document.getElementById('debugInfo');
-        if (debugEl) {
-            debugEl.textContent = debugLogs.slice(-15).join('\n');
-            debugEl.parentElement.parentElement.style.display = 'block';
-        }
+    /* Card hover */
+    .module-card {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .module-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 28px -8px rgba(79, 70, 229, 0.18);
     }
 
-    // ── Firebase Configuration – Project 1 (RiSync) ──────────────────────────
-    // No databaseURL needed for Firestore.
-    const firebaseConfig1 = {
-        apiKey: "AIzaSyBWAwm_TDtD1qXDtjxJu0jrDP45c3p1Bxg",
-        authDomain: "risync-risync.firebaseapp.com",
-        projectId: "risync-risync",
-        storageBucket: "risync-risync.firebasestorage.app",
-        messagingSenderId: "195106250121",
-        appId: "1:195106250121:web:57b23c5b94d5771995d558",
-        measurementId: "G-D5WSLQ706Z"
+    /* Gradient text */
+    .gradient-text {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Glass effect */
+    .glass {
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .dark .glass {
+      background: rgba(17,24,39,0.75);
+    }
+
+    /* Status badges */
+    .status-active { background: #dcfce7; color: #166534; }
+    .status-idle { background: #f1f5f9; color: #64748b; }
+    .status-recent { background: #e0e7ff; color: #3730a3; }
+    .dark .status-active { background: #14532d; color: #86efac; }
+    .dark .status-idle { background: #1e293b; color: #94a3b8; }
+    .dark .status-recent { background: #312e81; color: #a5b4fc; }
+
+    /* Feed empty state */
+    .empty-state {
+      background: radial-gradient(circle at 50% 0%, rgba(79,70,229,0.06), transparent 60%);
+    }
+  </style>
+</head>
+<body class="antialiased">
+
+  <!-- Top Navigation -->
+  <header class="sticky top-0 z-50 border-b border-[var(--border)] glass">
+    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+            <span class="material-symbols-outlined text-white text-[20px]">monitoring</span>
+          </div>
+          <div>
+            <h1 class="font-headline font-extrabold text-lg leading-tight tracking-tight">RiSync Monitor</h1>
+            <p class="text-[11px] text-[var(--muted)] -mt-0.5">Unified Activity Intelligence</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 sm:gap-3">
+          <div class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 text-xs font-medium">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 live-dot"></span>
+            Live
+          </div>
+
+          <button id="themeToggle" class="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="Toggle theme">
+            <span class="material-symbols-outlined text-[var(--muted)] text-[22px]" id="themeIcon">dark_mode</span>
+          </button>
+
+          <button id="exportBtn" class="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-[var(--muted)] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            <span class="material-symbols-outlined text-[18px]">download</span>
+            Export
+          </button>
+
+          <button id="clearBtn" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors">
+            <span class="material-symbols-outlined text-[18px]">delete_sweep</span>
+            <span class="hidden sm:inline">Clear</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+
+    <!-- Stats Row -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 lg:mb-8">
+      <div class="rounded-2xl bg-[var(--card)] border border-[var(--border)] p-4 sm:p-5 shadow-soft">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-medium text-[var(--muted)] uppercase tracking-wider">Total Events</span>
+          <span class="material-symbols-outlined text-indigo-500 text-[20px]">analytics</span>
+        </div>
+        <p class="font-headline text-2xl sm:text-3xl font-extrabold" id="statTotal">0</p>
+        <p class="text-xs text-[var(--muted)] mt-1" id="statTotalSub">across all modules</p>
+      </div>
+
+      <div class="rounded-2xl bg-[var(--card)] border border-[var(--border)] p-4 sm:p-5 shadow-soft">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-medium text-[var(--muted)] uppercase tracking-wider">Today</span>
+          <span class="material-symbols-outlined text-emerald-500 text-[20px]">today</span>
+        </div>
+        <p class="font-headline text-2xl sm:text-3xl font-extrabold" id="statToday">0</p>
+        <p class="text-xs text-[var(--muted)] mt-1" id="statTodaySub">events logged</p>
+      </div>
+
+      <div class="rounded-2xl bg-[var(--card)] border border-[var(--border)] p-4 sm:p-5 shadow-soft">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-medium text-[var(--muted)] uppercase tracking-wider">Most Active</span>
+          <span class="material-symbols-outlined text-violet-500 text-[20px]">local_fire_department</span>
+        </div>
+        <p class="font-headline text-xl sm:text-2xl font-extrabold truncate" id="statTopModule">—</p>
+        <p class="text-xs text-[var(--muted)] mt-1" id="statTopCount">no data yet</p>
+      </div>
+
+      <div class="rounded-2xl bg-[var(--card)] border border-[var(--border)] p-4 sm:p-5 shadow-soft">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-medium text-[var(--muted)] uppercase tracking-wider">Modules Used</span>
+          <span class="material-symbols-outlined text-amber-500 text-[20px]">apps</span>
+        </div>
+        <p class="font-headline text-2xl sm:text-3xl font-extrabold" id="statModules">0</p>
+        <p class="text-xs text-[var(--muted)] mt-1">of 13 available</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+
+      <!-- Left: Module Grid -->
+      <section class="xl:col-span-5">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="font-headline font-bold text-lg">Modules</h2>
+          <span class="text-xs text-[var(--muted)]" id="moduleCountLabel">13 tools</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="moduleGrid">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- Right: Activity Feed -->
+      <section class="xl:col-span-7">
+        <div class="rounded-2xl bg-[var(--card)] border border-[var(--border)] shadow-soft overflow-hidden flex flex-col h-[calc(100vh-280px)] min-h-[520px]">
+          
+          <!-- Feed Header -->
+          <div class="px-5 py-4 border-b border-[var(--border)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+              <h2 class="font-headline font-bold text-lg">Activity Feed</h2>
+              <span class="px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 text-xs font-semibold" id="feedCount">0</span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <div class="relative">
+                <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--muted)] text-[18px]">search</span>
+                <input type="text" id="searchInput" placeholder="Search activity..." 
+                       class="pl-9 pr-3 py-1.5 text-sm rounded-lg border border-[var(--border)] bg-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500/40 w-full sm:w-48"/>
+              </div>
+
+              <select id="filterModule" class="text-sm rounded-lg border border-[var(--border)] bg-transparent px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/40">
+                <option value="all">All modules</option>
+              </select>
+
+              <select id="filterTime" class="text-sm rounded-lg border border-[var(--border)] bg-transparent px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/40">
+                <option value="all">All time</option>
+                <option value="today">Today</option>
+                <option value="week">This week</option>
+                <option value="hour">Last hour</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Feed Body -->
+          <div class="flex-1 overflow-y-auto" id="feedContainer">
+            <div id="feedList" class="divide-y divide-[var(--border)]">
+              <!-- Items injected here -->
+            </div>
+
+            <!-- Empty state -->
+            <div id="emptyState" class="hidden empty-state flex flex-col items-center justify-center py-20 px-6 text-center">
+              <div class="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 flex items-center justify-center mb-4">
+                <span class="material-symbols-outlined text-indigo-500 text-3xl">history</span>
+              </div>
+              <h3 class="font-headline font-bold text-lg mb-1">No activity yet</h3>
+              <p class="text-sm text-[var(--muted)] max-w-sm">
+                Open any RiSync tool and interact with it. Activity will appear here in real-time.
+              </p>
+              <button id="seedDemoBtn" class="mt-5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition-colors">
+                Load sample activity
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- How to integrate -->
+    <details class="mt-8 rounded-2xl border border-[var(--border)] bg-[var(--card)] overflow-hidden">
+      <summary class="px-5 py-4 cursor-pointer font-headline font-semibold flex items-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+        <span class="material-symbols-outlined text-indigo-500">code</span>
+        How to log activity from other pages
+      </summary>
+      <div class="px-5 pb-5 border-t border-[var(--border)]">
+        <p class="text-sm text-[var(--muted)] mt-4 mb-3">Add this small helper to any RiSync page (or put it in a shared JS file):</p>
+        <pre class="text-xs sm:text-sm bg-slate-900 text-slate-100 p-4 rounded-xl overflow-x-auto leading-relaxed"><code>// RiSync Activity Logger
+function RiSyncLog(module, action, details = {}) {
+  try {
+    const key = 'risync_activity';
+    const log = JSON.parse(localStorage.getItem(key) || '[]');
+    log.unshift({
+      id: crypto.randomUUID ? crypto.randomUUID() : Date.now() + Math.random(),
+      ts: new Date().toISOString(),
+      module,
+      action,
+      details,
+      page: location.pathname.split('/').pop() || 'unknown'
+    });
+    if (log.length > 800) log.length = 800;
+    localStorage.setItem(key, JSON.stringify(log));
+    window.dispatchEvent(new CustomEvent('risync-activity'));
+  } catch (e) { console.warn('RiSyncLog failed', e); }
+}
+
+// Example usage:
+RiSyncLog('Calculator', 'Computed expression', { expr: '2+2', result: 4 });
+RiSyncLog('Study Timer', 'Session completed', { duration: '25m', mode: 'Pomodoro' });
+RiSyncLog('NCERT', 'Opened chapter', { subject: 'Physics', chapter: 'Motion' });</code></pre>
+        <p class="text-xs text-[var(--muted)] mt-3">The monitor listens to both <code class="bg-slate-100 dark:bg-slate-800 px-1 rounded">storage</code> events and a custom <code class="bg-slate-100 dark:bg-slate-800 px-1 rounded">risync-activity</code> event, so it updates instantly even in the same tab.</p>
+      </div>
+    </details>
+  </main>
+
+  <script>
+    // ─────────────────────────────────────────────
+    // Module Registry
+    // ─────────────────────────────────────────────
+    const MODULES = [
+      { id: 'Dashboard',     file: 'content.html',     icon: 'dashboard',          color: 'indigo'  },
+      { id: 'Calculator',    file: 'Calculator.html',  icon: 'calculate',          color: 'blue'    },
+      { id: 'Study Timer',   file: 'Study-Timer.html', icon: 'timer',              color: 'emerald' },
+      { id: 'Study Chat',    file: 'RiSync-CHAT.html', icon: 'forum',              color: 'violet'  },
+      { id: 'NCERT',         file: 'NCERT.html',       icon: 'menu_book',          color: 'amber'   },
+      { id: 'Books',         file: 'books.html',       icon: 'auto_stories',       color: 'rose'    },
+      { id: 'File Hub',      file: 'Data Base.html',   icon: 'folder_open',        color: 'cyan'    },
+      { id: 'PPT Editor',    file: 'PPT.html',         icon: 'slideshow',          color: 'orange'  },
+      { id: 'Site Builder',  file: 'RiDesign.html',    icon: 'web',                color: 'pink'    },
+      { id: 'RiBot Studio',  file: 'ribot.html',       icon: 'smart_toy',          color: 'teal'    },
+      { id: 'RiCall',        file: 'ricall.html',      icon: 'psychology',         color: 'purple'  },
+      { id: 'Entrepreneur',  file: 'ent.html',         icon: 'trending_up',        color: 'lime'    },
+      { id: 'Auth',          file: 'signin.html',      icon: 'lock_person',        color: 'slate'   },
+    ];
+
+    const COLOR_MAP = {
+      indigo:  { bg: 'bg-indigo-50 dark:bg-indigo-950/40',  text: 'text-indigo-600 dark:text-indigo-400',  ring: 'ring-indigo-500/20' },
+      blue:    { bg: 'bg-blue-50 dark:bg-blue-950/40',      text: 'text-blue-600 dark:text-blue-400',      ring: 'ring-blue-500/20' },
+      emerald: { bg: 'bg-emerald-50 dark:bg-emerald-950/40',text: 'text-emerald-600 dark:text-emerald-400',ring: 'ring-emerald-500/20' },
+      violet:  { bg: 'bg-violet-50 dark:bg-violet-950/40',  text: 'text-violet-600 dark:text-violet-400',  ring: 'ring-violet-500/20' },
+      amber:   { bg: 'bg-amber-50 dark:bg-amber-950/40',    text: 'text-amber-600 dark:text-amber-400',    ring: 'ring-amber-500/20' },
+      rose:    { bg: 'bg-rose-50 dark:bg-rose-950/40',      text: 'text-rose-600 dark:text-rose-400',      ring: 'ring-rose-500/20' },
+      cyan:    { bg: 'bg-cyan-50 dark:bg-cyan-950/40',      text: 'text-cyan-600 dark:text-cyan-400',      ring: 'ring-cyan-500/20' },
+      orange:  { bg: 'bg-orange-50 dark:bg-orange-950/40',  text: 'text-orange-600 dark:text-orange-400',  ring: 'ring-orange-500/20' },
+      pink:    { bg: 'bg-pink-50 dark:bg-pink-950/40',      text: 'text-pink-600 dark:text-pink-400',      ring: 'ring-pink-500/20' },
+      teal:    { bg: 'bg-teal-50 dark:bg-teal-950/40',      text: 'text-teal-600 dark:text-teal-400',      ring: 'ring-teal-500/20' },
+      purple:  { bg: 'bg-purple-50 dark:bg-purple-950/40',  text: 'text-purple-600 dark:text-purple-400',  ring: 'ring-purple-500/20' },
+      lime:    { bg: 'bg-lime-50 dark:bg-lime-950/40',      text: 'text-lime-600 dark:text-lime-400',      ring: 'ring-lime-500/20' },
+      slate:   { bg: 'bg-slate-100 dark:bg-slate-800',      text: 'text-slate-600 dark:text-slate-400',    ring: 'ring-slate-500/20' },
     };
 
-    // ── Firebase Configuration – Project 2 (RiChat) ──────────────────────────
-    const firebaseConfig2 = {
-        apiKey: "AIzaSyC667ajtfBEfsqOk5PZQVJOLOQaBbf8VKM",
-        authDomain: "richat-risync.firebaseapp.com",
-        projectId: "richat-risync",
-        storageBucket: "richat-risync.firebasestorage.app",
-        messagingSenderId: "152864251884",
-        appId: "1:152864251884:web:587948dcadf65ed2596ac9",
-        measurementId: "G-R9DS3XR122"
-    };
+    // ─────────────────────────────────────────────
+    // Safe Storage (works even in sandboxed iframes)
+    // ─────────────────────────────────────────────
+    const STORAGE_KEY = 'risync_activity';
+    const THEME_KEY = 'risync_monitor_theme';
+
+    // In-memory fallback when localStorage is blocked (sandbox / privacy mode)
+    let memoryStore = { [STORAGE_KEY]: '[]', [THEME_KEY]: null };
+    let storageAvailable = true;
 
     try {
-        addDebug("Starting Firebase initialization...");
-
-        const app1 = initializeApp(firebaseConfig1, "risync");
-        const app2 = initializeApp(firebaseConfig2, "richat");
-
-        addDebug("✓ Firebase apps initialized");
-
-        // Firestore instances (no databaseURL required)
-        const db1 = getFirestore(app1);
-        const db2 = getFirestore(app2);
-
-        addDebug("✓ Firestore instances created");
-
-        // ── Firestore document paths ─────────────────────────────────────────
-        // Status:  monitoring/{USER_ID}          (single document)
-        // Logs:    monitoring/{USER_ID}/logs/*   (sub-collection)
-        const USER_ID = "child_001";
-        addDebug(`Monitoring USER_ID: ${USER_ID}`);
-
-        let autoScroll = true;
-        let sessionStartTime = Date.now();
-        let allLogs = [];
-        let connectionStatus = { db1: false, db2: false };
-        let dataReceived   = { db1: false, db2: false };
-
-        let currentData = {
-            state: 'offline',
-            current_page: 'Unknown',
-            scroll_depth: 0,
-            tab_visible: false,
-            source: 'none'
-        };
-
-        // Session timer
-        setInterval(() => {
-            const sessionTimeEl = document.getElementById('sessionTime');
-            if (!sessionTimeEl) return;
-            const elapsed  = Math.floor((Date.now() - sessionStartTime) / 1000);
-            const hours    = Math.floor(elapsed / 3600);
-            const minutes  = Math.floor((elapsed % 3600) / 60);
-            const seconds  = elapsed % 60;
-            sessionTimeEl.textContent =
-                `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
-        }, 1000);
-
-        function showError(message) {
-            const banner = document.getElementById('errorBanner');
-            if (!banner) return;
-            banner.textContent = "⚠️ " + message;
-            banner.classList.add('show');
-            addDebug("ERROR: " + message);
-        }
-
-        function updateConnectionStatus() {
-            const el = document.getElementById('connectionStatus');
-            if (!el) return;
-            const connected = connectionStatus.db1 || connectionStatus.db2;
-            if (connected) {
-                el.classList.remove('disconnected');
-                const sources = [];
-                if (connectionStatus.db1) sources.push("RiSync");
-                if (connectionStatus.db2) sources.push("RiChat");
-                el.innerHTML = `<span class="dot"></span><span>Connected (${sources.join(" + ")})</span>`;
-                addDebug(`✓ Connected: ${sources.join(" + ")}`);
-            } else {
-                el.classList.add('disconnected');
-                el.innerHTML = '<span class="dot"></span><span>Waiting for data...</span>';
-                addDebug("✗ No connection yet");
-            }
-        }
-
-        function renderLogs() {
-            const feed = document.getElementById('feed');
-            if (!feed) return;
-
-            if (allLogs.length === 0) {
-                feed.innerHTML = `
-                    <div class="empty-state">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <polyline points="12 6 12 12 16 14"></polyline>
-                        </svg>
-                        <p>No activity logged yet</p>
-                    </div>`;
-                return;
-            }
-
-            feed.innerHTML = "";
-            const sortedLogs = [...allLogs].sort((a, b) =>
-                new Date(b.timestamp) - new Date(a.timestamp)
-            );
-
-            sortedLogs.forEach(log => {
-                const div = document.createElement('div');
-                let typeClass = "", icon = "";
-
-                if (log.action.includes("FOCUS"))                          { typeClass = "focus";      icon = "👁️"; }
-                else if (log.action.includes("HIDDEN"))                    { typeClass = "blur";       icon = "⏸️"; }
-                else if (log.action.includes("NAV") || log.action.includes("NAVIGATION")) { typeClass = "navigation"; icon = "🔗"; }
-                else if (log.action.includes("SCROLL"))                    { icon = "📜"; }
-                else if (log.action.includes("CLICK"))                     { icon = "🖱️"; }
-                else if (log.action.includes("MESSAGE"))                   { icon = "💬"; }
-                else if (log.action.includes("CHAT"))                      { icon = "💭"; }
-                else                                                        { icon = "📝"; }
-
-                const timestamp = new Date(log.timestamp);
-                const timeStr   = timestamp.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
-
-                const sourceBadge = log.source === 'richat'
-                    ? '<span style="font-size:0.7rem;background:rgba(139,92,246,0.3);color:#a78bfa;padding:2px 6px;border-radius:3px;margin-left:8px;">RiChat</span>'
-                    : '<span style="font-size:0.7rem;background:rgba(59,130,246,0.3);color:#93c5fd;padding:2px 6px;border-radius:3px;margin-left:8px;">RiSync</span>';
-
-                div.className   = `log ${typeClass}`;
-                div.innerHTML   = `
-                    <div class="log-time">${timeStr}</div>
-                    <div class="log-detail">
-                        <strong>${icon} ${log.action}</strong>${sourceBadge}
-                        <br/>
-                        <span style="opacity:0.8;font-size:0.85rem;">${log.details || 'No details'}</span>
-                    </div>`;
-                feed.appendChild(div);
-            });
-
-            if (autoScroll) feed.scrollTop = feed.scrollHeight;
-        }
-
-        // ==================== FIRESTORE LISTENERS ====================
-        // Expected Firestore structure:
-        //   Collection: "monitoring"
-        //   Document:   USER_ID  (e.g. "child_001")
-        //     Fields:  state, current_page, scroll_depth, tab_visible, last_activity_time
-        //   Sub-collection: "logs"
-        //     Documents with fields: action, details, timestamp
-
-        // ── RiSync – Status ──────────────────────────────────────────
-        addDebug("Setting up RiSync Firestore listeners...");
-
-        onSnapshot(
-            doc(db1, "monitoring", USER_ID),
-            (snap) => {
-                const data = snap.exists() ? snap.data() : null;
-                addDebug(`RiSync status: ${data ? JSON.stringify(data).substring(0,60) : 'null'}`);
-                connectionStatus.db1 = !!data;
-                dataReceived.db1     = true;
-                updateConnectionStatus();
-                if (data && currentData.source !== 'db1') {
-                    currentData = { ...data, source: 'db1' };
-                    updateStatusDisplay(data);
-                }
-            },
-            (error) => {
-                connectionStatus.db1 = false;
-                dataReceived.db1     = true;
-                addDebug(`✗ RiSync status error: ${error.code} – ${error.message}`);
-                if (error.code === 'permission-denied') {
-                    showError("🔒 Permission Denied (RiSync): Check Firestore security rules");
-                } else {
-                    showError(`RiSync Error: ${error.message}`);
-                }
-                updateConnectionStatus();
-            }
-        );
-
-        // ── RiSync – Logs ────────────────────────────────────────────
-        onSnapshot(
-            query(
-                collection(db1, "monitoring", USER_ID, "logs"),
-                orderBy("timestamp", "desc"),
-                limit(25)
-            ),
-            (snap) => {
-                const db1Logs = snap.docs.map(d => ({ ...d.data(), source: 'risync' }));
-                addDebug(`RiSync logs: ${db1Logs.length} entries`);
-                allLogs = allLogs.filter(l => l.source !== 'risync').concat(db1Logs);
-                renderLogs();
-            },
-            (error) => {
-                addDebug(`✗ RiSync logs error: ${error.code} – ${error.message}`);
-            }
-        );
-
-        // ── RiChat – Status ──────────────────────────────────────────
-        addDebug("Setting up RiChat Firestore listeners...");
-
-        onSnapshot(
-            doc(db2, "monitoring", USER_ID),
-            (snap) => {
-                const data = snap.exists() ? snap.data() : null;
-                addDebug(`RiChat status: ${data ? JSON.stringify(data).substring(0,60) : 'null'}`);
-                connectionStatus.db2 = !!data;
-                dataReceived.db2     = true;
-                updateConnectionStatus();
-                if (data && currentData.source !== 'db2') {
-                    currentData = { ...data, source: 'db2' };
-                    updateStatusDisplay(data);
-                }
-            },
-            (error) => {
-                connectionStatus.db2 = false;
-                dataReceived.db2     = true;
-                addDebug(`✗ RiChat status error: ${error.code} – ${error.message}`);
-                if (error.code === 'permission-denied') {
-                    showError("🔒 Permission Denied (RiChat): Check Firestore security rules");
-                } else {
-                    showError(`RiChat Error: ${error.message}`);
-                }
-                updateConnectionStatus();
-            }
-        );
-
-        // ── RiChat – Logs ────────────────────────────────────────────
-        onSnapshot(
-            query(
-                collection(db2, "monitoring", USER_ID, "logs"),
-                orderBy("timestamp", "desc"),
-                limit(25)
-            ),
-            (snap) => {
-                const db2Logs = snap.docs.map(d => ({ ...d.data(), source: 'richat' }));
-                addDebug(`RiChat logs: ${db2Logs.length} entries`);
-                allLogs = allLogs.filter(l => l.source !== 'richat').concat(db2Logs);
-                renderLogs();
-            },
-            (error) => {
-                addDebug(`✗ RiChat logs error: ${error.code} – ${error.message}`);
-            }
-        );
-
-        // ==================== UI UPDATE FUNCTION ====================
-
-        function updateStatusDisplay(data) {
-            const badge = document.getElementById('statusBadge');
-            if (!badge) return;
-
-            if (data.state === 'online') {
-                badge.textContent = "🟢 ACTIVE NOW";
-                badge.className   = "status-badge status-online";
-                const currStatus  = document.getElementById('currStatus');
-                if (currStatus) { currStatus.textContent = "Active"; currStatus.className = "stat-value active"; }
-            } else {
-                badge.textContent = "🔴 OFFLINE";
-                badge.className   = "status-badge status-offline";
-                const currStatus  = document.getElementById('currStatus');
-                if (currStatus) { currStatus.textContent = "Offline"; currStatus.className = "stat-value"; }
-            }
-
-            const currPage   = document.getElementById('currPage');
-            if (currPage)   currPage.textContent   = data.current_page || "Unknown";
-
-            const scrollDepth = document.getElementById('scrollDepth');
-            if (scrollDepth) scrollDepth.textContent = (data.scroll_depth || 0) + "%";
-
-            const tabEl = document.getElementById('tabStatus');
-            if (tabEl) {
-                if (data.tab_visible) { tabEl.textContent = "👁️ Focused"; tabEl.className = "stat-value active"; }
-                else                  { tabEl.textContent = "⏸️ Hidden";  tabEl.className = "stat-value inactive"; }
-            }
-
-            if (data.last_activity_time) {
-                // Firestore Timestamp → JS Date, or plain string/number
-                const actTime = data.last_activity_time.toDate
-                    ? data.last_activity_time.toDate()
-                    : new Date(data.last_activity_time);
-                const diff = Math.floor((Date.now() - actTime) / 1000);
-                const timeStr = diff < 60 ? diff + "s ago"
-                    : diff < 3600 ? Math.floor(diff / 60) + "m ago"
-                    : Math.floor(diff / 3600) + "h ago";
-                const lastActivity = document.getElementById('lastActivity');
-                if (lastActivity) lastActivity.textContent = timeStr;
-            }
-        }
-
-        // Global Functions
-        window.clearLogs = function() {
-            allLogs = [];
-            document.getElementById('feed').innerHTML = `
-                <div class="empty-state">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="3 6 5 4 21 4 23 6 23 20a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V6"></polyline>
-                        <line x1="10" y1="12" x2="14" y2="12"></line>
-                    </svg>
-                    <p>Logs cleared</p>
-                </div>`;
-        };
-
-        window.toggleAutoScroll = function() {
-            autoScroll = !autoScroll;
-            const btn = event.target;
-            btn.textContent   = autoScroll ? "Auto-scroll" : "Auto-scroll (OFF)";
-            btn.style.opacity = autoScroll ? "1" : "0.6";
-        };
-
-        window.toggleDebug = function() {
-            const panel = document.getElementById('debugPanel');
-            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-        };
-
-        addDebug("Monitor initialized – waiting for Firestore data...");
-        updateConnectionStatus();
-
-    } catch (error) {
-        console.error("Firebase initialization error:", error);
-        addDebug("FATAL ERROR: " + error.message);
-        document.body.innerHTML += `
-            <div style="color:var(--red);padding:20px;text-align:center;">
-                <p>Failed to initialize monitoring:</p>
-                <p style="font-size:0.9rem;opacity:0.8;">${error.message}</p>
-            </div>`;
+      const testKey = '__risync_test__';
+      localStorage.setItem(testKey, '1');
+      localStorage.removeItem(testKey);
+    } catch (e) {
+      storageAvailable = false;
+      console.info('[RiSync Monitor] localStorage unavailable – using in-memory store');
     }
-</script>
 
+    function safeGet(key) {
+      if (storageAvailable) {
+        try { return localStorage.getItem(key); } catch (e) { storageAvailable = false; }
+      }
+      return memoryStore[key] ?? null;
+    }
+
+    function safeSet(key, value) {
+      if (storageAvailable) {
+        try { localStorage.setItem(key, value); return; } catch (e) { storageAvailable = false; }
+      }
+      memoryStore[key] = value;
+    }
+
+    function safeRemove(key) {
+      if (storageAvailable) {
+        try { localStorage.removeItem(key); return; } catch (e) { storageAvailable = false; }
+      }
+      delete memoryStore[key];
+    }
+
+    function getLog() {
+      try {
+        return JSON.parse(safeGet(STORAGE_KEY) || '[]');
+      } catch {
+        return [];
+      }
+    }
+
+    function saveLog(log) {
+      safeSet(STORAGE_KEY, JSON.stringify(log));
+    }
+
+    // ─────────────────────────────────────────────
+    // Theme
+    // ─────────────────────────────────────────────
+    const html = document.documentElement;
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+
+    function applyTheme(dark) {
+      html.classList.toggle('dark', dark);
+      themeIcon.textContent = dark ? 'light_mode' : 'dark_mode';
+      safeSet(THEME_KEY, dark ? 'dark' : 'light');
+    }
+
+    const savedTheme = safeGet(THEME_KEY);
+    applyTheme(savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches));
+
+    themeToggle.addEventListener('click', () => {
+      applyTheme(!html.classList.contains('dark'));
+    });
+
+    // ─────────────────────────────────────────────
+    // Time helpers
+    // ─────────────────────────────────────────────
+    function relativeTime(iso) {
+      const d = new Date(iso);
+      const now = Date.now();
+      const diff = Math.floor((now - d.getTime()) / 1000);
+      if (diff < 10) return 'Just now';
+      if (diff < 60) return `${diff}s ago`;
+      if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+      if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+      if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+      return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    }
+
+    function formatTime(iso) {
+      return new Date(iso).toLocaleString(undefined, {
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        day: 'numeric', month: 'short'
+      });
+    }
+
+    // ─────────────────────────────────────────────
+    // Filtering
+    // ─────────────────────────────────────────────
+    function getFilteredLog() {
+      let log = getLog();
+      const moduleFilter = document.getElementById('filterModule').value;
+      const timeFilter = document.getElementById('filterTime').value;
+      const search = document.getElementById('searchInput').value.trim().toLowerCase();
+
+      if (moduleFilter !== 'all') {
+        log = log.filter(e => e.module === moduleFilter);
+      }
+
+      const now = Date.now();
+      if (timeFilter === 'hour') {
+        log = log.filter(e => now - new Date(e.ts).getTime() < 3600000);
+      } else if (timeFilter === 'today') {
+        const start = new Date(); start.setHours(0,0,0,0);
+        log = log.filter(e => new Date(e.ts) >= start);
+      } else if (timeFilter === 'week') {
+        log = log.filter(e => now - new Date(e.ts).getTime() < 7 * 86400000);
+      }
+
+      if (search) {
+        log = log.filter(e => {
+          const hay = `${e.module} ${e.action} ${JSON.stringify(e.details || {})} ${e.page || ''}`.toLowerCase();
+          return hay.includes(search);
+        });
+      }
+      return log;
+    }
+
+    // ─────────────────────────────────────────────
+    // Render Module Cards
+    // ─────────────────────────────────────────────
+    function renderModules() {
+      const log = getLog();
+      const counts = {};
+      const lastSeen = {};
+
+      log.forEach(e => {
+        counts[e.module] = (counts[e.module] || 0) + 1;
+        if (!lastSeen[e.module] || e.ts > lastSeen[e.module]) {
+          lastSeen[e.module] = e.ts;
+        }
+      });
+
+      const grid = document.getElementById('moduleGrid');
+      grid.innerHTML = MODULES.map(m => {
+        const count = counts[m.id] || 0;
+        const last = lastSeen[m.id];
+        const colors = COLOR_MAP[m.color] || COLOR_MAP.slate;
+        let statusClass = 'status-idle';
+        let statusText = 'Idle';
+        if (last) {
+          const mins = (Date.now() - new Date(last).getTime()) / 60000;
+          if (mins < 5) { statusClass = 'status-active'; statusText = 'Active'; }
+          else if (mins < 60) { statusClass = 'status-recent'; statusText = 'Recent'; }
+        }
+
+        return `
+          <a href="${m.file}" target="_blank" class="module-card block rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 hover:border-indigo-300 dark:hover:border-indigo-700">
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl ${colors.bg} ${colors.text} flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-[22px]">${m.icon}</span>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between gap-2">
+                  <h3 class="font-semibold text-sm truncate">${m.id}</h3>
+                  <span class="text-[10px] font-medium px-1.5 py-0.5 rounded-md ${statusClass}">${statusText}</span>
+                </div>
+                <p class="text-xs text-[var(--muted)] mt-0.5 truncate">${m.file}</p>
+                <div class="flex items-center justify-between mt-2 text-xs text-[var(--muted)]">
+                  <span>${count} event${count !== 1 ? 's' : ''}</span>
+                  <span>${last ? relativeTime(last) : 'Never'}</span>
+                </div>
+              </div>
+            </div>
+          </a>
+        `;
+      }).join('');
+    }
+
+    // ─────────────────────────────────────────────
+    // Render Feed
+    // ─────────────────────────────────────────────
+    function renderFeed() {
+      const log = getFilteredLog();
+      const list = document.getElementById('feedList');
+      const empty = document.getElementById('emptyState');
+      const feedCount = document.getElementById('feedCount');
+
+      feedCount.textContent = log.length;
+
+      if (log.length === 0) {
+        list.innerHTML = '';
+        empty.classList.remove('hidden');
+        empty.classList.add('flex');
+        return;
+      }
+
+      empty.classList.add('hidden');
+      empty.classList.remove('flex');
+
+      list.innerHTML = log.map((e, i) => {
+        const mod = MODULES.find(m => m.id === e.module) || { icon: 'circle', color: 'slate' };
+        const colors = COLOR_MAP[mod.color] || COLOR_MAP.slate;
+        const detailsStr = e.details && Object.keys(e.details).length
+          ? Object.entries(e.details).map(([k,v]) => `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-[11px]"><span class="text-[var(--muted)]">${k}:</span> ${v}</span>`).join(' ')
+          : '';
+
+        return `
+          <div class="activity-item px-5 py-3.5 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors" style="animation-delay:${Math.min(i*20,200)}ms">
+            <div class="flex gap-3">
+              <div class="w-9 h-9 rounded-lg ${colors.bg} ${colors.text} flex items-center justify-center shrink-0 mt-0.5">
+                <span class="material-symbols-outlined text-[18px]">${mod.icon}</span>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                  <span class="font-semibold text-sm">${e.module}</span>
+                  <span class="text-sm text-[var(--muted)]">${e.action}</span>
+                </div>
+                ${detailsStr ? `<div class="flex flex-wrap gap-1.5 mt-1.5">${detailsStr}</div>` : ''}
+                <div class="flex items-center gap-3 mt-1.5 text-[11px] text-[var(--muted)]">
+                  <span title="${formatTime(e.ts)}">${relativeTime(e.ts)}</span>
+                  ${e.page ? `<span class="opacity-70">· ${e.page}</span>` : ''}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ─────────────────────────────────────────────
+    // Stats
+    // ─────────────────────────────────────────────
+    function renderStats() {
+      const log = getLog();
+      document.getElementById('statTotal').textContent = log.length.toLocaleString();
+
+      const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+      const todayCount = log.filter(e => new Date(e.ts) >= todayStart).length;
+      document.getElementById('statToday').textContent = todayCount.toLocaleString();
+
+      const counts = {};
+      log.forEach(e => { counts[e.module] = (counts[e.module] || 0) + 1; });
+      const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+      if (sorted.length) {
+        document.getElementById('statTopModule').textContent = sorted[0][0];
+        document.getElementById('statTopCount').textContent = `${sorted[0][1]} events`;
+      } else {
+        document.getElementById('statTopModule').textContent = '—';
+        document.getElementById('statTopCount').textContent = 'no data yet';
+      }
+
+      document.getElementById('statModules').textContent = Object.keys(counts).length;
+    }
+
+    // ─────────────────────────────────────────────
+    // Full refresh
+    // ─────────────────────────────────────────────
+    function refresh() {
+      renderStats();
+      renderModules();
+      renderFeed();
+      populateModuleFilter();
+    }
+
+    function populateModuleFilter() {
+      const sel = document.getElementById('filterModule');
+      const current = sel.value;
+      const used = [...new Set(getLog().map(e => e.module))].sort();
+      sel.innerHTML = '<option value="all">All modules</option>' +
+        used.map(m => `<option value="${m}">${m}</option>`).join('');
+      sel.value = current;
+    }
+
+    // ─────────────────────────────────────────────
+    // Event listeners
+    // ─────────────────────────────────────────────
+    ['searchInput', 'filterModule', 'filterTime'].forEach(id => {
+      document.getElementById(id).addEventListener('input', renderFeed);
+      document.getElementById(id).addEventListener('change', renderFeed);
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      if (confirm('Clear the entire activity log? This cannot be undone.')) {
+        safeRemove(STORAGE_KEY);
+        refresh();
+      }
+    });
+
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      const log = getLog();
+      const blob = new Blob([JSON.stringify(log, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `risync-activity-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // Live updates
+    window.addEventListener('storage', (e) => {
+      if (e.key === STORAGE_KEY) refresh();
+    });
+    window.addEventListener('risync-activity', refresh);
+
+    // Poll as fallback (for same-tab or iframes)
+    setInterval(refresh, 4000);
+
+    // ─────────────────────────────────────────────
+    // Demo / Seed data
+    // ─────────────────────────────────────────────
+    document.getElementById('seedDemoBtn').addEventListener('click', () => {
+      const samples = [
+        { module: 'Calculator', action: 'Computed expression', details: { expr: '√(144) + 8', result: '20' } },
+        { module: 'Study Timer', action: 'Pomodoro completed', details: { duration: '25m', focus: 'Math' } },
+        { module: 'NCERT', action: 'Opened chapter', details: { subject: 'Physics', chapter: 'Laws of Motion' } },
+        { module: 'Study Chat', action: 'Sent message', details: { topic: 'Organic Chemistry' } },
+        { module: 'Books', action: 'Bookmarked page', details: { book: 'Young Entrepreneur', page: 42 } },
+        { module: 'RiBot Studio', action: 'Generated response', details: { model: 'RiBot-Pro', tokens: 312 } },
+        { module: 'PPT Editor', action: 'Created slide', details: { title: 'Market Analysis' } },
+        { module: 'Site Builder', action: 'Published site', details: { name: 'Portfolio v2' } },
+        { module: 'File Hub', action: 'Uploaded file', details: { name: 'notes.pdf', size: '2.4 MB' } },
+        { module: 'Dashboard', action: 'Viewed overview', details: {} },
+        { module: 'RiCall', action: 'Spotlight search', details: { query: 'photosynthesis' } },
+        { module: 'Entrepreneur', action: 'Completed lesson', details: { lesson: 'MVP Validation' } },
+        { module: 'Study Timer', action: 'Started session', details: { mode: 'Deep Work', goal: '45m' } },
+        { module: 'Calculator', action: 'Unit conversion', details: { from: 'km', to: 'mi', value: 100 } },
+        { module: 'NCERT', action: 'Marked as complete', details: { subject: 'Biology', chapter: 'Cell Structure' } },
+      ];
+
+      const log = getLog();
+      const now = Date.now();
+      samples.forEach((s, i) => {
+        log.unshift({
+          id: crypto.randomUUID ? crypto.randomUUID() : now + i,
+          ts: new Date(now - i * 1000 * 60 * (2 + Math.random() * 40)).toISOString(),
+          module: s.module,
+          action: s.action,
+          details: s.details,
+          page: MODULES.find(m => m.id === s.module)?.file || 'unknown'
+        });
+      });
+      saveLog(log);
+      refresh();
+    });
+
+    // Initial render
+    refresh();
+
+    // Also log that the monitor itself was opened
+    (function logSelf() {
+      const log = getLog();
+      // Avoid flooding if user refreshes a lot
+      const recent = log[0];
+      if (recent && recent.module === 'Monitor' && (Date.now() - new Date(recent.ts).getTime()) < 30000) return;
+      log.unshift({
+        id: crypto.randomUUID ? crypto.randomUUID() : Date.now(),
+        ts: new Date().toISOString(),
+        module: 'Monitor',
+        action: 'Opened activity monitor',
+        details: {},
+        page: 'monitor.html'
+      });
+      if (log.length > 800) log.length = 800;
+      saveLog(log);
+    })();
+  </script>
 </body>
 </html>
