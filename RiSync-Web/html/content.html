@@ -1067,10 +1067,41 @@
     let currentUser = null;
 
     // ---- Best-match engine (same scoring as signup.html) ----
-    const MATCH_THRESHOLD = 60;
+    const MATCH_THRESHOLD = 45;
+    // Normalize profile values such as 7, Class 7, Grade 7 and 7th to one key.
+    function classKey(value) {
+      const match = String(value ?? '').match(/\d{1,2}/);
+      return match ? match[0] : String(value ?? '').trim().toLowerCase();
+    }
+    function classQueryValues(value) {
+      const key = classKey(value);
+      if (!key) return [];
+      return [...new Set([key, `Class ${key}`, `class ${key}`, `Grade ${key}`, `grade ${key}`, `${key}th`])];
+    }
+    async function fetchClassmates(me) {
+      const rawClass = me.class || me.grade || me.className || '';
+      const values = classQueryValues(rawClass);
+      if (!values.length) return [];
+      // Older signup/profile versions saved the same grade under either `class` or `grade`.
+      const reads = [];
+      for (const field of ['class', 'grade']) {
+        for (let i = 0; i < values.length; i += 10) {
+          reads.push(getDocs(query(collection(db, 'users'), where(field, 'in', values.slice(i, i + 10)), limit(60))));
+        }
+      }
+      const snapshots = await Promise.all(reads);
+      const byId = new Map();
+      snapshots.forEach(snap => snap.forEach(d => {
+        const data = d.data();
+        if (classKey(data.class || data.grade || data.className) === classKey(rawClass)) {
+          byId.set(d.id, { ...data, uid: data.uid || d.id, email: String(data.email || '').toLowerCase() });
+        }
+      }));
+      return [...byId.values()];
+    }
     function scoreMatch(me, other) {
-      if (!other || !other.email || other.uid === me.uid || other.email === me.email) return null;
-      if (String(other.class || other.grade) !== String(me.class || me.grade)) return null; // peers = same class
+      if (!other || !other.email || other.uid === me.uid || String(other.email).toLowerCase() === String(me.email || '').toLowerCase()) return null;
+      if (classKey(other.class || other.grade || other.className) !== classKey(me.class || me.grade || me.className)) return null; // peers = same class
       if ((me.skippedMatches || []).includes(other.email)) return null; // user chose "find another"
       let score = 40;
       const reasons = ["Same class"];
@@ -1106,12 +1137,13 @@
       const section = document.getElementById('bestMatchSection');
       if (!section) return;
       try {
-        const cls = String(me.class || me.grade || '');
-        if (!cls) return;
-        const snap = await getDocs(query(collection(db, 'users'), where('class', '==', cls), limit(60)));
-        const pool = [];
-        snap.forEach(d => { const u = d.data(); pool.push({ ...u, uid: u.uid || d.id }); });
-
+        const cls = me.class || me.grade || me.className || '';
+        if (!classKey(cls)) {
+          section.classList.add('hidden');
+          console.info('[RiSync] Perfect Match: add your class/grade in Profile to find classmates.');
+          return;
+        }
+        const pool = await fetchClassmates(me);
         lastPool = pool; currentMe = me;
         const best = bestOf(me, pool);
         if (!best || best.score < MATCH_THRESHOLD) { section.classList.add('hidden'); return; }
@@ -1164,7 +1196,10 @@
 
         section.classList.remove('hidden');
         loadRatingPanel(me, best).catch(e => console.warn('Rating panel failed:', e));
-      } catch (e) { console.warn('Best match unavailable:', e); }
+      } catch (e) {
+        section.classList.add('hidden');
+        console.error('[RiSync] Perfect Match could not load. Check Firestore rules/indexes and class/grade fields:', e);
+      }
     }
 
 
@@ -1185,11 +1220,9 @@
       });
     }
     async function syncMatchesToFirebase(me) {
-      const cls = String(me.class || me.grade || '');
-      if (!cls) return { written: 0, errors: ['No class on profile'] };
-      const snap = await getDocs(query(collection(db, 'users'), where('class', '==', cls), limit(60)));
-      const pool = [];
-      snap.forEach(d => { const u = d.data(); pool.push({ ...u, uid: u.uid || d.id }); });
+      const cls = me.class || me.grade || me.className || '';
+      if (!classKey(cls)) return { written: 0, errors: ['No class on profile'] };
+      const pool = await fetchClassmates(me);
       const idx = pool.findIndex(u => u.email === me.email);
       if (idx >= 0) pool[idx] = { ...pool[idx], ...me }; else pool.push(me);   // use my freshest preferences
       let written = 0; const errors = [];
