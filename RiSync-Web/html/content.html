@@ -1,25 +1,3057 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>RiSync Dashboard</title>
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container-low": "#eff4ff",
+            "outline-variant": "#c7c5d4",
+            "surface-container": "#e6eeff",
+            "error": "#ba1a1a",
+            "on-error": "#ffffff",
+            "inverse-surface": "#233144",
+            "surface-bright": "#f8f9ff",
+            "on-primary-container": "#9da1ff",
+            "on-secondary": "#ffffff",
+            "on-secondary-fixed-variant": "#005137",
+            "on-tertiary-fixed": "#2f1500",
+            "tertiary": "#422000",
+            "inverse-primary": "#c0c1ff",
+            "surface": "#f8f9ff",
+            "on-secondary-container": "#00714e",
+            "tertiary-fixed": "#ffdcc3",
+            "on-primary-fixed": "#04006d",
+            "primary": "#15157d",
+            "tertiary-fixed-dim": "#ffb77d",
+            "secondary-fixed-dim": "#68dba9",
+            "on-tertiary": "#ffffff",
+            "on-error-container": "#93000a",
+            "tertiary-container": "#623200",
+            "on-primary": "#ffffff",
+            "on-surface-variant": "#464652",
+            "background": "#f8f9ff",
+            "on-background": "#0d1c2e",
+            "on-secondary-fixed": "#002114",
+            "on-primary-fixed-variant": "#373a9b",
+            "on-tertiary-container": "#f99028",
+            "surface-container-highest": "#d5e3fc",
+            "surface-container-high": "#dce9ff",
+            "primary-fixed": "#e1e0ff",
+            "error-container": "#ffdad6",
+            "surface-variant": "#d5e3fc",
+            "inverse-on-surface": "#eaf1ff",
+            "on-surface": "#0d1c2e",
+            "secondary-fixed": "#85f8c4",
+            "surface-tint": "#4f54b4",
+            "primary-container": "#2e3192",
+            "primary-fixed-dim": "#c0c1ff",
+            "secondary-container": "#82f5c1",
+            "outline": "#777683",
+            "on-tertiary-fixed-variant": "#6e3900",
+            "surface-container-lowest": "#ffffff",
+            "surface-dim": "#ccdbf3",
+            "secondary": "#006c4a"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "1.5rem",
+            "full": "9999px"
+          },
+          "fontFamily": {
+            "headline": ["Manrope", "sans-serif"],
+            "body": ["Inter", "sans-serif"],
+            "label": ["Inter", "sans-serif"]
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8f9ff;
+      color: #0d1c2e;
+    }
+    .editorial-header {
+      font-family: 'Manrope', sans-serif;
+      letter-spacing: -0.02em;
+    }
+    .btn-primary-gradient {
+      background: linear-gradient(15deg, #15157d, #2e3192);
+    }
 
-<!-- Find Best Match -->
-<div id="findBestMatchPanel"
-     class="rounded-2xl border border-indigo-100 bg-white p-5 shadow-sm">
-  <div class="flex flex-wrap items-center justify-between gap-4">
-    <div>
-      <h3 class="text-base font-extrabold text-indigo-950">
-        Find your best study match
-      </h3>
-      <p class="text-sm text-slate-600 mt-1">
-        Find the peer who best matches your learning preferences.
-      </p>
-      <p id="findBestMatchStatus"
-         class="text-xs text-slate-500 mt-2"
-         aria-live="polite">
-        Ready when you are.
-      </p>
+    /* ---- Sidebar mobile ---- */
+    @media (max-width: 1024px) {
+      #sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+      #sidebar.open { transform: translateX(0); }
+      .main-wrapper { margin-left: 0 !important; }
+      .menu-toggle { display: flex !important; }
+      .top-bar { left: 0 !important; }
+    }
+    .menu-toggle { display: none; }
+    .overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(13, 28, 46, 0.45);
+      z-index: 40;
+      backdrop-filter: blur(2px);
+    }
+    .main-wrapper.sidebar-open .overlay { display: block; }
+
+    /* ---- Language dropdown ---- */
+    .language-dropdown-container {
+      position: relative;
+      cursor: pointer;
+      user-select: none;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      width: 130px;
+      z-index: 10;
+      color: #0d1c2e;
+    }
+    .selected-language {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 12px;
+      background: #eff4ff;
+      border-radius: 10px;
+      border: 1.5px solid #c7c5d4;
+      transition: all 0.2s;
+      color: #15157d;
+      font-weight: 600;
+    }
+    .selected-language:hover {
+      background: #e6eeff;
+      border-color: #15157d;
+    }
+    .selected-language .dropdown-arrow {
+      font-size: 18px;
+      transition: transform 0.3s ease;
+    }
+    .language-dropdown-container.active .selected-language .dropdown-arrow {
+      transform: rotate(180deg);
+    }
+    .language-dropdown-list {
+      position: absolute;
+      top: 110%;
+      left: 0;
+      width: 220px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(21,21,125,0.12);
+      padding: 4px;
+      max-height: 320px;
+      overflow-y: auto;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: all 0.2s;
+      border: 1.5px solid #c7c5d4;
+      scrollbar-width: thin;
+      scrollbar-color: #e6eeff transparent;
+    }
+    .language-dropdown-container.active .language-dropdown-list {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    .language-dropdown-list li {
+      list-style: none;
+      padding: 9px 12px;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .language-dropdown-list li:hover {
+      background: #eff4ff;
+      color: #15157d;
+    }
+
+    /* ---- Settings dropdown ---- */
+    .settings-menu {
+      visibility: hidden;
+      opacity: 0;
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background: #fff;
+      border-radius: 14px;
+      padding: 6px;
+      box-shadow: 0 8px 32px rgba(21,21,125,0.14);
+      z-index: 100;
+      min-width: 200px;
+      transform: translateY(-8px) scale(0.96);
+      transition: all 0.2s;
+      border: 1.5px solid #c7c5d4;
+    }
+    .settings-menu.active {
+      visibility: visible;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    .settings-menu button {
+      background-color: transparent;
+      color: #0d1c2e;
+      border: none;
+      padding: 10px 14px;
+      cursor: pointer;
+      border-radius: 10px;
+      width: 100%;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s;
+    }
+    .settings-menu button:hover {
+      background-color: #eff4ff;
+      color: #15157d;
+    }
+    .settings-menu button:last-child:hover {
+      background-color: #ffdad6;
+      color: #ba1a1a;
+    }
+
+    /* ---- To-do list ---- */
+    .todo-list { list-style: none; padding: 0; margin: 0; }
+    .todo-list li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #e6eeff;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .todo-list li:last-child { border-bottom: none; }
+    .todo-list li.completed span {
+      text-decoration: line-through;
+      color: #777683;
+    }
+    .todo-list .remove-btn {
+      background: none;
+      border: none;
+      color: #ba1a1a;
+      cursor: pointer;
+      font-size: 18px;
+      padding: 2px 8px;
+      border-radius: 6px;
+      transition: all 0.2s;
+      line-height: 1;
+    }
+    .todo-list .remove-btn:hover { background: #ffdad6; }
+
+    /* ---- Progress bar ---- */
+    .progress-bar-container {
+      width: 100%;
+      background: #e6eeff;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 16px 0 8px;
+      height: 8px;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #006c4a, #68dba9);
+      transition: width 0.5s ease-in-out;
+      border-radius: 999px;
+      box-shadow: 0 0 10px rgba(0,108,74,0.25);
+    }
+
+    /* ---- Chatbot popup ---- */
+    #chatbot-popup {
+      position: fixed;
+      bottom: 120px;
+      right: 32px;
+      width: 320px;
+      background: #fff;
+      border-radius: 1.5rem;
+      box-shadow: 0 12px 42px rgba(21,21,125,0.14);
+      padding: 24px;
+      z-index: 1000;
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+      border: 1.5px solid #c7c5d4;
+      transform: scale(0.85);
+      opacity: 0;
+      transition: all 0.25s;
+    }
+    #chatbot-popup.active {
+      display: flex;
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    /* ---- Ribot settings popup ---- */
+    #ribot-settings-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.85);
+      width: 440px;
+      max-width: 90vw;
+      background: #fff;
+      border-radius: 1.5rem;
+      box-shadow: 0 16px 48px rgba(21,21,125,0.18);
+      padding: 32px;
+      z-index: 1001;
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+      opacity: 0;
+      transition: all 0.25s;
+      border: 1.5px solid #c7c5d4;
+    }
+    #ribot-settings-popup.active {
+      display: flex;
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+    .ribot-options { display: flex; flex-direction: column; gap: 8px; }
+    .ribot-option-btn {
+      background: #f8f9ff;
+      color: #0d1c2e;
+      border: 1.5px solid #c7c5d4;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+    }
+    .ribot-option-btn:hover {
+      background: #eff4ff;
+      border-color: #15157d;
+      color: #15157d;
+      transform: translateX(4px);
+    }
+    .ribot-response {
+      padding: 16px;
+      background: #eff4ff;
+      border-left: 4px solid #15157d;
+      border-radius: 10px;
+      color: #0d1c2e;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    /* ---- "Hey RiSync" listening indicator on the mic button ---- */
+    #mic-btn { position: relative; }
+    #mic-btn.wake-on::after {
+      content: ''; position: absolute; top: 4px; right: 4px; width: 9px; height: 9px;
+      border-radius: 50%; background: #22c55e; border: 2px solid #fff; animation: wakeDot 1.6s infinite;
+    }
+    @keyframes wakeDot { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+    /* ---- Mic active animation ---- */
+    #mic-btn.active {
+      background: linear-gradient(135deg, #f99028, #ffb77d) !important;
+      animation: micPulse 1s infinite;
+      box-shadow: 0 4px 20px rgba(249,144,40,0.5) !important;
+    }
+    @keyframes micPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    /* ---- Profile image ---- */
+    .profile-upload { display: none; }
+    #profileIcon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      cursor: pointer;
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 2px #15157d;
+      transition: all 0.2s;
+    }
+    #profileIcon:hover { box-shadow: 0 0 0 3px #c0c1ff; }
+
+
+    /* ---- Profile modal ---- */
+    #profileModal { display:none; position:fixed; inset:0; z-index:1100; background:rgba(13,28,46,.55); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:16px; }
+    #profileModal.active { display:flex; }
+    .profile-panel { width:min(620px,100%); max-height:90vh; overflow:auto; background:#fff; border:1px solid #dce3f2; border-radius:22px; box-shadow:0 24px 70px rgba(13,28,46,.22); }
+    .profile-field { width:100%; border:1px solid #dce3f2; background:#f8f9ff; border-radius:11px; padding:11px 13px; font-size:14px; outline:none; }
+    .profile-field:focus { border-color:#15157d; box-shadow:0 0 0 3px rgba(21,21,125,.10); }
+    /* ---- Page fade in ---- */
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    .content-area { animation: fadeIn 0.4s ease-out; }
+    /* ===== Notifications panel ===== */
+    .notif-item { display:flex; gap:12px; padding:12px 16px; border-bottom:1px solid #f1f5f9; text-align:left; }
+    .notif-item.unread { background:#f5f5ff; }
+    .notif-icon { flex:none; width:36px; height:36px; border-radius:50%; background:#e0e0ff; color:#15157d; display:flex; align-items:center; justify-content:center; }
+    .notif-body { flex:1; min-width:0; font-size:13px; line-height:1.4; color:#334155; word-break:break-word; }
+    .notif-body b { color:#15157d; }
+    .notif-msg { margin-top:4px; padding:6px 8px; background:#f1f5f9; border-radius:8px; font-style:italic; font-size:12px; }
+    .notif-time { font-size:11px; color:#94a3b8; margin-top:4px; }
+    .notif-actions { display:flex; gap:8px; margin-top:8px; align-items:center; }
+    .notif-btn { border:none; border-radius:8px; padding:6px 14px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit; text-decoration:none; display:inline-block; }
+    .notif-btn.primary { background:#15157d; color:#fff; }
+    .notif-btn.ghost { background:#e2e8f0; color:#334155; }
+    .notif-btn:disabled { opacity:.6; cursor:default; }
+    .notif-state { font-size:12px; font-weight:700; color:#64748b; }
+    .notif-empty { padding:32px 16px; text-align:center; color:#94a3b8; font-size:13px; }
+    @media (max-width:640px) { #notifPanel { position:fixed !important; left:8px; right:8px; top:68px; width:auto !important; max-width:none !important; } }
+  </style>
+</head>
+<body class="flex min-h-screen">
+
+  <!-- Mobile overlay -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside id="sidebar" class="h-screen w-64 fixed left-0 top-0 bg-slate-50 flex flex-col py-6 px-4 gap-4 z-50">
+    <!-- Logo -->
+    <div class="mb-6 px-2 flex items-center gap-3">
+      <img src="https://risync.in/RiSync-Web/assets/logo.png" alt="RiSync Logo" class="w-10 h-10 rounded-xl object-contain flex-shrink-0"/>
+      <div>
+        <h1 class="text-lg font-black text-indigo-900 leading-none">RiSync</h1>
+        <p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mt-1">Learning Platform</p>
+      </div>
     </div>
 
-    <button id="findBestMatchBtn" type="button"
-      class="rounded-xl bg-indigo-900 px-5 py-3 text-sm font-bold text-white hover:bg-indigo-800 disabled:opacity-60">
-      Find Best Match
+    <!-- Search inside sidebar -->
+    <div class="relative px-1 mb-2">
+      <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+      <input id="searchInput" type="text" placeholder="Search menu..."
+        class="w-full bg-white border border-slate-200 rounded-xl py-2 pl-9 pr-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"/>
+    </div>
+
+    <!-- Nav links -->
+    <nav class="nav-menu flex-1 space-y-1 overflow-y-auto pr-1" style="scrollbar-width:thin;scrollbar-color:#e6eeff transparent;">
+      <a href="content" class="nav-button flex items-center gap-3 px-4 py-3 text-indigo-900 font-bold bg-white rounded-xl shadow-sm transition-all duration-200">
+        <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">dashboard</span>
+        <span class="text-sm font-medium">Dashboard</span>
+      </a>
+      <a href="RiSync-CHAT" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">chat</span>
+        <span class="text-sm font-medium">Chat</span>
+      </a>
+      <a href="monitor" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">monitor</span>
+        <span class="text-sm font-medium">Monitor</span>
+      </a>
+      <a href="books" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">menu_book</span>
+        <span class="text-sm font-medium">Books</span>
+      </a>
+      <a href="https://risync.in/RiSync-Web/html/ricall?schedule=true" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">schedule</span>
+        <span class="text-sm font-medium">Schedule</span>
+      </a>
+      <a href="calendar" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">calendar_month</span>
+        <span class="text-sm font-medium">Calendar</span>
+      </a>
+      <a href="database" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">storage</span>
+        <span class="text-sm font-medium">Database</span>
+      </a>
+      <a href="subjects" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">subject</span>
+        <span class="text-sm font-medium">Subjects</span>
+      </a>
+      <a href="language.html" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">translate</span>
+        <span class="text-sm font-medium">Learn Language</span>
+      </a>
+      <a href="NCERT" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">library_books</span>
+        <span class="text-sm font-medium">NCERT</span>
+      </a>
+      <a href="whiteboard" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">draw</span>
+        <span class="text-sm font-medium">Whiteboard</span>
+      </a>
+      <a href="calculator" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">calculate</span>
+        <span class="text-sm font-medium">Calculator</span>
+      </a>
+      <a href="gpt" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">smart_toy</span>
+        <span class="text-sm font-medium">AI Assistant</span>
+      </a>
+      <a href="https://" target="_blank" rel="noopener noreferrer" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">auto_awesome</span>
+        <span class="text-sm font-medium">ScribeVision &amp; AR Art</span>
+      </a>
+      <a href="https://cse.google.com/cse?cx=21639bebac7284493" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">search</span>
+        <span class="text-sm font-medium">Search</span>
+      </a>
+      <a href="leaderboard" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">emoji_events</span>
+        <span class="text-sm font-medium">Leaderboard</span>
+      </a>
+      <a href="ppt" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">slideshow</span>
+        <span class="text-sm font-medium">Presentations</span>
+      </a>
+      <a href="design" class="nav-button flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 hover:translate-x-1 transition-all duration-200 rounded-xl">
+        <span class="material-symbols-outlined">laptop_mac</span>
+        <span class="text-sm font-medium">Design</span>
+      </a>
+    </nav>
+
+    <!-- Bottom actions -->
+    <div class="mt-auto space-y-2 border-t border-slate-100 pt-4">
+      <a id="ribotSettingsBtn" href="#" class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-indigo-600 transition-colors rounded-xl">
+        <span class="material-symbols-outlined">help</span>
+        <span class="text-sm font-medium">Help & Support</span>
+      </a>
+      <button id="logoutButton" class="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-error transition-colors rounded-xl text-left">
+        <span class="material-symbols-outlined">logout</span>
+        <span class="text-sm font-medium">Sign Out</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN AREA ===== -->
+  <div class="main-wrapper flex flex-col flex-1 ml-64 min-h-screen">
+
+    <!-- Top Bar -->
+    <header class="top-bar flex justify-between items-center w-full px-8 h-16 sticky top-0 z-40 bg-slate-50/90 backdrop-blur-xl shadow-[0_12px_42px_rgba(0,0,0,0.06)]">
+      <div class="flex items-center gap-4 flex-1">
+        <!-- Mobile menu toggle -->
+        <button class="menu-toggle p-2 text-slate-500 hover:bg-slate-200/50 rounded-lg transition-all" id="menuToggle">
+          <span class="material-symbols-outlined">menu</span>
+        </button>
+        <!-- Page title (mobile) + search (desktop) -->
+        <div class="relative w-full max-w-md">
+          <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+          <input class="w-full bg-slate-100/60 border-none rounded-xl py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+            placeholder="Search resources, courses, or notes..." type="text"/>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <!-- Language dropdown -->
+        <div class="language-dropdown-container" id="language-dropdown-container">
+          <div class="selected-language" id="selected-language">
+            <span>English</span>
+            <span class="material-symbols-outlined dropdown-arrow">expand_more</span>
+          </div>
+          <ul class="language-dropdown-list" id="language-dropdown-list"></ul>
+        </div>
+        <!-- Notifications -->
+        <div class="relative" id="notifWrap">
+          <button class="p-2 text-slate-500 hover:bg-slate-200/50 rounded-lg transition-all relative" id="notifBtn" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+            <span class="material-symbols-outlined">notifications</span>
+            <span id="notifBadge" class="absolute top-0.5 right-0.5 min-w-[16px] h-4 px-1 bg-error text-white text-[10px] font-bold rounded-full items-center justify-center" style="display:none;">0</span>
+          </button>
+          <div id="notifPanel" class="absolute right-0 top-12 w-[22rem] max-w-[92vw] bg-white rounded-2xl border border-slate-200 shadow-[0_12px_42px_rgba(0,0,0,0.18)] z-50 overflow-hidden" style="display:none;">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100">
+              <span class="text-sm font-extrabold text-indigo-900">Notifications</span>
+              <button id="notifMarkAll" class="text-xs font-bold text-indigo-600 hover:underline" type="button">Mark all read</button>
+            </div>
+            <div id="notifList" class="max-h-[24rem] overflow-y-auto"></div>
+          </div>
+        </div>
+        <div class="relative">
+          <button class="p-2 text-slate-500 hover:bg-slate-200/50 rounded-lg transition-all" id="settingsIcon">
+            <span class="material-symbols-outlined">settings</span>
+          </button>
+          <div class="settings-menu" id="settingsMenu">
+            <button id="profileBtn"><span class="material-symbols-outlined text-sm">person</span> Profile</button>
+            <button id="ribotSettingsMenuBtn"><span class="material-symbols-outlined text-sm">help</span> Help & Support</button>
+            <button id="logoutButtonMenu"><span class="material-symbols-outlined text-sm">logout</span> Sign Out</button>
+          </div>
+        </div>
+        <div class="h-8 w-[1px] bg-slate-200 mx-1"></div>
+        <div class="flex items-center gap-2 hover:bg-slate-100 p-1 pr-3 rounded-full transition-colors cursor-pointer">
+          <input type="file" id="profileUpload" class="profile-upload" accept=".png,.jpg"/>
+          <img src="https://placehold.co/40x40/15157d/ffffff?text=U" alt="Profile" id="profileIcon"/>
+          <span class="text-sm font-bold text-indigo-900" id="welcome-message">Welcome back</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ===== CONTENT AREA ===== -->
+    <main class="content-area flex-1 p-8 space-y-8">
+
+      <!-- Welcome Hero Banner -->
+      <section class="relative overflow-hidden rounded-xl bg-primary-container p-10 text-on-primary min-h-[220px] flex flex-col justify-center">
+        <div class="absolute right-0 top-0 w-2/5 h-full opacity-20 pointer-events-none">
+          <div class="absolute inset-0 bg-gradient-to-l from-primary-container to-transparent z-10"></div>
+        </div>
+        <div class="relative z-10 max-w-2xl">
+          <div class="flex items-center gap-3 mb-3 flex-wrap">
+            <span class="px-3 py-1 rounded-full bg-secondary text-white text-[10px] font-bold uppercase tracking-widest">
+              Ready to Learn
+            </span>
+            <div class="flex items-center gap-1 text-secondary-fixed">
+              <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1;">local_fire_department</span>
+              <span class="text-xs font-bold">7-Day Streak</span>
+            </div>
+            <span class="px-3 py-1 rounded-full bg-on-tertiary-container/90 text-white text-[10px] font-bold uppercase tracking-widest">
+              ⭐ Top Learner
+            </span>
+          </div>
+          <h2 class="editorial-header text-4xl md:text-5xl font-extrabold mb-3">Welcome back! 🚀</h2>
+          <p class="text-primary-fixed/80 text-base max-w-lg leading-relaxed">Ready to learn something new today? Jump back in and continue your journey.</p>
+          <p class="text-[11px] uppercase tracking-widest text-primary-fixed/50 mt-2 font-bold" id="displayBranch"></p>
+        </div>
+      </section>
+
+      <!-- Featured AI Studio Highlight -->
+      <section class="relative overflow-hidden rounded-2xl border border-orange-200 bg-gradient-to-r from-orange-50 via-white to-indigo-50 p-6 md:p-8 shadow-[0_12px_42px_rgba(0,0,0,0.07)]">
+        <div class="absolute -right-10 -top-12 h-48 w-48 rounded-full bg-orange-200/40 blur-3xl pointer-events-none"></div>
+        <div class="absolute right-8 bottom-0 hidden md:flex items-center justify-center w-36 h-36 rounded-full bg-indigo-100/70">
+          <span class="material-symbols-outlined text-indigo-800" style="font-size:76px;">draw</span>
+        </div>
+        <div class="relative z-10 max-w-3xl">
+          <div class="flex flex-wrap items-center gap-2 mb-3">
+            <span class="inline-flex items-center gap-1 rounded-full bg-orange-500 px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest text-white">
+              <span class="material-symbols-outlined text-xs">auto_awesome</span> Featured AI Studio
+            </span>
+            <span class="rounded-full border border-indigo-200 bg-white/80 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-indigo-800">New on RiSync</span>
+          </div>
+          <h3 class="editorial-header text-2xl md:text-3xl font-extrabold text-indigo-950 mb-2">Meet ScribeVision &amp; AR Art Studio</h3>
+          <p class="text-sm md:text-base leading-relaxed text-slate-600 max-w-2xl mb-5">
+            Turn handwritten work into clear, step-by-step learning with ScribeVision, then bring ideas to paper with the AR Art Companion. Analyze notes, understand mistakes, complete learning steps, and trace or continue artwork with an on-screen guide.
+          </p>
+          <div class="flex flex-wrap gap-2 mb-5 text-xs font-semibold text-indigo-900">
+            <span class="rounded-lg bg-white/80 border border-indigo-100 px-3 py-2">📓 Notebook &amp; Homework Analyzer</span>
+            <span class="rounded-lg bg-white/80 border border-indigo-100 px-3 py-2">🎨 AR Tracing &amp; Sketch Completion</span>
+          </div>
+          <a href="https://risync.in/RiSync-Web/html/ScribeVision.html" target="_blank" rel="noopener noreferrer"
+             class="inline-flex items-center gap-2 rounded-xl bg-indigo-900 px-5 py-3 text-sm font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-indigo-800">
+            Explore ScribeVision &amp; AR Art Studio
+            <span class="material-symbols-outlined text-base">arrow_outward</span>
+          </a>
+        </div>
+      </section>
+
+      <!-- Update preferences -->
+      <section class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-indigo-100 bg-white p-4 shadow-sm">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined text-indigo-900">tune</span>
+          <div>
+            <p class="text-sm font-bold text-indigo-950">Your match preferences</p>
+            <p id="prefSummary" class="text-xs text-slate-500">Tell us what you like to study so we can find a better match.</p>
+          </div>
+        </div>
+        <button id="prefOpenBtn" type="button" class="inline-flex items-center gap-2 rounded-xl bg-indigo-900 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-800">
+          <span class="material-symbols-outlined text-base">edit</span> Update your preferences
+        </button>
+      </section>
+
+      <div id="prefModal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4">
+        <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+          <h3 class="text-lg font-extrabold text-indigo-950 mb-4">Update your preferences</h3>
+          <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Subjects you like</p>
+          <div id="prefSubjects" class="flex flex-wrap gap-2 mb-4"></div>
+          <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Best study time</p>
+          <div id="prefTime" class="flex flex-wrap gap-2 mb-4"></div>
+          <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Study style</p>
+          <div id="prefStyle" class="flex flex-wrap gap-2 mb-5"></div>
+          <p id="prefMsg" class="text-sm mb-3 hidden"></p>
+          <div class="flex justify-end gap-2">
+            <button id="prefCancel" type="button" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-600">Cancel</button>
+            <button id="prefSave" type="button" class="rounded-xl bg-indigo-900 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-800">Save</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="certModal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4">
+        <div class="w-full max-w-3xl rounded-2xl bg-white p-4 shadow-2xl">
+          <img id="certImg" alt="Certificate" class="w-full rounded-lg border border-slate-200">
+          <div class="flex justify-end gap-2 mt-3">
+            <a id="certDownload" download="RiSync-Certificate.png" class="rounded-xl bg-indigo-900 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-800">Download</a>
+            <button id="certClose" type="button" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-600">Close</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Manual Find Best Match control -->
+      <section id="findBestMatchPanel" class="mb-5 rounded-2xl border border-indigo-100 bg-white p-5 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div class="min-w-[220px] flex-1">
+            <h3 class="text-lg font-extrabold text-indigo-950">Find Your Perfect Study Partner</h3>
+            <p class="mt-1 text-sm text-slate-600">Search for the best study partner from your class.</p>
+            <p id="findBestMatchStatus" class="mt-2 text-xs text-slate-500" aria-live="polite">Ready when you are.</p>
+          </div>
+          <button id="findBestMatchBtn" type="button"
+            class="inline-flex items-center gap-2 rounded-xl bg-indigo-900 px-5 py-3 text-sm font-bold text-white shadow-md transition hover:bg-indigo-800 disabled:cursor-not-allowed disabled:opacity-60">
+            <span class="material-symbols-outlined text-base">person_search</span>
+            Find Best Match
+          </button>
+        </div>
+      </section>
+
+      <!-- Best Match (filled by script when a good peer match exists) -->
+      <section id="bestMatchSection" class="hidden relative overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-r from-emerald-50 via-white to-indigo-50 p-6 shadow-[0_12px_42px_rgba(0,0,0,0.06)]">
+        <div class="flex flex-wrap items-center gap-5">
+          <div id="bestMatchAvatar" class="w-16 h-16 rounded-full bg-indigo-900 text-white flex items-center justify-center text-2xl font-extrabold flex-shrink-0">?</div>
+          <div class="flex-1 min-w-[220px]">
+            <span class="inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest text-white mb-2">
+              <span class="material-symbols-outlined text-xs">handshake</span> Your Best Match
+            </span>
+            <h3 id="bestMatchName" class="editorial-header text-xl font-extrabold text-indigo-950"></h3>
+            <p id="bestMatchMeta" class="text-sm text-slate-600 mt-0.5"></p>
+            <div id="bestMatchReasons" class="flex flex-wrap gap-2 mt-2"></div>
+            <p id="bestMatchChain" class="hidden text-xs text-slate-500 mt-3"></p>
+            <p id="bestMatchIncoming" class="hidden text-xs font-semibold text-emerald-700 mt-1"></p>
+          </div>
+          <div class="flex flex-col items-center gap-2">
+            <div class="text-center">
+              <p id="bestMatchScore" class="editorial-header text-3xl font-extrabold text-secondary leading-none">0%</p>
+              <p class="text-[10px] uppercase tracking-widest font-bold text-slate-400">match</p>
+            </div>
+            <a id="bestMatchTalk" href="RiSync-CHAT" class="inline-flex items-center gap-2 rounded-xl bg-indigo-900 px-5 py-3 text-sm font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-indigo-800">
+              <span class="material-symbols-outlined text-base">forum</span> Talk 1-0-1
+            </a>
+          </div>
+        </div>
+
+        <div id="matchActions" class="mt-5 border-t border-emerald-100 pt-5 space-y-4">
+          <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p id="ratingPrompt" class="text-sm font-bold text-indigo-950"></p>
+              <div id="ratingStars" class="flex gap-1 mt-1"></div>
+              <p id="ratingNote" class="text-xs text-slate-500 mt-1"></p>
+            </div>
+            <button id="findAnotherBtn" type="button" class="inline-flex items-center gap-2 rounded-xl border border-indigo-200 bg-white px-4 py-2 text-sm font-bold text-indigo-900 hover:bg-indigo-50">
+              <span class="material-symbols-outlined text-base">autorenew</span> Find another best match
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tutor level, certificates & monthly subscription (certificates are earned when classmates rate YOU above 4) -->
+      <section id="tutorLevelSection" class="rounded-2xl border border-indigo-100 bg-white p-6 shadow-sm">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <span class="inline-flex items-center gap-1 rounded-full bg-indigo-900 px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest text-white mb-2">
+              <span class="material-symbols-outlined text-xs">workspace_premium</span> Your Tutor Level
+            </span>
+            <p id="levelTitle" class="text-sm font-extrabold text-indigo-950">Loading...</p>
+          </div>
+          <div class="text-right">
+            <p id="levelFee" class="text-sm font-extrabold text-emerald-700"></p>
+            <p class="text-[11px] text-slate-500">Subscription ₹500 / month · up to 35% off at month end</p>
+          </div>
+        </div>
+        <div class="h-2 rounded-full bg-slate-200 mt-3 overflow-hidden"><div id="levelBar" class="h-2 bg-secondary" style="width:0%"></div></div>
+        <p id="levelNext" class="text-xs text-slate-500 mt-1"></p>
+        <p class="text-xs text-slate-500 mt-1">Each day a classmate rates you above 4 stars, you earn a certificate. More certificates = higher level = bigger discount.</p>
+        <div id="certList" class="flex flex-wrap gap-2 mt-3"></div>
+      </section>
+
+      <!-- Bento Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-6">
+
+        <!-- Quick Access (col 4) -->
+        <div class="xl:col-span-4 space-y-4">
+          <h3 class="editorial-header text-xl font-bold text-indigo-900">Quick Access</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <a href="RiSync-CHAT" class="bg-surface-container-lowest p-5 rounded-xl shadow-[0_12px_42px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-transform group text-left block">
+              <div class="w-11 h-11 rounded-lg bg-surface-container-low flex items-center justify-center text-primary mb-3 group-hover:bg-primary group-hover:text-white transition-colors">
+                <span class="material-symbols-outlined">chat</span>
+              </div>
+              <span class="font-bold text-sm block text-on-surface">Chat</span>
+              <span class="text-[10px] text-slate-400">Peer Collaboration</span>
+            </a>
+            <a href="gpt" class="bg-surface-container-lowest p-5 rounded-xl shadow-[0_12px_42px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-transform group text-left block">
+              <div class="w-11 h-11 rounded-lg bg-surface-container-low flex items-center justify-center text-primary mb-3 group-hover:bg-primary group-hover:text-white transition-colors">
+                <span class="material-symbols-outlined">smart_toy</span>
+              </div>
+              <span class="font-bold text-sm block text-on-surface">AI Assistant</span>
+              <span class="text-[10px] text-slate-400">Ask anything</span>
+            </a>
+            <a href="whiteboard" class="bg-surface-container-lowest p-5 rounded-xl shadow-[0_12px_42px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-transform group text-left block">
+              <div class="w-11 h-11 rounded-lg bg-surface-container-low flex items-center justify-center text-primary mb-3 group-hover:bg-primary group-hover:text-white transition-colors">
+                <span class="material-symbols-outlined">draw</span>
+              </div>
+              <span class="font-bold text-sm block text-on-surface">Whiteboard</span>
+              <span class="text-[10px] text-slate-400">Real-time solving</span>
+            </a>
+            <a href="leaderboard" class="bg-surface-container-lowest p-5 rounded-xl shadow-[0_12px_42px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-transform group text-left block">
+              <div class="w-11 h-11 rounded-lg bg-surface-container-low flex items-center justify-center text-primary mb-3 group-hover:bg-primary group-hover:text-white transition-colors">
+                <span class="material-symbols-outlined">emoji_events</span>
+              </div>
+              <span class="font-bold text-sm block text-on-surface">Leaderboard</span>
+              <span class="text-[10px] text-slate-400">Your rank</span>
+            </a>
+            <a href="https://risync.in/RiSync-Web/html/ScribeVision.html" target="_blank" rel="noopener noreferrer" class="bg-surface-container-lowest p-5 rounded-xl shadow-[0_12px_42px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-transform group text-left block">
+              <div class="w-11 h-11 rounded-lg bg-orange-50 flex items-center justify-center text-orange-600 mb-3 group-hover:bg-orange-500 group-hover:text-white transition-colors">
+                <span class="material-symbols-outlined">auto_awesome</span>
+              </div>
+              <span class="font-bold text-sm block text-on-surface">ScribeVision &amp; AR Art</span>
+              <span class="text-[10px] text-slate-400">Notebook AI • AR tracing studio</span>
+            </a>
+          </div>
+          <!-- Pro Tip -->
+          <div class="bg-[#003366] p-6 rounded-xl relative overflow-hidden border border-[#1E4F7A]">
+            <span class="material-symbols-outlined absolute -right-4 -bottom-4 text-7xl text-[#FF8A32]/20">lightbulb</span>
+            <div class="flex items-center gap-2 mb-2">
+              <span class="material-symbols-outlined text-[#FF8A32]">tips_and_updates</span>
+              <span class="font-bold text-xs uppercase tracking-widest text-white">Pro Tip</span>
+            </div>
+            <p class="text-white/90 text-sm font-medium leading-relaxed">
+              Collaborate with peers using the Whiteboard feature to solve complex problems together in real-time!
+            </p>
+          </div>
+        </div>
+
+        <!-- Tasks & Goals (col 4) -->
+        <div class="xl:col-span-4 space-y-4">
+          <h3 class="editorial-header text-xl font-bold text-indigo-900">Tasks & Goals</h3>
+          <div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_12px_42px_rgba(0,0,0,0.06)] space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-50">
+              <span class="text-xs font-bold uppercase tracking-widest text-slate-400">Your To-Do List</span>
+            </div>
+            <!-- Add task -->
+            <div class="flex gap-2">
+              <input type="text" id="todo-input" placeholder="Add a new task..."
+                class="flex-1 bg-surface-bright border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all"/>
+              <button id="add-todo-btn" class="btn-primary-gradient text-white px-3 py-2 rounded-xl font-bold text-sm flex items-center gap-1 shadow-md hover:-translate-y-0.5 transition-transform">
+                <span class="material-symbols-outlined text-sm">add</span>
+              </button>
+            </div>
+            <ul class="todo-list" id="todo-list"></ul>
+            <button class="w-full py-3 text-slate-400 text-sm font-medium border-2 border-dashed border-slate-100 rounded-xl hover:border-primary/20 hover:text-primary transition-all flex items-center justify-center gap-2">
+              <span class="material-symbols-outlined">add_circle</span>
+              Add New Task
+            </button>
+          </div>
+        </div>
+
+        <!-- Learning Progress (col 4) -->
+        <div class="xl:col-span-4 space-y-4">
+          <h3 class="editorial-header text-xl font-bold text-indigo-900">Learning Progress</h3>
+          <div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_12px_42px_rgba(0,0,0,0.06)] space-y-4">
+            <div class="flex items-center gap-3">
+              <div class="w-16 h-16 flex-shrink-0 relative">
+                <svg class="w-full h-full -rotate-90" viewBox="0 0 64 64">
+                  <circle class="text-surface-container" cx="32" cy="32" fill="transparent" r="27" stroke="currentColor" stroke-width="6"></circle>
+                  <circle class="text-secondary transition-all duration-500" cx="32" cy="32" fill="transparent" r="27"
+                    stroke="currentColor" stroke-dasharray="169.6" stroke-dashoffset="169.6" stroke-width="6" id="progress-circle"></circle>
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                  <span class="text-xs font-black editorial-header" id="progress-percent">0%</span>
+                </div>
+              </div>
+              <div>
+                <p class="font-bold text-on-surface text-sm">Course Completion</p>
+                <p class="text-xs text-on-surface-variant">Track your overall progress</p>
+              </div>
+            </div>
+            <div class="space-y-1">
+              <div class="flex justify-between text-xs font-bold">
+                <span>Overall Progress</span>
+                <span class="text-secondary" id="progress-text">0% Complete</span>
+              </div>
+              <div class="progress-bar-container">
+                <div class="progress-bar" id="progress-bar"></div>
+              </div>
+            </div>
+            <!-- NCERT Subject Quick Stats -->
+            <div id="ncert-subject-stats" class="space-y-2 pt-1"></div>
+            <div class="pt-2 border-t border-slate-50 space-y-2">
+              <div class="flex items-center justify-between p-3 bg-surface-bright rounded-xl">
+                <div class="flex items-center gap-3">
+                  <span class="material-symbols-outlined text-primary text-sm">library_books</span>
+                  <span class="text-sm font-medium">NCERT Textbooks</span>
+                </div>
+                <a href="ncert" class="text-xs font-bold text-primary hover:underline">Open →</a>
+              </div>
+              <div class="flex items-center justify-between p-3 bg-surface-bright rounded-xl">
+                <div class="flex items-center gap-3">
+                  <span class="material-symbols-outlined text-primary text-sm">subject</span>
+                  <span class="text-sm font-medium">My Subjects</span>
+                </div>
+                <a href="subjects" class="text-xs font-bold text-primary hover:underline">Open →</a>
+              </div>
+            </div>
+            <div class="flex gap-3 pt-1">
+              <a href="ncert" class="btn-primary-gradient px-5 py-2 rounded-xl text-white text-sm font-bold shadow-lg shadow-primary/10">Resume Learning</a>
+              <a href="leaderboard" class="bg-surface-container px-5 py-2 rounded-xl text-primary text-sm font-bold hover:bg-surface-container-high transition-colors">Leaderboard</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== NCERT CLASS 6 SUBJECTS SECTION ===== -->
+      <section class="space-y-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="editorial-header text-2xl font-bold text-indigo-900">Your NCERT Subjects</h3>
+            <p class="text-sm text-on-surface-variant mt-0.5">Aligned with NCERT &amp; NEP 2020 — tap a subject to explore chapters</p>
+          </div>
+          <a href="ncert" class="btn-primary-gradient text-white text-sm font-bold px-5 py-2.5 rounded-xl shadow-md hover:-translate-y-0.5 transition-transform flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">open_in_new</span> Open NCERT
+          </a>
+        </div>
+        <div id="ncert-subjects-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5"></div>
+      </section>
+
+    </main>
+  </div>
+
+
+  <!-- ===== IN-APP NCERT PDF READER ===== -->
+  <div id="ncertPdfModal" class="fixed inset-0 z-[100] hidden bg-slate-950/80 p-2 md:p-6" role="dialog" aria-modal="true" aria-labelledby="ncertPdfTitle">
+    <div class="mx-auto flex h-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+      <div class="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-3 md:px-6">
+        <div class="min-w-0">
+          <h2 id="ncertPdfTitle" class="truncate text-base font-extrabold text-indigo-950">NCERT Textbook</h2>
+          <p id="ncertPdfSubtitle" class="text-xs text-slate-500">Read your chapter inside RiSync</p>
+        </div>
+        <div class="flex shrink-0 items-center gap-2">
+          <a id="ncertPdfDownload" href="#" download target="_blank" rel="noopener" class="hidden rounded-lg bg-indigo-50 px-3 py-2 text-xs font-bold text-indigo-800 hover:bg-indigo-100">Download PDF</a>
+          <button type="button" onclick="closeNCERTPDF()" class="rounded-lg bg-slate-100 px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-200" aria-label="Close PDF reader">✕ <span class="hidden sm:inline">Close</span></button>
+        </div>
+      </div>
+      <div id="ncertPdfStage" class="min-h-0 flex-1 bg-slate-100">
+        <iframe id="ncertPdfFrame" title="NCERT textbook PDF" class="h-full w-full border-0" loading="lazy" allow="fullscreen" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        <div id="ncertPdfUnavailable" class="hidden h-full items-center justify-center p-8 text-center">
+          <div class="max-w-md rounded-2xl bg-white p-7 shadow-sm">
+            <div class="mb-3 text-4xl">📘</div>
+            <h3 class="text-lg font-extrabold text-indigo-950">Chapter preview unavailable</h3>
+            <p class="mt-2 text-sm leading-6 text-slate-600">The selected chapter does not currently have a verified PDF address. No external page has been opened.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PROFILE MODAL ===== -->
+  <div id="profileModal" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle">
+    <div class="profile-panel">
+      <div class="p-6 md:p-8">
+        <div class="flex items-start justify-between gap-4 mb-6">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-widest text-orange-500 mb-1">Your account</p>
+            <h2 id="profileModalTitle" class="editorial-header text-2xl font-extrabold text-indigo-950">My Profile</h2>
+            <p class="text-sm text-slate-500 mt-1">Manage your personal and learning details.</p>
+          </div>
+          <button id="closeProfileModal" class="w-9 h-9 rounded-xl bg-slate-100 text-slate-600 text-xl" aria-label="Close">&times;</button>
+        </div>
+        <div class="flex items-center gap-4 p-4 rounded-2xl bg-indigo-50 mb-6">
+          <img id="profilePreview" src="https://placehold.co/80x80/15157d/ffffff?text=U" class="w-16 h-16 rounded-full object-cover border-2 border-white shadow" alt="Profile photo"/>
+          <div>
+            <p id="profileDisplayName" class="font-bold text-indigo-950">Your name</p>
+            <p id="profileDisplayEmail" class="text-xs text-slate-500">Your account email</p>
+            <button type="button" id="changeProfilePhoto" class="text-xs font-bold text-indigo-700 mt-2 hover:underline">Change profile photo</button>
+          </div>
+        </div>
+        <form id="profileForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <label class="text-xs font-bold text-slate-600">Full name
+            <input id="profileFullname" class="profile-field mt-1.5" maxlength="80" placeholder="Your full name"/>
+          </label>
+          <label class="text-xs font-bold text-slate-600">Username
+            <input id="profileUsername" class="profile-field mt-1.5" maxlength="30" placeholder="Choose a username"/>
+          </label>
+          <label class="text-xs font-bold text-slate-600">Email
+            <input id="profileEmail" type="email" class="profile-field mt-1.5" readonly/>
+          </label>
+          <label class="text-xs font-bold text-slate-600">Class / Grade
+            <select id="profileClass" class="profile-field mt-1.5"><option value="">Select class</option><option value="Class 1">Class 1</option><option value="Class 2">Class 2</option><option value="Class 3">Class 3</option><option value="Class 4">Class 4</option><option value="Class 5">Class 5</option><option value="Class 6">Class 6</option><option value="Class 7">Class 7</option><option value="Class 8">Class 8</option><option value="Class 9">Class 9</option><option value="Class 10">Class 10</option><option value="Class 11">Class 11</option><option value="Class 12">Class 12</option></select>
+          </label>
+          <label class="text-xs font-bold text-slate-600">School / Institution
+            <input id="profileSchool" class="profile-field mt-1.5" maxlength="100" placeholder="School or institution"/>
+          </label>
+          <label class="text-xs font-bold text-slate-600">Branch
+            <input id="profileBranch" class="profile-field mt-1.5" maxlength="80" placeholder="Branch (if applicable)"/>
+          </label>
+          <label class="text-xs font-bold text-slate-600 md:col-span-2">About me
+            <textarea id="profileBio" class="profile-field mt-1.5" rows="3" maxlength="300" placeholder="Tell your peers a little about yourself..."></textarea>
+          </label>
+          <div class="md:col-span-2 flex items-center justify-between gap-3 pt-3 border-t border-slate-100">
+            <p id="profileSaveStatus" class="text-xs text-slate-500" aria-live="polite">Your details are private to your account.</p>
+            <div class="flex gap-2">
+              <button type="button" id="cancelProfile" class="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-sm font-bold">Cancel</button>
+              <button type="submit" id="saveProfile" class="px-5 py-2.5 rounded-xl bg-indigo-900 text-white text-sm font-bold shadow-md">Save Profile</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== AUDIO ===== -->
+  <audio id="bg-music" loop preload="none">
+    <source src="../assets/logo.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- ===== FLOATING BUTTONS ===== -->
+  <div class="fixed bottom-8 right-8 flex flex-col gap-3 z-50">
+    <button id="music-btn" title="Toggle Music"
+      class="w-12 h-12 btn-primary-gradient text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform">
+      <span class="material-symbols-outlined text-sm" id="music-icon">volume_up</span>
+    </button>
+    <button id="mic-btn" title="Voice Command"
+      class="w-14 h-14 btn-primary-gradient text-white rounded-full shadow-2xl flex items-center justify-center group hover:w-48 transition-all duration-300 overflow-hidden">
+      <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;" id="mic-icon">mic</span>
+      <span class="font-bold text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity ml-0 group-hover:ml-2">Voice Command</span>
     </button>
   </div>
-</div>
+
+  <!-- ===== CHATBOT POPUP ===== -->
+  <div id="chatbot-popup">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 border border-slate-100 shadow-sm">
+        <img src="https://risync.in/RiSync-Web/assets/logo.png" alt="RiSync" class="w-full h-full object-contain"/>
+      </div>
+      <div>
+        <h5 class="font-black text-indigo-900 text-base editorial-header">Hello! 👋</h5>
+        <p class="text-xs text-on-surface-variant">Your RiSync assistant</p>
+      </div>
+    </div>
+    <p class="text-sm text-on-surface-variant leading-relaxed">Would you like some guidance to get started?</p>
+    <div class="flex gap-2">
+      <button id="startAssistanceBtn" class="btn-primary-gradient text-white rounded-xl px-4 py-2 text-sm font-bold flex-1 shadow-md hover:-translate-y-0.5 transition-transform">Yes, help me</button>
+      <button id="hideChatbotBtn" class="bg-surface-container text-on-surface-variant rounded-xl px-4 py-2 text-sm font-bold hover:bg-surface-container-high transition-colors">Not now</button>
+    </div>
+  </div>
+
+  <!-- ===== RIBOT SETTINGS POPUP ===== -->
+  <div id="ribot-settings-popup">
+    <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 bg-primary rounded-xl flex items-center justify-center">
+          <span class="material-symbols-outlined text-white text-sm">help</span>
+        </div>
+        <h4 class="editorial-header text-xl font-bold text-indigo-900">Help & Support</h4>
+      </div>
+      <button class="w-8 h-8 bg-surface-container rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors text-lg font-bold" id="closeRibotSettingsBtn">&times;</button>
+    </div>
+    <div>
+      <p class="text-sm text-on-surface-variant mb-3 font-medium">Choose a topic to learn more:</p>
+      <div class="ribot-options">
+        <button class="ribot-option-btn" data-option="help">What is RiSync?</button>
+        <button class="ribot-option-btn" data-option="features">Key Features</button>
+        <button class="ribot-option-btn" data-option="contact">Contact Support</button>
+        <button class="ribot-option-btn" data-option="voice">Voice Commands</button>
+      </div>
+    </div>
+    <div id="ribot-response-area" class="ribot-response" style="display:none;">
+      <p id="ribot-response-text"></p>
+    </div>
+  </div>
+
+  <!-- ===== FIREBASE MODULE SCRIPT (unchanged) ===== -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, addDoc, collection, serverTimestamp, query, where, limit, getDocs } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBWAwm_TDtD1qXDtjxJu0jrDP45c3p1Bxg",
+        authDomain: "risync-risync.firebaseapp.com",
+        projectId: "risync-risync",
+        storageBucket: "risync-risync.firebasestorage.app",
+        messagingSenderId: "195106250121",
+        appId: "1:195106250121:web:57b23c5b94d5771995d558",
+        measurementId: "G-D5WSLQ706Z"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+
+    // ---- Best-match engine (same scoring as signup.html) ----
+    const MATCH_THRESHOLD = 45;
+    // Normalize profile values such as 7, Class 7, Grade 7 and 7th to one key.
+    function classKey(value) {
+      const match = String(value ?? '').match(/\d{1,2}/);
+      return match ? match[0] : String(value ?? '').trim().toLowerCase();
+    }
+    function classQueryValues(value) {
+      const key = classKey(value);
+      if (!key) return [];
+      return [...new Set([key, `Class ${key}`, `class ${key}`, `Grade ${key}`, `grade ${key}`, `${key}th`])];
+    }
+    async function fetchClassmates(me) {
+      const rawClass = me.class || me.grade || me.className || '';
+      const values = classQueryValues(rawClass);
+      if (!values.length) return [];
+      // Older signup/profile versions saved the same grade under either `class` or `grade`.
+      const reads = [];
+      for (const field of ['class', 'grade']) {
+        for (let i = 0; i < values.length; i += 10) {
+          reads.push(getDocs(query(collection(db, 'users'), where(field, 'in', values.slice(i, i + 10)), limit(60))));
+        }
+      }
+      const snapshots = await Promise.all(reads);
+      const byId = new Map();
+      snapshots.forEach(snap => snap.forEach(d => {
+        const data = d.data();
+        if (classKey(data.class || data.grade || data.className) === classKey(rawClass)) {
+          byId.set(d.id, { ...data, uid: data.uid || d.id, email: String(data.email || '').toLowerCase() });
+        }
+      }));
+      return [...byId.values()];
+    }
+    function scoreMatch(me, other) {
+      if (!other || !other.email || other.uid === me.uid || String(other.email).toLowerCase() === String(me.email || '').toLowerCase()) return null;
+      if (classKey(other.class || other.grade || other.className) !== classKey(me.class || me.grade || me.className)) return null; // peers = same class
+      if ((me.skippedMatches || []).includes(other.email)) return null; // user chose "find another"
+      let score = 40;
+      const reasons = ["Same class"];
+      if (me.branch && other.branch === me.branch) { score += 25; reasons.push("Same school branch"); }
+      const a = Number(me.ncertAverageScore) || 0, b = Number(other.ncertAverageScore) || 0;
+      if (a > 0 && b > 0) {
+        const closeness = Math.max(0, 1 - Math.abs(a - b) / 100);
+        score += Math.round(closeness * 10);
+        if (closeness > 0.8) reasons.push("Similar quiz level");
+      }
+      const last = Date.parse(other.lastLoginAt || other.updatedAt || "");
+      if (last && Date.now() - last < 14 * 24 * 3600 * 1000) { score += 10; reasons.push("Recently active"); }
+      // Preferences (set from "Update your preferences" on the dashboard)
+      const mp = me.preferences || {}, op = other.preferences || {};
+      const shared = (mp.subjects || []).filter(s => (op.subjects || []).includes(s));
+      if (shared.length) { score += Math.min(8, shared.length * 4); reasons.push("Shared subjects: " + shared.slice(0, 3).join(", ")); }
+      if (mp.studyTime && mp.studyTime === op.studyTime) { score += 4; reasons.push("Same study time"); }
+      if (mp.studyStyle && mp.studyStyle === op.studyStyle) { score += 3; reasons.push("Same study style"); }
+      return { score: Math.min(100, score), reasons };
+    }
+
+    function bestOf(person, pool) {
+      let best = null;
+      pool.forEach(u => {
+        const r = scoreMatch(person, u);
+        if (r && (!best || r.score > best.score)) best = { user: u, score: r.score, reasons: r.reasons };
+      });
+      return best;
+    }
+    const matchLabel = u => u.fullname || u.displayName || 'Classmate';
+
+    async function loadBestMatch(me) {
+      const section = document.getElementById('bestMatchSection');
+      if (!section) return null;
+      currentBest = null;
+      try {
+        const cls = me.class || me.grade || me.className || '';
+        if (!classKey(cls)) {
+          section.classList.add('hidden');
+          console.info('[RiSync] Perfect Match: add your class/grade in Profile to find classmates.');
+          return null;
+        }
+        const pool = await fetchClassmates(me);
+        lastPool = pool; currentMe = me;
+        const best = bestOf(me, pool);
+        if (!best || best.score < MATCH_THRESHOLD) { section.classList.add('hidden'); return null; }
+        currentBest = best;
+        const name = matchLabel(best.user);
+        document.getElementById('bestMatchAvatar').textContent = name.charAt(0).toUpperCase();
+        document.getElementById('bestMatchName').textContent = name;
+        document.getElementById('bestMatchMeta').textContent = [best.user.class ? 'Class ' + best.user.class : '', best.user.branch || ''].filter(Boolean).join(' · ');
+        document.getElementById('bestMatchScore').textContent = best.score + '%';
+        const reasonsEl = document.getElementById('bestMatchReasons');
+        reasonsEl.innerHTML = '';
+        best.reasons.forEach(r => {
+          const chip = document.createElement('span');
+          chip.className = 'rounded-lg bg-white/80 border border-indigo-100 px-2.5 py-1 text-xs font-semibold text-indigo-900';
+          chip.textContent = r;
+          reasonsEl.appendChild(chip);
+        });
+        document.getElementById('bestMatchTalk').href = 'RiSync-CHAT?dm=' + encodeURIComponent(best.user.email) + '&name=' + encodeURIComponent(name);
+
+        // Reverse view: people who have ME as their perfect match (e.g. "for A, you are the perfect match")
+        const incoming = [];
+        pool.forEach(u => {
+          if (!u.email || u.email === me.email) return;
+          const ub = bestOf(u, pool.concat(pool.some(p => p.email === me.email) ? [] : [me]));
+          if (ub && ub.score >= MATCH_THRESHOLD && ub.user.email === me.email) incoming.push(matchLabel(u));
+        });
+        const inEl = document.getElementById('bestMatchIncoming');
+        if (incoming.length) {
+          inEl.textContent = 'You are the perfect match for: ' + incoming.join(', ');
+          inEl.classList.remove('hidden');
+        } else inEl.classList.add('hidden');
+
+        // Chain: you -> your match -> their match -> ...
+        const names = ['You', name];
+        const seen = new Set([me.email, best.user.email]);
+        let cur = best.user;
+        for (let i = 0; i < 4; i++) {
+          const nb = bestOf(cur, pool);
+          if (!nb || nb.score < MATCH_THRESHOLD) break;
+          if (seen.has(nb.user.email)) { names.push(nb.user.email === me.email ? 'You' : matchLabel(nb.user)); break; }
+          seen.add(nb.user.email);
+          names.push(matchLabel(nb.user));
+          cur = nb.user;
+        }
+        const chainEl = document.getElementById('bestMatchChain');
+        if (names.length > 2) {
+          chainEl.textContent = 'Match chain: ' + names.join(' → ');
+          chainEl.classList.remove('hidden');
+        } else chainEl.classList.add('hidden');
+
+        section.classList.remove('hidden');
+        loadRatingPanel(me, best).catch(e => console.warn('Rating panel failed:', e));
+        return best;
+      } catch (e) {
+        section.classList.add('hidden');
+        console.error('[RiSync] Perfect Match could not load. Check Firestore rules/indexes and class/grade fields:', e);
+        throw e;
+      }
+    }
+
+
+
+    // Manual search action for students who want to find a match on demand.
+    const findBestMatchBtn = document.getElementById('findBestMatchBtn');
+    if (findBestMatchBtn) {
+      findBestMatchBtn.addEventListener('click', async () => {
+        const status = document.getElementById('findBestMatchStatus');
+        const originalLabel = '<span class="material-symbols-outlined text-base">person_search</span> Find Best Match';
+        const user = auth.currentUser;
+
+        if (!user) {
+          status.textContent = 'Please sign in to find your study partner.';
+          return;
+        }
+
+        findBestMatchBtn.disabled = true;
+        findBestMatchBtn.innerHTML = '<span class="material-symbols-outlined text-base">hourglass_top</span> Searching...';
+        status.textContent = 'Searching classmates and comparing study preferences...';
+
+        try {
+          const profileSnap = await getDoc(doc(db, 'users', user.uid));
+          if (!profileSnap.exists()) {
+            throw new Error('Your profile was not found. Please complete your profile first.');
+          }
+
+          const profile = profileSnap.data();
+          const me = {
+            ...profile,
+            uid: user.uid,
+            email: String(profile.email || user.email || '').toLowerCase()
+          };
+
+          window.risyncUserData = profile;
+          const result = await loadBestMatch(me);
+
+          if (result) {
+            status.textContent = 'Best match found! Your study partner is shown below.';
+            document.getElementById('bestMatchSection')?.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center'
+            });
+          } else {
+            const grade = profile.class || profile.grade || profile.className;
+            status.textContent = grade
+              ? 'No suitable classmate found yet. Try updating your study preferences or check again later.'
+              : 'Please add your class/grade to your profile, then try again.';
+          }
+        } catch (error) {
+          console.error('[RiSync] Find Best Match action failed:', error);
+          status.textContent = 'Could not find a match: ' + (error.message || String(error));
+        } finally {
+          findBestMatchBtn.disabled = false;
+          findBestMatchBtn.innerHTML = originalLabel;
+        }
+      });
+    }
+
+    // ---- Write matches to Firebase (notifications for both sides + bestMatch on my profile) ----
+    async function sendMatchNote(to, about, best, title, message) {
+      await setDoc(doc(db, 'notifications', 'match__' + to.uid + '__' + about.uid), {
+        type: 'match_suggestion',
+        toEmail: to.email,
+        fromEmail: about.email,
+        title,
+        message,
+        matchName: matchLabel(about),
+        matchEmail: about.email,
+        matchScore: best.score,
+        read: false,
+        createdAt: new Date()
+      });
+    }
+    async function syncMatchesToFirebase(me) {
+      const cls = me.class || me.grade || me.className || '';
+      if (!classKey(cls)) return { written: 0, errors: ['No class on profile'] };
+      const pool = await fetchClassmates(me);
+      const idx = pool.findIndex(u => u.email === me.email);
+      if (idx >= 0) pool[idx] = { ...pool[idx], ...me }; else pool.push(me);   // use my freshest preferences
+      let written = 0; const errors = [];
+      const seen = new Set([me.email]);
+      let cur = me;
+      for (let depth = 0; depth < 5; depth++) {
+        const best = bestOf(cur, pool);
+        if (!best || best.score < MATCH_THRESHOLD) break;
+        const next = best.user;
+        const why = best.reasons.join(', ');
+        try {
+          await sendMatchNote(cur, next, best, 'You have a best match!', `${matchLabel(next)} (${best.score}% match) - ${why}`);
+          await sendMatchNote(next, cur, best, "You're someone's perfect match!", `${matchLabel(cur)} sees you as their perfect match (${best.score}% match) - ${why}`);
+          written += 2;
+        } catch (e) { console.warn('Match note failed:', e); errors.push(e.message || String(e)); }
+        if (depth === 0) {
+          try {
+            await setDoc(doc(db, 'users', me.uid), {
+              bestMatch: { email: next.email, name: matchLabel(next), score: best.score, reasons: best.reasons },
+              matchesUpdatedAt: new Date().toISOString()
+            }, { merge: true });
+          } catch (e) { console.warn('bestMatch save failed:', e); errors.push(e.message || String(e)); }
+        }
+        if (seen.has(next.email)) break;
+        seen.add(next.email);
+        cur = next;
+      }
+      return { written, errors };
+    }
+
+
+    // ================= Daily rating, certificates, levels & monthly fee =================
+    const BASE_FEE = 500;            // Rs per month
+    const MAX_DISCOUNT = 35;         // max % off
+    const CERT_MIN_RATING = 4;       // certificate when rating is MORE than this (i.e. 5 stars)
+    const LEVELS = [
+      { lvl: 0, name: 'Unranked', min: 0,  disc: 0 },
+      { lvl: 1, name: 'Starter',  min: 1,  disc: 5 },
+      { lvl: 2, name: 'Bronze',   min: 4,  disc: 10 },
+      { lvl: 3, name: 'Silver',   min: 8,  disc: 15 },
+      { lvl: 4, name: 'Gold',     min: 12, disc: 20 },
+      { lvl: 5, name: 'Platinum', min: 16, disc: 25 },
+      { lvl: 6, name: 'Diamond',  min: 20, disc: 30 },
+      { lvl: 7, name: 'Champion', min: 24, disc: 35 }
+    ];
+    let currentBest = null, currentMe = null, lastPool = [], monthCerts = [], billingChecked = false;
+
+    const pad2 = n => String(n).padStart(2, '0');
+    const dateStr = d => d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+    const monthStr = d => d.getFullYear() + '-' + pad2(d.getMonth() + 1);
+    function levelFor(count) { let l = LEVELS[0]; LEVELS.forEach(x => { if (count >= x.min) l = x; }); return l; }
+    function feeFor(disc) {
+      const d = Math.min(MAX_DISCOUNT, disc);
+      return { discountAmount: Math.round(BASE_FEE * d / 100), amountDue: Math.round(BASE_FEE * (100 - d) / 100), discountPercent: d };
+    }
+
+    function buildCertificate(d) {
+      const c = document.createElement('canvas'); c.width = 1200; c.height = 850;
+      const g = c.getContext('2d');
+      g.fillStyle = '#fffdf7'; g.fillRect(0, 0, 1200, 850);
+      g.strokeStyle = '#312e81'; g.lineWidth = 14; g.strokeRect(30, 30, 1140, 790);
+      g.strokeStyle = '#10b981'; g.lineWidth = 4; g.strokeRect(55, 55, 1090, 740);
+      g.textAlign = 'center';
+      g.fillStyle = '#312e81'; g.font = 'bold 30px Georgia, serif'; g.fillText('RISYNC', 600, 130);
+      g.font = 'bold 54px Georgia, serif'; g.fillText('Tutor Certificate of Excellence', 600, 225);
+      g.fillStyle = '#475569'; g.font = 'italic 28px Georgia, serif'; g.fillText('is proudly presented to', 600, 300);
+      let size = 60; g.fillStyle = '#065f46';
+      do { g.font = 'bold ' + size + 'px Georgia, serif'; size -= 2; } while (g.measureText(d.name).width > 980 && size > 24);
+      g.fillText(d.name, 600, 390);
+      g.fillStyle = '#334155'; g.font = '26px Georgia, serif';
+      g.fillText('for outstanding tutoring, as rated by ' + d.matchName, 600, 460);
+      g.fillText('and a ' + d.rating + '-star rating on ' + d.date, 600, 505);
+      g.beginPath(); g.arc(600, 625, 72, 0, Math.PI * 2); g.fillStyle = '#312e81'; g.fill();
+      g.fillStyle = '#ffffff'; g.font = 'bold 22px Georgia, serif'; g.fillText('LEVEL ' + d.level.lvl, 600, 620);
+      g.font = '18px Georgia, serif'; g.fillText(d.level.name, 600, 648);
+      g.fillStyle = '#065f46'; g.font = 'bold 24px Georgia, serif';
+      g.fillText('Monthly discount unlocked: ' + d.level.disc + '%', 600, 745);
+      return c.toDataURL('image/png');
+    }
+    function showCertificate(d) {
+      const url = buildCertificate(d);
+      document.getElementById('certImg').src = url;
+      const dl = document.getElementById('certDownload');
+      dl.href = url; dl.download = 'RiSync-Certificate-' + d.date + '.png';
+      document.getElementById('certModal').classList.remove('hidden');
+    }
+
+    async function getMonthCerts(uid, month) {
+      const snap = await getDocs(query(collection(db, 'users', uid, 'certificates'), where('month', '==', month)));
+      const byDate = {};
+      snap.forEach(x => { const v = x.data(); if (v.date && !byDate[v.date]) byDate[v.date] = v; }); // max one certificate per day
+      return Object.values(byDate).sort((p, q) => p.date.localeCompare(q.date));
+    }
+
+    async function ensureBilling(me) {
+      if (billingChecked) return; billingChecked = true;
+      const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - 1);
+      const prev = monthStr(d);
+      const bref = doc(db, 'users', me.uid, 'billing', prev);
+      if ((await getDoc(bref)).exists()) return;
+      const n = (await getMonthCerts(me.uid, prev)).length;
+      if (!n) return;
+      const lv = levelFor(n), f = feeFor(lv.disc);
+      await setDoc(bref, {
+        month: prev, certificates: n, level: lv.lvl, levelName: lv.name,
+        baseAmount: BASE_FEE, discountPercent: f.discountPercent, discountAmount: f.discountAmount,
+        amountDue: f.amountDue, currency: 'INR', status: 'pending', computedAt: new Date().toISOString()
+      });
+    }
+
+    async function loadRatingPanel(me, best) {
+      const today = dateStr(new Date());
+      const name = matchLabel(best.user);
+      const todaySnap = await getDoc(doc(db, 'users', me.uid, 'matchRatings', today));
+
+      const stars = document.getElementById('ratingStars'); stars.innerHTML = '';
+      const prompt = document.getElementById('ratingPrompt'), note = document.getElementById('ratingNote');
+      note.className = 'text-xs text-slate-500 mt-1';
+      if (todaySnap.exists()) {
+        const r = todaySnap.data();
+        prompt.textContent = 'Today\'s rating for ' + (r.matchName || name);
+        for (let i = 1; i <= 5; i++) { const s = document.createElement('span'); s.textContent = '★'; s.className = 'text-2xl ' + (i <= r.rating ? 'text-amber-400' : 'text-slate-300'); stars.appendChild(s); }
+        note.textContent = r.certificate ? 'Great! A certificate was awarded to ' + (r.matchName || name) + ' for today. Rate again tomorrow.' : 'Thanks! Rate again tomorrow. A rating above ' + CERT_MIN_RATING + ' earns your tutor a certificate.';
+      } else {
+        prompt.textContent = '⭐ Daily rating due: how was studying with ' + name + ' today?';
+        for (let i = 1; i <= 5; i++) {
+          const b = document.createElement('button'); b.type = 'button'; b.textContent = '★';
+          b.className = 'text-3xl text-slate-300 hover:text-amber-400 transition';
+          b.onmouseenter = () => [...stars.children].forEach((x, j) => x.className = 'text-3xl transition ' + (j < i ? 'text-amber-400' : 'text-slate-300'));
+          b.onmouseleave = () => [...stars.children].forEach(x => x.className = 'text-3xl text-slate-300 hover:text-amber-400 transition');
+          b.onclick = () => submitRating(i);
+          stars.appendChild(b);
+        }
+        note.textContent = 'Rate your best match after each day. One rating per day; above ' + CERT_MIN_RATING + ' stars gives ' + name + ' a certificate. Not a good fit? Find another best match.';
+      }
+    }
+
+    // Tutor's own level: certificates received from classmates this month -> level -> month-end discount
+    async function loadTutorLevel(me) {
+      const month = monthStr(new Date());
+      monthCerts = await getMonthCerts(me.uid, month);
+      const count = monthCerts.length, lv = levelFor(count), next = LEVELS[lv.lvl + 1];
+      const f = feeFor(lv.disc);
+      document.getElementById('levelTitle').textContent = 'Level ' + lv.lvl + ' · ' + lv.name + ' — ' + count + ' certificate' + (count === 1 ? '' : 's') + ' this month';
+      document.getElementById('levelFee').textContent = 'Month-end fee: ₹' + f.amountDue + ' (₹' + BASE_FEE + ' − ' + f.discountPercent + '%)';
+      const pct = next ? Math.round(((count - lv.min) / (next.min - lv.min)) * 100) : 100;
+      document.getElementById('levelBar').style.width = pct + '%';
+      document.getElementById('levelNext').textContent = next
+        ? (next.min - count) + ' more certificate' + (next.min - count === 1 ? '' : 's') + ' to reach Level ' + next.lvl + ' (' + next.disc + '% off). Max discount ' + MAX_DISCOUNT + '% = ₹' + feeFor(MAX_DISCOUNT).discountAmount + '.'
+        : 'Top level reached - maximum ' + MAX_DISCOUNT + '% discount!';
+      const list = document.getElementById('certList'); list.innerHTML = '';
+      if (!count) list.innerHTML = '<p class="text-xs text-slate-400">No certificates yet this month.</p>';
+      monthCerts.forEach(v => {
+        const chip = document.createElement('button'); chip.type = 'button';
+        chip.className = 'rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 hover:bg-emerald-100';
+        chip.textContent = '🏅 ' + v.date.slice(5);
+        chip.onclick = () => showCertificate({ name: me.fullname || me.displayName || 'Student', matchName: v.fromName || 'a classmate', rating: v.rating, date: v.date, level: levelFor(monthCerts.filter(x => x.date <= v.date).length) });
+        list.appendChild(chip);
+      });
+      ensureBilling(me).catch(e => console.warn('Billing check skipped:', e));
+    }
+
+    async function submitRating(r) {
+      if (!currentMe || !currentBest) return;
+      const today = dateStr(new Date());
+      const ref = doc(db, 'users', currentMe.uid, 'matchRatings', today);
+      const note = document.getElementById('ratingNote');
+      try {
+        if ((await getDoc(ref)).exists()) { await loadRatingPanel(currentMe, currentBest); return; }
+        const cert = r > CERT_MIN_RATING;
+        const tutor = currentBest.user, matchName = matchLabel(tutor);
+        await setDoc(ref, { date: today, month: today.slice(0, 7), rating: r, certificate: cert, matchEmail: tutor.email, matchUid: tutor.uid || '', matchName, ratedAt: new Date().toISOString() });
+        let delivered = true;
+        if (cert) {
+          try {
+            await setDoc(doc(db, 'users', tutor.uid, 'certificates', today + '__' + currentMe.uid), {
+              date: today, month: today.slice(0, 7), rating: r,
+              fromUid: currentMe.uid, fromName: currentMe.fullname || currentMe.displayName || 'A classmate',
+              tutorUid: tutor.uid, issuedAt: new Date().toISOString()
+            });
+          } catch (e) { delivered = false; console.warn('Certificate delivery failed (check Firestore rules):', e); }
+        }
+        await loadRatingPanel(currentMe, currentBest);
+        if (cert) {
+          if (delivered) toast('Certificate awarded', matchName + ' earned today\'s certificate for your ' + r + '-star rating!');
+          else { note.textContent = 'Rating saved, but the certificate could not be delivered to ' + matchName + ' (Firestore rules).'; note.className = 'text-xs text-red-600 mt-1'; }
+        }
+      } catch (e) { console.error('Rating failed:', e); note.textContent = 'Could not save rating: ' + (e.message || e); note.className = 'text-xs text-red-600 mt-1'; }
+    }
+
+    async function findAnotherMatch() {
+      if (!currentMe || !currentBest) return;
+      const btn = document.getElementById('findAnotherBtn');
+      const skipped = [...new Set([...(currentMe.skippedMatches || []), currentBest.user.email])];
+      const me2 = { ...currentMe, skippedMatches: skipped };
+      const alt = bestOf(me2, lastPool);
+      if (!alt || alt.score < MATCH_THRESHOLD) { toast('No other match', 'There is no other good match in your class right now.'); return; }
+      btn.disabled = true;
+      try {
+        await setDoc(doc(db, 'users', me2.uid), { skippedMatches: skipped, updatedAt: new Date().toISOString() }, { merge: true });
+        window.risyncUserData = { ...(window.risyncUserData || {}), skippedMatches: skipped };
+        await loadBestMatch(me2);
+        syncMatchesToFirebase(me2).catch(e => console.warn('Match sync failed:', e));
+      } catch (e) { console.error('Find another failed:', e); toast('Could not change match', e.message || String(e)); }
+      finally { btn.disabled = false; }
+    }
+    document.getElementById('findAnotherBtn').onclick = findAnotherMatch;
+    document.getElementById('certClose').onclick = () => document.getElementById('certModal').classList.add('hidden');
+    document.getElementById('certModal').addEventListener('click', e => { if (e.target.id === 'certModal') e.target.classList.add('hidden'); });
+
+    // ---- Update preferences ----
+    const PREF_SUBJECTS = ['Maths', 'Science', 'English', 'Social Science', 'Hindi', 'Computer'];
+    const PREF_TIMES = ['Morning', 'Afternoon', 'Evening', 'Night'];
+    const PREF_STYLES = ['Solo', 'Study group', '1-0-1 with a partner'];
+    let prefState = { subjects: [], studyTime: '', studyStyle: '' };
+
+    function prefChip(label, on, onClick) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = label;
+      b.className = 'rounded-lg border px-3 py-1.5 text-sm font-semibold transition ' +
+        (on ? 'bg-indigo-900 text-white border-indigo-900' : 'bg-white text-indigo-900 border-indigo-200 hover:bg-indigo-50');
+      b.onclick = onClick;
+      return b;
+    }
+    function renderPrefs() {
+      const subj = document.getElementById('prefSubjects'); subj.innerHTML = '';
+      PREF_SUBJECTS.forEach(s => subj.appendChild(prefChip(s, prefState.subjects.includes(s), () => {
+        prefState.subjects = prefState.subjects.includes(s) ? prefState.subjects.filter(x => x !== s) : prefState.subjects.concat(s);
+        renderPrefs();
+      })));
+      const t = document.getElementById('prefTime'); t.innerHTML = '';
+      PREF_TIMES.forEach(x => t.appendChild(prefChip(x, prefState.studyTime === x, () => { prefState.studyTime = prefState.studyTime === x ? '' : x; renderPrefs(); })));
+      const st = document.getElementById('prefStyle'); st.innerHTML = '';
+      PREF_STYLES.forEach(x => st.appendChild(prefChip(x, prefState.studyStyle === x, () => { prefState.studyStyle = prefState.studyStyle === x ? '' : x; renderPrefs(); })));
+    }
+    function updatePrefSummary() {
+      const p = (window.risyncUserData && window.risyncUserData.preferences) || {};
+      const parts = [];
+      if (p.subjects && p.subjects.length) parts.push(p.subjects.join(', '));
+      if (p.studyTime) parts.push(p.studyTime);
+      if (p.studyStyle) parts.push(p.studyStyle);
+      document.getElementById('prefSummary').textContent = parts.length ? parts.join(' · ') : 'Tell us what you like to study so we can find a better match.';
+    }
+    function initPreferences() {
+      const modal = document.getElementById('prefModal');
+      const msg = document.getElementById('prefMsg');
+      document.getElementById('prefOpenBtn').onclick = () => {
+        const p = (window.risyncUserData && window.risyncUserData.preferences) || {};
+        prefState = { subjects: [...(p.subjects || [])], studyTime: p.studyTime || '', studyStyle: p.studyStyle || '' };
+        msg.classList.add('hidden');
+        renderPrefs();
+        modal.classList.remove('hidden');
+      };
+      document.getElementById('prefCancel').onclick = () => modal.classList.add('hidden');
+      modal.addEventListener('click', e => { if (e.target === modal) modal.classList.add('hidden'); });
+      document.getElementById('prefSave').onclick = async () => {
+        const btn = document.getElementById('prefSave');
+        btn.disabled = true; btn.textContent = 'Saving...';
+        try {
+          const user = auth.currentUser;
+          if (!user) throw new Error('Not signed in');
+          const preferences = { ...prefState };
+          // 1) save preferences to Firebase (merge, so it works even if fields are missing)
+          await setDoc(doc(db, 'users', user.uid), { preferences, updatedAt: new Date().toISOString() }, { merge: true });
+          window.risyncUserData = { ...(window.risyncUserData || {}), preferences };
+          updatePrefSummary();
+          const d = window.risyncUserData;
+          const me = { ...d, uid: user.uid, email: (d.email || user.email || '').toLowerCase() };
+          // 2) recompute matches and write them to Firebase too
+          btn.textContent = 'Updating matches...';
+          const res = await syncMatchesToFirebase(me);
+          modal.classList.add('hidden');
+          loadBestMatch(me);
+          if (res.errors.length) console.warn('Saved preferences, but some match writes failed:', res.errors);
+          toast('Preferences saved', res.errors.length ? 'Saved, but some match updates were blocked by Firebase rules.' : 'Your matches were updated.');
+        } catch (e) {
+          console.error('Save preferences failed:', e);
+          msg.textContent = 'Could not save: ' + (e.message || e);
+          msg.className = 'text-sm mb-3 text-red-600';
+        } finally { btn.disabled = false; btn.textContent = 'Save'; }
+      };
+      updatePrefSummary();
+    }
+    initPreferences();
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        const USER_ID = user.uid;
+
+        // ── Firestore-based status tracking ──
+        const statusRef = doc(db, 'monitoring', USER_ID);
+        setDoc(statusRef, {
+          state: 'online',
+          current_page: 'content',
+          tab_visible: true,
+          last_seen: serverTimestamp()
+        }, { merge: true });
+
+        // Mark offline on page unload (best-effort with Firestore)
+        window.addEventListener('beforeunload', () => {
+          navigator.sendBeacon && navigator.sendBeacon('/dev/null'); // keep event loop alive
+          setDoc(statusRef, { state: 'offline', last_seen: serverTimestamp() }, { merge: true });
+        });
+
+        // ── Firestore-based activity logging ──
+        const logsRef = collection(db, 'monitoring', USER_ID, 'logs');
+
+        async function log(action, details) {
+          try {
+            await addDoc(logsRef, { action, details, timestamp: serverTimestamp() });
+          } catch (e) { /* non-critical */ }
+          const lsData = JSON.parse(localStorage.getItem('risync_logs') || "[]");
+          lsData.push({ action, details, time: Date.now() });
+          localStorage.setItem('risync_logs', JSON.stringify(lsData.slice(-50)));
+        }
+        log("PAGE_VIEW", "Opened Content Page");
+
+        document.addEventListener("visibilitychange", () => {
+          setDoc(statusRef, { tab_visible: !document.hidden, last_seen: serverTimestamp() }, { merge: true });
+          log(document.hidden ? "TAB_HIDDEN" : "TAB_FOCUS", document.hidden ? "User switched tabs" : "User returned");
+        });
+
+        let maxScroll = 0;
+        window.addEventListener("scroll", () => {
+          const scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
+          if (scrollPercent > maxScroll + 10) {
+            maxScroll = scrollPercent;
+            setDoc(statusRef, { scroll_depth: maxScroll }, { merge: true });
+            if (maxScroll % 25 === 0) log("READING_PROGRESS", `Scrolled to ${maxScroll}%`);
+          }
+        });
+
+        document.addEventListener("click", (e) => {
+          const target = e.target.closest('button, a, video, input');
+          if (target) {
+            const id = target.id || target.className || target.innerText.substring(0, 20);
+            log("INTERACTION", `Clicked: ${id}`);
+          }
+        });
+
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const userData = docSnap.data();
+          window.risyncUserData = userData;
+          updatePrefSummary();
+          const activeClassNum = String(userData.class || userData.grade || userData.className || '6').match(/\d{1,2}/)?.[0] || '6';
+          applyProfileCurriculum(activeClassNum);
+          const welcomeMsg = document.getElementById('welcome-message');
+          if (welcomeMsg) welcomeMsg.textContent = userData.fullname || "Welcome back";
+          if (userData.branch) document.getElementById('displayBranch').innerText = userData.branch;
+          if (userData.todos) renderTodos(userData.todos);
+          loadBestMatch({ ...userData, uid: user.uid, email: (userData.email || user.email || '').toLowerCase() });
+          loadTutorLevel({ ...userData, uid: user.uid }).catch(e => console.warn('Tutor level unavailable:', e));
+
+          // Read NCERT progress — prefer root-doc fields (written by updated NCERT),
+          // fall back to computing from the subcollection for users who haven't opened NCERT yet.
+          console.log('[RiSync] userData keys:', Object.keys(userData));
+          console.log('[RiSync] ncertProgress raw:', userData.ncertProgress, '| totalPoints raw:', userData.ncertTotalPoints);
+          if (typeof userData.ncertProgress === 'number' && String(userData.ncertProgressClass || '') === activeClassNum) {
+            // Fast path: fields already written by NCERT
+            updateProgressUI(userData.ncertProgress);
+            renderSubjectStats({
+              ncertPoints:   userData.ncertTotalPoints       || 0,
+              ncertQuizzes:  userData.ncertQuizzesAttempted  || 0,
+              ncertSubjDone: userData.ncertCompletedSubjects || 0,
+              ncertAvg:      userData.ncertAverageScore      || 0,
+              ncertProgress: userData.ncertProgress          || 0,
+              ncertTotal:    userData.ncertTotalLessons       || 0
+            });
+          } else {
+            // Fallback: compute from subcollection (pre-update data)
+            try {
+              const classNum = activeClassNum;
+              console.log('[RiSync] Fetching subcollection for class:', classNum, '| uid:', user.uid);
+              const ncertRef  = doc(db, 'users', user.uid, 'ncert', `class${classNum}progress`);
+              const ncertSnap = await getDoc(ncertRef);
+              console.log('[RiSync] Subcollection exists:', ncertSnap.exists());
+              if (ncertSnap.exists()) {
+                console.log('[RiSync] Subcollection data keys:', Object.keys(ncertSnap.data()));
+                console.log('[RiSync] performance:', JSON.stringify(ncertSnap.data().performance).substring(0, 200));
+                const ncertData    = ncertSnap.data();
+                const performance  = ncertData.performance || {};
+                const subjects     = typeof ncertSubjects !== 'undefined' ? ncertSubjects : [];
+                const totalLessons = subjects.reduce((sum, s) => sum + s.chapters.length, 0) || 1;
+                let completedQuizzes = 0, totalScore = 0, completedSubjects = 0;
+                for (const subjectKey in performance) {
+                  let allDone = true;
+                  for (const lessonIdx in performance[subjectKey]) {
+                    const perf = performance[subjectKey][lessonIdx];
+                    if (perf && typeof perf.score === 'number' && !isNaN(perf.score)) {
+                      completedQuizzes++;
+                      totalScore += perf.score;
+                    } else if (!perf) { allDone = false; }
+                  }
+                  if (allDone) completedSubjects++;
+                }
+                const avg      = completedQuizzes > 0 ? totalScore / completedQuizzes : 0;
+                const progress = Math.round((completedQuizzes / totalLessons) * 100);
+                updateProgressUI(progress);
+                renderSubjectStats({
+                  ncertPoints:   ncertData.totalPoints || 0,
+                  ncertQuizzes:  completedQuizzes,
+                  ncertSubjDone: completedSubjects,
+                  ncertAvg:      avg,
+                  ncertProgress: progress,
+                  ncertTotal:    totalLessons
+                });
+              } else {
+                updateProgressUI(0);
+                renderSubjectStats({});
+              }
+            } catch (e) {
+              console.warn('NCERT progress fallback failed:', e);
+              updateProgressUI(0);
+              renderSubjectStats({});
+            }
+          }
+        }
+      } else {
+        window.location.href = "signin";
+      }
+    });
+
+    const logoutBtn = document.getElementById('logoutButton');
+    if (logoutBtn) logoutBtn.addEventListener('click', () => signOut(auth).then(() => window.location.href = "signin"));
+    const logoutBtnMenu = document.getElementById('logoutButtonMenu');
+    if (logoutBtnMenu) logoutBtnMenu.addEventListener('click', () => signOut(auth).then(() => window.location.href = "signin"));
+
+    const todoInput = document.getElementById('todo-input');
+    const addTodoBtn = document.getElementById('add-todo-btn');
+    const todoList = document.getElementById('todo-list');
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+
+    function getCurrentTodos() {
+      const todos = [];
+      todoList.querySelectorAll('li').forEach(li => {
+        todos.push({ text: li.querySelector('span').textContent, completed: li.classList.contains('completed') });
+      });
+      return todos;
+    }
+
+    async function saveTodosToFirestore() {
+        if (!currentUser) return;
+        const todos = getCurrentTodos();
+        const totalTasks = todos.length;
+        const completedTasks = todos.filter(t => t.completed).length;
+        const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+        try {
+            await updateDoc(doc(db, "users", currentUser.uid), { todos, progress });
+            updateProgressUI(progress);
+        } catch (e) { console.error("Error saving todos:", e); }
+    }
+
+    function updateProgressUI(progress) {
+        const safeProgress = Math.max(0, Math.min(100, Number(progress) || 0));
+        if (progressBar) progressBar.style.width = `${safeProgress}%`;
+        if (progressText) progressText.textContent = `${safeProgress}% Complete`;
+        const el = document.getElementById('progress-percent');
+        if (el) el.textContent = `${safeProgress}%`;
+        const circle = document.getElementById('progress-circle');
+        if (circle) {
+            const circumference = 169.6;
+            circle.style.strokeDashoffset = circumference - (safeProgress / 100) * circumference;
+        }
+    }
+    // Expose the module-scoped function for the profile/TODO scripts below.
+    // Classic scripts cannot directly access declarations scoped inside this module.
+    window.updateProgressUI = updateProgressUI;
+
+    function renderTodos(todos) {
+        todoList.innerHTML = '';
+        todos.forEach(todo => addTodoToDOM(todo.text, todo.completed, false));
+    }
+
+    function addTodoToDOM(task, isCompleted = false, shouldSave = true) {
+      const li = document.createElement('li');
+      const span = document.createElement('span');
+      span.textContent = task;
+      li.appendChild(span);
+      const removeBtn = document.createElement('button');
+      removeBtn.classList.add('remove-btn');
+      removeBtn.innerHTML = '&times;';
+      removeBtn.addEventListener('click', (e) => { e.stopPropagation(); li.remove(); saveTodosToFirestore(); });
+      li.appendChild(removeBtn);
+      if (isCompleted) li.classList.add('completed');
+      li.addEventListener('click', () => { li.classList.toggle('completed'); saveTodosToFirestore(); });
+      todoList.appendChild(li);
+      if (shouldSave) saveTodosToFirestore();
+    }
+
+    addTodoBtn.addEventListener('click', () => {
+        const task = todoInput.value.trim();
+        if (task) { addTodoToDOM(task, false, true); todoInput.value = ''; }
+    });
+    todoInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addTodoBtn.click(); });
+
+    window.risyncAuth = auth;
+    window.risyncDb = db;
+    window.risyncSaveProfile = async (profileData) => {
+      if (!auth.currentUser) throw new Error("Please sign in again.");
+      await setDoc(doc(db, "users", auth.currentUser.uid), profileData, { merge: true });
+    };
+  </script>
+
+  <!-- ===== Notifications (room invites from RiSync-CHAT) ===== -->
+  <script type="module">
+    import { getApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, updateDoc, onSnapshot, query, where, writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+    const app = getApp();               // default app created by the module above
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const wrap = document.getElementById('notifWrap');
+    const btn = document.getElementById('notifBtn');
+    const panel = document.getElementById('notifPanel');
+    const badge = document.getElementById('notifBadge');
+    const list = document.getElementById('notifList');
+    const markAll = document.getElementById('notifMarkAll');
+
+    let myEmail = '';
+    let items = [];
+    let unsub = null;
+
+    const encId = (s) => encodeURIComponent(s);
+    const memId = (email, roomId) => `${encId(email)}__${encId(roomId)}`;
+
+    function timeAgo(ms) {
+      const m = Math.floor((Date.now() - ms) / 60000);
+      if (m < 1) return 'Just now';
+      if (m < 60) return m + ' min ago';
+      const h = Math.floor(m / 60);
+      if (h < 24) return h + ' hr ago';
+      const d = Math.floor(h / 24);
+      return d + (d === 1 ? ' day ago' : ' days ago');
+    }
+
+    function toast(title, msg) { if (typeof showVoiceAlert === 'function') showVoiceAlert(title, msg); }
+
+    function setOpen(open) {
+      panel.style.display = open ? 'block' : 'none';
+      btn.setAttribute('aria-expanded', String(open));
+    }
+
+    function el(tag, cls, text) {
+      const e = document.createElement(tag);
+      if (cls) e.className = cls;
+      if (text !== undefined) e.textContent = text;
+      return e;
+    }
+
+    async function respond(n, accept, acceptBtn, declineBtn) {
+      acceptBtn.disabled = true; declineBtn.disabled = true;
+      try {
+        if (accept) {
+          await setDoc(doc(db, 'memberships', memId(myEmail, n.roomId)), {
+            email: myEmail, roomId: n.roomId, title: n.title || 'Group',
+            via: 'notification', invitedBy: n.fromEmail || '', joinedAt: serverTimestamp()
+          }, { merge: true });
+        }
+        await updateDoc(doc(db, 'notifications', n.id), { status: accept ? 'accepted' : 'declined', read: true });
+        toast(accept ? 'Joined' : 'Declined', accept ? `You joined ${n.title || 'the chat'}` : 'Invite declined');
+      } catch (e) {
+        console.error('Notification response failed:', e);
+        acceptBtn.disabled = false; declineBtn.disabled = false;
+        toast('Something went wrong', 'Please try again.');
+      }
+    }
+
+    function render() {
+      list.innerHTML = '';
+      const unread = items.filter(n => !n.read).length;
+      badge.textContent = unread > 9 ? '9+' : String(unread);
+      badge.style.display = unread ? 'flex' : 'none';
+      markAll.style.display = unread ? '' : 'none';
+
+      if (!items.length) { list.appendChild(el('div', 'notif-empty', 'No notifications yet')); return; }
+
+      items.forEach(n => {
+        const row = el('div', 'notif-item' + (n.read ? '' : ' unread'));
+        const icon = el('div', 'notif-icon');
+        const ic = el('span', 'material-symbols-outlined', n.type === 'room_invite' ? 'group_add' : 'notifications');
+        ic.style.fontSize = '20px';
+        icon.appendChild(ic);
+
+        const body = el('div', 'notif-body');
+        if (n.type === 'room_invite') {
+          const line = el('div');
+          line.appendChild(el('b', '', n.fromName || n.fromEmail || 'Someone'));
+          line.appendChild(document.createTextNode(' invited you to join '));
+          line.appendChild(el('b', '', n.title || 'a chat'));
+          body.appendChild(line);
+          if (n.message) body.appendChild(el('div', 'notif-msg', n.message));
+        } else if (n.type === 'match_suggestion') {
+          body.appendChild(el('b', '', n.title || 'You have a best match!'));
+          if (n.message) body.appendChild(el('div', 'notif-msg', n.message));
+        } else {
+          if (n.title) body.appendChild(el('b', '', n.title));
+          if (n.message) body.appendChild(el('div', '', n.message));
+        }
+        body.appendChild(el('div', 'notif-time', timeAgo(n.ms)));
+
+        if (n.type === 'match_suggestion' && n.matchEmail) {
+          const actions = el('div', 'notif-actions');
+          const talk = el('a', 'notif-btn primary', 'Talk 1-0-1');
+          talk.href = `RiSync-CHAT?dm=${encodeURIComponent(n.matchEmail)}&name=${encodeURIComponent(n.matchName || '')}`;
+          talk.addEventListener('click', () => { updateDoc(doc(db, 'notifications', n.id), { read: true }).catch(() => {}); });
+          actions.appendChild(talk);
+          body.appendChild(actions);
+        }
+
+        if (n.type === 'room_invite') {
+          const actions = el('div', 'notif-actions');
+          if (n.status === 'accepted') {
+            actions.appendChild(el('span', 'notif-state', 'Joined'));
+            const open = el('a', 'notif-btn primary', 'Open chat');
+            open.href = `RiSync-CHAT?room=${encodeURIComponent(n.roomId)}&title=${encodeURIComponent(n.title || '')}`;
+            actions.appendChild(open);
+          } else if (n.status === 'declined') {
+            actions.appendChild(el('span', 'notif-state', 'Declined'));
+          } else {
+            const acc = el('button', 'notif-btn primary', 'Accept'); acc.type = 'button';
+            const dec = el('button', 'notif-btn ghost', 'Decline'); dec.type = 'button';
+            acc.onclick = (e) => { e.stopPropagation(); respond(n, true, acc, dec); };
+            dec.onclick = (e) => { e.stopPropagation(); respond(n, false, acc, dec); };
+            actions.append(acc, dec);
+          }
+          body.appendChild(actions);
+        }
+
+        row.append(icon, body);
+        if (!n.read && !(n.type === 'room_invite' && !n.status)) {
+          row.style.cursor = 'pointer';
+          row.onclick = () => updateDoc(doc(db, 'notifications', n.id), { read: true }).catch(() => {});
+        }
+        list.appendChild(row);
+      });
+    }
+
+    btn.addEventListener('click', (e) => { e.stopPropagation(); setOpen(panel.style.display === 'none'); });
+    document.addEventListener('click', (e) => { if (!wrap.contains(e.target)) setOpen(false); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
+
+    markAll.addEventListener('click', async () => {
+      const batch = writeBatch(db);
+      let count = 0;
+      items.filter(n => !n.read).forEach(n => { batch.update(doc(db, 'notifications', n.id), { read: true }); count++; });
+      if (count) { try { await batch.commit(); } catch (e) { console.error(e); } }
+    });
+
+    onAuthStateChanged(auth, (user) => {
+      if (unsub) { unsub(); unsub = null; }
+      items = [];
+      myEmail = user && user.email ? user.email.toLowerCase() : '';
+      render();
+      if (!myEmail) return;
+      unsub = onSnapshot(query(collection(db, 'notifications'), where('toEmail', '==', myEmail)), (snap) => {
+        items = snap.docs.map(d => {
+          const data = d.data();
+          const ms = data.createdAt && data.createdAt.toMillis ? data.createdAt.toMillis() : Date.now();
+          return { id: d.id, ...data, ms };
+        }).sort((a, b) => b.ms - a.ms).slice(0, 50);
+        render();
+      }, (err) => console.error('Notifications listener:', err));
+    });
+  </script>
+
+  <!-- ===== NON-MODULE SCRIPT ===== -->
+  <script>
+    // Sidebar toggle
+    const menuToggle = document.querySelector('.menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const mainWrapper = document.querySelector('.main-wrapper');
+    const overlay = document.getElementById('overlay');
+
+    function toggleMenu() {
+      sidebar.classList.toggle('open');
+      mainWrapper.classList.toggle('sidebar-open');
+    }
+    if (menuToggle) menuToggle.addEventListener('click', toggleMenu);
+    if (overlay) overlay.addEventListener('click', toggleMenu);
+
+    // Settings dropdown
+    const settingsIcon = document.getElementById('settingsIcon');
+    const settingsMenu = document.getElementById('settingsMenu');
+    settingsIcon.addEventListener('click', (e) => { e.stopPropagation(); settingsMenu.classList.toggle('active'); });
+    document.addEventListener('click', (e) => {
+      if (!settingsMenu.contains(e.target) && e.target !== settingsIcon) settingsMenu.classList.remove('active');
+    });
+
+    // Profile image
+    const profileIcon = document.getElementById('profileIcon');
+    const profileUpload = document.getElementById('profileUpload');
+    function loadProfileImage() {
+      const stored = localStorage.getItem('profileImage');
+      if (stored) profileIcon.src = stored;
+    }
+    profileIcon.addEventListener('click', () => profileUpload.click());
+    profileUpload.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => { profileIcon.src = e.target.result; localStorage.setItem('profileImage', e.target.result); };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Profile modal and account details
+    const profileModal = document.getElementById('profileModal');
+    const profileUploadInput = document.getElementById('profileUpload');
+    const profileFields = {
+      fullname: 'profileFullname', username: 'profileUsername', class: 'profileClass',
+      school: 'profileSchool', branch: 'profileBranch', bio: 'profileBio'
+    };
+    function openProfileModal() {
+      const user = window.risyncAuth && window.risyncAuth.currentUser;
+      const data = window.risyncUserData || {};
+      Object.entries(profileFields).forEach(([key, id]) => {
+        document.getElementById(id).value = key === 'class'
+          ? (data[key] ? `Class ${String(data[key]).match(/\d{1,2}/)?.[0] || ''}` : '')
+          : (data[key] || (key === 'fullname' && user ? (user.displayName || '') : ''));
+      });
+      document.getElementById('profileEmail').value = (user && user.email) || data.email || '';
+      document.getElementById('profileDisplayName').textContent = data.fullname || (user && user.displayName) || 'Your profile';
+      document.getElementById('profileDisplayEmail').textContent = (user && user.email) || '';
+      const avatar = data.photoURL || localStorage.getItem('profileImage') || 'https://placehold.co/80x80/15157d/ffffff?text=U';
+      document.getElementById('profilePreview').src = avatar;
+      profileIcon.src = avatar;
+      document.getElementById('profileSaveStatus').textContent = 'Your details are private to your account.';
+      profileModal.classList.add('active');
+    }
+    function closeProfileModal() { profileModal.classList.remove('active'); }
+    document.getElementById('closeProfileModal').addEventListener('click', closeProfileModal);
+    document.getElementById('cancelProfile').addEventListener('click', closeProfileModal);
+    profileModal.addEventListener('click', e => { if (e.target === profileModal) closeProfileModal(); });
+    document.getElementById('changeProfilePhoto').addEventListener('click', () => profileUploadInput.click());
+    document.getElementById('profileForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const saveBtn = document.getElementById('saveProfile');
+      const status = document.getElementById('profileSaveStatus');
+      const profileData = {};
+      Object.entries(profileFields).forEach(([key, id]) => profileData[key] = document.getElementById(id).value.trim());
+      profileData.updatedAt = new Date().toISOString();
+      saveBtn.disabled = true; saveBtn.textContent = 'Saving...'; status.textContent = 'Saving your profile...';
+      try {
+        if (!window.risyncSaveProfile) throw new Error('Account connection is still loading. Please try again.');
+        await window.risyncSaveProfile(profileData);
+        window.risyncUserData = { ...(window.risyncUserData || {}), ...profileData };
+        applyProfileCurriculum(profileData.class || '6');
+        window.updateProgressUI(0);
+        renderSubjectStats({});
+        document.getElementById('welcome-message').textContent = profileData.fullname || 'Welcome back';
+        document.getElementById('profileDisplayName').textContent = profileData.fullname || 'Your profile';
+        status.textContent = 'Profile saved successfully.';
+        setTimeout(closeProfileModal, 700);
+      } catch (err) {
+        console.error(err); status.textContent = err.message || 'Could not save. Please try again.';
+      } finally { saveBtn.disabled = false; saveBtn.textContent = 'Save Profile'; }
+    });
+    profileUploadInput.addEventListener('change', event => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      if (!file.type.startsWith('image/')) { alert('Please choose an image file.'); return; }
+      if (file.size > 2 * 1024 * 1024) { alert('Please choose an image under 2 MB.'); return; }
+      const reader = new FileReader();
+      reader.onload = async e => {
+        const dataUrl = e.target.result;
+        profileIcon.src = dataUrl;
+        document.getElementById('profilePreview').src = dataUrl;
+        localStorage.setItem('profileImage', dataUrl);
+        // Photo is kept in this browser; profile text fields sync to the signed-in account. 
+        document.getElementById('profileSaveStatus').textContent = 'Profile photo updated on this device.';
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Nav search filter
+    const searchInput = document.getElementById('searchInput');
+    const navButtons = document.querySelectorAll('.nav-menu .nav-button');
+    if (searchInput) {
+      searchInput.addEventListener('keyup', (event) => {
+        const term = event.target.value.toLowerCase();
+        navButtons.forEach(btn => {
+          btn.style.display = btn.textContent.toLowerCase().includes(term) ? 'flex' : 'none';
+        });
+      });
+    }
+
+    // Music toggle — updated to use Material Symbols textContent
+    const musicBtn = document.getElementById('music-btn');
+    const musicIcon = document.getElementById('music-icon');
+    const bgMusic = document.getElementById('bg-music');
+    let isPlaying = false;
+
+    function setMusicIcon(playing) {
+      musicIcon.textContent = playing ? 'volume_off' : 'volume_up';
+    }
+
+    musicBtn.addEventListener('click', () => {
+      if (isPlaying) {
+        bgMusic.pause();
+        setMusicIcon(false);
+      } else {
+        bgMusic.play().catch(() => {});
+        setMusicIcon(true);
+      }
+      isPlaying = !isPlaying;
+    });
+
+    // Voice commands
+    let isListening = false;
+    const micBtn = document.getElementById('mic-btn');
+
+    micBtn.addEventListener('click', () => {
+      if (!isListening) startVoiceRecognition();
+      else stopVoiceRecognition();
+    });
+
+    function startVoiceRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) { alert('Speech Recognition not supported. Try Chrome or Edge.'); return; }
+      const recognition = new SpeechRecognition();
+      if (window.RiWake) RiWake.pause(); // free the mic for the command
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+      micBtn.classList.add('active');
+      isListening = true;
+      recognition.onresult = (event) => {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) transcript += event.results[i][0].transcript;
+        if (event.results[event.results.length - 1].isFinal) processVoiceCommand(transcript.toLowerCase());
+      };
+      recognition.onerror = (event) => {
+        showVoiceAlert('Error', event.error);
+        micBtn.classList.remove('active'); isListening = false;
+      };
+      recognition.onend = () => { micBtn.classList.remove('active'); isListening = false; if (window.RiWake) RiWake.resume(); };
+      try { recognition.start(); } catch(e) {}
+    }
+
+    function stopVoiceRecognition() { isListening = false; micBtn.classList.remove('active'); }
+
+    function showVoiceAlert(title, message) {
+      const popup = document.createElement('div');
+      popup.style.cssText = 'position:fixed;top:20px;right:20px;background:white;padding:14px 18px;border-radius:12px;box-shadow:0 4px 20px rgba(21,21,125,0.15);z-index:10000;max-width:300px;font-family:Inter,sans-serif;font-size:13px;border:1.5px solid #c7c5d4;';
+      popup.innerHTML = `<strong>${title}</strong><br>${message}`;
+      document.body.appendChild(popup);
+      setTimeout(() => popup.remove(), 3000);
+    }
+
+    function processVoiceCommand(command) {
+      const navCommands = {
+        'chat': 'RiSync-CHAT', 'monitor': 'monitor', 'books': 'books',
+        'calendar': 'calendar', 'database': 'database', 'subjects': 'subjects',
+        'ncert': 'ncert', 'whiteboard': 'whiteboard', 'calculator': 'calculator',
+        'bot': 'gpt', 'leaderboard': 'leaderboard', 'ppt': 'ppt', 'design': 'design'
+      };
+      for (let [key, url] of Object.entries(navCommands)) {
+        if (command.includes(key)) { showVoiceAlert('Navigating', `Opening ${key}…`); window.location.href = url; return; }
+      }
+      if (command.includes('ribot') || command.includes('help')) { document.getElementById('ribotSettingsBtn').click(); return; }
+      if (command.includes('profile')) { document.getElementById('profileBtn').click(); return; }
+      if (command.includes('music') || command.includes('audio')) { musicBtn.click(); return; }
+      if (command.includes('logout') || command.includes('sign out')) {
+        if (confirm('Are you sure you want to logout?')) document.getElementById('logoutButton').click();
+        return;
+      }
+      if (command.includes('progress')) {
+        const pt = document.getElementById('progress-text').textContent;
+        showVoiceAlert('Your Progress', pt);
+        window.speechSynthesis.speak(new SpeechSynthesisUtterance(`Your current ${pt}`));
+        return;
+      }
+      if (command.includes('add task') || command.includes('new task')) {
+        showVoiceAlert('Add Task', 'Please type your task in the input box');
+        document.getElementById('todo-input').focus();
+        return;
+      }
+      showVoiceAlert('Not Recognized', `"${command}" — say "help" for commands`);
+    }
+
+    // "Hey RiSync" wake word: always listening in the background, no button needed. Says the phrase -> voice command starts.
+    window.RiWake = (function () {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) return { pause() {}, resume() {} };
+      // Matches how speech engines usually write it: "hey risync", "hey rise sync", "hi ri sync", "okay rice sink"...
+      const WAKE = /\b(?:hey|hi|hello|ok|okay)\s*(?:r\s?i|rye|rai|ray|are\s?i|rise|rice|risk|ris|rhi)\s*(?:sync|sink|zinc|sing|sinc|cinc)\b/i;
+      let rec = null, paused = false, busy = false, blocked = false, warned = false, delay = 300, ctx = null;
+
+      function ui() { micBtn.classList.toggle('wake-on', !!rec && !paused); } // green dot on the mic = "listening for Hey RiSync"
+      function chime() {
+        try {
+          ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+          if (ctx.state === 'suspended') ctx.resume();
+          const o = ctx.createOscillator(), g = ctx.createGain();
+          o.frequency.value = 880; g.gain.setValueAtTime(.15, ctx.currentTime);
+          g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + .25);
+          o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime + .25);
+        } catch (e) {}
+      }
+      function stopRec() {
+        if (!rec) return;
+        const r = rec; rec = null; r.onend = null; r.onresult = null; r.onerror = null;
+        try { r.abort(); } catch (e) {}
+        ui();
+      }
+      function begin() {
+        if (paused || busy || blocked || rec || document.hidden) return;
+        rec = new SR();
+        rec.continuous = true; rec.interimResults = true; rec.lang = 'en-IN';
+        rec.onresult = (e) => {
+          if (busy) return;
+          let t = '';
+          for (let i = e.resultIndex; i < e.results.length; i++) if (e.results[i].isFinal) t += e.results[i][0].transcript + ' ';
+          const m = t.match(WAKE);
+          if (m) wake(t.slice(m.index + m[0].length).replace(/^[\s,.!?]+/, '').trim());
+        };
+        rec.onerror = (e) => {
+          if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+            blocked = true; stopRec();
+            if (!warned) { warned = true; showVoiceAlert('Hey RiSync', 'Allow the microphone (or tap anywhere once) to use "Hey RiSync".'); }
+            // some browsers only allow the mic after a tap: retry on the next touch/click/key
+            const retry = () => { blocked = false; begin(); };
+            ['pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, retry, { once: true }));
+          } else if (e.error !== 'no-speech' && e.error !== 'aborted') delay = 3000; // e.g. network: back off
+        };
+        rec.onend = () => { rec = null; ui(); const d = delay; delay = 300; setTimeout(begin, d); }; // Chrome ends sessions on silence: restart
+        try { rec.start(); } catch (e) { rec = null; }
+        ui();
+      }
+      function wake(rest) {
+        busy = true; stopRec(); chime();
+        if (rest.length > 2) {                       // "Hey RiSync, open calendar" in one go
+          showVoiceAlert('Hey RiSync', rest);
+          setTimeout(() => { processVoiceCommand(rest.toLowerCase()); resume(); }, 250);
+        } else {                                      // just "Hey RiSync": start listening for the command
+          showVoiceAlert('Hey RiSync', "Yes? I'm listening…");
+          startVoiceRecognition();                    // its onend calls resume()
+        }
+      }
+      function pause()  { paused = true; stopRec(); }
+      function resume() { paused = false; busy = false; setTimeout(begin, 400); }
+
+      document.addEventListener('visibilitychange', () => { document.hidden ? stopRec() : begin(); }); // no mic use in background tabs
+      begin(); // starts by itself on page load
+      return { pause, resume };
+    })();
+
+    // Chatbot & RiBot popups
+    const chatbotPopup = document.getElementById('chatbot-popup');
+    const startAssistanceBtn = document.getElementById('startAssistanceBtn');
+    const hideChatbotBtn = document.getElementById('hideChatbotBtn');
+    const ribotSettingsBtn = document.getElementById('ribotSettingsBtn');
+    const ribotSettingsMenuBtn = document.getElementById('ribotSettingsMenuBtn');
+    const profileBtn = document.getElementById('profileBtn');
+    const ribotSettingsPopup = document.getElementById('ribot-settings-popup');
+    const closeRibotSettingsBtn = document.getElementById('closeRibotSettingsBtn');
+    const ribotResponseArea = document.getElementById('ribot-response-area');
+    const ribotResponseText = document.getElementById('ribot-response-text');
+
+    function showChatbotPopup() { chatbotPopup.classList.add('active'); }
+    function hideChatbotPopup() { chatbotPopup.classList.remove('active'); }
+    function showRibotSettings() { ribotSettingsPopup.classList.add('active'); }
+    function hideRibotSettings() { ribotSettingsPopup.classList.remove('active'); }
+
+    hideChatbotBtn.addEventListener('click', hideChatbotPopup);
+    closeRibotSettingsBtn.addEventListener('click', hideRibotSettings);
+    ribotSettingsBtn.addEventListener('click', (e) => { e.preventDefault(); settingsMenu.classList.remove('active'); showRibotSettings(); });
+    if (ribotSettingsMenuBtn) ribotSettingsMenuBtn.addEventListener('click', () => { settingsMenu.classList.remove('active'); showRibotSettings(); });
+
+    profileBtn.addEventListener('click', () => {
+        settingsMenu.classList.remove('active');
+        openProfileModal();
+    });
+
+    const ribotAnswers = {
+        "help": "RiSync is an all-in-one educational platform designed to help you organize your studies, collaborate with peers, and access learning resources all in one place.",
+        "features": "Key features include Peer Chat for collaboration, Calendar for scheduling, Whiteboard for real-time problem solving, Database for resources, NCERT textbooks, Calculator, AI assistant, and more!",
+        "contact": "Contact support at support@risync.com or visit the help section. You can also use the Chat feature to reach out to students and mentors.",
+        "voice": "Say 'Hey RiSync' and then say 'Go to Chat', 'Open Calendar', 'Show Progress', 'RiBot Help', 'Toggle Music', or any feature name to navigate instantly!"
+    };
+
+    document.querySelectorAll('.ribot-option-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const option = btn.getAttribute('data-option');
+            ribotResponseText.textContent = ribotAnswers[option] || "Option not found.";
+            ribotResponseArea.style.display = 'block';
+        });
+    });
+
+    startAssistanceBtn.addEventListener('click', () => {
+        showRibotSettings();
+        hideChatbotPopup();
+        const synth = window.speechSynthesis;
+        synth.speak(new SpeechSynthesisUtterance("Welcome! I am RiBot. Choose an option from the menu."));
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadProfileImage();
+      setTimeout(showChatbotPopup, 3000);
+    });
+
+    // =============================================
+    // FULL-PAGE TRANSLATION ENGINE
+    // =============================================
+    const ALL_LANGUAGES = [
+      { code: 'en', name: 'English', native: 'English' },
+      { code: 'hi', name: 'Hindi', native: 'हिन्दी' },
+      { code: 'bn', name: 'Bengali', native: 'বাংলা' },
+      { code: 'te', name: 'Telugu', native: 'తెలుగు' },
+      { code: 'mr', name: 'Marathi', native: 'मराठी' },
+      { code: 'ta', name: 'Tamil', native: 'தமிழ்' },
+      { code: 'gu', name: 'Gujarati', native: 'ગુજરાતી' },
+      { code: 'kn', name: 'Kannada', native: 'ಕನ್ನಡ' },
+      { code: 'ml', name: 'Malayalam', native: 'മലയാളം' },
+      { code: 'pa', name: 'Punjabi', native: 'ਪੰਜਾਬੀ' },
+      { code: 'or', name: 'Odia', native: 'ଓଡ଼ିଆ' },
+      { code: 'ur', name: 'Urdu', native: 'اردو' },
+      { code: 'as', name: 'Assamese', native: 'অসমীয়া' },
+      { code: 'ne', name: 'Nepali', native: 'नेपाली' },
+      { code: 'si', name: 'Sinhala', native: 'සිංහල' },
+      { code: 'zh-CN', name: 'Chinese (Simplified)', native: '简体中文' },
+      { code: 'zh-TW', name: 'Chinese (Traditional)', native: '繁體中文' },
+      { code: 'ja', name: 'Japanese', native: '日本語' },
+      { code: 'ko', name: 'Korean', native: '한국어' },
+      { code: 'ar', name: 'Arabic', native: 'العربية' },
+      { code: 'fa', name: 'Persian', native: 'فارسی' },
+      { code: 'ru', name: 'Russian', native: 'Русский' },
+      { code: 'fr', name: 'French', native: 'Français' },
+      { code: 'de', name: 'German', native: 'Deutsch' },
+      { code: 'es', name: 'Spanish', native: 'Español' },
+      { code: 'pt', name: 'Portuguese', native: 'Português' },
+      { code: 'it', name: 'Italian', native: 'Italiano' },
+      { code: 'nl', name: 'Dutch', native: 'Nederlands' },
+      { code: 'pl', name: 'Polish', native: 'Polski' },
+      { code: 'tr', name: 'Turkish', native: 'Türkçe' },
+      { code: 'vi', name: 'Vietnamese', native: 'Tiếng Việt' },
+      { code: 'th', name: 'Thai', native: 'ภาษาไทย' },
+      { code: 'id', name: 'Indonesian', native: 'Bahasa Indonesia' },
+      { code: 'ms', name: 'Malay', native: 'Bahasa Melayu' },
+      { code: 'sw', name: 'Swahili', native: 'Kiswahili' },
+      { code: 'uk', name: 'Ukrainian', native: 'Українська' },
+      { code: 'he', name: 'Hebrew', native: 'עברית' },
+      { code: 'el', name: 'Greek', native: 'Ελληνικά' },
+      { code: 'cs', name: 'Czech', native: 'Čeština' },
+      { code: 'ro', name: 'Romanian', native: 'Română' },
+      { code: 'hu', name: 'Hungarian', native: 'Magyar' },
+      { code: 'sv', name: 'Swedish', native: 'Svenska' },
+      { code: 'no', name: 'Norwegian', native: 'Norsk' },
+      { code: 'fi', name: 'Finnish', native: 'Suomi' },
+      { code: 'da', name: 'Danish', native: 'Dansk' },
+      { code: 'fil', name: 'Filipino', native: 'Filipino' },
+      { code: 'af', name: 'Afrikaans', native: 'Afrikaans' },
+      { code: 'sq', name: 'Albanian', native: 'Shqip' },
+      { code: 'am', name: 'Amharic', native: 'አማርኛ' },
+      { code: 'hy', name: 'Armenian', native: 'Հայերեն' },
+      { code: 'az', name: 'Azerbaijani', native: 'Azərbaycanca' },
+      { code: 'eu', name: 'Basque', native: 'Euskara' },
+      { code: 'be', name: 'Belarusian', native: 'Беларуская' },
+      { code: 'bs', name: 'Bosnian', native: 'Bosanski' },
+      { code: 'bg', name: 'Bulgarian', native: 'Български' },
+      { code: 'ca', name: 'Catalan', native: 'Català' },
+      { code: 'ceb', name: 'Cebuano', native: 'Cebuano' },
+      { code: 'ny', name: 'Chichewa', native: 'Chichewa' },
+      { code: 'co', name: 'Corsican', native: 'Corsu' },
+      { code: 'hr', name: 'Croatian', native: 'Hrvatski' },
+      { code: 'dv', name: 'Dhivehi', native: 'ދިވެހި' },
+      { code: 'doi', name: 'Dogri', native: 'डोगरी' },
+      { code: 'eo', name: 'Esperanto', native: 'Esperanto' },
+      { code: 'et', name: 'Estonian', native: 'Eesti' },
+      { code: 'fy', name: 'Frisian', native: 'Frysk' },
+      { code: 'gl', name: 'Galician', native: 'Galego' },
+      { code: 'ka', name: 'Georgian', native: 'ქართული' },
+      { code: 'ht', name: 'Haitian Creole', native: 'Kreyòl Ayisyen' },
+      { code: 'ha', name: 'Hausa', native: 'Hausa' },
+      { code: 'haw', name: 'Hawaiian', native: 'ʻŌlelo Hawaiʻi' },
+      { code: 'is', name: 'Icelandic', native: 'Íslenska' },
+      { code: 'ig', name: 'Igbo', native: 'Igbo' },
+      { code: 'ga', name: 'Irish', native: 'Gaeilge' },
+      { code: 'jv', name: 'Javanese', native: 'Basa Jawa' },
+      { code: 'kk', name: 'Kazakh', native: 'Қазақша' },
+      { code: 'km', name: 'Khmer', native: 'ខ្មែរ' },
+      { code: 'rw', name: 'Kinyarwanda', native: 'Ikinyarwanda' },
+      { code: 'gom', name: 'Konkani', native: 'कोंकणी' },
+      { code: 'ku', name: 'Kurdish', native: 'Kurdî' },
+      { code: 'ky', name: 'Kyrgyz', native: 'Кыргызча' },
+      { code: 'lo', name: 'Lao', native: 'ລາວ' },
+      { code: 'la', name: 'Latin', native: 'Latina' },
+      { code: 'lv', name: 'Latvian', native: 'Latviešu' },
+      { code: 'lt', name: 'Lithuanian', native: 'Lietuvių' },
+      { code: 'lb', name: 'Luxembourgish', native: 'Lëtzebuergesch' },
+      { code: 'mk', name: 'Macedonian', native: 'Македонски' },
+      { code: 'mai', name: 'Maithili', native: 'मैथिली' },
+      { code: 'mg', name: 'Malagasy', native: 'Malagasy' },
+      { code: 'mt', name: 'Maltese', native: 'Malti' },
+      { code: 'mi', name: 'Maori', native: 'Māori' },
+      { code: 'mn', name: 'Mongolian', native: 'Монгол' },
+      { code: 'my', name: 'Myanmar (Burmese)', native: 'မြန်မာ' },
+      { code: 'ps', name: 'Pashto', native: 'پښتو' },
+      { code: 'sm', name: 'Samoan', native: 'Gagana Sāmoa' },
+      { code: 'gd', name: 'Scottish Gaelic', native: 'Gàidhlig' },
+      { code: 'sn', name: 'Shona', native: 'chiShona' },
+    ];
+
+    const RTL_LANGS = new Set(['ar', 'he', 'ur', 'fa']);
+    const translationCache = {};
+    const SKIP_TAGS = new Set(['SCRIPT','STYLE','NOSCRIPT','META','LINK','OPTION','SELECT']);
+    const SKIP_IDS  = new Set(['language-dropdown-list','language-dropdown-container','translate-overlay']);
+
+    function collectNodes() {
+      const nodes = [];
+      function walk(node) {
+        if (!node) return;
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          if (SKIP_TAGS.has(node.tagName)) return;
+          if (node.id && SKIP_IDS.has(node.id)) return;
+          if (node.tagName === 'INPUT' && node.placeholder) nodes.push({ type: 'placeholder', el: node });
+          for (const child of node.childNodes) walk(child);
+        } else if (node.nodeType === Node.TEXT_NODE) {
+          const t = node.textContent.trim();
+          if (t.length > 1 && !/^[\d%.,]+$/.test(t)) nodes.push({ type: 'text', node });
+        }
+      }
+      walk(document.body);
+      return nodes;
+    }
+
+    let snapshot = null;
+    function takeSnapshot() {
+      if (snapshot) return;
+      snapshot = collectNodes().map(item => {
+        if (item.type === 'text') return { ...item, original: item.node.textContent };
+        if (item.type === 'placeholder') return { ...item, original: item.el.placeholder };
+      });
+    }
+
+    function restoreEnglish() {
+      if (!snapshot) return;
+      snapshot.forEach(item => {
+        try {
+          if (item.type === 'text') item.node.textContent = item.original;
+          if (item.type === 'placeholder') item.el.placeholder = item.original;
+        } catch(e) {}
+      });
+    }
+
+    async function gtranslate(text, targetLang) {
+      const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${encodeURIComponent(targetLang)}&dt=t&q=${encodeURIComponent(text)}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('GT error ' + res.status);
+      const data = await res.json();
+      return data[0].map(chunk => chunk[0]).join('');
+    }
+
+    async function translateBatch(strings, targetLang) {
+      const SEP = ' |||RISYNC||| ';
+      const joined = strings.join(SEP);
+      const result = await gtranslate(joined, targetLang);
+      const parts = result.split(/\s*\|\|\|RISYNC\|\|\|\s*/);
+      while (parts.length < strings.length) parts.push('');
+      return parts.slice(0, strings.length);
+    }
+
+    function showOverlay(langName) {
+      let ov = document.getElementById('translate-overlay');
+      if (!ov) {
+        ov = document.createElement('div');
+        ov.id = 'translate-overlay';
+        ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(21,21,125,0.8);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;color:#fff;font-family:Inter,sans-serif;backdrop-filter:blur(8px);transition:opacity .3s';
+        ov.innerHTML = `<div style="width:54px;height:54px;border-radius:50%;border:4px solid rgba(255,255,255,0.2);border-top-color:#c0c1ff;animation:_spin .8s linear infinite"></div><div id="_ov_msg" style="font-size:20px;font-weight:800">Translating…</div><div id="_ov_sub" style="font-size:13px;opacity:.55">Please wait</div><style>@keyframes _spin{to{transform:rotate(360deg)}}</style>`;
+        document.body.appendChild(ov);
+      }
+      document.getElementById('_ov_msg').textContent = `Translating to ${langName}…`;
+      document.getElementById('_ov_sub').textContent = 'Powered by Google Translate 🌐';
+      ov.style.opacity = '1'; ov.style.display = 'flex';
+    }
+
+    function hideOverlay() {
+      const ov = document.getElementById('translate-overlay');
+      if (!ov) return;
+      ov.style.opacity = '0';
+      setTimeout(() => ov.style.display = 'none', 300);
+    }
+
+    async function translatePageTo(langCode, langName) {
+      restoreEnglish();
+      document.documentElement.dir = RTL_LANGS.has(langCode) ? 'rtl' : 'ltr';
+      if (langCode === 'en') return;
+      if (translationCache[langCode]) { applyMap(translationCache[langCode]); return; }
+      showOverlay(langName);
+      try {
+        const items = collectNodes();
+        const strings = items.map(item => item.type === 'text' ? item.node.textContent.trim() : item.el.placeholder);
+        const unique = [...new Set(strings.filter(s => s.length > 1))];
+        const CHUNK = 40; const map = {};
+        for (let i = 0; i < unique.length; i += CHUNK) {
+          const chunk = unique.slice(i, i + CHUNK);
+          const result = await translateBatch(chunk, langCode);
+          chunk.forEach((orig, j) => { map[orig] = result[j] || orig; });
+        }
+        translationCache[langCode] = map;
+        applyMap(map);
+      } catch (err) {
+        console.error('Translation error:', err);
+        hideOverlay();
+        alert('Translation failed. Check your internet connection.');
+        return;
+      }
+      hideOverlay();
+    }
+
+    function applyMap(map) {
+      collectNodes().forEach(item => {
+        try {
+          if (item.type === 'text') { const k = item.node.textContent.trim(); if (map[k]) item.node.textContent = map[k]; }
+          else if (item.type === 'placeholder') { const k = item.el.placeholder; if (map[k]) item.el.placeholder = map[k]; }
+        } catch(e) {}
+      });
+    }
+
+    const languageListEl    = document.getElementById('language-dropdown-list');
+    const selectedLangEl    = document.getElementById('selected-language');
+    const languageContainer = document.getElementById('language-dropdown-container');
+    let currentLangCode = 'en';
+
+    function populateLanguages() {
+      languageListEl.innerHTML = '';
+      ALL_LANGUAGES.forEach(lang => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span style="font-weight:700">${lang.native}</span><span style="opacity:.5;font-size:11px;margin-left:6px">${lang.name}</span>`;
+        li.style.cssText = 'display:flex;align-items:center;justify-content:space-between';
+        li.addEventListener('click', async () => {
+          languageContainer.classList.remove('active');
+          if (lang.code === currentLangCode) return;
+          currentLangCode = lang.code;
+          const span = selectedLangEl.querySelector('span');
+          if (span) span.textContent = lang.native;
+          await translatePageTo(lang.code, lang.name);
+        });
+        languageListEl.appendChild(li);
+      });
+    }
+
+    selectedLangEl.addEventListener('click', () => languageContainer.classList.toggle('active'));
+    document.addEventListener('click', e => {
+      if (!languageContainer.contains(e.target)) languageContainer.classList.remove('active');
+    });
+
+    takeSnapshot();
+    populateLanguages();
+  </script>
+
+  <!-- ===== NCERT SUBJECTS RENDERING SCRIPT ===== -->
+  <script>
+    // Exact NCERT chapter-PDF URL builder; volume chapter numbers restart at 01.
+    const ncertPdf = (bookCode, chapterNo) => `https://ncert.nic.in/textbook/pdf/${bookCode}${String(chapterNo).padStart(2,'0')}.pdf`;
+
+
+    // Primary-stage NCERT catalogue (Classes 1–5). Chapter numbering follows the
+    // official NCERT catalogue; PDF files remain hosted by NCERT.
+    const primaryGrade = (grade) => {
+      const activePrimaryGrade = String(grade);
+      const configs = {
+        '1': [
+          ['english','English','Mridang','aemr1',9,'menu_book','english','0-9'],
+          ['mathematics','Mathematics','Joyful Mathematics','aejm1',13,'calculate','math','1-13'],
+          ['hindi','Hindi','Sarangi','asar1',12,'translate','hindi','0-12']
+        ],
+        '2': [
+          ['english','English','Mridang','bemr1',9,'menu_book','english','0-9'],
+          ['mathematics','Mathematics','Joyful Mathematics','bejm1',11,'calculate','math','2-11'],
+          ['hindi','Hindi','Sarangi','bsar1',12,'translate','hindi','0-12']
+        ],
+        '3': [
+          ['english','English','Santoor','cesa1',12,'menu_book','english','1-12'],
+          ['mathematics','Mathematics','Maths Mela','cemm1',14,'calculate','math','0-14'],
+          ['hindi','Hindi','Veena','chve1',18,'translate','hindi','4-18'],
+          ['environment','Environmental Studies','Our Wondrous World','ceev1',12,'public','social','0-12']
+        ],
+        '4': [
+          ['english','English','Santoor','desa1',12,'menu_book','english','9-12'],
+          ['mathematics','Mathematics','Maths Mela','demm1',14,'calculate','math','6-14'],
+          ['hindi','Hindi','Veena','dhve1',18,'translate','hindi','4-18'],
+          ['environment','Environmental Studies','Looking Around','deap1',27,'public','social','0-27']
+        ],
+        '5': [
+          ['english','English','Santoor','eesa1',10,'menu_book','english','0-10'],
+          ['mathematics','Mathematics','Maths Mela','eemm1',14,'calculate','math','0-14'],
+          ['hindi','Hindi','Veena','ehve1',12,'translate','hindi','0-12'],
+          ['environment','Environmental Studies','Looking Around','eeap1',22,'public','social','0-22']
+        ]
+      };
+      return (configs[activePrimaryGrade] || []).map(([key,title,book,code,count,icon,accent,range]) => ({
+        key,icon,title,bookTitle:book,
+        description:`NCERT Class ${activePrimaryGrade} · ${book}`,
+        accent:palette[accent],
+        catalogUrl:`https://ncert.nic.in/textbook.php?${code}=${range}`,
+        chapters:Array.from({length:count},(_,i)=>({num:i+1,title:`Chapter ${i+1}`,url:'ncert',pdfUrl:ncertPdf(code,i+1)}))
+      }));
+    };
+
+    const class6Subjects = [
+      {
+        key: 'mathematics',
+        icon: 'calculate',
+        title: 'Mathematics',
+        bookTitle: 'Ganita Prakash',
+        description: 'Explore numbers, algebra, and geometry with interactive lessons.',
+        accent: { bg: '#eff4ff', border: '#c0c1ff', icon: '#15157d', badge: '#2e3192', badgeText: '#fff' },
+        chapters: [
+          { num:1, title:'Patterns in Mathematics', url:'ncert', pdfUrl:ncertPdf('fegp1',1) },
+          { num:2, title:'Lines and Angles', url:'ncert', pdfUrl:ncertPdf('fegp1',2) },
+          { num:3, title:'Number Play', url:'ncert', pdfUrl:ncertPdf('fegp1',3) },
+          { num:4, title:'Data Handling and Presentation', url:'ncert', pdfUrl:ncertPdf('fegp1',4) },
+          { num:5, title:'Prime Time', url:'ncert', pdfUrl:ncertPdf('fegp1',5) },
+          { num:6, title:'Perimeter and Area', url:'ncert', pdfUrl:ncertPdf('fegp1',6) },
+          { num:7, title:'Fractions', url:'ncert', pdfUrl:ncertPdf('fegp1',7) },
+          { num:8, title:'Playing with Constructions', url:'ncert', pdfUrl:ncertPdf('fegp1',8) },
+          { num:9, title:'Symmetry', url:'ncert', pdfUrl:ncertPdf('fegp1',9) },
+          { num:10, title:'The Other Side of Zero', url:'ncert', pdfUrl:ncertPdf('fegp1',10) }
+        ]
+      },
+      {
+        key: 'science',
+        icon: 'science',
+        title: 'Science',
+        bookTitle: 'Curiosity',
+        description: 'Discover the natural world through observation and experimentation.',
+        accent: { bg: '#e6faf5', border: '#68dba9', icon: '#006c4a', badge: '#006c4a', badgeText: '#fff' },
+        chapters: [
+          { num:1, title:'The Wonderful World of Science', url:'ncert', pdfUrl:ncertPdf('fecu1',1) },
+          { num:2, title:'Diversity in the Living World', url:'ncert', pdfUrl:ncertPdf('fecu1',2) },
+          { num:3, title:'Mindful Eating: A Path to a Healthy Body', url:'ncert', pdfUrl:ncertPdf('fecu1',3) },
+          { num:4, title:'Exploring Magnets', url:'ncert', pdfUrl:ncertPdf('fecu1',4) },
+          { num:5, title:'Measurement of Length and Motion', url:'ncert', pdfUrl:ncertPdf('fecu1',5) },
+          { num:6, title:'Materials Around Us', url:'ncert', pdfUrl:ncertPdf('fecu1',6) },
+          { num:7, title:'Temperature and its Measurement', url:'ncert', pdfUrl:ncertPdf('fecu1',7) },
+          { num:8, title:'A Journey through States of Water', url:'ncert', pdfUrl:ncertPdf('fecu1',8) },
+          { num:9, title:'Methods of Separation in Everyday Life', url:'ncert', pdfUrl:ncertPdf('fecu1',9) },
+          { num:10, title:'Living Creatures: Exploring their Characteristics', url:'ncert', pdfUrl:ncertPdf('fecu1',10) },
+          { num:11, title:"Nature's Treasures", url:'ncert', pdfUrl:ncertPdf('fecu1',11) },
+          { num:12, title:'Beyond Earth', url:'ncert', pdfUrl:ncertPdf('fecu1',12) }
+        ]
+      },
+      {
+        key: 'social_science',
+        icon: 'public',
+        title: 'Social Science',
+        bookTitle: 'Exploring Society: India and Beyond',
+        description: 'Understand history, geography, civics and social structures.',
+        accent: { bg: '#fff3eb', border: '#ffdcc3', icon: '#623200', badge: '#623200', badgeText: '#f99028' },
+        chapters: [
+          { num:1, title:'Locating Places on the Earth', url:'ncert', pdfUrl:ncertPdf('fees1',1) },
+          { num:2, title:'Oceans and Continents', url:'ncert', pdfUrl:ncertPdf('fees1',2) },
+          { num:3, title:'Landforms and Life', url:'ncert', pdfUrl:ncertPdf('fees1',3) },
+          { num:4, title:'Timeline and Sources of History', url:'ncert', pdfUrl:ncertPdf('fees1',4) },
+          { num:5, title:'India, That Is Bharat', url:'ncert', pdfUrl:ncertPdf('fees1',5) },
+          { num:6, title:'The Beginnings of Indian Civilisation', url:'ncert', pdfUrl:ncertPdf('fees1',6) },
+          { num:7, title:"India's Cultural Roots", url:'ncert', pdfUrl:ncertPdf('fees1',7) },
+          { num:8, title:'Unity in Diversity', url:'ncert', pdfUrl:ncertPdf('fees1',8) },
+          { num:9, title:'Family and Community', url:'ncert', pdfUrl:ncertPdf('fees1',9) },
+          { num:10, title:'Grassroots Democracy – Part 1: Governance', url:'ncert', pdfUrl:ncertPdf('fees1',10) },
+          { num:11, title:'Grassroots Democracy – Part 2: Local Government in Rural Areas', url:'ncert', pdfUrl:ncertPdf('fees1',11) },
+          { num:12, title:'Grassroots Democracy – Part 3: Local Government in Urban Areas', url:'ncert', pdfUrl:ncertPdf('fees1',12) },
+          { num:13, title:'The Value of Work', url:'ncert', pdfUrl:ncertPdf('fees1',13) },
+          { num:14, title:'Economic Activities Around Us', url:'ncert', pdfUrl:ncertPdf('fees1',14) }
+        ]
+      },
+      {
+        key: 'english',
+        icon: 'menu_book',
+        title: 'English',
+        bookTitle: 'Poorvi',
+        description: 'Explore stories, poems, and language skills through the NCERT Poorvi textbook.',
+        accent: { bg: '#f0f0ff', border: '#c0c1ff', icon: '#15157d', badge: '#15157d', badgeText: '#fff' },
+        chapters: [
+          { num:1, title:'A Bottle of Dew', url:'ncert', pdfUrl:ncertPdf('fepr1',1) },
+          { num:2, title:'The Kite', url:'ncert', pdfUrl:ncertPdf('fepr1',2) },
+          { num:3, title:'Rama to the Rescue', url:'ncert', pdfUrl:ncertPdf('fepr1',3) },
+          { num:4, title:'The Giving Tree', url:'ncert', pdfUrl:ncertPdf('fepr1',4) },
+          { num:5, title:'Colours of the Rainbow', url:'ncert', pdfUrl:ncertPdf('fepr1',5) }
+        ]
+      },
+      {
+        key: 'hindi',
+        icon: 'translate',
+        title: 'Hindi',
+        bookTitle: 'वसंत / Vasant',
+        description: 'Learn the fundamentals of Hindi grammar, vocabulary, and sentence formation.',
+        accent: { bg: '#fdeaea', border: '#ffdad6', icon: '#ba1a1a', badge: '#ba1a1a', badgeText: '#fff' },
+        chapters: [
+          { num:1, title:'संज्ञा (Nouns)',        url:'ncert' },
+          { num:2, title:'सर्वनाम (Pronouns)',    url:'ncert' },
+          { num:3, title:'क्रिया (Verbs)',        url:'ncert' },
+          { num:4, title:'विशेषण (Adjectives)',   url:'ncert' },
+          { num:5, title:'वाक्य रचना (Sentence Structure)', url:'ncert' },
+        ]
+      }
+    ];
+
+    const class7Subjects = [
+      {key:'mathematics',icon:'calculate',title:'Mathematics',bookTitle:'Ganita Prakash (Part I & II)',description:'NCERT Grade 7 Mathematics · Reprint 2026–27',accent:{bg:'#eff4ff',border:'#c0c1ff',icon:'#15157d',badge:'#2e3192',badgeText:'#fff'},chapters:[
+        'Large Numbers Around Us','Arithmetic Expressions','A Peek Beyond the Point','Expressions using Letter-Numbers','Parallel and Intersecting Lines','Number Play','A Tale of Three Intersecting Lines','Working with Fractions',
+        'Geometric Twins','Operations with Integers','Finding Common Ground','Another Peek Beyond the Point','Connecting the Dots...','Constructions and Tilings','Finding the Unknown'
+      ].map((title,i)=>({num:i+1,title,url:'https://ncert.nic.in/textbook.php',pdfUrl:ncertPdf(i<8?'gegp1':'gegp2',i<8?i+1:i-7)}))},
+      {key:'science',icon:'science',title:'Science',bookTitle:'Curiosity',description:'NCERT Grade 7 Science · 12 chapters',accent:{bg:'#e6faf5',border:'#68dba9',icon:'#006c4a',badge:'#006c4a',badgeText:'#fff'},chapters:[
+        'The Ever-Evolving World of Science','Exploring Substances: Acidic, Basic, and Neutral','Electricity: Circuits and their Components','The World of Metals and Non-metals','Changes Around Us: Physical and Chemical','Adolescence: A Stage of Growth and Change','Heat Transfer in Nature','Measurement of Time and Motion','Life Processes in Animals','Life Processes in Plants','Light: Shadows and Reflection','Earth, Moon, and the Sun'
+      ].map((title,i)=>({num:i+1,title,url:'https://ncert.nic.in/textbook.php',pdfUrl:ncertPdf('gecu1',i+1)}))},
+      {key:'social_science',icon:'public',title:'Social Science',bookTitle:'Exploring Society: India and Beyond (Parts I & II)',description:'NCERT Grade 7 Social Science · 20 chapters',accent:{bg:'#fff3eb',border:'#ffdcc3',icon:'#623200',badge:'#623200',badgeText:'#fff'},chapters:[
+        'Geographical Diversity of India','Understanding the Weather','Climates of India','New Beginnings: Cities and States','The Rise of Empires','The Age of Reorganisation','The Gupta Era: An Age of Tireless Creativity','How the Land Becomes Sacred','From the Rulers to the Ruled: Types of Governments','The Constitution of India — An Introduction','From Barter to Money','Understanding Markets','The Story of Indian Farming','India and Her Neighbours','Empires and Kingdoms: 6th to 10th Centuries','Turning Tides: 11th and 12th Centuries','India, a Home to Many','The State, the Government, and You',"Infrastructure: Engine of India’s Development",'Banks and the Magic of Finance'
+      ].map((title,i)=>({num:i+1,title,url:'https://ncert.nic.in/textbook.php',pdfUrl:i<8?ncertPdf('gees1',i+1):(title==='The Story of Indian Farming'?ncertPdf('gees2',1):'')}))},
+      {key:'english',icon:'menu_book',title:'English',bookTitle:'Poorvi',description:'NCERT Grade 7 English · 5 units',accent:{bg:'#f0f0ff',border:'#c0c1ff',icon:'#15157d',badge:'#15157d',badgeText:'#fff'},chapters:[
+        'Learning Together','Wit and Humour','Dreams and Discoveries','Travel and Adventure','Bravehearts'
+      ].map((title,i)=>({num:i+1,title,url:'https://ncert.nic.in/textbook.php',pdfUrl:ncertPdf('gepr1',i+1)}))},
+      {key:'hindi',icon:'translate',title:'Hindi',bookTitle:'Malhar',description:'NCERT Grade 7 Hindi · 10 chapters',accent:{bg:'#fdeaea',border:'#ffdad6',icon:'#ba1a1a',badge:'#ba1a1a',badgeText:'#fff'},chapters:[
+        'माँ, कह एक कहानी','तीन बुद्धिमान','फूल और काँटा','पानी रे पानी','नहीं होना बीमार','गिरिधर कविराय की कुंडलिया','वर्षा-बहार','बिरजू महाराज से साक्षात्कार','चिड़िया','मीरा के पद'
+      ].map((title,i)=>({num:i+1,title,url:'https://ncert.nic.in/textbook.php',pdfUrl:ncertPdf('ghml1',i+1)}))},
+      {key:'sanskrit',icon:'translate',title:'Sanskrit',bookTitle:'Deepakam',description:'NCERT Grade 7 Sanskrit · lessons and appendices',accent:{bg:'#fff7e8',border:'#f4d7a1',icon:'#925b00',badge:'#925b00',badgeText:'#fff'},chapters:[
+        'वन्दे भारतमातरम्','नित्यं पिबामः सुभाषितरसम्','मित्राय नमः','न लभ्यते चेत् आम्लं द्राक्षाफलम्','सेवा हि परमो धर्मः','क्रीडाम वयं श्लोकान्त्याक्षरीम्','ईशावास्यम् इदं सर्वम्','हितं मनोहारि च दुर्लभं वचः','अन्नाद् भवन्ति भूतानि','दशमः कः?','द्वीपेषु रम्यः द्वीपोऽण्डमानः','वीराङ्गना पन्नाधाया','वर्णमात्रा-परिचयः','परिशिष्टम् १: शब्दरूपाणि','परिशिष्टम् २: धातुरूपाणि'
+      ].map((title,i)=>({num:i+1,title,url:'https://ncert.nic.in/textbook.php',pdfUrl:ncertPdf('gsde1',i+1)}))}
+    ];
+
+    const class8Subjects = [
+      {key:'mathematics',icon:'calculate',title:'Mathematics',bookTitle:'Ganita Prakash (Part I & II)',description:'NCERT Class 8 Mathematics · Reprint 2026–27',accent:{bg:'#eff4ff',border:'#c0c1ff',icon:'#15157d',badge:'#2e3192',badgeText:'#fff'},chapters:[
+        'A Square and A Cube','Power Play','A Story of Numbers','Quadrilaterals','Number Play','We Distribute, Yet Things Multiply','Proportional Reasoning-1',
+        'Fractions in Disguise','The Baudhāyana-Pythagoras Theorem','Proportional Reasoning-2','Exploring Some Geometric Themes','Tales by Dots and Lines','Algebra Play','Area'
+      ].map((title,i)=>({num:i+1,title,url:'https://ncert.nic.in/textbook.php',pdfUrl:ncertPdf(i<7?'hegp1':'hegp2',i<7?i+1:i-6)}))},
+      {key:'science',icon:'science',title:'Science',bookTitle:'Curiosity',description:'NCERT Class 8 Science · 13 chapters',accent:{bg:'#e6faf5',border:'#68dba9',icon:'#006c4a',badge:'#006c4a',badgeText:'#fff'},chapters:[
+        'Exploring the Investigative World of Science','The Invisible Living World: Beyond Our Naked Eye','Health: The Ultimate Treasure','Electricity: Magnetic and Heating Effects','Exploring Forces','Pressure, Winds, Storms, and Cyclones','Particulate Nature of Matter','Nature of Matter: Elements, Compounds, and Mixtures','The Amazing World of Solutes, Solvents, and Solutions','Light: Mirrors and Lenses','Keeping Time with the Skies','How Nature Works in Harmony','Our Home: Earth, a Unique Life Sustaining Planet'
+      ].map((title,i)=>({num:i+1,title,url:'https://ncert.nic.in/textbook.php',pdfUrl:ncertPdf('hecu1',i+1)}))},
+      {key:'social_science',icon:'public',title:'Social Science',bookTitle:'Exploring Society: India and Beyond (Parts I & II)',description:'NCERT Class 8 Social Science · 15 chapters',accent:{bg:'#fff3eb',border:'#ffdcc3',icon:'#623200',badge:'#623200',badgeText:'#fff'},chapters:[
+        'Natural Resources and Their Use','Reshaping India’s Political Map','The Rise of the Marathas','The Colonial Era in India','Universal Franchise and India’s Electoral System','The Parliamentary System: Legislature and Executive','Factors of Production',
+        'World Geography: Some Glimpses',"India's Long Road to Independence",'A Journey Through Indian Architecture','The Role of the Judiciary in Our Society','Citizenship: Rights and Duties','Dynamics of Population',"India's Urban Landscape",'Cultural Currents: 13th to 17th Centuries'
+      ].map((title,i)=>({num:i+1,title,url:'https://ncert.nic.in/textbook.php',pdfUrl:ncertPdf(i<7?'hees1':'hees2',i<7?i+1:i-6)}))},
+      {key:'english',icon:'menu_book',title:'English',bookTitle:'Poorvi',description:'NCERT Class 8 English · 5 units',accent:{bg:'#f0f0ff',border:'#c0c1ff',icon:'#15157d',badge:'#15157d',badgeText:'#fff'},chapters:[
+        'Wit and Wisdom','Values and Dispositions','Mystery and Magic','Environment','Science and Curiosity'
+      ].map((title,i)=>({num:i+1,title,url:'https://ncert.nic.in/textbook.php',pdfUrl:ncertPdf('hepr1',i+1)}))},
+      {key:'hindi',icon:'translate',title:'Hindi',bookTitle:'Malhar',description:'NCERT Class 8 Hindi · 10 chapters',accent:{bg:'#fdeaea',border:'#ffdad6',icon:'#ba1a1a',badge:'#ba1a1a',badgeText:'#fff'},chapters:[
+        'स्वदेश','दो गौरैया','एक आशीर्वाद','हरिद्वार','कबीर के दोहे','एक टोकरी भर मिट्टी','मत बाँधो','नए मेहमान','आदमी का अनुपात','तरुण के स्वप्न'
+      ].map((title,i)=>({num:i+1,title,url:'https://ncert.nic.in/textbook.php',pdfUrl:ncertPdf('hhml1',i+1)}))},
+      {key:'sanskrit',icon:'translate',title:'Sanskrit',bookTitle:'Deepakam',description:'NCERT Class 8 Sanskrit · chapter titles transcribed from the available contents listing; printed numbering retained',accent:{bg:'#fff7e8',border:'#f4d7a1',icon:'#925b00',badge:'#925b00',badgeText:'#fff'},chapters:[
+        {num:1,title:'संगच्छध्वं संवदध्वम्'},{num:2,title:'अल्पानामपि वस्तूनां संहतिः कार्यसाधिका'},{num:3,title:'सुभाषितरसं पीत्वा जीवनं सफलं कुरु'},{num:4,title:'प्रणम्यो देशभक्तोऽयं गोपबन्धुर्महामनाः'},{num:5,title:'गीता सुगीता कर्तव्या'},{num:6,title:'डिजिभारतम् - युगपरिवर्तनम्'},{num:7,title:'मञ्जुलमञ्जूषा सुन्दरसुरभाषा'},{num:8,title:'पश्यत कोणमैशान्यं भारतस्य मनोहरम्'},{num:9,title:'कोऽरुक् ? कोऽरुक् ? कोऽरुक् ?'},{num:10,title:'सन्निमित्ते वरं त्यागः (क-भागः)'},{num:11,title:'सन्निमित्ते वरं त्यागः (ख-भागः)'},{num:12,title:'सम्यग्वर्णप्रयोगेण ब्रह्मलोके महीयते'},{num:13,title:'वर्णोच्चारण-शिक्षा १'},{num:14,title:'व्याकरणम्'},{num:16,title:'धातुरूपाणि'}
+      ].map((ch,i)=>({...ch,url:'https://ncert.nic.in/textbook.php',pdfUrl:ncertPdf('hsde1',ch.num)}))}
+    ];
+
+
+    // Upper-secondary NCERT curriculum datasets. These are selected strictly by
+    // the student's profile class; no other grade's chapters are reused.
+    const makeChapters = (titles, code) => titles.map((title,i)=>({
+      num:i+1,title,url:'https://ncert.nic.in/textbook.php',
+      pdfUrl: code ? `https://ncert.nic.in/textbook/pdf/${code}${String(i+1).padStart(2,'0')}.pdf` : ''
+    }));
+    const palette = {
+      math:{bg:'#eff4ff',border:'#c0c1ff',icon:'#15157d',badge:'#2e3192',badgeText:'#fff'},
+      science:{bg:'#e6faf5',border:'#68dba9',icon:'#006c4a',badge:'#006c4a',badgeText:'#fff'},
+      social:{bg:'#fff3eb',border:'#ffdcc3',icon:'#623200',badge:'#623200',badgeText:'#fff'},
+      english:{bg:'#f0f0ff',border:'#c0c1ff',icon:'#15157d',badge:'#15157d',badgeText:'#fff'},
+      hindi:{bg:'#fdeaea',border:'#ffdad6',icon:'#ba1a1a',badge:'#ba1a1a',badgeText:'#fff'},
+      commerce:{bg:'#fff7e8',border:'#f4d7a1',icon:'#925b00',badge:'#925b00',badgeText:'#fff'}
+    };
+    const subject = (key,title,bookTitle,description,icon,titles,code,accent='math') => ({
+      key,icon,title,bookTitle,description,accent:palette[accent],chapters:makeChapters(titles,code)
+    });
+
+    const class9Subjects = [
+      {...subject('mathematics','Mathematics','Ganita Manjari','NCERT Class 9 · Mathematics','calculate',[
+        'Number Systems','Introduction to Linear Polynomials','Coordinate Geometry','Linear Equations in Two Variables','Introduction to Euclid’s Geometry','Lines and Angles','Triangles','Quadrilaterals','Areas of Parallelograms and Triangles','Circles','Constructions','Heron’s Formula','Surface Areas and Volumes','Statistics'
+      ],'iemh1','math'), chapters:makeChapters(['Orienting Yourself: The Use of Coordinates','Introduction to Linear Polynomials','Coordinate Geometry','Linear Equations in Two Variables','Introduction to Euclid’s Geometry','Lines and Angles','Triangles','Quadrilaterals','Areas of Parallelograms and Triangles','Circles','Constructions','Heron’s Formula','Surface Areas and Volumes','Statistics'],'iemh1').map((ch,i)=>({...ch,pdfUrl:ncertPdf(i<8?'iemh1':'iemh2',i<8?i+1:i-7)})) },
+      subject('science','Science','Exploration','NCERT Class 9 · Science · 2026–27','science',[
+        'Exploring Mixtures and their Separation','Cell: The Building Block of Life','Tissues in Action','Describing Motion Around Us','Exploring Mixtures and their Separation','How Forces Affect Motion','Work, Energy, and Simple Machines','Journey Inside the Atom','Atomic Foundations of Matter','Sound Waves: Characteristics and Applications','Reproduction: How Life Continues','Patterns in Life: Diversity and Classification','Earth as a System: Energy, Matter, and Life'
+      ],'iesc1','science'),
+      subject('social_science','Social Science','India and the Contemporary World · Contemporary India · Democratic Politics · Economics','NCERT Class 9 · Social Science','public',[
+        'The French Revolution','Socialism in Europe and the Russian Revolution','Nazism and the Rise of Hitler','Forest Society and Colonialism','Pastoralists in the Modern World','India – Size and Location','Physical Features of India','Drainage','Climate','Natural Vegetation and Wildlife','Population','What is Democracy? Why Democracy?','Constitutional Design','Electoral Politics','Working of Institutions','Democratic Rights','The Story of Village Palampur','People as Resource','Poverty as a Challenge','Food Security in India'
+      ],'iess1','social'),
+      subject('english','English','Kaveri','NCERT Class 9 · English','menu_book',[
+        'How I Taught My Grandmother to Read','The Pot Maker','A Journey to the Hills','The World of Books','The Girl Who Was a Friend','The Adventures of Toto','The Last Leaf','A House Is Not a Home'
+      ],'iebe1','english')
+    ];
+
+    const class10Subjects = [
+      subject('mathematics','Mathematics','Mathematics','NCERT Class 10 · Mathematics','calculate',[
+        'Real Numbers','Polynomials','Pair of Linear Equations in Two Variables','Quadratic Equations','Arithmetic Progressions','Triangles','Coordinate Geometry','Introduction to Trigonometry','Some Applications of Trigonometry','Circles','Areas Related to Circles','Surface Areas and Volumes','Statistics','Probability'
+      ],'jemh1','math'),
+      subject('science','Science','Science','NCERT Class 10 · Science','science',[
+        'Chemical Reactions and Equations','Acids, Bases and Salts','Metals and Non-metals','Carbon and its Compounds','Life Processes','Control and Coordination','How do Organisms Reproduce?','Heredity','Light – Reflection and Refraction','The Human Eye and the Colourful World','Electricity','Magnetic Effects of Electric Current','Our Environment'
+      ],'jesc1','science'),
+      subject('social_science','Social Science','India and the Contemporary World · Contemporary India · Democratic Politics · Understanding Economic Development','NCERT Class 10 · Social Science','public',[
+        'The Rise of Nationalism in Europe','Nationalism in India','The Making of a Global World','The Age of Industrialisation','Print Culture and the Modern World','Resources and Development','Forest and Wildlife Resources','Water Resources','Agriculture','Minerals and Energy Resources','Manufacturing Industries','Lifelines of National Economy','Power Sharing','Federalism','Gender, Religion and Caste','Political Parties','Outcomes of Democracy','Development','Sectors of the Indian Economy','Money and Credit','Globalisation and the Indian Economy','Consumer Rights'
+      ],'jess1','social'),
+      subject('english','English','First Flight · Footprints Without Feet','NCERT Class 10 · English','menu_book',[
+        'A Letter to God','Nelson Mandela: Long Walk to Freedom','Two Stories about Flying','From the Diary of Anne Frank','Glimpses of India','Mijbil the Otter','Madam Rides the Bus','The Sermon at Benares','The Proposal','A Triumph of Surgery','The Thief’s Story','The Midnight Visitor','A Question of Trust','Footprints Without Feet','The Making of a Scientist','The Necklace','Bholi','The Book That Saved the Earth'
+      ],'jeff1','english')
+    ];
+
+    const class11Subjects = [
+      subject('mathematics','Mathematics','Mathematics','NCERT Class 11 · Mathematics','calculate',[
+        'Sets','Relations and Functions','Trigonometric Functions','Complex Numbers and Quadratic Equations','Linear Inequalities','Permutations and Combinations','Binomial Theorem','Sequences and Series','Straight Lines','Conic Sections','Introduction to Three Dimensional Geometry','Limits and Derivatives','Statistics','Probability'
+      ],'kemh1','math'),
+      subject('physics','Physics','Physics Part I & II','NCERT Class 11 · Physics','science',[
+        'Units and Measurements','Motion in a Straight Line','Motion in a Plane','Laws of Motion','Work, Energy and Power','System of Particles and Rotational Motion','Gravitation','Mechanical Properties of Solids','Mechanical Properties of Fluids','Thermal Properties of Matter','Thermodynamics','Kinetic Theory','Oscillations','Waves'
+      ],'keph1','science'),
+      subject('chemistry','Chemistry','Chemistry Part I & II','NCERT Class 11 · Chemistry','science',[
+        'Some Basic Concepts of Chemistry','Structure of Atom','Classification of Elements and Periodicity in Properties','Chemical Bonding and Molecular Structure','Chemical Thermodynamics','Equilibrium','Redox Reactions','Organic Chemistry: Some Basic Principles and Techniques','Hydrocarbons'
+      ],'kech1','science'),
+      subject('biology','Biology','Biology','NCERT Class 11 · Biology','science',[
+        'The Living World','Biological Classification','Plant Kingdom','Animal Kingdom','Morphology of Flowering Plants','Anatomy of Flowering Plants','Structural Organisation in Animals','Cell: The Unit of Life','Biomolecules','Cell Cycle and Cell Division','Photosynthesis in Higher Plants','Respiration in Plants','Plant Growth and Development','Breathing and Exchange of Gases','Body Fluids and Circulation','Excretory Products and their Elimination','Locomotion and Movement','Neural Control and Coordination','Chemical Coordination and Integration'
+      ],'kebo1','science'),
+      subject('english','English','Hornbill · Snapshots','NCERT Class 11 · English','menu_book',[
+        'The Portrait of a Lady','We’re Not Afraid to Die…','Discovering Tut: The Saga Continues','Landscape of the Soul','The Ailing Planet','The Browning Version','The Adventure','Silk Road','The Summer of the Beautiful White Horse','The Address','Ranga’s Marriage','Albert Einstein at School','Mother’s Day','The Ghat of the Only World','Birth','The Tale of Melon City'
+      ],'kehb1','english'),
+      subject('commerce','Accountancy','Financial Accounting Part I & II','NCERT Class 11 · Commerce','account_balance',[
+        'Introduction to Accounting','Theory Base of Accounting','Recording of Transactions – I','Recording of Transactions – II','Bank Reconciliation Statement','Trial Balance and Rectification of Errors','Depreciation, Provisions and Reserves','Bills of Exchange','Financial Statements – I','Financial Statements – II','Accounts from Incomplete Records'
+      ],'keac1','commerce'),
+      subject('business_studies','Business Studies','Business Studies','NCERT Class 11 · Commerce','business',[
+        'Nature and Purpose of Business','Forms of Business Organisations','Private, Public and Global Enterprises','Business Services','Emerging Modes of Business','Social Responsibilities of Business and Business Ethics','Formation of a Company','Sources of Business Finance','Small Business','Internal Trade','International Business'
+      ],'kebs1','commerce'),
+      subject('economics','Economics','Statistics for Economics · Indian Economic Development','NCERT Class 11 · Economics','monitoring',[
+        'Introduction','Collection of Data','Organisation of Data','Presentation of Data','Measures of Central Tendency','Measures of Dispersion','Correlation','Index Numbers','Use of Statistical Tools','Indian Economy on the Eve of Independence','Indian Economy 1950–1990','Liberalisation, Privatisation and Globalisation','Poverty','Human Capital Formation','Rural Development','Employment','Infrastructure','Environment and Sustainable Development','Comparative Development Experiences'
+      ],'kest1','commerce')
+    ];
+
+    const class12Subjects = [
+      subject('mathematics','Mathematics','Mathematics Part I & II','NCERT Class 12 · Mathematics','calculate',[
+        'Relations and Functions','Inverse Trigonometric Functions','Matrices','Determinants','Continuity and Differentiability','Applications of Derivatives','Integrals','Applications of Integrals','Differential Equations','Vector Algebra','Three Dimensional Geometry','Linear Programming','Probability'
+      ],'lemh1','math'),
+      subject('physics','Physics','Physics Part I & II','NCERT Class 12 · Physics','science',[
+        'Electric Charges and Fields','Electrostatic Potential and Capacitance','Current Electricity','Moving Charges and Magnetism','Magnetism and Matter','Electromagnetic Induction','Alternating Current','Electromagnetic Waves','Ray Optics and Optical Instruments','Wave Optics','Dual Nature of Radiation and Matter','Atoms','Nuclei','Semiconductor Electronics'
+      ],'leph1','science'),
+      subject('chemistry','Chemistry','Chemistry Part I & II','NCERT Class 12 · Chemistry','science',[
+        'Solutions','Electrochemistry','Chemical Kinetics','The d- and f-Block Elements','Coordination Compounds','Haloalkanes and Haloarenes','Alcohols, Phenols and Ethers','Aldehydes, Ketones and Carboxylic Acids','Amines','Biomolecules'
+      ],'lech1','science'),
+      subject('biology','Biology','Biology','NCERT Class 12 · Biology','science',[
+        'Sexual Reproduction in Flowering Plants','Human Reproduction','Reproductive Health','Principles of Inheritance and Variation','Molecular Basis of Inheritance','Evolution','Human Health and Disease','Microbes in Human Welfare','Biotechnology: Principles and Processes','Biotechnology and its Applications','Organisms and Populations','Ecosystem','Biodiversity and Conservation'
+      ],'lebo1','science'),
+      subject('english','English','Flamingo · Vistas','NCERT Class 12 · English','menu_book',[
+        'The Last Lesson','Lost Spring','Deep Water','The Rattrap','Indigo','Poets and Pancakes','The Interview','Going Places','My Mother at Sixty-Six','Keeping Quiet','A Thing of Beauty','A Roadside Stand','Aunt Jennifer’s Tigers','The Third Level','The Tiger King','Journey to the End of the Earth','The Enemy','On the Face of It','Memories of Childhood'
+      ],'lefl1','english'),
+      subject('accountancy','Accountancy','Accountancy Part I & II','NCERT Class 12 · Commerce','account_balance',[
+        'Accounting for Not-for-Profit Organisation','Accounting for Partnership Firms – Fundamentals','Goodwill: Nature and Valuation','Change in Profit-Sharing Ratio','Admission of a Partner','Retirement and Death of a Partner','Dissolution of Partnership Firm','Accounting for Share Capital','Issue and Redemption of Debentures','Financial Statements of a Company','Analysis of Financial Statements','Accounting Ratios','Cash Flow Statement'
+      ],'leac1','commerce'),
+      subject('business_studies','Business Studies','Business Studies Part I & II','NCERT Class 12 · Commerce','business',[
+        'Nature and Significance of Management','Principles of Management','Business Environment','Planning','Organising','Staffing','Directing','Controlling','Financial Management','Financial Markets','Marketing Management','Consumer Protection'
+      ],'lebs1','commerce'),
+      subject('economics','Economics','Introductory Macroeconomics · Indian Economic Development','NCERT Class 12 · Economics','monitoring',[
+        'Introduction','National Income Accounting','Money and Banking','Determination of Income and Employment','Government Budget and the Economy','Open Economy Macroeconomics','Indian Economy on the Eve of Independence','Indian Economy 1950–1990','Liberalisation, Privatisation and Globalisation','Poverty','Human Capital Formation','Rural Development','Employment','Infrastructure','Environment and Sustainable Development','Comparative Development Experiences'
+      ],'lemi1','commerce')
+    ];
+
+    let ncertSubjects = class6Subjects;
+    let activeCurriculumClass = '6';
+    function normalizeClass(value) {
+      const match = String(value || '').match(/\d{1,2}/);
+      return match ? String(Math.min(12,Math.max(1,Number(match[0])))) : '6';
+    }
+    function applyProfileCurriculum(value) {
+      const grade = normalizeClass(value);
+      activeCurriculumClass = grade;
+      const heading = document.querySelector('#ncert-subjects-grid')?.closest('section')?.querySelector('h3');
+      const note = heading?.parentElement?.querySelector('p');
+      const curriculumByGrade = {
+        '1': primaryGrade('1'), '2': primaryGrade('2'), '3': primaryGrade('3'),
+        '4': primaryGrade('4'), '5': primaryGrade('5'),
+        '6': class6Subjects, '7': class7Subjects, '8': class8Subjects,
+        '9': class9Subjects, '10': class10Subjects,
+        '11': class11Subjects, '12': class12Subjects
+      };
+      const supported = Boolean(curriculumByGrade[grade]);
+      ncertSubjects = curriculumByGrade[grade] || [];
+      if (heading) heading.textContent = `Class ${grade} NCERT Subjects`;
+      if (note) note.textContent = supported
+        ? `NCERT curriculum · subject books and chapter links for Class ${grade}.`
+        : `No NCERT catalogue is configured for this class yet.`;
+      const grid = document.getElementById('ncert-subjects-grid');
+      if (grid) grid.innerHTML = '';
+      renderSubjectStats({});
+      if (supported) renderNCERTSubjects();
+      else if (grid) grid.innerHTML = `<div class="col-span-full rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-600">Curriculum is not available for this profile selection.</div>`;
+    }
+
+
+    // ---- Render quick stats in the progress widget ----
+    function renderSubjectStats(stats) {
+      const container = document.getElementById('ncert-subject-stats');
+      if (!container) return;
+      const s = stats || {};
+      const points   = s.ncertPoints   || 0;
+      const quizzes  = s.ncertQuizzes  || 0;
+      const subjDone = s.ncertSubjDone || 0;
+      const avg      = s.ncertAvg      || 0;
+      const pct      = s.ncertProgress || 0;
+      const total    = s.ncertTotal    || 0;
+      container.innerHTML = `
+        <!-- Live stats grid -->
+        <div class="grid grid-cols-2 gap-2 pb-3 border-b border-slate-100">
+          <div class="bg-surface-bright rounded-lg p-2.5 text-center">
+            <p class="text-lg font-extrabold editorial-header text-primary leading-none">${points}</p>
+            <p class="text-[10px] text-on-surface-variant font-medium mt-0.5">Points Earned</p>
+          </div>
+          <div class="bg-surface-bright rounded-lg p-2.5 text-center">
+            <p class="text-lg font-extrabold editorial-header text-secondary leading-none">${quizzes}${total ? '<span class="text-xs font-medium text-on-surface-variant">/' + total + '</span>' : ''}</p>
+            <p class="text-[10px] text-on-surface-variant font-medium mt-0.5">Quizzes Done</p>
+          </div>
+          <div class="bg-surface-bright rounded-lg p-2.5 text-center">
+            <p class="text-lg font-extrabold editorial-header text-on-tertiary-container leading-none">${subjDone}</p>
+            <p class="text-[10px] text-on-surface-variant font-medium mt-0.5">Subjects Done</p>
+          </div>
+          <div class="bg-surface-bright rounded-lg p-2.5 text-center">
+            <p class="text-lg font-extrabold editorial-header text-primary leading-none">${avg > 0 ? avg.toFixed(1) + '%' : '—'}</p>
+            <p class="text-[10px] text-on-surface-variant font-medium mt-0.5">Avg Score</p>
+          </div>
+        </div>
+        <!-- Subject chapter counts -->
+        ${ncertSubjects.map(subj => `
+          <div class="flex items-center justify-between text-xs py-1.5 border-b border-slate-50 last:border-0">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-sm" style="color:${subj.accent.icon}">${subj.icon}</span>
+              <span class="font-semibold text-on-surface">${subj.title}</span>
+            </div>
+            <span class="font-bold" style="color:${subj.accent.icon}">${subj.chapters.length} ch</span>
+          </div>
+        `).join('')}
+      `;
+    }
+
+    // ---- Render full subject cards ----
+    function getNCERTCatalogueUrl(subject) {
+      if (subject.catalogUrl) return subject.catalogUrl;
+      const firstPdf = subject.chapters?.find(ch => ch.pdfUrl)?.pdfUrl || '';
+      const filePart = firstPdf.split('/textbook/pdf/')[1] || '';
+      const match = filePart.match(/^([a-z]{4}[0-9])[0-9]{2}\.pdf$/i);
+      return match ? `https://ncert.nic.in/textbook.php?${match[1]}=0-${Math.max(1, subject.chapters.length)}` : '';
+    }
+
+    function renderNCERTSubjects() {
+      const grid = document.getElementById('ncert-subjects-grid');
+      if (!grid) return;
+
+      ncertSubjects.forEach((subj, si) => {
+        const card = document.createElement('div');
+        card.className = 'bg-surface-container-lowest rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.06)] overflow-hidden border';
+        card.style.borderColor = subj.accent.border;
+
+        const subjectCatalogueUrl = getNCERTCatalogueUrl(subj);
+        const chaptersHTML = subj.chapters.map(ch => `
+          <button type="button" onclick="openNCERTPDF(decodeURIComponent('${encodeURIComponent(ch.title).replace(/'/g,'%27')}'), '${encodeURIComponent(ch.pdfUrl || '').replace(/'/g,'%27')}', decodeURIComponent('${encodeURIComponent(subj.bookTitle).replace(/'/g,'%27')}'), decodeURIComponent('${encodeURIComponent(subjectCatalogueUrl).replace(/'/g,'%27')}'))" class="w-full text-left flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors group border-b border-slate-50 last:border-0">
+            <span class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-extrabold flex-shrink-0"
+              style="background:${subj.accent.badge};color:${subj.accent.badgeText}">${ch.num}</span>
+            <span class="text-sm text-on-surface font-medium group-hover:text-primary transition-colors leading-snug">${ch.title}</span>
+            <span class="material-symbols-outlined text-sm text-slate-300 group-hover:text-primary ml-auto flex-shrink-0 transition-colors">picture_as_pdf</span>
+          </button>
+        `).join('');
+
+        card.innerHTML = `
+          <!-- Card Header -->
+          <div class="p-5 cursor-pointer select-none" onclick="toggleNCERTCard(${si})" style="background:${subj.accent.bg}">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style="background:${subj.accent.badge}">
+                  <span class="material-symbols-outlined text-white">${subj.icon}</span>
+                </div>
+                <div>
+                  <h4 class="editorial-header text-base font-extrabold text-indigo-900 leading-tight">${subj.title}</h4>
+                  <p class="text-[10px] uppercase tracking-widest font-bold mt-0.5" style="color:${subj.accent.icon}">${subj.bookTitle}</p>
+                </div>
+              </div>
+              <div class="flex flex-col items-end gap-1 flex-shrink-0">
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:${subj.accent.badge};color:${subj.accent.badgeText}">${subj.chapters.length} Chapters</span>
+                <span class="material-symbols-outlined text-sm transition-transform duration-200" id="ncert-chevron-${si}" style="color:${subj.accent.icon}">expand_more</span>
+              </div>
+            </div>
+            <p class="text-xs text-on-surface-variant mt-3 leading-relaxed">${subj.description}</p>
+          </div>
+          <!-- Chapter List (collapsed by default) -->
+          <div id="ncert-chapters-${si}" class="hidden">
+            <div class="px-4 py-2.5 flex items-center justify-between bg-surface-bright border-b" style="border-color:${subj.accent.border}">
+              <span class="text-[10px] uppercase tracking-widest font-bold" style="color:${subj.accent.icon}">All Chapters</span>
+              <span class="text-[10px] font-semibold" style="color:${subj.accent.icon}">PDF reader opens inside RiSync</span>
+            </div>
+            <div class="max-h-64 overflow-y-auto">
+              ${chaptersHTML}
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function openNCERTPDF(title, pdfUrl, bookTitle, catalogUrl) {
+      const modal = document.getElementById('ncertPdfModal');
+      const frame = document.getElementById('ncertPdfFrame');
+      const unavailable = document.getElementById('ncertPdfUnavailable');
+      const download = document.getElementById('ncertPdfDownload');
+      const subtitle = document.getElementById('ncertPdfSubtitle');
+      document.getElementById('ncertPdfTitle').textContent = title || 'NCERT Textbook';
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+
+      const isDirectPDF = pdfUrl && /^https:\/\/ncert\.nic\.in\/textbook\/pdf\/[a-z0-9]+\.pdf(?:$|[?#])/i.test(pdfUrl);
+      const fallbackCatalogue = catalogUrl && /^https:\/\/ncert\.nic\.in\/textbook\.php\?[a-z0-9]+=[a-z0-9-]+$/i.test(catalogUrl);
+      if (isDirectPDF) {
+        subtitle.textContent = (bookTitle || 'NCERT textbook') + ' · RiSync PDF Reader';
+        unavailable.classList.add('hidden');
+        unavailable.classList.remove('flex');
+        frame.classList.remove('hidden');
+        frame.src = pdfUrl + (pdfUrl.includes('#') ? '' : '#toolbar=1&navpanes=0&view=FitH');
+        download.href = pdfUrl;
+        download.textContent = 'Download PDF';
+        download.classList.remove('hidden');
+      } else if (fallbackCatalogue) {
+        // Never strand the learner on a dead-end error panel. If an individual
+        // chapter URL is absent, show the official NCERT book catalogue in-app.
+        subtitle.textContent = (bookTitle || 'NCERT textbook') + ' · NCERT chapter catalogue';
+        unavailable.classList.add('hidden');
+        unavailable.classList.remove('flex');
+        frame.classList.remove('hidden');
+        frame.src = catalogUrl;
+        download.href = catalogUrl;
+        download.textContent = 'Open NCERT';
+        download.classList.toggle('hidden', !fallbackCatalogue);
+      } else {
+        subtitle.textContent = 'NCERT preview link needs verification';
+        frame.removeAttribute('src');
+        frame.classList.add('hidden');
+        unavailable.classList.remove('hidden');
+        unavailable.classList.add('flex');
+        download.classList.add('hidden');
+        const msg = unavailable.querySelector('p');
+        if (msg) msg.textContent = 'This chapter has no verified NCERT PDF or catalogue address yet.';
+      }
+    }
+    function closeNCERTPDF() {
+      const modal = document.getElementById('ncertPdfModal');
+      const frame = document.getElementById('ncertPdfFrame');
+      if (frame) frame.removeAttribute('src');
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', event => { if (event.key === 'Escape') closeNCERTPDF(); });
+
+    function toggleNCERTCard(index) {
+      const list = document.getElementById('ncert-chapters-' + index);
+      const chevron = document.getElementById('ncert-chevron-' + index);
+      const isHidden = list.classList.contains('hidden');
+      list.classList.toggle('hidden', !isHidden);
+      chevron.style.transform = isHidden ? 'rotate(180deg)' : '';
+    }
+
+    applyProfileCurriculum((window.risyncUserData && (window.risyncUserData.class || window.risyncUserData.grade || window.risyncUserData.className)) || '6');
+  </script>
+</body>
+</html>
