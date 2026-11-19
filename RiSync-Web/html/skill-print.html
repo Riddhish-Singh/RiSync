@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skill Print | RiSync</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=Playfair+Display:wght@600;700;800&family=Great+Vibes&family=Material+Symbols+Outlined:wght,FILL@400,0..1&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f8f9ff;--card:#fff;--ink:#0d1c2e;--mut:#464652;--line:#d5e3fc;--pri:#15157d;--pri2:#2e3192;--soft:#eff4ff;--ok:#006c4a;--bad:#ba1a1a}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55}
+h1,h2,h3,.hd{font-family:Manrope,sans-serif;letter-spacing:-.02em;margin:0}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+:focus-visible{outline:3px solid #9da1ff;outline-offset:2px}
+.ms{font-family:'Material Symbols Outlined';font-weight:400;font-style:normal;line-height:1;display:inline-block;font-size:24px;vertical-align:middle}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+header{position:sticky;top:0;z-index:20;background:rgba(248,249,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar1{display:flex;align-items:center;gap:14px;height:62px}
+.logo{font:800 20px Manrope;color:var(--pri);display:flex;align-items:center;gap:8px}
+nav{margin-left:auto;display:flex;gap:6px;align-items:center}
+nav a{padding:8px 12px;border-radius:10px;color:var(--mut);text-decoration:none;font-weight:600;font-size:14px}
+nav a:hover{background:var(--soft);color:var(--pri)}
+.btn{background:linear-gradient(15deg,#15157d,#2e3192);color:#fff;padding:10px 16px;border-radius:12px;font-weight:600;font-size:14px}
+.btn.o{background:var(--soft);color:var(--pri);border:1.5px solid #c7c5d4}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.chip{font-size:12px;font-weight:600;padding:4px 10px;border-radius:99px;background:var(--soft);color:var(--pri)}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:32px;align-items:center;padding:44px 0 28px}
+.hero h1{font-size:clamp(34px,5vw,56px);line-height:1.05;color:var(--pri)}
+.hero p{font-size:17px;color:var(--mut);max-width:46ch;margin:16px 0 22px}
+.stats{display:flex;gap:26px;flex-wrap:wrap}
+.stats b{font:800 28px Manrope;color:var(--pri);display:block;line-height:1}
+.stats span{font-size:13px;color:var(--mut)}
+.print{width:100%;max-width:420px;margin:auto;display:block}
+.rg{cursor:pointer}
+.rg .bg{fill:none;stroke:#dce9ff;stroke-width:10}
+.rg .fg{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset 1.4s cubic-bezier(.2,.8,.2,1)}
+.rg:hover .bg,.rg:focus-visible .bg{stroke:#c0c1ff}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:center;margin-top:10px;font-size:13px;font-weight:600}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+h2.sec{font-size:26px;margin:36px 0 16px;color:var(--pri)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px}
+.card{display:block;text-align:left;width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:20px;padding:20px;transition:border-color .2s,box-shadow .2s}
+.card:hover{border-color:var(--c);box-shadow:0 8px 28px rgba(21,21,125,.1)}
+.ic{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:var(--c);color:#fff;margin-bottom:12px}
+.card h3{font-size:19px}
+.card p{margin:4px 0 14px;color:var(--mut);font-size:14px}
+.pb{height:8px;background:#e6eeff;border-radius:9px;overflow:hidden}
+.pb i{display:block;height:100%;background:var(--c);border-radius:9px;transition:width .5s}
+.meta{display:flex;justify-content:space-between;margin-top:8px;font-size:12.5px;color:var(--mut);font-weight:500}
+.crow{display:flex;align-items:center;gap:14px;background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:14px 18px;margin-bottom:10px}
+.crow .ms{color:var(--c)}.crow.lock .ms{color:#9a9aa8}
+.crow div{flex:1}.crow small{display:block;color:var(--mut)}
+/* panel */
+.shade{position:fixed;inset:0;background:rgba(13,28,46,.5);z-index:40;display:none}
+.shade.on{display:block}
+.panel{position:fixed;top:0;right:0;bottom:0;width:min(640px,100%);background:var(--bg);z-index:41;overflow-y:auto;padding:22px;transform:translateX(100%);transition:transform .3s;box-shadow:-10px 0 40px rgba(0,0,0,.15)}
+.panel.on{transform:none}
+.ph{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.ph h2{font-size:26px;flex:1}
+.x{width:40px;height:40px;border-radius:12px;background:var(--soft)}
+.les{background:var(--card);border:1.5px solid var(--line);border-radius:16px;margin-top:10px;overflow:hidden}
+.les>button{display:flex;gap:12px;align-items:center;width:100%;padding:14px 16px;text-align:left;font-weight:600}
+.dot{width:26px;height:26px;border-radius:50%;border:2px solid #c7c5d4;display:grid;place-items:center;flex:none;color:#fff;font-size:16px}
+.les.d .dot{background:var(--ok);border-color:var(--ok)}
+.lb{display:none;padding:0 16px 16px 54px;color:var(--mut);font-size:14.5px}
+.les.o .lb{display:block}
+.box{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:16px;margin-top:16px}
+.box h3{font-size:18px;margin-bottom:8px}
+.q{margin:14px 0}.q p{font-weight:600;margin:0 0 6px}
+.q label{display:block;padding:8px 12px;border:1.5px solid var(--line);border-radius:10px;margin-top:6px;cursor:pointer;font-size:14.5px}
+.q label:has(input:checked){border-color:var(--pri);background:var(--soft)}
+.q .r{border-color:var(--ok);background:#e3fbf0}.q .w{border-color:var(--bad);background:#ffdad6}
+.q input{margin-right:8px}
+.note{font-size:14px;margin-top:10px;font-weight:600}
+/* chess */
+.brd{display:grid;grid-template-columns:repeat(8,1fr);width:min(100%,360px);aspect-ratio:1;border:2px solid var(--pri);border-radius:6px;overflow:hidden;margin:10px 0}
+.sq{position:relative;display:grid;place-items:center;font-size:clamp(20px,5.5vw,32px);color:var(--pri);padding:0;border-radius:0}
+.sq.l{background:#eff4ff}.sq.k{background:#9da1ff}
+.sq.m::after{content:"";width:34%;height:34%;border-radius:50%;background:rgba(0,108,74,.7);position:absolute}
+.sq.c::after{content:"";inset:12%;border:3px solid #ba1a1a;border-radius:50%;position:absolute}
+.pcs{display:flex;gap:6px;flex-wrap:wrap}
+.pcs button{width:44px;height:44px;border-radius:12px;background:var(--soft);font-size:24px;color:var(--pri)}
+.pcs button.on{background:var(--pri);color:#fff}
+/* piano */
+.pi{position:relative;display:flex;height:150px;user-select:none;touch-action:manipulation}
+.wk{flex:1;background:#fff;border:1px solid #9a9aa8;border-radius:0 0 8px 8px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;font-size:11px;font-weight:600;color:#777683}
+.wk.on{background:#c0c1ff}
+.bk{position:absolute;top:0;width:5.2%;height:92px;background:#0d1c2e;border-radius:0 0 6px 6px;z-index:2;transform:translateX(-50%)}
+.bk.on{background:var(--pri2)}
+/* certificate */
+.cw{position:fixed;inset:0;z-index:60;background:rgba(13,28,46,.6);display:none;place-items:center;padding:16px;overflow:auto}
+.cw.on{display:grid}
+.cin{width:min(860px,100%);min-width:620px}
+.cert{position:relative;aspect-ratio:1.414;background:#fffdf8;border-radius:4px;container-type:inline-size;box-shadow:0 24px 70px rgba(0,0,0,.35);-webkit-print-color-adjust:exact;print-color-adjust:exact;color:#0d1c2e;overflow:hidden}
+.ci{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:5.4cqw 8cqw 4.6cqw;text-align:center}
+.ci::before{content:"";position:absolute;inset:2cqw;border:.55cqw solid var(--c);border-radius:2px;pointer-events:none}
+.ci::after{content:"";position:absolute;inset:3.2cqw;border:.16cqw solid #b8892b;pointer-events:none}
+.cn{position:absolute;width:6cqw;height:6cqw;border:.4cqw solid #b8892b;z-index:1}
+.cn.a{left:4.4cqw;top:4.4cqw;border-right:0;border-bottom:0}.cn.b{right:4.4cqw;top:4.4cqw;border-left:0;border-bottom:0}
+.cn.c{left:4.4cqw;bottom:4.4cqw;border-right:0;border-top:0}.cn.d{right:4.4cqw;bottom:4.4cqw;border-left:0;border-top:0}
+.wm{position:absolute;left:50%;top:50%;width:62cqw;transform:translate(-50%,-50%);opacity:.07;pointer-events:none}
+.ci>*{position:relative}
+.cbrand{display:flex;align-items:center;gap:1cqw;font:800 1.9cqw Manrope;color:var(--c);letter-spacing:.12em}
+.cbrand .ms{font-size:2.6cqw}
+.ctitle{font:700 5.4cqw/1.1 'Playfair Display',Georgia,serif;color:#15157d;margin:0}
+.orn{display:flex;align-items:center;justify-content:center;gap:1.2cqw;margin:1.2cqw 0 0}
+.orn i{height:.16cqw;width:11cqw;background:linear-gradient(90deg,transparent,#b8892b)}
+.orn i+b+i{background:linear-gradient(270deg,transparent,#b8892b)}
+.orn b{width:1.1cqw;height:1.1cqw;background:#b8892b;transform:rotate(45deg)}
+.cp{margin:0;font-size:1.75cqw;color:#464652}
+.cnm{font:400 8cqw/1.15 'Great Vibes','Brush Script MT',cursive;color:var(--c);padding:0 5cqw .3cqw;min-width:44%;background:linear-gradient(90deg,transparent,#b8892b,transparent) bottom/100% .18cqw no-repeat;word-break:break-word}
+.cdesc{margin:0;font-size:1.85cqw;max-width:62cqw;line-height:1.45}
+.ctrack{font:800 3.3cqw Manrope;color:var(--c);margin:0;letter-spacing:-.01em}
+.cstats{display:flex;gap:1.4cqw;justify-content:center;flex-wrap:wrap}
+.cstats span{font:600 1.45cqw Inter;color:#464652;padding:.5cqw 1.5cqw;border:.14cqw solid #d9c48a;border-radius:99cqw;background:#fffaf0}
+.cfoot{width:100%;display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:2cqw}
+.cfoot>div{font-size:1.4cqw;color:#464652}
+.cfoot b{display:block;font:600 1.9cqw Manrope;color:#0d1c2e;border-bottom:.14cqw solid #8a8a98;padding-bottom:.5cqw;margin-bottom:.5cqw}
+.cfoot .sg{font:400 3.6cqw 'Great Vibes',cursive;color:#15157d;font-weight:400;line-height:1.1}
+.seal{width:11.5cqw;height:11.5cqw;border-radius:50%;background:conic-gradient(#e8c867,#b8892b,#f3dc8c,#b8892b,#e8c867);display:grid;place-items:center;box-shadow:0 .5cqw 1.4cqw rgba(0,0,0,.25)}
+.seal i{width:9cqw;height:9cqw;border-radius:50%;background:var(--c);display:grid;place-items:center;color:#fff;border:.4cqw dashed rgba(255,255,255,.75)}
+.seal .ms{font-size:4.8cqw}
+.cid{font:500 1.3cqw Inter;color:#777683;letter-spacing:.04em}
+.cact{display:flex;gap:10px;margin-top:12px;align-items:center;flex-wrap:wrap}
+.cact input{flex:1;min-width:180px;padding:10px 12px;border-radius:10px;border:1.5px solid #c7c5d4;font:inherit}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#233144;color:#eaf1ff;padding:11px 18px;border-radius:12px;font-size:14px;z-index:80;opacity:0;pointer-events:none;transition:opacity .3s}
+.toast.on{opacity:1}
+@media(max-width:860px){.hero{grid-template-columns:1fr}nav a{display:none}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+@media print{@page{size:landscape;margin:0}body *{visibility:hidden}#cert,#cert *{visibility:visible}#cert{position:fixed;inset:0;width:100vw;height:100vh;aspect-ratio:auto;box-shadow:none;border-radius:0}}
+</style>
+</head>
+<body>
+<header><div class="wrap bar1">
+  <div class="logo"><span class="ms">fingerprint</span>Skill Print</div>
+  <nav><a href="#tracks">Tracks</a><a href="#certs">Certificates</a>
+    <span class="chip" id="sync">Saved on this device</span>
+    <button class="btn o" id="auth" data-a="auth">Sign in</button></nav>
+</div></header>
+
+<main class="wrap">
+  <section class="hero">
+    <div>
+      <h1>Print your skills, one ring at a time</h1>
+      <p>Chess, coding, video editing, AI, vibe coding and keyboard. Finish the lessons, pass the quiz and earn a certificate you can print.</p>
+      <div class="stats" id="stats"></div>
+    </div>
+    <div><svg class="print" viewBox="-130 -130 260 260" id="ring" role="img" aria-label="Your skill print"></svg><div class="legend" id="legend"></div></div>
+  </section>
+  <h2 class="sec" id="tracks">Learning tracks</h2>
+  <div class="grid" id="cards"></div>
+  <h2 class="sec" id="certs">Certificates</h2>
+  <div id="certlist"></div>
+  <p style="height:40px"></p>
+</main>
+
+<div class="shade" id="shade" data-a="close"></div>
+<aside class="panel" id="panel" aria-label="Track"></aside>
+<div class="cw" id="cw"><div class="cin" id="cin"></div></div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const T=[
+{id:'chess',name:'Chess',icon:'psychology',c:'#15157d',blurb:'Learn the board, the pieces and how to win.',
+ L:[['The board and the pieces','The board has 64 squares and a light square sits in each player\u2019s right-hand corner. Each side starts with 16 pieces. Rough values: pawn 1, knight 3, bishop 3, rook 5, queen 9. The king is priceless.'],
+    ['How each piece moves','Rooks slide straight, bishops slide diagonally, the queen does both, the king steps one square, and the knight jumps in an L. Pawns move forward one square (two from the start) and capture diagonally. Try every piece in the practice board below.'],
+    ['Check, checkmate and special moves','Check means the king is attacked. Checkmate means it cannot escape and the game is won. Stalemate (no legal move, no check) is a draw. Castling moves the king two squares toward a rook and the rook hops over it, but only if neither has moved.'],
+    ['Opening principles','Fight for the centre with pawns, develop knights and bishops early, castle to protect your king, and avoid moving the same piece twice or bringing the queen out too soon.']],
+ Q:[['Which piece is worth about 9 points?',['Rook','Queen','Bishop'],1],['How does a bishop move?',['Diagonally','In an L shape','One square only'],0],['Which is a good opening principle?',['Attack with the queen at once','Control the centre','Move the edge pawns first'],1]],
+ cert:'completed the Chess track: board, pieces, checkmate and opening principles.'},
+{id:'coding',name:'Coding',icon:'code',c:'#006c4a',blurb:'Variables, loops, functions and debugging.',
+ L:[['Variables and data types','A variable is a named box for a value. Common types are numbers, text (strings), true/false (booleans), lists (arrays) and objects. In JavaScript: let age = 12;'],
+    ['Decisions and loops','if / else lets a program choose a path. Loops such as for and while repeat work so you never write the same line twice.'],
+    ['Functions','A function is a reusable recipe: function add(a, b) { return a + b; }. Give it inputs, get an output, and call it as many times as you like.'],
+    ['Debugging','Read the error message first, then reproduce the bug with the smallest example. Use console.log to see what your code really does, and change one thing at a time.']],
+ Q:[['What does a loop do?',['Repeats code','Stores a value','Deletes a file'],0],['Which keyword creates a function in JavaScript?',['loop','function','store'],1],['What is the best first step when debugging?',['Rewrite everything','Read the error message','Ignore it'],1]],
+ cert:'completed the Coding track: variables, logic, loops, functions and debugging.'},
+{id:'video',name:'Video editing',icon:'movie',c:'#d46a00',blurb:'Cut, mix and export videos people want to watch.',
+ L:[['Organise your footage','Sort clips into folders (bins) by scene before you cut. Name them clearly and keep a backup. Good organisation saves more time than any shortcut.'],
+    ['The cut','Cut on action so movement hides the edit. A J-cut lets the next clip\u2019s audio start before its picture, and an L-cut keeps the old audio playing over the new picture.'],
+    ['Audio comes first','Viewers forgive soft video but not bad sound. Remove noise, level voices evenly, and lower music under speech (ducking).'],
+    ['Colour and export','Fix exposure and white balance, then add a look. Export H.264 MP4 at 1080p: 16:9 for YouTube, 9:16 for Shorts and Reels.']],
+ Q:[['Where should you usually cut?',['On action','In silence only','Never on movement'],0],['What do viewers notice more?',['Bad audio','Font choice','Clip order in the bin'],0],['Which format works for most uploads?',['H.264 MP4','RAW','GIF'],0]],
+ cert:'completed the Video Editing track: organising, cutting, audio, colour and export.'},
+{id:'ai',name:'Using AI wisely',icon:'smart_toy',c:'#0e7490',blurb:'Get real help from AI without losing your own thinking.',
+ L:[['What AI really is','AI chat tools predict likely text. They can sound sure and still be wrong, which is called hallucination. Treat answers as a draft, not a fact.'],
+    ['Prompt well','Give a role, the context, the task and the format you want. \u201CYou are a maths tutor. I am in Class 7. Explain fractions in 5 steps.\u201D beats \u201Cfractions\u201D.'],
+    ['Verify and protect','Check important facts with a trusted source. Never share passwords, API keys, addresses or private details about other people.'],
+    ['Learn, don\u2019t outsource','Try the problem first, then ask for hints instead of full answers. Say when AI helped you. The goal is that you understand it, not that the answer exists.']],
+ Q:[['What is a hallucination?',['A confident but wrong answer','A slow reply','A saved prompt'],0],['Which is NOT safe to paste into AI?',['A maths question','Your password','A topic for an essay'],1],['A smart way to study with AI is to:',['Copy every answer','Try first, then ask for hints','Skip reading the lesson'],1]],
+ cert:'completed the Using AI Wisely track: prompting, verifying, privacy and honest learning.'},
+{id:'vibe',name:'Vibe coding',icon:'auto_awesome',c:'#7c3aed',blurb:'Build apps by describing them, and stay in control.',
+ L:[['What vibe coding is','You describe what you want in plain words, an AI writes the code, and you steer by testing and giving feedback. You are the product owner, so you still need to know what \u201Cdone\u201D looks like.'],
+    ['Write a spec first','Before prompting, write the goal, who uses it, the must-have features and the limits (for example: one HTML file, works on phones). A clear spec gives better code.'],
+    ['Iterate in small steps','Ask for one change at a time, test it, then keep or undo. Save working versions so you can go back when something breaks.'],
+    ['Review and secure','Read what the AI wrote and ask it to explain parts you don\u2019t understand. Never put secret keys in front-end code, and test odd inputs like empty fields.']],
+ Q:[['What should you do before prompting a big app?',['Write a clear spec','Ask for everything at once','Skip planning'],0],['How should you request changes?',['One small step at a time','Rewrite the whole app','Only by guessing'],0],['Where must secret API keys NOT go?',['Front-end code','A server','A private vault'],0]],
+ cert:'completed the Vibe Coding track: specs, small iterations, review and security.'},
+{id:'keys',name:'Keyboard (piano)',icon:'piano',c:'#be185d',blurb:'Find the notes, play a scale and learn a chord.',
+ L:[['Know the keys','Black keys come in groups of two and three. The white key just left of the two black keys is C. The pattern repeats every 12 keys.'],
+    ['Notes and the C major scale','White keys are named A to G. Play C D E F G A B C going up and you have the C major scale. Use the piano below.'],
+    ['Hand position','Fingers are numbered 1 (thumb) to 5 (little finger). Keep your wrist level and fingers curved. In a scale, tuck your thumb under after finger 3.'],
+    ['Rhythm and your first chord','In 4/4 time a whole note lasts 4 beats, a half note 2 and a quarter note 1. Count 1-2-3-4 out loud. Play C, E and G together for a C major chord.']],
+ Q:[['Which key is C?',['Left of the two black keys','Right of the three black keys','Any black key'],0],['Which notes make a C major chord?',['C E G','D F A','A B C'],0],['How many beats is a quarter note in 4/4?',['1','2','4'],0]],
+ cert:'completed the Keyboard track: key names, C major scale, fingering, rhythm and chords.'}
+];
+const MASTER={id:'master',name:'Skill Print Master',c:'#15157d',cert:'earned certificates in all six skills: Chess, Coding, Video Editing, Using AI Wisely, Vibe Coding and Keyboard.'};
+const KEY='skillprint.v1';
+let S={done:{},quiz:{},certs:{},name:''};
+try{S=Object.assign(S,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){}
+let user=null,F=null,db=null,AU=null,cur=null,openL=0,QR={},firstRing=true,tm;
+const prog=t=>((S.done[t.id]||[]).length/4)*.8+(S.certs[t.id]?.2:0);
+const total=()=>T.reduce((a,t)=>a+prog(t),0)/T.length;
+const fmt=d=>new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._);t._=setTimeout(()=>t.classList.remove('on'),2800)}
+function setSync(s){$('#sync').textContent={local:'Saved on this device',synced:'Synced to your account',saving:'Saving\u2026',error:'Sync failed, saved on device'}[s]}
+function save(){localStorage.setItem(KEY,JSON.stringify(S));if(db&&user){setSync('saving');clearTimeout(tm);tm=setTimeout(push,700)}}
+async function push(){try{await F.setDoc(F.doc(db,'users',user.uid,'skillprint','progress'),{...S,updatedAt:new Date().toISOString()});setSync('synced')}catch(e){console.warn(e);setSync('error')}}
+async function pull(){
+  try{const s=await F.getDoc(F.doc(db,'users',user.uid,'skillprint','progress'));
+    if(s.exists()){const c=s.data();
+      for(const k in c.done||{})S.done[k]=[...new Set([...(S.done[k]||[]),...c.done[k]])];
+      for(const k in c.quiz||{})S.quiz[k]=Math.max(S.quiz[k]||0,c.quiz[k]);
+      S.certs={...(c.certs||{}),...S.certs};S.name=S.name||c.name||''}
+    save()}catch(e){console.warn(e);setSync('error')}
+}
+/* ---------- render ---------- */
+function renderHero(){
+  const all=T.reduce((a,t)=>a+(S.done[t.id]||[]).length,0),n=T.filter(t=>S.certs[t.id]).length;
+  $('#stats').innerHTML=`<div><b>${Math.round(total()*100)}%</b><span>printed</span></div><div><b>${all}/24</b><span>lessons done</span></div><div><b>${n+(S.certs.master?1:0)}</b><span>certificates</span></div>`;
+  let s='';T.forEach((t,i)=>{const r=44+i*14,c=2*Math.PI*r,p=prog(t);
+    s+=`<g class="rg" data-a="open" data-t="${t.id}" tabindex="0" role="button" aria-label="${t.name}, ${Math.round(p*100)} percent"><circle r="${r}" class="bg"/><circle r="${r}" class="fg" stroke="${t.c}" stroke-dasharray="${c}" stroke-dashoffset="${firstRing?c:c*(1-p)}" data-o="${c*(1-p)}" transform="rotate(${-90+i*23})"/></g>`});
+  s+=`<text text-anchor="middle" y="6" font-family="Manrope" font-weight="800" font-size="20" fill="#15157d">${Math.round(total()*100)}%</text>`;
+  $('#ring').innerHTML=s;
+  if(firstRing){firstRing=false;requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelectorAll('.fg').forEach(e=>e.style.strokeDashoffset=e.dataset.o)))}
+  $('#legend').innerHTML=T.map(t=>`<span><i style="background:${t.c}"></i>${t.name}</span>`).join('');
+}
+function renderCards(){
+  $('#cards').innerHTML=T.map(t=>{const d=(S.done[t.id]||[]).length;
+    return `<button class="card" style="--c:${t.c}" data-a="open" data-t="${t.id}"><div class="ic"><span class="ms">${t.icon}</span></div><h3>${t.name}</h3><p>${t.blurb}</p><div class="pb"><i style="width:${prog(t)*100}%"></i></div><div class="meta"><span>${d} of 4 lessons</span><span>${S.certs[t.id]?'Certificate earned':d==4?'Quiz ready':'In progress'}</span></div></button>`}).join('');
+}
+function renderCerts(){
+  const row=(t,ok,note)=>`<div class="crow ${ok?'':'lock'}" style="--c:${t.c}"><span class="ms">${ok?'workspace_premium':'lock'}</span><div><b>${t.name}</b><small>${ok?'Earned on '+fmt(S.certs[t.id].date):note}</small></div>${ok?`<button class="btn o" data-a="cert" data-t="${t.id}">View and print</button>`:''}</div>`;
+  $('#certlist').innerHTML=T.map(t=>row(t,!!S.certs[t.id],'Finish 4 lessons and pass the quiz')).join('')+row(MASTER,!!S.certs.master,'Earn all six track certificates');
+}
+function renderPanel(){
+  const t=T.find(x=>x.id===cur);if(!t)return;const d=S.done[t.id]||[],ready=d.length==4,r=QR[t.id];
+  let h=`<div class="ph"><div class="ic" style="--c:${t.c};margin:0"><span class="ms">${t.icon}</span></div><h2>${t.name}</h2><button class="x" data-a="close" aria-label="Close"><span class="ms">close</span></button></div><div class="pb" style="--c:${t.c}"><i style="width:${prog(t)*100}%"></i></div>`;
+  h+=t.L.map((l,i)=>`<div class="les ${d.includes(i)?'d':''} ${openL===i?'o':''}"><button data-a="les" data-i="${i}"><span class="dot">${d.includes(i)?'\u2713':''}</span>${l[0]}</button><div class="lb"><p style="margin:0 0 12px">${l[1]}</p><button class="btn" data-a="done" data-i="${i}">${d.includes(i)?'Mark as not done':'Mark as done'}</button></div></div>`).join('');
+  if(t.id==='chess')h+=`<div class="box"><h3>Practice board</h3><div class="pcs" id="pcs"></div><div class="brd" id="brd"></div><p class="note" style="color:var(--mut);font-weight:400">Pick a piece, then tap a square. Green dots are moves, red rings are captures.</p></div>`;
+  if(t.id==='keys')h+=`<div class="box"><h3>Practice piano</h3><div class="pi" id="pi"></div><div class="cact"><button class="btn" data-a="scale">Play C major scale</button><button class="btn o" data-a="chord">Play C major chord</button></div><p class="note" style="color:var(--mut);font-weight:400">Tap the keys, or use A S D F G H J K L on your computer keyboard.</p></div>`;
+  h+=`<div class="box"><h3>Certificate quiz</h3>`;
+  if(S.certs[t.id])h+=`<p>You passed and earned this certificate.</p><button class="btn" data-a="cert" data-t="${t.id}">View and print</button>`;
+  else if(!ready)h+=`<p>Finish all 4 lessons to unlock the quiz. ${4-d.length} to go.</p>`;
+  else{h+=t.Q.map((q,i)=>`<div class="q"><p>${i+1}. ${q[0]}</p>${q[1].map((o,j)=>`<label class="${r?(j===q[2]?'r':r.a[i]===j?'w':''):''}"><input type="radio" name="q${i}" value="${j}" ${r&&r.a[i]===j?'checked':''}>${o}</label>`).join('')}</div>`).join('');
+    h+=`<button class="btn" data-a="check">Check answers</button>`;
+    if(r)h+=`<p class="note" style="color:${r.s>=2?'var(--ok)':'var(--bad)'}">You scored ${r.s} of 3. ${r.s>=2?'Passed!':'You need at least 2 of 3. Review the lessons and try again.'}</p>`}
+  h+='</div>';$('#panel').innerHTML=h;
+  if(t.id==='chess')chess();if(t.id==='keys')piano();
+}
+function render(){renderHero();renderCards();renderCerts();if(cur)renderPanel()}
+/* ---------- certificates ---------- */
+function issue(id){
+  const code='SP-'+id.slice(0,3).toUpperCase()+'-'+Date.now().toString(36).toUpperCase();
+  S.certs[id]={date:new Date().toISOString(),code,score:S.quiz[id]||0};save();
+  if(db&&user)F.setDoc(F.doc(db,'users',user.uid,'skillCertificates',id),{...S.certs[id],track:id,name:S.name||user.displayName||''}).catch(e=>console.warn(e));
+}
+function showCert(id){
+  const t=id==='master'?MASTER:T.find(x=>x.id===id),c=S.certs[id];if(!c)return;
+  const icon=id==='master'?'workspace_premium':t.icon;
+  const stats=id==='master'?`<span>6 of 6 skills completed</span><span>Chess</span><span>Coding</span><span>Video editing</span><span>AI</span><span>Vibe coding</span><span>Keyboard</span>`:`<span>4 of 4 lessons completed</span><span>Quiz score ${c.score||3} of 3</span>`;
+  const wm=T.map((x,i)=>`<circle r="${44+i*14}" fill="none" stroke="${t.c}" stroke-width="8"/>`).join('');
+  $('#cin').innerHTML=`<div class="cert" id="cert" style="--c:${t.c}"><div class="ci"><i class="cn a"></i><i class="cn b"></i><i class="cn c"></i><i class="cn d"></i>
+<svg class="wm" viewBox="-130 -130 260 260" aria-hidden="true">${wm}</svg>
+<div class="cbrand"><span class="ms">fingerprint</span>RISYNC SKILL PRINT</div>
+<div><h2 class="ctitle">Certificate of Achievement</h2><div class="orn"><i></i><b></b><i></i></div></div>
+<p class="cp">This certificate is proudly presented to</p>
+<div class="cnm" id="cn">${esc(S.name||'Your name')}</div>
+<p class="cdesc">for having ${t.cert}</p>
+<p class="ctrack">${t.name}</p>
+<div class="cstats">${stats}</div>
+<div class="cfoot"><div><b>${fmt(c.date)}</b>Date issued</div><div class="seal"><i><span class="ms">${icon}</span></i></div><div><b class="sg">RiSync</b>Authorised signature</div></div>
+<div class="cid">Certificate ID ${c.code}</div></div></div>
+<div class="cact"><input id="nm" placeholder="Name on certificate" value="${esc(S.name||'')}" maxlength="40" aria-label="Name on certificate"><button class="btn" data-a="print">Print or save as PDF</button><button class="btn o" data-a="cclose">Close</button></div>`;
+  $('#cw').classList.add('on');
+}
+/* ---------- chess practice ---------- */
+const PC={K:'\u265A',Q:'\u265B',R:'\u265C',B:'\u265D',N:'\u265E',P:'\u265F'};let pc='N',ps=[4,4];
+function moves(p,[r,c]){
+  const out=[],cap=[],ok=(a,b)=>a>=0&&a<8&&b>=0&&b<8,D=[[1,0],[-1,0],[0,1],[0,-1]],G=[[1,1],[1,-1],[-1,1],[-1,-1]];
+  const slide=ds=>ds.forEach(([a,b])=>{for(let i=1;ok(r+a*i,c+b*i);i++)out.push([r+a*i,c+b*i])});
+  if(p==='R')slide(D);if(p==='B')slide(G);if(p==='Q')slide([...D,...G]);
+  if(p==='K')[...D,...G].forEach(([a,b])=>ok(r+a,c+b)&&out.push([r+a,c+b]));
+  if(p==='N')[[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]].forEach(([a,b])=>ok(r+a,c+b)&&out.push([r+a,c+b]));
+  if(p==='P'){if(ok(r-1,c))out.push([r-1,c]);if(r===6)out.push([4,c]);[-1,1].forEach(b=>ok(r-1,c+b)&&cap.push([r-1,c+b]))}
+  return{out,cap}
+}
+function chess(){
+  $('#pcs').innerHTML=Object.keys(PC).map(k=>`<button class="${k===pc?'on':''}" data-a="pc" data-k="${k}" aria-label="${k}">${PC[k]}</button>`).join('');
+  const m=moves(pc,ps),has=(l,r,c)=>l.some(x=>x[0]===r&&x[1]===c);let h='';
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++)h+=`<button class="sq ${(r+c)%2?'k':'l'} ${has(m.out,r,c)?'m':''} ${has(m.cap,r,c)?'c':''}" data-a="sq" data-r="${r}" data-c="${c}" aria-label="${'abcdefgh'[c]}${8-r}">${r===ps[0]&&c===ps[1]?PC[pc]:''}</button>`;
+  $('#brd').innerHTML=h;
+}
+/* ---------- piano ---------- */
+let ac;const WN=['C','D','E','F','G','A','B'];
+const midi=i=>[60,62,64,65,67,69,71][i%7]+12*Math.floor(i/7),BL={0:61,1:63,3:66,4:68,5:70};
+function tone(m){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.type='triangle';o.frequency.value=440*Math.pow(2,(m-69)/12);g.gain.setValueAtTime(.0001,ac.currentTime);g.gain.exponentialRampToValueAtTime(.35,ac.currentTime+.02);g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+.9);o.connect(g).connect(ac.destination);o.start();o.stop(ac.currentTime+.95)}catch(e){}}
+function flash(m){const e=document.querySelector(`[data-m="${m}"]`);if(!e)return;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),220)}
+function play(m){tone(m);flash(m)}
+function piano(){
+  let h='';for(let i=0;i<14;i++)h+=`<button class="wk" data-a="key" data-m="${midi(i)}">${WN[i%7]}${i%7==0?4+Math.floor(i/7):''}</button>`;
+  for(let i=0;i<13;i++){const b=BL[i%7];if(b)h+=`<button class="bk" data-a="key" data-m="${b+12*Math.floor(i/7)}" aria-label="black key" style="left:${(i+1)*100/14}%"></button>`}
+  $('#pi').innerHTML=h;
+}
+const seq=(a,gap=320)=>a.forEach((m,i)=>setTimeout(()=>play(m),i*gap));
+document.addEventListener('keydown',e=>{if(cur!=='keys'||e.target.tagName==='INPUT'||e.metaKey||e.ctrlKey)return;const i='asdfghjkl'.indexOf(e.key);if(i>-1)play(midi(i))});
+/* ---------- events ---------- */
+document.addEventListener('click',async e=>{
+  const el=e.target.closest('[data-a]');if(!el)return;const a=el.dataset.a,D=el.dataset;
+  if(a==='open'){cur=D.t;openL=0;$('#shade').classList.add('on');$('#panel').classList.add('on');renderPanel()}
+  else if(a==='close'){cur=null;$('#shade').classList.remove('on');$('#panel').classList.remove('on')}
+  else if(a==='les'){openL=openL===+D.i?-1:+D.i;renderPanel()}
+  else if(a==='done'){const d=S.done[cur]=S.done[cur]||[],i=+D.i;d.includes(i)?d.splice(d.indexOf(i),1):d.push(i);save();render()}
+  else if(a==='check'){const t=T.find(x=>x.id===cur),ans=t.Q.map((q,i)=>{const c=document.querySelector(`input[name=q${i}]:checked`);return c?+c.value:-1});
+    if(ans.includes(-1))return toast('Answer all 3 questions first');
+    const s=ans.filter((v,i)=>v===t.Q[i][2]).length;QR[cur]={a:ans,s};S.quiz[cur]=Math.max(S.quiz[cur]||0,s);
+    if(s>=2&&!S.certs[cur]){issue(cur);if(T.every(x=>S.certs[x.id])&&!S.certs.master)issue('master');toast('Certificate earned!')}else save();
+    render()}
+  else if(a==='cert')showCert(D.t);
+  else if(a==='cclose')$('#cw').classList.remove('on');
+  else if(a==='print')window.print();
+  else if(a==='pc'){pc=D.k;chess()}
+  else if(a==='sq'){ps=[+D.r,+D.c];chess()}
+  else if(a==='key')play(+D.m);
+  else if(a==='scale')seq([60,62,64,65,67,69,71,72]);
+  else if(a==='chord')seq([60,64,67],0);
+  else if(a==='auth'){
+    if(!AU)return toast('Firebase is not reachable. Progress is saved on this device.');
+    try{if(user){await AU.signOut(AU.getAuth())}else{await AU.signInWithPopup(AU.getAuth(),new AU.GoogleAuthProvider())}}
+    catch(err){toast('Sign-in failed: '+(err.code||'try again'))}}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if($('#cw').classList.contains('on'))$('#cw').classList.remove('on');else if(cur)document.querySelector('[data-a=close]').click()}
+  if((e.key==='Enter'||e.key===' ')&&e.target.classList?.contains('rg')){e.preventDefault();e.target.dispatchEvent(new MouseEvent('click',{bubbles:true}))}});
+$('#cw').addEventListener('click',e=>{if(e.target.id==='cw')$('#cw').classList.remove('on')});
+document.addEventListener('input',e=>{if(e.target.id==='nm'){S.name=e.target.value;$('#cn').textContent=S.name||'Your name';localStorage.setItem(KEY,JSON.stringify(S));clearTimeout(tm);if(db&&user)tm=setTimeout(push,900)}});
+render();
+/* ---------- Firebase (same project as the RiSync dashboard) ---------- */
+(async()=>{try{
+  const V='https://www.gstatic.com/firebasejs/12.8.0/';
+  const [A,Au,Fs]=await Promise.all([import(V+'firebase-app.js'),import(V+'firebase-auth.js'),import(V+'firebase-firestore.js')]);
+  const cfg={apiKey:"AIzaSyBWAwm_TDtD1qXDtjxJu0jrDP45c3p1Bxg",authDomain:"risync-risync.firebaseapp.com",projectId:"risync-risync",storageBucket:"risync-risync.firebasestorage.app",messagingSenderId:"195106250121",appId:"1:195106250121:web:57b23c5b94d5771995d558"};
+  const app=A.getApps().length?A.getApp():A.initializeApp(cfg);
+  F=Fs;AU=Au;db=Fs.getFirestore(app);
+  Au.onAuthStateChanged(Au.getAuth(app),async u=>{user=u;$('#auth').textContent=u?'Sign out':'Sign in';
+    if(u){S.name=S.name||u.displayName||'';await pull();setSync('synced')}else setSync('local');render()});
+}catch(e){console.warn('Firebase unavailable',e)}})();
+</script>
+</body>
+</html>
